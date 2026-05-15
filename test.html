@@ -1,0 +1,117 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>TSIC Web UI input test</title>
+<style>
+  body { margin: 0; font-family: sans-serif; background: #1e2a44; color: #fff; padding: 24px; }
+  h1 { font-size: 28px; margin: 0 0 8px; }
+  .row { margin: 12px 0; }
+  button { font-size: 18px; padding: 8px 16px; cursor: pointer; }
+  button.hovery { background: #284b8a; color:#fff; border:1px solid #6a8cce; }
+  button.hovery:hover { background: #f0a500; color: #222; }
+  .scrollbox { width: 360px; height: 140px; overflow:auto; border: 1px solid #6a8cce; background: #16203a; padding: 8px; }
+  .pad { height: 600px; background: linear-gradient(#16203a,#0a1226); }
+  input[type=text] { font-size: 18px; padding: 6px 10px; width: 320px; }
+  #log { background: #0a1226; border: 1px solid #6a8cce; padding: 8px; height: 100px; overflow:auto; font-family: monospace; font-size: 12px; }
+  .status { display:inline-block; min-width: 200px; background:#0a1226; padding:4px 10px; border:1px solid #6a8cce; }
+</style></head><body>
+  <h1>TSIC Web UI &mdash; Input + event smoke test</h1>
+
+  <div class="row">
+    <strong>Hover/click:</strong>
+    <button class="hovery" id="hoverBtn">Hover me</button>
+    <span id="clicks" class="status">clicks: 0</span>
+  </div>
+
+  <div class="row">
+    <strong>Scroll (mouse-wheel):</strong>
+    <div class="scrollbox">
+      <div class="pad">Drag the wheel over me. Lots of vertical space here so the wheel does something visible. Lorem ipsum dolor sit amet, consectetur adipiscing elit.</div>
+    </div>
+  </div>
+
+  <div class="row">
+    <strong>Type:</strong>
+    <input id="textbox" type="text" placeholder="type something..." />
+    <span id="typed" class="status">typed: -</span>
+  </div>
+
+  <div class="row">
+    <strong>Cursor test:</strong>
+    <span style="cursor:pointer;background:#234;padding:4px 10px;border:1px solid #fff;">pointer</span>
+    <span style="cursor:text;background:#234;padding:4px 10px;border:1px solid #fff;">text</span>
+    <span style="cursor:wait;background:#234;padding:4px 10px;border:1px solid #fff;">wait</span>
+    <span style="cursor:crosshair;background:#234;padding:4px 10px;border:1px solid #fff;">crosshair</span>
+  </div>
+
+  <hr style="border-color:#445;" />
+
+  <h1>Event bus</h1>
+  <div class="row">
+    <button onclick="onPing()">send tsic.test.ping</button>
+    <button onclick="onEcho()">request tsic.test.echo</button>
+    <button onclick="onDescribe()">describe()</button>
+    <span id="status" class="status">idle</span>
+  </div>
+  <div class="row">
+    Health from C++: <span id="health" class="status">(none yet)</span>
+  </div>
+  <div id="log"></div>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    let clicks = 0;
+    $('hoverBtn').addEventListener('click', () => {
+      clicks++;
+      $('clicks').textContent = 'clicks: ' + clicks;
+    });
+    $('textbox').addEventListener('input', (e) => {
+      $('typed').textContent = 'typed: ' + e.target.value;
+    });
+
+    function logLine(s) {
+      const e = $('log');
+      e.innerHTML += s + '<br/>';
+      e.scrollTop = e.scrollHeight;
+    }
+
+    function whenReady(cb) {
+      if (window.tsic) { cb(); return; }
+      setTimeout(() => whenReady(cb), 16);
+    }
+
+    function onPing() {
+      $('status').textContent = 'sending ping...';
+      tsic.send('tsic.test.ping', { msg: 'hi-from-page', t: Date.now() });
+    }
+
+    function onEcho() {
+      $('status').textContent = 'requesting echo...';
+      tsic.request('tsic.test.echo', { hello: 'world' }).then((resp) => {
+        $('status').textContent = 'echo got: ' + JSON.stringify(resp);
+        logLine('echo resolved: ' + JSON.stringify(resp));
+      }).catch((err) => {
+        $('status').textContent = 'echo rejected: ' + err.message;
+      });
+    }
+
+    function onDescribe() {
+      const list = tsic.describe();
+      logLine('describe(): ' + list.length + ' channels');
+      list.forEach(ch => logLine('  ' + ch.name + ' [' + ch.kind + ']'));
+    }
+
+    whenReady(() => {
+      tsic.on('tsic.test.pong', (payload) => {
+        $('status').textContent = 'pong: ' + JSON.stringify(payload);
+        logLine('pong: ' + JSON.stringify(payload));
+      });
+      tsic.on('tsic.player.health', (payload) => {
+        if (payload && typeof payload === 'object') {
+          $('health').textContent = payload.current + ' / ' + payload.max;
+        } else {
+          $('health').textContent = String(payload);
+        }
+      });
+      logLine('window.tsic ready. describe() to see channels.');
+    });
+  </script>
+</body></html>
