@@ -4,29 +4,103 @@
   <meta name="tsic-screen" content="MainMenu">
   <title>TSIC — Main Menu</title>
   <link rel="stylesheet" href="/shared/base.css">
-  <link rel="stylesheet" href="/shared/components.css">
   <script src="/shared/router.js" defer></script>
   <style>
-    #wrap { position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at center, #1a1a1f, #050505); }
-    #panel { width: 420px; }
-    h1 { letter-spacing: 6px; font-size: 36px; margin: 0 0 8px; text-align:center; }
-    .sub { text-align:center; opacity:0.6; margin-bottom:24px; font-size: 12px; letter-spacing:2px; }
-    .row { display:flex; gap:8px; margin-top: 12px; }
-    .slot { display:flex; justify-content:space-between; padding:10px 12px; background:rgba(255,255,255,0.04); border:1px solid var(--tsic-border); border-radius:3px; cursor:pointer; }
-    .slot:hover { background: rgba(255,255,255,0.08); }
-    .stack { display:flex; flex-direction:column; gap:6px; max-height: 220px; overflow:auto; margin-top: 12px; }
+    /* Transparent, full-viewport overlay. The world (or loading screen) shows through. */
+    html, body { background: transparent; }
+
+    .menu {
+      position: fixed; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 36px;
+      pointer-events: none;
+    }
+
+    .title-block {
+      text-align: center;
+      pointer-events: none;
+    }
+    .title-block h1 {
+      margin: 0;
+      font-size: 88px;
+      letter-spacing: 18px;
+      font-weight: 200;
+      color: #fff;
+      text-shadow: 0 4px 18px rgba(0,0,0,0.85), 0 0 24px rgba(220,40,40,0.18);
+    }
+    .title-block .sub {
+      margin-top: 6px;
+      font-size: 13px;
+      letter-spacing: 8px;
+      color: rgba(255,255,255,0.55);
+      text-transform: uppercase;
+      text-shadow: 0 2px 6px rgba(0,0,0,0.85);
+    }
+
+    .buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      width: 320px;
+      pointer-events: auto;
+    }
+
+    .menu-btn {
+      background: rgba(0,0,0,0.55);
+      color: #f4f4f4;
+      border: 1px solid rgba(255,255,255,0.35);
+      padding: 14px 20px;
+      font: inherit;
+      font-size: 15px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+      backdrop-filter: blur(2px);
+    }
+    .menu-btn:hover {
+      background: rgba(180,30,30,0.65);
+      border-color: rgba(255,255,255,0.85);
+      color: #fff;
+    }
+    .menu-btn:active {
+      background: rgba(140,18,18,0.85);
+    }
+    .menu-btn[disabled] {
+      opacity: 0.4;
+      cursor: default;
+    }
+
+    .slots {
+      display: flex; flex-direction: column; gap: 4px;
+      max-height: 180px; overflow: auto;
+      margin-top: 4px;
+    }
+    .slots:empty { display: none; }
+    .slot-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 8px 14px;
+      background: rgba(0,0,0,0.45);
+      border: 1px solid rgba(255,255,255,0.18);
+      cursor: pointer;
+      font-size: 13px;
+      letter-spacing: 2px;
+    }
+    .slot-row:hover { background: rgba(180,30,30,0.45); border-color: rgba(255,255,255,0.5); }
+    .slot-row .stamp { opacity: 0.6; font-size: 11px; }
   </style>
 </head><body>
-  <div id="wrap">
-    <div id="panel" class="tsic-panel">
+  <div class="menu">
+    <div class="title-block">
       <h1>TSIC</h1>
-      <div class="sub">THE STORE IS CLOSED</div>
-      <button class="tsic-button" id="btn-start" style="width:100%;">Start New Game</button>
-      <div class="stack" id="slots"></div>
-      <div class="row">
-        <button class="tsic-button" id="btn-settings" style="flex:1;">Settings</button>
-        <button class="tsic-button" id="btn-exit" style="flex:1;">Exit</button>
-      </div>
+      <div class="sub">The Store Is Closed</div>
+    </div>
+    <div class="buttons">
+      <button class="menu-btn" id="btn-start">Start New Game</button>
+      <div class="slots" id="slots"></div>
+      <button class="menu-btn" id="btn-settings">Settings</button>
+      <button class="menu-btn" id="btn-exit">Exit</button>
     </div>
   </div>
   <script>
@@ -37,8 +111,8 @@
         host.innerHTML = '';
         for (const s of slots) {
           const el = document.createElement('div');
-          el.className = 'slot';
-          el.innerHTML = `<span>${s.Label || s.SlotId}</span><span style="opacity:0.6;">${s.TimestampIso || ''}</span>`;
+          el.className = 'slot-row';
+          el.innerHTML = `<span>${s.Label || s.SlotId}</span><span class="stamp">${s.TimestampIso || ''}</span>`;
           el.onclick = () => tsic.publishMessage('tsic.msg.UI.Cmd.Menu.LoadSlot', { SlotId: s.SlotId });
           host.appendChild(el);
         }
