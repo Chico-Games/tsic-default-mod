@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="tsic-screen" content="Map">
+  <title>Map</title>
+  <link rel="stylesheet" href="/shared/base.css">
+  <link rel="stylesheet" href="/shared/components.css">
+  <link rel="stylesheet" href="/shared/hud.css">
+  <script src="/shared/router.js" defer></script>
+  <script src="/shared/hud.js" defer></script>
+  <style>
+    /* Full-takeover modal — opaque dimmer + centred map viewport. */
+    #backdrop {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.85);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+    }
+    #map-frame {
+      width: 80vmin; height: 80vmin;
+      position: relative;
+      border: 1px solid var(--tsic-border);
+      background: #0a0a0a;
+      overflow: hidden;
+    }
+    #map-svg { width: 100%; height: 100%; display: block; }
+    .legend {
+      margin-top: 12px;
+      color: var(--tsic-text-dim);
+      font-size: 12px;
+      letter-spacing: 2px;
+      display: flex; gap: 16px;
+    }
+    .legend .swatch { display:inline-block; width:10px; height:10px; vertical-align:middle; margin-right:4px; }
+    #title { letter-spacing: 4px; font-size: 16px; margin-bottom: 12px; }
+    #empty { color: var(--tsic-text-dim); position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); }
+  </style>
+</head><body>
+  <div id="backdrop">
+    <div id="title">MAP</div>
+    <div id="map-frame">
+      <svg id="map-svg" viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid meet">
+        <g id="g-icons"></g>
+        <g id="g-players"></g>
+      </svg>
+      <div id="empty">Waiting for map data…</div>
+    </div>
+    <div class="legend">
+      <span><span class="swatch" style="background:#3498db;"></span>Player</span>
+      <span><span class="swatch" style="background:#f1c40f;"></span>Spawn</span>
+      <span><span class="swatch" style="background:#2ecc71;"></span>Teleporter</span>
+      <span><span class="swatch" style="background:#e74c3c;"></span>Landmark</span>
+    </div>
+  </div>
+  <script>
+    (function () {
+      const VIEW = 1000;
+      function whenReady(cb){ if(window.tsic){cb();return;} setTimeout(()=>whenReady(cb),16); }
+
+      function categoryColor(cat) {
+        switch ((cat || '').toLowerCase()) {
+          case 'spawn':
+          case 'spawnpoint': return '#f1c40f';
+          case 'teleporter': return '#2ecc71';
+          case 'deathbox':   return '#9b59b6';
+          case 'landmark':   return '#e74c3c';
+          default:           return '#bbbbbb';
+        }
+      }
+
+      function project(p, minB, maxB) {
+        const w = (maxB.X - minB.X) || 1;
+        const h = (maxB.Y - minB.Y) || 1;
+        const x = ((p.X - minB.X) / w) * VIEW;
+        // Flip Y so positive world-Y points up in the viewport.
+        const y = VIEW - ((p.Y - minB.Y) / h) * VIEW;
+        return { x, y };
+      }
+
+      function render(p) {
+        const empty = document.getElementById('empty');
+        const gIcons = document.getElementById('g-icons');
+        const gPlayers = document.getElementById('g-players');
+        gIcons.textContent = '';
+        gPlayers.textContent = '';
+
+        if (!p) { empty.style.display = ''; return; }
+
+        const minB = p.MinBounds || { X: 0, Y: 0 };
+        const maxB = p.MaxBounds || { X: 0, Y: 0 };
+        const hasBounds = (maxB.X - minB.X) > 0 && (maxB.Y - minB.Y) > 0;
+        if (!hasBounds) {
+          empty.textContent = 'Map bounds unavailable.';
+          empty.style.display = '';
+          return;
+        }
+
+        const icons = p.Icons || [];
+        const players = p.Players || [];
+        if (icons.length === 0 && players.length === 0) {
+          empty.textContent = 'No map data.';
+          empty.style.display = '';
+          return;
+        }
+        empty.style.display = 'none';
+
+        for (const ic of icons) {
+          const pos = project(ic.Position || {X:0,Y:0}, minB, maxB);
+          const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+          c.setAttribute('cx', pos.x);
+          c.setAttribute('cy', pos.y);
+          c.setAttribute('r', 6);
+          c.setAttribute('fill', categoryColor(ic.Category));
+          c.setAttribute('stroke', '#000');
+          c.setAttribute('stroke-width', 1);
+          const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+          title.textContent = ic.Label || ic.Category || ic.IconId || '';
+          c.appendChild(title);
+          gIcons.appendChild(c);
+        }
+
+        for (const pl of players) {
+          const pos = project(pl.Position || {X:0,Y:0}, minB, maxB);
+          // Triangle arrow pointing in player Yaw direction.
+          const tri = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+          const yaw = pl.YawDeg || 0;
+          tri.setAttribute('points', '0,-10 7,7 -7,7');
+          tri.setAttribute('transform', `translate(${pos.x},${pos.y}) rotate(${yaw})`);
+          tri.setAttribute('fill', '#3498db');
+          tri.setAttribute('stroke', '#fff');
+          tri.setAttribute('stroke-width', 1);
+          const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+          title.textContent = pl.Name || pl.PlayerId || 'Player';
+          tri.appendChild(title);
+          gPlayers.appendChild(tri);
+        }
+      }
+
+      whenReady(() => {
+        tsic.on('tsic.msg.UI.Map.Snapshot', (p) => render(p));
+      });
+    })();
+  </script>
+</body></html>

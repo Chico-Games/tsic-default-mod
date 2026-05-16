@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="tsic-screen" content="Detection">
+  <title>Detection</title>
+  <link rel="stylesheet" href="/shared/base.css">
+  <link rel="stylesheet" href="/shared/components.css">
+  <link rel="stylesheet" href="/shared/hud.css">
+  <script src="/shared/router.js" defer></script>
+  <script src="/shared/hud.js" defer></script>
+  <style>
+    /* Transparent HUD overlay — sits over the 3D scene, never captures focus. */
+    html, body { background: transparent; pointer-events: none; }
+    #mist {
+      position: fixed; inset: 0;
+      pointer-events: none;
+      backdrop-filter: blur(0px);
+      -webkit-backdrop-filter: blur(0px);
+      transition: backdrop-filter 200ms ease, -webkit-backdrop-filter 200ms ease, background 200ms ease;
+    }
+    #ring {
+      position: fixed;
+      left: 50%; top: 50%;
+      width: 70vmin; height: 70vmin;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+    .eye {
+      position: absolute;
+      width: 38px; height: 38px;
+      left: 50%; top: 50%;
+      margin-left: -19px; margin-top: -19px;
+      border-radius: 50%;
+      border: 2px solid #fff;
+      background: radial-gradient(circle, rgba(231,76,60,0.85) 0%, rgba(231,76,60,0.1) 70%);
+      box-shadow: 0 0 12px rgba(231,76,60,0.9);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+      transition: opacity 120ms ease;
+    }
+    .eye::after {
+      content: '';
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: #000;
+    }
+  </style>
+</head><body>
+  <div id="mist"></div>
+  <div id="ring"></div>
+  <script>
+    (function () {
+      function whenReady(cb){ if(window.tsic){cb();return;} setTimeout(()=>whenReady(cb),16); }
+
+      function render(p) {
+        const ring = document.getElementById('ring');
+        const mist = document.getElementById('mist');
+        ring.textContent = '';
+
+        if (!p) {
+          mist.style.backdropFilter = 'blur(0px)';
+          mist.style.webkitBackdropFilter = 'blur(0px)';
+          mist.style.background = 'transparent';
+          return;
+        }
+
+        const enemies = p.Enemies || [];
+        // Position eyes on a circle around the screen centre, angled by BearingDeg.
+        // BearingDeg = 0 means dead ahead (top of the screen).
+        const r = 50; // percent of the ring container's half-extent.
+        for (const e of enemies) {
+          const eye = document.createElement('div');
+          eye.className = 'eye';
+          const bearing = (e.BearingDeg || 0) * (Math.PI / 180);
+          // 0 deg -> straight up; sin(x) for x, -cos(x) for y so 0 points up.
+          const x = 50 + r * Math.sin(bearing);
+          const y = 50 + r * (-Math.cos(bearing));
+          eye.style.left = x + '%';
+          eye.style.top = y + '%';
+          eye.style.opacity = String(Math.max(0.3, Math.min(1, e.DetectionScore || 0)));
+          ring.appendChild(eye);
+        }
+
+        // Screen mist drives the blur. ScreenMist is 0..1.
+        const mistAmt = Math.max(0, Math.min(1, p.ScreenMist || 0));
+        const blurPx = (mistAmt * 6).toFixed(2) + 'px';
+        mist.style.backdropFilter = `blur(${blurPx})`;
+        mist.style.webkitBackdropFilter = `blur(${blurPx})`;
+        // Darken slightly as mist rises so the effect reads even on bright scenes.
+        mist.style.background = `rgba(20,5,10,${(mistAmt * 0.35).toFixed(2)})`;
+      }
+
+      whenReady(() => {
+        tsic.on('tsic.msg.UI.Detection.State', (p) => render(p));
+      });
+    })();
+  </script>
+</body></html>
