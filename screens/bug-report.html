@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="tsic-screen" content="BugReport">
+  <title>Bug Report</title>
+  <link rel="stylesheet" href="/shared/base.css">
+  <link rel="stylesheet" href="/shared/components.css">
+  <link rel="stylesheet" href="/shared/hud.css">
+  <script src="/shared/router.js" defer></script>
+  <script src="/shared/hud.js" defer></script>
+  <style>
+    #modal { position:fixed; inset:0; background:rgba(0,0,0,0.7); display:flex; align-items:center; justify-content:center; }
+    .field { display:flex; flex-direction:column; gap:4px; margin-top: 10px; }
+    .field > label { font-size:11px; letter-spacing:1px; opacity:0.75; text-transform:uppercase; }
+    .field > select, .field > textarea {
+      background: transparent;
+      color: #fff;
+      border: 1px solid var(--tsic-border);
+      padding: 6px 8px;
+      font: inherit;
+      outline: none;
+    }
+    .field > textarea { min-height: 120px; resize: vertical; }
+    .check-row { display:flex; align-items:center; gap:8px; margin-top: 8px; }
+    .check-row > input { accent-color: var(--tsic-accent); }
+  </style>
+</head><body>
+  <div id="modal">
+    <div class="tsic-panel" style="width:460px;max-height:90vh;display:flex;flex-direction:column;">
+      <h2 style="margin:0 0 12px;letter-spacing:3px;font-size:14px;">REPORT A BUG</h2>
+
+      <div class="field">
+        <label for="br-category">Category</label>
+        <select id="br-category">
+          <option value="Gameplay">Gameplay</option>
+          <option value="UI">UI</option>
+          <option value="Crash">Crash</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="br-description">Description</label>
+        <textarea id="br-description" placeholder="What happened? Steps to reproduce…" maxlength="4000"></textarea>
+      </div>
+
+      <label class="check-row">
+        <input id="br-screenshot" type="checkbox">
+        <span>Include screenshot</span>
+      </label>
+      <label class="check-row">
+        <input id="br-log" type="checkbox">
+        <span>Include game log</span>
+      </label>
+
+      <div style="margin-top:16px;display:flex;gap:8px;">
+        <button class="tsic-button" id="btn-submit">Submit</button>
+        <button class="tsic-button" id="btn-cancel">Cancel</button>
+      </div>
+    </div>
+  </div>
+  <script>
+    (function () {
+      function whenReady(cb){ if(window.tsic){cb();return;} setTimeout(()=>whenReady(cb),16); }
+
+      whenReady(() => {
+        // Tell the host which rectangles capture clicks. The whole modal panel
+        // is interactive; everything else falls through (though body bg covers
+        // the world anyway via rgba). For simplicity, mark the entire viewport
+        // as interactive while this screen is up.
+        if (typeof tsic.setInteractiveRects === 'function') {
+          tsic.setInteractiveRects([{ x: 0, y: 0, w: window.innerWidth, h: window.innerHeight }]);
+        }
+
+        document.getElementById('btn-submit').onclick = () => {
+          const category = document.getElementById('br-category').value || 'Other';
+          const description = (document.getElementById('br-description').value || '').trim();
+          const bIncludeScreenshot = !!document.getElementById('br-screenshot').checked;
+          const bIncludeLog = !!document.getElementById('br-log').checked;
+          tsic.publishMessage('tsic.msg.UI.Cmd.BugReport.Submit', {
+            Category: category,
+            Description: description,
+            bIncludeScreenshot: bIncludeScreenshot,
+            bIncludeLog: bIncludeLog,
+          });
+          tsic.publishMessage('tsic.msg.UI.Cmd.Pause.Resume', {});
+        };
+        document.getElementById('btn-cancel').onclick = () =>
+          tsic.publishMessage('tsic.msg.UI.Cmd.Pause.Resume', {});
+      });
+    })();
+  </script>
+</body></html>
