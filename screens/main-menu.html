@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="tsic-screen" content="MainMenu">
+  <title>TSIC — Main Menu</title>
+  <link rel="stylesheet" href="/shared/base.css">
+  <link rel="stylesheet" href="/shared/components.css">
+  <script src="/shared/router.js" defer></script>
+</head><body>
+  <div id="app" style="position:fixed;left:0;top:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;">
+    <div class="tsic-panel" style="text-align:center;min-width:320px;">
+      <h1 style="margin:0 0 16px;letter-spacing:2px;">TSIC</h1>
+      <div style="opacity:0.7;font-size:13px;margin-bottom:24px;">Main Menu (placeholder)</div>
+      <button class="tsic-button" id="btn-start">Start</button>
+      <button class="tsic-button" id="btn-exit" style="margin-left:8px;">Exit</button>
+    </div>
+  </div>
+  <script>
+    (function() {
+      function whenReady(cb) {
+        if (window.tsic) { cb(); return; }
+        setTimeout(() => whenReady(cb), 16);
+      }
+      whenReady(() => {
+        document.getElementById('btn-start').onclick = () =>
+          tsic.publishMessage('tsic.msg.UI.Cmd.Menu.StartGame', {});
+        document.getElementById('btn-exit').onclick = () =>
+          tsic.publishMessage('tsic.msg.UI.Cmd.Menu.Exit', {});
+      });
+    })();
+  </script>
+</body></html>
