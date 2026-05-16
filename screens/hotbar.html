@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="tsic-screen" content="Hotbar">
+  <title>Hotbar</title>
+  <link rel="stylesheet" href="/shared/base.css">
+  <link rel="stylesheet" href="/shared/components.css">
+  <link rel="stylesheet" href="/shared/hud.css">
+  <script src="/shared/router.js" defer></script>
+  <script src="/shared/hud.js" defer></script>
+  <style>
+    #hotbar-row { display:flex; gap:6px; padding: 8px; background: rgba(0,0,0,0.5); border-radius: 4px; }
+    #hotbar-row .tsic-slot.selected { box-shadow: 0 0 0 2px var(--tsic-accent); }
+  </style>
+</head><body>
+  <div id="root" style="position:fixed;left:50%;bottom:24px;transform:translateX(-50%);">
+    <div id="hotbar-row"></div>
+  </div>
+  <script>
+    (function(){
+      function whenReady(cb){ if(window.tsic){cb();return;} setTimeout(()=>whenReady(cb),16); }
+      whenReady(()=>{
+        tsic.on('tsic.msg.UI.Hotbar.Changed', (p) => {
+          const host = document.getElementById('hotbar-row');
+          host.innerHTML = '';
+          const slots = (p && p.SlotIndices) || [];
+          const selected = (p && typeof p.SelectedSlot === 'number') ? p.SelectedSlot : -1;
+          for (let i = 0; i < slots.length; i++) {
+            const slot = document.createElement('div');
+            slot.className = 'tsic-slot' + (i === selected ? ' selected' : '');
+            const itemId = slots[i];
+            if (itemId !== undefined && itemId !== null && itemId >= 0) {
+              const lbl = document.createElement('div');
+              lbl.style.cssText = 'font-size:10px;color:#fff;padding:2px;';
+              lbl.textContent = '#' + itemId;
+              slot.appendChild(lbl);
+            }
+            const idxLabel = document.createElement('span');
+            idxLabel.className = 'count';
+            idxLabel.textContent = String(i + 1);
+            slot.appendChild(idxLabel);
+            slot.onclick = () => tsic.publishMessage('tsic.msg.UI.Cmd.Hotbar.Select', { SlotIndex: i });
+            host.appendChild(slot);
+          }
+        });
+      });
+    })();
+  </script>
+</body></html>

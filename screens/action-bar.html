@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="tsic-screen" content="ActionBar">
+  <title>Action Bar</title>
+  <link rel="stylesheet" href="/shared/base.css">
+  <link rel="stylesheet" href="/shared/components.css">
+  <link rel="stylesheet" href="/shared/hud.css">
+  <script src="/shared/router.js" defer></script>
+  <script src="/shared/hud.js" defer></script>
+  <style>
+    #action-bar { display:flex; flex-direction: column; gap:4px; padding:8px; background:rgba(0,0,0,0.4); border-radius:4px; }
+    .ab-entry { display:flex; align-items:center; gap:8px; font-size:12px; color:#fff; padding: 4px 8px; }
+    .ab-key { background: var(--tsic-border); padding: 2px 6px; border-radius: 2px; min-width: 36px; text-align: center; font-weight:bold; }
+    .ab-name { flex:1; }
+    .ab-cd { opacity:0.6; font-size:11px; }
+    .ab-entry.hidden { display:none; }
+  </style>
+</head><body>
+  <div id="root" style="position:fixed; left:24px; bottom:24px;">
+    <div id="action-bar"></div>
+  </div>
+  <script>
+    (function(){
+      function whenReady(cb){ if(window.tsic){cb();return;} setTimeout(()=>whenReady(cb),16); }
+      whenReady(()=>{
+        tsic.on('tsic.msg.UI.ActionBar.Abilities', (p) => {
+          const host = document.getElementById('action-bar');
+          host.innerHTML = '';
+          const slots = (p && p.Slots) || [];
+          for (const s of slots) {
+            if (s.bVisible === false) continue;
+            const row = document.createElement('div');
+            row.className = 'ab-entry';
+            const key = document.createElement('div');
+            key.className = 'ab-key';
+            key.textContent = s.InputName || '';
+            const name = document.createElement('div');
+            name.className = 'ab-name';
+            name.textContent = s.AbilityName || '';
+            row.appendChild(key);
+            row.appendChild(name);
+            if (s.Cooldown && s.Cooldown > 0) {
+              const cd = document.createElement('div');
+              cd.className = 'ab-cd';
+              cd.textContent = s.Cooldown.toFixed(1) + 's';
+              row.appendChild(cd);
+            }
+            host.appendChild(row);
+          }
+        });
+      });
+    })();
+  </script>
+</body></html>

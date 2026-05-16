@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="tsic-screen" content="Storage">
+  <title>Storage</title>
+  <link rel="stylesheet" href="/shared/base.css">
+  <link rel="stylesheet" href="/shared/components.css">
+  <link rel="stylesheet" href="/shared/hud.css">
+  <script src="/shared/router.js" defer></script>
+  <script src="/shared/hud.js" defer></script>
+</head><body>
+  <div id="root" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.65);">
+    <div class="tsic-panel" style="width:720px;max-height:80vh;overflow:auto;">
+      <h2 style="margin:0 0 12px;letter-spacing:3px;">STORAGE</h2>
+      <div style="display:flex;gap:24px;">
+        <div style="flex:1;">
+          <div style="opacity:0.7;font-size:11px;letter-spacing:2px;margin-bottom:6px;">CONTAINER</div>
+          <div id="storage-grid" style="display:grid;grid-template-columns:repeat(8,56px);gap:6px;"></div>
+        </div>
+        <div style="flex:1;">
+          <div style="opacity:0.7;font-size:11px;letter-spacing:2px;margin-bottom:6px;">YOUR INVENTORY</div>
+          <div id="player-grid" style="display:grid;grid-template-columns:repeat(8,56px);gap:6px;"></div>
+        </div>
+      </div>
+      <div style="margin-top:12px;">
+        <button class="tsic-button" id="btn-close">Close</button>
+      </div>
+    </div>
+  </div>
+  <script>
+    (function(){
+      function whenReady(cb){ if(window.tsic){cb();return;} setTimeout(()=>whenReady(cb),16); }
+      let storageOwnerId = null;
+
+      function renderInto(host, items, ownerId, otherOwnerId, slotCount) {
+        host.innerHTML = '';
+        for (let i = 0; i < slotCount; i++) {
+          const slot = document.createElement('div');
+          slot.className = 'tsic-slot';
+          slot.dataset.slot = i;
+          host.appendChild(slot);
+        }
+        for (const it of items) {
+          const idx = (typeof it.SlotIndex === 'number' && it.SlotIndex >= 0) ? it.SlotIndex : -1;
+          const slot = (idx >= 0 && idx < host.children.length) ? host.children[idx] : null;
+          if (!slot) continue;
+          if (it.IconUrl) {
+            slot.style.backgroundImage = `url(${it.IconUrl})`;
+            slot.style.backgroundSize = 'cover';
+          } else if (it.ItemId) {
+            slot.textContent = it.ItemId;
+            slot.style.fontSize = '9px';
+            slot.style.color = '#ccc';
+            slot.style.padding = '2px';
+            slot.style.wordBreak = 'break-all';
+          }
+          if (it.Count > 1) {
+            const c = document.createElement('span');
+            c.className = 'count';
+            c.textContent = it.Count;
+            slot.appendChild(c);
+          }
+          slot.onclick = () => {
+            if (!otherOwnerId) return;
+            tsic.publishMessage('tsic.msg.UI.Cmd.Inventory.Transfer', {
+              FromOwnerId: ownerId,
+              ToOwnerId: otherOwnerId,
+              FromSlot: idx,
+              ToSlot: -1,
+              Count: it.Count || 1
+            });
+          };
+        }
+      }
+
+      whenReady(()=>{
+        tsic.on('tsic.msg.UI.Inventory.Updated', (p)=>{
+          if (!p || !p.OwnerId) return;
+          if (typeof p.OwnerId === 'string' && p.OwnerId.indexOf('Storage:') === 0) {
+            storageOwnerId = p.OwnerId;
+            renderInto(document.getElementById('storage-grid'), p.Items || [], storageOwnerId, 'Player', 32);
+          } else if (p.OwnerId === 'Player') {
+            renderInto(document.getElementById('player-grid'), p.Items || [], 'Player', storageOwnerId, 32);
+          }
+        });
+        document.getElementById('btn-close').onclick = () =>
+          tsic.publishMessage('tsic.msg.UI.Cmd.Pause.Resume', {});
+      });
+    })();
+  </script>
+</body></html>
