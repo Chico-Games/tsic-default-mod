@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="tsic-screen" content="Settings">
+  <title>Settings</title>
+  <link rel="stylesheet" href="/shared/base.css">
+  <link rel="stylesheet" href="/shared/components.css">
+  <script src="/shared/router.js" defer></script>
+  <style>
+    #wrap { position:fixed;inset:0;background:rgba(0,0,0,0.85);overflow:auto;padding:32px; }
+    .group { margin-bottom: 20px; }
+    .group h3 { letter-spacing: 3px; opacity:0.7; font-size: 13px; margin: 0 0 8px; }
+    .field { display:flex; justify-content:space-between; padding: 6px 0; border-bottom: 1px solid var(--tsic-border); }
+    .field label { opacity: 0.9; }
+    .field input, .field select { background: transparent; color: #eee; border: 1px solid var(--tsic-border); padding: 2px 6px; }
+  </style>
+</head><body>
+  <div id="wrap">
+    <h2 style="letter-spacing:4px;">SETTINGS</h2>
+    <div id="catalog">Loading…</div>
+    <div style="margin-top:20px;">
+      <button class="tsic-button" id="btn-back">Back</button>
+    </div>
+  </div>
+  <script>
+    (function(){
+      function whenReady(cb){ if (window.tsic){cb();return;} setTimeout(()=>whenReady(cb),16); }
+      function render(catalog) {
+        const host = document.getElementById('catalog');
+        host.innerHTML = '';
+        if (!catalog || !catalog.Groups) {
+          host.textContent = '(no settings catalog yet)';
+          return;
+        }
+        for (const g of catalog.Groups) {
+          const sec = document.createElement('div');
+          sec.className = 'group';
+          sec.innerHTML = `<h3>${g.Title}</h3>`;
+          for (const s of (g.Settings || [])) {
+            const row = document.createElement('div');
+            row.className = 'field';
+            row.innerHTML = `<label>${s.Label}</label><span>${JSON.stringify(s.Value)}</span>`;
+            sec.appendChild(row);
+          }
+          host.appendChild(sec);
+        }
+      }
+      whenReady(()=>{
+        tsic.on('tsic.msg.UI.Settings.Catalog', (p)=>{
+          if (!p) return;
+          let parsed = null;
+          try { parsed = JSON.parse(p.Json || '{}'); } catch (e) {}
+          render(parsed);
+        });
+        document.getElementById('btn-back').onclick = () => tsic.publishMessage('tsic.msg.UI.Cmd.Pause.Resume', {});
+      });
+    })();
+  </script>
+</body></html>

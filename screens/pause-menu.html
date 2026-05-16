@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="tsic-screen" content="PauseMenu">
+  <title>Paused</title>
+  <link rel="stylesheet" href="/shared/base.css">
+  <link rel="stylesheet" href="/shared/components.css">
+  <link rel="stylesheet" href="/shared/hud.css">
+  <script src="/shared/router.js" defer></script>
+  <script src="/shared/hud.js" defer></script>
+  <style>
+    #pause-overlay { position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:1; }
+    #pause-panel { width:360px; text-align:center; }
+    #pause-panel h1 { letter-spacing:6px; margin: 0 0 20px; }
+    .pl { text-align:left; margin: 16px 0; max-height: 140px; overflow:auto; }
+    .pl-row { padding: 4px 6px; }
+  </style>
+</head><body>
+  <div id="pause-overlay">
+    <div id="pause-panel" class="tsic-panel">
+      <h1>PAUSED</h1>
+      <div class="pl" id="players"></div>
+      <button class="tsic-button" style="width:100%;" id="btn-resume">Resume</button>
+      <div style="display:flex;gap:8px;margin-top:8px;">
+        <button class="tsic-button" style="flex:1;" id="btn-settings">Settings</button>
+        <button class="tsic-button" style="flex:1;" id="btn-menu">Quit to Menu</button>
+      </div>
+    </div>
+  </div>
+  <script>
+    (function(){
+      function whenReady(cb){ if (window.tsic){cb();return;} setTimeout(()=>whenReady(cb),16); }
+      whenReady(()=>{
+        tsic.on('tsic.msg.UI.Players.List', (p)=>{
+          const host = document.getElementById('players');
+          host.innerHTML = '';
+          if (!p || !p.Players) return;
+          for (const pl of p.Players) {
+            const row = document.createElement('div');
+            row.className = 'pl-row';
+            row.textContent = pl.Name + (pl.bIsHost ? ' (host)' : '');
+            host.appendChild(row);
+          }
+        });
+        document.getElementById('btn-resume').onclick = () => tsic.publishMessage('tsic.msg.UI.Cmd.Pause.Resume', {});
+        document.getElementById('btn-settings').onclick = () => tsic.publishMessage('tsic.msg.UI.Cmd.Pause.Settings', {});
+        document.getElementById('btn-menu').onclick = () => tsic.publishMessage('tsic.msg.UI.Cmd.Pause.QuitToMenu', {});
+      });
+    })();
+  </script>
+</body></html>
