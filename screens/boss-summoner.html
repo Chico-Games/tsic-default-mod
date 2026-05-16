@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="tsic-screen" content="BossSummoner">
+  <title>Boss Summoner</title>
+  <link rel="stylesheet" href="/shared/base.css">
+  <link rel="stylesheet" href="/shared/components.css">
+  <link rel="stylesheet" href="/shared/hud.css">
+  <script src="/shared/router.js" defer></script>
+  <script src="/shared/hud.js" defer></script>
+</head><body>
+  <div id="modal" style="position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;">
+    <div class="tsic-panel" style="width:520px;max-height:80vh;overflow:auto;">
+      <h2 style="margin:0 0 12px;letter-spacing:3px;">BOSS SUMMONER</h2>
+      <div id="recipes" style="display:flex;flex-direction:column;gap:6px;"></div>
+      <button class="tsic-button" id="btn-close" style="margin-top:12px;">Close</button>
+    </div>
+  </div>
+  <script>
+    (function(){
+      function whenReady(cb){ if(window.tsic){cb();return;} setTimeout(()=>whenReady(cb),16); }
+      let stationId = null;
+      whenReady(()=>{
+        tsic.on('tsic.msg.UI.Recipe.StationOpened', (p) => {
+          if (!p || p.Kind !== 'Boss') return;
+          stationId = p.StationId;
+          const host = document.getElementById('recipes');
+          host.innerHTML = '';
+          for (const r of (p.Recipes || [])) {
+            const row = document.createElement('div');
+            row.className = 'tsic-panel';
+            row.style.cssText = 'display:flex;justify-content:space-between;align-items:center;padding:8px 12px;';
+            const ing = (r.Ingredients || []).map(i => i.ItemId + ' x' + i.Count).join(', ');
+            row.innerHTML = `<div><b>${r.Name || r.RecipeId}</b><br><span style="opacity:0.6;font-size:11px;">${ing}</span></div>`;
+            const btn = document.createElement('button');
+            btn.className = 'tsic-button';
+            btn.textContent = 'Summon';
+            btn.onclick = () => tsic.publishMessage('tsic.msg.UI.Cmd.Recipe.Start', { Kind: 'Boss', StationId: stationId, RecipeId: r.RecipeId, Count: 1 });
+            row.appendChild(btn);
+            host.appendChild(row);
+          }
+        });
+        document.getElementById('btn-close').onclick = () =>
+          tsic.publishMessage('tsic.msg.UI.Cmd.Pause.Resume', {});
+      });
+    })();
+  </script>
+</body></html>
