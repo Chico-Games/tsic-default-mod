@@ -32,6 +32,36 @@
     chrome.appendChild(bars);
     chrome.appendChild(prompt);
     document.body.appendChild(chrome);
+
+    // Toast container — fire-and-forget transient stack, top-right.
+    const toasts = el('div', { id: 'toast-container' });
+    toasts.setAttribute('style',
+      'position:fixed; right:24px; top:24px; display:flex; flex-direction:column; gap:8px; z-index:100; pointer-events:none;');
+    document.body.appendChild(toasts);
+  }
+
+  function severityClass(tag) {
+    if (!tag) return '';
+    const s = String(tag).toLowerCase();
+    if (s.indexOf('error') >= 0 || s.indexOf('danger') >= 0) return 'toast--error';
+    if (s.indexOf('warn') >= 0) return 'toast--warning';
+    if (s.indexOf('info') >= 0) return 'toast--info';
+    return '';
+  }
+
+  function showToast(payload) {
+    const container = document.getElementById('toast-container');
+    if (!container) return;
+    const text = (payload && (payload.Text || payload.text)) || '';
+    if (!text) return;
+    const sev = payload && (payload.Severity && (payload.Severity.TagName || payload.Severity)) || '';
+    const div = document.createElement('div');
+    div.className = 'toast ' + severityClass(sev);
+    div.textContent = String(text);
+    container.appendChild(div);
+    setTimeout(() => {
+      if (div.parentNode) div.parentNode.removeChild(div);
+    }, 3000);
   }
 
   function applyBar(name, cur, max) {
@@ -70,5 +100,9 @@
       if (target) { el.textContent = target.Label || 'Interact'; el.style.display = ''; }
       else { el.style.display = 'none'; }
     });
+
+    // Transient toasts — bridged as bTransient so cache replay never re-fires
+    // old toasts on page reload. Each delivery becomes a 3s DOM element.
+    tsic.on('tsic.msg.UI.Toast.Show', (p) => showToast(p));
   });
 })();
