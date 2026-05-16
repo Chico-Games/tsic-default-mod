@@ -6,24 +6,53 @@
   <link rel="stylesheet" href="/shared/base.css">
   <link rel="stylesheet" href="/shared/components.css">
   <script src="/shared/router.js" defer></script>
+  <style>
+    #wrap { position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at center, #1a1a1f, #050505); }
+    #panel { width: 420px; }
+    h1 { letter-spacing: 6px; font-size: 36px; margin: 0 0 8px; text-align:center; }
+    .sub { text-align:center; opacity:0.6; margin-bottom:24px; font-size: 12px; letter-spacing:2px; }
+    .row { display:flex; gap:8px; margin-top: 12px; }
+    .slot { display:flex; justify-content:space-between; padding:10px 12px; background:rgba(255,255,255,0.04); border:1px solid var(--tsic-border); border-radius:3px; cursor:pointer; }
+    .slot:hover { background: rgba(255,255,255,0.08); }
+    .stack { display:flex; flex-direction:column; gap:6px; max-height: 220px; overflow:auto; margin-top: 12px; }
+  </style>
 </head><body>
-  <div id="app" style="position:fixed;left:0;top:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;">
-    <div class="tsic-panel" style="text-align:center;min-width:320px;">
-      <h1 style="margin:0 0 16px;letter-spacing:2px;">TSIC</h1>
-      <div style="opacity:0.7;font-size:13px;margin-bottom:24px;">Main Menu (placeholder)</div>
-      <button class="tsic-button" id="btn-start">Start</button>
-      <button class="tsic-button" id="btn-exit" style="margin-left:8px;">Exit</button>
+  <div id="wrap">
+    <div id="panel" class="tsic-panel">
+      <h1>TSIC</h1>
+      <div class="sub">THE STORE IS CLOSED</div>
+      <button class="tsic-button" id="btn-start" style="width:100%;">Start New Game</button>
+      <div class="stack" id="slots"></div>
+      <div class="row">
+        <button class="tsic-button" id="btn-settings" style="flex:1;">Settings</button>
+        <button class="tsic-button" id="btn-exit" style="flex:1;">Exit</button>
+      </div>
     </div>
   </div>
   <script>
     (function() {
+      let slots = [];
+      function renderSlots() {
+        const host = document.getElementById('slots');
+        host.innerHTML = '';
+        for (const s of slots) {
+          const el = document.createElement('div');
+          el.className = 'slot';
+          el.innerHTML = `<span>${s.Label || s.SlotId}</span><span style="opacity:0.6;">${s.TimestampIso || ''}</span>`;
+          el.onclick = () => tsic.publishMessage('tsic.msg.UI.Cmd.Menu.LoadSlot', { SlotId: s.SlotId });
+          host.appendChild(el);
+        }
+      }
       function whenReady(cb) {
         if (window.tsic) { cb(); return; }
         setTimeout(() => whenReady(cb), 16);
       }
       whenReady(() => {
+        tsic.on('tsic.msg.UI.Save.Slots', (p) => { slots = (p && p.Slots) || []; renderSlots(); });
         document.getElementById('btn-start').onclick = () =>
           tsic.publishMessage('tsic.msg.UI.Cmd.Menu.StartGame', {});
+        document.getElementById('btn-settings').onclick = () =>
+          tsic.publishMessage('tsic.msg.UI.Cmd.Menu.Settings', {});
         document.getElementById('btn-exit').onclick = () =>
           tsic.publishMessage('tsic.msg.UI.Cmd.Menu.Exit', {});
       });
