@@ -96,7 +96,7 @@
     tsic.on('tsic.msg.UI.Interaction.Targets', (p) => {
       const el = document.getElementById('interaction-prompt');
       if (!el) return;
-      const target = p && p.Targets && p.Targets.find(t => t.IsPrimary);
+      const target = p && p.Targets && p.Targets.find(t => t.bIsPrimary);
       if (target) { el.textContent = target.Label || 'Interact'; el.style.display = ''; }
       else { el.style.display = 'none'; }
     });
