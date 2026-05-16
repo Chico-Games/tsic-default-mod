@@ -1,0 +1,31 @@
+#hud-chrome {
+  position: fixed; left: 0; top: 0; right: 0; bottom: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+#hud-chrome .hud-bars {
+  position: absolute; left: 24px; bottom: 24px;
+  width: 360px;
+}
+#hud-chrome .hud-row { margin-top: 6px; }
+#hud-chrome .hud-label {
+  display: flex; justify-content: space-between;
+  font-size: 11px; letter-spacing: 1px;
+  text-transform: uppercase; opacity: 0.85;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.7);
+}
+#hud-chrome .hud-numbers {
+  position: absolute; left: 0; right: 0; top: 50%;
+  transform: translateY(-50%);
+  text-align: center; font-size: 12px; font-weight: 600;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.9);
+}
+#hud-chrome .interaction-prompt {
+  position: absolute; left: 50%; bottom: 18%;
+  transform: translateX(-50%);
+  padding: 8px 14px;
+  background: var(--tsic-bg-strong);
+  border: 1px solid var(--tsic-border);
+  border-radius: 3px;
+  font-size: 14px;
+}
