@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <title>WebView render diagnostic</title>
+  <style>
+    /* Deliberately no rgba(), no gradients, no shadows, no filters.
+       Just an opaque magenta covering the entire viewport with
+       big high-contrast text. If you see magenta, the WebView
+       texture is reaching the viewport composite. */
+    html, body {
+      margin: 0; padding: 0;
+      width: 100vw; height: 100vh;
+      background: #ff00aa;        /* fully opaque magenta */
+      color: #000000;
+      font-family: monospace;
+      font-size: 64px;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  </style>
+</head><body>
+  WEBVIEW VISIBLE
+</body></html>
