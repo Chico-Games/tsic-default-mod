@@ -56,7 +56,13 @@
     setTimeout(() => whenReady(cb), 16);
   }
 
+  function activeInputModeTag() {
+    const m = document.querySelector('meta[name="tsic-input-mode"]');
+    return m ? m.getAttribute('content') : null;
+  }
+
   whenReady(() => {
+    // Screen routing.
     window.tsic.on('tsic.msg.UI.Screen.Changed', (payload /*, meta, name*/) => {
       if (!payload || !payload.Name) return;
       if (payload.Name === myScreen()) return;
@@ -67,6 +73,23 @@
       }
       window.location.replace(`/screens/${file}.html`);
     });
+
+    // Input-mode tag activation: append on load, release on beforeunload.
+    const inputTag = activeInputModeTag();
+    if (inputTag) {
+      window.tsic.publishMessage('UI.Cmd.Input.AppendModeTag', { Tag: inputTag });
+      window.addEventListener('beforeunload', () => {
+        window.tsic.publishMessage('UI.Cmd.Input.RemoveModeTag', { Tag: inputTag });
+      });
+    }
+
+    // Modder API helpers — bound on window.tsic after the native bootstrap.
+    window.tsic.appendInputModeTag = function (tagStr) {
+      window.tsic.publishMessage('UI.Cmd.Input.AppendModeTag', { Tag: tagStr });
+    };
+    window.tsic.removeInputModeTag = function (tagStr) {
+      window.tsic.publishMessage('UI.Cmd.Input.RemoveModeTag', { Tag: tagStr });
+    };
   });
 
   // Expose for ad-hoc dev navigation.
