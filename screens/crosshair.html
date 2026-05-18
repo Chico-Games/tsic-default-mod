@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="tsic-screen" content="Crosshair">
+  <title>Crosshair</title>
+  <link rel="stylesheet" href="/shared/base.css">
+  <script src="/shared/router.js" defer></script>
+  <style>
+    #dot {
+      position: fixed; left: 50%; top: 50%;
+      transform: translate(-50%, -50%);
+      width: 4px; height: 4px;
+      background: #fff;
+      box-shadow: 0 0 0 1px rgba(0,0,0,0.85);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    #dot.hidden { display: none; }
+  </style>
+</head><body>
+  <div id="dot"></div>
+  <script>
+    (function () {
+      function whenReady(cb) { if (window.tsic) { cb(); return; } setTimeout(() => whenReady(cb), 16); }
+      whenReady(() => {
+        const dot = document.getElementById('dot');
+        tsic.on('tsic.msg.UI.Input.Mode.Changed', (p) => {
+          if (!p || !dot) return;
+          const isMenuMode = String(p.Device || '') === 'mouse' && String(p.Focus || '') === 'ui';
+          dot.classList.toggle('hidden', isMenuMode);
+        });
+      });
+    })();
+  </script>
+</body></html>

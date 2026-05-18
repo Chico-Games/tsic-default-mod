@@ -35,6 +35,7 @@
     QuantityPicker: 'quantity-picker',
     ActionBar: 'action-bar',
     Ping: 'ping',
+    Crosshair: 'crosshair',
     Detection: 'detection',
     HealthBar: 'health-bar',
     StaminaBar: 'stamina-bar',
