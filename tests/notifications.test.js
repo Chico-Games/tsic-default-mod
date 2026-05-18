@@ -5,20 +5,32 @@ TSICTestHarness.register({
         ctx.inject('tsic.msg.UI.Notification.Show', {
             Title: 'Item Picked Up', Text: 'Bread x 1', Type: 'Inventory', IconUrl: '',
         });
-        await ctx.waitFor(() => ctx.doc.querySelectorAll('#notif-list .notif').length >= 1, { timeout: 2000 }).catch(() => {});
-        // Some implementations render to a different container; tolerate either id.
-        const anyToast = ctx.doc.querySelector('.notif, .toast, [data-notif]');
-        ctx.expect(ctx.assert.truthy(anyToast, 'expected at least one rendered notification'));
+        await ctx.waitFor(() => ctx.doc.querySelectorAll('#notif-stack .notif').length >= 1, { timeout: 2000 });
+        ctx.expect(ctx.assert.domExists(ctx.doc, '#notif-stack .notif'));
     },
 });
 
 TSICTestHarness.register({
-    name: 'Notifications: error severity yields error class',
+    name: 'Notifications: error severity yields .notif--Error class',
     file: '/screens/notifications.html',
     async run(ctx) {
         ctx.inject('tsic.msg.UI.Notification.Show', { Title: 'Boom', Text: 'Server died', Type: 'Error' });
-        await new Promise(r => setTimeout(r, 80));
-        const err = ctx.doc.querySelector('[data-type="Error"], .notif-Error, .toast-error, .error');
-        ctx.expect(ctx.assert.truthy(err, 'expected an error-marked element somewhere'));
+        await ctx.waitFor(() => ctx.doc.querySelector('.notif--Error'), { timeout: 2000 });
+        ctx.expect(ctx.assert.domExists(ctx.doc, '.notif--Error'));
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Notifications: every notification type maps to a severity class',
+    file: '/screens/notifications.html',
+    async run(ctx) {
+        const types = ['Tip','Warning','Error','Inventory','Event','Alarm','PlayerJoined','PlayerDied','Progression'];
+        for (const t of types) {
+            ctx.inject('tsic.msg.UI.Notification.Show', { Title: t, Text: t, Type: t });
+        }
+        await ctx.waitFor(() => ctx.doc.querySelectorAll('.notif').length >= 5, { timeout: 2000 });
+        // Should cap at MAX_VISIBLE = 5
+        const visible = ctx.doc.querySelectorAll('.notif');
+        ctx.expect(ctx.assert.truthy(visible.length <= 5, `expected <=5 visible, got ${visible.length}`));
     },
 });

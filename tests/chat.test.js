@@ -9,8 +9,8 @@ TSICTestHarness.register({
             ],
         });
         await new Promise(r => setTimeout(r, 80));
-        const lines = ctx.doc.querySelectorAll('.chat-line, .chat-row, .msg');
-        ctx.expect(ctx.assert.truthy(lines.length >= 1, 'expected at least one chat line rendered'));
+        const lines = ctx.doc.querySelectorAll('#chat-log .cm-row');
+        ctx.expect(ctx.assert.truthy(lines.length >= 1, `expected at least one .cm-row, got ${lines.length}`));
     },
 });
 

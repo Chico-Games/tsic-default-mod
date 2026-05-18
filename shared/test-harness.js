@@ -166,6 +166,9 @@
     };
 
     // Synthetic DOM event helpers for input simulation inside an iframe.
+    // KeyboardEvent / MouseEvent must come from the target document's window
+    // so the event passes constructor-instanceof checks inside the iframe.
+    function W(doc) { return (doc && doc.defaultView) || global; }
     NS.events = {
         click(doc, selector) {
             const el = doc.querySelector(selector);
@@ -174,18 +177,21 @@
         },
         key(doc, key, opts) {
             const init = Object.assign({ key, code: opts && opts.code || `Key${(key || '').toUpperCase()}`, bubbles: true, cancelable: true }, opts || {});
-            doc.dispatchEvent(new KeyboardEvent('keydown', init));
-            doc.dispatchEvent(new KeyboardEvent('keyup', init));
+            const w = W(doc);
+            doc.dispatchEvent(new w.KeyboardEvent('keydown', init));
+            doc.dispatchEvent(new w.KeyboardEvent('keyup', init));
         },
         keyOn(el, key, opts) {
             const init = Object.assign({ key, code: opts && opts.code || `Key${(key || '').toUpperCase()}`, bubbles: true, cancelable: true }, opts || {});
-            el.dispatchEvent(new KeyboardEvent('keydown', init));
-            el.dispatchEvent(new KeyboardEvent('keyup', init));
+            const w = W(el.ownerDocument);
+            el.dispatchEvent(new w.KeyboardEvent('keydown', init));
+            el.dispatchEvent(new w.KeyboardEvent('keyup', init));
         },
         mouse(doc, selector, type, opts) {
             const el = doc.querySelector(selector);
             if (!el) throw new Error(`mouse: no element '${selector}'`);
-            el.dispatchEvent(new MouseEvent(type || 'click', Object.assign({ bubbles: true, cancelable: true, button: 0 }, opts || {})));
+            const w = W(doc);
+            el.dispatchEvent(new w.MouseEvent(type || 'click', Object.assign({ bubbles: true, cancelable: true, button: 0 }, opts || {})));
         },
     };
 

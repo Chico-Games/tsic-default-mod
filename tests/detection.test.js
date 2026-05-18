@@ -10,8 +10,8 @@ TSICTestHarness.register({
             ScreenMist: 0.3,
         });
         await new Promise(r => setTimeout(r, 80));
-        const eyes = ctx.doc.querySelectorAll('.det-eye, .det, [data-entity]');
-        ctx.expect(ctx.assert.truthy(eyes.length >= 1, 'expected enemy markers in detection page'));
+        const eyes = ctx.doc.querySelectorAll('#ring .eye');
+        ctx.expect(ctx.assert.truthy(eyes.length >= 1, `expected enemy markers, got ${eyes.length}`));
     },
 });
 
@@ -21,7 +21,7 @@ TSICTestHarness.register({
     async run(ctx) {
         ctx.inject('tsic.msg.UI.Detection.State', { Enemies: [], ScreenMist: 0 });
         await new Promise(r => setTimeout(r, 80));
-        const eyes = ctx.doc.querySelectorAll('.det-eye, .det');
+        const eyes = ctx.doc.querySelectorAll('#ring .eye');
         ctx.expect(ctx.assert.eq(eyes.length, 0));
     },
 });
