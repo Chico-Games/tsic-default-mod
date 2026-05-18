@@ -9,46 +9,135 @@
   <script src="/shared/router.js" defer></script>
   <script src="/shared/hud.js" defer></script>
   <style>
-    #action-bar { display:flex; flex-direction: column; gap:4px; padding:8px; background:rgba(0,0,0,0.4); border-radius:4px; }
-    .ab-entry { display:flex; align-items:center; gap:8px; font-size:12px; color:#fff; padding: 4px 8px; }
-    .ab-key { background: var(--tsic-border); padding: 2px 6px; border-radius: 2px; min-width: 36px; text-align: center; font-weight:bold; }
-    .ab-name { flex:1; }
-    .ab-cd { opacity:0.6; font-size:11px; }
-    .ab-entry.hidden { display:none; }
+    #ab-root { position: fixed; left: 24px; bottom: 24px; display: flex; flex-direction: column; gap: 6px; }
+    #ab-gameplay { display: flex; flex-direction: column; gap: 4px; padding: 8px 10px; background: rgba(0,0,0,0.4); border-radius: 4px; }
+    #ab-gameplay.hidden { display: none; }
+    .ab-row { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #fff; padding: 2px 0; }
+    .ab-row[data-status="blocked"]         { opacity: 0.45; color: #f6c0c0; }
+    .ab-row[data-status="cooldown"]        { opacity: 0.85; color: #d4d4d4; filter: saturate(0.55); }
+    .ab-row[data-status="single-use-used"] { opacity: 0.35; text-decoration: line-through; }
+    .ab-key { position: relative; width: 36px; height: 26px; display: flex; align-items: center; justify-content: center;
+              background: var(--tsic-border); border-radius: 3px; font-weight: bold; font-size: 11px; overflow: hidden; }
+    .ab-key img { max-width: 22px; max-height: 22px; object-fit: contain; }
+    .ab-key-fallback { color: #fff; padding: 0 4px; }
+    .ab-cd-sweep { position: absolute; inset: 0; pointer-events: none;
+                   background: conic-gradient(rgba(0,0,0,0.7) calc(var(--tsic-cd-percent,0) * 1%), transparent 0);
+                   mix-blend-mode: multiply; }
+    .ab-text { flex: 1; line-height: 1.15; }
+    .ab-name { font-weight: 500; }
+    .ab-sub { font-size: 10px; opacity: 0.75; }
   </style>
 </head><body>
-  <div id="root" style="position:fixed; left:24px; bottom:24px;">
-    <div id="action-bar"></div>
+  <div id="ab-root">
+    <div id="ab-gameplay"></div>
   </div>
   <script>
-    (function(){
-      function whenReady(cb){ if(window.tsic){cb();return;} setTimeout(()=>whenReady(cb),16); }
-      whenReady(()=>{
-        tsic.on('tsic.msg.UI.ActionBar.Abilities', (p) => {
-          const host = document.getElementById('action-bar');
-          host.innerHTML = '';
-          const slots = (p && p.Slots) || [];
-          for (const s of slots) {
-            if (s.bVisible === false) continue;
-            const row = document.createElement('div');
-            row.className = 'ab-entry';
-            const key = document.createElement('div');
-            key.className = 'ab-key';
-            key.textContent = s.InputName || '';
-            const name = document.createElement('div');
-            name.className = 'ab-name';
-            name.textContent = s.AbilityName || '';
-            row.appendChild(key);
-            row.appendChild(name);
-            if (s.Cooldown && s.Cooldown > 0) {
-              const cd = document.createElement('div');
-              cd.className = 'ab-cd';
-              cd.textContent = s.Cooldown.toFixed(1) + 's';
-              row.appendChild(cd);
-            }
-            host.appendChild(row);
+    (function () {
+      const MENU_SCREENS = new Set([
+        'Inventory', 'Storage', 'Crafting', 'Production', 'Upgrade', 'Teleporter',
+        'BossSummoner', 'UniversalStorage', 'Construction', 'Map', 'Settings',
+        'PauseMenu', 'SaveLoad', 'Mods', 'Credits', 'NewStore',
+      ]);
+
+      const STATUS_LABEL = ['available', 'blocked', 'cooldown', 'single-use-used'];
+
+      let lastAbilities = { Slots: [] };
+      let currentMode = 'MouseAndKeyboard';
+      let activeScreen = null;
+
+      function whenReady(cb) { if (window.tsic) { cb(); return; } setTimeout(() => whenReady(cb), 16); }
+
+      function preferGamepad() { return currentMode === 'Gamepad'; }
+
+      function truncate(s, n) {
+        if (!s) return '';
+        return s.length > n ? (s.slice(0, n - 1) + '…') : s;
+      }
+
+      function bracketedName(inputName) {
+        // "IA_Interact" -> "Interact"; otherwise return as-is.
+        if (!inputName) return '';
+        if (inputName.startsWith('IA_')) return inputName.slice(3);
+        return inputName;
+      }
+
+      function renderGameplay() {
+        const host = document.getElementById('ab-gameplay');
+        host.innerHTML = '';
+        const slots = (lastAbilities && lastAbilities.Slots) || [];
+        for (const s of slots) {
+          if (s.bVisible === false) continue;
+          const row = document.createElement('div');
+          row.className = 'ab-row';
+          row.dataset.status = STATUS_LABEL[s.StatusInt | 0] || 'available';
+          row.style.setProperty('--tsic-cd-percent', String(Math.max(0, Math.min(100, Math.round((s.CooldownPercent || 0) * 100)))));
+
+          const key = document.createElement('div');
+          key.className = 'ab-key';
+          const iconUrl = preferGamepad() ? s.GamepadIconUrl : s.KeyboardIconUrl;
+          if (iconUrl) {
+            const img = document.createElement('img');
+            img.src = iconUrl;
+            img.alt = s.InputName || '';
+            img.onerror = () => {
+              img.replaceWith(Object.assign(document.createElement('span'),
+                { className: 'ab-key-fallback', textContent: bracketedName(s.InputName) }));
+            };
+            key.appendChild(img);
+          } else {
+            const fallback = document.createElement('span');
+            fallback.className = 'ab-key-fallback';
+            fallback.textContent = bracketedName(s.InputName);
+            key.appendChild(fallback);
           }
+          if ((s.CooldownPercent || 0) > 0 && (s.CooldownPercent || 0) < 1) {
+            const sweep = document.createElement('div');
+            sweep.className = 'ab-cd-sweep';
+            key.appendChild(sweep);
+          }
+
+          const text = document.createElement('div');
+          text.className = 'ab-text';
+          const name = document.createElement('div');
+          name.className = 'ab-name';
+          name.textContent = s.AbilityName || bracketedName(s.InputName);
+          text.appendChild(name);
+          if (s.SubText) {
+            const sub = document.createElement('div');
+            sub.className = 'ab-sub';
+            sub.textContent = truncate(s.SubText, 30);
+            text.appendChild(sub);
+          }
+
+          row.appendChild(key);
+          row.appendChild(text);
+          host.appendChild(row);
+        }
+        applyVisibility();
+      }
+
+      function applyVisibility() {
+        const gameplay = document.getElementById('ab-gameplay');
+        const isMenu = activeScreen && MENU_SCREENS.has(activeScreen);
+        const empty = !((lastAbilities.Slots || []).some(s => s.bVisible !== false));
+        gameplay.classList.toggle('hidden', !!isMenu || empty);
+      }
+
+      whenReady(() => {
+        tsic.on('tsic.msg.UI.ActionBar.Abilities', (p) => {
+          lastAbilities = p || { Slots: [] };
+          renderGameplay();
         });
+        tsic.on('tsic.msg.UI.Screen.Changed', (p) => {
+          activeScreen = (p && p.Name) || null;
+          applyVisibility();
+        });
+        tsic.on('tsic.msg.UI.Input.Mode.Changed', (p) => {
+          currentMode = (p && p.Mode) || 'MouseAndKeyboard';
+          renderGameplay();
+        });
+        // Initial paint in case sticky messages already fired before subscribe.
+        renderGameplay();
       });
     })();
   </script>
