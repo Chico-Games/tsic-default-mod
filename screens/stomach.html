@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="tsic-screen" content="Stomach">
+  <title>Stomach</title>
+  <link rel="stylesheet" href="/shared/base.css">
+  <script src="/shared/router.js" defer></script>
+  <style>
+    #row {
+      position: fixed; right: 24px; bottom: 60px;
+      display: flex; gap: 8px;
+    }
+    .stomach-slot {
+      width: 48px; height: 48px;
+      border: 1px solid rgba(255,255,255,0.22);
+      background: rgba(0,0,0,0.45);
+      border-radius: 3px;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+    }
+    .stomach-slot img {
+      width: 100%; height: 100%; image-rendering: pixelated;
+      transition: opacity 100ms linear;
+    }
+    .stomach-slot.empty { opacity: 0.35; }
+  </style>
+</head><body>
+  <div id="row">
+    <div class="stomach-slot empty" data-idx="0"></div>
+    <div class="stomach-slot empty" data-idx="1"></div>
+    <div class="stomach-slot empty" data-idx="2"></div>
+  </div>
+  <script>
+    (function () {
+      function whenReady(cb) { if (window.tsic) { cb(); return; } setTimeout(() => whenReady(cb), 16); }
+
+      function lerp(a, b, t) { return a + (b - a) * t; }
+
+      function applyState(payload) {
+        const slots = (payload && payload.Slots) || [];
+        const hosts = document.querySelectorAll('.stomach-slot');
+        for (let i = 0; i < hosts.length; i++) {
+          const host = hosts[i];
+          const s = slots[i] || {};
+          const occupied = s.ItemId && s.IconUrl;
+          host.classList.toggle('empty', !occupied);
+          while (host.firstChild) host.removeChild(host.firstChild);
+          if (!occupied) continue;
+
+          const img = document.createElement('img');
+          img.src = s.IconUrl;
+          img.onerror = () => { img.style.display = 'none'; };
+          const dur = Number(s.Duration) || 0;
+          const rem = Number(s.RemainingTime) || 0;
+          const progress = dur > 0 ? Math.max(0, Math.min(1, 1 - rem / dur)) : 0;
+          img.style.opacity = String(lerp(1.0, 0.4, progress));
+          host.appendChild(img);
+        }
+      }
+
+      whenReady(() => {
+        tsic.on('tsic.msg.UI.Stomach.State', applyState);
+      });
+    })();
+  </script>
+</body></html>

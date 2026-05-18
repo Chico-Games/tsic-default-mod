@@ -39,6 +39,7 @@
     Detection: 'detection',
     HealthBar: 'health-bar',
     StaminaBar: 'stamina-bar',
+    Stomach: 'stomach',
   };
 
   function myScreen() {
