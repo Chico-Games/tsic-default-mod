@@ -51,10 +51,10 @@
             slot.appendChild(c);
           }
           slot.onclick = () =>
-            tsic.publishMessage('tsic.msg.UI.Cmd.Inventory.Use', { OwnerId: 'Player', SlotIndex: idx });
+            tsic.publishMessage('UI.Cmd.Inventory.Use', { OwnerId: 'Player', SlotIndex: idx });
           slot.oncontextmenu = (e) => {
             e.preventDefault();
-            tsic.publishMessage('tsic.msg.UI.Cmd.Inventory.Drop', { OwnerId: 'Player', SlotIndex: idx, Count: it.Count || 1 });
+            tsic.publishMessage('UI.Cmd.Inventory.Drop', { OwnerId: 'Player', SlotIndex: idx, Count: it.Count || 1 });
           };
         }
       }
@@ -64,7 +64,7 @@
           renderItems(p.Items || []);
         });
         document.getElementById('btn-close').onclick = () =>
-          tsic.publishMessage('tsic.msg.UI.Cmd.Pause.Resume', {});
+          tsic.publishMessage('UI.Cmd.Pause.Resume', {});
       });
     })();
   </script>

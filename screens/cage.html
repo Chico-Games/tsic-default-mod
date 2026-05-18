@@ -53,7 +53,7 @@
           const label = document.createElement('span');
           label.textContent = opt.Label || opt.OptionId;
           row.appendChild(label);
-          row.onclick = () => tsic.publishMessage('tsic.msg.UI.Cmd.Selection.Choose', {
+          row.onclick = () => tsic.publishMessage('UI.Cmd.Selection.Choose', {
             OptionId: opt.OptionId || '',
           });
           host.appendChild(row);

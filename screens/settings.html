@@ -52,7 +52,7 @@
           try { parsed = JSON.parse(p.Json || '{}'); } catch (e) {}
           render(parsed);
         });
-        document.getElementById('btn-back').onclick = () => tsic.publishMessage('tsic.msg.UI.Cmd.Pause.Resume', {});
+        document.getElementById('btn-back').onclick = () => tsic.publishMessage('UI.Cmd.Pause.Resume', {});
       });
     })();
   </script>

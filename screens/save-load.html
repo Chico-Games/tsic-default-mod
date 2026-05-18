@@ -32,13 +32,13 @@
             const load = document.createElement('button');
             load.className = 'tsic-button';
             load.textContent = 'Load';
-            load.onclick = () => tsic.publishMessage('tsic.msg.UI.Cmd.Menu.LoadSlot', { SlotId: s.SlotId });
+            load.onclick = () => tsic.publishMessage('UI.Cmd.Menu.LoadSlot', { SlotId: s.SlotId });
             el.appendChild(load);
             host.appendChild(el);
           }
         });
         document.getElementById('btn-back').onclick = () =>
-          tsic.publishMessage('tsic.msg.UI.Cmd.Pause.Resume', {});
+          tsic.publishMessage('UI.Cmd.Pause.Resume', {});
       });
     })();
   </script>

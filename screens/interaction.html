@@ -46,7 +46,7 @@
           row.appendChild(tag);
           // User explicitly chose from the menu, so always send bPrimary=false
           // unless this is the primary target itself; spec says always false.
-          row.onclick = () => tsic.publishMessage('tsic.msg.UI.Cmd.Interaction.Activate', {
+          row.onclick = () => tsic.publishMessage('UI.Cmd.Interaction.Activate', {
             EntityId: t.EntityId|0,
             OptionId: '',
             bPrimary: false,

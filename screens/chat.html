@@ -133,7 +133,7 @@
         const input = document.getElementById('chat-input');
         const text = (input.value || '').trim();
         if (!text) return;
-        tsic.publishMessage('tsic.msg.UI.Cmd.Chat.Send', {
+        tsic.publishMessage('UI.Cmd.Chat.Send', {
           // Empty channel: let the server decide. The current C++ chat path
           // only knows a single global channel.
           Channel: '',

@@ -68,7 +68,7 @@
 
       function publish(type) {
         // Location is a placeholder; gameplay-side overrides with the look-at hit.
-        tsic.publishMessage('tsic.msg.UI.Cmd.Ping.Request', {
+        tsic.publishMessage('UI.Cmd.Ping.Request', {
           PingType: type,
           Location: { X: 0, Y: 0, Z: 0 },
         });

@@ -47,7 +47,7 @@
           const label = document.createElement('span');
           label.textContent = it.Name || it.EntityDefId;
           row.appendChild(label);
-          row.onclick = () => tsic.publishMessage('tsic.msg.UI.Cmd.Construction.Begin', { EntityDefId: it.EntityDefId });
+          row.onclick = () => tsic.publishMessage('UI.Cmd.Construction.Begin', { EntityDefId: it.EntityDefId });
           host.appendChild(row);
         }
       }
@@ -76,16 +76,16 @@
         tsic.on('tsic.msg.UI.Construction.PreviewState', (p) => renderPreview(p));
 
         document.getElementById('btn-confirm').onclick = () =>
-          tsic.publishMessage('tsic.msg.UI.Cmd.Construction.Confirm', {});
+          tsic.publishMessage('UI.Cmd.Construction.Confirm', {});
         document.getElementById('btn-cancel').onclick = () =>
-          tsic.publishMessage('tsic.msg.UI.Cmd.Construction.Cancel', {});
+          tsic.publishMessage('UI.Cmd.Construction.Cancel', {});
         // v1: Deconstruct without a UI target — gameplay layer feeds the entity id.
         // The publish below is a no-op-by-construction (EntityId=0). The actual
         // deconstruct flow today is driven by the look-at trace in gameplay code;
         // wiring a "Deconstruct mode" toggle that surfaces target ids to JS is a
         // follow-up once UI.Construction.GraphChanged is consumed by Map.
         document.getElementById('btn-deconstruct').onclick = () =>
-          tsic.publishMessage('tsic.msg.UI.Cmd.Construction.Deconstruct', { EntityId: 0 });
+          tsic.publishMessage('UI.Cmd.Construction.Deconstruct', { EntityId: 0 });
       });
     })();
   </script>

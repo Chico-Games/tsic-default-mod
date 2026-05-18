@@ -62,7 +62,7 @@
           }
           slot.onclick = () => {
             if (!otherOwnerId) return;
-            tsic.publishMessage('tsic.msg.UI.Cmd.Inventory.Transfer', {
+            tsic.publishMessage('UI.Cmd.Inventory.Transfer', {
               FromOwnerId: ownerId,
               ToOwnerId: otherOwnerId,
               FromSlot: idx,
@@ -84,7 +84,7 @@
           }
         });
         document.getElementById('btn-close').onclick = () =>
-          tsic.publishMessage('tsic.msg.UI.Cmd.Pause.Resume', {});
+          tsic.publishMessage('UI.Cmd.Pause.Resume', {});
       });
     })();
   </script>

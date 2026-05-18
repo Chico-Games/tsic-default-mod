@@ -77,16 +77,16 @@
           const description = (document.getElementById('br-description').value || '').trim();
           const bIncludeScreenshot = !!document.getElementById('br-screenshot').checked;
           const bIncludeLog = !!document.getElementById('br-log').checked;
-          tsic.publishMessage('tsic.msg.UI.Cmd.BugReport.Submit', {
+          tsic.publishMessage('UI.Cmd.BugReport.Submit', {
             Category: category,
             Description: description,
             bIncludeScreenshot: bIncludeScreenshot,
             bIncludeLog: bIncludeLog,
           });
-          tsic.publishMessage('tsic.msg.UI.Cmd.Pause.Resume', {});
+          tsic.publishMessage('UI.Cmd.Pause.Resume', {});
         };
         document.getElementById('btn-cancel').onclick = () =>
-          tsic.publishMessage('tsic.msg.UI.Cmd.Pause.Resume', {});
+          tsic.publishMessage('UI.Cmd.Pause.Resume', {});
       });
     })();
   </script>

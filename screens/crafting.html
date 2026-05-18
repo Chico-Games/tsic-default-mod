@@ -35,13 +35,13 @@
             const btn = document.createElement('button');
             btn.className = 'tsic-button';
             btn.textContent = 'Craft';
-            btn.onclick = () => tsic.publishMessage('tsic.msg.UI.Cmd.Recipe.Start', { Kind: 'Crafting', StationId: stationId, RecipeId: r.RecipeId, Count: 1 });
+            btn.onclick = () => tsic.publishMessage('UI.Cmd.Recipe.Start', { Kind: 'Crafting', StationId: stationId, RecipeId: r.RecipeId, Count: 1 });
             row.appendChild(btn);
             host.appendChild(row);
           }
         });
         document.getElementById('btn-close').onclick = () =>
-          tsic.publishMessage('tsic.msg.UI.Cmd.Pause.Resume', {});
+          tsic.publishMessage('UI.Cmd.Pause.Resume', {});
       });
     })();
   </script>

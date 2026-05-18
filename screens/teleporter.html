@@ -63,11 +63,11 @@
             row.appendChild(cd);
           }
           row.onclick = () => {
-            tsic.publishMessage('tsic.msg.UI.Cmd.Teleporter.Travel', {
+            tsic.publishMessage('UI.Cmd.Teleporter.Travel', {
               FromId: fromId,
               ToId: Number(dest.EntityId) || 0,
             });
-            tsic.publishMessage('tsic.msg.UI.Cmd.Pause.Resume', {});
+            tsic.publishMessage('UI.Cmd.Pause.Resume', {});
           };
           host.appendChild(row);
         }
@@ -76,7 +76,7 @@
       whenReady(() => {
         tsic.on('tsic.msg.UI.Teleporter.Destinations', (p) => render(p));
         document.getElementById('btn-cancel').onclick = () =>
-          tsic.publishMessage('tsic.msg.UI.Cmd.Pause.Resume', {});
+          tsic.publishMessage('UI.Cmd.Pause.Resume', {});
       });
     })();
   </script>

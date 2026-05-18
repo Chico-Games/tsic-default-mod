@@ -113,7 +113,7 @@
           const el = document.createElement('div');
           el.className = 'slot-row';
           el.innerHTML = `<span>${s.Label || s.SlotId}</span><span class="stamp">${s.TimestampIso || ''}</span>`;
-          el.onclick = () => tsic.publishMessage('tsic.msg.UI.Cmd.Menu.LoadSlot', { SlotId: s.SlotId });
+          el.onclick = () => tsic.publishMessage('UI.Cmd.Menu.LoadSlot', { SlotId: s.SlotId });
           host.appendChild(el);
         }
       }
@@ -124,11 +124,11 @@
       whenReady(() => {
         tsic.on('tsic.msg.UI.Save.Slots', (p) => { slots = (p && p.Slots) || []; renderSlots(); });
         document.getElementById('btn-start').onclick = () =>
-          tsic.publishMessage('tsic.msg.UI.Cmd.Menu.StartGame', {});
+          tsic.publishMessage('UI.Cmd.Menu.StartGame', {});
         document.getElementById('btn-settings').onclick = () =>
-          tsic.publishMessage('tsic.msg.UI.Cmd.Menu.Settings', {});
+          tsic.publishMessage('UI.Cmd.Menu.Settings', {});
         document.getElementById('btn-exit').onclick = () =>
-          tsic.publishMessage('tsic.msg.UI.Cmd.Menu.Exit', {});
+          tsic.publishMessage('UI.Cmd.Menu.Exit', {});
       });
     })();
   </script>

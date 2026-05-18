@@ -39,7 +39,7 @@
             idxLabel.className = 'count';
             idxLabel.textContent = String(i + 1);
             slot.appendChild(idxLabel);
-            slot.onclick = () => tsic.publishMessage('tsic.msg.UI.Cmd.Hotbar.Select', { SlotIndex: i });
+            slot.onclick = () => tsic.publishMessage('UI.Cmd.Hotbar.Select', { SlotIndex: i });
             host.appendChild(slot);
           }
         });

@@ -54,17 +54,17 @@
         };
         document.getElementById('btn-confirm').onclick = () => {
           const count = parseInt(slider.value, 10) || 1;
-          tsic.publishMessage('tsic.msg.UI.Cmd.Inventory.Transfer', {
+          tsic.publishMessage('UI.Cmd.Inventory.Transfer', {
             FromOwnerId: fromOwnerId,
             ToOwnerId: toOwnerId,
             FromSlot: fromSlot,
             ToSlot: toSlot,
             Count: count
           });
-          tsic.publishMessage('tsic.msg.UI.Cmd.Pause.Resume', {});
+          tsic.publishMessage('UI.Cmd.Pause.Resume', {});
         };
         document.getElementById('btn-cancel').onclick = () =>
-          tsic.publishMessage('tsic.msg.UI.Cmd.Pause.Resume', {});
+          tsic.publishMessage('UI.Cmd.Pause.Resume', {});
       });
     })();
   </script>

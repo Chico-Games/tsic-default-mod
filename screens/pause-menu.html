@@ -42,9 +42,9 @@
             host.appendChild(row);
           }
         });
-        document.getElementById('btn-resume').onclick = () => tsic.publishMessage('tsic.msg.UI.Cmd.Pause.Resume', {});
-        document.getElementById('btn-settings').onclick = () => tsic.publishMessage('tsic.msg.UI.Cmd.Pause.Settings', {});
-        document.getElementById('btn-menu').onclick = () => tsic.publishMessage('tsic.msg.UI.Cmd.Pause.QuitToMenu', {});
+        document.getElementById('btn-resume').onclick = () => tsic.publishMessage('UI.Cmd.Pause.Resume', {});
+        document.getElementById('btn-settings').onclick = () => tsic.publishMessage('UI.Cmd.Pause.Settings', {});
+        document.getElementById('btn-menu').onclick = () => tsic.publishMessage('UI.Cmd.Pause.QuitToMenu', {});
       });
     })();
   </script>

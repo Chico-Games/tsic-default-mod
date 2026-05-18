@@ -51,7 +51,7 @@
             slot.appendChild(c);
           }
           slot.onclick = () =>
-            tsic.publishMessage('tsic.msg.UI.Cmd.Inventory.Transfer', {
+            tsic.publishMessage('UI.Cmd.Inventory.Transfer', {
               FromOwnerId: 'Universal',
               ToOwnerId: 'Player',
               FromSlot: idx,
@@ -66,7 +66,7 @@
           renderItems(p.Items || []);
         });
         document.getElementById('btn-close').onclick = () =>
-          tsic.publishMessage('tsic.msg.UI.Cmd.Pause.Resume', {});
+          tsic.publishMessage('UI.Cmd.Pause.Resume', {});
       });
     })();
   </script>
