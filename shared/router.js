@@ -1,6 +1,10 @@
 // Self-navigating router. Each page declares its own screen name via:
 //   <meta name="tsic-screen" content="MainMenu">
 // On UI.Screen.Changed, navigate if the broadcast name differs from this page's.
+//
+// Also reads:
+//   <meta name="tsic-input-mode" content="InputMode.Menu.Map">       (existing)
+//   <meta name="tsic-action-bar-context" content='[ {...}, ... ]'>   (this spec)
 (function () {
   const SCREEN_TO_FILE = {
     MainMenu: 'main-menu',
@@ -61,6 +65,45 @@
     return m ? m.getAttribute('content') : null;
   }
 
+  function staticActionBarContext() {
+    const m = document.querySelector('meta[name="tsic-action-bar-context"]');
+    if (!m) return null;
+    const raw = m.getAttribute('content');
+    if (!raw) return null;
+    try {
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed : null;
+    } catch (err) {
+      console.warn('[router] failed to parse tsic-action-bar-context:', err);
+      return null;
+    }
+  }
+
+  // Single point of truth for sending menu context to C++. De-dupes by
+  // ActionName and ensures an IA_UI_CancelBack "Back" row is present unless
+  // the page declared its own.
+  function publishMenuContext(entries) {
+    const seen = new Set();
+    const out = [];
+    for (const e of (entries || [])) {
+      if (!e || !e.ActionName || seen.has(e.ActionName)) continue;
+      seen.add(e.ActionName);
+      out.push({
+        ActionName: String(e.ActionName),
+        Label:      String(e.Label || ''),
+        Priority:   Number.isFinite(e.Priority) ? e.Priority : 100,
+      });
+    }
+    if (!seen.has('IA_UI_CancelBack')) {
+      out.push({ ActionName: 'IA_UI_CancelBack', Label: 'Back', Priority: 1000 });
+    }
+    if (window.tsic && window.tsic.publishMessage) {
+      window.tsic.publishMessage('UI.Cmd.ActionBar.SetMenuContext', { Entries: out });
+    }
+  }
+  // Exposed early so shared/action-bar.js can route through us.
+  window.__tsicPublishMenuActionContext = publishMenuContext;
+
   whenReady(() => {
     // Screen routing.
     window.tsic.on('tsic.msg.UI.Screen.Changed', (payload /*, meta, name*/) => {
@@ -75,10 +118,6 @@
     });
 
     // Input-mode tag activation: append on load, release on page teardown.
-    // The C++ bridge refcounts so a re-Append is idempotent, but a second
-    // Remove would underflow the count — so we guard with a "removed once"
-    // flag. Both beforeunload and pagehide are listened to because Ultralight's
-    // behaviour around navigation can fire either (or neither in edge cases).
     const inputTag = activeInputModeTag();
     if (inputTag) {
       window.tsic.publishMessage('UI.Cmd.Input.AppendModeTag', { Tag: inputTag });
@@ -99,6 +138,33 @@
     window.tsic.removeInputModeTag = function (tagStr) {
       window.tsic.publishMessage('UI.Cmd.Input.RemoveModeTag', { Tag: tagStr });
     };
+
+    // Menu action-bar wiring.
+    //
+    // Pages that own a static, page-wide context use the meta tag below; pages
+    // with dynamic context (Inventory) call tsic.setMenuActionContext from
+    // their own JS, which routes through the same publishMenuContext helper.
+    //
+    // The auto-Back row is injected by publishMenuContext.
+    const staticCtx = staticActionBarContext();
+    if (staticCtx !== null) {
+      // Page declared either an empty array (auto-Back only) or a list.
+      publishMenuContext(staticCtx);
+    }
+    // Always clear on teardown so the next page doesn't briefly see ours.
+    // (Truly bar-less pages — Loading, MainMenu — leave the meta tag off; the
+    // bar's own visibility gate hides it for non-menu screens anyway, but
+    // clearing here keeps the sticky cache tidy.)
+    if (staticCtx !== null) {
+      let cleared = false;
+      const clearOnce = () => {
+        if (cleared) return;
+        cleared = true;
+        window.tsic.publishMessage('UI.Cmd.ActionBar.SetMenuContext', { Entries: [] });
+      };
+      window.addEventListener('beforeunload', clearOnce);
+      window.addEventListener('pagehide', clearOnce);
+    }
   });
 
   // Expose for ad-hoc dev navigation.
