@@ -44,6 +44,7 @@
     Paper: 'paper',
     Screen: 'screen',
     Tablet: 'tablet',
+    Tests: 'tests',
     Equipment: 'equipment',
     Wardrobe: 'wardrobe',
     Hotbar: 'hotbar',
