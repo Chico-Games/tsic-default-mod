@@ -8,64 +8,188 @@
   <link rel="stylesheet" href="/shared/hud.css">
   <script src="/shared/router.js" defer></script>
   <script src="/shared/hud.js" defer></script>
+  <script src="/shared/catalog.js" defer></script>
+  <script src="/shared/inventory.js" defer></script>
+  <style>
+    #inv-root { position:fixed; inset:0; background: rgba(0,0,0,0.65); display:flex; align-items:center; justify-content:center; }
+    #inv-panel { width: 900px; max-height: 80vh; display:grid; grid-template-columns: 140px 1fr 240px; gap:12px; }
+    #inv-tabs { display:flex; flex-direction:column; gap:4px; }
+    .inv-tab { padding:6px 10px; background: rgba(255,255,255,0.06); border:1px solid var(--tsic-border); cursor:pointer; }
+    .inv-tab.active { background: var(--tsic-accent-dim); }
+    #inv-grid { display:grid; grid-template-columns: repeat(8, 56px); grid-auto-rows: 56px; gap:6px; }
+    #inv-info { padding: 8px; background: rgba(0,0,0,0.4); border:1px solid var(--tsic-border); }
+    #inv-equip-row { grid-column: 1 / 3; display:flex; gap:6px; padding:8px; background: rgba(0,0,0,0.3); }
+    .equip-slot { width:48px; height:48px; background: rgba(255,255,255,0.05); border:1px solid var(--tsic-border); display:flex; align-items:center; justify-content:center; font-size:9px; color: var(--tsic-text-dim); cursor:pointer; }
+    #inv-char-preview { width:240px; height:280px; background: rgba(0,0,0,0.5); border:1px solid var(--tsic-border); }
+    #inv-char-preview img { width:100%; height:100%; object-fit:contain; }
+    #inv-capacity { grid-column: 1 / 4; font-size:11px; opacity:0.6; }
+    #inv-close { grid-column: 1 / 4; text-align:right; }
+  </style>
 </head><body>
-  <div id="root" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.65);">
-    <div class="tsic-panel" style="width:720px;max-height:80vh;overflow:auto;">
-      <h2 style="margin:0 0 12px;letter-spacing:3px;">INVENTORY</h2>
-      <div id="grid" style="display:grid;grid-template-columns:repeat(8,56px);gap:6px;"></div>
-      <div style="margin-top:12px;">
-        <button class="tsic-button" id="btn-close">Close</button>
-      </div>
-    </div>
+<div id="inv-root">
+  <div id="inv-panel" class="tsic-panel">
+    <h2 style="grid-column: 1 / 4; margin:0;letter-spacing:3px;">INVENTORY</h2>
+    <div id="inv-tabs"></div>
+    <div id="inv-grid"></div>
+    <div id="inv-info"></div>
+    <div id="inv-equip-row"></div>
+    <div id="inv-char-preview"><img id="inv-char-img" alt=""></div>
+    <div id="inv-capacity">CAPACITY: -</div>
+    <div id="inv-close"><button class="tsic-button" id="btn-close">Close (Esc)</button></div>
   </div>
-  <script>
-    (function(){
-      function whenReady(cb){ if(window.tsic){cb();return;} setTimeout(()=>whenReady(cb),16); }
-      function renderItems(items) {
-        const host = document.getElementById('grid');
+</div>
+<script>
+(function(){
+    const TABS = [
+        { id: 'All',   filter: null },
+        { id: 'Tools', filter: i => i.Category === 'Equipment' },
+        { id: 'Cons.', filter: i => i.Category === 'Consumable' },
+        { id: 'Mats',  filter: i => i.Category === 'CraftingMaterial' },
+        { id: 'Other', filter: i => !['Equipment','Consumable','CraftingMaterial'].includes(i.Category) },
+    ];
+    let activeTab = 'All';
+    let lastUpdate = null;
+    let lastEquipment = null;
+    let hoveredItem = null;
+    let charPreviewFrame = 0;
+    let charPreviewTimer = null;
+
+    function whenReady(cb){ if(window.tsic && window.TSICInventory){cb();return;} setTimeout(()=>whenReady(cb),16); }
+
+    function renderTabs() {
+        const host = document.getElementById('inv-tabs');
         host.innerHTML = '';
-        for (let i = 0; i < 32; i++) {
-          const slot = document.createElement('div');
-          slot.className = 'tsic-slot';
-          slot.dataset.slot = i;
-          host.appendChild(slot);
+        for (const t of TABS) {
+            const div = document.createElement('div');
+            div.className = 'inv-tab' + (activeTab === t.id ? ' active' : '');
+            div.textContent = t.id;
+            div.addEventListener('click', () => { activeTab = t.id; refresh(); });
+            host.appendChild(div);
         }
-        for (const it of items) {
-          const idx = (typeof it.SlotIndex === 'number' && it.SlotIndex >= 0) ? it.SlotIndex : -1;
-          const slot = (idx >= 0 && idx < host.children.length) ? host.children[idx] : null;
-          if (!slot) continue;
-          if (it.IconUrl) {
-            slot.style.backgroundImage = `url(${it.IconUrl})`;
-            slot.style.backgroundSize = 'cover';
-          } else if (it.ItemId) {
-            slot.textContent = it.ItemId;
-            slot.style.fontSize = '9px';
-            slot.style.color = '#ccc';
-            slot.style.padding = '2px';
-            slot.style.wordBreak = 'break-all';
-          }
-          if (it.Count > 1) {
-            const c = document.createElement('span');
-            c.className = 'count';
-            c.textContent = it.Count;
-            slot.appendChild(c);
-          }
-          slot.onclick = () =>
-            tsic.publishMessage('UI.Cmd.Inventory.Use', { OwnerId: 'Player', SlotIndex: idx });
-          slot.oncontextmenu = (e) => {
-            e.preventDefault();
-            tsic.publishMessage('UI.Cmd.Inventory.Drop', { OwnerId: 'Player', SlotIndex: idx, Count: it.Count || 1 });
-          };
-        }
-      }
-      whenReady(()=>{
-        tsic.on('tsic.msg.UI.Inventory.Updated', (p)=>{
-          if (!p || p.OwnerId !== 'Player') return;
-          renderItems(p.Items || []);
+    }
+
+    function refresh() {
+        renderTabs();
+        if (!lastUpdate) return;
+        const cat = window.tsic.itemCatalog || {};
+        const filter = (TABS.find(t => t.id === activeTab) || {}).filter;
+        const items = (lastUpdate.Items || []).filter(it => {
+            if (!filter) return true;
+            const desc = cat[it.ItemId];
+            return desc ? filter(desc) : (activeTab === 'Other' || activeTab === 'All');
         });
-        document.getElementById('btn-close').onclick = () =>
-          tsic.publishMessage('UI.Cmd.Pause.Resume', {});
-      });
-    })();
-  </script>
+        const opts = {
+            maxSlots: lastUpdate.MaxSlots || 32,
+            onHover: (it) => {
+                hoveredItem = it;
+                window.TSICInventory.renderInfoPanel(document.getElementById('inv-info'), it ? cat[it.ItemId] : null, it);
+            },
+            onLeave: () => { hoveredItem = null; window.TSICInventory.renderInfoPanel(document.getElementById('inv-info'), null); },
+            onClick: (it) => {
+                if (!it) return;
+                tsic.publishMessage('UI.Cmd.Inventory.Use', { OwnerId: 'Player', SlotIndex: it.SlotIndex });
+            },
+            onRMB: (it) => {
+                if (!it) return;
+                if (it.Count > 1) {
+                    window.TSICInventory.openQuantityModal(it.Count, (count) => {
+                        tsic.publishMessage('UI.Cmd.Inventory.Drop', { OwnerId: 'Player', SlotIndex: it.SlotIndex, Count: count });
+                        tsic.publishMessage('UI.Cmd.Sound.Play', { SoundKey: 'Inventory.Drop', VolumeScale: 1.0 });
+                    });
+                } else {
+                    tsic.publishMessage('UI.Cmd.Inventory.Drop', { OwnerId: 'Player', SlotIndex: it.SlotIndex, Count: 1 });
+                    tsic.publishMessage('UI.Cmd.Sound.Play', { SoundKey: 'Inventory.Drop', VolumeScale: 1.0 });
+                }
+            },
+            onDrop: (src, targetSlot) => {
+                if (src.slot === targetSlot) return;
+                tsic.publishMessage('UI.Cmd.Inventory.Transfer', {
+                    FromOwnerId: 'Player', ToOwnerId: 'Player',
+                    FromSlot: src.slot, ToSlot: targetSlot, Count: 0
+                });
+            }
+        };
+        window.TSICInventory.renderGrid(document.getElementById('inv-grid'), items, opts);
+
+        const cap = document.getElementById('inv-capacity');
+        const used = (lastUpdate.Items || []).length;
+        cap.textContent = `CAPACITY: ${used} items · ${(lastUpdate.CurrentWeight||0).toFixed(2)}/${(lastUpdate.MaxWeight||0).toFixed(2)} kg`;
+    }
+
+    function renderEquipment() {
+        const host = document.getElementById('inv-equip-row');
+        host.innerHTML = '';
+        const slots = (lastEquipment && lastEquipment.Slots) || [];
+        for (const s of slots) {
+            const div = document.createElement('div');
+            div.className = 'equip-slot';
+            const label = (s.SlotTag || '').split('.').pop();
+            if (s.ItemId) {
+                const img = document.createElement('img');
+                img.src = `tex://item-icon/${encodeURIComponent(s.ItemId)}`;
+                img.style.cssText = 'width:100%;height:100%;object-fit:contain;pointer-events:none;';
+                div.appendChild(img);
+                div.title = `${label} - click to unequip`;
+                div.addEventListener('click', () => {
+                    tsic.publishMessage('UI.Cmd.Equipment.Unequip', { ItemId: '', SlotTag: s.SlotTag });
+                });
+            } else {
+                div.textContent = label;
+            }
+            host.appendChild(div);
+        }
+    }
+
+    function startCharPreviewPolling() {
+        if (charPreviewTimer) return;
+        const img = document.getElementById('inv-char-img');
+        charPreviewTimer = setInterval(() => {
+            charPreviewFrame++;
+            img.src = `tex://character-preview?t=${charPreviewFrame}`;
+        }, 100);
+    }
+    function stopCharPreviewPolling() {
+        if (charPreviewTimer) { clearInterval(charPreviewTimer); charPreviewTimer = null; }
+    }
+
+    whenReady(() => {
+        tsic.on('tsic.msg.UI.Inventory.Updated', (p) => {
+            if (!p || p.OwnerId !== 'Player') return;
+            lastUpdate = p;
+            refresh();
+        });
+        tsic.on('tsic.msg.UI.Equipment.Updated', (p) => {
+            if (!p || p.OwnerId !== 'Player') return;
+            lastEquipment = p;
+            renderEquipment();
+        });
+        tsic.on('tsic.msg.UI.CharacterPreview.Ready', (p) => {
+            if (p && p.bReady) startCharPreviewPolling();
+        });
+        window.addEventListener('tsic-item-catalog', refresh);
+
+        document.getElementById('btn-close').addEventListener('click', () => {
+            tsic.publishMessage('UI.Cmd.CharacterPreview.Hide', {});
+            stopCharPreviewPolling();
+            tsic.publishMessage('UI.Cmd.Pause.Resume', {});
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                tsic.publishMessage('UI.Cmd.CharacterPreview.Hide', {});
+                stopCharPreviewPolling();
+                tsic.publishMessage('UI.Cmd.Pause.Resume', {});
+            }
+            if (/^[1-8]$/.test(e.key) && hoveredItem) {
+                const slotIndex = parseInt(e.key, 10) - 1;
+                tsic.publishMessage('UI.Cmd.Hotbar.Assign', {
+                    SlotIndex: slotIndex,
+                    ItemId: String(hoveredItem.SlotIndex)
+                });
+            }
+        });
+
+        tsic.publishMessage('UI.Cmd.CharacterPreview.Show', {});
+    });
+})();
+</script>
 </body></html>

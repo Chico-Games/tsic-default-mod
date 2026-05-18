@@ -1,0 +1,96 @@
+// Renderers + drag-drop + modal helpers for the inventory page. Reads from
+// tsic.itemCatalog for display data. The page itself stays declarative.
+(function(){
+    function el(tag, props = {}, children = []) {
+        const e = document.createElement(tag);
+        Object.assign(e, props);
+        if (props.style) e.style.cssText = props.style;
+        for (const c of children) e.appendChild(typeof c === 'string' ? document.createTextNode(c) : c);
+        return e;
+    }
+    window.TSICInventory = {
+        el,
+        renderGrid(host, items, opts) {
+            const totalSlots = opts.maxSlots > 0 ? opts.maxSlots : 32;
+            host.innerHTML = '';
+            const indexed = new Map();
+            for (const it of (items || [])) indexed.set(it.SlotIndex, it);
+            for (let i = 0; i < totalSlots; i++) {
+                const it = indexed.get(i);
+                const slot = el('div', { className: 'tsic-slot' + (opts.selectedIdx === i ? ' selected' : '') });
+                slot.dataset.slot = i;
+                if (it) {
+                    if (it.ItemId) {
+                        const img = el('img', { src: `tex://item-icon/${encodeURIComponent(it.ItemId)}`,
+                            style: 'width:100%;height:100%;object-fit:contain;pointer-events:none;' });
+                        slot.appendChild(img);
+                    }
+                    if (it.Count > 1) {
+                        slot.appendChild(el('span', { className: 'count', textContent: String(it.Count) }));
+                    }
+                }
+                slot.addEventListener('mouseenter', () => opts.onHover && opts.onHover(it, i));
+                slot.addEventListener('mouseleave', () => opts.onLeave && opts.onLeave());
+                slot.addEventListener('click', () => opts.onClick && opts.onClick(it, i));
+                slot.addEventListener('contextmenu', (e) => { e.preventDefault(); opts.onRMB && opts.onRMB(it, i, e); });
+                slot.draggable = !!it;
+                slot.addEventListener('dragstart', (e) => {
+                    if (!it) return;
+                    e.dataTransfer.setData('application/tsic-item', JSON.stringify({ slot: i, itemId: it.ItemId }));
+                });
+                slot.addEventListener('dragover', (e) => e.preventDefault());
+                slot.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    const raw = e.dataTransfer.getData('application/tsic-item');
+                    if (!raw) return;
+                    try { opts.onDrop && opts.onDrop(JSON.parse(raw), i); } catch {}
+                });
+                host.appendChild(slot);
+            }
+        },
+        renderInfoPanel(host, itemDescriptor, itemInstance) {
+            host.innerHTML = '';
+            if (!itemDescriptor) return;
+            host.appendChild(el('img', { src: `tex://item-icon/${encodeURIComponent(itemDescriptor.ItemId)}`,
+                style: 'width:96px;height:96px;object-fit:contain;display:block;margin:0 auto 8px;' }));
+            host.appendChild(el('h3', { textContent: itemDescriptor.Name, style: 'margin:0 0 4px;' }));
+            host.appendChild(el('p', { textContent: itemDescriptor.Description || '', style: 'font-size:12px;opacity:0.75;' }));
+            const meta = el('div', { style: 'margin-top:8px;font-size:11px;opacity:0.65;' });
+            meta.innerHTML = `<div>Category: ${itemDescriptor.Category || 'Other'}</div>`
+                + `<div>Weight: ${(itemDescriptor.Weight || 0).toFixed(2)}</div>`
+                + (itemInstance && itemInstance.Count > 1 ? `<div>Stack: ${itemInstance.Count}</div>` : '');
+            host.appendChild(meta);
+        },
+        openQuantityModal(maxCount, onConfirm) {
+            const overlay = el('div', { style: 'position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:1000;' });
+            const panel = el('div', { className: 'tsic-panel', style: 'width:300px;padding:16px;' });
+            panel.appendChild(el('h3', { textContent: 'Drop how many?', style: 'margin:0 0 12px;' }));
+            const slider = el('input', { type: 'range', min: 1, max: maxCount, value: maxCount, style: 'width:100%;' });
+            const num = el('div', { textContent: String(maxCount), style: 'text-align:center;font-size:18px;margin:8px 0;' });
+            slider.addEventListener('input', () => num.textContent = slider.value);
+            const buttons = el('div', { style: 'display:flex;gap:8px;justify-content:flex-end;' });
+            const cancel = el('button', { className: 'tsic-button', textContent: 'Cancel' });
+            const ok = el('button', { className: 'tsic-button', textContent: 'Drop' });
+            cancel.addEventListener('click', () => overlay.remove());
+            ok.addEventListener('click', () => { overlay.remove(); onConfirm(parseInt(slider.value, 10)); });
+            buttons.appendChild(cancel); buttons.appendChild(ok);
+            panel.appendChild(slider); panel.appendChild(num); panel.appendChild(buttons);
+            overlay.appendChild(panel);
+            document.body.appendChild(overlay);
+        },
+        openHotbarSlotModal(itemId, onPick) {
+            const overlay = el('div', { style: 'position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:1000;' });
+            const panel = el('div', { className: 'tsic-panel', style: 'padding:16px;' });
+            panel.appendChild(el('h3', { textContent: 'Pick hotbar slot (1-8)', style: 'margin:0 0 12px;' }));
+            const row = el('div', { style: 'display:flex;gap:6px;' });
+            for (let i = 0; i < 8; i++) {
+                const btn = el('button', { className: 'tsic-button', textContent: String(i + 1), style: 'width:48px;height:48px;' });
+                btn.addEventListener('click', () => { overlay.remove(); onPick(i); });
+                row.appendChild(btn);
+            }
+            panel.appendChild(row);
+            overlay.appendChild(panel);
+            document.body.appendChild(overlay);
+        }
+    };
+})();
