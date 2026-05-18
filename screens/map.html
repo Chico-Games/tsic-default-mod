@@ -9,134 +9,330 @@
   <script src="/shared/router.js" defer></script>
   <script src="/shared/hud.js" defer></script>
   <style>
-    /* Full-takeover modal — opaque dimmer + centred map viewport. */
-    #backdrop {
+    #map-root {
       position: fixed; inset: 0;
-      background: rgba(0,0,0,0.85);
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-    }
-    #map-frame {
-      width: 80vmin; height: 80vmin;
-      position: relative;
-      border: 1px solid var(--tsic-border);
-      background: #0a0a0a;
+      background: #050505;
+      color: var(--tsic-text-dim);
+      font-family: 'Consolas', monospace;
+      display: flex; flex-direction: column;
       overflow: hidden;
     }
-    #map-svg { width: 100%; height: 100%; display: block; }
-    .legend {
-      margin-top: 12px;
-      color: var(--tsic-text-dim);
-      font-size: 12px;
-      letter-spacing: 2px;
-      display: flex; gap: 16px;
+    #map-title {
+      letter-spacing: 4px; font-size: 14px;
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--tsic-border);
+      background: rgba(0,0,0,0.6);
+      flex: 0 0 auto;
     }
-    .legend .swatch { display:inline-block; width:10px; height:10px; vertical-align:middle; margin-right:4px; }
-    #title { letter-spacing: 4px; font-size: 16px; margin-bottom: 12px; }
-    #empty { color: var(--tsic-text-dim); position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); }
+    #map-viewport {
+      flex: 1 1 auto;
+      position: relative;
+      overflow: hidden;
+      cursor: grab;
+    }
+    #map-viewport.dragging { cursor: grabbing; }
+    #map-content {
+      position: absolute; left: 0; top: 0;
+      transform-origin: 0 0;
+      will-change: transform;
+    }
+    #world-tex, #fow-tex, #overlay {
+      position: absolute; left: 0; top: 0;
+      pointer-events: none;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+    #world-tex { image-rendering: pixelated; }
+    #fow-tex   { mix-blend-mode: multiply; opacity: 0.85; }
+    .ic { cursor: default; }
+    .ic.clickable { cursor: pointer; pointer-events: auto; }
+    .ic-spawn   { fill: #f1c40f; }
+    .ic-tele    { fill: #2ecc71; }
+    .ic-death   { fill: #9b59b6; }
+    .ic-land    { fill: #e74c3c; }
+    .ic-other   { fill: #bbbbbb; }
+    .pl-self    { fill: #3498db; stroke: #fff; }
+    .pl-other   { fill: #888888; stroke: #fff; }
+    .ping       { stroke: #ffcc00; }
+    #legend {
+      flex: 0 0 auto;
+      padding: 6px 14px;
+      font-size: 11px;
+      letter-spacing: 2px;
+      border-top: 1px solid var(--tsic-border);
+      background: rgba(0,0,0,0.6);
+      display: flex; gap: 18px; flex-wrap: wrap;
+    }
+    #legend .swatch { display:inline-block; width:10px; height:10px; vertical-align:middle; margin-right:4px; }
+    #hint { margin-left: auto; opacity: 0.6; }
+    #empty {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      pointer-events: none;
+      color: var(--tsic-text-dim);
+    }
   </style>
 </head><body>
-  <div id="backdrop">
-    <div id="title">MAP</div>
-    <div id="map-frame">
-      <svg id="map-svg" viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid meet">
-        <g id="g-icons"></g>
-        <g id="g-players"></g>
-      </svg>
+  <div id="map-root">
+    <div id="map-title">MAP</div>
+    <div id="map-viewport">
+      <div id="map-content">
+        <img id="world-tex" src="/runtime/world-map.imgsrc">
+        <img id="fow-tex"   src="/runtime/fow.imgsrc">
+        <svg id="overlay" xmlns="http://www.w3.org/2000/svg">
+          <g id="g-icons"></g>
+          <g id="g-pings"></g>
+          <g id="g-players"></g>
+        </svg>
+      </div>
       <div id="empty">Waiting for map data…</div>
     </div>
-    <div class="legend">
+    <div id="legend">
       <span><span class="swatch" style="background:#3498db;"></span>Player</span>
       <span><span class="swatch" style="background:#f1c40f;"></span>Spawn</span>
       <span><span class="swatch" style="background:#2ecc71;"></span>Teleporter</span>
       <span><span class="swatch" style="background:#e74c3c;"></span>Landmark</span>
+      <span><span class="swatch" style="background:#ffcc00;"></span>Ping</span>
+      <span id="hint">drag = pan · wheel = zoom · R = reset · Esc = close · RMB = ping</span>
     </div>
   </div>
   <script>
     (function () {
-      const VIEW = 1000;
-      function whenReady(cb){ if(window.tsic){cb();return;} setTimeout(()=>whenReady(cb),16); }
+      // 1 px per cm — UE world units are cm. We rely on transform to scale.
+      const PX_PER_CM = 1;
+      let bounds = { minX: 0, minY: 0, maxX: 0, maxY: 0, hasData: false };
+      const state = { panX: 0, panY: 0, scale: 1 };
 
-      function categoryColor(cat) {
-        switch ((cat || '').toLowerCase()) {
-          case 'spawn':
-          case 'spawnpoint': return '#f1c40f';
-          case 'teleporter': return '#2ecc71';
-          case 'deathbox':   return '#9b59b6';
-          case 'landmark':   return '#e74c3c';
-          default:           return '#bbbbbb';
-        }
+      function whenReady(cb) {
+        if (window.tsic) { cb(); return; }
+        setTimeout(() => whenReady(cb), 16);
       }
 
-      function project(p, minB, maxB) {
-        const w = (maxB.X - minB.X) || 1;
-        const h = (maxB.Y - minB.Y) || 1;
-        const x = ((p.X - minB.X) / w) * VIEW;
-        // Flip Y so positive world-Y points up in the viewport.
-        const y = VIEW - ((p.Y - minB.Y) / h) * VIEW;
+      function el(tag, attrs) {
+        const e = document.createElementNS('http://www.w3.org/2000/svg', tag);
+        if (attrs) for (const k in attrs) e.setAttribute(k, attrs[k]);
+        return e;
+      }
+
+      function worldToLocal(wx, wy) {
+        const x = (wx - bounds.minX) * PX_PER_CM;
+        const y = (bounds.maxY - wy) * PX_PER_CM;
         return { x, y };
       }
 
-      function render(p) {
-        const empty = document.getElementById('empty');
-        const gIcons = document.getElementById('g-icons');
-        const gPlayers = document.getElementById('g-players');
-        gIcons.textContent = '';
-        gPlayers.textContent = '';
+      function localToWorld(lx, ly) {
+        const wx = bounds.minX + lx / PX_PER_CM;
+        const wy = bounds.maxY - ly / PX_PER_CM;
+        return { wx, wy };
+      }
 
-        if (!p) { empty.style.display = ''; return; }
+      function applyTransform() {
+        const c = document.getElementById('map-content');
+        c.style.transform =
+          `translate(${state.panX}px, ${state.panY}px) scale(${state.scale})`;
+      }
 
-        const minB = p.MinBounds || { X: 0, Y: 0 };
-        const maxB = p.MaxBounds || { X: 0, Y: 0 };
-        const hasBounds = (maxB.X - minB.X) > 0 && (maxB.Y - minB.Y) > 0;
-        if (!hasBounds) {
-          empty.textContent = 'Map bounds unavailable.';
-          empty.style.display = '';
-          return;
+      function fitToBounds() {
+        const vp = document.getElementById('map-viewport');
+        if (!bounds.hasData || !vp) return;
+        const widthCm  = (bounds.maxX - bounds.minX) * PX_PER_CM;
+        const heightCm = (bounds.maxY - bounds.minY) * PX_PER_CM;
+        if (widthCm <= 0 || heightCm <= 0) return;
+        const sx = vp.clientWidth  / widthCm;
+        const sy = vp.clientHeight / heightCm;
+        state.scale = Math.min(sx, sy) * 0.95;
+        state.panX = (vp.clientWidth  - widthCm  * state.scale) / 2;
+        state.panY = (vp.clientHeight - heightCm * state.scale) / 2;
+        applyTransform();
+      }
+
+      function setBounds(minB, maxB) {
+        const minX = minB && typeof minB.X === 'number' ? minB.X : 0;
+        const minY = minB && typeof minB.Y === 'number' ? minB.Y : 0;
+        const maxX = maxB && typeof maxB.X === 'number' ? maxB.X : 0;
+        const maxY = maxB && typeof maxB.Y === 'number' ? maxB.Y : 0;
+        const changed = bounds.minX !== minX || bounds.minY !== minY
+                     || bounds.maxX !== maxX || bounds.maxY !== maxY;
+        bounds = { minX, minY, maxX, maxY, hasData: (maxX - minX) > 0 && (maxY - minY) > 0 };
+        if (changed && bounds.hasData) {
+          const c = document.getElementById('map-content');
+          const w = (bounds.maxX - bounds.minX) * PX_PER_CM;
+          const h = (bounds.maxY - bounds.minY) * PX_PER_CM;
+          c.style.width  = `${w}px`;
+          c.style.height = `${h}px`;
+          for (const id of ['world-tex', 'fow-tex']) {
+            const img = document.getElementById(id);
+            img.style.width  = `${w}px`;
+            img.style.height = `${h}px`;
+          }
+          const svg = document.getElementById('overlay');
+          svg.setAttribute('width',  w);
+          svg.setAttribute('height', h);
+          svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+          fitToBounds();
         }
+      }
 
-        const icons = p.Icons || [];
-        const players = p.Players || [];
-        if (icons.length === 0 && players.length === 0) {
-          empty.textContent = 'No map data.';
-          empty.style.display = '';
-          return;
-        }
-        empty.style.display = 'none';
+      function categoryClass(cat) {
+        const c = (cat || '').toLowerCase();
+        if (c === 'spawn' || c === 'spawnpoint') return 'ic-spawn';
+        if (c === 'fasttravel' || c === 'teleporter') return 'ic-tele';
+        if (c === 'deathbox') return 'ic-death';
+        if (c === 'landmark') return 'ic-land';
+        return 'ic-other';
+      }
 
-        for (const ic of icons) {
-          const pos = project(ic.Position || {X:0,Y:0}, minB, maxB);
-          const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-          c.setAttribute('cx', pos.x);
-          c.setAttribute('cy', pos.y);
-          c.setAttribute('r', 6);
-          c.setAttribute('fill', categoryColor(ic.Category));
-          c.setAttribute('stroke', '#000');
-          c.setAttribute('stroke-width', 1);
-          const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+      function renderIcons(icons) {
+        const g = document.getElementById('g-icons');
+        g.textContent = '';
+        for (const ic of (icons || [])) {
+          const pos = worldToLocal((ic.Position && ic.Position.X) || 0,
+                                   (ic.Position && ic.Position.Y) || 0);
+          const c = (ic.Category || '').toLowerCase();
+          const isClickable = c === 'fasttravel' && (ic.EntityId | 0) > 0;
+          const circle = el('circle', {
+            cx: pos.x, cy: pos.y, r: 8,
+            class: `ic ${categoryClass(ic.Category)}${isClickable ? ' clickable' : ''}`,
+            stroke: '#000', 'stroke-width': 1,
+          });
+          if (isClickable) {
+            circle.setAttribute('data-entity-id', String(ic.EntityId | 0));
+            circle.addEventListener('click', (ev) => {
+              ev.stopPropagation();
+              tsic.publishMessage('UI.Cmd.Teleporter.Travel', {
+                FromId: 0, ToId: parseInt(circle.dataset.entityId, 10) || 0,
+              });
+            });
+          }
+          const title = el('title');
           title.textContent = ic.Label || ic.Category || ic.IconId || '';
-          c.appendChild(title);
-          gIcons.appendChild(c);
+          circle.appendChild(title);
+          g.appendChild(circle);
         }
+      }
 
-        for (const pl of players) {
-          const pos = project(pl.Position || {X:0,Y:0}, minB, maxB);
-          // Triangle arrow pointing in player Yaw direction.
-          const tri = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-          const yaw = pl.YawDeg || 0;
-          tri.setAttribute('points', '0,-10 7,7 -7,7');
-          tri.setAttribute('transform', `translate(${pos.x},${pos.y}) rotate(${yaw})`);
-          tri.setAttribute('fill', '#3498db');
-          tri.setAttribute('stroke', '#fff');
-          tri.setAttribute('stroke-width', 1);
-          const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+      function renderPlayers(players) {
+        const g = document.getElementById('g-players');
+        g.textContent = '';
+        for (const pl of (players || [])) {
+          const pos = worldToLocal((pl.Position && pl.Position.X) || 0,
+                                   (pl.Position && pl.Position.Y) || 0);
+          // Yaw=0 in UE points along +X; SVG rotate is CW from up,
+          // so we use -yaw to keep the arrow heading match world heading.
+          const yaw = (pl.YawDeg || 0);
+          const tri = el('polygon', {
+            points: '0,-12 8,8 -8,8',
+            transform: `translate(${pos.x},${pos.y}) rotate(${-yaw})`,
+            class: 'pl-self', 'stroke-width': 1,
+          });
+          const title = el('title');
           title.textContent = pl.Name || pl.PlayerId || 'Player';
           tri.appendChild(title);
-          gPlayers.appendChild(tri);
+          g.appendChild(tri);
+        }
+      }
+
+      function renderPings(pings) {
+        const g = document.getElementById('g-pings');
+        g.textContent = '';
+        for (const p of (pings || [])) {
+          const loc = p.Location || {};
+          const pos = worldToLocal(loc.X || 0, loc.Y || 0);
+          const cross = el('g', { transform: `translate(${pos.x},${pos.y})` });
+          cross.appendChild(el('line', { x1: -8, y1: -8, x2:  8, y2:  8, class: 'ping', 'stroke-width': 3 }));
+          cross.appendChild(el('line', { x1: -8, y1:  8, x2:  8, y2: -8, class: 'ping', 'stroke-width': 3 }));
+          const title = el('title');
+          title.textContent = `${p.PingType || 'Ping'} • ${p.OwnerId || ''}`;
+          cross.appendChild(title);
+          g.appendChild(cross);
+        }
+      }
+
+      function onSnapshot(p) {
+        const empty = document.getElementById('empty');
+        if (!p) { empty.style.display = ''; return; }
+        setBounds(p.MinBounds, p.MaxBounds);
+        const hasAny = bounds.hasData && ((p.Icons || []).length + (p.Players || []).length) > 0;
+        empty.style.display = hasAny ? 'none' : '';
+        renderIcons(p.Icons);
+        renderPlayers(p.Players);
+      }
+
+      let dragging = false;
+      let dragLastX = 0, dragLastY = 0;
+
+      function onMouseDown(ev) {
+        if (ev.button !== 0) return;
+        dragging = true;
+        dragLastX = ev.clientX;
+        dragLastY = ev.clientY;
+        document.getElementById('map-viewport').classList.add('dragging');
+      }
+      function onMouseMove(ev) {
+        if (!dragging) return;
+        state.panX += (ev.clientX - dragLastX);
+        state.panY += (ev.clientY - dragLastY);
+        dragLastX = ev.clientX;
+        dragLastY = ev.clientY;
+        applyTransform();
+      }
+      function onMouseUp() {
+        dragging = false;
+        document.getElementById('map-viewport').classList.remove('dragging');
+      }
+      function onWheel(ev) {
+        ev.preventDefault();
+        const vp = document.getElementById('map-viewport');
+        const rect = vp.getBoundingClientRect();
+        const cx = ev.clientX - rect.left;
+        const cy = ev.clientY - rect.top;
+        const factor = ev.deltaY < 0 ? 1.1 : (1 / 1.1);
+        const lx = (cx - state.panX) / state.scale;
+        const ly = (cy - state.panY) / state.scale;
+        state.scale *= factor;
+        state.panX = cx - lx * state.scale;
+        state.panY = cy - ly * state.scale;
+        applyTransform();
+      }
+
+      function onContextMenu(ev) {
+        ev.preventDefault();
+        const vp = document.getElementById('map-viewport');
+        const rect = vp.getBoundingClientRect();
+        const cx = ev.clientX - rect.left;
+        const cy = ev.clientY - rect.top;
+        const lx = (cx - state.panX) / state.scale;
+        const ly = (cy - state.panY) / state.scale;
+        if (!bounds.hasData) return;
+        const { wx, wy } = localToWorld(lx, ly);
+        const clampedX = Math.max(bounds.minX, Math.min(bounds.maxX, wx));
+        const clampedY = Math.max(bounds.minY, Math.min(bounds.maxY, wy));
+        tsic.publishMessage('UI.Cmd.Ping.Request', {
+          PingType: 'Map',
+          Location: { X: clampedX, Y: clampedY, Z: 0 },
+        });
+      }
+
+      function onKey(ev) {
+        if (ev.key === 'Escape') {
+          tsic.publishMessage('UI.Cmd.GameScreen.Close', {});
+        } else if (ev.key === 'r' || ev.key === 'R') {
+          fitToBounds();
         }
       }
 
       whenReady(() => {
-        tsic.on('tsic.msg.UI.Map.Snapshot', (p) => render(p));
+        const vp = document.getElementById('map-viewport');
+        vp.addEventListener('mousedown', onMouseDown);
+        window.addEventListener('mousemove', onMouseMove);
+        window.addEventListener('mouseup',   onMouseUp);
+        vp.addEventListener('wheel', onWheel, { passive: false });
+        vp.addEventListener('contextmenu', onContextMenu);
+        window.addEventListener('keydown', onKey);
+        window.addEventListener('resize', fitToBounds);
+
+        tsic.on('tsic.msg.UI.Map.Snapshot', onSnapshot);
+        tsic.on('tsic.msg.UI.Ping.Set', (p) => renderPings(p && p.Pings));
       });
     })();
   </script>
