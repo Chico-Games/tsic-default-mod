@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="tsic-screen" content="TestFixtures">
+  <title>Test Fixtures</title>
+  <!-- Minimal host page that loads every shared module so unit-style
+       scenarios can exercise each module in isolation. Visiting this
+       page in-game would be a no-op (no UI rendered). -->
+  <script src="/shared/router.js" defer></script>
+  <script src="/shared/hud.js" defer></script>
+  <script src="/shared/catalog.js" defer></script>
+  <script src="/shared/inventory.js" defer></script>
+  <script src="/shared/recipe-info.js" defer></script>
+  <script src="/shared/action-bar.js" defer></script>
+</head><body>
+  <div id="host" style="position:fixed;inset:0;"></div>
+</body></html>
