@@ -8,16 +8,28 @@
   <link rel="stylesheet" href="/shared/components.css">
   <script src="/shared/router.js" defer></script>
   <style>
-    #wrap { position:fixed;inset:0;background:rgba(0,0,0,0.85);overflow:auto;padding:32px; }
-    .group { margin-bottom: 20px; }
+    #wrap   { position:fixed;inset:0;background:rgba(0,0,0,0.85);overflow:auto;padding:32px; color:#eee; }
+    #wrap h2 { letter-spacing:4px; margin: 0 0 16px; }
+    .group  { margin-bottom: 24px; max-width: 720px; }
     .group h3 { letter-spacing: 3px; opacity:0.7; font-size: 13px; margin: 0 0 8px; }
-    .field { display:flex; justify-content:space-between; padding: 6px 0; border-bottom: 1px solid var(--tsic-border); }
-    .field label { opacity: 0.9; }
-    .field input, .field select { background: transparent; color: #eee; border: 1px solid var(--tsic-border); padding: 2px 6px; }
+    .field  { display:flex; align-items:center; justify-content:space-between; padding: 8px 0; border-bottom: 1px solid var(--tsic-border); gap: 16px; }
+    .field label { opacity: 0.9; flex: 1; }
+    .field-control { display:flex; align-items:center; gap: 8px; }
+    .field input[type=range] { width: 240px; }
+    .field input[type=number] { width: 80px; background: transparent; color: #eee; border: 1px solid var(--tsic-border); padding: 2px 6px; }
+    .field input[type=text]   { width: 200px; background: transparent; color: #eee; border: 1px solid var(--tsic-border); padding: 2px 6px; }
+    .field select { background: #111; color: #eee; border: 1px solid var(--tsic-border); padding: 2px 6px; }
+    .field .value-label { opacity: 0.6; min-width: 36px; text-align: right; }
+    .field-toggle      { width: 44px; height: 22px; background:#333; border-radius: 12px; position:relative; cursor:pointer; transition: background 100ms linear; }
+    .field-toggle.on   { background: var(--tsic-accent); }
+    .field-toggle::after { content:''; position:absolute; left:3px; top:3px; width:16px; height:16px; background:#fff; border-radius:50%; transition: left 100ms linear; }
+    .field-toggle.on::after { left: 25px; }
+    .field-rebind { background:#222; color:#fff; border:1px solid var(--tsic-border); padding: 2px 10px; cursor:pointer; min-width: 120px; font-family: inherit; }
+    .field-rebind.waiting { background: var(--tsic-accent-dim); }
   </style>
 </head><body>
   <div id="wrap">
-    <h2 style="letter-spacing:4px;">SETTINGS</h2>
+    <h2>SETTINGS</h2>
     <div id="catalog">Loading…</div>
     <div style="margin-top:20px;">
       <button class="tsic-button" id="btn-back">Back</button>
@@ -26,6 +38,118 @@
   <script>
     (function(){
       function whenReady(cb){ if (window.tsic){cb();return;} setTimeout(()=>whenReady(cb),16); }
+
+      let pendingRebind = null;
+
+      // Optimistic local state: when the user nudges a slider, update Value
+      // immediately; the C++ side will broadcast a UI.Settings.Value reply
+      // that confirms / corrects. We keep last-applied per Key here.
+      const localState = {};
+
+      function publishSet(key, value) {
+        try {
+          tsic.publishMessage('UI.Cmd.Settings.Set', { Key: key, ValueJson: JSON.stringify(value) });
+        } catch (e) { /* swallow stringify failures */ }
+      }
+
+      function publishRebind(actionId, keyName) {
+        tsic.publishMessage('UI.Cmd.Settings.RebindKey', { ActionId: actionId, Key: keyName });
+      }
+
+      function valueOf(s) {
+        if (s.Key in localState) return localState[s.Key];
+        return s.Value;
+      }
+
+      function buildField(s) {
+        const row = document.createElement('div');
+        row.className = 'field';
+        const lbl = document.createElement('label');
+        lbl.textContent = s.Label || s.Key;
+        row.appendChild(lbl);
+
+        const ctl = document.createElement('div');
+        ctl.className = 'field-control';
+        const type = String(s.Type || '').toLowerCase();
+        const v = valueOf(s);
+
+        if (type === 'range' || type === 'float' || type === 'int' || type === 'number') {
+          const min = (typeof s.Min === 'number') ? s.Min : 0;
+          const max = (typeof s.Max === 'number') ? s.Max : 1;
+          const step = (typeof s.Step === 'number') ? s.Step : (type === 'int' ? 1 : 0.01);
+          const slider = document.createElement('input');
+          slider.type = 'range';
+          slider.min = String(min); slider.max = String(max); slider.step = String(step);
+          slider.value = String(v);
+          const num = document.createElement('input');
+          num.type = 'number';
+          num.min = String(min); num.max = String(max); num.step = String(step);
+          num.value = String(v);
+          const sync = (val) => {
+            const n = Number(val);
+            if (Number.isNaN(n)) return;
+            const clamped = Math.max(min, Math.min(max, n));
+            slider.value = String(clamped);
+            num.value    = String(clamped);
+            localState[s.Key] = (type === 'int') ? Math.round(clamped) : clamped;
+            publishSet(s.Key, localState[s.Key]);
+          };
+          slider.oninput = () => sync(slider.value);
+          num.onchange   = () => sync(num.value);
+          ctl.appendChild(slider);
+          ctl.appendChild(num);
+        } else if (type === 'bool' || type === 'toggle' || type === 'boolean') {
+          const tog = document.createElement('div');
+          tog.className = 'field-toggle' + (v ? ' on' : '');
+          tog.onclick = () => {
+            localState[s.Key] = !(localState[s.Key] !== undefined ? localState[s.Key] : v);
+            tog.classList.toggle('on', localState[s.Key]);
+            publishSet(s.Key, localState[s.Key]);
+          };
+          ctl.appendChild(tog);
+        } else if (type === 'enum' || type === 'choice' || Array.isArray(s.Options)) {
+          const sel = document.createElement('select');
+          for (const opt of (s.Options || [])) {
+            const o = document.createElement('option');
+            o.value = String(opt.Value !== undefined ? opt.Value : opt);
+            o.textContent = String(opt.Label !== undefined ? opt.Label : opt);
+            if (o.value === String(v)) o.selected = true;
+            sel.appendChild(o);
+          }
+          sel.onchange = () => {
+            localState[s.Key] = sel.value;
+            publishSet(s.Key, localState[s.Key]);
+          };
+          ctl.appendChild(sel);
+        } else if (type === 'keybind' || type === 'rebind') {
+          const btn = document.createElement('button');
+          btn.className = 'field-rebind';
+          btn.type = 'button';
+          btn.textContent = String(v || '<unbound>');
+          btn.onclick = () => {
+            if (pendingRebind && pendingRebind.btn) pendingRebind.btn.classList.remove('waiting');
+            pendingRebind = { actionId: s.Key, btn };
+            btn.classList.add('waiting');
+            btn.textContent = 'press a key…';
+          };
+          ctl.appendChild(btn);
+        } else if (type === 'string' || type === 'text') {
+          const inp = document.createElement('input');
+          inp.type = 'text';
+          inp.value = String(v || '');
+          inp.onchange = () => { localState[s.Key] = inp.value; publishSet(s.Key, localState[s.Key]); };
+          ctl.appendChild(inp);
+        } else {
+          // Unknown control — fall back to read-only JSON.
+          const span = document.createElement('span');
+          span.textContent = JSON.stringify(v);
+          span.className = 'value-label';
+          ctl.appendChild(span);
+        }
+        row.appendChild(ctl);
+        return row;
+      }
+
       function render(catalog) {
         const host = document.getElementById('catalog');
         host.innerHTML = '';
@@ -36,23 +160,43 @@
         for (const g of catalog.Groups) {
           const sec = document.createElement('div');
           sec.className = 'group';
-          sec.innerHTML = `<h3>${g.Title}</h3>`;
-          for (const s of (g.Settings || [])) {
-            const row = document.createElement('div');
-            row.className = 'field';
-            row.innerHTML = `<label>${s.Label}</label><span>${JSON.stringify(s.Value)}</span>`;
-            sec.appendChild(row);
-          }
+          const h = document.createElement('h3');
+          h.textContent = g.Title || g.Id || 'Settings';
+          sec.appendChild(h);
+          for (const s of (g.Settings || [])) sec.appendChild(buildField(s));
           host.appendChild(sec);
         }
       }
+
+      function onGlobalKey(e) {
+        if (pendingRebind) {
+          // Capture the next keypress as the bound key. Esc cancels.
+          e.preventDefault();
+          e.stopPropagation();
+          const btn = pendingRebind.btn;
+          if (e.key !== 'Escape') {
+            publishRebind(pendingRebind.actionId, e.key);
+            btn.textContent = e.key;
+          } else {
+            btn.textContent = '<cancelled>';
+          }
+          btn.classList.remove('waiting');
+          pendingRebind = null;
+        }
+      }
+
       whenReady(()=>{
-        tsic.on('tsic.msg.UI.Settings.Catalog', (p)=>{
+        tsic.on('tsic.msg.UI.Settings.Catalog', (p) => {
           if (!p) return;
           let parsed = null;
           try { parsed = JSON.parse(p.Json || '{}'); } catch (e) {}
           render(parsed);
         });
+        tsic.on('tsic.msg.UI.Settings.Value', (p) => {
+          if (!p || !p.Key) return;
+          try { localState[p.Key] = JSON.parse(p.ValueJson || 'null'); } catch (e) {}
+        });
+        window.addEventListener('keydown', onGlobalKey, true);
         document.getElementById('btn-back').onclick = () => tsic.publishMessage('UI.Cmd.Pause.Resume', {});
       });
     })();
