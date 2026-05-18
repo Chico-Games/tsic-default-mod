@@ -100,8 +100,20 @@
     (function () {
       // 1 px per cm — UE world units are cm. We rely on transform to scale.
       const PX_PER_CM = 1;
+      // Target screen-pixel size for icons/players/pings. The actual SVG
+      // geometry is scaled by 1/state.scale so these stay readable as the
+      // map zooms.
+      const ICON_PX = 8;
+      const PLAYER_TIP_PX = 12;
+      const PLAYER_BASE_PX = 8;
+      const PING_HALF_PX = 8;
+      const PING_STROKE_PX = 3;
       let bounds = { minX: 0, minY: 0, maxX: 0, maxY: 0, hasData: false };
       const state = { panX: 0, panY: 0, scale: 1 };
+      // Latest payloads kept so we can re-render after pan/zoom changes
+      // (so counter-scaled geometry stays correct).
+      let latestSnapshot = null;
+      let latestPings = null;
 
       function whenReady(cb) {
         if (window.tsic) { cb(); return; }
@@ -140,10 +152,12 @@
         if (widthCm <= 0 || heightCm <= 0) return;
         const sx = vp.clientWidth  / widthCm;
         const sy = vp.clientHeight / heightCm;
-        state.scale = Math.min(sx, sy) * 0.95;
+        state.scale = Math.max(0.0001, Math.min(sx, sy) * 0.95);
         state.panX = (vp.clientWidth  - widthCm  * state.scale) / 2;
         state.panY = (vp.clientHeight - heightCm * state.scale) / 2;
         applyTransform();
+        // Icon/player/ping geometry depends on state.scale.
+        if (latestSnapshot) rerender();
       }
 
       function setBounds(minB, maxB) {
@@ -185,15 +199,18 @@
       function renderIcons(icons) {
         const g = document.getElementById('g-icons');
         g.textContent = '';
+        const inv = state.scale > 0 ? (1 / state.scale) : 1;
+        const r = ICON_PX * inv;
+        const sw = 1 * inv;
         for (const ic of (icons || [])) {
           const pos = worldToLocal((ic.Position && ic.Position.X) || 0,
                                    (ic.Position && ic.Position.Y) || 0);
           const c = (ic.Category || '').toLowerCase();
           const isClickable = c === 'fasttravel' && (ic.EntityId | 0) > 0;
           const circle = el('circle', {
-            cx: pos.x, cy: pos.y, r: 8,
+            cx: pos.x, cy: pos.y, r: r,
             class: `ic ${categoryClass(ic.Category)}${isClickable ? ' clickable' : ''}`,
-            stroke: '#000', 'stroke-width': 1,
+            stroke: '#000', 'stroke-width': sw,
           });
           if (isClickable) {
             circle.setAttribute('data-entity-id', String(ic.EntityId | 0));
@@ -214,16 +231,23 @@
       function renderPlayers(players) {
         const g = document.getElementById('g-players');
         g.textContent = '';
+        const inv = state.scale > 0 ? (1 / state.scale) : 1;
+        const tipY = -PLAYER_TIP_PX * inv;
+        const baseY = PLAYER_BASE_PX * inv;
+        const baseX = PLAYER_BASE_PX * inv;
+        const sw = 1 * inv;
         for (const pl of (players || [])) {
           const pos = worldToLocal((pl.Position && pl.Position.X) || 0,
                                    (pl.Position && pl.Position.Y) || 0);
-          // Yaw=0 in UE points along +X; SVG rotate is CW from up,
-          // so we use -yaw to keep the arrow heading match world heading.
+          // Match the prior stub's convention: rotate by yaw directly.
+          // Whether this needs a 90° offset depends on the world->screen
+          // axis mapping and is best confirmed in PIE; flagged as
+          // follow-up if rotation reads wrong.
           const yaw = (pl.YawDeg || 0);
           const tri = el('polygon', {
-            points: '0,-12 8,8 -8,8',
-            transform: `translate(${pos.x},${pos.y}) rotate(${-yaw})`,
-            class: 'pl-self', 'stroke-width': 1,
+            points: `0,${tipY} ${baseX},${baseY} ${-baseX},${baseY}`,
+            transform: `translate(${pos.x},${pos.y}) rotate(${yaw})`,
+            class: 'pl-self', 'stroke-width': sw,
           });
           const title = el('title');
           title.textContent = pl.Name || pl.PlayerId || 'Player';
@@ -235,12 +259,15 @@
       function renderPings(pings) {
         const g = document.getElementById('g-pings');
         g.textContent = '';
+        const inv = state.scale > 0 ? (1 / state.scale) : 1;
+        const half = PING_HALF_PX * inv;
+        const sw = PING_STROKE_PX * inv;
         for (const p of (pings || [])) {
           const loc = p.Location || {};
           const pos = worldToLocal(loc.X || 0, loc.Y || 0);
           const cross = el('g', { transform: `translate(${pos.x},${pos.y})` });
-          cross.appendChild(el('line', { x1: -8, y1: -8, x2:  8, y2:  8, class: 'ping', 'stroke-width': 3 }));
-          cross.appendChild(el('line', { x1: -8, y1:  8, x2:  8, y2: -8, class: 'ping', 'stroke-width': 3 }));
+          cross.appendChild(el('line', { x1: -half, y1: -half, x2:  half, y2:  half, class: 'ping', 'stroke-width': sw }));
+          cross.appendChild(el('line', { x1: -half, y1:  half, x2:  half, y2: -half, class: 'ping', 'stroke-width': sw }));
           const title = el('title');
           title.textContent = `${p.PingType || 'Ping'} • ${p.OwnerId || ''}`;
           cross.appendChild(title);
@@ -248,14 +275,40 @@
         }
       }
 
-      function onSnapshot(p) {
+      function rerender() {
+        const p = latestSnapshot;
         const empty = document.getElementById('empty');
-        if (!p) { empty.style.display = ''; return; }
-        setBounds(p.MinBounds, p.MaxBounds);
-        const hasAny = bounds.hasData && ((p.Icons || []).length + (p.Players || []).length) > 0;
-        empty.style.display = hasAny ? 'none' : '';
+        if (!p) {
+          empty.textContent = 'Waiting for map data…';
+          empty.style.display = '';
+          return;
+        }
+        if (!bounds.hasData) {
+          empty.textContent = 'Map bounds unavailable.';
+          empty.style.display = '';
+          return;
+        }
+        const hasAny = ((p.Icons || []).length + (p.Players || []).length) > 0;
+        if (!hasAny) {
+          empty.textContent = 'No map data.';
+          empty.style.display = '';
+        } else {
+          empty.style.display = 'none';
+        }
         renderIcons(p.Icons);
         renderPlayers(p.Players);
+        renderPings(latestPings);
+      }
+
+      function onSnapshot(p) {
+        latestSnapshot = p;
+        if (p) setBounds(p.MinBounds, p.MaxBounds);
+        rerender();
+      }
+
+      function onPingSet(p) {
+        latestPings = (p && p.Pings) || [];
+        if (latestSnapshot) renderPings(latestPings);
       }
 
       let dragging = false;
@@ -289,10 +342,14 @@
         const factor = ev.deltaY < 0 ? 1.1 : (1 / 1.1);
         const lx = (cx - state.panX) / state.scale;
         const ly = (cy - state.panY) / state.scale;
-        state.scale *= factor;
+        // Clamp scale so wheel-down can't drop us to a degenerate value.
+        state.scale = Math.max(0.0001, state.scale * factor);
         state.panX = cx - lx * state.scale;
         state.panY = cy - ly * state.scale;
         applyTransform();
+        // Counter-scaled icon/player/ping geometry depends on state.scale,
+        // so re-render after every zoom change.
+        rerender();
       }
 
       function onContextMenu(ev) {
@@ -332,7 +389,7 @@
         window.addEventListener('resize', fitToBounds);
 
         tsic.on('tsic.msg.UI.Map.Snapshot', onSnapshot);
-        tsic.on('tsic.msg.UI.Ping.Set', (p) => renderPings(p && p.Pings));
+        tsic.on('tsic.msg.UI.Ping.Set', onPingSet);
       });
     })();
   </script>
