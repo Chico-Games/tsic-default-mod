@@ -11,6 +11,7 @@
   <script src="/shared/hud.js" defer></script>
   <script src="/shared/catalog.js" defer></script>
   <script src="/shared/inventory.js" defer></script>
+  <script src="/shared/action-bar.js" defer></script>
   <style>
     #inv-root { position:fixed; inset:0; background: rgba(0,0,0,0.65); display:flex; align-items:center; justify-content:center; }
     #inv-panel { width: 900px; max-height: 80vh; display:grid; grid-template-columns: 140px 1fr 240px; gap:12px; }
@@ -69,6 +70,29 @@
         }
     }
 
+    function publishHoverContext(it) {
+        if (!window.tsic || !window.tsic.setMenuActionContext) return;
+        const cat = window.tsic.itemCatalog || {};
+        if (!it) {
+            window.tsic.setMenuActionContext([]);
+            return;
+        }
+        const desc = cat[it.ItemId];
+        const category = desc && desc.Category;
+        const entries = [];
+        if (category === 'Equipment') {
+            entries.push({ ActionName: 'IA_UI_ConfirmAccept', Label: 'Equip',         Priority: 10 });
+            entries.push({ ActionName: 'IA_UI_AddToHotbar',   Label: 'Assign Hotbar', Priority: 20 });
+            entries.push({ ActionName: 'IA_UI_DropItem',      Label: 'Drop',          Priority: 30 });
+        } else if (category === 'Consumable') {
+            entries.push({ ActionName: 'IA_UI_ConfirmAccept', Label: 'Use',  Priority: 10 });
+            entries.push({ ActionName: 'IA_UI_DropItem',      Label: 'Drop', Priority: 30 });
+        } else {
+            entries.push({ ActionName: 'IA_UI_DropItem', Label: 'Drop', Priority: 30 });
+        }
+        window.tsic.setMenuActionContext(entries);
+    }
+
     function refresh() {
         renderTabs();
         if (!lastUpdate) return;
@@ -84,8 +108,13 @@
             onHover: (it) => {
                 hoveredItem = it;
                 window.TSICInventory.renderInfoPanel(document.getElementById('inv-info'), it ? cat[it.ItemId] : null, it);
+                publishHoverContext(it);
             },
-            onLeave: () => { hoveredItem = null; window.TSICInventory.renderInfoPanel(document.getElementById('inv-info'), null); },
+            onLeave: () => {
+                hoveredItem = null;
+                window.TSICInventory.renderInfoPanel(document.getElementById('inv-info'), null);
+                publishHoverContext(null);
+            },
             onClick: (it) => {
                 if (!it) return;
                 tsic.publishMessage('UI.Cmd.Inventory.Use', { OwnerId: 'Player', SlotIndex: it.SlotIndex });
