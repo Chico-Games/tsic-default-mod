@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="tsic-screen" content="CheatMenu">
+  <meta name="tsic-action-bar-context" content='[]'>
+  <title>Cheat Menu</title>
+  <link rel="stylesheet" href="/shared/base.css">
+  <link rel="stylesheet" href="/shared/components.css">
+  <script src="/shared/router.js" defer></script>
+  <style>
+    #cm-root  { position:fixed; inset:0; background: rgba(0,0,0,0.92); padding: 24px; overflow:auto; color: #eee; }
+    #cm-root h2 { margin: 0 0 8px; letter-spacing: 4px; color: #f59e0b; }
+    .cm-section { margin: 20px 0; max-width: 920px; }
+    .cm-section h3 { letter-spacing: 3px; opacity:0.7; font-size: 13px; margin: 0 0 8px; }
+    .cm-row    { display:flex; flex-wrap:wrap; gap: 6px; }
+    .cm-row button { padding: 4px 10px; font-size: 12px; }
+    .cm-input  { background: transparent; color:#eee; border:1px solid var(--tsic-border); padding: 2px 6px; min-width: 180px; }
+    .cm-exec   { background:#7c2d12; color:#fff; border:1px solid #c2410c; padding: 4px 10px; cursor:pointer; }
+    #cm-custom { display:flex; gap:6px; max-width: 920px; }
+    #cm-custom input { flex:1; }
+  </style>
+</head><body>
+  <div id="cm-root">
+    <h2>CHEAT MENU</h2>
+    <div style="opacity:0.6;font-size:11px;margin-bottom:4px;">DEV ONLY · commands run on the local player controller.</div>
+
+    <div class="cm-section">
+      <h3>QUICK</h3>
+      <div class="cm-row">
+        <button class="tsic-button" data-cmd="ScpToggleGod">God Mode</button>
+        <button class="tsic-button" data-cmd="ScpHeal">Heal</button>
+        <button class="tsic-button" data-cmd="ScpRefillStamina">Refill Stamina</button>
+        <button class="tsic-button" data-cmd="ScpRevealMap">Reveal Map (FOW)</button>
+        <button class="tsic-button" data-cmd="ScpToggleNoClip">No-Clip</button>
+        <button class="tsic-button" data-cmd="ScpUnstuck">Unstuck</button>
+        <button class="tsic-button" data-cmd="ScpKillAllEnemies">Kill All Enemies</button>
+      </div>
+    </div>
+
+    <div class="cm-section">
+      <h3>SPAWN</h3>
+      <div class="cm-row">
+        <input class="cm-input" id="cm-item-id"     placeholder="ID_BreadData">
+        <input class="cm-input" id="cm-item-count"  placeholder="count" value="1" type="number" min="1" style="min-width:80px;">
+        <button class="cm-exec" id="cm-give">GiveItem</button>
+      </div>
+      <div class="cm-row" style="margin-top:6px;">
+        <input class="cm-input" id="cm-enemy-class" placeholder="BP_Customer">
+        <button class="cm-exec" id="cm-spawn-enemy">SpawnEnemy</button>
+      </div>
+      <div class="cm-row" style="margin-top:6px;">
+        <input class="cm-input" id="cm-furn-id"     placeholder="FD_TableData">
+        <button class="cm-exec" id="cm-spawn-furn">SpawnFurniture</button>
+      </div>
+    </div>
+
+    <div class="cm-section">
+      <h3>WORLD</h3>
+      <div class="cm-row">
+        <button class="tsic-button" data-cmd="ScpSetTime 12">Noon</button>
+        <button class="tsic-button" data-cmd="ScpSetTime 18">Dusk</button>
+        <button class="tsic-button" data-cmd="ScpSetTime 0">Midnight</button>
+        <button class="tsic-button" data-cmd="slomo 1">Speed × 1</button>
+        <button class="tsic-button" data-cmd="slomo 0.25">Speed × 0.25</button>
+        <button class="tsic-button" data-cmd="slomo 2">Speed × 2</button>
+      </div>
+    </div>
+
+    <div class="cm-section">
+      <h3>TELEPORT</h3>
+      <div class="cm-row">
+        <input class="cm-input" id="cm-tp-coords"   placeholder="x y z (cm)">
+        <button class="cm-exec" id="cm-tp">Teleport</button>
+        <button class="tsic-button" data-cmd="ScpTeleportToSpawn">To Spawn</button>
+      </div>
+    </div>
+
+    <div class="cm-section">
+      <h3>CUSTOM</h3>
+      <div id="cm-custom">
+        <input class="cm-input" id="cm-custom-cmd" placeholder="Any console command…">
+        <button class="cm-exec" id="cm-custom-go">Run</button>
+      </div>
+    </div>
+
+    <div style="margin-top:24px;">
+      <button class="tsic-button" id="btn-back">Close</button>
+    </div>
+  </div>
+  <script>
+    (function(){
+      function whenReady(cb){ if(window.tsic){cb();return;} setTimeout(()=>whenReady(cb),16); }
+      function exec(cmd) { if (cmd) tsic.publishMessage('UI.Cmd.Cheat.Execute', { Command: cmd }); }
+      whenReady(()=>{
+        document.querySelectorAll('button[data-cmd]').forEach(b => {
+          b.onclick = () => exec(b.getAttribute('data-cmd'));
+        });
+        document.getElementById('cm-give').onclick = () => {
+          const id = document.getElementById('cm-item-id').value.trim();
+          const n  = parseInt(document.getElementById('cm-item-count').value, 10) || 1;
+          if (id) exec(`GiveItem ${id} ${n}`);
+        };
+        document.getElementById('cm-spawn-enemy').onclick = () => {
+          const cls = document.getElementById('cm-enemy-class').value.trim();
+          if (cls) exec(`ScpSpawnEnemy ${cls}`);
+        };
+        document.getElementById('cm-spawn-furn').onclick = () => {
+          const id = document.getElementById('cm-furn-id').value.trim();
+          if (id) exec(`ScpSpawnFurniture ${id}`);
+        };
+        document.getElementById('cm-tp').onclick = () => {
+          const v = document.getElementById('cm-tp-coords').value.trim();
+          if (v) exec(`ScpTeleport ${v}`);
+        };
+        document.getElementById('cm-custom-go').onclick = () => {
+          const v = document.getElementById('cm-custom-cmd').value.trim();
+          if (v) exec(v);
+        };
+        document.getElementById('btn-back').onclick = () => tsic.publishMessage('UI.Cmd.Pause.Resume', {});
+      });
+    })();
+  </script>
+</body></html>

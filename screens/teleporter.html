@@ -21,6 +21,10 @@
   <div id="modal">
     <div class="tsic-panel" style="width:420px;max-height:80vh;display:flex;flex-direction:column;">
       <h2 style="margin:0 0 12px;letter-spacing:3px;font-size:14px;">TELEPORTER</h2>
+      <div id="rename-row" style="display:flex;gap:6px;margin-bottom:12px;">
+        <input id="rename-input" type="text" class="tsic-input" placeholder="Rename this teleporter…" style="flex:1;background:transparent;color:#eee;border:1px solid var(--tsic-border);padding:4px 6px;" maxlength="48">
+        <button class="tsic-button" id="btn-rename">Rename</button>
+      </div>
       <div id="rows" style="display:flex;flex-direction:column;gap:6px;overflow-y:auto;"></div>
       <div id="empty" style="opacity:0.6;padding:8px 0;display:none;">No destinations available.</div>
       <div style="margin-top:16px;display:flex;gap:8px;">
@@ -79,6 +83,17 @@
         tsic.on('tsic.msg.UI.Teleporter.Destinations', (p) => render(p));
         document.getElementById('btn-cancel').onclick = () =>
           tsic.publishMessage('UI.Cmd.Pause.Resume', {});
+        // Rename the *source* teleporter (the one the player is standing at).
+        const renameInput  = document.getElementById('rename-input');
+        const renameButton = document.getElementById('btn-rename');
+        const doRename = () => {
+          const name = (renameInput.value || '').trim();
+          if (!name || !fromId) return;
+          tsic.publishMessage('UI.Cmd.Teleporter.Rename', { EntityId: fromId, NewName: name });
+          renameInput.value = '';
+        };
+        renameButton.onclick = doRename;
+        renameInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') doRename(); });
       });
     })();
   </script>

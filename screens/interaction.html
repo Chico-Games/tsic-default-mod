@@ -9,55 +9,71 @@
   <script src="/shared/router.js" defer></script>
   <script src="/shared/hud.js" defer></script>
   <style>
-    #wrap { position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); width:380px; }
-    .row { display:flex; align-items:center; gap:8px; justify-content:flex-start; padding:8px 12px; text-align:left; width:100%; }
-    .pri { border-color: rgba(127,255,154,0.45); }
-    .tag { font-size:10px; letter-spacing:2px; opacity:0.7; margin-left:auto; }
+    #wrap { position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); width:420px; }
+    .group h3 { letter-spacing: 3px; opacity:0.65; font-size: 11px; margin: 12px 0 6px; }
+    .row { display:flex; align-items:center; gap:8px; padding:8px 12px; text-align:left; width:100%; }
+    .row.primary { border-color: rgba(127,255,154,0.55); }
+    .row.alt     { border-color: rgba(255,200,80,0.45); opacity: 0.85; }
+    .key  { width:32px; height:24px; display:flex; align-items:center; justify-content:center; background:var(--tsic-border); border-radius:3px; font-weight:bold; font-size:11px; }
+    .label{ flex:1; }
+    .badge{ font-size:10px; letter-spacing:2px; opacity:0.7; }
   </style>
 </head><body>
   <div id="wrap" class="tsic-panel">
-    <h2 style="margin:0 0 12px;letter-spacing:3px;font-size:14px;">INTERACT</h2>
-    <div id="rows" style="display:flex;flex-direction:column;gap:6px;"></div>
+    <h2 style="margin:0 0 4px;letter-spacing:3px;font-size:14px;">INTERACT</h2>
+    <div class="group" id="g-primary"><h3>PRIMARY</h3><div id="rows-primary" style="display:flex;flex-direction:column;gap:6px;"></div></div>
+    <div class="group" id="g-alt"><h3>ALT</h3><div id="rows-alt" style="display:flex;flex-direction:column;gap:6px;"></div></div>
     <div id="empty" style="opacity:0.6;padding:8px 0;display:none;">No targets in focus.</div>
   </div>
   <script>
     (function(){
       function whenReady(cb){ if(window.tsic){cb();return;} setTimeout(()=>whenReady(cb),16); }
 
-      function render(p) {
-        const host = document.getElementById('rows');
-        const empty = document.getElementById('empty');
-        host.innerHTML = '';
-        const targets = (p && p.Targets) || [];
-        if (targets.length === 0) {
-          empty.style.display = 'block';
-          return;
-        }
-        empty.style.display = 'none';
-        for (const t of targets) {
-          const row = document.createElement('button');
-          row.className = 'tsic-button row' + (t.bIsPrimary ? ' pri' : '');
-          const label = document.createElement('span');
-          label.textContent = t.Label || ('Entity ' + t.EntityId);
-          row.appendChild(label);
-          const tag = document.createElement('span');
-          tag.className = 'tag';
-          tag.textContent = t.bIsPrimary ? 'PRIMARY' : 'ALT';
-          row.appendChild(tag);
-          // User explicitly chose from the menu, so always send bPrimary=false
-          // unless this is the primary target itself; spec says always false.
-          row.onclick = () => tsic.publishMessage('UI.Cmd.Interaction.Activate', {
-            EntityId: t.EntityId|0,
-            OptionId: '',
-            bPrimary: false,
-          });
-          host.appendChild(row);
-        }
+      function makeRow(t) {
+        const row = document.createElement('button');
+        row.className = 'tsic-button row ' + (t.bIsPrimary ? 'primary' : 'alt');
+        const key = document.createElement('span');
+        key.className = 'key';
+        key.textContent = t.bIsPrimary ? 'E' : 'F';
+        const label = document.createElement('span');
+        label.className = 'label';
+        label.textContent = t.Label || ('Entity ' + t.EntityId);
+        const badge = document.createElement('span');
+        badge.className = 'badge';
+        badge.textContent = t.bIsPrimary ? 'PRIMARY' : 'ALT';
+        row.appendChild(key);
+        row.appendChild(label);
+        row.appendChild(badge);
+        row.onclick = () => tsic.publishMessage('UI.Cmd.Interaction.Activate', {
+          EntityId: t.EntityId | 0,
+          OptionId: '',
+          bPrimary: !!t.bIsPrimary,
+        });
+        return row;
       }
 
-      whenReady(()=>{
-        tsic.on('tsic.msg.UI.Interaction.Targets', (p) => render(p));
-      });
+      function render(p) {
+        const pHost = document.getElementById('rows-primary');
+        const aHost = document.getElementById('rows-alt');
+        const gP = document.getElementById('g-primary');
+        const gA = document.getElementById('g-alt');
+        const empty = document.getElementById('empty');
+        pHost.innerHTML = '';
+        aHost.innerHTML = '';
+        const targets = (p && p.Targets) || [];
+        if (targets.length === 0) { empty.style.display = 'block'; gP.style.display = 'none'; gA.style.display = 'none'; return; }
+        empty.style.display = 'none';
+        let primaryCount = 0, altCount = 0;
+        for (const t of targets) {
+          const row = makeRow(t);
+          if (t.bIsPrimary) { pHost.appendChild(row); primaryCount++; }
+          else              { aHost.appendChild(row); altCount++; }
+        }
+        gP.style.display = primaryCount ? '' : 'none';
+        gA.style.display = altCount     ? '' : 'none';
+      }
+
+      whenReady(()=>{ tsic.on('tsic.msg.UI.Interaction.Targets', (p) => render(p)); });
     })();
   </script>
 </body></html>

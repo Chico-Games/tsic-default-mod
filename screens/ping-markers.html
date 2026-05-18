@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="tsic-screen" content="PingMarkers">
+  <title>Ping Markers</title>
+  <link rel="stylesheet" href="/shared/base.css">
+  <link rel="stylesheet" href="/shared/components.css">
+  <script src="/shared/router.js" defer></script>
+  <style>
+    /*
+     * 2D HUD fallback for in-world ping markers. The legacy UPingMarkerWidget
+     * is a 3D-anchored Slate overlay positioned by the gameplay layer; without
+     * a screen-projected payload here, we render a small bottom-right info
+     * panel that flashes the most recent ping for ~3s. When C++ ships a
+     * UI.Ping.Markers channel with screen-space coordinates per ping, this
+     * page should be replaced or extended to render anchored markers.
+     */
+    html, body { background: transparent; }
+    #pm-root { position:fixed; right:24px; bottom:120px; display:flex; flex-direction:column; gap:4px; pointer-events:none; }
+    .pm-flash { padding: 4px 10px; background: rgba(0,0,0,0.55); border-left: 2px solid #ffcc00; color: #ffe089; font-size: 11px; letter-spacing:2px; animation: pm-fade 3000ms forwards; }
+    @keyframes pm-fade { 0% { opacity:0; transform: translateY(8px); } 12% { opacity: 1; transform: translateY(0); } 80% { opacity: 1; } 100% { opacity: 0; } }
+  </style>
+</head><body>
+  <div id="pm-root"></div>
+  <script>
+    (function(){
+      function whenReady(cb){ if(window.tsic){cb();return;} setTimeout(()=>whenReady(cb),16); }
+      let known = new Set();
+      whenReady(()=>{
+        tsic.on('tsic.msg.UI.Ping.Set', (p) => {
+          const pings = (p && p.Pings) || [];
+          const now = new Set(pings.map(x => x.PingId));
+          // Notify on adds; ignore removes.
+          for (const pi of pings) {
+            if (known.has(pi.PingId)) continue;
+            known.add(pi.PingId);
+            const flash = document.createElement('div');
+            flash.className = 'pm-flash';
+            flash.textContent = `⊕ ${(pi.PingType || 'PING').toUpperCase()}${pi.OwnerId ? ' · ' + pi.OwnerId : ''}`;
+            const host = document.getElementById('pm-root');
+            host.appendChild(flash);
+            setTimeout(() => flash.remove(), 3100);
+          }
+          // Trim removed ids so we re-notify if they reappear.
+          for (const id of Array.from(known)) if (!now.has(id)) known.delete(id);
+        });
+      });
+    })();
+  </script>
+</body></html>
