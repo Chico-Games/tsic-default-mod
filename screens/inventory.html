@@ -24,7 +24,15 @@
     .equip-slot { width:48px; height:48px; background: rgba(255,255,255,0.05); border:1px solid var(--tsic-border); display:flex; align-items:center; justify-content:center; font-size:9px; color: var(--tsic-text-dim); cursor:pointer; }
     #inv-char-preview { width:240px; height:280px; background: rgba(0,0,0,0.5); border:1px solid var(--tsic-border); }
     #inv-char-preview img { width:100%; height:100%; object-fit:contain; }
-    #inv-capacity { grid-column: 1 / 4; font-size:11px; opacity:0.6; }
+    #inv-capacity { grid-column: 1 / 4; display:flex; flex-direction:column; gap:4px; font-size:11px; }
+    #inv-capacity-line { display:flex; justify-content:space-between; opacity:0.75; }
+    #inv-capacity-bar { height:6px; background: rgba(255,255,255,0.06); border-radius:3px; overflow:hidden; }
+    #inv-capacity-fill { height:100%; width:0; background:#cbd5e1; transition: width 100ms linear, background 100ms linear; }
+    #inv-capacity[data-state="warning"] #inv-capacity-fill { background:#f59e0b; }
+    #inv-capacity[data-state="full"] #inv-capacity-fill { background:#ef4444; }
+    #inv-capacity[data-state="overburdened"] #inv-capacity-fill { background:#b91c1c; }
+    #inv-capacity[data-state="overburdened"] #inv-capacity-overburdened { display:block; }
+    #inv-capacity-overburdened { display:none; color:#fca5a5; font-weight:600; letter-spacing:1px; }
     #inv-close { grid-column: 1 / 4; text-align:right; }
   </style>
 </head><body>
@@ -36,7 +44,10 @@
     <div id="inv-info"></div>
     <div id="inv-equip-row"></div>
     <div id="inv-char-preview"><img id="inv-char-img" alt=""></div>
-    <div id="inv-capacity">CAPACITY: -</div>
+    <div id="inv-capacity">
+      <div id="inv-capacity-line"><span id="inv-capacity-text">CAPACITY: -</span><span id="inv-capacity-overburdened">OVERBURDENED</span></div>
+      <div id="inv-capacity-bar"><div id="inv-capacity-fill"></div></div>
+    </div>
     <div id="inv-close"><button class="tsic-button" id="btn-close">Close (Esc)</button></div>
   </div>
 </div>
@@ -141,9 +152,18 @@
         };
         window.TSICInventory.renderGrid(document.getElementById('inv-grid'), items, opts);
 
-        const cap = document.getElementById('inv-capacity');
         const used = (lastUpdate.Items || []).length;
-        cap.textContent = `CAPACITY: ${used} items · ${(lastUpdate.CurrentWeight||0).toFixed(2)}/${(lastUpdate.MaxWeight||0).toFixed(2)} kg`;
+        const cur = lastUpdate.CurrentWeight || 0;
+        const max = lastUpdate.MaxWeight || 0;
+        const ratio = max > 0 ? cur / max : 0;
+        const cap = document.getElementById('inv-capacity');
+        document.getElementById('inv-capacity-text').textContent =
+            `CAPACITY: ${used} items · ${cur.toFixed(2)}/${max.toFixed(2)} kg`;
+        document.getElementById('inv-capacity-fill').style.width = `${Math.max(0, Math.min(100, ratio * 100))}%`;
+        cap.dataset.state = ratio >= 1.05 ? 'overburdened'
+            : ratio >= 1.0  ? 'full'
+            : ratio >= 0.75 ? 'warning'
+            : 'normal';
     }
 
     function renderEquipment() {
@@ -209,8 +229,9 @@
                 stopCharPreviewPolling();
                 tsic.publishMessage('UI.Cmd.Pause.Resume', {});
             }
-            if (/^[1-8]$/.test(e.key) && hoveredItem) {
-                const slotIndex = parseInt(e.key, 10) - 1;
+            if (/^[0-9]$/.test(e.key) && hoveredItem) {
+                // 1..9 -> slots 0..8, 0 -> slot 9 (C++ NumHotbarSlots == 10).
+                const slotIndex = e.key === '0' ? 9 : (parseInt(e.key, 10) - 1);
                 tsic.publishMessage('UI.Cmd.Hotbar.Assign', {
                     SlotIndex: slotIndex,
                     ItemId: String(hoveredItem.SlotIndex)
