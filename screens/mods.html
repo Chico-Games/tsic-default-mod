@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="tsic-screen" content="Mods">
+  <title>Mods</title>
+  <link rel="stylesheet" href="/shared/base.css">
+  <link rel="stylesheet" href="/shared/components.css">
+  <script src="/shared/router.js" defer></script>
+  <style>
+    html, body { background: rgba(0,0,0,0.85); color: #f4f4f4; }
+    .wrap { max-width: 1024px; margin: 0 auto; padding: 32px 48px; }
+    h1 { letter-spacing: 12px; font-weight: 200; font-size: 36px;
+         text-transform: uppercase; margin: 0 0 24px; }
+    .panel { border: 1px solid rgba(255,255,255,0.18);
+             background: rgba(0,0,0,0.4); padding: 16px; margin-bottom: 16px; }
+    .auth-strip { display: flex; justify-content: space-between; align-items: center; }
+    .auth-strip input { background: rgba(0,0,0,0.45);
+             border: 1px solid rgba(255,255,255,0.25);
+             color: #fff; padding: 8px 12px; font: inherit; margin-right: 8px; }
+    .auth-strip button { background: rgba(0,0,0,0.6);
+             border: 1px solid rgba(255,255,255,0.35); color: #fff;
+             padding: 8px 16px; cursor: pointer; font: inherit; }
+    .auth-strip button:hover { background: rgba(180,30,30,0.55); }
+    .error { color: #ef6c6c; font-size: 12px; margin-top: 6px; }
+    .browse { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .card { border: 1px solid rgba(255,255,255,0.2);
+             background: rgba(0,0,0,0.4); padding: 8px; }
+    .card .logo { width: 100%; aspect-ratio: 16 / 9; background: #222; }
+    .card .name { font-weight: bold; margin-top: 6px; }
+    .card .summary { font-size: 12px; opacity: 0.75; margin: 6px 0; }
+    .card-sub { background: rgba(0,0,0,0.6);
+             border: 1px solid rgba(255,255,255,0.35); color: #fff;
+             padding: 4px 10px; cursor: pointer; font: inherit; }
+    .card-sub:disabled { opacity: 0.4; cursor: default; }
+    .installed-list { display: flex; flex-direction: column; gap: 4px; }
+    .installed-row { display: flex; align-items: center; gap: 8px; padding: 4px 0; }
+    .installed-row .name { flex: 1; }
+    .installed-row button { background: rgba(0,0,0,0.45);
+             border: 1px solid rgba(255,255,255,0.2); color: #fff;
+             padding: 2px 8px; cursor: pointer; }
+    .actions { margin-top: 24px; }
+  </style>
+</head><body>
+  <div class="wrap">
+    <h1>Mods</h1>
+
+    <div class="panel" id="panel-auth">
+      <div class="auth-strip" id="auth-signed-out" style="display:none;">
+        <div>
+          <input id="email" type="email" placeholder="you@example.com">
+          <button id="btn-request">Email me a code</button>
+        </div>
+        <div style="opacity:0.6; font-size:11px;">mod.io will email a 5-character code.</div>
+      </div>
+      <div class="auth-strip" id="auth-awaiting-code" style="display:none;">
+        <div>
+          <input id="code" type="text" placeholder="A1B2C" maxlength="5"
+                 style="letter-spacing: 8px; text-align: center; text-transform: uppercase;">
+          <button id="btn-exchange">Sign in</button>
+        </div>
+        <button id="btn-cancel-code">Cancel</button>
+      </div>
+      <div class="auth-strip" id="auth-signed-in" style="display:none;">
+        <div><b id="username"></b></div>
+        <button id="btn-signout">Sign out</button>
+      </div>
+      <div class="auth-strip" id="auth-disabled" style="display:none;">
+        <div style="opacity:0.75;">mod.io is not configured for this project.</div>
+      </div>
+      <div class="error" id="auth-error" style="display:none;"></div>
+    </div>
+
+    <div class="panel" id="panel-browse">
+      <div class="auth-strip" style="margin-bottom:8px;">
+        <div>
+          <input id="search" type="text" placeholder="Search mods…" style="width:300px;">
+          <select id="sort" style="background:rgba(0,0,0,0.45);
+                                   border:1px solid rgba(255,255,255,0.25);
+                                   color:#fff; padding:8px;">
+            <option value="popular">Popular</option>
+            <option value="-date_added">Recently Added</option>
+            <option value="-downloads_total">Most Downloaded</option>
+            <option value="-subscribers_total">Most Subscribed</option>
+            <option value="-ratings_weighted_aggregate">Top Rated</option>
+          </select>
+        </div>
+        <div id="tag-chips" style="opacity:0.8;"></div>
+      </div>
+      <div class="browse" id="browse"></div>
+      <div style="text-align:center; margin-top:10px;">
+        <button id="btn-loadmore" style="background:rgba(0,0,0,0.5);
+                  border:1px solid rgba(255,255,255,0.3); color:#fff;
+                  padding:6px 16px; cursor:pointer; display:none;">Load more</button>
+      </div>
+    </div>
+
+    <div class="panel" id="panel-installed">
+      <div style="margin-bottom:8px; opacity:0.75; letter-spacing:3px;
+                  text-transform:uppercase; font-size:11px;">
+        Installed (Load Order)
+      </div>
+      <div class="installed-list" id="installed-list"></div>
+    </div>
+
+    <div class="actions">
+      <button class="tsic-button" id="btn-back">Back</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { createClient, makeBaseUrl, listMods, getGameTags, subscribe,
+             listModfiles } from '/shared/modio.js';
+    import { createAuth, loadToken, loadProfile, clearToken } from '/shared/modio-auth.js';
+
+    let cfg = null;
+    let client = null;
+    let auth = null;
+    let activeTags = new Set();
+    let allTags = [];
+    let offset = 0;
+    const PAGE = 24;
+    let searchTimer = null;
+    let busy = false;
+    let installedMods = [];
+    let installedOrder = [];
+
+    function show(id) {
+      for (const sel of ['signed-out','awaiting-code','signed-in','disabled']) {
+        const el = document.getElementById('auth-' + sel);
+        if (el) el.style.display = (sel === id) ? '' : 'none';
+      }
+    }
+    function showError(msg) {
+      const el = document.getElementById('auth-error');
+      el.textContent = msg || '';
+      el.style.display = msg ? '' : 'none';
+    }
+
+    function bootAuth() {
+      auth = createAuth(client);
+      auth.onChange((state) => {
+        if (state === 'idle') show('signed-out');
+        else if (state === 'awaiting-code') show('awaiting-code');
+        else if (state === 'signed-in') {
+          show('signed-in');
+          const p = loadProfile();
+          document.getElementById('username').textContent = (p && p.username) || 'mod.io user';
+        }
+      });
+      if (loadToken()) {
+        show('signed-in');
+        const p = loadProfile();
+        document.getElementById('username').textContent = (p && p.username) || 'mod.io user';
+      } else {
+        show('signed-out');
+      }
+      document.getElementById('btn-request').onclick = async () => {
+        showError('');
+        try { await auth.requestCode(document.getElementById('email').value.trim()); }
+        catch (e) { showError(e.message); }
+      };
+      document.getElementById('btn-exchange').onclick = async () => {
+        showError('');
+        try {
+          await auth.exchangeCode(document.getElementById('code').value.trim().toUpperCase());
+          bootBrowse();
+        } catch (e) { showError(e.message); }
+      };
+      document.getElementById('btn-cancel-code').onclick = () => auth.signOut();
+      document.getElementById('btn-signout').onclick = () => auth.signOut();
+    }
+
+    async function loadTags() {
+      if (!client) return;
+      try {
+        const r = await getGameTags(client);
+        allTags = (r.tag_options || []).flatMap(g => (g.tags || []));
+        renderTagChips();
+      } catch (e) { console.warn('tags failed', e); }
+    }
+    function renderTagChips() {
+      const host = document.getElementById('tag-chips');
+      host.innerHTML = '';
+      for (const t of allTags) {
+        const b = document.createElement('span');
+        b.textContent = t;
+        b.style.cssText = `padding:2px 8px; margin-left:4px; cursor:pointer;
+          border:1px solid rgba(255,255,255,0.25);
+          background:${activeTags.has(t) ? 'rgba(180,30,30,0.45)' : 'rgba(0,0,0,0.4)'};`;
+        b.onclick = () => {
+          if (activeTags.has(t)) activeTags.delete(t); else activeTags.add(t);
+          renderTagChips();
+          searchSoon();
+        };
+        host.appendChild(b);
+      }
+    }
+    async function loadPage(reset) {
+      if (!client || busy) return;
+      busy = true;
+      if (reset) { offset = 0; document.getElementById('browse').innerHTML = ''; }
+      try {
+        const q = document.getElementById('search').value.trim();
+        const sort = document.getElementById('sort').value;
+        const tagsIn = activeTags.size ? Array.from(activeTags).join(',') : undefined;
+        const r = await listMods(client, { q, sort, tagsIn, limit: PAGE, offset });
+        renderMods(r.data || [], reset);
+        offset += (r.data || []).length;
+        const more = (offset < (r.result_total || 0));
+        document.getElementById('btn-loadmore').style.display = more ? '' : 'none';
+      } catch (e) { showError(e.message); }
+      finally { busy = false; }
+    }
+    function renderMods(items, reset) {
+      const host = document.getElementById('browse');
+      if (reset) host.innerHTML = '';
+      for (const m of items) {
+        const el = document.createElement('div');
+        el.className = 'card';
+        const logo = (m.logo && m.logo.thumb_320x180) || '';
+        const subbed = !!loadToken();
+        el.innerHTML = `
+          <div class="logo" style="background-image:url('${logo}'); background-size:cover; background-position:center;"></div>
+          <div class="name">${m.name}</div>
+          <div class="summary">${(m.summary || '').slice(0, 140)}</div>
+          <button class="card-sub" ${subbed ? '' : 'disabled title="Sign in to subscribe"'}>Subscribe</button>`;
+        el.querySelector('.card-sub').onclick = () => doSubscribe(m);
+        host.appendChild(el);
+      }
+    }
+    function searchSoon() {
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(() => loadPage(true), 300);
+    }
+    async function doSubscribe(m) {
+      if (!loadToken()) { showError('Sign in to subscribe.'); return; }
+      try {
+        await subscribe(client, m.id);
+        const files = await listModfiles(client, m.id, { limit: 1, sort: '-date_added' });
+        const live = (files.data || [])[0];
+        if (!live) { showError('No release available.'); return; }
+        tsic.publishMessage('UI.Cmd.Mod.InstallSubscribed', {
+          ModId: m.name_id, ModName: m.name,
+          FileUrl: live.download.binary_url,
+          FileHash: (live.filehash && live.filehash.md5) || '',
+          Token: loadToken(),
+        });
+      } catch (e) { showError(e.message); }
+    }
+    function bootBrowse() {
+      loadTags();
+      loadPage(true);
+      document.getElementById('search').oninput = searchSoon;
+      document.getElementById('sort').onchange = () => loadPage(true);
+      document.getElementById('btn-loadmore').onclick = () => loadPage(false);
+    }
+
+    function renderInstalled() {
+      const host = document.getElementById('installed-list');
+      host.innerHTML = '';
+      const indexOf = (id) => installedOrder.indexOf(id) >= 0 ? installedOrder.indexOf(id) : 9999;
+      installedMods.sort((a, b) => indexOf(a.ModId) - indexOf(b.ModId));
+      for (const m of installedMods) {
+        const row = document.createElement('div');
+        row.className = 'installed-row';
+        row.innerHTML = `
+          <input type="checkbox" ${m.bEnabled ? 'checked' : ''} />
+          <span class="name">${m.DisplayName} <span style="opacity:0.5; font-size:11px;">${m.Version || ''}</span></span>
+          <button data-act="up">↑</button>
+          <button data-act="down">↓</button>`;
+        row.querySelector('input').onchange = (e) =>
+          tsic.publishMessage('UI.Cmd.Mod.SetEnabled', { ModId: m.ModId, Enabled: e.target.checked });
+        row.querySelector('[data-act=up]').onclick = () => moveInstalled(m.ModId, -1);
+        row.querySelector('[data-act=down]').onclick = () => moveInstalled(m.ModId, +1);
+        host.appendChild(row);
+      }
+      if (!installedMods.length) {
+        host.innerHTML = '<div style="opacity:0.6;">No mods installed yet.</div>';
+      }
+    }
+    function moveInstalled(modId, delta) {
+      const i = installedOrder.indexOf(modId);
+      if (i < 0) installedOrder = [modId, ...installedOrder];
+      const j = Math.max(0, Math.min(installedOrder.length - 1, i + delta));
+      if (i === j && i >= 0) return;
+      if (i >= 0) installedOrder.splice(i, 1);
+      installedOrder.splice(j, 0, modId);
+      tsic.publishMessage('UI.Cmd.Mod.SetLoadOrder', { Order: installedOrder });
+    }
+
+    function whenReady(cb){ if (window.tsic){cb();return;} setTimeout(()=>whenReady(cb),16); }
+    whenReady(() => {
+      tsic.on('tsic.msg.UI.Mod.IoConfig', (p) => {
+        if (!p || !p.GameId) { show('disabled'); return; }
+        cfg = { gameId: Number(p.GameId), apiKey: p.ApiKey, env: p.Env,
+                baseUrl: makeBaseUrl(Number(p.GameId), p.Env) };
+        client = createClient(cfg, () => loadToken());
+        bootAuth();
+        bootBrowse();
+      });
+      tsic.on('tsic.msg.UI.Mod.InstalledList', (p) => {
+        installedMods = (p && p.Mods) || [];
+        renderInstalled();
+      });
+      tsic.on('tsic.msg.UI.Mod.LoadOrder', (p) => {
+        installedOrder = (p && p.Order) || [];
+        renderInstalled();
+      });
+      tsic.on('tsic.msg.UI.Mod.InstallFailed', (p) => {
+        if (p && p.Reason) showError(`Install failed (${p.ModId}): ${p.Reason}`);
+      });
+      document.getElementById('btn-back').onclick = () =>
+        tsic.publishMessage('UI.Cmd.Menu.Navigate', { Screen: 'MainMenu' });
+    });
+  </script>
+</body></html>

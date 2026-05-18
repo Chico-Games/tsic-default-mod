@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="tsic-screen" content="NewStore">
+  <title>New Game</title>
+  <link rel="stylesheet" href="/shared/base.css">
+  <link rel="stylesheet" href="/shared/components.css">
+  <script src="/shared/router.js" defer></script>
+  <style>
+    html, body { background: rgba(0,0,0,0.8); color: #f4f4f4; }
+    .wrap { max-width: 720px; margin: 0 auto; padding: 48px 64px; }
+    h1 { letter-spacing: 12px; font-weight: 200; font-size: 36px;
+         text-transform: uppercase; margin: 0 0 32px; }
+    label { display:block; letter-spacing: 4px; text-transform: uppercase;
+            font-size: 11px; opacity: 0.7; margin: 16px 0 6px; }
+    input[type=text] { width: 100%; padding: 10px 12px;
+            background: rgba(0,0,0,0.45);
+            border: 1px solid rgba(255,255,255,0.25);
+            color: #fff; font: inherit; }
+    .layouts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .layout { padding: 10px; border: 1px solid rgba(255,255,255,0.2);
+              background: rgba(0,0,0,0.35); cursor: pointer; }
+    .layout.selected { border-color: rgba(180,30,30,0.85);
+              background: rgba(180,30,30,0.18); }
+    .layout img { width: 100%; aspect-ratio: 1; object-fit: cover;
+              background: #222; }
+    .layout .name { margin-top: 6px; font-size: 12px; letter-spacing: 2px; }
+    .mods { display: flex; flex-direction: column; gap: 4px;
+            border: 1px solid rgba(255,255,255,0.15); padding: 8px; }
+    .mod-row { display: flex; align-items: center; gap: 8px; padding: 4px 0; }
+    .mod-row .name { flex: 1; }
+    .mod-row button { background: rgba(0,0,0,0.45);
+            border: 1px solid rgba(255,255,255,0.2); color: #fff;
+            padding: 2px 8px; cursor: pointer; }
+    .actions { margin-top: 24px; display: flex; justify-content: space-between; }
+    .manage-link { display: inline-block; margin-top: 6px;
+            color: rgba(255,255,255,0.7); cursor: pointer;
+            text-decoration: underline; font-size: 12px; }
+  </style>
+</head><body>
+  <div class="wrap">
+    <h1>New Game</h1>
+
+    <label>Store Name</label>
+    <input id="store-name" type="text" maxlength="40" />
+
+    <label>Player Name</label>
+    <input id="player-name" type="text" maxlength="40" />
+
+    <label>Layout</label>
+    <div class="layouts" id="layouts"></div>
+
+    <label>Active Mods</label>
+    <div class="mods" id="mods"></div>
+    <span class="manage-link" id="link-manage">Manage Mods →</span>
+
+    <div class="actions">
+      <button class="tsic-button" id="btn-back">Back</button>
+      <button class="tsic-button" id="btn-create" disabled>Create</button>
+    </div>
+  </div>
+  <script>
+    (function(){
+      let layouts = [];
+      let mods = [];
+      let order = [];
+      let selectedLayout = null;
+
+      function renderLayouts() {
+        const host = document.getElementById('layouts');
+        host.innerHTML = '';
+        for (const L of layouts) {
+          const el = document.createElement('div');
+          el.className = 'layout' + (selectedLayout === L.LayoutId ? ' selected' : '');
+          el.innerHTML = `<img src="${L.ThumbnailUrl}" alt="">
+                          <div class="name">${L.DisplayName}</div>`;
+          el.onclick = () => { selectedLayout = L.LayoutId; renderLayouts(); validate(); };
+          host.appendChild(el);
+        }
+        if (!layouts.length) {
+          host.innerHTML = '<div style="opacity:0.6;">No layouts available.</div>';
+        }
+      }
+
+      function renderMods() {
+        const host = document.getElementById('mods');
+        host.innerHTML = '';
+        const indexOf = (id) => order.indexOf(id) >= 0 ? order.indexOf(id) : 9999;
+        mods.sort((a, b) => indexOf(a.ModId) - indexOf(b.ModId));
+
+        for (const m of mods) {
+          const row = document.createElement('div');
+          row.className = 'mod-row';
+          row.innerHTML = `
+            <input type="checkbox" ${m.bEnabled ? 'checked' : ''} />
+            <span class="name">${m.DisplayName}</span>
+            <button data-act="up">↑</button>
+            <button data-act="down">↓</button>`;
+          row.querySelector('input').onchange = (e) => {
+            tsic.publishMessage('UI.Cmd.Mod.SetEnabled', {
+              ModId: m.ModId, Enabled: e.target.checked });
+          };
+          row.querySelector('[data-act=up]').onclick = () => move(m.ModId, -1);
+          row.querySelector('[data-act=down]').onclick = () => move(m.ModId, +1);
+          host.appendChild(row);
+        }
+        if (!mods.length) {
+          host.innerHTML = '<div style="opacity:0.6;">No mods installed. Open Manage Mods to subscribe.</div>';
+        }
+      }
+
+      function move(modId, delta) {
+        const i = order.indexOf(modId);
+        if (i < 0) { order = [modId, ...order]; }
+        const j = Math.max(0, Math.min(order.length - 1, i + delta));
+        if (i === j && i >= 0) return;
+        if (i >= 0) order.splice(i, 1);
+        order.splice(j, 0, modId);
+        tsic.publishMessage('UI.Cmd.Mod.SetLoadOrder', { Order: order });
+      }
+
+      function validate() {
+        const name = document.getElementById('store-name').value.trim();
+        document.getElementById('btn-create').disabled = !name || !selectedLayout;
+      }
+
+      function whenReady(cb){ if (window.tsic){cb();return;} setTimeout(()=>whenReady(cb),16); }
+      whenReady(() => {
+        tsic.on('tsic.msg.UI.Menu.Layouts', (p) => { layouts = (p && p.Layouts) || []; renderLayouts(); });
+        tsic.on('tsic.msg.UI.Mod.InstalledList', (p) => { mods = (p && p.Mods) || []; renderMods(); });
+        tsic.on('tsic.msg.UI.Mod.LoadOrder', (p) => { order = (p && p.Order) || []; renderMods(); });
+
+        document.getElementById('store-name').oninput = validate;
+        document.getElementById('btn-back').onclick = () =>
+          tsic.publishMessage('UI.Cmd.Menu.Navigate', { Screen: 'MainMenu' });
+        document.getElementById('link-manage').onclick = () =>
+          tsic.publishMessage('UI.Cmd.Menu.Navigate', { Screen: 'Mods' });
+        document.getElementById('btn-create').onclick = () => {
+          const enabledMods = mods.filter(m => m.bEnabled).map(m => m.ModId);
+          tsic.publishMessage('UI.Cmd.Menu.StartGame', {
+            StoreName: document.getElementById('store-name').value.trim(),
+            PlayerName: document.getElementById('player-name').value.trim(),
+            LayoutId: selectedLayout,
+            EnabledMods: enabledMods,
+            LoadOrder: order,
+          });
+        };
+      });
+    })();
+  </script>
+</body></html>

@@ -6,89 +6,28 @@
   <link rel="stylesheet" href="/shared/base.css">
   <script src="/shared/router.js" defer></script>
   <style>
-    /* Transparent, full-viewport overlay. The world (or loading screen) shows through. */
     html, body { background: transparent; }
-
-    .menu {
-      position: fixed; inset: 0;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      gap: 36px;
-      pointer-events: none;
-    }
-
-    .title-block {
-      text-align: center;
-      pointer-events: none;
-    }
-    .title-block h1 {
-      margin: 0;
-      font-size: 88px;
-      letter-spacing: 18px;
-      font-weight: 200;
-      color: #fff;
-      text-shadow: 0 4px 18px rgba(0,0,0,0.85), 0 0 24px rgba(220,40,40,0.18);
-    }
-    .title-block .sub {
-      margin-top: 6px;
-      font-size: 13px;
-      letter-spacing: 8px;
-      color: rgba(255,255,255,0.55);
-      text-transform: uppercase;
-      text-shadow: 0 2px 6px rgba(0,0,0,0.85);
-    }
-
-    .buttons {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      width: 320px;
-      pointer-events: auto;
-    }
-
-    .menu-btn {
-      background: rgba(0,0,0,0.55);
-      color: #f4f4f4;
-      border: 1px solid rgba(255,255,255,0.35);
-      padding: 14px 20px;
-      font: inherit;
-      font-size: 15px;
-      letter-spacing: 4px;
-      text-transform: uppercase;
-      cursor: pointer;
-      transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
-      backdrop-filter: blur(2px);
-    }
-    .menu-btn:hover {
-      background: rgba(180,30,30,0.65);
-      border-color: rgba(255,255,255,0.85);
-      color: #fff;
-    }
-    .menu-btn:active {
-      background: rgba(140,18,18,0.85);
-    }
-    .menu-btn[disabled] {
-      opacity: 0.4;
-      cursor: default;
-    }
-
-    .slots {
-      display: flex; flex-direction: column; gap: 4px;
-      max-height: 180px; overflow: auto;
-      margin-top: 4px;
-    }
-    .slots:empty { display: none; }
-    .slot-row {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 8px 14px;
-      background: rgba(0,0,0,0.45);
-      border: 1px solid rgba(255,255,255,0.18);
-      cursor: pointer;
-      font-size: 13px;
-      letter-spacing: 2px;
-    }
-    .slot-row:hover { background: rgba(180,30,30,0.45); border-color: rgba(255,255,255,0.5); }
-    .slot-row .stamp { opacity: 0.6; font-size: 11px; }
+    .menu { position: fixed; inset: 0; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; gap: 36px;
+            pointer-events: none; }
+    .title-block { text-align: center; pointer-events: none; }
+    .title-block h1 { margin: 0; font-size: 88px; letter-spacing: 18px;
+            font-weight: 200; color: #fff;
+            text-shadow: 0 4px 18px rgba(0,0,0,0.85), 0 0 24px rgba(220,40,40,0.18); }
+    .title-block .sub { margin-top: 6px; font-size: 13px; letter-spacing: 8px;
+            color: rgba(255,255,255,0.55); text-transform: uppercase;
+            text-shadow: 0 2px 6px rgba(0,0,0,0.85); }
+    .buttons { display: flex; flex-direction: column; gap: 12px; width: 320px;
+            pointer-events: auto; }
+    .menu-btn { background: rgba(0,0,0,0.55); color: #f4f4f4;
+            border: 1px solid rgba(255,255,255,0.35);
+            padding: 14px 20px; font: inherit; font-size: 15px; letter-spacing: 4px;
+            text-transform: uppercase; cursor: pointer;
+            transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+            backdrop-filter: blur(2px); }
+    .menu-btn:hover { background: rgba(180,30,30,0.65);
+            border-color: rgba(255,255,255,0.85); color: #fff; }
+    .menu-btn:active { background: rgba(140,18,18,0.85); }
   </style>
 </head><body>
   <div class="menu">
@@ -98,36 +37,29 @@
     </div>
     <div class="buttons">
       <button class="menu-btn" id="btn-start">Start New Game</button>
-      <div class="slots" id="slots"></div>
+      <button class="menu-btn" id="btn-load">Load Save</button>
+      <button class="menu-btn" id="btn-mods">Mods</button>
       <button class="menu-btn" id="btn-settings">Settings</button>
-      <button class="menu-btn" id="btn-exit">Exit</button>
+      <button class="menu-btn" id="btn-credits">Credits</button>
+      <button class="menu-btn" id="btn-exit">Exit the Store</button>
     </div>
   </div>
   <script>
     (function() {
-      let slots = [];
-      function renderSlots() {
-        const host = document.getElementById('slots');
-        host.innerHTML = '';
-        for (const s of slots) {
-          const el = document.createElement('div');
-          el.className = 'slot-row';
-          el.innerHTML = `<span>${s.Label || s.SlotId}</span><span class="stamp">${s.TimestampIso || ''}</span>`;
-          el.onclick = () => tsic.publishMessage('UI.Cmd.Menu.LoadSlot', { SlotId: s.SlotId });
-          host.appendChild(el);
-        }
-      }
       function whenReady(cb) {
         if (window.tsic) { cb(); return; }
         setTimeout(() => whenReady(cb), 16);
       }
+      function nav(screen) {
+        return () => tsic.publishMessage('UI.Cmd.Menu.Navigate', { Screen: screen });
+      }
       whenReady(() => {
-        tsic.on('tsic.msg.UI.Save.Slots', (p) => { slots = (p && p.Slots) || []; renderSlots(); });
-        document.getElementById('btn-start').onclick = () =>
-          tsic.publishMessage('UI.Cmd.Menu.StartGame', {});
-        document.getElementById('btn-settings').onclick = () =>
-          tsic.publishMessage('UI.Cmd.Menu.Settings', {});
-        document.getElementById('btn-exit').onclick = () =>
+        document.getElementById('btn-start').onclick    = nav('NewStore');
+        document.getElementById('btn-load').onclick     = nav('LoadSave');
+        document.getElementById('btn-mods').onclick     = nav('Mods');
+        document.getElementById('btn-settings').onclick = nav('Settings');
+        document.getElementById('btn-credits').onclick  = nav('Credits');
+        document.getElementById('btn-exit').onclick     = () =>
           tsic.publishMessage('UI.Cmd.Menu.Exit', {});
       });
     })();

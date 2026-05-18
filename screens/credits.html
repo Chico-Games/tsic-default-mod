@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="tsic-screen" content="Credits">
+  <title>Credits</title>
+  <link rel="stylesheet" href="/shared/base.css">
+  <link rel="stylesheet" href="/shared/components.css">
+  <script src="/shared/router.js" defer></script>
+  <style>
+    html, body { background: rgba(0,0,0,0.85); color: #f4f4f4; }
+    .credits { padding: 60px 80px; max-width: 720px; margin: 0 auto;
+               font-family: inherit; }
+    h1 { letter-spacing: 18px; font-weight: 200; font-size: 56px; margin: 0 0 8px; }
+    h2 { letter-spacing: 6px; font-weight: 300; font-size: 18px;
+         text-transform: uppercase; opacity: 0.7; margin: 32px 0 8px; }
+    ul { list-style: none; padding: 0; margin: 0; }
+    li { padding: 4px 0; letter-spacing: 1px; }
+    .actions { margin-top: 40px; }
+  </style>
+</head><body>
+  <div class="credits">
+    <h1>TSIC</h1>
+    <div style="opacity:0.6; letter-spacing:8px;">THE STORE IS CLOSED</div>
+
+    <h2>Design &amp; Programming</h2>
+    <ul>
+      <li>Chico Games</li>
+    </ul>
+
+    <h2>Art</h2>
+    <ul>
+      <li>—</li>
+    </ul>
+
+    <h2>Special Thanks</h2>
+    <ul>
+      <li>—</li>
+    </ul>
+
+    <h2>Built With</h2>
+    <ul>
+      <li>Unreal Engine 5.6</li>
+      <li>Ultralight</li>
+      <li>mod.io</li>
+    </ul>
+
+    <div class="actions">
+      <button class="tsic-button" id="btn-back">Back</button>
+    </div>
+  </div>
+  <script>
+    (function(){
+      function whenReady(cb){ if (window.tsic){cb();return;} setTimeout(()=>whenReady(cb),16); }
+      whenReady(()=>{
+        document.getElementById('btn-back').onclick = () =>
+          tsic.publishMessage('UI.Cmd.Menu.Navigate', { Screen: 'MainMenu' });
+      });
+    })();
+  </script>
+</body></html>
