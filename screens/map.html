@@ -433,10 +433,25 @@
             PingType: 'Map', Location: { X: X, Y: Y, Z: 0 },
           });
         }
-        tsic.on('tsic.msg.UI.Input.IA_MapZoomIn',  (e) => { if (e.Phase === 'Triggered') zoomBy(+1, e.ElapsedSec); });
-        tsic.on('tsic.msg.UI.Input.IA_MapZoomOut', (e) => { if (e.Phase === 'Triggered') zoomBy(-1, e.ElapsedSec); });
-        tsic.on('tsic.msg.UI.Input.IA_MapCenterOnPlayer', (e) => { if (e.Phase === 'Started') centerOnLocalPlayer(); });
-        tsic.on('tsic.msg.UI.Input.IA_MapPlacePing',      (e) => { if (e.Phase === 'Started') placePingAtCursorOrCenter(); });
+        function panBy(dx, dy) {
+          state.panX += dx;
+          state.panY += dy;
+          applyTransform();
+        }
+        const GAMEPAD_PAN_PX_PER_SEC = 800;
+        tsic.on('tsic.msg.UI.Input.IA_UI_MapZoomIn',  (e) => { if (e.Phase === 'Triggered') zoomBy(+1, e.ElapsedSec); });
+        tsic.on('tsic.msg.UI.Input.IA_UI_MapZoomOut', (e) => { if (e.Phase === 'Triggered') zoomBy(-1, e.ElapsedSec); });
+        tsic.on('tsic.msg.UI.Input.IA_UI_MapCenterOnPlayer', (e) => { if (e.Phase === 'Started') centerOnLocalPlayer(); });
+        tsic.on('tsic.msg.UI.Input.IA_UI_MapPlacePing',      (e) => { if (e.Phase === 'Started') placePingAtCursorOrCenter(); });
+        // Stick-pan: IA_UI_MapMove is an Axis2D action; X/Y are the stick deltas.
+        // Translate to pan deltas in screen pixels per second.
+        tsic.on('tsic.msg.UI.Input.IA_UI_MapMove', (e) => {
+          if (e.Phase !== 'Triggered') return;
+          const dt = e.ElapsedSec || (1 / 60);
+          // Stick positive Y points up in UE convention; invert for screen Y-down.
+          panBy(-e.Value.X * GAMEPAD_PAN_PX_PER_SEC * dt,
+                 e.Value.Y * GAMEPAD_PAN_PX_PER_SEC * dt);
+        });
         tsic.on('tsic.msg.UI.Map.Snapshot', onSnapshot);
         tsic.on('tsic.msg.UI.Ping.Set', onPingSet);
       });
