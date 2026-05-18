@@ -72,6 +72,17 @@
       pointer-events: none;
       color: var(--tsic-text-dim);
     }
+    /* Gamepad crosshair — hidden by default; shown via .pad-cursor on viewport. */
+    #pad-cursor {
+      position: absolute; left: 50%; top: 50%;
+      width: 28px; height: 28px; margin: -14px 0 0 -14px;
+      border: 2px solid #ffcc00; border-radius: 50%;
+      pointer-events: none; display: none;
+      box-shadow: 0 0 4px rgba(255,204,0,0.6);
+    }
+    #map-viewport.pad-cursor #pad-cursor { display: block; }
+    .ic-cluster { fill: rgba(0,0,0,0.65); stroke: #ffffff; }
+    .ic-cluster-text { fill: #ffffff; font-family: 'Consolas', monospace; font-size: 14px; }
   </style>
 </head><body>
   <div id="map-root">
@@ -87,6 +98,7 @@
         </svg>
       </div>
       <div id="empty">Waiting for map data…</div>
+      <div id="pad-cursor"></div>
     </div>
     <div id="legend">
       <span><span class="swatch" style="background:#3498db;"></span>Player</span>
@@ -197,13 +209,51 @@
         return 'ic-other';
       }
 
+      // Cluster icons within a radius of N screen pixels when zoom is low.
+      // Local radius in world-coordinates: screenPx / state.scale.
+      const CLUSTER_SCREEN_PX = 32;
+      function clusterIcons(icons) {
+        if (state.scale >= 0.5) return { clusters: [], singletons: icons || [] };
+        const radiusLocal = CLUSTER_SCREEN_PX / state.scale;
+        const remaining = (icons || []).slice();
+        const clusters = [];
+        const singletons = [];
+        while (remaining.length > 0) {
+          const seed = remaining.shift();
+          const sx = (seed.Position && seed.Position.X) || 0;
+          const sy = (seed.Position && seed.Position.Y) || 0;
+          const group = [seed];
+          for (let i = remaining.length - 1; i >= 0; i--) {
+            const ic = remaining[i];
+            const x = (ic.Position && ic.Position.X) || 0;
+            const y = (ic.Position && ic.Position.Y) || 0;
+            if (Math.hypot(x - sx, y - sy) <= radiusLocal) {
+              group.push(ic);
+              remaining.splice(i, 1);
+            }
+          }
+          if (group.length === 1) {
+            singletons.push(seed);
+          } else {
+            let cx = 0, cy = 0;
+            for (const g of group) {
+              cx += (g.Position && g.Position.X) || 0;
+              cy += (g.Position && g.Position.Y) || 0;
+            }
+            clusters.push({ x: cx / group.length, y: cy / group.length, count: group.length });
+          }
+        }
+        return { clusters, singletons };
+      }
+
       function renderIcons(icons) {
         const g = document.getElementById('g-icons');
         g.textContent = '';
         const inv = state.scale > 0 ? (1 / state.scale) : 1;
         const r = ICON_PX * inv;
         const sw = 1 * inv;
-        for (const ic of (icons || [])) {
+        const { clusters, singletons } = clusterIcons(icons);
+        for (const ic of singletons) {
           const pos = worldToLocal((ic.Position && ic.Position.X) || 0,
                                    (ic.Position && ic.Position.Y) || 0);
           const c = (ic.Category || '').toLowerCase();
@@ -226,6 +276,25 @@
           title.textContent = ic.Label || ic.Category || ic.IconId || '';
           circle.appendChild(title);
           g.appendChild(circle);
+        }
+        const clusterR = ICON_PX * 1.5 * inv;
+        for (const cl of clusters) {
+          const pos = worldToLocal(cl.x, cl.y);
+          const circle = el('circle', {
+            cx: pos.x, cy: pos.y, r: clusterR,
+            class: 'ic-cluster', 'stroke-width': sw,
+          });
+          const text = el('text', {
+            x: pos.x, y: pos.y + 5 * inv,
+            'text-anchor': 'middle', class: 'ic-cluster-text',
+            'font-size': 14 * inv,
+          });
+          text.textContent = String(cl.count);
+          const title = el('title');
+          title.textContent = `${cl.count} POIs (zoom in to expand)`;
+          g.appendChild(circle);
+          g.appendChild(text);
+          circle.appendChild(title);
         }
       }
 
@@ -454,6 +523,13 @@
         });
         tsic.on('tsic.msg.UI.Map.Snapshot', onSnapshot);
         tsic.on('tsic.msg.UI.Ping.Set', onPingSet);
+        // Gamepad crosshair: toggle a class on the viewport when the active
+        // input device is the gamepad. The cursor sits at the viewport
+        // center and acts as the snap-to anchor for IA_UI_MapPlacePing.
+        tsic.on('tsic.msg.UI.Input.Mode.Changed', (p) => {
+          const isPad = (p && (p.Device === 'gamepad' || p.Mode === 'Gamepad'));
+          vp.classList.toggle('pad-cursor', !!isPad);
+        });
       });
     })();
   </script>
