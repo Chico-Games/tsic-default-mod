@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="tsic-screen" content="Notifications">
+  <title>Notifications</title>
+  <link rel="stylesheet" href="/shared/base.css">
+  <link rel="stylesheet" href="/shared/components.css">
+  <script src="/shared/router.js" defer></script>
+  <style>
+    #notif-stack {
+      position: fixed; left: 24px; bottom: 24px;
+      display: flex; flex-direction: column-reverse;
+      gap: 6px; z-index: 50; pointer-events: none;
+      max-width: 380px;
+    }
+    .notif {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 8px 12px;
+      background: rgba(0,0,0,0.78);
+      border-left: 4px solid #888;
+      color: #fff;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.9);
+      transform: translateX(-110%);
+      opacity: 0;
+      transition: transform 250ms ease-out, opacity 250ms ease-out;
+    }
+    .notif.visible { transform: translateX(0); opacity: 1; }
+    .notif.exiting { transition-duration: 1000ms; transform: translateX(-110%); opacity: 0; }
+
+    .notif--Tip          { border-left-color: #3399ff; }
+    .notif--Warning      { border-left-color: #ffcc33; }
+    .notif--Error        { border-left-color: #ff3333; }
+    .notif--Inventory    { border-left-color: #cc9933; }
+    .notif--Event        { border-left-color: #9933ff; }
+    .notif--Alarm        { border-left-color: #ff0000; }
+    .notif--PlayerJoined { border-left-color: #33ff33; }
+    .notif--PlayerDied   { border-left-color: #666666; }
+    .notif--Progression  { border-left-color: #00ffcc; }
+
+    .notif-icon { width: 32px; height: 32px; flex-shrink: 0; image-rendering: pixelated; }
+    .notif-body { flex: 1; min-width: 0; }
+    .notif-title { font-size: 13px; font-weight: 700; letter-spacing: 0.4px; }
+    .notif-text  { font-size: 12px; opacity: 0.92; margin-top: 2px; }
+  </style>
+</head><body>
+  <div id="notif-stack"></div>
+  <script>
+    (function () {
+      const MAX_VISIBLE = 5;
+      const LIFETIME_MS = 8000;
+      const EXIT_OFFSET_MS = 1000;
+      const stack = [];
+
+      function whenReady(cb) { if (window.tsic) { cb(); return; } setTimeout(() => whenReady(cb), 16); }
+
+      function dropOldest() {
+        const old = stack.shift();
+        if (!old) return;
+        clearTimeout(old.exitTimer);
+        clearTimeout(old.killTimer);
+        if (old.el.parentNode) old.el.parentNode.removeChild(old.el);
+      }
+
+      function spawn(payload) {
+        if (!payload) return;
+        const host = document.getElementById('notif-stack');
+        const div = document.createElement('div');
+        const type = String(payload.Type || 'Tip');
+        div.className = 'notif notif--' + type;
+
+        if (payload.IconUrl) {
+          const img = document.createElement('img');
+          img.className = 'notif-icon';
+          img.src = payload.IconUrl;
+          img.onerror = () => { img.style.display = 'none'; };
+          div.appendChild(img);
+        }
+        const body = document.createElement('div');
+        body.className = 'notif-body';
+        if (payload.Title) {
+          const t = document.createElement('div'); t.className = 'notif-title';
+          t.textContent = String(payload.Title); body.appendChild(t);
+        }
+        if (payload.Text) {
+          const x = document.createElement('div'); x.className = 'notif-text';
+          x.textContent = String(payload.Text); body.appendChild(x);
+        }
+        div.appendChild(body);
+        host.appendChild(div);
+
+        const entry = { el: div };
+        stack.push(entry);
+        while (stack.length > MAX_VISIBLE) dropOldest();
+
+        requestAnimationFrame(() => { div.classList.add('visible'); });
+
+        entry.exitTimer = setTimeout(() => {
+          div.classList.remove('visible');
+          div.classList.add('exiting');
+        }, LIFETIME_MS - EXIT_OFFSET_MS);
+
+        entry.killTimer = setTimeout(() => {
+          const i = stack.indexOf(entry);
+          if (i >= 0) stack.splice(i, 1);
+          if (div.parentNode) div.parentNode.removeChild(div);
+        }, LIFETIME_MS);
+      }
+
+      whenReady(() => {
+        tsic.on('tsic.msg.UI.Notification.Show', spawn);
+      });
+    })();
+  </script>
+</body></html>

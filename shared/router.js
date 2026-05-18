@@ -19,6 +19,7 @@
     Interaction: 'interaction',
     Selection: 'selection',
     Cage: 'cage',
+    Notifications: 'notifications',
     Map: 'map',
     Chat: 'chat',
     Teleporter: 'teleporter',
