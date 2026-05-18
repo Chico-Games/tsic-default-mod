@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="tsic-screen" content="UniversalStorageSetup">
+  <meta name="tsic-action-bar-context" content='[{"ActionName":"IA_UI_ConfirmAccept","Label":"Bind","Priority":10}]'>
+  <title>Universal Storage Setup</title>
+  <link rel="stylesheet" href="/shared/base.css">
+  <link rel="stylesheet" href="/shared/components.css">
+  <link rel="stylesheet" href="/shared/hud.css">
+  <script src="/shared/router.js" defer></script>
+  <script src="/shared/hud.js" defer></script>
+  <style>
+    #uss-root  { position:fixed; inset:0; background: rgba(0,0,0,0.65); display:flex; align-items:center; justify-content:center; }
+    #uss-panel { width: 480px; padding: 20px; }
+    #uss-list  { display:flex; flex-direction:column; gap:4px; max-height: 280px; overflow:auto; margin: 12px 0; }
+    .uss-row   { display:flex; align-items:center; gap:8px; padding:6px 10px; background:rgba(255,255,255,0.04); border:1px solid var(--tsic-border); cursor:pointer; }
+    .uss-row:hover { background:rgba(255,255,255,0.08); }
+    #uss-empty { opacity:0.6; font-style: italic; padding: 12px; text-align:center; }
+    .uss-modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.8); display:flex; align-items:center; justify-content:center; z-index:1000; }
+    .uss-modal { width: 360px; padding: 16px; }
+    .uss-error { color:#fca5a5; font-size: 11px; min-height: 14px; margin-top: 4px; }
+  </style>
+</head><body>
+  <div id="uss-root">
+    <div id="uss-panel" class="tsic-panel">
+      <h2 style="margin:0;letter-spacing:3px;">UNIVERSAL STORAGE</h2>
+      <p style="opacity:0.6;font-size:12px;margin:6px 0 0;">Bind this storage to a group or create a new one.</p>
+      <div id="uss-list"></div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;">
+        <button class="tsic-button" id="btn-new">Create new…</button>
+        <button class="tsic-button" id="btn-cancel">Cancel</button>
+      </div>
+    </div>
+  </div>
+  <script>
+    (function(){
+      function whenReady(cb){ if(window.tsic){cb();return;} setTimeout(()=>whenReady(cb),16); }
+      let groups = [];
+      let entityId = 0;
+
+      const params = new URLSearchParams(window.location.search);
+      entityId = parseInt(params.get('entityId') || '0', 10) || 0;
+
+      function render() {
+        const host = document.getElementById('uss-list');
+        host.innerHTML = '';
+        if (!groups.length) {
+          const empty = document.createElement('div');
+          empty.id = 'uss-empty';
+          empty.textContent = 'No groups yet — create one below.';
+          host.appendChild(empty);
+          return;
+        }
+        for (const name of groups) {
+          const row = document.createElement('div');
+          row.className = 'uss-row';
+          const label = document.createElement('span');
+          label.style.flex = '1';
+          label.textContent = name;
+          const btn = document.createElement('button');
+          btn.className = 'tsic-button';
+          btn.textContent = 'Bind';
+          btn.onclick = () => tsic.publishMessage('UI.Cmd.UniversalStorage.LinkGroup', { GroupName: name, EntityId: entityId });
+          row.appendChild(label);
+          row.appendChild(btn);
+          host.appendChild(row);
+        }
+      }
+
+      function openCreateModal() {
+        const overlay = document.createElement('div');
+        overlay.className = 'uss-modal-overlay';
+        const panel = document.createElement('div');
+        panel.className = 'tsic-panel uss-modal';
+        panel.innerHTML = `
+          <h3 style="margin:0 0 12px;letter-spacing:3px;">CREATE GROUP</h3>
+          <input id="uss-name" type="text" class="tsic-input" placeholder="Group name" style="width:100%;box-sizing:border-box;" maxlength="48">
+          <div class="uss-error" id="uss-err"></div>
+          <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px;">
+            <button class="tsic-button" id="uss-create-cancel">Cancel</button>
+            <button class="tsic-button" id="uss-create-confirm">Create</button>
+          </div>`;
+        overlay.appendChild(panel);
+        document.body.appendChild(overlay);
+        const input = panel.querySelector('#uss-name');
+        const err   = panel.querySelector('#uss-err');
+        input.focus();
+        const submit = () => {
+          const name = (input.value || '').trim();
+          if (!name) { err.textContent = 'Name is required.'; return; }
+          if (groups.indexOf(name) >= 0) { err.textContent = 'A group with that name already exists.'; return; }
+          tsic.publishMessage('UI.Cmd.UniversalStorage.CreateGroup', { GroupName: name });
+          tsic.publishMessage('UI.Cmd.UniversalStorage.LinkGroup',  { GroupName: name, EntityId: entityId });
+          overlay.remove();
+        };
+        panel.querySelector('#uss-create-confirm').onclick = submit;
+        panel.querySelector('#uss-create-cancel').onclick  = () => overlay.remove();
+        input.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter')  submit();
+          if (e.key === 'Escape') overlay.remove();
+        });
+      }
+
+      whenReady(()=>{
+        tsic.on('tsic.msg.UI.UniversalStorage.Groups', (p) => {
+          groups = (p && p.GroupNames) || [];
+          render();
+        });
+        document.getElementById('btn-new').onclick    = openCreateModal;
+        document.getElementById('btn-cancel').onclick = () => tsic.publishMessage('UI.Cmd.Pause.Resume', {});
+        render();
+      });
+    })();
+  </script>
+</body></html>
