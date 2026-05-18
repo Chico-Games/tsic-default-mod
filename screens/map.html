@@ -2,6 +2,7 @@
 <html lang="en"><head>
   <meta charset="utf-8">
   <meta name="tsic-screen" content="Map">
+  <meta name="tsic-input-mode" content="InputMode.Menu.Map">
   <title>Map</title>
   <link rel="stylesheet" href="/shared/base.css">
   <link rel="stylesheet" href="/shared/components.css">
@@ -388,6 +389,54 @@
         window.addEventListener('keydown', onKey);
         window.addEventListener('resize', fitToBounds);
 
+        // Enhanced-Input bridge subscriptions. Action names below match
+        // UInputAction assets in IMC_Map; if those assets are renamed, update
+        // the channel names here to match.
+        function zoomBy(direction, dt) {
+          const factor = direction > 0 ? Math.pow(1.5, dt) : Math.pow(1 / 1.5, dt);
+          // Pivot zoom around the viewport center for gamepad/keyboard zoom.
+          const vp = document.getElementById('map-viewport');
+          const rect = vp.getBoundingClientRect();
+          const cx = rect.width / 2;
+          const cy = rect.height / 2;
+          const lx = (cx - state.panX) / state.scale;
+          const ly = (cy - state.panY) / state.scale;
+          state.scale = Math.max(0.0001, state.scale * factor);
+          state.panX = cx - lx * state.scale;
+          state.panY = cy - ly * state.scale;
+          applyTransform();
+          rerender();
+        }
+        function centerOnLocalPlayer() {
+          if (!latestSnapshot || !bounds.hasData) return;
+          const me = (latestSnapshot.Players || [])[0];
+          if (!me || !me.Position) return;
+          const loc = worldToLocal(me.Position.X || 0, me.Position.Y || 0);
+          const vp = document.getElementById('map-viewport');
+          state.panX = vp.clientWidth  / 2 - loc.x * state.scale;
+          state.panY = vp.clientHeight / 2 - loc.y * state.scale;
+          applyTransform();
+          rerender();
+        }
+        function placePingAtCursorOrCenter() {
+          if (!bounds.hasData) return;
+          const vp = document.getElementById('map-viewport');
+          const rect = vp.getBoundingClientRect();
+          const cx = rect.width / 2;
+          const cy = rect.height / 2;
+          const lx = (cx - state.panX) / state.scale;
+          const ly = (cy - state.panY) / state.scale;
+          const { wx, wy } = localToWorld(lx, ly);
+          const X = Math.max(bounds.minX, Math.min(bounds.maxX, wx));
+          const Y = Math.max(bounds.minY, Math.min(bounds.maxY, wy));
+          tsic.publishMessage('UI.Cmd.Ping.Request', {
+            PingType: 'Map', Location: { X: X, Y: Y, Z: 0 },
+          });
+        }
+        tsic.on('tsic.msg.UI.Input.IA_MapZoomIn',  (e) => { if (e.Phase === 'Triggered') zoomBy(+1, e.ElapsedSec); });
+        tsic.on('tsic.msg.UI.Input.IA_MapZoomOut', (e) => { if (e.Phase === 'Triggered') zoomBy(-1, e.ElapsedSec); });
+        tsic.on('tsic.msg.UI.Input.IA_MapCenterOnPlayer', (e) => { if (e.Phase === 'Started') centerOnLocalPlayer(); });
+        tsic.on('tsic.msg.UI.Input.IA_MapPlacePing',      (e) => { if (e.Phase === 'Started') placePingAtCursorOrCenter(); });
         tsic.on('tsic.msg.UI.Map.Snapshot', onSnapshot);
         tsic.on('tsic.msg.UI.Ping.Set', onPingSet);
       });
