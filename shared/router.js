@@ -74,13 +74,22 @@
       window.location.replace(`/screens/${file}.html`);
     });
 
-    // Input-mode tag activation: append on load, release on beforeunload.
+    // Input-mode tag activation: append on load, release on page teardown.
+    // The C++ bridge refcounts so a re-Append is idempotent, but a second
+    // Remove would underflow the count — so we guard with a "removed once"
+    // flag. Both beforeunload and pagehide are listened to because Ultralight's
+    // behaviour around navigation can fire either (or neither in edge cases).
     const inputTag = activeInputModeTag();
     if (inputTag) {
       window.tsic.publishMessage('UI.Cmd.Input.AppendModeTag', { Tag: inputTag });
-      window.addEventListener('beforeunload', () => {
+      let inputTagRemoved = false;
+      const removeInputTagOnce = () => {
+        if (inputTagRemoved) return;
+        inputTagRemoved = true;
         window.tsic.publishMessage('UI.Cmd.Input.RemoveModeTag', { Tag: inputTag });
-      });
+      };
+      window.addEventListener('beforeunload', removeInputTagOnce);
+      window.addEventListener('pagehide', removeInputTagOnce);
     }
 
     // Modder API helpers — bound on window.tsic after the native bootstrap.

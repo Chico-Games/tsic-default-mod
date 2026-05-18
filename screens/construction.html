@@ -2,7 +2,11 @@
 <html lang="en"><head>
   <meta charset="utf-8">
   <meta name="tsic-screen" content="Construction">
-  <meta name="tsic-input-mode" content="InputMode.Construction">
+  <!-- InputMode.Construction is owned by UGameplayAbility_Construct (which
+       Appends/Removes it on the player's input subsystem). The SPA page must
+       NOT also append it: doing so would let beforeunload pull the tag out
+       from under the still-running ability. Per-action subscribers below
+       still receive events because the ability already activates the IMC. -->
   <title>Construction</title>
   <link rel="stylesheet" href="/shared/base.css">
   <link rel="stylesheet" href="/shared/components.css">
