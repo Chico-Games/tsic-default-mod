@@ -79,15 +79,30 @@
             document.body.appendChild(overlay);
         },
         openHotbarSlotModal(itemId, onPick) {
+            // C++ NumHotbarSlots == 10. Slot index space is 0..9; the modal's
+            // visible labels follow the keyboard convention (1..9, 0).
             const overlay = el('div', { style: 'position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:1000;' });
             const panel = el('div', { className: 'tsic-panel', style: 'padding:16px;' });
-            panel.appendChild(el('h3', { textContent: 'Pick hotbar slot (1-8)', style: 'margin:0 0 12px;' }));
+            panel.appendChild(el('h3', { textContent: 'Pick hotbar slot (1-9 or 0)', style: 'margin:0 0 12px;' }));
             const row = el('div', { style: 'display:flex;gap:6px;' });
-            for (let i = 0; i < 8; i++) {
-                const btn = el('button', { className: 'tsic-button', textContent: String(i + 1), style: 'width:48px;height:48px;' });
-                btn.addEventListener('click', () => { overlay.remove(); onPick(i); });
+            const buttons = [];
+            const finish = (slotIndex) => { overlay.remove(); window.removeEventListener('keydown', onKey, true); onPick(slotIndex); };
+            for (let i = 0; i < 10; i++) {
+                const label = i === 9 ? '0' : String(i + 1);
+                const btn = el('button', { className: 'tsic-button', textContent: label, style: 'width:48px;height:48px;' });
+                btn.addEventListener('click', () => finish(i));
+                buttons.push(btn);
                 row.appendChild(btn);
             }
+            const onKey = (e) => {
+                if (e.key === 'Escape') { overlay.remove(); window.removeEventListener('keydown', onKey, true); return; }
+                if (/^[0-9]$/.test(e.key)) {
+                    const slotIndex = e.key === '0' ? 9 : (parseInt(e.key, 10) - 1);
+                    e.stopPropagation();
+                    finish(slotIndex);
+                }
+            };
+            window.addEventListener('keydown', onKey, true);
             panel.appendChild(row);
             overlay.appendChild(panel);
             document.body.appendChild(overlay);

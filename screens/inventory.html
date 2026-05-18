@@ -216,6 +216,16 @@
         tsic.on('tsic.msg.UI.CharacterPreview.Ready', (p) => {
             if (p && p.bReady) startCharPreviewPolling();
         });
+        // AddToHotbar input action opens the modal picker. Quick 0-9 keys still
+        // work via the keydown handler below for power users; the modal is the
+        // accessible / discoverable path matching UMG UHotbarSlotPicker.
+        tsic.on('tsic.msg.UI.Input.IA_UI_AddToHotbar', (e) => {
+            if (e.Phase !== 'Started' || !hoveredItem || !window.TSICInventory) return;
+            const it = hoveredItem;
+            window.TSICInventory.openHotbarSlotModal(it.ItemId, (slotIndex) => {
+                tsic.publishMessage('UI.Cmd.Hotbar.Assign', { SlotIndex: slotIndex, ItemId: String(it.SlotIndex) });
+            });
+        });
         window.addEventListener('tsic-item-catalog', refresh);
 
         document.getElementById('btn-close').addEventListener('click', () => {
