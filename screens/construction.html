@@ -14,16 +14,31 @@
   <link rel="stylesheet" href="/shared/hud.css">
   <script src="/shared/router.js" defer></script>
   <script src="/shared/hud.js" defer></script>
+  <script src="/shared/catalog.js" defer></script>
+  <style>
+    #c-tabs { display:flex; gap:4px; margin-bottom:8px; }
+    .c-tab  { padding:4px 8px; background:rgba(255,255,255,0.06); border:1px solid var(--tsic-border); cursor:pointer; font-size:10px; letter-spacing:1px; }
+    .c-tab.active { background: var(--tsic-accent-dim); }
+    .c-row { display:flex; align-items:center; gap:8px; padding:6px 10px; }
+    .c-row.disabled { opacity: 0.45; pointer-events: none; }
+    #c-cost { padding: 8px; font-size:11px; background:rgba(0,0,0,0.4); border-top:1px solid var(--tsic-border); }
+    .c-cost-row { display:flex; justify-content:space-between; padding:2px 0; }
+    .c-cost-row .have-less { color:#fca5a5; }
+    .c-cost-row .have-ok   { color:#a7f3d0; }
+  </style>
 </head><body>
   <!-- Sidebar of constructable items (left edge) -->
-  <div id="sidebar" class="tsic-panel" style="position:fixed;left:24px;top:24px;bottom:24px;width:280px;display:flex;flex-direction:column;gap:6px;overflow-y:auto;">
+  <div id="sidebar" class="tsic-panel" style="position:fixed;left:24px;top:24px;bottom:24px;width:300px;display:flex;flex-direction:column;gap:6px;overflow:hidden;">
     <h2 style="margin:0 0 8px;letter-spacing:3px;font-size:14px;">BUILD</h2>
-    <div id="items" style="display:flex;flex-direction:column;gap:4px;"></div>
+    <div id="c-tabs"></div>
+    <div id="items" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:4px;"></div>
+    <div id="c-cost"></div>
   </div>
 
   <!-- Preview status pill (top-center) -->
   <div id="preview-pill" class="tsic-panel" style="position:fixed;top:24px;left:50%;transform:translateX(-50%);padding:6px 16px;font-size:12px;letter-spacing:2px;display:none;">
     <span id="preview-text">—</span>
+    <span id="rotation-axis" style="opacity:0.65;font-size:10px;margin-left:8px;"></span>
   </div>
 
   <!-- Action buttons (bottom-center) -->
@@ -37,13 +52,61 @@
     (function(){
       function whenReady(cb){ if(window.tsic){cb();return;} setTimeout(()=>whenReady(cb),16); }
 
-      function renderItems(items) {
+      let lastItems = [];
+      let activeCategory = 'All';
+      let hoveredItem = null;
+
+      function categoryFor(it) { return (it && (it.Category || it.Type)) || 'Other'; }
+
+      function uniqueCategories(items) {
+        const set = new Set();
+        for (const it of (items || [])) set.add(categoryFor(it));
+        return ['All', ...Array.from(set).sort()];
+      }
+
+      function renderTabs() {
+        const host = document.getElementById('c-tabs');
+        host.innerHTML = '';
+        for (const cat of uniqueCategories(lastItems)) {
+          const div = document.createElement('div');
+          div.className = 'c-tab' + (activeCategory === cat ? ' active' : '');
+          div.textContent = cat;
+          div.onclick = () => { activeCategory = cat; renderItems(); renderTabs(); };
+          host.appendChild(div);
+        }
+      }
+
+      function renderCostFor(item) {
+        const host = document.getElementById('c-cost');
+        host.innerHTML = '';
+        if (!item || !Array.isArray(item.Cost) || item.Cost.length === 0) {
+          host.textContent = item ? '(no cost data)' : '';
+          return;
+        }
+        const cat = (window.tsic && window.tsic.itemCatalog) || {};
+        for (const c of item.Cost) {
+          const row = document.createElement('div');
+          row.className = 'c-cost-row';
+          const label = document.createElement('span');
+          label.textContent = (cat[c.ItemId] && cat[c.ItemId].Name) || c.ItemId;
+          const have = document.createElement('span');
+          const haveCount = (c.HaveCount !== undefined) ? c.HaveCount : '?';
+          have.textContent = `${haveCount} / ${c.Count}`;
+          have.className = (typeof c.HaveCount === 'number' && c.HaveCount < c.Count) ? 'have-less' : 'have-ok';
+          row.appendChild(label);
+          row.appendChild(have);
+          host.appendChild(row);
+        }
+      }
+
+      function renderItems() {
         const host = document.getElementById('items');
         host.innerHTML = '';
-        for (const it of (items || [])) {
+        const items = (lastItems || []).filter(it => activeCategory === 'All' || categoryFor(it) === activeCategory);
+        for (const it of items) {
           const row = document.createElement('button');
-          row.className = 'tsic-button';
-          row.style.cssText = 'display:flex;align-items:center;gap:8px;justify-content:flex-start;padding:6px 10px;text-align:left;';
+          row.className = 'tsic-button c-row' + (it.bAffordable === false ? ' disabled' : '');
+          row.style.justifyContent = 'flex-start';
           if (it.IconUrl) {
             const img = document.createElement('img');
             img.src = it.IconUrl;
@@ -51,8 +114,11 @@
             row.appendChild(img);
           }
           const label = document.createElement('span');
+          label.style.flex = '1';
           label.textContent = it.Name || it.EntityDefId;
           row.appendChild(label);
+          row.onmouseenter = () => { hoveredItem = it; renderCostFor(it); };
+          row.onmouseleave = () => { if (hoveredItem === it) { hoveredItem = null; renderCostFor(null); } };
           row.onclick = () => tsic.publishMessage('UI.Cmd.Construction.Begin', { EntityDefId: it.EntityDefId });
           host.appendChild(row);
         }
@@ -61,10 +127,8 @@
       function renderPreview(p) {
         const pill = document.getElementById('preview-pill');
         const text = document.getElementById('preview-text');
-        if (!p) {
-          pill.style.display = 'none';
-          return;
-        }
+        const axis = document.getElementById('rotation-axis');
+        if (!p) { pill.style.display = 'none'; return; }
         pill.style.display = 'block';
         if (p.bCanPlace) {
           text.textContent = 'READY';
@@ -75,21 +139,21 @@
           pill.style.color = '#ff7a7a';
           pill.style.borderColor = 'rgba(255,122,122,0.45)';
         }
+        axis.textContent = p.RotationAxis ? `· axis: ${p.RotationAxis}` : '';
       }
 
       whenReady(()=>{
-        tsic.on('tsic.msg.UI.Construction.Available', (p) => renderItems(p && p.Items));
+        tsic.on('tsic.msg.UI.Construction.Available', (p) => {
+          lastItems = (p && p.Items) || [];
+          renderTabs(); renderItems();
+        });
         tsic.on('tsic.msg.UI.Construction.PreviewState', (p) => renderPreview(p));
+        window.addEventListener('tsic-item-catalog', () => renderCostFor(hoveredItem));
 
         document.getElementById('btn-confirm').onclick = () =>
           tsic.publishMessage('UI.Cmd.Construction.Confirm', {});
         document.getElementById('btn-cancel').onclick = () =>
           tsic.publishMessage('UI.Cmd.Construction.Cancel', {});
-        // v1: Deconstruct without a UI target — gameplay layer feeds the entity id.
-        // The publish below is a no-op-by-construction (EntityId=0). The actual
-        // deconstruct flow today is driven by the look-at trace in gameplay code;
-        // wiring a "Deconstruct mode" toggle that surfaces target ids to JS is a
-        // follow-up once UI.Construction.GraphChanged is consumed by Map.
         document.getElementById('btn-deconstruct').onclick = () =>
           tsic.publishMessage('UI.Cmd.Construction.Deconstruct', { EntityId: 0 });
       });
