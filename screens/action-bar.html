@@ -12,6 +12,11 @@
     #ab-root { position: fixed; left: 24px; bottom: 24px; display: flex; flex-direction: column; gap: 6px; }
     #ab-gameplay { display: flex; flex-direction: column; gap: 4px; padding: 8px 10px; background: rgba(0,0,0,0.4); border-radius: 4px; }
     #ab-gameplay.hidden { display: none; }
+    #ab-menu { display: flex; flex-direction: row; flex-wrap: wrap; gap: 12px; padding: 8px 10px; background: rgba(0,0,0,0.4); border-radius: 4px; }
+    #ab-menu.hidden { display: none; }
+    #ab-menu .ab-row { padding: 0; }
+    #ab-menu .ab-text { display: flex; align-items: center; }
+    #ab-menu .ab-name { font-weight: 500; }
     .ab-row { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #fff; padding: 2px 0; }
     .ab-row[data-status="blocked"]         { opacity: 0.45; color: #f6c0c0; }
     .ab-row[data-status="cooldown"]        { opacity: 0.85; color: #d4d4d4; filter: saturate(0.55); }
@@ -30,6 +35,7 @@
 </head><body>
   <div id="ab-root">
     <div id="ab-gameplay"></div>
+    <div id="ab-menu"></div>
   </div>
   <script>
     (function () {
@@ -42,23 +48,39 @@
       const STATUS_LABEL = ['available', 'blocked', 'cooldown', 'single-use-used'];
 
       let lastAbilities = { Slots: [] };
-      let currentMode = 'MouseAndKeyboard';
-      let activeScreen = null;
+      let lastMenu      = { Entries: [] };
+      let currentMode   = 'MouseAndKeyboard';
+      let activeScreen  = null;
 
       function whenReady(cb) { if (window.tsic) { cb(); return; } setTimeout(() => whenReady(cb), 16); }
-
       function preferGamepad() { return currentMode === 'Gamepad'; }
-
-      function truncate(s, n) {
-        if (!s) return '';
-        return s.length > n ? (s.slice(0, n - 1) + '…') : s;
+      function truncate(s, n) { if (!s) return ''; return s.length > n ? (s.slice(0, n - 1) + '…') : s; }
+      function bracketedName(name) {
+        if (!name) return '';
+        if (name.startsWith('IA_UI_')) return name.slice(6);
+        if (name.startsWith('IA_'))    return name.slice(3);
+        return name;
       }
 
-      function bracketedName(inputName) {
-        // "IA_Interact" -> "Interact"; otherwise return as-is.
-        if (!inputName) return '';
-        if (inputName.startsWith('IA_')) return inputName.slice(3);
-        return inputName;
+      function makeKey(iconUrl, inputName) {
+        const key = document.createElement('div');
+        key.className = 'ab-key';
+        if (iconUrl) {
+          const img = document.createElement('img');
+          img.src = iconUrl;
+          img.alt = inputName || '';
+          img.onerror = () => {
+            img.replaceWith(Object.assign(document.createElement('span'),
+              { className: 'ab-key-fallback', textContent: bracketedName(inputName) }));
+          };
+          key.appendChild(img);
+        } else {
+          const fallback = document.createElement('span');
+          fallback.className = 'ab-key-fallback';
+          fallback.textContent = bracketedName(inputName);
+          key.appendChild(fallback);
+        }
+        return key;
       }
 
       function renderGameplay() {
@@ -70,26 +92,11 @@
           const row = document.createElement('div');
           row.className = 'ab-row';
           row.dataset.status = STATUS_LABEL[s.StatusInt | 0] || 'available';
-          row.style.setProperty('--tsic-cd-percent', String(Math.max(0, Math.min(100, Math.round((s.CooldownPercent || 0) * 100)))));
+          row.style.setProperty('--tsic-cd-percent',
+            String(Math.max(0, Math.min(100, Math.round((s.CooldownPercent || 0) * 100)))));
 
-          const key = document.createElement('div');
-          key.className = 'ab-key';
           const iconUrl = preferGamepad() ? s.GamepadIconUrl : s.KeyboardIconUrl;
-          if (iconUrl) {
-            const img = document.createElement('img');
-            img.src = iconUrl;
-            img.alt = s.InputName || '';
-            img.onerror = () => {
-              img.replaceWith(Object.assign(document.createElement('span'),
-                { className: 'ab-key-fallback', textContent: bracketedName(s.InputName) }));
-            };
-            key.appendChild(img);
-          } else {
-            const fallback = document.createElement('span');
-            fallback.className = 'ab-key-fallback';
-            fallback.textContent = bracketedName(s.InputName);
-            key.appendChild(fallback);
-          }
+          const key = makeKey(iconUrl, s.InputName);
           if ((s.CooldownPercent || 0) > 0 && (s.CooldownPercent || 0) < 1) {
             const sweep = document.createElement('div');
             sweep.className = 'ab-cd-sweep';
@@ -116,17 +123,48 @@
         applyVisibility();
       }
 
+      function renderMenu() {
+        const host = document.getElementById('ab-menu');
+        host.innerHTML = '';
+        const entries = (lastMenu && lastMenu.Entries) || [];
+        for (const e of entries) {
+          const row = document.createElement('div');
+          row.className = 'ab-row';
+          const iconUrl = preferGamepad() ? e.GamepadIconUrl : e.KeyboardIconUrl;
+          const key = makeKey(iconUrl, e.ActionName);
+          const text = document.createElement('div');
+          text.className = 'ab-text';
+          const name = document.createElement('div');
+          name.className = 'ab-name';
+          name.textContent = e.Label || bracketedName(e.ActionName);
+          text.appendChild(name);
+          row.appendChild(key);
+          row.appendChild(text);
+          host.appendChild(row);
+        }
+        applyVisibility();
+      }
+
+      function emptyGameplay() {
+        return !((lastAbilities.Slots || []).some(s => s.bVisible !== false));
+      }
+      function emptyMenu() {
+        return ((lastMenu.Entries || []).length === 0);
+      }
       function applyVisibility() {
-        const gameplay = document.getElementById('ab-gameplay');
         const isMenu = activeScreen && MENU_SCREENS.has(activeScreen);
-        const empty = !((lastAbilities.Slots || []).some(s => s.bVisible !== false));
-        gameplay.classList.toggle('hidden', !!isMenu || empty);
+        document.getElementById('ab-gameplay').classList.toggle('hidden', !!isMenu || emptyGameplay());
+        document.getElementById('ab-menu')    .classList.toggle('hidden', !isMenu || emptyMenu());
       }
 
       whenReady(() => {
         tsic.on('tsic.msg.UI.ActionBar.Abilities', (p) => {
           lastAbilities = p || { Slots: [] };
           renderGameplay();
+        });
+        tsic.on('tsic.msg.UI.ActionBar.MenuContext', (p) => {
+          lastMenu = p || { Entries: [] };
+          renderMenu();
         });
         tsic.on('tsic.msg.UI.Screen.Changed', (p) => {
           activeScreen = (p && p.Name) || null;
@@ -135,9 +173,11 @@
         tsic.on('tsic.msg.UI.Input.Mode.Changed', (p) => {
           currentMode = (p && p.Mode) || 'MouseAndKeyboard';
           renderGameplay();
+          renderMenu();
         });
         // Initial paint in case sticky messages already fired before subscribe.
         renderGameplay();
+        renderMenu();
       });
     })();
   </script>
