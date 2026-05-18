@@ -4,6 +4,9 @@
 (function () {
   const SCREEN_TO_FILE = {
     MainMenu: 'main-menu',
+    NewStore: 'new-store',
+    Mods: 'mods',
+    Credits: 'credits',
     Loading: 'loading-screen',
     InGame: 'in-game',
     DeathScreen: 'death-screen',
