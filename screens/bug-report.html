@@ -9,7 +9,6 @@
   <script src="/shared/router.js" defer></script>
   <script src="/shared/hud.js" defer></script>
   <style>
-    #modal { position:fixed; inset:0; background:rgba(35,31,24,0.45); display:flex; align-items:center; justify-content:center; }
     .field { display:flex; flex-direction:column; gap:4px; margin-top: 10px; }
     .field > label { font-size:11px; letter-spacing:1px; opacity:0.75; text-transform:uppercase; }
     .field > select, .field > textarea {
@@ -25,9 +24,9 @@
     .check-row > input { accent-color: var(--tsic-accent); }
   </style>
 </head><body>
-  <div id="modal">
+  <div id="modal" class="tsic-modal-scrim">
     <div class="tsic-panel" style="width:460px;max-height:90vh;display:flex;flex-direction:column;">
-      <h2 style="margin:0 0 12px;letter-spacing:3px;font-size:14px;">REPORT A BUG</h2>
+      <h2 class="tsic-title tsic-title--sm">Report a Bug</h2>
 
       <div class="field">
         <label for="br-category">Category</label>
@@ -53,9 +52,9 @@
         <span>Include game log</span>
       </label>
 
-      <div style="margin-top:16px;display:flex;gap:8px;">
-        <button class="tsic-button" id="btn-submit">Submit</button>
+      <div class="tsic-button-row">
         <button class="tsic-button" id="btn-cancel">Cancel</button>
+        <button class="tsic-button" id="btn-submit">Submit</button>
       </div>
     </div>
   </div>

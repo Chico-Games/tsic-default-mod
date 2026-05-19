@@ -13,7 +13,7 @@
   <script src="/shared/catalog.js" defer></script>
   <script src="/shared/recipe-info.js" defer></script>
   <style>
-    #p-root { position:fixed; inset:0; background: rgba(35,31,24,0.35); display:flex; align-items:center; justify-content:center; }
+    /* Modal layout: the scrim utility class handles inset + flex + bg. */
     #p-panel { width: 880px; max-height: 80vh; display:grid; grid-template-columns: 240px 220px 1fr; gap:12px; }
     #p-list, #p-queue { display:flex; flex-direction:column; gap:4px; max-height:520px; overflow-y:auto; }
     .p-row { display:flex; align-items:center; gap:8px; padding:6px 8px; background: rgba(241,229,207,0.55); border:1px solid var(--tsic-border); cursor:pointer; }
@@ -32,9 +32,9 @@
     @keyframes pulse { 0%, 100% { opacity:0.6; } 50% { opacity:1.0; } }
   </style>
 </head><body>
-<div id="p-root">
+<div id="p-root" class="tsic-modal-scrim">
   <div id="p-panel" class="tsic-panel">
-    <h2 style="grid-column: 1 / 4; margin:0;letter-spacing:3px;">PRODUCTION</h2>
+    <h2 class="tsic-title" style="grid-column: 1 / 4; margin:0;">Production</h2>
     <div id="p-list"></div>
     <div>
       <div id="p-throb">PRODUCING…</div>
@@ -44,7 +44,7 @@
       <div id="p-info"></div>
       <button id="p-add" class="tsic-button" disabled>Add to Queue</button>
     </div>
-    <div style="grid-column: 1 / 4; text-align:right;">
+    <div class="tsic-close-row" style="grid-column: 1 / 4;">
       <button class="tsic-button" id="btn-close">Close (Esc)</button>
     </div>
   </div>

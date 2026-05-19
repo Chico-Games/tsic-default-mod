@@ -10,25 +10,23 @@
   <script src="/shared/router.js" defer></script>
   <script src="/shared/hud.js" defer></script>
   <style>
-    #uss-root  { position:fixed; inset:0; background: rgba(35,31,24,0.35); display:flex; align-items:center; justify-content:center; }
     #uss-panel { width: 480px; padding: 20px; }
     #uss-list  { display:flex; flex-direction:column; gap:4px; max-height: 280px; overflow:auto; margin: 12px 0; }
     .uss-row   { display:flex; align-items:center; gap:8px; padding:6px 10px; background:rgba(241,229,207,0.55); border:1px solid var(--tsic-border); cursor:pointer; }
     .uss-row:hover { background:rgba(241,229,207,0.55); }
-    #uss-empty { opacity:0.6; font-style: italic; padding: 12px; text-align:center; }
-    .uss-modal-overlay { position:fixed; inset:0; background:rgba(35,31,24,0.50); display:flex; align-items:center; justify-content:center; z-index:1000; }
+    .uss-modal-overlay { z-index:1000; }
     .uss-modal { width: 360px; padding: 16px; }
-    .uss-error { color:#fca5a5; font-size: 11px; min-height: 14px; margin-top: 4px; }
+    .uss-error { color: var(--cat-red, #9f2e25); font-size: 11px; min-height: 14px; margin-top: 4px; }
   </style>
 </head><body>
-  <div id="uss-root">
+  <div id="uss-root" class="tsic-modal-scrim">
     <div id="uss-panel" class="tsic-panel">
-      <h2 style="margin:0;letter-spacing:3px;">UNIVERSAL STORAGE</h2>
-      <p style="opacity:0.6;font-size:12px;margin:6px 0 0;">Bind this storage to a group or create a new one.</p>
+      <h2 class="tsic-title" style="margin:0;">Universal Storage</h2>
+      <p class="tsic-meta" style="margin:6px 0 0;">Bind this storage to a group or create a new one.</p>
       <div id="uss-list"></div>
-      <div style="display:flex;gap:8px;justify-content:flex-end;">
-        <button class="tsic-button" id="btn-new">Create new…</button>
+      <div class="tsic-button-row">
         <button class="tsic-button" id="btn-cancel">Cancel</button>
+        <button class="tsic-button" id="btn-new">Create new…</button>
       </div>
     </div>
   </div>
@@ -46,7 +44,7 @@
         host.innerHTML = '';
         if (!groups.length) {
           const empty = document.createElement('div');
-          empty.id = 'uss-empty';
+          empty.className = 'tsic-empty';
           empty.textContent = 'No groups yet — create one below.';
           host.appendChild(empty);
           return;
@@ -69,14 +67,14 @@
 
       function openCreateModal() {
         const overlay = document.createElement('div');
-        overlay.className = 'uss-modal-overlay';
+        overlay.className = 'tsic-modal-scrim tsic-modal-scrim--dim uss-modal-overlay';
         const panel = document.createElement('div');
         panel.className = 'tsic-panel uss-modal';
         panel.innerHTML = `
-          <h3 style="margin:0 0 12px;letter-spacing:3px;">CREATE GROUP</h3>
+          <h3 class="tsic-title tsic-title--sm">Create Group</h3>
           <input id="uss-name" type="text" class="tsic-input" placeholder="Group name" style="width:100%;box-sizing:border-box;" maxlength="48">
           <div class="uss-error" id="uss-err"></div>
-          <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px;">
+          <div class="tsic-button-row">
             <button class="tsic-button" id="uss-create-cancel">Cancel</button>
             <button class="tsic-button" id="uss-create-confirm">Create</button>
           </div>`;

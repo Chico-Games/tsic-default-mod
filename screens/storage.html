@@ -17,21 +17,21 @@
     .storage-tab.active { background: var(--tsic-accent-dim); }
   </style>
 </head><body>
-  <div id="root" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(35,31,24,0.35);">
-    <div class="tsic-panel" style="width:720px;max-height:80vh;overflow:auto;">
-      <h2 style="margin:0 0 12px;letter-spacing:3px;">STORAGE</h2>
-      <div style="display:flex;gap:24px;">
-        <div style="flex:1;">
-          <div style="opacity:0.7;font-size:11px;letter-spacing:2px;margin-bottom:6px;">CONTAINER</div>
+  <div id="root" class="tsic-modal-scrim">
+    <div class="tsic-panel" style="width:900px;max-width:calc(100vw - 48px);max-height:80vh;overflow:auto;">
+      <h2 class="tsic-title">Storage</h2>
+      <div class="tsic-row" style="gap:24px; align-items:stretch;">
+        <div style="flex:1 1 0; min-width:0;">
+          <div class="tsic-eyebrow">Container</div>
           <div id="storage-tabs"></div>
-          <div id="storage-grid" style="display:grid;grid-template-columns:repeat(8,56px);gap:6px;"></div>
+          <div id="storage-grid" style="display:grid;grid-template-columns:repeat(6,56px);gap:6px;"></div>
         </div>
-        <div style="flex:1;">
-          <div style="opacity:0.7;font-size:11px;letter-spacing:2px;margin-bottom:6px;">YOUR INVENTORY</div>
-          <div id="player-grid" style="display:grid;grid-template-columns:repeat(8,56px);gap:6px;"></div>
+        <div style="flex:1 1 0; min-width:0;">
+          <div class="tsic-eyebrow">Your Inventory</div>
+          <div id="player-grid" style="display:grid;grid-template-columns:repeat(6,56px);gap:6px;"></div>
         </div>
       </div>
-      <div style="margin-top:12px;">
+      <div class="tsic-close-row">
         <button class="tsic-button" id="btn-close">Close</button>
       </div>
     </div>

@@ -10,21 +10,20 @@
   <script src="/shared/router.js" defer></script>
   <script src="/shared/hud.js" defer></script>
   <style>
-    #pause-overlay { position:fixed;inset:0;background:rgba(241,229,207,0.92);display:flex;align-items:center;justify-content:center;z-index:1; }
     #pause-panel { width:360px; text-align:center; }
-    #pause-panel h1 { letter-spacing:6px; margin: 0 0 20px; }
     .pl { text-align:left; margin: 16px 0; max-height: 140px; overflow:auto; }
     .pl-row { padding: 4px 6px; }
+    .pause-btn-row > button { flex: 1; }
   </style>
 </head><body>
-  <div id="pause-overlay">
+  <div id="pause-overlay" class="tsic-modal-scrim tsic-modal-scrim--paper">
     <div id="pause-panel" class="tsic-panel">
-      <h1>PAUSED</h1>
+      <h1 class="tsic-title tsic-title--lg">Paused</h1>
       <div class="pl" id="players"></div>
       <button class="tsic-button" style="width:100%;" id="btn-resume">Resume</button>
-      <div style="display:flex;gap:8px;margin-top:8px;">
-        <button class="tsic-button" style="flex:1;" id="btn-settings">Settings</button>
-        <button class="tsic-button" style="flex:1;" id="btn-menu">Quit to Menu</button>
+      <div class="tsic-row pause-btn-row" style="margin-top:8px; gap:8px;">
+        <button class="tsic-button" id="btn-settings">Settings</button>
+        <button class="tsic-button" id="btn-menu">Quit to Menu</button>
       </div>
     </div>
   </div>

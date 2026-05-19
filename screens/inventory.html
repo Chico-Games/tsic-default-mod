@@ -13,8 +13,10 @@
   <script src="/shared/inventory.js" defer></script>
   <script src="/shared/action-bar.js" defer></script>
   <style>
+    /* Layout is custom; the .tsic-modal-scrim class would clash because we
+       need the panel to size itself rather than auto-centre via flex defaults. */
     #inv-root { position:fixed; inset:0; background: rgba(35,31,24,0.35); display:flex; align-items:center; justify-content:center; }
-    #inv-panel { width: 900px; max-height: 80vh; display:grid; grid-template-columns: 140px 1fr 240px; gap:12px; }
+    #inv-panel { width: 900px; max-width: calc(100vw - 48px); max-height: 80vh; overflow:auto; display:grid; grid-template-columns: 140px 1fr 240px; gap:12px; }
     #inv-tabs { display:flex; flex-direction:column; gap:4px; }
     .inv-tab { padding:6px 10px; background: rgba(241,229,207,0.55); border:1px solid var(--tsic-border); cursor:pointer; }
     .inv-tab.active { background: var(--tsic-accent-dim); }
@@ -38,7 +40,7 @@
 </head><body>
 <div id="inv-root">
   <div id="inv-panel" class="tsic-panel">
-    <h2 style="grid-column: 1 / 4; margin:0;letter-spacing:3px;">INVENTORY</h2>
+    <h2 class="tsic-title" style="grid-column: 1 / 4; margin:0;">Inventory</h2>
     <div id="inv-tabs"></div>
     <div id="inv-grid"></div>
     <div id="inv-info"></div>

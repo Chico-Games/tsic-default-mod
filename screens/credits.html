@@ -8,20 +8,20 @@
   <link rel="stylesheet" href="/shared/components.css">
   <script src="/shared/router.js" defer></script>
   <style>
-    html, body { background: rgba(35,31,24,0.50); color: #f4f4f4; }
+    html, body { background: rgba(35,31,24,0.50); color: var(--cat-ink-dark); }
     .credits { padding: 60px 80px; max-width: 720px; margin: 0 auto;
-               font-family: inherit; }
-    h1 { letter-spacing: 18px; font-weight: 200; font-size: 56px; margin: 0 0 8px; }
+               font-family: var(--cat-font-serif); }
+    h1 { letter-spacing: 18px; font-weight: 200; font-size: 56px; margin: 0 0 8px;
+         color: var(--cat-ink-dark); }
     h2 { letter-spacing: 6px; font-weight: 300; font-size: 18px;
-         text-transform: uppercase; opacity: 0.7; margin: 32px 0 8px; }
+         text-transform: uppercase; color: var(--cat-ink-soft); margin: 32px 0 8px; }
     ul { list-style: none; padding: 0; margin: 0; }
     li { padding: 4px 0; letter-spacing: 1px; }
-    .actions { margin-top: 40px; }
   </style>
 </head><body>
   <div class="credits">
     <h1>TSIC</h1>
-    <div style="opacity:0.6; letter-spacing:8px;">THE STORE IS CLOSED</div>
+    <div class="tsic-eyebrow" style="letter-spacing:8px;">The Store is Closed</div>
 
     <h2>Design &amp; Programming</h2>
     <ul>
@@ -45,7 +45,7 @@
       <li>mod.io</li>
     </ul>
 
-    <div class="actions">
+    <div class="tsic-button-row tsic-button-row--start" style="margin-top:40px;">
       <button class="tsic-button" id="btn-back">Back</button>
     </div>
   </div>

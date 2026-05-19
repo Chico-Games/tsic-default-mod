@@ -29,6 +29,6 @@ TSICTestHarness.register({
     async run(ctx) {
         ctx.inject('tsic.msg.UI.UniversalStorage.Groups', { GroupNames: [] });
         await new Promise(r => setTimeout(r, 60));
-        ctx.expect(ctx.assert.domText(ctx.doc, '#uss-empty', /No groups yet/));
+        ctx.expect(ctx.assert.domText(ctx.doc, '#uss-list .tsic-empty', /No groups yet/));
     },
 });

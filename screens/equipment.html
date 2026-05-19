@@ -9,11 +9,11 @@
   <script src="/shared/router.js" defer></script>
   <script src="/shared/hud.js" defer></script>
 </head><body>
-  <div id="root" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(35,31,24,0.35);">
+  <div id="root" class="tsic-modal-scrim">
     <div class="tsic-panel" style="width:520px;max-height:80vh;overflow:auto;">
-      <h2 style="margin:0 0 12px;letter-spacing:3px;">EQUIPMENT</h2>
-      <div id="grid" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
-      <div style="margin-top:12px;">
+      <h2 class="tsic-title">Equipment</h2>
+      <div id="grid" class="tsic-row tsic-row--wrap tsic-row--sm"></div>
+      <div class="tsic-close-row">
         <button class="tsic-button" id="btn-close">Close</button>
       </div>
     </div>
@@ -28,20 +28,21 @@
           for (const s of ((p && p.Slots) || [])) {
             const slot = document.createElement('div');
             slot.className = 'tsic-slot';
-            slot.style.width = '72px';
-            slot.style.height = '72px';
+            slot.style.cssText = 'width:72px;height:72px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:2px;';
             if (s.IconUrl) {
               slot.style.backgroundImage = `url(${s.IconUrl})`;
               slot.style.backgroundSize = 'cover';
             } else {
+              const shortTag = (s.SlotTag || '').split('.').pop();
               const label = document.createElement('div');
-              label.style.cssText = 'font-size:9px;color: var(--cat-ink-soft);padding:2px;word-break:break-all;';
-              label.textContent = s.SlotTag || '';
+              label.style.cssText = 'font-size:10px;color: var(--cat-ink-soft);';
+              label.textContent = shortTag;
               slot.appendChild(label);
               if (s.ItemId) {
+                const shortItem = (s.ItemId || '').replace(/^ID_/, '').slice(0, 8);
                 const item = document.createElement('div');
-                item.style.cssText = 'font-size:9px;color: var(--cat-ink-dark);padding:2px;word-break:break-all;';
-                item.textContent = s.ItemId;
+                item.style.cssText = 'font-size:9px;color: var(--cat-ink-dark);';
+                item.textContent = shortItem;
                 slot.appendChild(item);
               }
             }

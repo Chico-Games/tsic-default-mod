@@ -9,9 +9,9 @@
   <script src="/shared/router.js" defer></script>
   <style>
     #cm-root  { position:fixed; inset:0; background: rgba(35,31,24,0.55); padding: 24px; overflow:auto; color: var(--cat-ink-dark); }
-    #cm-root h2 { margin: 0 0 8px; letter-spacing: 4px; color: #f59e0b; }
+    #cm-root h2 { color: #c2410c; }
     .cm-section { margin: 20px 0; max-width: 920px; }
-    .cm-section h3 { letter-spacing: 3px; opacity:0.7; font-size: 13px; margin: 0 0 8px; }
+    .cm-section h3 { letter-spacing: 3px; opacity:0.7; font-size: 13px; margin: 0 0 8px; text-transform: uppercase; }
     .cm-row    { display:flex; flex-wrap:wrap; gap: 6px; }
     .cm-row button { padding: 4px 10px; font-size: 12px; }
     .cm-input  { background: transparent; color: var(--cat-ink-dark); border:1px solid var(--tsic-border); padding: 2px 6px; min-width: 180px; }
@@ -21,8 +21,8 @@
   </style>
 </head><body>
   <div id="cm-root">
-    <h2>CHEAT MENU</h2>
-    <div style="opacity:0.6;font-size:11px;margin-bottom:4px;">DEV ONLY · commands run on the local player controller.</div>
+    <h2 class="tsic-title tsic-title--lg">Cheat Menu</h2>
+    <div class="tsic-meta" style="margin-bottom:4px;">Dev only · commands run on the local player controller.</div>
 
     <div class="cm-section">
       <h3>QUICK</h3>
@@ -83,7 +83,7 @@
       </div>
     </div>
 
-    <div style="margin-top:24px;">
+    <div class="tsic-button-row tsic-button-row--start">
       <button class="tsic-button" id="btn-back">Close</button>
     </div>
   </div>

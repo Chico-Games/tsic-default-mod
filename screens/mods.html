@@ -8,10 +8,11 @@
   <link rel="stylesheet" href="/shared/components.css">
   <script src="/shared/router.js" defer></script>
   <style>
-    html, body { background: rgba(35,31,24,0.50); color: #f4f4f4; }
-    .wrap { max-width: 1024px; margin: 0 auto; padding: 32px 48px; }
+    html, body { background: rgba(35,31,24,0.50); color: var(--cat-ink-dark); }
+    .wrap { max-width: 1024px; margin: 0 auto; padding: 32px 48px;
+            font-family: var(--cat-font-serif); }
     h1 { letter-spacing: 12px; font-weight: 200; font-size: 36px;
-         text-transform: uppercase; margin: 0 0 24px; }
+         text-transform: uppercase; color: var(--cat-ink-dark); margin: 0 0 24px; }
     .panel { border: 1px solid rgba(241,229,207,0.60);
              background: rgba(241,229,207,0.88); padding: 16px; margin-bottom: 16px; }
     .auth-strip { display: flex; justify-content: space-between; align-items: center; }
@@ -103,7 +104,7 @@
       <div class="installed-list" id="installed-list"></div>
     </div>
 
-    <div class="actions">
+    <div class="tsic-button-row tsic-button-row--start" style="margin-top:24px;">
       <button class="tsic-button" id="btn-back">Back</button>
     </div>
   </div>

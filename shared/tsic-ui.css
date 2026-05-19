@@ -25,6 +25,10 @@
 .tsic-modal-scrim--dim   { background: rgba(35, 31, 24, 0.55); }
 .tsic-modal-scrim--heavy { background: rgba(35, 31, 24, 0.75); }
 .tsic-modal-scrim--clear { background: transparent; }
+/* Opaque cream overlay — used by pause-menu and similar "stop the game"
+ * full-screen interstitials where you want the parchment look to fill the
+ * viewport instead of darkening through to gameplay. */
+.tsic-modal-scrim--paper { background: rgba(241, 229, 207, 0.92); }
 
 /* Centre flex helper (no scrim, no fixed positioning). */
 .tsic-flex-center {

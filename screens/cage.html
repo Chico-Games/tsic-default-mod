@@ -9,17 +9,16 @@
   <script src="/shared/router.js" defer></script>
   <script src="/shared/hud.js" defer></script>
   <style>
-    #modal { position:fixed; inset:0; background:rgba(35,31,24,0.45); display:flex; align-items:center; justify-content:center; }
     .row { display:flex; align-items:center; gap:10px; justify-content:flex-start; padding:8px 12px; text-align:left; width:100%; }
     .row img { width:32px; height:32px; object-fit:contain; }
     .row.disabled { opacity:0.4; pointer-events:none; }
   </style>
 </head><body>
-  <div id="modal">
+  <div id="modal" class="tsic-modal-scrim">
     <div class="tsic-panel" style="width:480px;max-height:80vh;display:flex;flex-direction:column;">
-      <h2 style="margin:0 0 12px;letter-spacing:3px;font-size:14px;">CAGE — SELECT TARGET</h2>
-      <div id="rows" style="display:flex;flex-direction:column;gap:6px;overflow-y:auto;"></div>
-      <div id="empty" style="opacity:0.6;padding:8px 0;display:none;">No cage targets available.</div>
+      <h2 class="tsic-title tsic-title--sm">Cage — Select Target</h2>
+      <div id="rows" class="tsic-stack tsic-stack--sm" style="overflow-y:auto;"></div>
+      <div id="empty" class="tsic-empty" style="display:none;">No cage targets available.</div>
     </div>
   </div>
   <script>

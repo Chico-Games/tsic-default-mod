@@ -179,12 +179,13 @@ TSICTestHarness.register({
 
 // ---- Selection / Cage ----------------------------------------------
 TSICTestHarness.register({
-    name: 'Selection: empty options shows the empty hint and uppercases the Context title',
+    name: 'Selection: empty options shows the empty hint and renders the Context title',
     file: '/screens/selection.html',
     async run(ctx) {
         ctx.inject('tsic.msg.UI.Selection.Opened', { Context: 'Generic', Options: [] });
         await new Promise(r => setTimeout(r, 60));
-        ctx.expect(ctx.assert.domText(ctx.doc, '#title', 'GENERIC'));
+        // Title text is set in semantic case; CSS .tsic-title applies text-transform.
+        ctx.expect(ctx.assert.domText(ctx.doc, '#title', 'Generic'));
         ctx.expect(ctx.assert.domVisible(ctx.doc, '#empty'));
     },
 });

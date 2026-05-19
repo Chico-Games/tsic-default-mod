@@ -9,12 +9,7 @@
   <script src="/shared/router.js" defer></script>
   <script src="/shared/hud.js" defer></script>
   <style>
-    /* Modal radial wheel — semi-transparent backdrop, centred wheel of buttons. */
-    #backdrop {
-      position: fixed; inset: 0;
-      background: rgba(241,229,207,0.92);
-      display: flex; align-items: center; justify-content: center;
-    }
+    /* Modal radial wheel — paper backdrop (tsic-modal-scrim--paper), centred. */
     #wheel {
       position: relative;
       width: 340px; height: 340px;
@@ -47,7 +42,7 @@
     }
   </style>
 </head><body>
-  <div id="backdrop">
+  <div id="backdrop" class="tsic-modal-scrim tsic-modal-scrim--paper">
     <div id="wheel">
       <div id="wheel-title">PING</div>
     </div>

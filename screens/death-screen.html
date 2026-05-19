@@ -9,18 +9,17 @@
   <script src="/shared/router.js" defer></script>
   <script src="/shared/hud.js" defer></script>
   <style>
-    #death-root { position:fixed; inset:0; background: rgba(35,31,24,0.55); color: var(--cat-ink-dark); display:flex; align-items:center; justify-content:center; }
+    #death-root { color: var(--cat-ink-dark); }
     #death-panel { text-align:center; }
-    #death-panel h1 { letter-spacing:8px; font-size:36px; margin: 0 0 18px; color:#dc2626; }
+    #death-panel h1 { color:#9f2e25; }   /* warm red from the catalogue palette */
     #death-panel p  { opacity:0.6; margin: 0 0 22px; letter-spacing:2px; }
-    #death-actions  { display:flex; gap:12px; justify-content:center; }
   </style>
 </head><body>
-  <div id="death-root">
+  <div id="death-root" class="tsic-modal-scrim tsic-modal-scrim--dim">
     <div id="death-panel">
-      <h1>YOU DIED</h1>
+      <h1 class="tsic-title tsic-title--lg">You Died</h1>
       <p>respawn at the nearest spawn point</p>
-      <div id="death-actions">
+      <div class="tsic-button-row tsic-button-row--center">
         <button class="tsic-button" id="btn-respawn">Respawn</button>
         <button class="tsic-button" id="btn-menu">Quit to Menu</button>
       </div>
