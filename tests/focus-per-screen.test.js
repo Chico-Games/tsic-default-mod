@@ -19,37 +19,12 @@ function focusOpts(extraTags) {
     };
 }
 
-async function awaitInitialFocus(ctx, timeoutMs) {
-    const start = Date.now();
-    while (Date.now() - start < (timeoutMs || 2000)) {
-        const active = ctx.doc.activeElement;
-        if (active && active !== ctx.doc.body && active.matches && active.matches('[data-tsic-initial-focus]')) return active;
-        await new Promise(r => setTimeout(r, 16));
-    }
-    return null;
-}
-
-async function runReachability(ctx) {
-    ctx.focus.disableSmoothScroll();
-    ctx.focus.resetMemory();
-    ctx.mode('Gamepad');
-    const got = await awaitInitialFocus(ctx);
-    if (!got) {
-        ctx.expect('initial focus never landed on [data-tsic-initial-focus]; activeElement=' +
-            (ctx.doc.activeElement ? ctx.doc.activeElement.tagName + (ctx.doc.activeElement.id ? '#'+ctx.doc.activeElement.id : '') : 'null'));
-        return;
-    }
-    await ctx.focus.assertAllReachable();
-    await ctx.focus.assertAllGroupsMutuallyReachable();
-    await ctx.focus.assertDropdownsRoundtrip();
-}
-
 // ---- Static screens (no seed data required) -----------------------------
 
 TSICTestHarness.register(Object.assign({
     name: 'Focus/MainMenu: reachable + groups mutually reachable',
     file: '/screens/main-menu.html',
-    async run(ctx) { await runReachability(ctx); },
+    async run(ctx) { await TSICTestHarness.fx.runReachability(ctx); },
 }, focusOpts()));
 
 TSICTestHarness.register(Object.assign({
@@ -57,25 +32,29 @@ TSICTestHarness.register(Object.assign({
     file: '/screens/pause-menu.html',
     async run(ctx) {
         ctx.inject('tsic.msg.UI.Players.List', { Players: [{ Name: 'Player', bIsHost: true }] });
-        await runReachability(ctx);
+        await TSICTestHarness.fx.runReachability(ctx);
     },
 }, focusOpts()));
 
 TSICTestHarness.register(Object.assign({
     name: 'Focus/Credits: reachable + groups mutually reachable',
     file: '/screens/credits.html',
-    async run(ctx) { await runReachability(ctx); },
+    async run(ctx) { await TSICTestHarness.fx.runReachability(ctx); },
 }, focusOpts()));
 
 TSICTestHarness.register(Object.assign({
     name: 'Focus/Settings: reachable + groups mutually reachable',
     file: '/screens/settings.html',
     async run(ctx) {
-        ctx.inject('tsic.msg.UI.Settings.Catalog', { Settings: [
-            { Key: 'video.fov', Label: 'FOV', Type: 'range', Min: 60, Max: 120, Step: 1, Value: 90 },
-            { Key: 'audio.master', Label: 'Master Volume', Type: 'range', Min: 0, Max: 1, Step: 0.05, Value: 0.8 },
-        ] });
-        await runReachability(ctx);
+        ctx.inject('tsic.msg.UI.Settings.Catalog', {
+            Json: JSON.stringify({ Groups: [{
+                Id: 'video', Title: 'Video', Settings: [
+                    { Key: 'video.fov', Label: 'FOV', Type: 'range', Min: 60, Max: 120, Step: 1, Value: 90 },
+                    { Key: 'audio.master', Label: 'Master Volume', Type: 'range', Min: 0, Max: 1, Step: 0.05, Value: 0.8 },
+                ],
+            }] }),
+        });
+        await TSICTestHarness.fx.runReachability(ctx);
     },
 }, focusOpts()));
 
@@ -87,7 +66,7 @@ TSICTestHarness.register(Object.assign({
             { SlotId: 's1', Label: 'Slot 1', TimestampIso: '2026-05-19T00:00:00Z' },
             { SlotId: 's2', Label: 'Slot 2', TimestampIso: '2026-05-19T01:00:00Z' },
         ] });
-        await runReachability(ctx);
+        await TSICTestHarness.fx.runReachability(ctx);
     },
 }, focusOpts()));
 
@@ -100,20 +79,20 @@ TSICTestHarness.register(Object.assign({
             { LayoutId: 'b', Name: 'Layout B', ThumbnailUrl: '/__blank.png' },
         ] });
         ctx.inject('tsic.msg.UI.Mod.InstalledList', { Mods: [] });
-        await runReachability(ctx);
+        await TSICTestHarness.fx.runReachability(ctx);
     },
 }, focusOpts()));
 
 TSICTestHarness.register(Object.assign({
     name: 'Focus/QuantityPicker: reachable + groups mutually reachable',
     file: '/screens/quantity-picker.html',
-    async run(ctx) { await runReachability(ctx); },
+    async run(ctx) { await TSICTestHarness.fx.runReachability(ctx); },
 }, focusOpts()));
 
 TSICTestHarness.register(Object.assign({
     name: 'Focus/BugReport: reachable + groups mutually reachable',
     file: '/screens/bug-report.html',
-    async run(ctx) { await runReachability(ctx); },
+    async run(ctx) { await TSICTestHarness.fx.runReachability(ctx); },
 }, focusOpts()));
 
 TSICTestHarness.register(Object.assign({
@@ -121,7 +100,7 @@ TSICTestHarness.register(Object.assign({
     file: '/screens/universal-storage-setup.html',
     async run(ctx) {
         ctx.inject('tsic.msg.UI.UniversalStorage.Groups', { GroupNames: ['Group A', 'Group B'] });
-        await runReachability(ctx);
+        await TSICTestHarness.fx.runReachability(ctx);
     },
 }, focusOpts()));
 
@@ -133,7 +112,7 @@ TSICTestHarness.register(Object.assign({
             { OptionId: 'a', Label: 'A' },
             { OptionId: 'b', Label: 'B' },
         ] });
-        await runReachability(ctx);
+        await TSICTestHarness.fx.runReachability(ctx);
     },
 }, focusOpts()));
 
@@ -145,7 +124,7 @@ TSICTestHarness.register(Object.assign({
             { OptionId: 'cap1', Label: 'Capture 1' },
             { OptionId: 'cap2', Label: 'Capture 2' },
         ] });
-        await runReachability(ctx);
+        await TSICTestHarness.fx.runReachability(ctx);
     },
 }, focusOpts()));
 
@@ -157,7 +136,7 @@ TSICTestHarness.register(Object.assign({
             { EntityId: 1, Label: 'Hub', Cooldown: 0 },
             { EntityId: 2, Label: 'Far', Cooldown: 0 },
         ] });
-        await runReachability(ctx);
+        await TSICTestHarness.fx.runReachability(ctx);
     },
 }, focusOpts()));
 
@@ -169,7 +148,7 @@ TSICTestHarness.register(Object.assign({
             { RecipeId: 'r1', Name: 'Ritual 1', Ingredients: [{ ItemId: 'ID_X', Count: 1 }] },
             { RecipeId: 'r2', Name: 'Ritual 2', Ingredients: [{ ItemId: 'ID_Y', Count: 1 }] },
         ] });
-        await runReachability(ctx);
+        await TSICTestHarness.fx.runReachability(ctx);
     },
 }, focusOpts()));
 
@@ -181,6 +160,6 @@ TSICTestHarness.register(Object.assign({
             { Id: 'wall',  Name: 'Wall',  Category: 'Walls', Cost: [] },
             { Id: 'floor', Name: 'Floor', Category: 'Floors', Cost: [] },
         ] });
-        await runReachability(ctx);
+        await TSICTestHarness.fx.runReachability(ctx);
     },
 }, focusOpts()));

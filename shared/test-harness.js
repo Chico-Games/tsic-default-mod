@@ -392,6 +392,75 @@
         return fx;
     };
 
+    // Focus test fixtures. Lifted to the harness so they're available in both
+    // jsdom (file-scope closure) and playwright (page.evaluate of just
+    // scn.run.toString() — file-scope helpers are otherwise out of reach).
+    NS.fx = {
+        // Add a tsic-focus opt-in + replace body content. Idempotent — only
+        // inserts the meta if it isn't already there.
+        setupFixture(ctx, bodyHTML) {
+            if (!ctx.doc.querySelector('meta[name="tsic-focus"]')) {
+                ctx.doc.head.insertAdjacentHTML('beforeend', '<meta name="tsic-focus" content="enabled">');
+            }
+            ctx.doc.body.innerHTML = bodyHTML;
+        },
+        // Pin a deterministic rect onto an element. Used to make spatial-nearest
+        // math testable in jsdom (which doesn't compute layout). No-op-safe in
+        // browsers — overriding getBoundingClientRect on an instance still works.
+        mockRect(el, x, y, w, h) {
+            if (!el) return;
+            const r = { left: x, top: y, width: w, height: h, right: x + w, bottom: y + h, x: x, y: y };
+            el.getBoundingClientRect = () => r;
+        },
+        // Auto-apply rects to a list of elements based on their inline
+        // style.{left,top,width,height}. In real-layout environments callers
+        // should pass { onlyIfZeroRect: true } so we don't trample real rects.
+        applyRects(elements, opts) {
+            const o = opts || {};
+            const w0 = o.defaultW || 100;
+            const h0 = o.defaultH || 28;
+            for (const el of elements) {
+                if (o.onlyIfZeroRect) {
+                    const cur = el.getBoundingClientRect();
+                    if (cur && cur.width > 0 && cur.height > 0) continue;
+                }
+                const sx = parseFloat(el.style.left || '0') || 0;
+                const sy = parseFloat(el.style.top  || '0') || 0;
+                const sw = parseFloat(el.style.width  || '') || w0;
+                const sh = parseFloat(el.style.height || '') || h0;
+                NS.fx.mockRect(el, sx, sy, sw, sh);
+            }
+        },
+        // Wait up to timeoutMs (default 2000) for the engine to land focus on
+        // [data-tsic-initial-focus]. Returns the element or null.
+        async awaitInitialFocus(ctx, timeoutMs) {
+            const start = Date.now();
+            const limit = timeoutMs || 2000;
+            while (Date.now() - start < limit) {
+                const a = ctx.doc.activeElement;
+                if (a && a !== ctx.doc.body && a.matches && a.matches('[data-tsic-initial-focus]')) return a;
+                await new Promise(r => setTimeout(r, 16));
+            }
+            return null;
+        },
+        // Run the three reachability asserts on the page as it stands.
+        async runReachability(ctx) {
+            ctx.focus.disableSmoothScroll();
+            ctx.focus.resetMemory();
+            ctx.mode('Gamepad');
+            const got = await NS.fx.awaitInitialFocus(ctx);
+            if (!got) {
+                const a = ctx.doc.activeElement;
+                ctx.expect('initial focus never landed on [data-tsic-initial-focus]; activeElement=' +
+                    (a ? a.tagName + (a.id ? '#'+a.id : '') : 'null'));
+                return;
+            }
+            await ctx.focus.assertAllReachable();
+            await ctx.focus.assertAllGroupsMutuallyReachable();
+            await ctx.focus.assertDropdownsRoundtrip();
+        },
+    };
+
     // Tiny "wait until predicate or timeout" helper for async DOM updates.
     NS.waitFor = function (predicate, opts) {
         const timeout = (opts && opts.timeout) || 1000;
