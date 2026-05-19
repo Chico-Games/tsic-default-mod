@@ -210,13 +210,13 @@ TSICTestHarness.register({
     file: '/screens/settings.html',
     async run(ctx) {
         ctx.inject('tsic.msg.UI.Settings.Catalog', {
-            Json: JSON.stringify({ Groups: [{ Title: 'Display', Settings: [{ Key: 'fov', Type: 'range', Min: 60, Max: 120, Step: 1, Value: 90 }] }] }),
+            Json: JSON.stringify({ Pages: [{ Id: 'X', Title: 'X', Groups: [{ Id: 'Display', Title: 'Display', Settings: [{ Key: 'fov', Type: 'range', Min: 60, Max: 120, Step: 1, Value: 90 }] }] }] }),
         });
-        await ctx.waitFor(() => ctx.doc.querySelector('input[type="number"]'));
-        const num = ctx.doc.querySelector('input[type="number"]');
-        num.value = '999';
+        await ctx.waitFor(() => ctx.doc.querySelector('input[type="range"]'));
+        const slider = ctx.doc.querySelector('input[type="range"]');
+        slider.value = '999';
         ctx.clearPublishes();
-        num.dispatchEvent(new ctx.win.Event('change', { bubbles: true }));
+        slider.dispatchEvent(new ctx.win.Event('input', { bubbles: true }));
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Settings.Set',
             { where: p => p.Key === 'fov' && JSON.parse(p.ValueJson) === 120 }));
     },
@@ -306,12 +306,19 @@ TSICTestHarness.register({
     name: 'Settings: second catalog broadcast replaces previous render',
     file: '/screens/settings.html',
     async run(ctx) {
-        ctx.inject('tsic.msg.UI.Settings.Catalog', { Json: JSON.stringify({ Groups: [{ Title: 'A', Settings: [{ Key: 'a', Type: 'bool', Value: true }] }] }) });
-        await ctx.waitFor(() => /A/.test(ctx.doc.body.textContent || ''));
-        ctx.inject('tsic.msg.UI.Settings.Catalog', { Json: JSON.stringify({ Groups: [{ Title: 'BBB', Settings: [{ Key: 'b', Type: 'bool', Value: false }] }] }) });
-        await ctx.waitFor(() => /BBB/.test(ctx.doc.body.textContent || ''));
+        ctx.inject('tsic.msg.UI.Settings.Catalog', { Json: JSON.stringify({ Pages: [{ Id: 'X', Title: 'X', Groups: [{ Id: 'A', Title: 'A', Settings: [{ Key: 'a', Type: 'bool', Value: true }] }] }] }) });
+        await ctx.waitFor(() => {
+            const h = ctx.doc.querySelector('.group h3');
+            return h && /^A$/i.test(h.textContent);
+        });
+        ctx.inject('tsic.msg.UI.Settings.Catalog', { Json: JSON.stringify({ Pages: [{ Id: 'X', Title: 'X', Groups: [{ Id: 'BBB', Title: 'BBB', Settings: [{ Key: 'b', Type: 'bool', Value: false }] }] }] }) });
+        await ctx.waitFor(() => {
+            const h = ctx.doc.querySelector('.group h3');
+            return h && /BBB/.test(h.textContent);
+        });
         // The previous group should be gone.
-        ctx.expect(ctx.assert.eq((ctx.doc.body.textContent || '').indexOf('Title: A'), -1));
+        const headings = Array.from(ctx.doc.querySelectorAll('.group h3')).map(n => n.textContent);
+        ctx.expect(ctx.assert.eq(headings.indexOf('A'), -1));
     },
 });
 

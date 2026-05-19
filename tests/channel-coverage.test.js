@@ -7,7 +7,7 @@ TSICTestHarness.register({
     tags: ['channel', 'settings'],
     file: '/screens/settings.html',
     async run(ctx) {
-        ctx.inject('tsic.msg.UI.Settings.Catalog', { Json: JSON.stringify({ Groups: [{ Title: 'X', Settings: [{ Key: 'a', Type: 'bool', Value: true }] }] }) });
+        ctx.inject('tsic.msg.UI.Settings.Catalog', { Json: JSON.stringify({ Pages: [{ Id: 'X', Title: 'X', Groups: [{ Id: 'X', Title: 'X', Settings: [{ Key: 'a', Type: 'bool', Value: true }] }] }] }) });
         await ctx.waitFor(() => ctx.doc.querySelector('.field-toggle'));
         // Server reconciliation: broadcast a Settings.Value to confirm the local
         // optimistic state. The page should accept it without crashing.

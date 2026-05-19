@@ -152,7 +152,7 @@ TSICTestHarness.register({
     file: '/screens/settings.html',
     async run(ctx) {
         ctx.inject('tsic.msg.UI.Settings.Catalog', {
-            Json: JSON.stringify({ Groups: [{ Title: 'Display', Settings: [{ Key: 'fs', Label: 'Fullscreen', Type: 'bool', Value: false }] }] }),
+            Json: JSON.stringify({ Pages: [{ Id: 'X', Title: 'X', Groups: [{ Id: 'Display', Title: 'Display', Settings: [{ Key: 'fs', Label: 'Fullscreen', Type: 'bool', Value: false }] }] }] }),
         });
         await ctx.waitFor(() => ctx.doc.querySelector('.field-toggle'));
         ctx.clearPublishes();
@@ -167,7 +167,7 @@ TSICTestHarness.register({
     file: '/screens/settings.html',
     async run(ctx) {
         ctx.inject('tsic.msg.UI.Settings.Catalog', {
-            Json: JSON.stringify({ Groups: [{ Title: 'Controls', Settings: [{ Key: 'jump', Label: 'Jump', Type: 'keybind', Value: 'Space' }] }] }),
+            Json: JSON.stringify({ Pages: [{ Id: 'X', Title: 'X', Groups: [{ Id: 'Controls', Title: 'Controls', Settings: [{ Key: 'jump', Label: 'Jump', Type: 'keybind', Value: 'Space' }] }] }] }),
         });
         await ctx.waitFor(() => ctx.doc.querySelector('.field-rebind'));
         ctx.doc.querySelector('.field-rebind').click();

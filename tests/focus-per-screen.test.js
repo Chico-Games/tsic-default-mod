@@ -47,12 +47,12 @@ TSICTestHarness.register(Object.assign({
     file: '/screens/settings.html',
     async run(ctx) {
         ctx.inject('tsic.msg.UI.Settings.Catalog', {
-            Json: JSON.stringify({ Groups: [{
+            Json: JSON.stringify({ Pages: [{ Id: 'video', Title: 'Video', Groups: [{
                 Id: 'video', Title: 'Video', Settings: [
                     { Key: 'video.fov', Label: 'FOV', Type: 'range', Min: 60, Max: 120, Step: 1, Value: 90 },
                     { Key: 'audio.master', Label: 'Master Volume', Type: 'range', Min: 0, Max: 1, Step: 0.05, Value: 0.8 },
                 ],
-            }] }),
+            }] }] }),
         });
         await TSICTestHarness.fx.runReachability(ctx);
     },

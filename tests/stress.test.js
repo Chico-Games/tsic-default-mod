@@ -60,8 +60,8 @@ TSICTestHarness.register({
     file: '/screens/settings.html',
     async run(ctx) {
         ctx.inject('tsic.msg.UI.Settings.Catalog', {
-            Json: JSON.stringify({ Groups: [{ Title: 'Weird',
-                Settings: [{ Key: 'k', Label: 'weird', Type: 'martian', Value: { complex: true } }] }] }),
+            Json: JSON.stringify({ Pages: [{ Id: 'X', Title: 'X', Groups: [{ Id: 'Weird', Title: 'Weird',
+                Settings: [{ Key: 'k', Label: 'weird', Type: 'martian', Value: { complex: true } }] }] }] }),
         });
         await ctx.waitFor(() => ctx.doc.querySelector('.field'));
         ctx.expect(ctx.assert.domExists(ctx.doc, '.field .value-label'));
@@ -73,7 +73,7 @@ TSICTestHarness.register({
     name: 'Stress/Settings: catalog with no groups renders empty hint',
     file: '/screens/settings.html',
     async run(ctx) {
-        ctx.inject('tsic.msg.UI.Settings.Catalog', { Json: JSON.stringify({ Groups: [] }) });
+        ctx.inject('tsic.msg.UI.Settings.Catalog', { Json: JSON.stringify({ Pages: [] }) });
         await new Promise(r => setTimeout(r, 80));
         ctx.expect(ctx.assert.eq(ctx.doc.querySelectorAll('.group').length, 0));
     },

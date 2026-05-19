@@ -144,27 +144,27 @@ TSICTestHarness.register({
         ctx.focus.disableSmoothScroll();
         ctx.focus.resetMemory();
         ctx.inject('tsic.msg.UI.Settings.Catalog', {
-            Json: JSON.stringify({ Groups: [{
+            Json: JSON.stringify({ Pages: [{ Id: 'video', Title: 'Video', Groups: [{
                 Id: 'video', Title: 'Video', Settings: [
                     { Key: 'video.fov', Label: 'FOV', Type: 'range', Min: 60, Max: 120, Step: 1, Value: 90 },
                 ],
-            }] }),
+            }] }] }),
         });
         ctx.mode('Gamepad');
-        await ctx.waitFor(() => ctx.doc.querySelector('#catalog input, #catalog button'),
+        await ctx.waitFor(() => ctx.doc.querySelector('#page input, #page button'),
             { timeout: 1500 }).catch(() => {});
         const initial = await TSICTestHarness.fx.awaitInitialFocus(ctx);
         ctx.expect(ctx.assert.eq(initial && initial.id, 'btn-back'));
-        // Catalog must have rendered something interactive inside #catalog.
-        const catalogChildren = ctx.doc.querySelectorAll('#catalog input, #catalog button, #catalog [data-tsic-focusable]');
+        // Catalog must have rendered something interactive inside #page.
+        const catalogChildren = ctx.doc.querySelectorAll('#page input, #page button, #page [data-tsic-focusable]');
         ctx.expect(ctx.assert.truthy(catalogChildren.length > 0,
             'expected catalog to render at least one interactive control; got ' + catalogChildren.length));
         // Whole-page focusable set must include the rendered controls so the
         // engine can navigate to them on a real layout.
         const all = ctx.win.tsic.focus.__structuralFocusableSet();
-        const inCatalog = all.filter(el => el.closest && el.closest('#catalog'));
+        const inCatalog = all.filter(el => el.closest && el.closest('#page'));
         ctx.expect(ctx.assert.truthy(inCatalog.length > 0,
-            'expected at least one focusable inside #catalog; got ' + inCatalog.length));
+            'expected at least one focusable inside #page; got ' + inCatalog.length));
     },
 });
 

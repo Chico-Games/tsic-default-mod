@@ -91,7 +91,7 @@ TSICTestHarness.register({
     file: '/screens/settings.html',
     async run(ctx) {
         ctx.inject('tsic.msg.UI.Settings.Catalog', {
-            Json: JSON.stringify({ Groups: [{ Title: 'Ctrls', Settings: [{ Key: 'attack', Label: 'Attack', Type: 'keybind', Value: 'LMB' }] }] }),
+            Json: JSON.stringify({ Pages: [{ Id: 'X', Title: 'X', Groups: [{ Id: 'Ctrls', Title: 'Ctrls', Settings: [{ Key: 'attack', Label: 'Attack', Type: 'keybind', Value: 'LMB' }] }] }] }),
         });
         await ctx.waitFor(() => ctx.doc.querySelector('.field-rebind'));
         for (const key of ['q', 'a', 'F1']) {

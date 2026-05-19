@@ -92,8 +92,8 @@ TSICTestHarness.register({
     file: '/screens/settings.html',
     async run(ctx) {
         ctx.inject('tsic.msg.UI.Settings.Catalog', {
-            Json: JSON.stringify({ Groups: [{ Title: 'Display',
-                Settings: [{ Key: 'preset', Label: 'Preset', Type: 'enum', Options: ['Low','Med','High'], Value: 'Med' }] }] }),
+            Json: JSON.stringify({ Pages: [{ Id: 'X', Title: 'X', Groups: [{ Id: 'Display', Title: 'Display',
+                Settings: [{ Key: 'preset', Label: 'Preset', Type: 'enum', Options: ['Low','Med','High'], Value: 'Med' }] }] }] }),
         });
         await ctx.waitFor(() => ctx.doc.querySelector('select'));
         const sel = ctx.doc.querySelector('select');
