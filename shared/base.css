@@ -1,4 +1,5 @@
 @import url("/shared/catalogue.css");
+@import url("/shared/tsic-ui.css");
 
 * { box-sizing: border-box; }
 html, body {
@@ -20,4 +21,8 @@ input, textarea, select { font-family: inherit; }
   --tsic-accent-dim: var(--cat-green-soft);
   --tsic-border:     var(--cat-border);
   --tsic-text-dim:   var(--cat-ink-muted);
+
+  /* Font tokens — promote the repeated literal to a single source of truth
+     so utility classes and pages can reference --cat-font-serif. */
+  --cat-font-serif: Georgia, "Libre Baskerville", serif;
 }
