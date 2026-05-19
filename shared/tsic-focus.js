@@ -277,6 +277,7 @@
 
             // Test-only escape hatches.
             __focusableSet: focusableSet,
+            __structuralFocusableSet: structuralFocusableSet,
             __stableSelector: stableSelector,
             __state: State,
         };
@@ -286,19 +287,23 @@
             if (saved) {
                 let restored = null;
                 try { restored = document.querySelector(saved); } catch (e) { restored = null; }
-                if (restored && isFocusable(restored)) {
-                    api.focus(restored);
+                if (restored && isStructurallyFocusable(restored)) {
+                    api.focus(restored, { trust: true });
                     return;
                 }
             }
             const init = findInitial();
-            if (init && isFocusable(init)) {
-                api.focus(init);
+            // Trust the author's declaration — initial-focus is the canonical
+            // landing element. We accept it even if its rect hasn't been
+            // measured yet (page just rendered, layout-less env, etc.).
+            if (init && isStructurallyFocusable(init)) {
+                api.focus(init, { trust: true });
                 return;
             }
-            // Fall back to first focusable so the page is at least navigable.
-            const first = focusableSet()[0];
-            if (first) api.focus(first);
+            // Last resort: the first focusable in the layout if there is one,
+            // else the first structurally focusable so navigation can start.
+            const first = focusableSet()[0] || structuralFocusableSet()[0];
+            if (first) api.focus(first, { trust: true });
         }
 
         t.focus = api;

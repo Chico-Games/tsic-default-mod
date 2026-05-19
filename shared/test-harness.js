@@ -251,7 +251,12 @@
                 const e = engine();
                 if (!e) { failures.push('assertAllReachable: no engine'); return; }
                 const filter = (opts && opts.filter) || null;
+                // Prefer the rect-filtered set; in layout-less environments
+                // (jsdom) fall back to the structural set.
                 let focusables = e.__focusableSet ? e.__focusableSet() : [];
+                if (focusables.length === 0 && e.__structuralFocusableSet) {
+                    focusables = e.__structuralFocusableSet();
+                }
                 if (filter) focusables = focusables.filter(filter);
                 if (focusables.length === 0) {
                     failures.push('assertAllReachable: no focusable elements found');
@@ -268,13 +273,15 @@
                 let budget = focusables.length * 8;
                 while (queue.length && budget-- > 0) {
                     const cur = queue.shift();
-                    e.focus(cur);
-                    await delay(8);
                     for (const d of dirs) {
+                        // Re-focus the current node so each direction starts
+                        // from the same anchor (each pressDir mutates focus).
+                        e.focus(cur, { trust: true });
+                        await delay(4);
                         fx.pressDir(d);
                         await delay(8);
                         const next = active();
-                        if (next && !visited.has(next) && focusables.includes(next)) {
+                        if (next && next !== cur && !visited.has(next) && focusables.includes(next)) {
                             visited.add(next);
                             queue.push(next);
                         }
@@ -295,7 +302,10 @@
             async assertAllGroupsMutuallyReachable() {
                 const e = engine();
                 if (!e) { failures.push('assertAllGroupsMutuallyReachable: no engine'); return; }
-                const focusables = e.__focusableSet ? e.__focusableSet() : [];
+                let focusables = e.__focusableSet ? e.__focusableSet() : [];
+                if (focusables.length === 0 && e.__structuralFocusableSet) {
+                    focusables = e.__structuralFocusableSet();
+                }
                 const groupOf = (el) => {
                     const g = el.closest('[data-tsic-focus-group]');
                     return g ? g.getAttribute('data-tsic-focus-group') : null;
@@ -312,9 +322,9 @@
                 while (queue.length && budget-- > 0) {
                     const cur = queue.shift();
                     const curGroup = groupOf(cur);
-                    e.focus(cur);
-                    await delay(8);
                     for (const d of ['up','down','left','right']) {
+                        e.focus(cur, { trust: true });
+                        await delay(4);
                         fx.pressDir(d);
                         await delay(8);
                         const next = active();
