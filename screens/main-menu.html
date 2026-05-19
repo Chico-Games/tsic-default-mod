@@ -28,7 +28,9 @@
             text-transform: uppercase; cursor: pointer;
             transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
             box-shadow: var(--cat-shadow-soft); }
-    .menu-btn:hover { background: var(--cat-green); color: #f7edd9;
+    .menu-btn:hover,
+    html[data-tsic-input="Gamepad"] .menu-btn[data-tsic-focused] {
+            background: var(--cat-green); color: #f7edd9;
             border-color: var(--cat-green); }
     .menu-btn:active { background: var(--cat-green-hover); }
   </style>

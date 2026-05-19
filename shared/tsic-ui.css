@@ -341,18 +341,83 @@
 .is-dragging { opacity: 0.5; }
 
 /* ---------- Controller focus (tsic-focus.js) ----------
- * The ring only renders while the player is on a controller. Mouse mode keeps
- * existing :hover / :focus-visible styles so we don't double-paint. */
+ * In Gamepad mode the focused element must look obviously selected — the
+ * player has no cursor to indicate "this is what I'm pointing at". We do two
+ * things together:
+ *   1) Mirror the :hover styles onto [data-tsic-focused] so a focused button
+ *      gets the same background change a mouse user would see on hover.
+ *   2) Add an outline + soft halo so the selection is unmistakable even on
+ *      elements with subtle hover styling.
+ * Both only render under html[data-tsic-input="Gamepad"], so mouse users
+ * never see the extra ring.
+ *
+ * The ring itself: */
 html[data-tsic-input="Gamepad"] [data-tsic-focused],
 html[data-tsic-input="Gamepad"] :focus-visible {
     outline: 2px solid var(--cat-green);
     outline-offset: 2px;
     box-shadow: 0 0 0 4px rgba(120, 153, 95, 0.25);
 }
-/* List rows have their own selection styling — pull the ring inside the row
- * so it doesn't clip against the parent .tsic-list-pane. */
+
+/* Mirror each shared :hover style onto [data-tsic-focused] in Gamepad mode.
+ * Selectors are duplicated rather than combined with the existing :hover rules
+ * because the hover rules live in components.css / page-level <style> blocks. */
+
+/* .tsic-button — primary action (components.css). */
+html[data-tsic-input="Gamepad"] .tsic-button[data-tsic-focused] {
+    background: var(--cat-green-hover);
+    transform: translateY(-1px);
+}
+html[data-tsic-input="Gamepad"] .tsic-button.cancel[data-tsic-focused],
+html[data-tsic-input="Gamepad"] .tsic-button.secondary[data-tsic-focused],
+html[data-tsic-input="Gamepad"] .tsic-button[data-variant="secondary"][data-tsic-focused] {
+    background: #f9f1e3;
+}
+
+/* .tsic-list-row — split-pane rows used by inventory / storage / crafting. */
 html[data-tsic-input="Gamepad"] .tsic-list-row[data-tsic-focused] {
+    background: rgba(241, 229, 207, 0.85);
+    border-color: var(--tsic-border);
+    /* Pull the ring inside the row so it doesn't clip against the list pane. */
     outline-offset: -2px;
+}
+
+/* .tsic-tab — segment-bar tabs. */
+html[data-tsic-input="Gamepad"] .tsic-tab[data-tsic-focused] {
+    color: var(--cat-ink-dark);
+}
+
+/* .tsic-dropdown — focus-aware <select> replacement. */
+html[data-tsic-input="Gamepad"] .tsic-dropdown[data-tsic-focused] {
+    background: rgba(241, 229, 207, 0.85);
+}
+
+/* .tsic-context-item — context-menu rows. */
+html[data-tsic-input="Gamepad"] .tsic-context-item[data-tsic-focused] {
+    background: var(--tsic-accent-dim);
+}
+
+/* .tsic-link */
+html[data-tsic-input="Gamepad"] .tsic-link[data-tsic-focused] {
+    color: var(--cat-green-hover);
+}
+
+/* Catalogue button family (shared/catalogue.css). */
+html[data-tsic-input="Gamepad"] .catalogue-button[data-tsic-focused] {
+    transform: translateY(-1px);
+}
+html[data-tsic-input="Gamepad"] .catalogue-button-primary[data-tsic-focused]   { background: var(--cat-green-hover); }
+html[data-tsic-input="Gamepad"] .catalogue-button-secondary[data-tsic-focused] { background: #f9f1e3; }
+html[data-tsic-input="Gamepad"] .catalogue-button-outline[data-tsic-focused]   { background: #eee3cf; }
+html[data-tsic-input="Gamepad"] .catalogue-button-danger[data-tsic-focused]    { background: var(--cat-red-hover); }
+html[data-tsic-input="Gamepad"] .catalogue-button-ghost[data-tsic-focused]     { background: #f5ead6; }
+html[data-tsic-input="Gamepad"] .catalogue-category-row[data-tsic-focused]     { background: #eee2cc; }
+
+/* Storage shell tabs (.ss-tab) and inventory tabs (.inv-tab) — see
+ * screens/storage.html and screens/inventory.html. */
+html[data-tsic-input="Gamepad"] .ss-tab[data-tsic-focused],
+html[data-tsic-input="Gamepad"] .inv-tab[data-tsic-focused] {
+    background: rgba(241, 229, 207, 0.92);
 }
 
 /* ---------- Dropdown (tsic-dropdown.js) ---------- */

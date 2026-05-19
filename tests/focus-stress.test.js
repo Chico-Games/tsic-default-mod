@@ -457,6 +457,49 @@ TSICTestHarness.register({
 });
 
 TSICTestHarness.register({
+    name: 'Focus/Stress: focused button carries [data-tsic-focused] for hover styling',
+    file: '/screens/main-menu.html',
+    async run(ctx) {
+        ctx.focus.disableSmoothScroll();
+        ctx.focus.resetMemory();
+        ctx.mode('Gamepad');
+        const initial = await TSICTestHarness.fx.awaitInitialFocus(ctx);
+        // The initial-focus button must carry the marker.
+        ctx.expect(ctx.assert.truthy(initial && initial.hasAttribute('data-tsic-focused'),
+            'initial-focus button should carry [data-tsic-focused]'));
+        // Navigate and confirm the marker moves.
+        ctx.focus.pressDir('down'); await new Promise(r => setTimeout(r, 30));
+        const next = ctx.doc.activeElement;
+        ctx.expect(ctx.assert.truthy(next && next !== initial,
+            'pressDir(down) should move focus from initial button'));
+        ctx.expect(ctx.assert.truthy(next.hasAttribute('data-tsic-focused'),
+            'newly focused button should carry [data-tsic-focused]'));
+        // Previous button should have lost the marker.
+        ctx.expect(ctx.assert.truthy(!initial.hasAttribute('data-tsic-focused'),
+            'previously focused button should have lost [data-tsic-focused]'));
+        // Mouse mode clears the marker so :hover styles don't double up.
+        ctx.mode('MouseAndKeyboard');
+        await new Promise(r => setTimeout(r, 30));
+        ctx.expect(ctx.assert.eq(ctx.doc.querySelectorAll('[data-tsic-focused]').length, 0));
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Focus/Stress: only one element carries [data-tsic-focused] at a time',
+    file: '/screens/main-menu.html',
+    async run(ctx) {
+        ctx.focus.disableSmoothScroll();
+        ctx.focus.resetMemory();
+        ctx.mode('Gamepad');
+        await TSICTestHarness.fx.awaitInitialFocus(ctx);
+        ctx.expect(ctx.assert.eq(ctx.doc.querySelectorAll('[data-tsic-focused]').length, 1));
+        ctx.focus.pressDir('down'); await new Promise(r => setTimeout(r, 30));
+        // Still exactly one marker after navigation.
+        ctx.expect(ctx.assert.eq(ctx.doc.querySelectorAll('[data-tsic-focused]').length, 1));
+    },
+});
+
+TSICTestHarness.register({
     name: 'Focus/Stress: full mode → confirm → cancel cycle',
     file: '/screens/inventory.html',
     async run(ctx) {

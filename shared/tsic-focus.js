@@ -322,8 +322,11 @@
                 // Restore default (whole-view interactive) for the page's mouse
                 // mode. Pages that maintain their own rects re-publish them.
                 try { t.setInteractiveRects && t.setInteractiveRects([{ x: 0, y: 0, w: 99999, h: 99999 }]); } catch (e) {}
-                const a = document.activeElement;
-                if (a && a.removeAttribute) a.removeAttribute('data-tsic-focused');
+                // Strip every focused marker — mouse users get the existing
+                // :hover styling, the focused-state CSS should never apply.
+                for (const stale of document.querySelectorAll('[data-tsic-focused]')) {
+                    stale.removeAttribute('data-tsic-focused');
+                }
             }
         });
 
