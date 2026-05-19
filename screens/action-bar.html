@@ -8,29 +8,91 @@
   <link rel="stylesheet" href="/shared/hud.css">
   <script src="/shared/router.js" defer></script>
   <script src="/shared/hud.js" defer></script>
+  <script src="/shared/tsic-runtime.js" defer></script>
   <style>
-    #ab-root { position: fixed; left: 24px; bottom: 24px; display: flex; flex-direction: column; gap: 6px; }
-    #ab-gameplay { display: flex; flex-direction: column; gap: 4px; padding: 8px 10px; background: rgba(241,229,207,0.88); border-radius: 4px; }
-    #ab-gameplay.hidden { display: none; }
-    #ab-menu { display: flex; flex-direction: row; flex-wrap: wrap; gap: 12px; padding: 8px 10px; background: rgba(241,229,207,0.88); border-radius: 4px; }
-    #ab-menu.hidden { display: none; }
-    #ab-menu .ab-row { padding: 0; }
-    #ab-menu .ab-text { display: flex; align-items: center; }
-    #ab-menu .ab-name { font-weight: 500; }
-    .ab-row { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--cat-ink-dark); padding: 2px 0; }
-    .ab-row[data-status="blocked"]         { opacity: 0.45; color: #f6c0c0; }
-    .ab-row[data-status="cooldown"]        { opacity: 0.85; color: #d4d4d4; filter: saturate(0.55); }
+    /* Single horizontal hot-key bar pinned to the bottom-centre, the way most
+       games lay out their contextual input prompts. Both the gameplay (ability)
+       group and the menu (UI.ActionBar.MenuContext) group live in the same
+       strip — they're mutually exclusive (one shows during gameplay, the other
+       on a menu screen) so the bar's geometry stays stable. */
+    html, body { background: transparent; }
+    #ab-root {
+      position: fixed;
+      left: 50%; bottom: 18px;
+      transform: translateX(-50%);
+      max-width: calc(100vw - 48px);
+      padding: 6px 12px;
+      background: rgba(241, 229, 207, 0.92);
+      border: 1px solid var(--cat-border);
+      box-shadow: var(--cat-shadow-soft);
+      color: var(--cat-ink-dark);
+      pointer-events: none;
+    }
+    #ab-root.hidden { display: none; }
+
+    #ab-gameplay, #ab-menu {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 18px;
+      white-space: nowrap;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    #ab-gameplay::-webkit-scrollbar,
+    #ab-menu::-webkit-scrollbar { display: none; }
+    #ab-gameplay.hidden, #ab-menu.hidden { display: none; }
+
+    .ab-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: Georgia, "Libre Baskerville", serif;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--cat-ink-dark);
+    }
+    .ab-row[data-status="blocked"]         { opacity: 0.55; color: var(--cat-red); }
+    .ab-row[data-status="cooldown"]        { opacity: 0.75; filter: saturate(0.55); }
     .ab-row[data-status="single-use-used"] { opacity: 0.35; text-decoration: line-through; }
-    .ab-key { position: relative; width: 36px; height: 26px; display: flex; align-items: center; justify-content: center;
-              background: var(--tsic-border); border-radius: 3px; font-weight: bold; font-size: 11px; overflow: hidden; }
-    .ab-key img { max-width: 22px; max-height: 22px; object-fit: contain; }
-    .ab-key-fallback { color: var(--cat-ink-dark); padding: 0 4px; }
-    .ab-cd-sweep { position: absolute; inset: 0; pointer-events: none;
-                   background: conic-gradient(rgba(35,31,24,0.45) calc(var(--tsic-cd-percent,0) * 1%), transparent 0);
-                   mix-blend-mode: multiply; }
-    .ab-text { flex: 1; line-height: 1.15; }
-    .ab-name { font-weight: 500; }
-    .ab-sub { font-size: 10px; opacity: 0.75; }
+
+    .ab-key {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 26px;
+      height: 22px;
+      padding: 0 6px;
+      background: #f4ebd9;
+      border: 1px solid var(--cat-border-strong);
+      color: var(--cat-ink-dark);
+      font-family: Georgia, "Libre Baskerville", serif;
+      font-size: 11px;
+      font-weight: 700;
+      overflow: hidden;
+    }
+    .ab-key img { max-width: 18px; max-height: 18px; object-fit: contain; }
+    .ab-key-fallback { padding: 0 2px; }
+    .ab-cd-sweep {
+      position: absolute; inset: 0; pointer-events: none;
+      background: conic-gradient(rgba(35,31,24,0.5) calc(var(--tsic-cd-percent,0) * 1%), transparent 0);
+      mix-blend-mode: multiply;
+    }
+
+    .ab-text { display: inline-flex; align-items: baseline; gap: 6px; }
+    .ab-name { font-weight: 700; }
+    .ab-sub { font-size: 10px; font-weight: 400; opacity: 0.7; letter-spacing: 0.04em; text-transform: none; }
+
+    .ab-separator {
+      display: inline-block;
+      width: 1px;
+      height: 16px;
+      background: var(--cat-border-strong);
+      opacity: 0.45;
+    }
   </style>
 </head><body>
   <div id="ab-root">
@@ -44,7 +106,6 @@
         'BossSummoner', 'UniversalStorage', 'Construction', 'Map', 'Settings',
         'PauseMenu', 'SaveLoad', 'Mods', 'Credits', 'NewStore',
       ]);
-
       const STATUS_LABEL = ['available', 'blocked', 'cooldown', 'single-use-used'];
 
       let lastAbilities = { Slots: [] };
@@ -52,7 +113,6 @@
       let currentMode   = 'MouseAndKeyboard';
       let activeScreen  = null;
 
-      function whenReady(cb) { if (window.tsic) { cb(); return; } setTimeout(() => whenReady(cb), 16); }
       function preferGamepad() { return currentMode === 'Gamepad'; }
       function truncate(s, n) { if (!s) return ''; return s.length > n ? (s.slice(0, n - 1) + '…') : s; }
       function bracketedName(name) {
@@ -63,7 +123,7 @@
       }
 
       function makeKey(iconUrl, inputName) {
-        const key = document.createElement('div');
+        const key = document.createElement('span');
         key.className = 'ab-key';
         if (iconUrl) {
           const img = document.createElement('img');
@@ -83,42 +143,50 @@
         return key;
       }
 
+      function renderRow(iconUrl, inputName, name, sub, statusInt, cooldownPct) {
+        const row = document.createElement('span');
+        row.className = 'ab-row';
+        if (statusInt !== undefined) row.dataset.status = STATUS_LABEL[statusInt | 0] || 'available';
+        if (cooldownPct !== undefined) {
+            row.style.setProperty('--tsic-cd-percent',
+                String(Math.max(0, Math.min(100, Math.round((cooldownPct || 0) * 100)))));
+        }
+        const key = makeKey(iconUrl, inputName);
+        if (cooldownPct !== undefined && cooldownPct > 0 && cooldownPct < 1) {
+            const sweep = document.createElement('div');
+            sweep.className = 'ab-cd-sweep';
+            key.appendChild(sweep);
+        }
+        row.appendChild(key);
+        const txt = document.createElement('span');
+        txt.className = 'ab-text';
+        const nm = document.createElement('span');
+        nm.className = 'ab-name';
+        nm.textContent = name || bracketedName(inputName);
+        txt.appendChild(nm);
+        if (sub) {
+            const sb = document.createElement('span');
+            sb.className = 'ab-sub';
+            sb.textContent = truncate(sub, 30);
+            txt.appendChild(sb);
+        }
+        row.appendChild(txt);
+        return row;
+      }
+
       function renderGameplay() {
         const host = document.getElementById('ab-gameplay');
         host.innerHTML = '';
         const slots = (lastAbilities && lastAbilities.Slots) || [];
+        let first = true;
         for (const s of slots) {
           if (s.bVisible === false) continue;
-          const row = document.createElement('div');
-          row.className = 'ab-row';
-          row.dataset.status = STATUS_LABEL[s.StatusInt | 0] || 'available';
-          row.style.setProperty('--tsic-cd-percent',
-            String(Math.max(0, Math.min(100, Math.round((s.CooldownPercent || 0) * 100)))));
-
+          if (!first) {
+              const sep = document.createElement('span'); sep.className = 'ab-separator'; host.appendChild(sep);
+          }
+          first = false;
           const iconUrl = preferGamepad() ? s.GamepadIconUrl : s.KeyboardIconUrl;
-          const key = makeKey(iconUrl, s.InputName);
-          if ((s.CooldownPercent || 0) > 0 && (s.CooldownPercent || 0) < 1) {
-            const sweep = document.createElement('div');
-            sweep.className = 'ab-cd-sweep';
-            key.appendChild(sweep);
-          }
-
-          const text = document.createElement('div');
-          text.className = 'ab-text';
-          const name = document.createElement('div');
-          name.className = 'ab-name';
-          name.textContent = s.AbilityName || bracketedName(s.InputName);
-          text.appendChild(name);
-          if (s.SubText) {
-            const sub = document.createElement('div');
-            sub.className = 'ab-sub';
-            sub.textContent = truncate(s.SubText, 30);
-            text.appendChild(sub);
-          }
-
-          row.appendChild(key);
-          row.appendChild(text);
-          host.appendChild(row);
+          host.appendChild(renderRow(iconUrl, s.InputName, s.AbilityName, s.SubText, s.StatusInt, s.CooldownPercent));
         }
         applyVisibility();
       }
@@ -127,58 +195,55 @@
         const host = document.getElementById('ab-menu');
         host.innerHTML = '';
         const entries = (lastMenu && lastMenu.Entries) || [];
+        let first = true;
         for (const e of entries) {
-          const row = document.createElement('div');
-          row.className = 'ab-row';
+          if (!first) {
+              const sep = document.createElement('span'); sep.className = 'ab-separator'; host.appendChild(sep);
+          }
+          first = false;
           const iconUrl = preferGamepad() ? e.GamepadIconUrl : e.KeyboardIconUrl;
-          const key = makeKey(iconUrl, e.ActionName);
-          const text = document.createElement('div');
-          text.className = 'ab-text';
-          const name = document.createElement('div');
-          name.className = 'ab-name';
-          name.textContent = e.Label || bracketedName(e.ActionName);
-          text.appendChild(name);
-          row.appendChild(key);
-          row.appendChild(text);
-          host.appendChild(row);
+          host.appendChild(renderRow(iconUrl, e.ActionName, e.Label));
         }
         applyVisibility();
       }
 
-      function emptyGameplay() {
-        return !((lastAbilities.Slots || []).some(s => s.bVisible !== false));
-      }
-      function emptyMenu() {
-        return ((lastMenu.Entries || []).length === 0);
-      }
+      function emptyGameplay() { return !((lastAbilities.Slots || []).some(s => s.bVisible !== false)); }
+      function emptyMenu()     { return ((lastMenu.Entries || []).length === 0); }
+
       function applyVisibility() {
         const isMenu = activeScreen && MENU_SCREENS.has(activeScreen);
-        document.getElementById('ab-gameplay').classList.toggle('hidden', !!isMenu || emptyGameplay());
-        document.getElementById('ab-menu')    .classList.toggle('hidden', !isMenu || emptyMenu());
+        const gameHidden = !!isMenu || emptyGameplay();
+        const menuHidden = !isMenu  || emptyMenu();
+        document.getElementById('ab-gameplay').classList.toggle('hidden', gameHidden);
+        document.getElementById('ab-menu')    .classList.toggle('hidden', menuHidden);
+        document.getElementById('ab-root')    .classList.toggle('hidden', gameHidden && menuHidden);
       }
 
-      whenReady(() => {
-        tsic.on('tsic.msg.UI.ActionBar.Abilities', (p) => {
-          lastAbilities = p || { Slots: [] };
-          renderGameplay();
-        });
-        tsic.on('tsic.msg.UI.ActionBar.MenuContext', (p) => {
-          lastMenu = p || { Entries: [] };
-          renderMenu();
-        });
-        tsic.on('tsic.msg.UI.Screen.Changed', (p) => {
-          activeScreen = (p && p.Name) || null;
-          applyVisibility();
-        });
-        tsic.on('tsic.msg.UI.Input.Mode.Changed', (p) => {
+      function waitForBoot(cb) {
+        // Wait for both the mock-or-real tsic AND the runtime helpers to be
+        // installed (the runtime is deferred so it lands after the page's
+        // inline script). Falls back to a hand-rolled whenReady if the
+        // runtime never loads — this page predates it.
+        if (window.tsic && typeof tsic.bootMenu === 'function') { cb(); return; }
+        if (window.tsic && performance.now() > 1500) {
+          // Runtime never landed; fall back gracefully.
+          tsic.bootMenu = (setup) => setup({ on: (ch, cb2) => tsic.on(ch, cb2) });
+          cb(); return;
+        }
+        setTimeout(() => waitForBoot(cb), 16);
+      }
+      waitForBoot(() => tsic.bootMenu(({ on }) => {
+        on('tsic.msg.UI.ActionBar.Abilities', (p) => { lastAbilities = p || { Slots: [] };   renderGameplay(); });
+        on('tsic.msg.UI.ActionBar.MenuContext', (p) => { lastMenu     = p || { Entries: [] }; renderMenu(); });
+        on('tsic.msg.UI.Screen.Changed', (p) => { activeScreen = (p && p.Name) || null; applyVisibility(); });
+        on('tsic.msg.UI.Input.Mode.Changed', (p) => {
           currentMode = (p && p.Mode) || 'MouseAndKeyboard';
-          renderGameplay();
-          renderMenu();
+          renderGameplay(); renderMenu();
         });
         // Initial paint in case sticky messages already fired before subscribe.
         renderGameplay();
         renderMenu();
-      });
+      }, { escape: false, closeButton: false }));
     })();
   </script>
 </body></html>
