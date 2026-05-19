@@ -43,18 +43,20 @@ TSICTestHarness.register({
     },
 });
 
-// ---- Storage: every clickable in left + right grid ---------------------
+// ---- Storage: dblclick on both grids transfers in opposite directions --
 TSICTestHarness.register({
-    name: 'Mouse/Storage: clicks on both grids fire transfers in opposite directions',
+    name: 'Mouse/Storage: dblclick on both grids fire transfers in opposite directions',
     file: '/screens/storage.html',
     async run(ctx) {
         ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Storage:42', MaxSlots: 32, Items: [{ ItemId: 'X', Count: 1, SlotIndex: 0 }] });
         ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player',     MaxSlots: 32, Items: [{ ItemId: 'Y', Count: 1, SlotIndex: 3 }] });
-        await ctx.waitFor(() => ctx.doc.querySelector('#storage-grid .tsic-slot[data-slot="0"] img')
-                              && ctx.doc.querySelector('#player-grid  .tsic-slot[data-slot="3"] img'));
+        await ctx.waitFor(() => ctx.doc.querySelector('#ss-container-list .tsic-list-row[data-slot="0"] img')
+                              && ctx.doc.querySelector('#ss-player-list .tsic-list-row[data-slot="3"] img'));
         ctx.clearPublishes();
-        ctx.doc.querySelector('#storage-grid .tsic-slot[data-slot="0"]').click();
-        ctx.doc.querySelector('#player-grid  .tsic-slot[data-slot="3"]').click();
+        ctx.doc.querySelector('#ss-container-list .tsic-list-row[data-slot="0"]')
+            .dispatchEvent(new ctx.win.MouseEvent('dblclick', { bubbles: true }));
+        ctx.doc.querySelector('#ss-player-list .tsic-list-row[data-slot="3"]')
+            .dispatchEvent(new ctx.win.MouseEvent('dblclick', { bubbles: true }));
         const pubs = ctx.publishes().filter(p => p.channel === 'UI.Cmd.Inventory.Transfer');
         ctx.expect(ctx.assert.eq(pubs.length, 2));
         ctx.expect(ctx.assert.truthy(pubs.some(p => p.payload.FromOwnerId === 'Storage:42' && p.payload.ToOwnerId === 'Player')));
@@ -100,11 +102,13 @@ TSICTestHarness.register({
             { ItemId: 'ID_Bread', Count: 1, SlotIndex: 1 },
             { ItemId: 'ID_Wheat', Count: 1, SlotIndex: 2 },
         ]});
-        await ctx.waitFor(() => ctx.doc.querySelectorAll('#storage-tabs .storage-tab').length === 5);
+        await ctx.waitFor(() => ctx.doc.querySelectorAll('.ss-tabs[data-side="container"] .ss-tab').length === 5);
         for (const label of ['Tools','Cons.','Mats','Other','All']) {
-            Array.from(ctx.doc.querySelectorAll('.storage-tab')).find(e => e.textContent === label).click();
+            Array.from(ctx.doc.querySelectorAll('.ss-tabs[data-side="container"] .ss-tab'))
+                .find(e => e.textContent === label).click();
             await new Promise(r => setTimeout(r, 15));
-            ctx.expect(ctx.assert.eq(ctx.doc.querySelector('.storage-tab.active').textContent, label));
+            ctx.expect(ctx.assert.eq(
+                ctx.doc.querySelector('.ss-tabs[data-side="container"] .ss-tab.is-active').textContent, label));
         }
     },
 });

@@ -266,16 +266,17 @@ TSICTestHarness.register({
     },
 });
 
-// ---- UniversalStorage (linked) page: 64-slot grid + transfer -----------
+// ---- UniversalStorage (linked) page: container list + transfer ---------
 TSICTestHarness.register({
-    name: 'UniversalStorage (linked): item click publishes Transfer (Universal -> Player)',
+    name: 'UniversalStorage (linked): item dblclick publishes Transfer (Universal -> Player)',
     file: '/screens/universal-storage.html',
     async run(ctx) {
         ctx.setItemCatalog({ ID_X: { Name: 'X', Category: 'Equipment' } });
         ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Universal', Items: [{ ItemId: 'ID_X', Count: 1, SlotIndex: 0 }], MaxSlots: 64 });
-        await ctx.waitFor(() => ctx.doc.querySelector('.tsic-slot[data-slot="0"] img, .tsic-slot[data-slot="0"]'));
+        await ctx.waitFor(() => ctx.doc.querySelector('#ss-container-list .tsic-list-row[data-slot="0"]'));
         ctx.clearPublishes();
-        ctx.doc.querySelector('.tsic-slot[data-slot="0"]').click();
+        ctx.doc.querySelector('#ss-container-list .tsic-list-row[data-slot="0"]')
+            .dispatchEvent(new ctx.win.MouseEvent('dblclick', { bubbles: true }));
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Inventory.Transfer',
             { where: p => p.FromOwnerId === 'Universal' && p.ToOwnerId === 'Player' }));
     },

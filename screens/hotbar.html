@@ -8,9 +8,13 @@
   <link rel="stylesheet" href="/shared/hud.css">
   <script src="/shared/router.js" defer></script>
   <script src="/shared/hud.js" defer></script>
+  <script src="/shared/catalog.js" defer></script>
   <style>
     #hotbar-row { display:flex; gap:6px; padding: 8px; background: rgba(241,229,207,0.92); border-radius: 4px; }
     #hotbar-row .tsic-slot.selected { box-shadow: 0 0 0 2px var(--tsic-accent); }
+    #hotbar-row .tsic-slot img { width:100%; height:100%; object-fit:contain; pointer-events:none; }
+    #hotbar-row .tsic-slot .key { position:absolute; bottom:2px; right:4px; font-size:9px; opacity:0.7; pointer-events:none; }
+    #hotbar-row .tsic-slot { position:relative; }
   </style>
 </head><body>
   <div id="root" style="position:fixed;left:50%;bottom:24px;transform:translateX(-50%);">
@@ -19,29 +23,117 @@
   <script>
     (function(){
       function whenReady(cb){ if(window.tsic){cb();return;} setTimeout(()=>whenReady(cb),16); }
-      whenReady(()=>{
-        tsic.on('tsic.msg.UI.Hotbar.Changed', (p) => {
-          const host = document.getElementById('hotbar-row');
-          host.innerHTML = '';
-          const slots = (p && p.SlotIndices) || [];
-          const selected = (p && typeof p.SelectedSlot === 'number') ? p.SelectedSlot : -1;
-          for (let i = 0; i < slots.length; i++) {
-            const slot = document.createElement('div');
-            slot.className = 'tsic-slot' + (i === selected ? ' selected' : '');
-            const itemId = slots[i];
-            if (itemId !== undefined && itemId !== null && itemId >= 0) {
-              const lbl = document.createElement('div');
-              lbl.style.cssText = 'font-size:10px;color: var(--cat-ink-dark);padding:2px;';
-              lbl.textContent = '#' + itemId;
-              slot.appendChild(lbl);
+      let lastHotbar = null;
+      let playerItemsBySlot = new Map();
+      // The slot the user is currently dragging — used by the dragend fallback
+      // to "drop outside" = clear assignment.
+      let activeHotbarDrag = null;
+
+      function publish(tag, payload) {
+        if (window.tsic && window.tsic.publishMessage) window.tsic.publishMessage(tag, payload);
+      }
+      function clearSlot(slotIndex) {
+        publish('UI.Cmd.Hotbar.Assign', { SlotIndex: slotIndex, ItemId: '' });
+      }
+      function isAssigned(invSlot) {
+        return invSlot !== undefined && invSlot !== null && invSlot >= 0;
+      }
+
+      function render() {
+        if (!lastHotbar) return;
+        const host = document.getElementById('hotbar-row');
+        host.innerHTML = '';
+        const slots = lastHotbar.SlotIndices || [];
+        const selected = (typeof lastHotbar.SelectedSlot === 'number') ? lastHotbar.SelectedSlot : -1;
+        for (let i = 0; i < slots.length; i++) {
+          const slot = document.createElement('div');
+          slot.className = 'tsic-slot' + (i === selected ? ' selected' : '');
+          slot.dataset.slot = String(i);
+          const inventorySlot = slots[i];
+          const slotHasItem = isAssigned(inventorySlot);
+          const item = slotHasItem ? playerItemsBySlot.get(inventorySlot) : null;
+          if (item && item.ItemId) {
+            const img = document.createElement('img');
+            img.src = `tex://item-icon/${encodeURIComponent(item.ItemId)}`;
+            img.onerror = () => { img.style.visibility = 'hidden'; };
+            slot.appendChild(img);
+            if (item.Count > 1) {
+              const count = document.createElement('span');
+              count.className = 'count';
+              count.textContent = String(item.Count);
+              slot.appendChild(count);
             }
-            const idxLabel = document.createElement('span');
-            idxLabel.className = 'count';
-            idxLabel.textContent = String(i + 1);
-            slot.appendChild(idxLabel);
-            slot.onclick = () => tsic.publishMessage('UI.Cmd.Hotbar.Select', { SlotIndex: i });
-            host.appendChild(slot);
           }
+          const idxLabel = document.createElement('span');
+          idxLabel.className = 'key';
+          idxLabel.textContent = i === 9 ? '0' : String(i + 1);
+          slot.appendChild(idxLabel);
+          slot.onclick = () => publish('UI.Cmd.Hotbar.Select', { SlotIndex: i });
+
+          // Drag source — only assigned slots can be dragged.
+          slot.draggable = slotHasItem;
+          if (slotHasItem) {
+            slot.addEventListener('dragstart', (e) => {
+              activeHotbarDrag = { slot: i, inventorySlot };
+              e.dataTransfer.setData('application/tsic-slot',
+                JSON.stringify({ kind: 'hotbar', slot: i, inventorySlot }));
+              slot.classList.add('is-dragging');
+            });
+            slot.addEventListener('dragend', (e) => {
+              const drag = activeHotbarDrag;
+              activeHotbarDrag = null;
+              slot.classList.remove('is-dragging');
+              // No drop zone accepted it → clear the source slot.
+              if (drag && e.dataTransfer && e.dataTransfer.dropEffect === 'none') {
+                clearSlot(drag.slot);
+              }
+            });
+          }
+
+          // Drop target — accepts inventory rows (assign) and hotbar slots (swap).
+          slot.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            slot.classList.add('is-drop-target');
+          });
+          slot.addEventListener('dragleave', () => slot.classList.remove('is-drop-target'));
+          slot.addEventListener('drop', (e) => {
+            e.preventDefault();
+            slot.classList.remove('is-drop-target');
+
+            const itemData = e.dataTransfer.getData('application/tsic-item');
+            if (itemData) {
+              try {
+                const src = JSON.parse(itemData);
+                publish('UI.Cmd.Hotbar.Assign', { SlotIndex: i, ItemId: String(src.slot) });
+              } catch {}
+              return;
+            }
+            const slotData = e.dataTransfer.getData('application/tsic-slot');
+            if (slotData) {
+              try {
+                const src = JSON.parse(slotData);
+                if (src.slot === i) return;
+                // Swap: assign target to source's inv slot, assign source to target's inv slot.
+                const targetInv = isAssigned(slots[i]) ? String(slots[i]) : '';
+                publish('UI.Cmd.Hotbar.Assign', { SlotIndex: i,        ItemId: String(src.inventorySlot) });
+                publish('UI.Cmd.Hotbar.Assign', { SlotIndex: src.slot, ItemId: targetInv });
+              } catch {}
+            }
+          });
+
+          host.appendChild(slot);
+        }
+      }
+
+      whenReady(()=>{
+        tsic.on('tsic.msg.UI.Hotbar.Changed', (p) => { lastHotbar = p || null; render(); });
+        tsic.on('tsic.msg.UI.Inventory.Updated', (p) => {
+          if (!p || p.OwnerId !== 'Player') return;
+          playerItemsBySlot = new Map();
+          for (const it of (p.Items || [])) {
+            if (it && typeof it.SlotIndex === 'number') playerItemsBySlot.set(it.SlotIndex, it);
+          }
+          render();
         });
       });
     })();

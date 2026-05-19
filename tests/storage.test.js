@@ -1,5 +1,5 @@
 TSICTestHarness.register({
-    name: 'Storage: renders both grids',
+    name: 'Storage: renders container + player lists',
     file: '/screens/storage.html',
     async run(ctx) {
         ctx.setItemCatalog({ ID_Wood: { Name: 'Wood', Category: 'CraftingMaterial' } });
@@ -9,30 +9,33 @@ TSICTestHarness.register({
         ctx.inject('tsic.msg.UI.Inventory.Updated', {
             OwnerId: 'Player', Items: [], MaxSlots: 32,
         });
-        await ctx.waitFor(() => ctx.doc.querySelectorAll('#storage-grid .tsic-slot').length >= 32);
-        ctx.expect(ctx.assert.domCount(ctx.doc, '#storage-grid .tsic-slot', 32));
-        ctx.expect(ctx.assert.domCount(ctx.doc, '#player-grid .tsic-slot', 32));
+        await ctx.waitFor(() => ctx.doc.querySelector('#ss-container-list .tsic-list-row[data-slot="0"]'));
+        ctx.expect(ctx.assert.domCount(ctx.doc, '#ss-container-list .tsic-list-row', 1));
+        // Player list is empty → shows empty-state, not rows.
+        ctx.expect(ctx.assert.eq(ctx.doc.querySelectorAll('#ss-player-list .tsic-list-row').length, 0));
+        ctx.expect(ctx.assert.domExists(ctx.doc, '#ss-player-list .tsic-empty'));
     },
 });
 
 TSICTestHarness.register({
-    name: 'Storage: transfer click publishes Inventory.Transfer + Sound.Play',
+    name: 'Storage: transfer dblclick publishes Inventory.Transfer + Sound.Play',
     file: '/screens/storage.html',
     async run(ctx) {
         ctx.setItemCatalog({ ID_Wood: { Name: 'Wood', Category: 'CraftingMaterial' } });
         ctx.inject('tsic.msg.UI.Inventory.Updated', {
             OwnerId: 'Storage:42', Items: [{ ItemId: 'ID_Wood', Count: 4, SlotIndex: 0 }], MaxSlots: 32,
         });
-        await ctx.waitFor(() => ctx.doc.querySelector('#storage-grid .tsic-slot[data-slot="0"] img'));
+        await ctx.waitFor(() => ctx.doc.querySelector('#ss-container-list .tsic-list-row[data-slot="0"]'));
         ctx.clearPublishes();
-        ctx.events.click(ctx.doc, '#storage-grid .tsic-slot[data-slot="0"]');
+        ctx.doc.querySelector('#ss-container-list .tsic-list-row[data-slot="0"]')
+            .dispatchEvent(new ctx.win.MouseEvent('dblclick', { bubbles: true }));
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Inventory.Transfer', { where: p => p.FromOwnerId === 'Storage:42' }));
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Sound.Play', { where: p => p.SoundKey === 'Inventory.Transfer' }));
     },
 });
 
 TSICTestHarness.register({
-    name: 'Storage: category tab filters container grid',
+    name: 'Storage: category tab filters container list',
     file: '/screens/storage.html',
     async run(ctx) {
         ctx.setItemCatalog({
@@ -47,12 +50,14 @@ TSICTestHarness.register({
             ],
             MaxSlots: 32,
         });
-        await ctx.waitFor(() => ctx.doc.querySelectorAll('#storage-tabs .storage-tab').length === 5);
-        // Click "Tools"
-        const toolsTab = Array.from(ctx.doc.querySelectorAll('.storage-tab')).find(e => e.textContent === 'Tools');
+        await ctx.waitFor(() => ctx.doc.querySelectorAll('.ss-tabs[data-side="container"] .ss-tab').length === 5);
+        // Click "Tools" tab on the container side
+        const toolsTab = Array.from(ctx.doc.querySelectorAll('.ss-tabs[data-side="container"] .ss-tab'))
+            .find(e => e.textContent === 'Tools');
         toolsTab.click();
         await new Promise(r => setTimeout(r, 30));
-        // Wood (CraftingMaterial) should be filtered out; only Axe (Equipment) is in slot 1.
-        ctx.expect(ctx.assert.domExists(ctx.doc, '#storage-grid .tsic-slot[data-slot="1"] img'));
+        // Wood (CraftingMaterial) filtered out; Axe (Equipment) at slot 1 stays.
+        ctx.expect(ctx.assert.domExists(ctx.doc, '#ss-container-list .tsic-list-row[data-slot="1"]'));
+        ctx.expect(ctx.assert.eq(ctx.doc.querySelector('#ss-container-list .tsic-list-row[data-slot="0"]'), null));
     },
 });

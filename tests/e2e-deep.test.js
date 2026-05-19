@@ -15,22 +15,23 @@ TSICTestHarness.register({
 });
 
 TSICTestHarness.register({
-    name: 'E2E/Inventory: hover -> menu context, leave -> empty context',
+    name: 'E2E/Inventory: hover publishes contextual menu, leave keeps it sticky',
     file: '/screens/inventory.html',
     async run(ctx) {
         ctx.setItemCatalog({ ID_Axe: { Name: 'Axe', Category: 'Equipment' } });
         ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', MaxSlots: 32, MaxWeight: 50, CurrentWeight: 1, Items: [{ ItemId: 'ID_Axe', Count: 1, SlotIndex: 0 }] });
-        await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid .tsic-slot[data-slot="0"] img'));
-        const slot = ctx.doc.querySelector('#inv-grid .tsic-slot[data-slot="0"]');
+        await ctx.waitFor(() => ctx.doc.querySelector('#inv-list .tsic-list-row[data-slot="0"] img'));
+        const slot = ctx.doc.querySelector('#inv-list .tsic-list-row[data-slot="0"]');
         ctx.clearPublishes();
         slot.dispatchEvent(new ctx.win.MouseEvent('mouseenter', { bubbles: true }));
         slot.dispatchEvent(new ctx.win.MouseEvent('mouseleave', { bubbles: true }));
-        const hoverCtx  = ctx.publishes().find(p => p.channel === 'UI.Cmd.ActionBar.SetMenuContext' && p.payload.Entries.find(e => e.Label === 'Equip'));
-        const leaveCtx  = ctx.publishes().slice(-1)[0];
+        const hoverCtx = ctx.publishes().find(p => p.channel === 'UI.Cmd.ActionBar.SetMenuContext'
+            && p.payload.Entries.find(e => e.Label === 'Equip'));
         ctx.expect(ctx.assert.truthy(hoverCtx, 'expected an Equip-bearing context on hover'));
-        // On leave the page sends an empty array (router still appends auto-Back).
-        ctx.expect(ctx.assert.eq(leaveCtx.payload.Entries.length, 1));
-        ctx.expect(ctx.assert.eq(leaveCtx.payload.Entries[0].ActionName, 'IA_UI_CancelBack'));
+        // Inventory keeps the right pane sticky on leave (no clear context fires).
+        // So the last publish should still be the hover context, not a separate clear.
+        const setMenuPubs = ctx.publishes().filter(p => p.channel === 'UI.Cmd.ActionBar.SetMenuContext');
+        ctx.expect(ctx.assert.eq(setMenuPubs.length, 1, 'expected only the hover publish (no leave-clear)'));
     },
 });
 
@@ -66,11 +67,11 @@ TSICTestHarness.register({
             Recipes: [{ RecipeId: 'R_Plank', Name: 'Plank', bDiscovered: true, bStationLevelSufficient: true, Inputs: [], Outputs: [] }],
             MaterialCounts: {},
         });
-        await ctx.waitFor(() => ctx.doc.querySelectorAll('#p-list .p-row').length >= 1);
-        ctx.inject('tsic.msg.UI.Recipe.QueueChanged', { Queue: [{ RecipeId: 'R_Plank', Name: 'Plank', ProgressFraction: 0 }] });
+        await ctx.waitFor(() => ctx.doc.querySelectorAll('#p-list .tsic-list-row').length >= 1);
+        ctx.inject('tsic.msg.UI.Recipe.QueueChanged', { Kind: 'Production', Entries: [{ RecipeId: 'R_Plank', QueueIndex: 0, Progress: 0, bIsActive: true }] });
         await new Promise(r => setTimeout(r, 50));
-        ctx.inject('tsic.msg.UI.Recipe.Progress', { RecipeId: 'R_Plank', Fraction: 0.5 });
-        ctx.inject('tsic.msg.UI.Recipe.Completed', { RecipeId: 'R_Plank' });
+        ctx.inject('tsic.msg.UI.Recipe.Progress', { Kind: 'Production', RecipeId: 'R_Plank', Progress: 0.5 });
+        ctx.inject('tsic.msg.UI.Recipe.Completed', { Kind: 'Production', RecipeId: 'R_Plank' });
         // Page survives the whole sequence.
         ctx.expect(ctx.assert.truthy(true));
     },
@@ -132,14 +133,14 @@ TSICTestHarness.register({
         ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', MaxSlots: 32, MaxWeight: 50, CurrentWeight: 1, Items: [
             { ItemId: 'ID_Late', Count: 1, SlotIndex: 0 },
         ]});
-        await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid .tsic-slot[data-slot="0"] img'));
+        await ctx.waitFor(() => ctx.doc.querySelector('#inv-list .tsic-list-row[data-slot="0"] img'));
         // Catalog arrives later — categorisation should reroute the item into Tools.
         ctx.setItemCatalog({ ID_Late: { Name: 'Late', Category: 'Equipment' } });
         await new Promise(r => setTimeout(r, 60));
         // Click the Tools tab; item should still be there.
         Array.from(ctx.doc.querySelectorAll('.inv-tab')).find(e => e.textContent === 'Tools').click();
         await new Promise(r => setTimeout(r, 30));
-        ctx.expect(ctx.assert.domExists(ctx.doc, '#inv-grid .tsic-slot[data-slot="0"] img'));
+        ctx.expect(ctx.assert.domExists(ctx.doc, '#inv-list .tsic-list-row[data-slot="0"] img'));
     },
 });
 
@@ -155,8 +156,8 @@ TSICTestHarness.register({
                         Ingredients: [{ ItemId: 'ID_W', Count: 2 }], Outputs: [{ ItemId: 'ID_B', Count: 1 }] }],
             MaterialCounts: { ID_W: 5 },
         });
-        await ctx.waitFor(() => ctx.doc.querySelector('#c-list .c-row'));
-        ctx.doc.querySelector('#c-list .c-row').click();
+        await ctx.waitFor(() => ctx.doc.querySelector('#c-list .tsic-list-row'));
+        ctx.doc.querySelector('#c-list .tsic-list-row').click();
         await new Promise(r => setTimeout(r, 20));
         ctx.clearPublishes();
         ctx.events.key(ctx.doc, 'Enter');

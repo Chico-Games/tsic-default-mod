@@ -89,15 +89,17 @@ TSICTestHarness.register({
     },
 });
 
-// ---- Inventory grid scroll height ---------------------------------------
+// ---- Inventory list scroll: many populated rows -------------------------
 TSICTestHarness.register({
-    name: 'Scroll/Inventory: 256-slot grid renders all 256 slots',
+    name: 'Scroll/Inventory: 100 stacks render as 100 list rows',
     tags: ['scroll', 'inventory'],
     file: '/screens/inventory.html',
     async run(ctx) {
-        ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', MaxSlots: 256, Items: [] });
-        await ctx.waitFor(() => ctx.doc.querySelectorAll('#inv-grid .tsic-slot').length === 256, { timeout: 3000 });
-        ctx.expect(ctx.assert.domCount(ctx.doc, '#inv-grid .tsic-slot', 256));
+        const items = [];
+        for (let i = 0; i < 100; i++) items.push({ ItemId: 'ID_' + i, Count: 1, SlotIndex: i });
+        ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', MaxSlots: 256, Items: items });
+        await ctx.waitFor(() => ctx.doc.querySelectorAll('#inv-list .tsic-list-row').length === 100, { timeout: 3000 });
+        ctx.expect(ctx.assert.domCount(ctx.doc, '#inv-list .tsic-list-row', 100));
     },
 });
 
@@ -131,20 +133,17 @@ TSICTestHarness.register({
     },
 });
 
-// ---- Storage container grid scroll --------------------------------------
+// ---- Storage container list scroll --------------------------------------
 TSICTestHarness.register({
-    name: 'Scroll/Storage: 30 items in a 32-slot container grid all render',
+    name: 'Scroll/Storage: 30 items in container render as 30 list rows',
     tags: ['scroll', 'storage'],
     file: '/screens/storage.html',
     async run(ctx) {
         const items = [];
         for (let i = 0; i < 30; i++) items.push({ ItemId: 'ID_' + i, Count: 1, SlotIndex: i });
-        // Storage page hardcodes slotCount = 32 in the render call site; the
-        // MaxSlots field on the payload is ignored.
         ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Storage:1', MaxSlots: 32, Items: items });
-        await ctx.waitFor(() => ctx.doc.querySelectorAll('#storage-grid .tsic-slot').length === 32, { timeout: 2000 });
-        const filled = ctx.doc.querySelectorAll('#storage-grid .tsic-slot img');
-        ctx.expect(ctx.assert.eq(filled.length, 30));
+        await ctx.waitFor(() => ctx.doc.querySelectorAll('#ss-container-list .tsic-list-row').length === 30, { timeout: 2000 });
+        ctx.expect(ctx.assert.domCount(ctx.doc, '#ss-container-list .tsic-list-row', 30));
     },
 });
 
@@ -300,8 +299,8 @@ TSICTestHarness.register({
     async run(ctx) {
         ctx.setItemCatalog({ ID_X: { Name: 'X', Category: 'Equipment' } });
         ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', MaxSlots: 32, MaxWeight: 50, CurrentWeight: 1, Items: [{ ItemId: 'ID_X', Count: 1, SlotIndex: 0 }] });
-        await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid .tsic-slot[data-slot="0"] img'));
-        const slot = ctx.doc.querySelector('#inv-grid .tsic-slot[data-slot="0"]');
+        await ctx.waitFor(() => ctx.doc.querySelector('#inv-list .tsic-list-row[data-slot="0"] img'));
+        const slot = ctx.doc.querySelector('#inv-list .tsic-list-row[data-slot="0"]');
         for (let i = 0; i < 50; i++) {
             slot.dispatchEvent(new ctx.win.MouseEvent('mouseenter', { bubbles: true }));
             slot.dispatchEvent(new ctx.win.MouseEvent('mouseleave', { bubbles: true }));

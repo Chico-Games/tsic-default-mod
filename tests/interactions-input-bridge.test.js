@@ -83,8 +83,8 @@ TSICTestHarness.register({
     async run(ctx) {
         ctx.setItemCatalog({ ID_X: { Name: 'X', Category: 'Equipment' } });
         ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', MaxSlots: 32, Items: [{ ItemId: 'ID_X', Count: 1, SlotIndex: 0 }] });
-        await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid .tsic-slot[data-slot="0"] img'));
-        ctx.doc.querySelector('#inv-grid .tsic-slot[data-slot="0"]').dispatchEvent(new ctx.win.MouseEvent('mouseenter', { bubbles: true }));
+        await ctx.waitFor(() => ctx.doc.querySelector('#inv-list .tsic-list-row[data-slot="0"] img'));
+        ctx.doc.querySelector('#inv-list .tsic-list-row[data-slot="0"]').dispatchEvent(new ctx.win.MouseEvent('mouseenter', { bubbles: true }));
         await new Promise(r => setTimeout(r, 15));
         ctx.input('IA_UI_AddToHotbar', 'Started');
         await new Promise(r => setTimeout(r, 30));
@@ -103,7 +103,7 @@ TSICTestHarness.register({
     file: '/screens/inventory.html',
     async run(ctx) {
         ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', MaxSlots: 32, Items: [] });
-        await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid'));
+        await ctx.waitFor(() => ctx.doc.querySelector('#inv-list'));
         ctx.input('IA_UI_AddToHotbar', 'Started');
         await new Promise(r => setTimeout(r, 30));
         const modalButtons = Array.from(ctx.doc.querySelectorAll('button.tsic-button')).filter(b => !b.closest('#inv-root'));

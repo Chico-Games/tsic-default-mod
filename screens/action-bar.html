@@ -10,27 +10,52 @@
   <script src="/shared/hud.js" defer></script>
   <script src="/shared/tsic-runtime.js" defer></script>
   <style>
-    /* Single horizontal hot-key bar pinned to the bottom-centre, the way most
-       games lay out their contextual input prompts. Both the gameplay (ability)
-       group and the menu (UI.ActionBar.MenuContext) group live in the same
-       strip — they're mutually exclusive (one shows during gameplay, the other
-       on a menu screen) so the bar's geometry stays stable. */
+    /* Two presentation modes share the same publisher + DOM root, but render
+       very differently:
+         - Gameplay group: vertical stack, bottom-right, no shell/chip
+           backgrounds — keys and text float over the scene the way most
+           action games (Souls/Elden Ring, etc.) draw contextual prompts.
+           Legibility comes from a paper-halo text-shadow, not a chip.
+         - Menu group: horizontal strip, bottom-centre, sits under whichever
+           modal panel is open. Keeps a faint paper backdrop so it reads as
+           a footer for the modal rather than free-floating HUD. */
     html, body { background: transparent; }
-    #ab-root {
+
+    .ab-shell {
       position: fixed;
-      left: 50%; bottom: 18px;
-      transform: translateX(-50%);
+      bottom: 18px;
       max-width: calc(100vw - 48px);
-      padding: 6px 12px;
-      background: rgba(241, 229, 207, 0.92);
-      border: 1px solid var(--cat-border);
-      box-shadow: var(--cat-shadow-soft);
       color: var(--cat-ink-dark);
       pointer-events: none;
     }
-    #ab-root.hidden { display: none; }
+    .ab-shell.hidden { display: none; }
 
-    #ab-gameplay, #ab-menu {
+    #ab-shell-gameplay {
+      right: 24px;
+      /* No shell chrome — gameplay bar is just a column of prompts. */
+    }
+    #ab-shell-menu {
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 6px 12px;
+      background: rgba(241, 229, 207, 0.35);
+      border: 1px solid var(--cat-border-soft);
+      box-shadow: var(--cat-shadow-soft);
+    }
+
+    /* Vertical stack, right-justified so keys hug the screen edge. */
+    #ab-gameplay {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 6px;
+      /* Cream halo + thin dark shadow keeps ink readable on any scene. */
+      text-shadow:
+        0 0 3px rgba(247, 237, 217, 0.85),
+        0 0 6px rgba(247, 237, 217, 0.55),
+        0 1px 2px rgba(0, 0, 0, 0.45);
+    }
+    #ab-menu {
       display: flex;
       flex-direction: row;
       align-items: center;
@@ -39,8 +64,10 @@
       overflow-x: auto;
       scrollbar-width: none;
     }
-    #ab-gameplay::-webkit-scrollbar,
     #ab-menu::-webkit-scrollbar { display: none; }
+    /* applyVisibility() mirrors `.hidden` onto the inner host as well as the
+       shell, so consumers (and tests) can still read visibility off
+       `#ab-gameplay` / `#ab-menu` directly. */
     #ab-gameplay.hidden, #ab-menu.hidden { display: none; }
 
     .ab-row {
@@ -66,13 +93,19 @@
       min-width: 26px;
       height: 22px;
       padding: 0 6px;
-      background: #f4ebd9;
-      border: 1px solid var(--cat-border-strong);
-      color: var(--cat-ink-dark);
+      background: transparent;
+      border: 1px solid currentColor;
+      color: inherit;
       font-family: Georgia, "Libre Baskerville", serif;
       font-size: 11px;
       font-weight: 700;
       overflow: hidden;
+    }
+    /* Menu group sits over a solid modal — give its keys a faint chip back
+       so they read as physical keys, not the ghost outlines used in-world. */
+    #ab-menu .ab-key {
+      background: rgba(244, 235, 217, 0.55);
+      border-color: var(--cat-border-strong);
     }
     .ab-key img { max-width: 18px; max-height: 18px; object-fit: contain; }
     .ab-key-fallback { padding: 0 2px; }
@@ -86,6 +119,8 @@
     .ab-name { font-weight: 700; }
     .ab-sub { font-size: 10px; font-weight: 400; opacity: 0.7; letter-spacing: 0.04em; text-transform: none; }
 
+    /* Only the (horizontal) menu group needs separators between rows now —
+       the vertical gameplay stack hides them via the rule below. */
     .ab-separator {
       display: inline-block;
       width: 1px;
@@ -93,10 +128,13 @@
       background: var(--cat-border-strong);
       opacity: 0.45;
     }
+    #ab-gameplay .ab-separator { display: none; }
   </style>
 </head><body>
-  <div id="ab-root">
+  <div id="ab-shell-gameplay" class="ab-shell hidden">
     <div id="ab-gameplay"></div>
+  </div>
+  <div id="ab-shell-menu" class="ab-shell hidden">
     <div id="ab-menu"></div>
   </div>
   <script>
@@ -214,9 +252,13 @@
         const isMenu = activeScreen && MENU_SCREENS.has(activeScreen);
         const gameHidden = !!isMenu || emptyGameplay();
         const menuHidden = !isMenu  || emptyMenu();
+        document.getElementById('ab-shell-gameplay').classList.toggle('hidden', gameHidden);
+        document.getElementById('ab-shell-menu')    .classList.toggle('hidden', menuHidden);
+        // Mirror onto the inner host: keeps `#ab-gameplay.hidden` /
+        // `#ab-menu.hidden` working as a visibility signal for tests and any
+        // external consumer that doesn't know about the shell wrappers.
         document.getElementById('ab-gameplay').classList.toggle('hidden', gameHidden);
         document.getElementById('ab-menu')    .classList.toggle('hidden', menuHidden);
-        document.getElementById('ab-root')    .classList.toggle('hidden', gameHidden && menuHidden);
       }
 
       function waitForBoot(cb) {

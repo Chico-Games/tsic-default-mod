@@ -122,11 +122,12 @@ TSICTestHarness.register({
 
 // ---- Cheat menu ------------------------------------------------------
 TSICTestHarness.register({
-    name: 'CheatMenu: GiveItem with no id does not publish',
+    name: 'CheatMenu: GiveItem with empty item select does not publish',
     file: '/screens/cheat-menu.html',
     async run(ctx) {
         await ctx.waitFor(() => ctx.doc.getElementById('cm-give'));
-        ctx.doc.getElementById('cm-item-id').value = '';
+        // No catalog broadcast, so the select has no options that resolve to an item name.
+        ctx.doc.getElementById('cm-item').innerHTML = '';
         ctx.clearPublishes();
         ctx.doc.getElementById('cm-give').click();
         ctx.expect(ctx.assert.notPublished(ctx.handle, 'UI.Cmd.Cheat.Execute'));
@@ -134,14 +135,14 @@ TSICTestHarness.register({
 });
 
 TSICTestHarness.register({
-    name: 'CheatMenu: Reveal Map preset publishes its hardcoded command',
+    name: 'CheatMenu: Hide FOW preset publishes HideFOW for target player',
     file: '/screens/cheat-menu.html',
     async run(ctx) {
-        await ctx.waitFor(() => ctx.doc.querySelector('button[data-cmd]'));
+        await ctx.waitFor(() => ctx.doc.querySelector('button[data-cmd-tpl]'));
         ctx.clearPublishes();
-        const btn = Array.from(ctx.doc.querySelectorAll('button[data-cmd]')).find(b => /reveal/i.test(b.textContent || ''));
+        const btn = Array.from(ctx.doc.querySelectorAll('button[data-cmd-tpl]')).find(b => /hide fow/i.test(b.textContent || ''));
         btn && btn.click();
-        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Cheat.Execute', { where: p => p.Command === 'ScpRevealMap' }));
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Cheat.Execute', { where: p => /^HideFOW\s+\d+$/.test(p.Command || '') }));
     },
 });
 

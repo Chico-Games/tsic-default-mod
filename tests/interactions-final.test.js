@@ -5,11 +5,15 @@ TSICTestHarness.register({
     name: 'Drag/Inventory: dropping slot A onto slot B publishes Transfer',
     file: '/screens/inventory.html',
     async run(ctx) {
-        ctx.setItemCatalog({ ID_X: { Name: 'X', Category: 'Equipment' } });
-        ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', MaxSlots: 32, Items: [{ ItemId: 'ID_X', Count: 1, SlotIndex: 0 }] });
-        await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid .tsic-slot[data-slot="0"] img'));
-        const src = ctx.doc.querySelector('#inv-grid .tsic-slot[data-slot="0"]');
-        const dst = ctx.doc.querySelector('#inv-grid .tsic-slot[data-slot="5"]');
+        ctx.setItemCatalog({ ID_X: { Name: 'X', Category: 'Equipment' }, ID_Y: { Name: 'Y', Category: 'Equipment' } });
+        ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', MaxSlots: 32, Items: [
+            { ItemId: 'ID_X', Count: 1, SlotIndex: 0 },
+            { ItemId: 'ID_Y', Count: 1, SlotIndex: 5 },
+        ]});
+        await ctx.waitFor(() => ctx.doc.querySelector('#inv-list .tsic-list-row[data-slot="0"]')
+                              && ctx.doc.querySelector('#inv-list .tsic-list-row[data-slot="5"]'));
+        const src = ctx.doc.querySelector('#inv-list .tsic-list-row[data-slot="0"]');
+        const dst = ctx.doc.querySelector('#inv-list .tsic-list-row[data-slot="5"]');
         ctx.expect(ctx.assert.truthy(src && dst));
         // jsdom-friendly drag emulation: dispatch dragstart on source, then dragover
         // + drop on the destination with a hand-built DataTransfer-style stub.
@@ -324,73 +328,75 @@ TSICTestHarness.register({
     },
 });
 
-// ---- Inventory hover for empty slot does not crash --------------------
+// ---- Inventory empty state ---------------------------------------------
 TSICTestHarness.register({
-    name: 'Inventory: hovering an empty slot does not publish a non-empty context',
+    name: 'Inventory: empty payload renders no hoverable rows',
     file: '/screens/inventory.html',
     async run(ctx) {
         ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', MaxSlots: 32, Items: [] });
-        await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid'));
-        ctx.clearPublishes();
-        const slot = ctx.doc.querySelector('#inv-grid .tsic-slot[data-slot="0"]');
-        slot.dispatchEvent(new ctx.win.MouseEvent('mouseenter', { bubbles: true }));
-        await new Promise(r => setTimeout(r, 20));
-        // It still publishes — to clear the context — but Entries should be empty
-        // (router will append auto-Back so the menu shows just Back).
-        const last = ctx.publishes().filter(p => p.channel === 'UI.Cmd.ActionBar.SetMenuContext').slice(-1)[0];
-        if (last) {
-            const nonBack = last.payload.Entries.filter(e => e.ActionName !== 'IA_UI_CancelBack');
-            ctx.expect(ctx.assert.eq(nonBack.length, 0));
-        }
+        await ctx.waitFor(() => ctx.doc.querySelector('#inv-list .tsic-empty'));
+        // No populated rows means nothing to hover, so no Equip/Drop context entries.
+        ctx.expect(ctx.assert.eq(ctx.doc.querySelectorAll('#inv-list .tsic-list-row').length, 0));
     },
 });
 
 // ---- Cheat menu: spawn fields with content publishes formatted command --
 TSICTestHarness.register({
-    name: 'CheatMenu: SpawnEnemy with class name publishes ScpSpawnEnemy <cls>',
+    name: 'CheatMenu: SpawnCreature picks from catalog and publishes Spawn <name> <p>',
     file: '/screens/cheat-menu.html',
     async run(ctx) {
-        await ctx.waitFor(() => ctx.doc.getElementById('cm-spawn-enemy'));
-        ctx.doc.getElementById('cm-enemy-class').value = 'BP_TestEnemy';
+        await ctx.waitFor(() => ctx.doc.getElementById('cm-spawn-creature'));
+        ctx.inject('tsic.msg.UI.Cheat.Catalog', {
+            Creatures: [{ DisplayName: 'Spider', InternalName: '/Game/Characters/Enemies/Spider/BP_Spider.BP_Spider_C', Description: '' }],
+        });
+        await ctx.waitFor(() => ctx.doc.getElementById('cm-creature').options.length > 0);
         ctx.clearPublishes();
-        ctx.doc.getElementById('cm-spawn-enemy').click();
-        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Cheat.Execute', { where: p => p.Command === 'ScpSpawnEnemy BP_TestEnemy' }));
+        ctx.doc.getElementById('cm-spawn-creature').click();
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Cheat.Execute', {
+            where: p => p.Command === 'Spawn /Game/Characters/Enemies/Spider/BP_Spider.BP_Spider_C 1',
+        }));
     },
 });
 
 TSICTestHarness.register({
-    name: 'CheatMenu: SpawnFurniture with id publishes ScpSpawnFurniture <id>',
+    name: 'CheatMenu: SpawnFurniture from catalog publishes SpawnFurniture <short>',
     file: '/screens/cheat-menu.html',
     async run(ctx) {
         await ctx.waitFor(() => ctx.doc.getElementById('cm-spawn-furn'));
-        ctx.doc.getElementById('cm-furn-id').value = 'FD_TestData';
+        ctx.inject('tsic.msg.UI.Cheat.Catalog', {
+            FurnitureDefault: [{ DisplayName: 'Test', InternalName: '/Game/Furniture/FD_TestData', Description: '' }],
+        });
+        await ctx.waitFor(() => ctx.doc.getElementById('cm-furn').options.length > 0);
         ctx.clearPublishes();
         ctx.doc.getElementById('cm-spawn-furn').click();
-        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Cheat.Execute', { where: p => p.Command === 'ScpSpawnFurniture FD_TestData' }));
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Cheat.Execute', { where: p => p.Command === 'SpawnFurniture FD_TestData' }));
     },
 });
 
 TSICTestHarness.register({
-    name: 'CheatMenu: Teleport with coords publishes ScpTeleport <coords>',
+    name: 'CheatMenu: World teleport with X/Y/Z publishes TeleportToLocation',
     file: '/screens/cheat-menu.html',
     async run(ctx) {
-        await ctx.waitFor(() => ctx.doc.getElementById('cm-tp'));
-        ctx.doc.getElementById('cm-tp-coords').value = '100 200 0';
+        await ctx.waitFor(() => ctx.doc.getElementById('cm-tp-world'));
+        ctx.doc.getElementById('cm-world-x').value = '100';
+        ctx.doc.getElementById('cm-world-y').value = '200';
+        ctx.doc.getElementById('cm-world-z').value = '0';
         ctx.clearPublishes();
-        ctx.doc.getElementById('cm-tp').click();
-        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Cheat.Execute', { where: p => p.Command === 'ScpTeleport 100 200 0' }));
+        ctx.doc.getElementById('cm-tp-world').click();
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Cheat.Execute', { where: p => p.Command === 'TeleportToLocation 1 100 200 0' }));
     },
 });
 
-// ---- Universal Storage (linked): clicking item with count > 1 ---------
+// ---- Universal Storage (linked): dblclicking item with count > 1 ------
 TSICTestHarness.register({
-    name: 'UniversalStorage (linked): item with Count=12 sends Count in Transfer',
+    name: 'UniversalStorage (linked): item dblclick with Count=12 sends Count in Transfer',
     file: '/screens/universal-storage.html',
     async run(ctx) {
         ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Universal', MaxSlots: 64, Items: [{ ItemId: 'X', Count: 12, SlotIndex: 0 }] });
-        await ctx.waitFor(() => ctx.doc.querySelector('.tsic-slot[data-slot="0"] .count'));
+        await ctx.waitFor(() => ctx.doc.querySelector('#ss-container-list .tsic-list-row[data-slot="0"]'));
         ctx.clearPublishes();
-        ctx.doc.querySelector('.tsic-slot[data-slot="0"]').click();
+        ctx.doc.querySelector('#ss-container-list .tsic-list-row[data-slot="0"]')
+            .dispatchEvent(new ctx.win.MouseEvent('dblclick', { bubbles: true }));
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Inventory.Transfer'));
     },
 });

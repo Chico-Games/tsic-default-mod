@@ -6,12 +6,15 @@
   <link rel="stylesheet" href="/shared/base.css">
   <script src="/shared/router.js" defer></script>
   <style>
+    /* Stomach sits at the bottom-left, stacked vertically above the health
+       and stamina bars. The bars live at bottom: 36px / 60px and the column
+       starts above them at 84px, growing upward. */
     #row {
-      position: fixed; right: 24px; bottom: 60px;
-      display: flex; gap: 8px;
+      position: fixed; left: 24px; bottom: 84px;
+      display: flex; flex-direction: column-reverse; gap: 6px;
     }
     .stomach-slot {
-      width: 48px; height: 48px;
+      width: 40px; height: 40px;
       border: 1px solid rgba(184,170,145,0.45);
       background: rgba(241,229,207,0.88);
       border-radius: 3px;
