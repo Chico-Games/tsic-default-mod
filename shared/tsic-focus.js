@@ -368,6 +368,77 @@
         // First-paint stamp so CSS can branch immediately.
         stampMode(State.mode);
 
+        // ---- :hover → [data-tsic-focused] mirror ------------------------
+        // CSS :hover is a UA-controlled state; we can't toggle it from JS.
+        // To make focused elements look hovered without authors having to
+        // duplicate every :hover rule, walk the stylesheets once and
+        // synthesise a matching [data-tsic-focused] rule for every :hover
+        // rule, gated to html[data-tsic-input="Gamepad"]. Inserted as a
+        // single <style id="tsic-focus-hover-mirror"> at the end of <head>
+        // so it wins on equal specificity.
+        function mirrorHoverRules() {
+            if (document.getElementById('tsic-focus-hover-mirror')) return;
+            const mirrors = [];
+            for (const sheet of Array.from(document.styleSheets)) {
+                let rules = null;
+                try { rules = sheet.cssRules; } catch (e) { continue; /* cross-origin */ }
+                if (!rules) continue;
+                walkRules(rules, mirrors);
+            }
+            if (mirrors.length === 0) return;
+            const style = document.createElement('style');
+            style.id = 'tsic-focus-hover-mirror';
+            style.textContent = mirrors.join('\n');
+            document.head.appendChild(style);
+        }
+        function walkRules(rules, out) {
+            for (const rule of Array.from(rules)) {
+                // Style rule — the common case.
+                if (rule.type === 1 /* CSSRule.STYLE_RULE */) {
+                    const mirrored = mirrorSelector(rule.selectorText || '');
+                    if (mirrored && rule.style && rule.style.cssText) {
+                        out.push(mirrored + ' { ' + rule.style.cssText + ' }');
+                    }
+                    continue;
+                }
+                // @media / @supports — recurse and re-wrap.
+                if (rule.cssRules && (rule.type === 4 || rule.type === 12)) {
+                    const inner = [];
+                    walkRules(rule.cssRules, inner);
+                    if (inner.length === 0) continue;
+                    const condition = (rule.media && rule.media.mediaText)
+                        || (rule.conditionText || '');
+                    const at = (rule.type === 4) ? '@media' : '@supports';
+                    out.push(at + ' ' + condition + ' {\n' + inner.join('\n') + '\n}');
+                }
+            }
+        }
+        function mirrorSelector(selectorText) {
+            if (!selectorText || selectorText.indexOf(':hover') === -1) return null;
+            const parts = selectorText.split(',').map(s => s.trim()).filter(Boolean);
+            const mapped = [];
+            for (const p of parts) {
+                if (p.indexOf(':hover') === -1) continue;
+                // Replace :hover with our focused attribute. Multiple :hover
+                // in one selector (rare, e.g. .a:hover .b:hover) — replace all.
+                const focused = p.replace(/:hover/g, '[data-tsic-focused]');
+                mapped.push('html[data-tsic-input="Gamepad"] ' + focused);
+            }
+            return mapped.length ? mapped.join(', ') : null;
+        }
+        // Run after the page's CSS has loaded. <link rel="stylesheet"> blocks
+        // before DOMContentLoaded, but @import inside an existing sheet may
+        // resolve a tick later — give it one rAF.
+        function scheduleMirror() {
+            if (typeof requestAnimationFrame === 'function') {
+                requestAnimationFrame(() => requestAnimationFrame(mirrorHoverRules));
+            } else {
+                setTimeout(mirrorHoverRules, 32);
+            }
+        }
+        if (document.readyState === 'complete') scheduleMirror();
+        else window.addEventListener('load', scheduleMirror, { once: true });
+
         if (metaSaysEnabled()) {
             // Defer to next tick so the page's render pass can populate
             // [data-tsic-initial-focus] elements before we look for them.
