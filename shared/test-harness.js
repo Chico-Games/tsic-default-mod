@@ -195,6 +195,193 @@
         },
     };
 
+    // Focus-engine helpers. Returned as a sub-object that tests.html mounts
+    // onto the per-scenario ctx via `ctx.focus = TSICTestHarness.makeFocusHelpers(...)`.
+    // Lives here (rather than inline in tests.html) so it can be unit-tested
+    // and to keep the iframe ctx builder small.
+    NS.makeFocusHelpers = function (iframe, handle, failures) {
+        function doc()    { return iframe.contentDocument; }
+        function win()    { return iframe.contentWindow; }
+        function engine() { return (win() && win().tsic && win().tsic.focus) || null; }
+        function active() { const d = doc(); return d ? d.activeElement : null; }
+        function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+        const fx = {
+            pressDir(dir) {
+                const map = { up: { X: 0, Y: 1 }, down: { X: 0, Y: -1 }, left: { X: -1, Y: 0 }, right: { X: 1, Y: 0 } };
+                const v = map[dir] || { X: 0, Y: 0 };
+                handle.input('IA_UI_Navigate', 'Started', { X: v.X, Y: v.Y, Z: 0 });
+            },
+            confirm() { handle.input('IA_UI_ConfirmAccept', 'Started'); },
+            cancel()  { handle.input('IA_UI_CancelBack', 'Started'); },
+            active,
+            activeId() {
+                const el = active();
+                if (!el) return null;
+                if (el.id) return '#' + el.id;
+                if (el.dataset && el.dataset.tsicFocusId) {
+                    return '[data-tsic-focus-id="' + el.dataset.tsicFocusId + '"]';
+                }
+                const path = [];
+                let n = el;
+                const root = doc() && doc().body;
+                while (n && n.nodeType === 1 && n !== root) {
+                    const sib = Array.from(n.parentNode.children).filter(c => c.tagName === n.tagName);
+                    const idx = sib.indexOf(n) + 1;
+                    path.unshift(n.tagName.toLowerCase() + ':nth-of-type(' + idx + ')');
+                    n = n.parentNode;
+                }
+                return path.join(' > ');
+            },
+            resetMemory() {
+                const e = engine();
+                if (e && e.resetMemory) e.resetMemory();
+            },
+            disableSmoothScroll() {
+                const e = engine();
+                if (e && e.__state) e.__state.smoothScroll = false;
+            },
+            focus(elOrSel) {
+                const e = engine();
+                if (e && e.focus) e.focus(elOrSel);
+            },
+
+            // Reachability A: BFS from initial focus must visit every focusable.
+            async assertAllReachable(opts) {
+                const e = engine();
+                if (!e) { failures.push('assertAllReachable: no engine'); return; }
+                const filter = (opts && opts.filter) || null;
+                let focusables = e.__focusableSet ? e.__focusableSet() : [];
+                if (filter) focusables = focusables.filter(filter);
+                if (focusables.length === 0) {
+                    failures.push('assertAllReachable: no focusable elements found');
+                    return;
+                }
+                const start = active();
+                if (!start || !focusables.includes(start)) {
+                    failures.push('assertAllReachable: no initial focus or active is not focusable (active=' + (start && start.tagName) + ')');
+                    return;
+                }
+                const visited = new Set([start]);
+                const queue = [start];
+                const dirs = ['up', 'down', 'left', 'right'];
+                let budget = focusables.length * 8;
+                while (queue.length && budget-- > 0) {
+                    const cur = queue.shift();
+                    e.focus(cur);
+                    await delay(8);
+                    for (const d of dirs) {
+                        fx.pressDir(d);
+                        await delay(8);
+                        const next = active();
+                        if (next && !visited.has(next) && focusables.includes(next)) {
+                            visited.add(next);
+                            queue.push(next);
+                        }
+                    }
+                }
+                const missing = focusables.filter(f => !visited.has(f));
+                if (missing.length > 0) {
+                    const desc = missing.slice(0, 6).map(el => {
+                        if (el.id) return '#' + el.id;
+                        const cls = (el.className && el.className.toString) ? el.className.toString().split(' ').slice(0, 2).join('.') : '';
+                        return el.tagName.toLowerCase() + (cls ? '.' + cls : '');
+                    }).join(', ');
+                    failures.push('assertAllReachable: ' + missing.length + ' unreachable: ' + desc + (missing.length > 6 ? ' ...' : ''));
+                }
+            },
+
+            // Reachability B: every focus-group reachable from every other.
+            async assertAllGroupsMutuallyReachable() {
+                const e = engine();
+                if (!e) { failures.push('assertAllGroupsMutuallyReachable: no engine'); return; }
+                const focusables = e.__focusableSet ? e.__focusableSet() : [];
+                const groupOf = (el) => {
+                    const g = el.closest('[data-tsic-focus-group]');
+                    return g ? g.getAttribute('data-tsic-focus-group') : null;
+                };
+                const groups = new Set(focusables.map(groupOf).filter(Boolean));
+                if (groups.size < 2) return;
+                const edges = new Map();
+                for (const g of groups) edges.set(g, new Set());
+                const visited = new Set();
+                const queue = [];
+                const start = active();
+                if (start) { visited.add(start); queue.push(start); }
+                let budget = focusables.length * 8;
+                while (queue.length && budget-- > 0) {
+                    const cur = queue.shift();
+                    const curGroup = groupOf(cur);
+                    e.focus(cur);
+                    await delay(8);
+                    for (const d of ['up','down','left','right']) {
+                        fx.pressDir(d);
+                        await delay(8);
+                        const next = active();
+                        if (!next || next === cur) continue;
+                        const nextGroup = groupOf(next);
+                        if (curGroup && nextGroup && curGroup !== nextGroup) {
+                            edges.get(curGroup).add(nextGroup);
+                        }
+                        if (!visited.has(next) && focusables.includes(next)) {
+                            visited.add(next);
+                            queue.push(next);
+                        }
+                    }
+                }
+                const reachable = (from) => {
+                    const seen = new Set([from]);
+                    const q = [from];
+                    while (q.length) {
+                        const c = q.shift();
+                        for (const n of edges.get(c) || []) {
+                            if (!seen.has(n)) { seen.add(n); q.push(n); }
+                        }
+                    }
+                    return seen;
+                };
+                const list = Array.from(groups);
+                const missing = [];
+                for (const a of list) {
+                    const r = reachable(a);
+                    for (const b of list) {
+                        if (a !== b && !r.has(b)) missing.push(a + ' -> ' + b);
+                    }
+                }
+                if (missing.length > 0) {
+                    failures.push('assertAllGroupsMutuallyReachable: ' + missing.length + ' disconnected pair(s): ' + missing.slice(0,6).join('; ') + (missing.length > 6 ? ' ...' : ''));
+                }
+            },
+
+            // Open every .tsic-dropdown trigger, walk options, cancel, assert focus returns.
+            async assertDropdownsRoundtrip() {
+                const d = doc();
+                const triggers = Array.from(d.querySelectorAll('.tsic-dropdown'))
+                    .filter(b => !b.closest('.tsic-dropdown-portal'));
+                for (const trigger of triggers) {
+                    fx.focus(trigger);
+                    await delay(16);
+                    fx.confirm();
+                    await delay(40);
+                    const portal = d.querySelector('.tsic-dropdown-portal [role="listbox"]');
+                    if (!portal) {
+                        failures.push('assertDropdownsRoundtrip: confirm on ' + (trigger.id || trigger.className) + ' did not open a portal');
+                        continue;
+                    }
+                    fx.pressDir('down'); await delay(16);
+                    fx.cancel(); await delay(40);
+                    if (d.querySelector('.tsic-dropdown-portal')) {
+                        failures.push('assertDropdownsRoundtrip: cancel on ' + (trigger.id || trigger.className) + ' did not close portal');
+                    }
+                    if (active() !== trigger) {
+                        failures.push('assertDropdownsRoundtrip: focus did not return to ' + (trigger.id || trigger.className) + ' after cancel');
+                    }
+                }
+            },
+        };
+        return fx;
+    };
+
     // Tiny "wait until predicate or timeout" helper for async DOM updates.
     NS.waitFor = function (predicate, opts) {
         const timeout = (opts && opts.timeout) || 1000;

@@ -8,6 +8,10 @@
   <!-- Harness is global; scenario files register themselves into TSICTestHarness.scenarios. -->
   <script src="/shared/test-harness.js"></script>
   <!-- Scenario files. Add new ones here. -->
+  <script src="/tests/unit-focus-engine.test.js"></script>
+  <script src="/tests/unit-dropdown.test.js"></script>
+  <script src="/tests/focus-per-screen.test.js"></script>
+  <script src="/tests/focus-cross-screen.test.js"></script>
   <script src="/tests/inventory.test.js"></script>
   <script src="/tests/storage.test.js"></script>
   <script src="/tests/hotbar.test.js"></script>
@@ -172,6 +176,8 @@
             publishes() { return handle.publishes(); },
             clearPublishes() { handle.clearPublishes(); },
           };
+          // Focus-engine helpers (pressDir/confirm/cancel/active/assertAllReachable/...)
+          ctx.focus = TSICTestHarness.makeFocusHelpers(iframe, handle, failures);
           // Give the page's defer scripts a tick to register their subscribers.
           await new Promise(r => setTimeout(r, 80));
           await scn.run(ctx);

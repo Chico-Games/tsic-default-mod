@@ -1,0 +1,329 @@
+// shared/tsic-focus.js
+//
+// Focus engine for the SPA. Activates on pages that opt in via
+//   <meta name="tsic-focus" content="enabled">
+// Mirrors UI.Input.Mode.Changed onto <html data-tsic-input="..."> so CSS can
+// branch on input mode regardless of whether the engine is active. When the
+// page opts in, the engine takes over keyboard/D-pad navigation: spatial
+// nearest-in-direction picks the next focus target, the ring is rendered via
+// [data-tsic-focused], scrollable containers auto-follow, and modal scopes
+// constrain navigation + restore caller focus on close.
+//
+// Exposes window.tsic.focus.*:
+//   enable() / disable() / isEnabled() / getMode()
+//   refresh()                      // re-scan after dynamic re-render (currently a no-op
+//                                  // because the focusable set is read fresh per step)
+//   focus(elOrSel)                 // programmatically set focus
+//   step(dir)                      // 'up'|'down'|'left'|'right' — spatial nearest
+//   pushScope(rootEl, initialEl)   // modal scope; subsequent step() restricted to root
+//   popScope()                     // restores caller focus
+//   resetMemory()                  // clear per-screen focus memory (for tests)
+//   snapshot()                     // debug — { mode, enabled, scope, focusable: [...] }
+//   __focusableSet()               // (test-only) returns current focusable list
+//   __stableSelector(el)           // (test-only) structural selector
+//   __state                        // (test-only) internal state object
+(function () {
+    function install(t) {
+        if (t.__focusInstalled) return;
+        t.__focusInstalled = true;
+
+        const State = {
+            enabled: false,
+            mode: 'MouseAndKeyboard',
+            memory: {},          // per-screen last-focused stable selector
+            scopeStack: [],      // [{ root, caller }]
+            smoothScroll: true,  // tests flip this to 'instant'
+        };
+
+        // ---- DOM helpers --------------------------------------------------
+
+        function stampMode(mode) {
+            try { document.documentElement.setAttribute('data-tsic-input', mode); }
+            catch (e) { /* document might not be ready in odd test cases */ }
+        }
+
+        function metaSaysEnabled() {
+            const m = document.querySelector('meta[name="tsic-focus"]');
+            return !!(m && m.getAttribute('content') === 'enabled');
+        }
+
+        function isFocusable(el) {
+            if (!el || el.nodeType !== 1) return false;
+            if (el.matches('[hidden], [disabled], [aria-hidden="true"], [data-tsic-skip-focus]')) return false;
+            if (!el.matches('button, a[href], input:not([type=hidden]), select, textarea, [data-tsic-focusable]')) return false;
+            const r = el.getBoundingClientRect();
+            if (r.width === 0 || r.height === 0) return false;
+            return true;
+        }
+
+        function focusableSet(root) {
+            const scope = root || document;
+            return Array.from(scope.querySelectorAll(
+                'button, a[href], input:not([type=hidden]), select, textarea, [data-tsic-focusable]'
+            )).filter(isFocusable);
+        }
+
+        function screenKey() {
+            const m = document.querySelector('meta[name="tsic-screen"]');
+            return m ? m.getAttribute('content') : 'Unknown';
+        }
+
+        function stableSelector(el) {
+            if (!el) return null;
+            if (el.id) return '#' + el.id;
+            if (el.dataset && el.dataset.tsicFocusId) {
+                return '[data-tsic-focus-id="' + el.dataset.tsicFocusId + '"]';
+            }
+            const group = el.closest('[data-tsic-focus-group]') || document.body;
+            const path = [];
+            let n = el;
+            while (n && n !== group && n.parentNode) {
+                const sib = Array.from(n.parentNode.children).filter(c => c.tagName === n.tagName);
+                path.unshift(n.tagName.toLowerCase() + ':nth-of-type(' + (sib.indexOf(n) + 1) + ')');
+                n = n.parentNode;
+            }
+            const prefix = (group.dataset && group.dataset.tsicFocusGroup)
+                ? '[data-tsic-focus-group="' + group.dataset.tsicFocusGroup + '"] '
+                : '';
+            return prefix + path.join(' > ');
+        }
+
+        function findInitial() {
+            return document.querySelector('[data-tsic-initial-focus]');
+        }
+
+        // ---- Spatial-nearest ---------------------------------------------
+
+        function centre(rect) { return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 }; }
+
+        function pickNeighbor(from, dir, candidates) {
+            if (!from) return null;
+            const fr = from.getBoundingClientRect();
+            const fc = centre(fr);
+            let best = null;
+            let bestScore = Infinity;
+            let bestIdx = Infinity;
+            candidates.forEach((c, idx) => {
+                if (c === from) return;
+                const cr = c.getBoundingClientRect();
+                const cc = centre(cr);
+                let dirDist = 0, perpOffset = 0, inHalfPlane = false;
+                switch (dir) {
+                    case 'up':    inHalfPlane = cc.y < fc.y - 1; dirDist = fc.y - cc.y; perpOffset = Math.abs(cc.x - fc.x); break;
+                    case 'down':  inHalfPlane = cc.y > fc.y + 1; dirDist = cc.y - fc.y; perpOffset = Math.abs(cc.x - fc.x); break;
+                    case 'left':  inHalfPlane = cc.x < fc.x - 1; dirDist = fc.x - cc.x; perpOffset = Math.abs(cc.y - fc.y); break;
+                    case 'right': inHalfPlane = cc.x > fc.x + 1; dirDist = cc.x - fc.x; perpOffset = Math.abs(cc.y - fc.y); break;
+                }
+                if (!inHalfPlane) return;
+                const score = dirDist + perpOffset * 3;
+                if (score < bestScore || (score === bestScore && idx < bestIdx)) {
+                    best = c;
+                    bestScore = score;
+                    bestIdx = idx;
+                }
+            });
+            return best;
+        }
+
+        // ---- Scroll into view --------------------------------------------
+
+        function scrollFocusIntoView(el) {
+            let n = el.parentElement;
+            let container = null;
+            while (n && n !== document.body) {
+                const cs = getComputedStyle(n);
+                if ((cs.overflowY === 'auto' || cs.overflowY === 'scroll') && n.scrollHeight > n.clientHeight) {
+                    container = n; break;
+                }
+                n = n.parentElement;
+            }
+            if (!container) return;
+            const margin = (el.getBoundingClientRect().height || 28) * 1.5;
+            const cRect = container.getBoundingClientRect();
+            const eRect = el.getBoundingClientRect();
+            const behavior = (State.smoothScroll === false) ? 'instant' : 'smooth';
+            if (eRect.top - margin < cRect.top) {
+                container.scrollBy({ top: (eRect.top - margin) - cRect.top, behavior: behavior });
+            } else if (eRect.bottom + margin > cRect.bottom) {
+                container.scrollBy({ top: (eRect.bottom + margin) - cRect.bottom, behavior: behavior });
+            }
+        }
+
+        // ---- Public API --------------------------------------------------
+
+        const api = {
+            enable() {
+                State.enabled = true;
+                if (State.mode === 'Gamepad') applyInitialFocus();
+            },
+            disable() { State.enabled = false; },
+            isEnabled() { return State.enabled; },
+            getMode() { return State.mode; },
+
+            refresh() {
+                // No cached state — focusable list is read fresh on every step.
+                // Hook exists so pages can call after re-rendering without
+                // changing call sites if we add caching later.
+            },
+
+            focus(elOrSel) {
+                const el = (typeof elOrSel === 'string') ? document.querySelector(elOrSel) : elOrSel;
+                if (!el || !isFocusable(el)) return false;
+                try { el.focus({ preventScroll: true }); } catch (e) { try { el.focus(); } catch (_) {} }
+                for (const stale of document.querySelectorAll('[data-tsic-focused]')) {
+                    if (stale !== el) stale.removeAttribute('data-tsic-focused');
+                }
+                el.setAttribute('data-tsic-focused', '');
+                const sel = stableSelector(el);
+                if (sel) State.memory[screenKey()] = sel;
+                try { scrollFocusIntoView(el); } catch (e) {}
+                return true;
+            },
+
+            step(dir) {
+                if (!State.enabled || State.mode !== 'Gamepad') return false;
+                const scopeRoot = State.scopeStack.length > 0
+                    ? State.scopeStack[State.scopeStack.length - 1].root
+                    : document;
+                const candidates = focusableSet(scopeRoot);
+                if (candidates.length === 0) return false;
+                const cur = document.activeElement;
+                if (!cur || !candidates.includes(cur)) {
+                    const init = findInitial();
+                    if (init && candidates.includes(init)) return api.focus(init);
+                    return api.focus(candidates[0]);
+                }
+                const next = pickNeighbor(cur, dir, candidates);
+                if (!next) return false; // edge — no wrap
+                return api.focus(next);
+            },
+
+            pushScope(root, initial) {
+                if (!root) return false;
+                const caller = document.activeElement;
+                State.scopeStack.push({ root: root, caller: caller });
+                const target = (typeof initial === 'string') ? root.querySelector(initial) : initial;
+                if (target && isFocusable(target)) {
+                    api.focus(target);
+                } else {
+                    const found = focusableSet(root)[0];
+                    if (found) api.focus(found);
+                }
+                return true;
+            },
+
+            popScope() {
+                if (State.scopeStack.length === 0) return false;
+                const frame = State.scopeStack.pop();
+                if (frame.caller && isFocusable(frame.caller)) api.focus(frame.caller);
+                return true;
+            },
+
+            resetMemory() { State.memory = {}; },
+
+            snapshot() {
+                return {
+                    mode: State.mode,
+                    enabled: State.enabled,
+                    scope: State.scopeStack.length,
+                    focusable: focusableSet().length,
+                };
+            },
+
+            // Test-only escape hatches.
+            __focusableSet: focusableSet,
+            __stableSelector: stableSelector,
+            __state: State,
+        };
+
+        function applyInitialFocus() {
+            const saved = State.memory[screenKey()];
+            if (saved) {
+                let restored = null;
+                try { restored = document.querySelector(saved); } catch (e) { restored = null; }
+                if (restored && isFocusable(restored)) {
+                    api.focus(restored);
+                    return;
+                }
+            }
+            const init = findInitial();
+            if (init && isFocusable(init)) {
+                api.focus(init);
+                return;
+            }
+            // Fall back to first focusable so the page is at least navigable.
+            const first = focusableSet()[0];
+            if (first) api.focus(first);
+        }
+
+        t.focus = api;
+
+        // ---- Channel wiring ----------------------------------------------
+
+        t.on('tsic.msg.UI.Input.Mode.Changed', (payload) => {
+            const mode = (payload && payload.Mode) || 'MouseAndKeyboard';
+            State.mode = mode;
+            stampMode(mode);
+            if (!State.enabled) return;
+            if (mode === 'Gamepad') {
+                try { t.setInteractiveRects && t.setInteractiveRects([]); } catch (e) {}
+                applyInitialFocus();
+            } else {
+                // Restore default (whole-view interactive) for the page's mouse
+                // mode. Pages that maintain their own rects re-publish them.
+                try { t.setInteractiveRects && t.setInteractiveRects([{ x: 0, y: 0, w: 99999, h: 99999 }]); } catch (e) {}
+                const a = document.activeElement;
+                if (a && a.removeAttribute) a.removeAttribute('data-tsic-focused');
+            }
+        });
+
+        let lastNavAt = 0;
+        t.on('tsic.msg.UI.Input.IA_UI_Navigate', (payload) => {
+            if (!State.enabled || State.mode !== 'Gamepad') return;
+            const phase = payload && payload.Phase;
+            if (phase !== 'Started' && phase !== 'Triggered') return;
+            const v = (payload && payload.Value) || { X: 0, Y: 0 };
+            const ax = Math.abs(v.X), ay = Math.abs(v.Y);
+            if (ax < 0.4 && ay < 0.4) return;
+            const now = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
+            if (phase === 'Triggered' && (now - lastNavAt) < 180) return;
+            lastNavAt = now;
+            const dir = (ax > ay)
+                ? (v.X > 0 ? 'right' : 'left')
+                : (v.Y > 0 ? 'up' : 'down');
+            api.step(dir);
+        });
+
+        t.on('tsic.msg.UI.Input.IA_UI_ConfirmAccept', (payload) => {
+            if (!State.enabled || State.mode !== 'Gamepad') return;
+            if (!payload || payload.Phase !== 'Started') return;
+            const a = document.activeElement;
+            if (a && typeof a.click === 'function') {
+                try { a.click(); } catch (e) { console.warn('[tsic-focus] confirm click failed', e); }
+            }
+        });
+
+        t.on('tsic.msg.UI.Input.IA_UI_CancelBack', (payload) => {
+            if (!State.enabled || State.mode !== 'Gamepad') return;
+            if (!payload || payload.Phase !== 'Started') return;
+            if (State.scopeStack.length > 0) {
+                api.popScope();
+            }
+            // else: let the page's own Esc / close-screen handler take over.
+        });
+
+        // First-paint stamp so CSS can branch immediately.
+        stampMode(State.mode);
+
+        if (metaSaysEnabled()) {
+            // Defer to next tick so the page's render pass can populate
+            // [data-tsic-initial-focus] elements before we look for them.
+            setTimeout(() => api.enable(), 0);
+        }
+    }
+
+    (function poll() {
+        if (window.tsic && typeof window.tsic.on === 'function') { install(window.tsic); return; }
+        setTimeout(poll, 16);
+    })();
+})();
