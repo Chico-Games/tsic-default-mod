@@ -8,12 +8,16 @@
     #root { display: grid; grid-template-columns: 240px 1fr 380px; height: 100vh; }
     #screens { border-right: 1px solid #1f2937; overflow: hidden; display: flex; flex-direction: column; }
     #screens h1 { font-size: 11px; letter-spacing: 3px; padding: 12px; margin: 0; color: #fbbf24; border-bottom: 1px solid #1f2937; }
+    #pg-legend { padding: 6px 12px; font-size: 10px; color: #64748b; border-bottom: 1px solid #1f2937; display: flex; align-items: center; gap: 6px; }
+    #pg-legend .pg-scn-dot.on { width: 7px; height: 7px; }
     #pg-filter { margin: 8px; padding: 4px 8px; background: #111827; color: #e2e8f0; border: 1px solid #1f2937; font-size: 12px; outline: none; }
     #pg-filter:focus { border-color: #374151; }
     #pg-screens { flex: 1; overflow-y: auto; }
-    .pg-scn { padding: 6px 12px; font-size: 12px; cursor: pointer; border-bottom: 1px solid #111827; }
+    .pg-scn { padding: 6px 12px; font-size: 12px; cursor: pointer; border-bottom: 1px solid #111827; display: flex; align-items: center; gap: 8px; }
     .pg-scn:hover { background: #111827; }
     .pg-scn.active { background: #1e293b; color: #fbbf24; }
+    .pg-scn-dot { width: 8px; height: 8px; border-radius: 50%; background: #1f2937; flex: 0 0 auto; }
+    .pg-scn-dot.on { background: #fbbf24; box-shadow: 0 0 6px rgba(251, 191, 36, 0.5); }
 
     #viewer { display: flex; flex-direction: column; min-width: 0; }
     #toolbar { padding: 6px 12px; border-bottom: 1px solid #1f2937; font-size: 12px; display: flex; gap: 8px; align-items: center; }
@@ -51,6 +55,7 @@
     .pg-focus-h { font-size: 10px; letter-spacing: 3px; color: #fbbf24; }
     .pg-focus-status { font-family: 'Consolas', monospace; font-size: 10px; color: #cbd5e1; word-break: break-word; }
     .pg-focus-status.warn { color: #fbbf24; }
+    .pg-focus-status.muted { color: #64748b; }
     .pg-focus-dirs { grid-template-columns: 1fr 1fr 1fr 1fr; }
     .pg-focus-dirs .pg-btn { font-size: 14px; }
 
@@ -62,6 +67,7 @@
     .pg-dbg .pg-dbg-k { color: #94a3b8; }
     .pg-dbg code { color: #e2e8f0; }
     .pg-dbg code.warn { color: #fbbf24; }
+    .pg-dbg code.muted { color: #64748b; }
     .pg-dbg .pg-dbg-list { margin: 0; padding-left: 16px; max-height: 140px; overflow: auto; }
     .pg-dbg .pg-dbg-list li { font-size: 10px; }
     .pg-dbg .pg-dbg-hist { list-style: none; margin: 0; padding: 0; max-height: 320px; overflow: auto; }
@@ -152,6 +158,7 @@
     <div id="screens">
       <h1>SCREENS</h1>
       <input id="pg-filter" placeholder="filter…">
+      <div id="pg-legend"><span class="pg-scn-dot on"></span> controller focus engine enabled</div>
       <div id="pg-screens"></div>
     </div>
     <div id="viewer">

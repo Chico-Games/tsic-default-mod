@@ -213,8 +213,11 @@
             if (!win) { optInEl.textContent = 'iframe: not loaded'; statusEl.textContent = ''; return; }
             const meta = win.document && win.document.querySelector('meta[name="tsic-focus"]');
             const optedIn = !!(meta && meta.getAttribute('content') === 'enabled');
-            optInEl.textContent = optedIn ? 'page opts in: yes' : 'page opts in: NO (engine inactive)';
-            optInEl.classList.toggle('warn', !optedIn);
+            optInEl.textContent = optedIn
+                ? 'controller nav: yes  (page opts in)'
+                : 'controller nav: no  (HUD / passive — try Pause Menu, Settings, Save/Load…)';
+            optInEl.classList.toggle('warn', false);
+            optInEl.classList.toggle('muted', !optedIn);
             const fEngine = win.tsic && win.tsic.focus;
             if (!fEngine || typeof fEngine.snapshot !== 'function') {
                 statusEl.textContent = 'engine: not installed yet';

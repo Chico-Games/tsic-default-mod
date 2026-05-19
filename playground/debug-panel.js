@@ -138,7 +138,12 @@
         row2.innerHTML = `<span class="pg-dbg-k">screen:</span> <code>${state.fixture.screen}</code>`;
         const row3 = document.createElement('div');
         const optIn = focusOptIn(state.iframeWin);
-        row3.innerHTML = `<span class="pg-dbg-k">tsic-focus meta:</span> <code class="${optIn ? '' : 'warn'}">${optIn === null ? '?' : optIn ? 'enabled' : 'not set'}</code>`;
+        const verdict = optIn === null
+            ? '?'
+            : optIn
+                ? 'yes (uses controller focus engine)'
+                : 'no (HUD / passive — engine intentionally off)';
+        row3.innerHTML = `<span class="pg-dbg-k">controller nav:</span> <code class="${optIn ? '' : 'muted'}">${verdict}</code>`;
         REFS.fixture.appendChild(row1);
         REFS.fixture.appendChild(row2);
         REFS.fixture.appendChild(row3);
@@ -159,12 +164,18 @@
         const engine = win.tsic && win.tsic.focus;
         const optIn = focusOptIn(win);
         const optEl = document.createElement('div');
-        optEl.innerHTML = `<span class="pg-dbg-k">opt-in:</span> <code class="${optIn ? '' : 'warn'}">${optIn ? 'yes' : 'no'}</code>`;
+        if (optIn) {
+            optEl.innerHTML = `<span class="pg-dbg-k">opt-in:</span> <code>yes</code>`;
+        } else {
+            optEl.innerHTML = `<span class="pg-dbg-k">opt-in:</span> <code class="muted">no — this screen is mouse / passive</code>`;
+        }
         REFS.focus.appendChild(optEl);
 
         if (!engine || typeof engine.snapshot !== 'function') {
             const r = document.createElement('div');
-            r.innerHTML = '<span class="pg-dbg-k">engine:</span> <code class="warn">not installed</code>';
+            r.innerHTML = optIn
+                ? '<span class="pg-dbg-k">engine:</span> <code class="warn">not installed yet (deferred script loading)</code>'
+                : '<span class="pg-dbg-k">engine:</span> <code class="muted">not loaded on this page</code>';
             REFS.focus.appendChild(r);
             return;
         }

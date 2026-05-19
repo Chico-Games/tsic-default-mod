@@ -136,6 +136,16 @@
         }
     }
 
+    // Fixtures whose target screen has <meta name="tsic-focus" content="enabled">.
+    // Mirrored from the 14 opted-in screens so the picker can mark them.
+    const FOCUS_ENGINE_IDS = new Set([
+        'main-menu', 'new-store', 'settings', 'construction',
+        'universal-storage-setup', 'boss-summoner', 'teleporter',
+        'selection', 'cage', 'save-load', 'bug-report',
+        'quantity-picker', 'pause-menu', 'credits',
+    ]);
+    NS.FOCUS_ENGINE_IDS = FOCUS_ENGINE_IDS;
+
     function renderScreenList() {
         const list = el('pg-screens');
         list.innerHTML = '';
@@ -143,8 +153,15 @@
         for (const fx of sorted) {
             const row = document.createElement('div');
             row.className = 'pg-scn';
-            row.textContent = fx.label;
-            row.title = fx.screen;
+            const usesFocus = FOCUS_ENGINE_IDS.has(fx.id);
+            const dot = document.createElement('span');
+            dot.className = 'pg-scn-dot' + (usesFocus ? ' on' : '');
+            dot.title = usesFocus ? 'Uses controller focus engine' : 'No focus engine (HUD / passive view)';
+            row.appendChild(dot);
+            const label = document.createElement('span');
+            label.textContent = fx.label;
+            row.appendChild(label);
+            row.title = fx.screen + (usesFocus ? '  ·  tsic-focus enabled' : '');
             row.dataset.id = fx.id;
             row.addEventListener('click', () => {
                 document.querySelectorAll('.pg-scn').forEach(n => n.classList.remove('active'));
@@ -208,10 +225,15 @@
             logRow('info', `SUBSCRIBED: ${fmt(activeHandle.channels())}`);
         });
         el('pg-clearlog').addEventListener('click', () => { el('pg-log').innerHTML = ''; });
-        // Deep-link via hash.
+        // Deep-link via hash. Otherwise default to a focus-engine-enabled
+        // screen (pause-menu) so the controller-nav demo is visible on first
+        // load instead of a HUD page with no engine.
         const initial = (location.hash || '').replace(/^#/, '');
         const fx = initial && TSICPlayground.byId.get(initial);
-        const target = fx ? fx.id : (TSICPlayground.fixtures[0] && TSICPlayground.fixtures[0].id);
+        const defaultId = TSICPlayground.byId.has('pause-menu')
+            ? 'pause-menu'
+            : (TSICPlayground.fixtures[0] && TSICPlayground.fixtures[0].id);
+        const target = fx ? fx.id : defaultId;
         if (target) {
             const row = document.querySelector(`.pg-scn[data-id="${target}"]`);
             if (row) row.classList.add('active');
