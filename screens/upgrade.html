@@ -2,6 +2,7 @@
 <html lang="en"><head>
   <meta charset="utf-8">
   <meta name="tsic-screen" content="Upgrade">
+  <meta name="tsic-focus" content="enabled">
   <meta name="tsic-input-mode" content="InputMode.Menu.Upgrade">
   <meta name="tsic-action-bar-context" content='[{"ActionName":"IA_UI_ConfirmAccept","Label":"Upgrade","Priority":10}]'>
   <title>Upgrade</title>
@@ -9,12 +10,24 @@
   <link rel="stylesheet" href="/shared/components.css">
   <link rel="stylesheet" href="/shared/hud.css">
   <script src="/shared/router.js" defer></script>
+  <script src="/shared/tsic-focus.js" defer></script>
+  <script src="/shared/tsic-dropdown.js" defer></script>
   <script src="/shared/hud.js" defer></script>
+  <script src="/shared/catalog.js" defer></script>
+  <style>
+    .up-row { display:flex; align-items:center; gap:10px; padding:8px 12px; }
+    .up-meta { flex:1; min-width:0; display:flex; flex-direction:column; gap:4px; }
+    .up-name { font-weight:700; }
+    .up-ings { display:flex; flex-wrap:wrap; gap:6px 12px; font-size:11px; opacity:0.85; }
+    .up-ings .up-ing { display:flex; align-items:center; gap:4px; }
+    .up-ings .up-ing img { width:18px; height:18px; object-fit:contain; }
+  </style>
 </head><body>
   <div id="modal" class="tsic-modal-scrim">
-    <div class="tsic-panel" style="width:520px;max-height:80vh;overflow:auto;">
-      <h2 class="tsic-title">Upgrade</h2>
-      <div id="recipes" class="tsic-stack tsic-stack--sm"></div>
+    <div class="tsic-panel tsic-panel--screen">
+      <h2 class="tsic-title" style="margin:0 0 8px;">Upgrade</h2>
+      <div class="tsic-eyebrow">Available upgrades</div>
+      <div id="recipes" class="tsic-list-pane" style="flex:1 1 auto;"></div>
       <div class="tsic-close-row">
         <button class="tsic-button" id="btn-close">Close</button>
       </div>
@@ -24,26 +37,54 @@
     (function(){
       function whenReady(cb){ if(window.tsic){cb();return;} setTimeout(()=>whenReady(cb),16); }
       let stationId = null;
+      let lastRecipes = [];
+
+      function render() {
+        const host = document.getElementById('recipes');
+        host.innerHTML = '';
+        const cat = (window.tsic && window.tsic.itemCatalog) || {};
+        for (const r of lastRecipes) {
+          const row = document.createElement('div');
+          row.className = 'tsic-panel up-row';
+          const meta = document.createElement('div');
+          meta.className = 'up-meta';
+          const name = document.createElement('div');
+          name.className = 'up-name';
+          name.textContent = r.Name || r.RecipeId;
+          meta.appendChild(name);
+          const ings = document.createElement('div');
+          ings.className = 'up-ings';
+          for (const i of (r.Ingredients || [])) {
+            const ing = document.createElement('span');
+            ing.className = 'up-ing';
+            const img = document.createElement('img');
+            img.src = `tex://item-icon/${encodeURIComponent(i.ItemId)}`;
+            img.onerror = () => { img.style.visibility = 'hidden'; };
+            ing.appendChild(img);
+            const lbl = document.createElement('span');
+            lbl.textContent = `${(cat[i.ItemId] || {}).Name || i.ItemId} x${i.Count}`;
+            ing.appendChild(lbl);
+            ings.appendChild(ing);
+          }
+          meta.appendChild(ings);
+          row.appendChild(meta);
+          const btn = document.createElement('button');
+          btn.className = 'tsic-button';
+          btn.textContent = 'Purchase';
+          btn.onclick = () => tsic.publishMessage('UI.Cmd.Recipe.Start', { Kind: 'Upgrade', StationId: stationId, RecipeId: r.RecipeId, Count: 1 });
+          row.appendChild(btn);
+          host.appendChild(row);
+        }
+      }
+
       whenReady(()=>{
         tsic.on('tsic.msg.UI.Recipe.StationOpened', (p) => {
           if (!p || p.Kind !== 'Upgrade') return;
           stationId = p.StationId;
-          const host = document.getElementById('recipes');
-          host.innerHTML = '';
-          for (const r of (p.Recipes || [])) {
-            const row = document.createElement('div');
-            row.className = 'tsic-panel';
-            row.style.cssText = 'display:flex;justify-content:space-between;align-items:center;padding:8px 12px;';
-            const ing = (r.Ingredients || []).map(i => i.ItemId + ' x' + i.Count).join(', ');
-            row.innerHTML = `<div><b>${r.Name || r.RecipeId}</b><br><span style="opacity:0.6;font-size:11px;">${ing}</span></div>`;
-            const btn = document.createElement('button');
-            btn.className = 'tsic-button';
-            btn.textContent = 'Purchase';
-            btn.onclick = () => tsic.publishMessage('UI.Cmd.Recipe.Start', { Kind: 'Upgrade', StationId: stationId, RecipeId: r.RecipeId, Count: 1 });
-            row.appendChild(btn);
-            host.appendChild(row);
-          }
+          lastRecipes = p.Recipes || [];
+          render();
         });
+        window.addEventListener('tsic-item-catalog', render);
         document.getElementById('btn-close').onclick = () =>
           tsic.publishMessage('UI.Cmd.Pause.Resume', {});
       });

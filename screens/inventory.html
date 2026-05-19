@@ -2,57 +2,86 @@
 <html lang="en"><head>
   <meta charset="utf-8">
   <meta name="tsic-screen" content="Inventory">
+  <meta name="tsic-focus" content="enabled">
   <meta name="tsic-input-mode" content="InputMode.Menu.Inventory">
   <title>Inventory</title>
   <link rel="stylesheet" href="/shared/base.css">
   <link rel="stylesheet" href="/shared/components.css">
   <link rel="stylesheet" href="/shared/hud.css">
   <script src="/shared/router.js" defer></script>
+  <script src="/shared/tsic-focus.js" defer></script>
+  <script src="/shared/tsic-dropdown.js" defer></script>
   <script src="/shared/hud.js" defer></script>
   <script src="/shared/catalog.js" defer></script>
   <script src="/shared/inventory.js" defer></script>
+  <script src="/shared/context-menu.js" defer></script>
   <script src="/shared/action-bar.js" defer></script>
   <style>
-    /* Layout is custom; the .tsic-modal-scrim class would clash because we
-       need the panel to size itself rather than auto-centre via flex defaults. */
-    #inv-root { position:fixed; inset:0; background: rgba(35,31,24,0.35); display:flex; align-items:center; justify-content:center; }
-    /* Heights kept tight so the whole grid fits inside 80vh on a 720p viewport
-       without scroll — the close-row and capacity bar must stay visible. */
-    #inv-panel { width: 900px; max-width: calc(100vw - 48px); max-height: 84vh; overflow:auto; display:grid; grid-template-columns: 140px 1fr 220px; gap:10px; }
-    #inv-tabs { display:flex; flex-direction:column; gap:4px; }
-    .inv-tab { padding:6px 10px; background: rgba(241,229,207,0.55); border:1px solid var(--tsic-border); cursor:pointer; }
+    #inv-header { display:flex; align-items:baseline; gap:18px; margin-bottom:8px; }
+    #inv-header .spacer { flex:1; }
+    #inv-tabs { display:flex; gap:4px; }
+    .inv-tab { padding:4px 10px; background:rgba(241,229,207,0.55); border:1px solid var(--tsic-border); cursor:pointer; font-size:11px; letter-spacing:1px; text-transform:uppercase; }
     .inv-tab.active { background: var(--tsic-accent-dim); }
-    #inv-grid { display:grid; grid-template-columns: repeat(8, 56px); grid-auto-rows: 56px; gap:6px; }
-    #inv-info { padding: 8px; background: rgba(241,229,207,0.88); border:1px solid var(--tsic-border); min-height: 100px; }
-    #inv-equip-row { grid-column: 1 / 3; display:flex; gap:6px; padding:6px; background: rgba(184,170,145,0.35); }
-    .equip-slot { width:42px; height:42px; background: rgba(241,229,207,0.55); border:1px solid var(--tsic-border); display:flex; align-items:center; justify-content:center; font-size:9px; color: var(--cat-ink-soft); cursor:pointer; }
-    #inv-char-preview { width:220px; height:220px; background: rgba(241,229,207,0.92); border:1px solid var(--tsic-border); }
-    #inv-char-preview img { width:100%; height:100%; object-fit:contain; }
-    #inv-capacity { grid-column: 1 / 4; display:flex; flex-direction:column; gap:4px; font-size:11px; }
+    #inv-capacity { display:flex; flex-direction:column; gap:2px; font-size:11px; min-width:200px; }
     #inv-capacity-line { display:flex; justify-content:space-between; opacity:0.75; }
-    #inv-capacity-bar { height:6px; background: rgba(241,229,207,0.55); border-radius:3px; overflow:hidden; }
+    #inv-capacity-bar { height:5px; background:rgba(241,229,207,0.55); border-radius:3px; overflow:hidden; }
     #inv-capacity-fill { height:100%; width:0; background:#cbd5e1; transition: width 100ms linear, background 100ms linear; }
     #inv-capacity[data-state="warning"] #inv-capacity-fill { background:#f59e0b; }
     #inv-capacity[data-state="full"] #inv-capacity-fill { background:#ef4444; }
     #inv-capacity[data-state="overburdened"] #inv-capacity-fill { background:#b91c1c; }
     #inv-capacity[data-state="overburdened"] #inv-capacity-overburdened { display:block; }
-    #inv-capacity-overburdened { display:none; color:#fca5a5; font-weight:600; letter-spacing:1px; }
-    #inv-close { grid-column: 1 / 4; text-align:right; }
+    #inv-capacity-overburdened { display:none; color:#b91c1c; font-weight:600; letter-spacing:1px; }
+
+    /* Compact rows so more stacks fit on a single page. Scoped to the inventory
+       list so other screens (storage, etc.) keep the roomier default. */
+    #inv-list .tsic-list-row { padding: 2px 8px; gap: 8px; font-size: 11px; line-height: 1.2; }
+    #inv-list .tsic-list-row .icon { width: 20px; height: 20px; }
+    #inv-list .tsic-list-row .right { display:flex; gap:8px; font-size:10px; }
+    #inv-list { gap: 2px; }
+
+    #inv-info { padding:10px; background: rgba(241,229,207,0.88); border:1px solid var(--tsic-border); min-height: 140px; flex: 0 0 auto; max-height: 50%; overflow:auto; }
+    #inv-info img { width:56px !important; height:56px !important; margin:0 auto 6px !important; }
+    #inv-info h3 { font-size: 14px; }
+    #inv-info p { margin: 4px 0; }
+    #inv-equip-row { display:flex; gap:6px; padding:6px; background: rgba(184,170,145,0.35); border:1px solid var(--tsic-border); flex-wrap: wrap; flex: 0 0 auto; }
+    .equip-slot { width:42px; height:42px; background: rgba(241,229,207,0.55); border:1px solid var(--tsic-border); display:flex; align-items:center; justify-content:center; font-size:9px; color: var(--cat-ink-soft); cursor:pointer; }
+    .equip-slot img { width:100%; height:100%; object-fit:contain; pointer-events:none; }
+    #inv-char-preview { flex: 1 1 auto; min-height: 120px; background: rgba(241,229,207,0.92); border:1px solid var(--tsic-border); display:flex; align-items:center; justify-content:center; }
+    #inv-char-preview img { width:100%; height:100%; object-fit:contain; }
   </style>
 </head><body>
-<div id="inv-root">
-  <div id="inv-panel" class="tsic-panel">
-    <h2 class="tsic-title" style="grid-column: 1 / 4; margin:0;">Inventory</h2>
-    <div id="inv-tabs"></div>
-    <div id="inv-grid"></div>
-    <div id="inv-info"></div>
-    <div id="inv-equip-row"></div>
-    <div id="inv-char-preview"><img id="inv-char-img" alt=""></div>
-    <div id="inv-capacity">
-      <div id="inv-capacity-line"><span id="inv-capacity-text">CAPACITY: -</span><span id="inv-capacity-overburdened">OVERBURDENED</span></div>
-      <div id="inv-capacity-bar"><div id="inv-capacity-fill"></div></div>
+<div id="inv-root" class="tsic-modal-scrim">
+  <div id="inv-panel" class="tsic-panel tsic-panel--screen">
+    <div id="inv-header">
+      <h2 class="tsic-title" style="margin:0;">Inventory</h2>
+      <div id="inv-tabs"></div>
+      <div class="spacer"></div>
+      <div id="inv-capacity">
+        <div id="inv-capacity-line">
+          <span id="inv-capacity-text">CAPACITY: —</span>
+          <span id="inv-capacity-overburdened">OVERBURDENED</span>
+        </div>
+        <div id="inv-capacity-bar"><div id="inv-capacity-fill"></div></div>
+      </div>
     </div>
-    <div id="inv-close"><button class="tsic-button" id="btn-close">Close (Esc)</button></div>
+
+    <div class="tsic-split">
+      <div class="tsic-split-col">
+        <div class="tsic-eyebrow">Items</div>
+        <div id="inv-list" class="tsic-list-pane"></div>
+      </div>
+      <div class="tsic-split-col">
+        <div class="tsic-eyebrow">Selected</div>
+        <div id="inv-info" class="tsic-empty">Hover an item to see details</div>
+        <div class="tsic-eyebrow" style="margin-top:6px;">Equipped</div>
+        <div id="inv-equip-row"></div>
+        <div id="inv-char-preview"><img id="inv-char-img" alt=""></div>
+      </div>
+    </div>
+
+    <div class="tsic-close-row">
+      <button class="tsic-button" id="btn-close">Close (Esc)</button>
+    </div>
   </div>
 </div>
 <script>
@@ -68,6 +97,7 @@
     let lastUpdate = null;
     let lastEquipment = null;
     let hoveredItem = null;
+    let selectedSlot = -1;
     let charPreviewFrame = 0;
     let charPreviewTimer = null;
 
@@ -119,32 +149,46 @@
             return desc ? filter(desc) : (activeTab === 'Other' || activeTab === 'All');
         });
         const opts = {
-            maxSlots: lastUpdate.MaxSlots || 32,
+            catalog: cat,
+            selectedIdx: selectedSlot,
+            emptyLabel: 'No items in this category.',
             onHover: (it) => {
                 hoveredItem = it;
-                window.TSICInventory.renderInfoPanel(document.getElementById('inv-info'), it ? cat[it.ItemId] : null, it);
+                renderInfo(it ? cat[it.ItemId] : null, it);
                 publishHoverContext(it);
             },
             onLeave: () => {
-                hoveredItem = null;
-                window.TSICInventory.renderInfoPanel(document.getElementById('inv-info'), null);
-                publishHoverContext(null);
+                // Keep the last-hovered preview sticky on leave so the right pane
+                // doesn't blank out as the mouse moves between rows.
             },
             onClick: (it) => {
                 if (!it) return;
-                tsic.publishMessage('UI.Cmd.Inventory.Use', { OwnerId: 'Player', SlotIndex: it.SlotIndex });
+                selectedSlot = it.SlotIndex;
+                refresh();
             },
-            onRMB: (it) => {
+            onDblClick: (it) => {
                 if (!it) return;
-                if (it.Count > 1) {
-                    window.TSICInventory.openQuantityModal(it.Count, (count) => {
-                        tsic.publishMessage('UI.Cmd.Inventory.Drop', { OwnerId: 'Player', SlotIndex: it.SlotIndex, Count: count });
-                        tsic.publishMessage('UI.Cmd.Sound.Play', { SoundKey: 'Inventory.Drop', VolumeScale: 1.0 });
-                    });
-                } else {
-                    tsic.publishMessage('UI.Cmd.Inventory.Drop', { OwnerId: 'Player', SlotIndex: it.SlotIndex, Count: 1 });
-                    tsic.publishMessage('UI.Cmd.Sound.Play', { SoundKey: 'Inventory.Drop', VolumeScale: 1.0 });
+                const desc = cat[it.ItemId];
+                if (!desc) return;
+                if (desc.Category === 'Equipment') {
+                    tsic.publishMessage('UI.Cmd.Equipment.Equip', { ItemId: String(it.SlotIndex), SlotTag: '' });
+                } else if (desc.Category === 'Consumable') {
+                    tsic.publishMessage('UI.Cmd.Inventory.Use', { OwnerId: 'Player', SlotIndex: it.SlotIndex });
                 }
+                // Materials / Other: no-op (selection-only).
+            },
+            onRMB: (it, e) => {
+                if (!it) return;
+                selectedSlot = it.SlotIndex;
+                refresh();
+                if (!window.TSICContextMenu) return;
+                const entries = window.TSICInventory.buildItemContextMenu({
+                    it,
+                    desc: cat[it.ItemId],
+                    storageOpen: false,
+                    fromOwnerId: 'Player',
+                });
+                window.TSICContextMenu.open({ x: e.clientX, y: e.clientY, entries });
             },
             onDrop: (src, targetSlot) => {
                 if (src.slot === targetSlot) return;
@@ -154,7 +198,7 @@
                 });
             }
         };
-        window.TSICInventory.renderGrid(document.getElementById('inv-grid'), items, opts);
+        window.TSICInventory.renderList(document.getElementById('inv-list'), items, opts);
 
         const used = (lastUpdate.Items || []).length;
         const cur = lastUpdate.CurrentWeight || 0;
@@ -170,6 +214,18 @@
             : 'normal';
     }
 
+    function renderInfo(desc, instance) {
+        const host = document.getElementById('inv-info');
+        host.classList.remove('tsic-empty');
+        host.innerHTML = '';
+        if (!desc) {
+            host.classList.add('tsic-empty');
+            host.textContent = 'Hover an item to see details';
+            return;
+        }
+        window.TSICInventory.renderInfoPanel(host, desc, instance);
+    }
+
     function renderEquipment() {
         const host = document.getElementById('inv-equip-row');
         host.innerHTML = '';
@@ -181,15 +237,32 @@
             if (s.ItemId) {
                 const img = document.createElement('img');
                 img.src = `tex://item-icon/${encodeURIComponent(s.ItemId)}`;
-                img.style.cssText = 'width:100%;height:100%;object-fit:contain;pointer-events:none;';
                 div.appendChild(img);
-                div.title = `${label} - click to unequip`;
+                div.title = `${label} — click to unequip`;
                 div.addEventListener('click', () => {
                     tsic.publishMessage('UI.Cmd.Equipment.Unequip', { ItemId: '', SlotTag: s.SlotTag });
                 });
             } else {
                 div.textContent = label;
             }
+            // Every equipment slot accepts an inventory-row drop. The backend's
+            // RequestEquip routes the item to the slot that matches its type, so
+            // we don't pass SlotTag here — any slot drop = "try to equip".
+            div.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                div.classList.add('is-drop-target');
+            });
+            div.addEventListener('dragleave', () => div.classList.remove('is-drop-target'));
+            div.addEventListener('drop', (e) => {
+                e.preventDefault();
+                div.classList.remove('is-drop-target');
+                const raw = e.dataTransfer.getData('application/tsic-item');
+                if (!raw) return;
+                try {
+                    const src = JSON.parse(raw);
+                    tsic.publishMessage('UI.Cmd.Equipment.Equip', { ItemId: String(src.slot), SlotTag: '' });
+                } catch {}
+            });
             host.appendChild(div);
         }
     }
@@ -220,9 +293,6 @@
         tsic.on('tsic.msg.UI.CharacterPreview.Ready', (p) => {
             if (p && p.bReady) startCharPreviewPolling();
         });
-        // AddToHotbar input action opens the modal picker. Quick 0-9 keys still
-        // work via the keydown handler below for power users; the modal is the
-        // accessible / discoverable path matching UMG UHotbarSlotPicker.
         tsic.on('tsic.msg.UI.Input.IA_UI_AddToHotbar', (e) => {
             if (e.Phase !== 'Started' || !hoveredItem || !window.TSICInventory) return;
             const it = hoveredItem;
@@ -244,7 +314,6 @@
                 tsic.publishMessage('UI.Cmd.Pause.Resume', {});
             }
             if (/^[0-9]$/.test(e.key) && hoveredItem) {
-                // 1..9 -> slots 0..8, 0 -> slot 9 (C++ NumHotbarSlots == 10).
                 const slotIndex = e.key === '0' ? 9 : (parseInt(e.key, 10) - 1);
                 tsic.publishMessage('UI.Cmd.Hotbar.Assign', {
                     SlotIndex: slotIndex,

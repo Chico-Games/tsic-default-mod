@@ -1,9 +1,9 @@
-// /screens/lore.html subscribes via shared/lore.js to:
+// /screens/paper.html subscribes via shared/lore.js to:
 //   tsic.msg.UI.LoreScreen.Opened  { ScreenKind, Texts:[{Heading, Body}], InitialIndex }
 TSICPlayground.register({
     id: 'lore',
-    label: 'Lore',
-    screen: '/screens/lore.html',
+    label: 'Lore / Paper',
+    screen: '/screens/paper.html',
     initialState() { return {
         Texts: [
             { Heading: 'The Store',  Body: 'In the beginning the store was open. Always open. Always lit.' },

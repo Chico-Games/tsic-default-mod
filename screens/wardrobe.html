@@ -2,31 +2,35 @@
 <html lang="en"><head>
   <meta charset="utf-8">
   <meta name="tsic-screen" content="Wardrobe">
+  <meta name="tsic-focus" content="enabled">
   <title>Wardrobe</title>
   <link rel="stylesheet" href="/shared/base.css">
   <link rel="stylesheet" href="/shared/components.css">
   <link rel="stylesheet" href="/shared/hud.css">
   <script src="/shared/router.js" defer></script>
+  <script src="/shared/tsic-focus.js" defer></script>
+  <script src="/shared/tsic-dropdown.js" defer></script>
   <script src="/shared/hud.js" defer></script>
   <style>
-    #wardrobe-panel { width: 760px; max-height: 80vh; display:grid; grid-template-columns: 1fr 280px; gap:16px; }
-    #wardrobe-grid  { display:flex; flex-wrap:wrap; gap:6px; }
-    #wardrobe-preview { width: 280px; height: 360px; background: rgba(241,229,207,0.92); border:1px solid var(--tsic-border); }
+    #wardrobe-grid  { display:flex; flex-wrap:wrap; gap:6px; align-content:start; flex: 1 1 auto; overflow:auto; padding:8px; background: rgba(241,229,207,0.55); border:1px solid var(--tsic-border); }
+    #wardrobe-preview { flex: 1 1 auto; min-height: 240px; background: rgba(241,229,207,0.92); border:1px solid var(--tsic-border); display:flex; align-items:center; justify-content:center; }
     #wardrobe-preview img { width:100%; height:100%; object-fit:contain; }
-    #wardrobe-close { grid-column: 1 / 3; }
   </style>
 </head><body>
   <div id="root" class="tsic-modal-scrim">
-    <div id="wardrobe-panel" class="tsic-panel">
-      <div>
-        <h2 class="tsic-title">Wardrobe</h2>
-        <div id="wardrobe-grid"></div>
+    <div class="tsic-panel tsic-panel--screen">
+      <h2 class="tsic-title" style="margin:0 0 8px;">Wardrobe</h2>
+      <div class="tsic-split">
+        <div class="tsic-split-col">
+          <div class="tsic-eyebrow">Cosmetics</div>
+          <div id="wardrobe-grid"></div>
+        </div>
+        <div class="tsic-split-col">
+          <div class="tsic-eyebrow">Preview</div>
+          <div id="wardrobe-preview"><img id="wardrobe-preview-img" alt=""></div>
+        </div>
       </div>
-      <div>
-        <div class="tsic-eyebrow">Preview</div>
-        <div id="wardrobe-preview"><img id="wardrobe-preview-img" alt=""></div>
-      </div>
-      <div id="wardrobe-close" class="tsic-close-row">
+      <div class="tsic-close-row">
         <button class="tsic-button" id="btn-close">Close</button>
       </div>
     </div>

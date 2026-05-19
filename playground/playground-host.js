@@ -137,12 +137,16 @@
     }
 
     // Fixtures whose target screen has <meta name="tsic-focus" content="enabled">.
-    // Mirrored from the 14 opted-in screens so the picker can mark them.
+    // Updated when more screens opt in — currently 27.
     const FOCUS_ENGINE_IDS = new Set([
-        'main-menu', 'new-store', 'settings', 'construction',
-        'universal-storage-setup', 'boss-summoner', 'teleporter',
-        'selection', 'cage', 'save-load', 'bug-report',
-        'quantity-picker', 'pause-menu', 'credits',
+        'boss-summoner', 'bug-report', 'cage', 'cheat-menu',
+        'construction', 'crafting', 'credits', 'death-screen',
+        'equipment', 'interaction', 'inventory', 'lore',
+        'main-menu', 'mods', 'new-store', 'pause-menu',
+        'production', 'quantity-picker', 'repair', 'save-load',
+        'selection', 'settings', 'storage', 'teleporter',
+        'universal-storage', 'universal-storage-setup',
+        'upgrade', 'wardrobe',
     ]);
     NS.FOCUS_ENGINE_IDS = FOCUS_ENGINE_IDS;
 

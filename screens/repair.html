@@ -2,23 +2,28 @@
 <html lang="en"><head>
   <meta charset="utf-8">
   <meta name="tsic-screen" content="Repair">
+  <meta name="tsic-focus" content="enabled">
   <meta name="tsic-action-bar-context" content='[{"ActionName":"IA_UI_ConfirmAccept","Label":"Repair","Priority":10}]'>
   <title>Repair</title>
   <link rel="stylesheet" href="/shared/base.css">
   <link rel="stylesheet" href="/shared/components.css">
   <link rel="stylesheet" href="/shared/hud.css">
   <script src="/shared/router.js" defer></script>
+  <script src="/shared/tsic-focus.js" defer></script>
+  <script src="/shared/tsic-dropdown.js" defer></script>
   <script src="/shared/hud.js" defer></script>
   <script src="/shared/catalog.js" defer></script>
   <style>
-    #repair-panel { width: 520px; max-height: 80vh; overflow:auto; }
-    .repair-row   { display:flex; align-items:center; gap:8px; padding:6px 8px; background:rgba(241,229,207,0.55); border:1px solid var(--tsic-border); }
+    .repair-row { display:flex; align-items:center; gap:8px; padding:6px 8px; background:rgba(241,229,207,0.55); border:1px solid var(--tsic-border); }
+    .repair-row .icon { width:28px; height:28px; display:flex; align-items:center; justify-content:center; flex:0 0 auto; }
+    .repair-row .icon img { width:100%; height:100%; object-fit:contain; }
   </style>
 </head><body>
   <div id="repair-root" class="tsic-modal-scrim">
-    <div id="repair-panel" class="tsic-panel">
-      <h2 class="tsic-title">Repair</h2>
-      <div id="repair-list" class="tsic-stack tsic-stack--sm"></div>
+    <div id="repair-panel" class="tsic-panel tsic-panel--screen">
+      <h2 class="tsic-title" style="margin:0 0 8px;">Repair</h2>
+      <div class="tsic-eyebrow">Items needing repair</div>
+      <div id="repair-list" class="tsic-list-pane" style="flex:1 1 auto;"></div>
       <div class="tsic-close-row">
         <button class="tsic-button" id="btn-close">Close</button>
       </div>
@@ -43,6 +48,14 @@
         for (const it of items) {
           const row = document.createElement('div');
           row.className = 'repair-row';
+          const iconWrap = document.createElement('div');
+          iconWrap.className = 'icon';
+          if (it.ItemId) {
+            const img = document.createElement('img');
+            img.src = `tex://item-icon/${encodeURIComponent(it.ItemId)}`;
+            img.onerror = () => { img.style.visibility = 'hidden'; };
+            iconWrap.appendChild(img);
+          }
           const label = document.createElement('div');
           label.style.flex = '1';
           label.textContent = (window.tsic && window.tsic.itemName) ? window.tsic.itemName(it.ItemId) : it.ItemId;
@@ -50,6 +63,7 @@
           btn.className = 'tsic-button';
           btn.textContent = 'Repair';
           btn.onclick = () => tsic.publishMessage('UI.Cmd.Recipe.Start', { Kind: 'Repair', RecipeId: it.ItemId });
+          row.appendChild(iconWrap);
           row.appendChild(label);
           row.appendChild(btn);
           host.appendChild(row);

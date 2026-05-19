@@ -2,6 +2,7 @@
 <html lang="en"><head>
   <meta charset="utf-8">
   <meta name="tsic-screen" content="Storage">
+  <meta name="tsic-focus" content="enabled">
   <meta name="tsic-input-mode" content="InputMode.Menu.Storage">
   <meta name="tsic-action-bar-context" content='[{"ActionName":"IA_UI_ConfirmAccept","Label":"Take","Priority":10},{"ActionName":"IA_UI_TakeAll","Label":"Take All","Priority":20}]'>
   <title>Storage</title>
@@ -9,135 +10,28 @@
   <link rel="stylesheet" href="/shared/components.css">
   <link rel="stylesheet" href="/shared/hud.css">
   <script src="/shared/router.js" defer></script>
+  <script src="/shared/tsic-focus.js" defer></script>
+  <script src="/shared/tsic-dropdown.js" defer></script>
   <script src="/shared/hud.js" defer></script>
   <script src="/shared/catalog.js" defer></script>
-  <style>
-    #storage-tabs { display:flex; gap:4px; margin-bottom:6px; }
-    .storage-tab { padding:4px 10px; background:rgba(241,229,207,0.55); border:1px solid var(--tsic-border); cursor:pointer; font-size:11px; letter-spacing:1px; }
-    .storage-tab.active { background: var(--tsic-accent-dim); }
-  </style>
+  <script src="/shared/inventory.js" defer></script>
+  <script src="/shared/context-menu.js" defer></script>
+  <script src="/shared/storage-shell.js" defer></script>
 </head><body>
-  <div id="root" class="tsic-modal-scrim">
-    <div class="tsic-panel" style="width:900px;max-width:calc(100vw - 48px);max-height:80vh;overflow:auto;">
-      <h2 class="tsic-title">Storage</h2>
-      <div class="tsic-row" style="gap:24px; align-items:stretch;">
-        <div style="flex:1 1 0; min-width:0;">
-          <div class="tsic-eyebrow">Container</div>
-          <div id="storage-tabs"></div>
-          <div id="storage-grid" style="display:grid;grid-template-columns:repeat(6,56px);gap:6px;"></div>
-        </div>
-        <div style="flex:1 1 0; min-width:0;">
-          <div class="tsic-eyebrow">Your Inventory</div>
-          <div id="player-grid" style="display:grid;grid-template-columns:repeat(6,56px);gap:6px;"></div>
-        </div>
-      </div>
-      <div class="tsic-close-row">
-        <button class="tsic-button" id="btn-close">Close</button>
-      </div>
-    </div>
-  </div>
+  <div id="ss-root" class="tsic-modal-scrim"></div>
   <script>
-    (function(){
-      function whenReady(cb){ if(window.tsic){cb();return;} setTimeout(()=>whenReady(cb),16); }
-      let storageOwnerId = null;
-      let storageItems = [];
-      const TABS = [
-        { id: 'All',   filter: null },
-        { id: 'Tools', filter: c => c === 'Equipment' },
-        { id: 'Cons.', filter: c => c === 'Consumable' },
-        { id: 'Mats',  filter: c => c === 'CraftingMaterial' },
-        { id: 'Other', filter: c => !['Equipment','Consumable','CraftingMaterial'].includes(c) },
-      ];
-      let activeTab = 'All';
-
-      function categoryFor(itemId) {
-        const cat = (window.tsic && window.tsic.itemCatalog) || {};
-        const desc = cat[itemId];
-        return desc ? desc.Category : null;
+    (function () {
+      function whenReady(cb) {
+        if (window.tsic && window.TSICInventory && window.TSICStorageShell) { cb(); return; }
+        setTimeout(() => whenReady(cb), 16);
       }
-
-      function playTransferSound() {
-        try { tsic.publishMessage('UI.Cmd.Sound.Play', { SoundKey: 'Inventory.Transfer', VolumeScale: 1.0 }); } catch {}
-      }
-
-      function renderTabs() {
-        const host = document.getElementById('storage-tabs');
-        host.innerHTML = '';
-        for (const t of TABS) {
-          const div = document.createElement('div');
-          div.className = 'storage-tab' + (activeTab === t.id ? ' active' : '');
-          div.textContent = t.id;
-          div.onclick = () => { activeTab = t.id; renderStorage(); renderTabs(); };
-          host.appendChild(div);
-        }
-      }
-
-      function filterItems(items) {
-        const tab = TABS.find(t => t.id === activeTab);
-        if (!tab || !tab.filter) return items;
-        return (items || []).filter(it => tab.filter(categoryFor(it.ItemId)));
-      }
-
-      function renderInto(host, items, ownerId, otherOwnerId, slotCount) {
-        host.innerHTML = '';
-        for (let i = 0; i < slotCount; i++) {
-          const slot = document.createElement('div');
-          slot.className = 'tsic-slot';
-          slot.dataset.slot = i;
-          host.appendChild(slot);
-        }
-        for (const it of items) {
-          const idx = (typeof it.SlotIndex === 'number' && it.SlotIndex >= 0) ? it.SlotIndex : -1;
-          const slot = (idx >= 0 && idx < host.children.length) ? host.children[idx] : null;
-          if (!slot) continue;
-          if (it.IconUrl) {
-            slot.style.backgroundImage = `url(${it.IconUrl})`;
-            slot.style.backgroundSize = 'cover';
-          } else if (it.ItemId) {
-            const img = document.createElement('img');
-            img.src = `tex://item-icon/${encodeURIComponent(it.ItemId)}`;
-            img.style.cssText = 'width:100%;height:100%;object-fit:contain;pointer-events:none;';
-            slot.appendChild(img);
-          }
-          if (it.Count > 1) {
-            const c = document.createElement('span');
-            c.className = 'count';
-            c.textContent = it.Count;
-            slot.appendChild(c);
-          }
-          slot.onclick = () => {
-            if (!otherOwnerId) return;
-            tsic.publishMessage('UI.Cmd.Inventory.Transfer', {
-              FromOwnerId: ownerId,
-              ToOwnerId: otherOwnerId,
-              FromSlot: idx,
-              ToSlot: -1,
-              Count: it.Count || 1
-            });
-            playTransferSound();
-          };
-        }
-      }
-
-      function renderStorage() {
-        renderInto(document.getElementById('storage-grid'), filterItems(storageItems), storageOwnerId, 'Player', 32);
-      }
-
-      whenReady(()=>{
-        renderTabs();
-        tsic.on('tsic.msg.UI.Inventory.Updated', (p)=>{
-          if (!p || !p.OwnerId) return;
-          if (typeof p.OwnerId === 'string' && p.OwnerId.indexOf('Storage:') === 0) {
-            storageOwnerId = p.OwnerId;
-            storageItems = p.Items || [];
-            renderStorage();
-          } else if (p.OwnerId === 'Player') {
-            renderInto(document.getElementById('player-grid'), p.Items || [], 'Player', storageOwnerId, 32);
-          }
+      whenReady(() => {
+        window.TSICStorageShell.mount({
+          title: 'Storage',
+          containerEyebrow: 'Container',
+          containerOwnerIdMatch: id => typeof id === 'string' && id.indexOf('Storage:') === 0,
+          containerMaxSlots: 32,
         });
-        window.addEventListener('tsic-item-catalog', renderStorage);
-        document.getElementById('btn-close').onclick = () =>
-          tsic.publishMessage('UI.Cmd.Pause.Resume', {});
       });
     })();
   </script>
