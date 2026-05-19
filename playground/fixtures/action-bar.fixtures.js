@@ -13,11 +13,11 @@ TSICPlayground.register({
             mode: 'MouseAndKeyboard',
             abilities: { Slots: [
                 { InputName: 'IA_UI_ConfirmAccept', AbilityName: 'Pick up', SubText: 'Hammer',  StatusInt: 0, bVisible: true },
-                { InputName: 'IA_UI_Cancel',        AbilityName: 'Cancel',  SubText: '',        StatusInt: 0, bVisible: true },
+                { InputName: 'IA_UI_CancelBack',        AbilityName: 'Cancel',  SubText: '',        StatusInt: 0, bVisible: true },
             ] },
             menu: { Entries: [
                 { ActionName: 'IA_UI_ConfirmAccept', Label: 'Confirm', Priority: 10 },
-                { ActionName: 'IA_UI_Cancel',        Label: 'Cancel',  Priority: 9 },
+                { ActionName: 'IA_UI_CancelBack',        Label: 'Cancel',  Priority: 9 },
             ] },
         };
     },
@@ -35,7 +35,7 @@ TSICPlayground.register({
         { label: 'Menu empty',        apply(s) { s.menu = { Entries: [] }; } },
         { label: 'Menu crowded',      apply(s) { s.menu = { Entries: [
             { ActionName: 'IA_UI_ConfirmAccept', Label: 'Build',   Priority: 10 },
-            { ActionName: 'IA_UI_Cancel',        Label: 'Cancel',  Priority: 9 },
+            { ActionName: 'IA_UI_CancelBack',        Label: 'Cancel',  Priority: 9 },
             { ActionName: 'IA_UI_ActionBar1',    Label: 'Pick up', Priority: 8 },
             { ActionName: 'IA_UI_ActionBar2',    Label: 'Inspect', Priority: 7 },
             { ActionName: 'IA_UI_ActionBar3',    Label: 'Drop',    Priority: 6 },

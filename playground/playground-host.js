@@ -32,10 +32,15 @@
         if (!activeFixture || !activeHandle) return;
         let pairs = [];
         try { pairs = activeFixture.project(activeState) || []; }
-        catch (e) { logRow('fail', `project() threw: ${e.message}`); return; }
+        catch (e) {
+            logRow('fail', `project() threw: ${e.message}`);
+            if (global.TSICPlaygroundDebug) global.TSICPlaygroundDebug.error(`project() threw: ${e.message}`);
+            return;
+        }
         for (const [ch, payload] of pairs) {
             activeHandle.inject(ch, payload);
             logRow('inject', `← ${ch}  ${fmt(payload)}`);
+            if (global.TSICPlaygroundDebug) global.TSICPlaygroundDebug.onInject(ch, payload);
         }
     }
 
@@ -45,6 +50,7 @@
         activeFixture = fixture;
         activeState = fixture.initialState();
         location.hash = '#' + id;
+        if (global.TSICPlaygroundDebug) global.TSICPlaygroundDebug.onFixtureLoaded(fixture);
         renderScenarios();
         loadIframe();
     }
@@ -66,9 +72,14 @@
             fake.publishMessage = function (channel, payload) {
                 origPublish(channel, payload);
                 logRow('publish', `→ ${channel}  ${fmt(payload)}`);
+                if (global.TSICPlaygroundDebug) global.TSICPlaygroundDebug.onPublish(channel, payload);
                 if (typeof activeFixture.onPublish === 'function') {
                     try { activeFixture.onPublish(activeState, channel, payload); }
-                    catch (e) { logRow('fail', `onPublish threw: ${e.message}`); return; }
+                    catch (e) {
+                        logRow('fail', `onPublish threw: ${e.message}`);
+                        if (global.TSICPlaygroundDebug) global.TSICPlaygroundDebug.error(`onPublish threw: ${e.message}`);
+                        return;
+                    }
                     projectAndInject();
                 }
             };
@@ -80,6 +91,7 @@
                 };
             }
             projectAndInject();
+            if (global.TSICPlaygroundDebug) global.TSICPlaygroundDebug.onIframeReady(activeWin, activeHandle);
             // Let the input pane refresh its focus-engine readout against
             // the freshly-loaded iframe (give the page's deferred scripts
             // a beat to install tsic-focus on the mock).
@@ -112,7 +124,12 @@
             b.title = sc.description || '';
             b.addEventListener('click', () => {
                 try { sc.apply(activeState); }
-                catch (e) { logRow('fail', `scenario "${sc.label}" threw: ${e.message}`); return; }
+                catch (e) {
+                    logRow('fail', `scenario "${sc.label}" threw: ${e.message}`);
+                    if (global.TSICPlaygroundDebug) global.TSICPlaygroundDebug.error(`scenario "${sc.label}" threw: ${e.message}`);
+                    return;
+                }
+                if (global.TSICPlaygroundDebug) global.TSICPlaygroundDebug.onScenario(sc.label);
                 projectAndInject();
             });
             host.appendChild(b);
@@ -167,12 +184,16 @@
         }
         renderScreenList();
         renderTabs();
+        if (global.TSICPlaygroundDebug && el('pg-debug')) {
+            global.TSICPlaygroundDebug.mount(el('pg-debug'));
+        }
         global.TSICPlaygroundInput.mount(
             el('pg-input'),
             (channel, payload) => {
                 if (!activeWin || !activeHandle) return;
                 activeHandle.inject(channel, payload);
                 logRow('inject', `← ${channel}  ${fmt(payload)}`);
+                if (global.TSICPlaygroundDebug) global.TSICPlaygroundDebug.onInject(channel, payload);
             },
             // Diagnostic context for the focus-engine block.
             () => ({ win: activeWin, log: logRow })

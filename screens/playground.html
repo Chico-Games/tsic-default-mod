@@ -54,6 +54,30 @@
     .pg-focus-dirs { grid-template-columns: 1fr 1fr 1fr 1fr; }
     .pg-focus-dirs .pg-btn { font-size: 14px; }
 
+    /* Debug panel. */
+    .pg-dbg { display: flex; flex-direction: column; gap: 8px; font-family: 'Consolas','Cascadia Code',monospace; font-size: 11px; }
+    .pg-dbg .pg-dbg-sec { border: 1px solid #1f2937; background: rgba(15, 23, 42, 0.55); border-radius: 2px; }
+    .pg-dbg .pg-dbg-h { padding: 4px 8px; font-size: 9px; letter-spacing: 3px; color: #fbbf24; border-bottom: 1px solid #1f2937; background: #1e293b; font-family: 'Segoe UI', system-ui, sans-serif; }
+    .pg-dbg .pg-dbg-body { padding: 6px 8px; display: flex; flex-direction: column; gap: 4px; color: #cbd5e1; word-break: break-word; }
+    .pg-dbg .pg-dbg-k { color: #94a3b8; }
+    .pg-dbg code { color: #e2e8f0; }
+    .pg-dbg code.warn { color: #fbbf24; }
+    .pg-dbg .pg-dbg-list { margin: 0; padding-left: 16px; max-height: 140px; overflow: auto; }
+    .pg-dbg .pg-dbg-list li { font-size: 10px; }
+    .pg-dbg .pg-dbg-hist { list-style: none; margin: 0; padding: 0; max-height: 320px; overflow: auto; }
+    .pg-dbg .pg-dbg-hist-row { padding: 2px 0; display: flex; gap: 6px; align-items: baseline; border-bottom: 1px solid #111827; }
+    .pg-dbg .pg-dbg-hist-row .t { color: #6b7280; font-size: 9px; min-width: 70px; }
+    .pg-dbg .pg-dbg-hist-row .kind { font-size: 9px; letter-spacing: 1px; min-width: 56px; color: #94a3b8; text-transform: uppercase; }
+    .pg-dbg .pg-dbg-hist-row .msg { flex: 1; }
+    .pg-dbg .pg-dbg-publish .kind  { color: #93c5fd; }
+    .pg-dbg .pg-dbg-inject  .kind  { color: #fde68a; }
+    .pg-dbg .pg-dbg-scenario .kind { color: #f0abfc; }
+    .pg-dbg .pg-dbg-fixture  .kind { color: #86efac; }
+    .pg-dbg .pg-dbg-mode    .kind  { color: #67e8f9; }
+    .pg-dbg .pg-dbg-focus   .kind  { color: #fca5a5; }
+    .pg-dbg .pg-dbg-fail    .kind,
+    .pg-dbg .pg-dbg-error   .kind  { color: #fca5a5; }
+
     #pg-log-toolbar { display: flex; gap: 4px; margin-bottom: 4px; }
     #pg-log { flex: 1; overflow-y: auto; font-family: 'Consolas', 'Cascadia Code', monospace; font-size: 10px; border: 1px solid #1f2937; }
     .pg-log-row { padding: 2px 6px; border-bottom: 1px solid #111827; white-space: pre-wrap; word-break: break-word; }
@@ -71,6 +95,7 @@
   <script src="/playground/sim-helpers.js"></script>
   <script src="/playground/fake-inventory.js"></script>
   <script src="/playground/input-emulator.js"></script>
+  <script src="/playground/debug-panel.js"></script>
   <script src="/playground/playground-host.js"></script>
 
   <!-- Fixture files (alphabetical). -->
@@ -141,10 +166,12 @@
       <div class="pg-tabs">
         <div class="pg-tab active" data-pane="pg-scenarios-pane">SCENARIOS</div>
         <div class="pg-tab" data-pane="pg-input-pane">INPUT</div>
+        <div class="pg-tab" data-pane="pg-debug-pane">DEBUG</div>
         <div class="pg-tab" data-pane="pg-log-pane">LOG</div>
       </div>
       <div id="pg-scenarios-pane" class="pg-pane" style="display:flex;"><div id="pg-scenarios"></div></div>
       <div id="pg-input-pane" class="pg-pane"><div id="pg-input"></div></div>
+      <div id="pg-debug-pane" class="pg-pane"><div id="pg-debug"></div></div>
       <div id="pg-log-pane" class="pg-pane">
         <div id="pg-log-toolbar"><button class="pg-btn" id="pg-clearlog">Clear</button></div>
         <div id="pg-log"></div>

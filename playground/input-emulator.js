@@ -19,18 +19,18 @@
         { label: 'Right',     action: 'IA_UI_Navigate', phase: 'Started', value: { X: 1, Y: 0, Z: 0 } },
         { label: 'Confirm',   action: 'IA_UI_ConfirmAccept', phase: 'Started' },
         { label: 'Cancel',    action: 'IA_UI_CancelBack',    phase: 'Started' },
-        { label: 'Tab',       action: 'IA_UI_TabNext',       phase: 'Started' },
-        { label: 'Inv',       action: 'IA_UI_OpenInventory', phase: 'Started' },
-        { label: 'Pause',     action: 'IA_UI_Pause',         phase: 'Started' },
+        { label: 'Tab',       action: 'IA_UI_NextTab',       phase: 'Started' },
+        { label: 'Inv',       action: 'IA_OpenInventoryMenu', phase: 'Started' },
+        { label: 'Pause',     action: 'IA_OpenPauseMenu',     phase: 'Started' },
     ];
 
     const ACTION_GROUPS = [
         { group: 'Navigation', items: [
             'IA_UI_Navigate', 'IA_UI_ConfirmAccept', 'IA_UI_CancelBack',
-            'IA_UI_TabNext', 'IA_UI_TabPrev',
+            'IA_UI_NextTab', 'IA_UI_PreviousTab',
         ] },
         { group: 'Open / Close', items: [
-            'IA_UI_OpenInventory', 'IA_UI_OpenMap', 'IA_UI_Pause',
+            'IA_OpenInventoryMenu', 'IA_OpenMapMenu', 'IA_OpenPauseMenu',
         ] },
         { group: 'Inventory', items: [
             'IA_UI_AddToHotbar', 'IA_UI_DropItem', 'IA_UI_TakeAll',
@@ -45,7 +45,7 @@
         ] },
     ];
 
-    const PHASES = ['Started', 'Triggered', 'Completed', 'Ongoing', 'Canceled'];
+    const PHASES = ['Started', 'Triggered', 'Completed', 'Canceled'];
     const MODES  = [
         { value: 'MouseAndKeyboard', label: 'Mouse & Keyboard', device: 'kbm' },
         { value: 'Gamepad',          label: 'Gamepad',          device: 'gamepad' },
