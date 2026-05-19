@@ -80,6 +80,14 @@
                 };
             }
             projectAndInject();
+            // Let the input pane refresh its focus-engine readout against
+            // the freshly-loaded iframe (give the page's deferred scripts
+            // a beat to install tsic-focus on the mock).
+            setTimeout(() => {
+                if (global.TSICPlaygroundInput && global.TSICPlaygroundInput.__lastRefresh) {
+                    try { global.TSICPlaygroundInput.__lastRefresh(); } catch (e) {}
+                }
+            }, 80);
         };
         iframe.addEventListener('load', onLoad);
         iframe.src = activeFixture.screen;
@@ -159,11 +167,16 @@
         }
         renderScreenList();
         renderTabs();
-        global.TSICPlaygroundInput.mount(el('pg-input'), (channel, payload) => {
-            if (!activeWin || !activeHandle) return;
-            activeHandle.inject(channel, payload);
-            logRow('inject', `← ${channel}  ${fmt(payload)}`);
-        });
+        global.TSICPlaygroundInput.mount(
+            el('pg-input'),
+            (channel, payload) => {
+                if (!activeWin || !activeHandle) return;
+                activeHandle.inject(channel, payload);
+                logRow('inject', `← ${channel}  ${fmt(payload)}`);
+            },
+            // Diagnostic context for the focus-engine block.
+            () => ({ win: activeWin, log: logRow })
+        );
         el('pg-reload').addEventListener('click', () => { if (activeFixture) loadIframe(); });
         el('pg-dump').addEventListener('click', () => {
             if (!activeState) return;

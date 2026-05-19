@@ -43,6 +43,17 @@
     .pg-input-custom select option { color: #e2e8f0; background: #111827; }
     .pg-input-label { font-size: 11px; color: #94a3b8; min-width: 44px; letter-spacing: 1px; text-transform: uppercase; }
 
+    .pg-input-mode-bar { margin-bottom: 8px; }
+    .pg-input-mode-bar .pg-btn { width: 100%; padding: 8px; font-size: 12px; letter-spacing: 2px; text-align: center; }
+    .pg-input-mode-bar .pg-btn.on { background: #047857; border-color: #065f46; color: #ecfdf5; }
+
+    .pg-focus-block { margin-top: 12px; padding: 8px; border: 1px solid #334155; border-radius: 2px; background: rgba(30, 41, 59, 0.45); display: flex; flex-direction: column; gap: 6px; }
+    .pg-focus-h { font-size: 10px; letter-spacing: 3px; color: #fbbf24; }
+    .pg-focus-status { font-family: 'Consolas', monospace; font-size: 10px; color: #cbd5e1; word-break: break-word; }
+    .pg-focus-status.warn { color: #fbbf24; }
+    .pg-focus-dirs { grid-template-columns: 1fr 1fr 1fr 1fr; }
+    .pg-focus-dirs .pg-btn { font-size: 14px; }
+
     #pg-log-toolbar { display: flex; gap: 4px; margin-bottom: 4px; }
     #pg-log { flex: 1; overflow-y: auto; font-family: 'Consolas', 'Cascadia Code', monospace; font-size: 10px; border: 1px solid #1f2937; }
     .pg-log-row { padding: 2px 6px; border-bottom: 1px solid #111827; white-space: pre-wrap; word-break: break-word; }
