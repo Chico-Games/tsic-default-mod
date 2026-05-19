@@ -83,7 +83,7 @@
             </div>
             <div id="ss-info" class="tsic-empty">Hover an item to see details</div>
             <div class="tsic-close-row">
-                <button class="tsic-button" id="ss-close" type="button">Close (Esc)</button>
+                <button class="tsic-button" id="ss-close" type="button" data-tsic-initial-focus>Close (Esc)</button>
             </div>
         `;
     }

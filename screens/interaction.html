@@ -66,13 +66,17 @@
         if (targets.length === 0) { empty.style.display = 'block'; gP.style.display = 'none'; gA.style.display = 'none'; return; }
         empty.style.display = 'none';
         let primaryCount = 0, altCount = 0;
+        let firstRow = null;
         for (const t of targets) {
           const row = makeRow(t);
+          if (!firstRow) firstRow = row;
           if (t.bIsPrimary) { pHost.appendChild(row); primaryCount++; }
           else              { aHost.appendChild(row); altCount++; }
         }
         gP.style.display = primaryCount ? '' : 'none';
         gA.style.display = altCount     ? '' : 'none';
+        // Anchor initial focus on the first rendered row.
+        if (firstRow) firstRow.setAttribute('data-tsic-initial-focus', '');
       }
 
       whenReady(()=>{ tsic.on('tsic.msg.UI.Interaction.Targets', (p) => render(p)); });

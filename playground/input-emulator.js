@@ -203,36 +203,112 @@
         optInEl.className = 'pg-focus-status';
         fb.appendChild(optInEl);
 
-        const statusEl = document.createElement('div');
-        statusEl.className = 'pg-focus-status';
-        fb.appendChild(statusEl);
+        // One row per fact for easier scanning.
+        const rows = {};
+        const FIELDS = [
+            { key: 'mode',      label: 'Mode' },
+            { key: 'enabled',   label: 'Enabled' },
+            { key: 'focusable', label: 'Focusable' },
+            { key: 'scope',     label: 'Scope depth' },
+            { key: 'active',    label: 'Active' },
+            { key: 'text',      label: 'Text' },
+            { key: 'rect',      label: 'Position' },
+        ];
+        for (const f of FIELDS) {
+            const row = document.createElement('div');
+            row.className = 'pg-focus-row';
+            const k = document.createElement('span');
+            k.className = 'pg-focus-key';
+            k.textContent = f.label;
+            const v = document.createElement('span');
+            v.className = 'pg-focus-val';
+            v.textContent = '—';
+            row.appendChild(k);
+            row.appendChild(v);
+            rows[f.key] = v;
+            fb.appendChild(row);
+        }
+
+        // describe(): human-readable label for an element. Prefers visible
+        // text, falls back to value / placeholder / aria-label, then to tag#id.
+        function describe(el) {
+            if (!el) return '(none)';
+            if (el === el.ownerDocument.body) return '(body — no focused element)';
+            const tag = (el.tagName || '').toLowerCase();
+            // For native form elements, prefer the rendered/selected value.
+            if (tag === 'select') {
+                const opt = el.options && el.options[el.selectedIndex];
+                const optTxt = opt ? (opt.textContent || opt.value || '') : '';
+                if (optTxt) return `select "${optTxt.trim().slice(0, 40)}"`;
+            }
+            if (tag === 'input' || tag === 'textarea') {
+                const v = (el.value || '').toString();
+                const ph = el.getAttribute('placeholder') || '';
+                if (v) return `${tag} "${v.slice(0, 40)}"`;
+                if (ph) return `${tag} (placeholder: "${ph.slice(0, 30)}")`;
+                return `${tag} (empty)`;
+            }
+            // For buttons / links / list rows, the inner text is usually the label.
+            const txt = (el.textContent || '').trim().replace(/\s+/g, ' ');
+            if (txt) return `${tag} "${txt.slice(0, 50)}"`;
+            const aria = el.getAttribute('aria-label') || el.getAttribute('title') || '';
+            if (aria) return `${tag} [${aria.slice(0, 40)}]`;
+            return tag + (el.id ? '#' + el.id : '');
+        }
+        function rectStr(el) {
+            if (!el || !el.getBoundingClientRect) return '—';
+            const r = el.getBoundingClientRect();
+            return `${Math.round(r.left)},${Math.round(r.top)}  ${Math.round(r.width)}×${Math.round(r.height)}`;
+        }
+        function idStr(el) {
+            if (!el) return '—';
+            const tag = (el.tagName || '').toLowerCase();
+            const id = el.id ? '#' + el.id : '';
+            const cls = (el.className && typeof el.className === 'string')
+                ? '.' + el.className.split(/\s+/).filter(Boolean).slice(0, 2).join('.')
+                : '';
+            return tag + id + cls;
+        }
 
         function refreshFocusStatus() {
             const ctx = getCtx();
             const win = ctx.win;
-            if (!win) { optInEl.textContent = 'iframe: not loaded'; statusEl.textContent = ''; return; }
+            if (!win) {
+                optInEl.textContent = 'iframe: not loaded';
+                for (const k of Object.keys(rows)) rows[k].textContent = '—';
+                return;
+            }
             const meta = win.document && win.document.querySelector('meta[name="tsic-focus"]');
             const optedIn = !!(meta && meta.getAttribute('content') === 'enabled');
             optInEl.textContent = optedIn
-                ? 'controller nav: yes  (page opts in)'
-                : 'controller nav: no  (HUD / passive — try Pause Menu, Settings, Save/Load…)';
+                ? 'Controller nav: yes (page opts in)'
+                : 'Controller nav: no (HUD / passive — try Pause Menu, Settings, Save/Load…)';
             optInEl.classList.toggle('warn', false);
             optInEl.classList.toggle('muted', !optedIn);
             const fEngine = win.tsic && win.tsic.focus;
             if (!fEngine || typeof fEngine.snapshot !== 'function') {
-                statusEl.textContent = 'engine: not installed yet';
+                rows.mode.textContent = '—';
+                rows.enabled.textContent = optedIn ? 'engine not installed yet (deferred)' : 'engine not loaded';
+                rows.focusable.textContent = '—';
+                rows.scope.textContent = '—';
+                rows.active.textContent = '—';
+                rows.text.textContent = '—';
+                rows.rect.textContent = '—';
                 return;
             }
             try {
                 const snap = fEngine.snapshot();
-                const active = win.document && win.document.activeElement;
-                const tag = active && active !== win.document.body ? (active.tagName || '').toLowerCase() : '';
-                const id  = active && active.id ? '#' + active.id : '';
-                const activeStr = tag ? (tag + id) : '(none)';
-                statusEl.textContent =
-                    `mode=${snap.mode} · enabled=${snap.enabled} · focusable=${snap.focusable} · scope=${snap.scope} · active=${activeStr}`;
+                const focused = win.document.querySelector('[data-tsic-focused]');
+                const active = focused || (win.document.activeElement === win.document.body ? null : win.document.activeElement);
+                rows.mode.textContent      = String(snap.mode);
+                rows.enabled.textContent   = String(snap.enabled);
+                rows.focusable.textContent = String(snap.focusable);
+                rows.scope.textContent     = String(snap.scope);
+                rows.active.textContent    = idStr(active);
+                rows.text.textContent      = describe(active);
+                rows.rect.textContent      = rectStr(active);
             } catch (e) {
-                statusEl.textContent = 'snapshot threw: ' + e.message;
+                rows.mode.textContent = 'snapshot threw: ' + e.message;
             }
         }
 

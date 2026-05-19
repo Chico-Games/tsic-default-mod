@@ -66,9 +66,25 @@
     }
     function elementSummary(el) {
         if (!el) return '(none)';
-        const key = elementKey(el);
-        const txt = (el.textContent || '').trim().replace(/\s+/g, ' ').slice(0, 40);
-        return `${key}${txt ? ` "${txt}"` : ''} @ ${fmtRect(el)}`;
+        if (el.ownerDocument && el === el.ownerDocument.body) return '(body — no focused element)';
+        const tag = (el.tagName || '').toLowerCase();
+        if (tag === 'select') {
+            const opt = el.options && el.options[el.selectedIndex];
+            const t = opt ? (opt.textContent || opt.value || '') : '';
+            if (t) return `select "${t.trim().slice(0, 40)}"`;
+        }
+        if (tag === 'input' || tag === 'textarea') {
+            const v = (el.value || '').toString();
+            const ph = el.getAttribute('placeholder') || '';
+            if (v) return `${tag} "${v.slice(0, 40)}"`;
+            if (ph) return `${tag} (placeholder: "${ph.slice(0, 30)}")`;
+            return `${tag} (empty)`;
+        }
+        const txt = (el.textContent || '').trim().replace(/\s+/g, ' ');
+        if (txt) return `${tag} "${txt.slice(0, 60)}"`;
+        const aria = el.getAttribute('aria-label') || el.getAttribute('title') || '';
+        if (aria) return `${tag} [${aria.slice(0, 40)}]`;
+        return tag + (el.id ? '#' + el.id : '');
     }
     function focusOptIn(win) {
         if (!win || !win.document) return null;
@@ -182,36 +198,36 @@
 
         let snap = null;
         try { snap = engine.snapshot(); } catch (e) {}
-        if (snap) {
-            const r = document.createElement('div');
-            r.innerHTML = `<span class="pg-dbg-k">engine:</span> <code>mode=${snap.mode} enabled=${snap.enabled} scope=${snap.scope} focusable=${snap.focusable}</code>`;
-            REFS.focus.appendChild(r);
-        }
-
         const active = win.document && win.document.activeElement;
         const focused = win.document && win.document.querySelector('[data-tsic-focused]');
         const target = focused || (active && active !== win.document.body ? active : null);
 
-        const activeRow = document.createElement('div');
-        activeRow.innerHTML = `<span class="pg-dbg-k">active:</span> <code>${elementSummary(target)}</code>`;
-        REFS.focus.appendChild(activeRow);
+        function row(label, value, opts) {
+            const r = document.createElement('div');
+            r.className = 'pg-dbg-fact';
+            r.innerHTML = `<span class="pg-dbg-k">${label}</span> <code class="${opts && opts.cls || ''}">${value}</code>`;
+            REFS.focus.appendChild(r);
+        }
+        if (snap) {
+            row('Mode',         snap.mode);
+            row('Enabled',      snap.enabled);
+            row('Focusable',    snap.focusable);
+            row('Scope depth',  snap.scope);
+        }
+        row('Active',   elementKey(target));
+        row('Text',     elementSummary(target));
+        row('Position', target ? fmtRect(target) : '—');
 
         // Stable-selector breadcrumb if the engine exposes it.
         if (target && typeof engine.__stableSelector === 'function') {
             try {
                 const sel = engine.__stableSelector(target);
-                const r2 = document.createElement('div');
-                r2.innerHTML = `<span class="pg-dbg-k">selector:</span> <code>${sel || '?'}</code>`;
-                REFS.focus.appendChild(r2);
+                row('Selector', sel || '?');
             } catch (e) {}
         }
 
         // Cause attribution: how did focus end up here?
-        if (state.lastFocusCause) {
-            const r3 = document.createElement('div');
-            r3.innerHTML = `<span class="pg-dbg-k">last move:</span> <code>${state.lastFocusCause}</code>`;
-            REFS.focus.appendChild(r3);
-        }
+        if (state.lastFocusCause) row('Last move', state.lastFocusCause);
 
         // Detect a focus change since the last poll and log it.
         const key = elementKey(target);
