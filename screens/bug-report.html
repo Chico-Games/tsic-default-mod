@@ -2,6 +2,7 @@
 <html lang="en"><head>
   <meta charset="utf-8">
   <meta name="tsic-screen" content="BugReport">
+  <meta name="tsic-focus" content="enabled">
   <title>Bug Report</title>
   <link rel="stylesheet" href="/shared/base.css">
   <link rel="stylesheet" href="/shared/components.css">
@@ -30,33 +31,35 @@
     <div class="tsic-panel" style="width:460px;max-height:90vh;display:flex;flex-direction:column;">
       <h2 class="tsic-title tsic-title--sm">Report a Bug</h2>
 
-      <div class="field">
-        <label for="br-category">Category</label>
-        <select id="br-category">
-          <option value="Gameplay">Gameplay</option>
-          <option value="UI">UI</option>
-          <option value="Crash">Crash</option>
-          <option value="Other">Other</option>
-        </select>
+      <div data-tsic-focus-group="form-fields">
+        <div class="field">
+          <label for="br-category">Category</label>
+          <select id="br-category" data-tsic-focusable>
+            <option value="Gameplay">Gameplay</option>
+            <option value="UI">UI</option>
+            <option value="Crash">Crash</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="br-description">Description</label>
+          <textarea id="br-description" placeholder="What happened? Steps to reproduce…" maxlength="4000"></textarea>
+        </div>
+
+        <label class="check-row">
+          <input id="br-screenshot" type="checkbox">
+          <span>Include screenshot</span>
+        </label>
+        <label class="check-row">
+          <input id="br-log" type="checkbox">
+          <span>Include game log</span>
+        </label>
       </div>
 
-      <div class="field">
-        <label for="br-description">Description</label>
-        <textarea id="br-description" placeholder="What happened? Steps to reproduce…" maxlength="4000"></textarea>
-      </div>
-
-      <label class="check-row">
-        <input id="br-screenshot" type="checkbox">
-        <span>Include screenshot</span>
-      </label>
-      <label class="check-row">
-        <input id="br-log" type="checkbox">
-        <span>Include game log</span>
-      </label>
-
-      <div class="tsic-button-row">
+      <div class="tsic-button-row" data-tsic-focus-group="actions">
         <button class="tsic-button" id="btn-cancel">Cancel</button>
-        <button class="tsic-button" id="btn-submit">Submit</button>
+        <button class="tsic-button" id="btn-submit" data-tsic-initial-focus>Submit</button>
       </div>
     </div>
   </div>

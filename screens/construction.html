@@ -2,6 +2,7 @@
 <html lang="en"><head>
   <meta charset="utf-8">
   <meta name="tsic-screen" content="Construction">
+  <meta name="tsic-focus" content="enabled">
   <!-- InputMode.Construction is owned by UGameplayAbility_Construct (which
        Appends/Removes it on the player's input subsystem). The SPA page must
        NOT also append it: doing so would let beforeunload pull the tag out
@@ -32,8 +33,8 @@
   <!-- Sidebar of constructable items (left edge) -->
   <div id="sidebar" class="tsic-panel" style="position:fixed;left:24px;top:24px;bottom:24px;width:300px;display:flex;flex-direction:column;gap:6px;overflow:hidden;">
     <h2 class="tsic-title tsic-title--sm">Build</h2>
-    <div id="c-tabs"></div>
-    <div id="items" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:4px;"></div>
+    <div id="c-tabs" data-tsic-focus-group="category-tabs"></div>
+    <div id="items" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:4px;" data-tsic-focus-group="item-list"></div>
     <div id="c-cost"></div>
   </div>
 
@@ -44,8 +45,8 @@
   </div>
 
   <!-- Action buttons (bottom-center) -->
-  <div style="position:fixed;bottom:24px;left:50%;transform:translateX(-50%);display:flex;gap:8px;">
-    <button class="tsic-button" id="btn-confirm">Confirm</button>
+  <div style="position:fixed;bottom:24px;left:50%;transform:translateX(-50%);display:flex;gap:8px;" data-tsic-focus-group="actions">
+    <button class="tsic-button" id="btn-confirm" data-tsic-initial-focus>Confirm</button>
     <button class="tsic-button" id="btn-cancel">Cancel</button>
     <button class="tsic-button" id="btn-deconstruct">Deconstruct</button>
   </div>

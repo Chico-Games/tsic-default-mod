@@ -2,6 +2,7 @@
 <html lang="en"><head>
   <meta charset="utf-8">
   <meta name="tsic-screen" content="Teleporter">
+  <meta name="tsic-focus" content="enabled">
   <meta name="tsic-input-mode" content="InputMode.Menu.Teleporter">
   <meta name="tsic-action-bar-context" content='[{"ActionName":"IA_UI_ConfirmAccept","Label":"Travel","Priority":10}]'>
   <title>Teleporter</title>
@@ -22,14 +23,14 @@
   <div id="modal" class="tsic-modal-scrim">
     <div class="tsic-panel" style="width:420px;max-height:80vh;display:flex;flex-direction:column;">
       <h2 class="tsic-title tsic-title--sm">Teleporter</h2>
-      <div id="rename-row" class="tsic-row tsic-row--sm" style="margin-bottom:12px;">
+      <div id="rename-row" class="tsic-row tsic-row--sm" style="margin-bottom:12px;" data-tsic-focus-group="rename">
         <input id="rename-input" type="text" class="tsic-input" placeholder="Rename this teleporter…" style="flex:1;background:transparent;color: var(--cat-ink-dark);border:1px solid var(--tsic-border);padding:4px 6px;" maxlength="48">
         <button class="tsic-button" id="btn-rename">Rename</button>
       </div>
-      <div id="rows" class="tsic-stack tsic-stack--sm" style="overflow-y:auto;"></div>
+      <div id="rows" class="tsic-stack tsic-stack--sm" style="overflow-y:auto;" data-tsic-focus-group="target-list"></div>
       <div id="empty" class="tsic-empty" style="display:none;">No destinations available.</div>
-      <div class="tsic-button-row tsic-button-row--start">
-        <button class="tsic-button" id="btn-cancel">Cancel</button>
+      <div class="tsic-button-row tsic-button-row--start" data-tsic-focus-group="actions">
+        <button class="tsic-button" id="btn-cancel" data-tsic-initial-focus>Cancel</button>
       </div>
     </div>
   </div>
@@ -59,6 +60,7 @@
           const disabled = cooldown > 0;
           const row = document.createElement('button');
           row.className = 'tsic-button row' + (disabled ? ' disabled' : '');
+          if (disabled) row.disabled = true;
           const name = document.createElement('span');
           name.className = 'tp-name';
           name.textContent = dest.Label || ('Teleporter ' + dest.EntityId);
@@ -78,6 +80,7 @@
           };
           host.appendChild(row);
         }
+        if (window.tsic && window.tsic.focus) window.tsic.focus.refresh();
       }
 
       whenReady(() => {

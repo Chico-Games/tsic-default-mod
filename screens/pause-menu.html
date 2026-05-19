@@ -2,6 +2,7 @@
 <html lang="en"><head>
   <meta charset="utf-8">
   <meta name="tsic-screen" content="PauseMenu">
+  <meta name="tsic-focus" content="enabled">
   <meta name="tsic-action-bar-context" content='[{"ActionName":"IA_UI_CancelBack","Label":"Resume","Priority":1000}]'>
   <title>Paused</title>
   <link rel="stylesheet" href="/shared/base.css">
@@ -22,10 +23,12 @@
     <div id="pause-panel" class="tsic-panel">
       <h1 class="tsic-title tsic-title--lg">Paused</h1>
       <div class="pl" id="players"></div>
-      <button class="tsic-button" style="width:100%;" id="btn-resume">Resume</button>
-      <div class="tsic-row pause-btn-row" style="margin-top:8px; gap:8px;">
-        <button class="tsic-button" id="btn-settings">Settings</button>
-        <button class="tsic-button" id="btn-menu">Quit to Menu</button>
+      <div data-tsic-focus-group="nav">
+        <button class="tsic-button" style="width:100%;" id="btn-resume" data-tsic-initial-focus>Resume</button>
+        <div class="tsic-row pause-btn-row" style="margin-top:8px; gap:8px;">
+          <button class="tsic-button" id="btn-settings">Settings</button>
+          <button class="tsic-button" id="btn-menu">Quit to Menu</button>
+        </div>
       </div>
     </div>
   </div>

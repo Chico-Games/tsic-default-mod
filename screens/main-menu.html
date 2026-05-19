@@ -2,6 +2,7 @@
 <html lang="en"><head>
   <meta charset="utf-8">
   <meta name="tsic-screen" content="MainMenu">
+  <meta name="tsic-focus" content="enabled">
   <title>TSIC — Main Menu</title>
   <link rel="stylesheet" href="/shared/base.css">
   <script src="/shared/router.js" defer></script>
@@ -37,8 +38,8 @@
       <h1>TSIC</h1>
       <div class="sub">The Store Is Closed</div>
     </div>
-    <div class="buttons">
-      <button class="menu-btn" id="btn-start">Start New Game</button>
+    <div class="buttons" data-tsic-focus-group="nav">
+      <button class="menu-btn" id="btn-start" data-tsic-initial-focus>Start New Game</button>
       <button class="menu-btn" id="btn-load">Load Save</button>
       <button class="menu-btn" id="btn-mods">Mods</button>
       <button class="menu-btn" id="btn-settings">Settings</button>

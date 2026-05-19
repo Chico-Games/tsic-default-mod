@@ -2,6 +2,7 @@
 <html lang="en"><head>
   <meta charset="utf-8">
   <meta name="tsic-screen" content="Cage">
+  <meta name="tsic-focus" content="enabled">
   <title>Cage</title>
   <link rel="stylesheet" href="/shared/base.css">
   <link rel="stylesheet" href="/shared/components.css">
@@ -19,7 +20,7 @@
   <div id="modal" class="tsic-modal-scrim">
     <div class="tsic-panel" style="width:480px;max-height:80vh;display:flex;flex-direction:column;">
       <h2 class="tsic-title tsic-title--sm">Cage — Select Target</h2>
-      <div id="rows" class="tsic-stack tsic-stack--sm" style="overflow-y:auto;"></div>
+      <div id="rows" class="tsic-stack tsic-stack--sm" style="overflow-y:auto;" data-tsic-focus-group="entity-list"></div>
       <div id="empty" class="tsic-empty" style="display:none;">No cage targets available.</div>
     </div>
   </div>
@@ -43,9 +44,11 @@
           return;
         }
         empty.style.display = 'none';
+        let firstFocusable = null;
         for (const opt of options) {
           const row = document.createElement('button');
           row.className = 'tsic-button row' + (opt.bDisabled ? ' disabled' : '');
+          if (opt.bDisabled) row.disabled = true;
           if (opt.IconUrl) {
             const img = document.createElement('img');
             img.src = opt.IconUrl;
@@ -58,7 +61,10 @@
             OptionId: opt.OptionId || '',
           });
           host.appendChild(row);
+          if (!firstFocusable && !opt.bDisabled) firstFocusable = row;
         }
+        if (firstFocusable) firstFocusable.setAttribute('data-tsic-initial-focus', '');
+        if (window.tsic && window.tsic.focus) window.tsic.focus.refresh();
       }
 
       whenReady(()=>{

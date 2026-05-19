@@ -2,6 +2,7 @@
 <html lang="en"><head>
   <meta charset="utf-8">
   <meta name="tsic-screen" content="UniversalStorageSetup">
+  <meta name="tsic-focus" content="enabled">
   <meta name="tsic-action-bar-context" content='[{"ActionName":"IA_UI_ConfirmAccept","Label":"Bind","Priority":10}]'>
   <title>Universal Storage Setup</title>
   <link rel="stylesheet" href="/shared/base.css">
@@ -25,10 +26,10 @@
     <div id="uss-panel" class="tsic-panel">
       <h2 class="tsic-title" style="margin:0;">Universal Storage</h2>
       <p class="tsic-meta" style="margin:6px 0 0;">Bind this storage to a group or create a new one.</p>
-      <div id="uss-list"></div>
-      <div class="tsic-button-row">
+      <div id="uss-list" data-tsic-focus-group="entity-list"></div>
+      <div class="tsic-button-row" data-tsic-focus-group="actions">
         <button class="tsic-button" id="btn-cancel">Cancel</button>
-        <button class="tsic-button" id="btn-new">Create new…</button>
+        <button class="tsic-button" id="btn-new" data-tsic-initial-focus>Create new…</button>
       </div>
     </div>
   </div>

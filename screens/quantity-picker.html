@@ -2,6 +2,7 @@
 <html lang="en"><head>
   <meta charset="utf-8">
   <meta name="tsic-screen" content="QuantityPicker">
+  <meta name="tsic-focus" content="enabled">
   <title>Quantity Picker</title>
   <link rel="stylesheet" href="/shared/base.css">
   <link rel="stylesheet" href="/shared/components.css">
@@ -19,13 +20,13 @@
   <div id="modal" class="tsic-modal-scrim">
     <div class="tsic-panel" style="width:360px;">
       <h2 class="tsic-title">Quantity</h2>
-      <div class="row">
+      <div class="row" data-tsic-focus-group="value-row">
         <input id="slider" type="range" min="1" max="99" value="1">
         <input id="num" type="number" min="1" max="99" value="1">
       </div>
-      <div class="tsic-button-row">
+      <div class="tsic-button-row" data-tsic-focus-group="actions">
         <button class="tsic-button" id="btn-cancel">Cancel</button>
-        <button class="tsic-button" id="btn-confirm">Confirm</button>
+        <button class="tsic-button" id="btn-confirm" data-tsic-initial-focus>Confirm</button>
       </div>
     </div>
   </div>

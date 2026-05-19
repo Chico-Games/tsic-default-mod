@@ -2,6 +2,7 @@
 <html lang="en"><head>
   <meta charset="utf-8">
   <meta name="tsic-screen" content="NewStore">
+  <meta name="tsic-focus" content="enabled">
   <meta name="tsic-action-bar-context" content='[]'>
   <title>New Game</title>
   <link rel="stylesheet" href="/shared/base.css">
@@ -45,22 +46,24 @@
   <div class="wrap">
     <h1>New Game</h1>
 
-    <label>Store Name</label>
-    <input id="store-name" type="text" maxlength="40" />
+    <div data-tsic-focus-group="fields">
+      <label>Store Name</label>
+      <input id="store-name" type="text" maxlength="40" />
 
-    <label>Player Name</label>
-    <input id="player-name" type="text" maxlength="40" />
+      <label>Player Name</label>
+      <input id="player-name" type="text" maxlength="40" />
 
-    <label>Layout</label>
-    <div class="layouts" id="layouts"></div>
+      <label>Layout</label>
+      <div class="layouts" id="layouts" data-tsic-focus-group="layouts"></div>
 
-    <label>Active Mods</label>
-    <div class="mods" id="mods"></div>
-    <span class="manage-link" id="link-manage">Manage Mods →</span>
+      <label>Active Mods</label>
+      <div class="mods" id="mods" data-tsic-focus-group="mods"></div>
+      <span class="manage-link" id="link-manage" data-tsic-focusable tabindex="0">Manage Mods →</span>
+    </div>
 
-    <div class="actions">
+    <div class="actions" data-tsic-focus-group="actions">
       <button class="tsic-button" id="btn-back">Back</button>
-      <button class="tsic-button" id="btn-create" disabled>Create</button>
+      <button class="tsic-button" id="btn-create" data-tsic-initial-focus disabled>Create</button>
     </div>
   </div>
   <script>
