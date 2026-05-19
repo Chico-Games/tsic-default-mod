@@ -8,10 +8,14 @@
   position: absolute; left: 50%; bottom: 18%;
   transform: translateX(-50%);
   padding: 8px 14px;
-  background: var(--tsic-bg-strong);
-  border: 1px solid var(--tsic-border);
-  border-radius: 3px;
-  font-size: 14px;
+  background: rgba(241, 229, 207, 0.92);
+  border: 1px solid var(--cat-border);
+  color: var(--cat-ink);
+  font-family: Georgia, "Libre Baskerville", serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 /* Toast container is fixed top-right; built by hud.js with inline layout. */
@@ -19,18 +23,20 @@
   min-width: 220px;
   max-width: 360px;
   padding: 8px 12px;
-  background: rgba(0, 0, 0, 0.78);
-  border-left: 3px solid var(--tsic-accent, #e0c060);
-  color: #fff;
-  font-size: 13px;
-  letter-spacing: 0.5px;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.9);
+  background: rgba(241, 229, 207, 0.92);
+  border-left: 3px solid var(--cat-green);
+  color: var(--cat-ink-dark);
+  font-family: Georgia, "Libre Baskerville", serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
   pointer-events: auto;
   animation: tsic-toast-in 200ms ease-out;
 }
-.toast--info    { border-left-color: #6fb4ff; }
-.toast--warning { border-left-color: #f5b347; }
-.toast--error   { border-left-color: #e0533a; }
+.toast--info    { border-left-color: var(--cat-green); }
+.toast--warning { border-left-color: #b58a00; }
+.toast--error   { border-left-color: var(--cat-red); }
 @keyframes tsic-toast-in {
   from { transform: translateX(20px); opacity: 0; }
   to   { transform: translateX(0);    opacity: 1; }

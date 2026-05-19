@@ -8,30 +8,30 @@
   <link rel="stylesheet" href="/shared/components.css">
   <script src="/shared/router.js" defer></script>
   <style>
-    html, body { background: rgba(0,0,0,0.8); color: #f4f4f4; }
+    html, body { background: rgba(35,31,24,0.50); color: #f4f4f4; }
     .wrap { max-width: 720px; margin: 0 auto; padding: 48px 64px; }
     h1 { letter-spacing: 12px; font-weight: 200; font-size: 36px;
          text-transform: uppercase; margin: 0 0 32px; }
     label { display:block; letter-spacing: 4px; text-transform: uppercase;
             font-size: 11px; opacity: 0.7; margin: 16px 0 6px; }
     input[type=text] { width: 100%; padding: 10px 12px;
-            background: rgba(0,0,0,0.45);
-            border: 1px solid rgba(255,255,255,0.25);
-            color: #fff; font: inherit; }
+            background: rgba(241,229,207,0.88);
+            border: 1px solid rgba(184,170,145,0.45);
+            color: var(--cat-ink-dark); font: inherit; }
     .layouts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-    .layout { padding: 10px; border: 1px solid rgba(255,255,255,0.2);
-              background: rgba(0,0,0,0.35); cursor: pointer; }
+    .layout { padding: 10px; border: 1px solid rgba(184,170,145,0.45);
+              background: rgba(241,229,207,0.78); cursor: pointer; }
     .layout.selected { border-color: rgba(180,30,30,0.85);
               background: rgba(180,30,30,0.18); }
     .layout img { width: 100%; aspect-ratio: 1; object-fit: cover;
               background: #222; }
     .layout .name { margin-top: 6px; font-size: 12px; letter-spacing: 2px; }
     .mods { display: flex; flex-direction: column; gap: 4px;
-            border: 1px solid rgba(255,255,255,0.15); padding: 8px; }
+            border: 1px solid rgba(241,229,207,0.60); padding: 8px; }
     .mod-row { display: flex; align-items: center; gap: 8px; padding: 4px 0; }
     .mod-row .name { flex: 1; }
-    .mod-row button { background: rgba(0,0,0,0.45);
-            border: 1px solid rgba(255,255,255,0.2); color: #fff;
+    .mod-row button { background: rgba(241,229,207,0.88);
+            border: 1px solid rgba(184,170,145,0.45); color: var(--cat-ink-dark);
             padding: 2px 8px; cursor: pointer; }
     .actions { margin-top: 24px; display: flex; justify-content: space-between; }
     .manage-link { display: inline-block; margin-top: 6px;

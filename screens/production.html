@@ -13,18 +13,18 @@
   <script src="/shared/catalog.js" defer></script>
   <script src="/shared/recipe-info.js" defer></script>
   <style>
-    #p-root { position:fixed; inset:0; background: rgba(0,0,0,0.65); display:flex; align-items:center; justify-content:center; }
+    #p-root { position:fixed; inset:0; background: rgba(35,31,24,0.35); display:flex; align-items:center; justify-content:center; }
     #p-panel { width: 880px; max-height: 80vh; display:grid; grid-template-columns: 240px 220px 1fr; gap:12px; }
     #p-list, #p-queue { display:flex; flex-direction:column; gap:4px; max-height:520px; overflow-y:auto; }
-    .p-row { display:flex; align-items:center; gap:8px; padding:6px 8px; background: rgba(255,255,255,0.04); border:1px solid var(--tsic-border); cursor:pointer; }
+    .p-row { display:flex; align-items:center; gap:8px; padding:6px 8px; background: rgba(241,229,207,0.55); border:1px solid var(--tsic-border); cursor:pointer; }
     .p-row.selected { background: var(--tsic-accent-dim); }
     .p-row.locked { opacity:0.45; }
     .p-row img { width:24px; height:24px; object-fit:contain; }
-    .q-entry { padding:6px; background: rgba(255,255,255,0.04); border:1px solid var(--tsic-border); }
-    .q-bar { height:6px; background: rgba(255,255,255,0.08); margin-top:4px; }
+    .q-entry { padding:6px; background: rgba(241,229,207,0.55); border:1px solid var(--tsic-border); }
+    .q-bar { height:6px; background: rgba(241,229,207,0.55); margin-top:4px; }
     .q-bar > div { height:100%; background:#7fd4ff; transition: width 0.15s; }
     .q-bar.active > div { background:#7fffae; }
-    #p-info { padding:10px; background: rgba(0,0,0,0.4); border:1px solid var(--tsic-border); }
+    #p-info { padding:10px; background: rgba(241,229,207,0.88); border:1px solid var(--tsic-border); }
     #p-add { width:100%; margin-top:12px; padding:8px; }
     #p-add:disabled { opacity:0.4; cursor:not-allowed; }
     #p-throb { display:none; font-size:10px; opacity:0.6; letter-spacing:2px; }

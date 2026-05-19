@@ -9,7 +9,7 @@
   <script src="/shared/router.js" defer></script>
   <script src="/shared/hud.js" defer></script>
 </head><body>
-  <div id="root" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.65);">
+  <div id="root" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(35,31,24,0.35);">
     <div class="tsic-panel" style="width:520px;max-height:80vh;overflow:auto;">
       <h2 style="margin:0 0 12px;letter-spacing:3px;">EQUIPMENT</h2>
       <div id="grid" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
@@ -35,12 +35,12 @@
               slot.style.backgroundSize = 'cover';
             } else {
               const label = document.createElement('div');
-              label.style.cssText = 'font-size:9px;color:#bbb;padding:2px;word-break:break-all;';
+              label.style.cssText = 'font-size:9px;color: var(--cat-ink-soft);padding:2px;word-break:break-all;';
               label.textContent = s.SlotTag || '';
               slot.appendChild(label);
               if (s.ItemId) {
                 const item = document.createElement('div');
-                item.style.cssText = 'font-size:9px;color:#fff;padding:2px;word-break:break-all;';
+                item.style.cssText = 'font-size:9px;color: var(--cat-ink-dark);padding:2px;word-break:break-all;';
                 item.textContent = s.ItemId;
                 slot.appendChild(item);
               }

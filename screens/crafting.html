@@ -13,14 +13,14 @@
   <script src="/shared/catalog.js" defer></script>
   <script src="/shared/recipe-info.js" defer></script>
   <style>
-    #c-root { position:fixed; inset:0; background: rgba(0,0,0,0.65); display:flex; align-items:center; justify-content:center; }
+    #c-root { position:fixed; inset:0; background: rgba(35,31,24,0.35); display:flex; align-items:center; justify-content:center; }
     #c-panel { width: 720px; max-height: 80vh; display:grid; grid-template-columns: 280px 1fr; gap:12px; }
     #c-list { display:flex; flex-direction:column; gap:4px; max-height: 600px; overflow-y:auto; }
-    .c-row { display:flex; align-items:center; gap:8px; padding:6px 8px; background: rgba(255,255,255,0.04); border:1px solid var(--tsic-border); cursor:pointer; }
+    .c-row { display:flex; align-items:center; gap:8px; padding:6px 8px; background: rgba(241,229,207,0.55); border:1px solid var(--tsic-border); cursor:pointer; }
     .c-row.selected { background: var(--tsic-accent-dim); }
     .c-row.locked { opacity:0.45; }
     .c-row img { width:32px; height:32px; object-fit:contain; }
-    #c-info { padding: 10px; background: rgba(0,0,0,0.4); border:1px solid var(--tsic-border); min-height:200px; }
+    #c-info { padding: 10px; background: rgba(241,229,207,0.88); border:1px solid var(--tsic-border); min-height:200px; }
     #c-craft { width: 100%; margin-top:12px; padding: 8px; }
     #c-craft:disabled { opacity:0.4; cursor:not-allowed; }
   </style>

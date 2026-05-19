@@ -9,7 +9,7 @@
   <script src="/shared/router.js" defer></script>
   <script src="/shared/hud.js" defer></script>
   <style>
-    #hotbar-row { display:flex; gap:6px; padding: 8px; background: rgba(0,0,0,0.5); border-radius: 4px; }
+    #hotbar-row { display:flex; gap:6px; padding: 8px; background: rgba(241,229,207,0.92); border-radius: 4px; }
     #hotbar-row .tsic-slot.selected { box-shadow: 0 0 0 2px var(--tsic-accent); }
   </style>
 </head><body>
@@ -31,7 +31,7 @@
             const itemId = slots[i];
             if (itemId !== undefined && itemId !== null && itemId >= 0) {
               const lbl = document.createElement('div');
-              lbl.style.cssText = 'font-size:10px;color:#fff;padding:2px;';
+              lbl.style.cssText = 'font-size:10px;color: var(--cat-ink-dark);padding:2px;';
               lbl.textContent = '#' + itemId;
               slot.appendChild(lbl);
             }

@@ -11,7 +11,7 @@
   <script src="/shared/router.js" defer></script>
   <script src="/shared/hud.js" defer></script>
   <style>
-    #modal { position:fixed; inset:0; background:rgba(0,0,0,0.7); display:flex; align-items:center; justify-content:center; }
+    #modal { position:fixed; inset:0; background:rgba(35,31,24,0.45); display:flex; align-items:center; justify-content:center; }
     .row { display:flex; align-items:center; gap:10px; justify-content:space-between; padding:8px 12px; text-align:left; width:100%; }
     .row.disabled { opacity:0.4; pointer-events:none; }
     .tp-name { flex:1 1 auto; }
@@ -22,7 +22,7 @@
     <div class="tsic-panel" style="width:420px;max-height:80vh;display:flex;flex-direction:column;">
       <h2 style="margin:0 0 12px;letter-spacing:3px;font-size:14px;">TELEPORTER</h2>
       <div id="rename-row" style="display:flex;gap:6px;margin-bottom:12px;">
-        <input id="rename-input" type="text" class="tsic-input" placeholder="Rename this teleporter…" style="flex:1;background:transparent;color:#eee;border:1px solid var(--tsic-border);padding:4px 6px;" maxlength="48">
+        <input id="rename-input" type="text" class="tsic-input" placeholder="Rename this teleporter…" style="flex:1;background:transparent;color: var(--cat-ink-dark);border:1px solid var(--tsic-border);padding:4px 6px;" maxlength="48">
         <button class="tsic-button" id="btn-rename">Rename</button>
       </div>
       <div id="rows" style="display:flex;flex-direction:column;gap:6px;overflow-y:auto;"></div>

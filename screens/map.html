@@ -12,8 +12,8 @@
   <style>
     #map-root {
       position: fixed; inset: 0;
-      background: #050505;
-      color: var(--tsic-text-dim);
+      background: #d4c19d;
+      color: var(--cat-ink-soft);
       font-family: 'Consolas', monospace;
       display: flex; flex-direction: column;
       overflow: hidden;
@@ -22,7 +22,7 @@
       letter-spacing: 4px; font-size: 14px;
       padding: 10px 16px;
       border-bottom: 1px solid var(--tsic-border);
-      background: rgba(0,0,0,0.6);
+      background: rgba(35,31,24,0.35);
       flex: 0 0 auto;
     }
     #map-viewport {
@@ -61,7 +61,7 @@
       font-size: 11px;
       letter-spacing: 2px;
       border-top: 1px solid var(--tsic-border);
-      background: rgba(0,0,0,0.6);
+      background: rgba(35,31,24,0.35);
       display: flex; gap: 18px; flex-wrap: wrap;
     }
     #legend .swatch { display:inline-block; width:10px; height:10px; vertical-align:middle; margin-right:4px; }
@@ -70,7 +70,7 @@
       position: absolute; inset: 0;
       display: flex; align-items: center; justify-content: center;
       pointer-events: none;
-      color: var(--tsic-text-dim);
+      color: var(--cat-ink-soft);
     }
     /* Gamepad crosshair — hidden by default; shown via .pad-cursor on viewport. */
     #pad-cursor {
@@ -81,7 +81,7 @@
       box-shadow: 0 0 4px rgba(255,204,0,0.6);
     }
     #map-viewport.pad-cursor #pad-cursor { display: block; }
-    .ic-cluster { fill: rgba(0,0,0,0.65); stroke: #ffffff; }
+    .ic-cluster { fill: rgba(35,31,24,0.35); stroke: #ffffff; }
     .ic-cluster-text { fill: #ffffff; font-family: 'Consolas', monospace; font-size: 14px; }
   </style>
 </head><body>

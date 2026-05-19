@@ -8,36 +8,36 @@
   <link rel="stylesheet" href="/shared/components.css">
   <script src="/shared/router.js" defer></script>
   <style>
-    html, body { background: rgba(0,0,0,0.85); color: #f4f4f4; }
+    html, body { background: rgba(35,31,24,0.50); color: #f4f4f4; }
     .wrap { max-width: 1024px; margin: 0 auto; padding: 32px 48px; }
     h1 { letter-spacing: 12px; font-weight: 200; font-size: 36px;
          text-transform: uppercase; margin: 0 0 24px; }
-    .panel { border: 1px solid rgba(255,255,255,0.18);
-             background: rgba(0,0,0,0.4); padding: 16px; margin-bottom: 16px; }
+    .panel { border: 1px solid rgba(241,229,207,0.60);
+             background: rgba(241,229,207,0.88); padding: 16px; margin-bottom: 16px; }
     .auth-strip { display: flex; justify-content: space-between; align-items: center; }
-    .auth-strip input { background: rgba(0,0,0,0.45);
-             border: 1px solid rgba(255,255,255,0.25);
-             color: #fff; padding: 8px 12px; font: inherit; margin-right: 8px; }
-    .auth-strip button { background: rgba(0,0,0,0.6);
-             border: 1px solid rgba(255,255,255,0.35); color: #fff;
+    .auth-strip input { background: rgba(241,229,207,0.88);
+             border: 1px solid rgba(184,170,145,0.45);
+             color: var(--cat-ink-dark); padding: 8px 12px; font: inherit; margin-right: 8px; }
+    .auth-strip button { background: rgba(35,31,24,0.35);
+             border: 1px solid rgba(255,255,255,0.35); color: var(--cat-ink-dark);
              padding: 8px 16px; cursor: pointer; font: inherit; }
     .auth-strip button:hover { background: rgba(180,30,30,0.55); }
     .error { color: #ef6c6c; font-size: 12px; margin-top: 6px; }
     .browse { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-    .card { border: 1px solid rgba(255,255,255,0.2);
-             background: rgba(0,0,0,0.4); padding: 8px; }
+    .card { border: 1px solid rgba(184,170,145,0.45);
+             background: rgba(241,229,207,0.88); padding: 8px; }
     .card .logo { width: 100%; aspect-ratio: 16 / 9; background: #222; }
     .card .name { font-weight: bold; margin-top: 6px; }
     .card .summary { font-size: 12px; opacity: 0.75; margin: 6px 0; }
-    .card-sub { background: rgba(0,0,0,0.6);
-             border: 1px solid rgba(255,255,255,0.35); color: #fff;
+    .card-sub { background: rgba(35,31,24,0.35);
+             border: 1px solid rgba(255,255,255,0.35); color: var(--cat-ink-dark);
              padding: 4px 10px; cursor: pointer; font: inherit; }
     .card-sub:disabled { opacity: 0.4; cursor: default; }
     .installed-list { display: flex; flex-direction: column; gap: 4px; }
     .installed-row { display: flex; align-items: center; gap: 8px; padding: 4px 0; }
     .installed-row .name { flex: 1; }
-    .installed-row button { background: rgba(0,0,0,0.45);
-             border: 1px solid rgba(255,255,255,0.2); color: #fff;
+    .installed-row button { background: rgba(241,229,207,0.88);
+             border: 1px solid rgba(184,170,145,0.45); color: var(--cat-ink-dark);
              padding: 2px 8px; cursor: pointer; }
     .actions { margin-top: 24px; }
   </style>
@@ -75,9 +75,9 @@
       <div class="auth-strip" style="margin-bottom:8px;">
         <div>
           <input id="search" type="text" placeholder="Search mods…" style="width:300px;">
-          <select id="sort" style="background:rgba(0,0,0,0.45);
-                                   border:1px solid rgba(255,255,255,0.25);
-                                   color:#fff; padding:8px;">
+          <select id="sort" style="background:rgba(241,229,207,0.88);
+                                   border:1px solid rgba(184,170,145,0.45);
+                                   color: var(--cat-ink-dark); padding:8px;">
             <option value="popular">Popular</option>
             <option value="-date_added">Recently Added</option>
             <option value="-downloads_total">Most Downloaded</option>
@@ -89,8 +89,8 @@
       </div>
       <div class="browse" id="browse"></div>
       <div style="text-align:center; margin-top:10px;">
-        <button id="btn-loadmore" style="background:rgba(0,0,0,0.5);
-                  border:1px solid rgba(255,255,255,0.3); color:#fff;
+        <button id="btn-loadmore" style="background:rgba(241,229,207,0.92);
+                  border:1px solid rgba(255,255,255,0.3); color: var(--cat-ink-dark);
                   padding:6px 16px; cursor:pointer; display:none;">Load more</button>
       </div>
     </div>
@@ -186,8 +186,8 @@
         const b = document.createElement('span');
         b.textContent = t;
         b.style.cssText = `padding:2px 8px; margin-left:4px; cursor:pointer;
-          border:1px solid rgba(255,255,255,0.25);
-          background:${activeTags.has(t) ? 'rgba(180,30,30,0.45)' : 'rgba(0,0,0,0.4)'};`;
+          border:1px solid rgba(184,170,145,0.45);
+          background:${activeTags.has(t) ? 'rgba(180,30,30,0.45)' : 'rgba(241,229,207,0.88)'};`;
         b.onclick = () => {
           if (activeTags.has(t)) activeTags.delete(t); else activeTags.add(t);
           renderTagChips();
