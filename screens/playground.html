@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="tsic-screen" content="Playground">
+  <title>TSIC SPA Playground</title>
+  <style>
+    html, body { margin: 0; padding: 0; height: 100%; background: #0a0a0a; color: #e2e8f0; font-family: 'Segoe UI', system-ui, sans-serif; }
+    #root { display: grid; grid-template-columns: 240px 1fr 380px; height: 100vh; }
+    #screens { border-right: 1px solid #1f2937; overflow: hidden; display: flex; flex-direction: column; }
+    #screens h1 { font-size: 11px; letter-spacing: 3px; padding: 12px; margin: 0; color: #fbbf24; border-bottom: 1px solid #1f2937; }
+    #pg-filter { margin: 8px; padding: 4px 8px; background: #111827; color: #e2e8f0; border: 1px solid #1f2937; font-size: 12px; outline: none; }
+    #pg-filter:focus { border-color: #374151; }
+    #pg-screens { flex: 1; overflow-y: auto; }
+    .pg-scn { padding: 6px 12px; font-size: 12px; cursor: pointer; border-bottom: 1px solid #111827; }
+    .pg-scn:hover { background: #111827; }
+    .pg-scn.active { background: #1e293b; color: #fbbf24; }
+
+    #viewer { display: flex; flex-direction: column; min-width: 0; }
+    #toolbar { padding: 6px 12px; border-bottom: 1px solid #1f2937; font-size: 12px; display: flex; gap: 8px; align-items: center; }
+    #toolbar button { background: #1f2937; color: #e2e8f0; border: 1px solid #374151; padding: 4px 10px; font-size: 11px; cursor: pointer; }
+    #toolbar button:hover { background: #374151; }
+    #pg-iframe-wrap { flex: 1; background: #d4c19d; min-height: 0; }
+    #pg-iframe { width: 100%; height: 100%; border: 0; background: transparent; }
+
+    #side { border-left: 1px solid #1f2937; display: flex; flex-direction: column; min-width: 0; }
+    .pg-tabs { display: flex; border-bottom: 1px solid #1f2937; }
+    .pg-tab { flex: 1; padding: 8px 12px; cursor: pointer; font-size: 11px; letter-spacing: 2px; text-align: center; border-right: 1px solid #1f2937; user-select: none; }
+    .pg-tab:last-child { border-right: 0; }
+    .pg-tab.active { background: #1e293b; color: #fbbf24; }
+    .pg-pane { flex: 1; padding: 8px; overflow-y: auto; display: none; flex-direction: column; gap: 6px; min-height: 0; }
+
+    .pg-btn { background: #1f2937; color: #e2e8f0; border: 1px solid #374151; padding: 6px 10px; font-size: 11px; cursor: pointer; text-align: left; font-family: inherit; }
+    .pg-btn:hover { background: #374151; }
+    .pg-btn-strong { background: #b45309; border-color: #92400e; }
+    .pg-btn-strong:hover { background: #d97706; }
+
+    .pg-input-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4px; }
+    .pg-input-grid .pg-btn { text-align: center; }
+    .pg-input-custom { display: flex; gap: 4px; margin-top: 8px; }
+    .pg-input-custom input { flex: 1; background: #111827; color: #e2e8f0; border: 1px solid #374151; padding: 4px 6px; font-size: 11px; outline: none; }
+
+    #pg-log-toolbar { display: flex; gap: 4px; margin-bottom: 4px; }
+    #pg-log { flex: 1; overflow-y: auto; font-family: 'Consolas', 'Cascadia Code', monospace; font-size: 10px; border: 1px solid #1f2937; }
+    .pg-log-row { padding: 2px 6px; border-bottom: 1px solid #111827; white-space: pre-wrap; word-break: break-word; }
+    .pg-log-row.inject { color: #fde68a; }
+    .pg-log-row.publish { color: #93c5fd; }
+    .pg-log-row.info { color: #cbd5e1; }
+    .pg-log-row.fail { color: #fca5a5; }
+  </style>
+
+  <!-- Reuses the existing mock-tsic. -->
+  <script src="/shared/test-harness.js"></script>
+
+  <!-- Playground runtime. -->
+  <script src="/playground/registry.js"></script>
+  <script src="/playground/sim-helpers.js"></script>
+  <script src="/playground/input-emulator.js"></script>
+  <script src="/playground/playground-host.js"></script>
+
+  <!-- Fixture files (alphabetical). -->
+  <!-- FIXTURES-START -->
+  <script src="/playground/fixtures/action-bar.fixtures.js"></script>
+  <script src="/playground/fixtures/boss-summoner.fixtures.js"></script>
+  <script src="/playground/fixtures/bug-report.fixtures.js"></script>
+  <script src="/playground/fixtures/cage.fixtures.js"></script>
+  <script src="/playground/fixtures/chat.fixtures.js"></script>
+  <script src="/playground/fixtures/cheat-menu.fixtures.js"></script>
+  <script src="/playground/fixtures/circular-progress.fixtures.js"></script>
+  <script src="/playground/fixtures/construction.fixtures.js"></script>
+  <script src="/playground/fixtures/construction-carousel.fixtures.js"></script>
+  <script src="/playground/fixtures/crafting.fixtures.js"></script>
+  <script src="/playground/fixtures/credits.fixtures.js"></script>
+  <script src="/playground/fixtures/crosshair.fixtures.js"></script>
+  <script src="/playground/fixtures/death-screen.fixtures.js"></script>
+  <script src="/playground/fixtures/detection.fixtures.js"></script>
+  <script src="/playground/fixtures/equipment.fixtures.js"></script>
+  <script src="/playground/fixtures/health-bar.fixtures.js"></script>
+  <script src="/playground/fixtures/hotbar.fixtures.js"></script>
+  <script src="/playground/fixtures/interaction.fixtures.js"></script>
+  <script src="/playground/fixtures/inventory.fixtures.js"></script>
+  <script src="/playground/fixtures/loading-screen.fixtures.js"></script>
+  <script src="/playground/fixtures/lore.fixtures.js"></script>
+  <script src="/playground/fixtures/main-menu.fixtures.js"></script>
+  <script src="/playground/fixtures/map.fixtures.js"></script>
+  <script src="/playground/fixtures/mods.fixtures.js"></script>
+  <script src="/playground/fixtures/new-store.fixtures.js"></script>
+  <script src="/playground/fixtures/notifications.fixtures.js"></script>
+  <script src="/playground/fixtures/pause-menu.fixtures.js"></script>
+  <script src="/playground/fixtures/ping.fixtures.js"></script>
+  <script src="/playground/fixtures/ping-markers.fixtures.js"></script>
+  <script src="/playground/fixtures/player-indicators.fixtures.js"></script>
+  <script src="/playground/fixtures/production.fixtures.js"></script>
+  <script src="/playground/fixtures/quantity-picker.fixtures.js"></script>
+  <script src="/playground/fixtures/repair.fixtures.js"></script>
+  <script src="/playground/fixtures/save-load.fixtures.js"></script>
+  <script src="/playground/fixtures/selection.fixtures.js"></script>
+  <script src="/playground/fixtures/settings.fixtures.js"></script>
+  <script src="/playground/fixtures/stamina-bar.fixtures.js"></script>
+  <script src="/playground/fixtures/stomach.fixtures.js"></script>
+  <script src="/playground/fixtures/storage.fixtures.js"></script>
+  <script src="/playground/fixtures/teleporter.fixtures.js"></script>
+  <script src="/playground/fixtures/universal-storage.fixtures.js"></script>
+  <script src="/playground/fixtures/universal-storage-setup.fixtures.js"></script>
+  <script src="/playground/fixtures/upgrade.fixtures.js"></script>
+  <script src="/playground/fixtures/voice-chat.fixtures.js"></script>
+  <script src="/playground/fixtures/wardrobe.fixtures.js"></script>
+  <!-- FIXTURES-END -->
+
+</head><body>
+  <div id="root">
+    <div id="screens">
+      <h1>SCREENS</h1>
+      <input id="pg-filter" placeholder="filter…">
+      <div id="pg-screens"></div>
+    </div>
+    <div id="viewer">
+      <div id="toolbar">
+        <button id="pg-reload">Reload</button>
+        <button id="pg-dump">Dump state</button>
+        <button id="pg-subscribed">Subscribed</button>
+      </div>
+      <div id="pg-iframe-wrap"><iframe id="pg-iframe" src="about:blank"></iframe></div>
+    </div>
+    <div id="side">
+      <div class="pg-tabs">
+        <div class="pg-tab active" data-pane="pg-scenarios-pane">SCENARIOS</div>
+        <div class="pg-tab" data-pane="pg-input-pane">INPUT</div>
+        <div class="pg-tab" data-pane="pg-log-pane">LOG</div>
+      </div>
+      <div id="pg-scenarios-pane" class="pg-pane" style="display:flex;"><div id="pg-scenarios"></div></div>
+      <div id="pg-input-pane" class="pg-pane"><div id="pg-input"></div></div>
+      <div id="pg-log-pane" class="pg-pane">
+        <div id="pg-log-toolbar"><button class="pg-btn" id="pg-clearlog">Clear</button></div>
+        <div id="pg-log"></div>
+      </div>
+    </div>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => TSICPlaygroundHost.boot());
+  </script>
+</body></html>
