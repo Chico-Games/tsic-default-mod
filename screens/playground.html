@@ -36,8 +36,12 @@
 
     .pg-input-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4px; }
     .pg-input-grid .pg-btn { text-align: center; }
-    .pg-input-custom { display: flex; gap: 4px; margin-top: 8px; }
-    .pg-input-custom input { flex: 1; background: #111827; color: #e2e8f0; border: 1px solid #374151; padding: 4px 6px; font-size: 11px; outline: none; }
+    .pg-input-custom { display: flex; gap: 4px; margin-top: 8px; align-items: center; }
+    .pg-input-custom input,
+    .pg-input-custom select { flex: 1; background: #111827; color: #e2e8f0; border: 1px solid #374151; padding: 4px 6px; font-size: 11px; outline: none; font-family: inherit; }
+    .pg-input-custom select optgroup { color: #fbbf24; }
+    .pg-input-custom select option { color: #e2e8f0; background: #111827; }
+    .pg-input-label { font-size: 11px; color: #94a3b8; min-width: 44px; letter-spacing: 1px; text-transform: uppercase; }
 
     #pg-log-toolbar { display: flex; gap: 4px; margin-bottom: 4px; }
     #pg-log { flex: 1; overflow-y: auto; font-family: 'Consolas', 'Cascadia Code', monospace; font-size: 10px; border: 1px solid #1f2937; }
@@ -54,6 +58,7 @@
   <!-- Playground runtime. -->
   <script src="/playground/registry.js"></script>
   <script src="/playground/sim-helpers.js"></script>
+  <script src="/playground/fake-inventory.js"></script>
   <script src="/playground/input-emulator.js"></script>
   <script src="/playground/playground-host.js"></script>
 
