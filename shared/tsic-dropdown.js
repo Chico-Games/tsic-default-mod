@@ -44,18 +44,33 @@
             return trigger.querySelector('.tsic-dropdown-label') || trigger;
         }
 
-        const Open = { trigger: null, portal: null, onDocClick: null };
+        const Open = { trigger: null, portal: null, onDocClick: null, cleaning: false };
 
-        function close() {
-            if (!Open.trigger) return;
+        // Tear down DOM + listeners. Pure cleanup — does NOT call popScope.
+        // Used as the engine's onPop callback when CancelBack pops our scope,
+        // and as the body of close() after we explicitly pop the scope.
+        function teardown() {
+            if (Open.cleaning) return;
+            Open.cleaning = true;
             const trigger = Open.trigger;
             const portal = Open.portal;
             const onDocClick = Open.onDocClick;
             Open.trigger = null; Open.portal = null; Open.onDocClick = null;
-            try { trigger.setAttribute('aria-expanded', 'false'); } catch (e) {}
+            if (trigger) { try { trigger.setAttribute('aria-expanded', 'false'); } catch (e) {} }
             if (portal && portal.parentNode) portal.parentNode.removeChild(portal);
             if (onDocClick) document.removeEventListener('mousedown', onDocClick, true);
-            if (t.focus && t.focus.popScope) t.focus.popScope();
+            Open.cleaning = false;
+        }
+
+        // Close initiated by code (commit / outside-click / explicit close()).
+        // Pops the scope first; popScope runs our onPop which calls teardown.
+        function close() {
+            if (!Open.trigger) return;
+            if (t.focus && t.focus.popScope) {
+                t.focus.popScope();
+            } else {
+                teardown();
+            }
         }
 
         function commit(trigger, value) {
@@ -112,7 +127,7 @@
             Open.trigger = trigger; Open.portal = portal; Open.onDocClick = onDocClick;
 
             if (t.focus && t.focus.pushScope) {
-                t.focus.pushScope(portal, initial || list.firstElementChild);
+                t.focus.pushScope(portal, initial || list.firstElementChild, { onPop: teardown });
             } else if (initial || list.firstElementChild) {
                 try { (initial || list.firstElementChild).focus(); } catch (e) {}
             }

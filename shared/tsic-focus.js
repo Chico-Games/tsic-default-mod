@@ -56,11 +56,30 @@
             return true;
         }
 
+        // Like isFocusable but ignores zero-rect filter. Used when a scope was
+        // just pushed and elements haven't laid out yet, or in environments
+        // without real layout (jsdom in tests).
+        function isStructurallyFocusable(el) {
+            if (!el || el.nodeType !== 1) return false;
+            if (el.matches('[hidden], [disabled], [aria-hidden="true"], [data-tsic-skip-focus]')) return false;
+            return el.matches('button, a[href], input:not([type=hidden]), select, textarea, [data-tsic-focusable]');
+        }
+
         function focusableSet(root) {
             const scope = root || document;
             return Array.from(scope.querySelectorAll(
                 'button, a[href], input:not([type=hidden]), select, textarea, [data-tsic-focusable]'
             )).filter(isFocusable);
+        }
+
+        // DOM-order list (no rect filter). Used as a fallback for spatial nav
+        // when no candidate has a measurable rect — e.g. inside a fresh portal
+        // before layout or in a test environment.
+        function structuralFocusableSet(root) {
+            const scope = root || document;
+            return Array.from(scope.querySelectorAll(
+                'button, a[href], input:not([type=hidden]), select, textarea, [data-tsic-focusable]'
+            )).filter(isStructurallyFocusable);
         }
 
         function screenKey() {
@@ -166,9 +185,13 @@
                 // changing call sites if we add caching later.
             },
 
-            focus(elOrSel) {
+            focus(elOrSel, opts) {
                 const el = (typeof elOrSel === 'string') ? document.querySelector(elOrSel) : elOrSel;
-                if (!el || !isFocusable(el)) return false;
+                if (!el) return false;
+                // opts.trust: skip rect-based isFocusable. Used by pushScope
+                // when the caller explicitly names the initial element (e.g.
+                // dropdown portals whose <li>s haven't been laid out yet).
+                if (!(opts && opts.trust) && !isFocusable(el)) return false;
                 try { el.focus({ preventScroll: true }); } catch (e) { try { el.focus(); } catch (_) {} }
                 for (const stale of document.querySelectorAll('[data-tsic-focused]')) {
                     if (stale !== el) stale.removeAttribute('data-tsic-focused');
@@ -185,26 +208,44 @@
                 const scopeRoot = State.scopeStack.length > 0
                     ? State.scopeStack[State.scopeStack.length - 1].root
                     : document;
-                const candidates = focusableSet(scopeRoot);
+                let candidates = focusableSet(scopeRoot);
+                // Layout-less fallback: nothing has a measurable rect (fresh
+                // portal, or jsdom-style test env). Use the structural list
+                // and DOM-order navigation instead of spatial-nearest.
+                const layoutless = candidates.length === 0;
+                if (layoutless) candidates = structuralFocusableSet(scopeRoot);
                 if (candidates.length === 0) return false;
                 const cur = document.activeElement;
                 if (!cur || !candidates.includes(cur)) {
                     const init = findInitial();
-                    if (init && candidates.includes(init)) return api.focus(init);
-                    return api.focus(candidates[0]);
+                    if (init && candidates.includes(init)) return api.focus(init, { trust: layoutless });
+                    return api.focus(candidates[0], { trust: layoutless });
+                }
+                if (layoutless) {
+                    // DOM order. Up/Left = previous, Down/Right = next.
+                    const idx = candidates.indexOf(cur);
+                    const delta = (dir === 'up' || dir === 'left') ? -1 : 1;
+                    const next = candidates[idx + delta];
+                    if (!next) return false;
+                    return api.focus(next, { trust: true });
                 }
                 const next = pickNeighbor(cur, dir, candidates);
-                if (!next) return false; // edge — no wrap
+                if (!next) return false;
                 return api.focus(next);
             },
 
-            pushScope(root, initial) {
+            pushScope(root, initial, opts) {
                 if (!root) return false;
                 const caller = document.activeElement;
-                State.scopeStack.push({ root: root, caller: caller });
+                const onPop = (opts && typeof opts.onPop === 'function') ? opts.onPop : null;
+                State.scopeStack.push({ root: root, caller: caller, onPop: onPop });
                 const target = (typeof initial === 'string') ? root.querySelector(initial) : initial;
-                if (target && isFocusable(target)) {
-                    api.focus(target);
+                if (target) {
+                    // Caller explicitly named the initial target — trust it and
+                    // focus without re-running the rect-based isFocusable check.
+                    // This matters for portals (the dropdown's <li> options)
+                    // whose layout hasn't been measured yet.
+                    api.focus(target, { trust: true });
                 } else {
                     const found = focusableSet(root)[0];
                     if (found) api.focus(found);
@@ -215,6 +256,10 @@
             popScope() {
                 if (State.scopeStack.length === 0) return false;
                 const frame = State.scopeStack.pop();
+                // Let the scope owner (e.g. tsic-dropdown) clean up its DOM.
+                if (frame.onPop) {
+                    try { frame.onPop(); } catch (e) { console.warn('[tsic-focus] onPop threw', e); }
+                }
                 if (frame.caller && isFocusable(frame.caller)) api.focus(frame.caller);
                 return true;
             },
