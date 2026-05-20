@@ -11,8 +11,14 @@
   <script src="/shared/tsic-focus.js" defer></script>
   <script src="/shared/tsic-dropdown.js" defer></script>
   <style>
-    html, body { background: rgba(35,31,24,0.50); color: var(--cat-ink-dark); }
-    .wrap { max-width: 1024px; margin: 0 auto; padding: 32px 48px;
+    html, body { background: transparent; color: var(--cat-ink-dark);
+            margin: 0; min-height: 100vh; display: flex;
+            align-items: center; justify-content: center; }
+    .wrap { width: min(1024px, calc(100% - 48px));
+            padding: 32px 48px; box-sizing: border-box;
+            background: var(--cat-bg);
+            border: 1px solid var(--cat-border);
+            box-shadow: var(--cat-shadow-soft);
             font-family: var(--cat-font-serif); }
     h1 { letter-spacing: 12px; font-weight: 200; font-size: 36px;
          text-transform: uppercase; color: var(--cat-ink-dark); margin: 0 0 24px; }
@@ -105,6 +111,7 @@
         Installed (Load Order)
       </div>
       <div class="installed-list" id="installed-list"></div>
+      <div class="error" id="install-error" style="display:none;"></div>
     </div>
 
     <div class="tsic-button-row tsic-button-row--start" style="margin-top:24px;">
@@ -114,20 +121,23 @@
 
   <script type="module">
     import { createClient, makeBaseUrl, listMods, getGameTags, subscribe,
-             listModfiles } from '/shared/modio.js';
+             listModfiles, logout } from '/shared/modio.js';
     import { createAuth, loadToken, loadProfile, clearToken } from '/shared/modio-auth.js';
 
     let cfg = null;
     let client = null;
     let auth = null;
-    let activeTags = new Set();
-    let allTags = [];
+    let activeTags = new Map();   // tagName -> groupName (preserves which group each chip belongs to)
+    let tagGroups = [];           // [{ name, tags:[...] }]
     let offset = 0;
     const PAGE = 24;
     let searchTimer = null;
-    let busy = false;
+    let searchAbort = null;       // AbortController for the in-flight listMods
+    let pendingSearch = false;    // true if a new search was requested while one was running
     let installedMods = [];
     let installedOrder = [];
+    let bootedBrowse = false;
+    let lastModItems = [];        // last rendered card payloads; used to repaint Subscribe state
 
     function show(id) {
       for (const sel of ['signed-out','awaiting-code','signed-in','disabled']) {
@@ -135,13 +145,27 @@
         if (el) el.style.display = (sel === id) ? '' : 'none';
       }
     }
-    function showError(msg) {
+    function showAuthError(msg) {
       const el = document.getElementById('auth-error');
       el.textContent = msg || '';
       el.style.display = msg ? '' : 'none';
     }
+    function showInstallError(msg) {
+      const el = document.getElementById('install-error');
+      el.textContent = msg || '';
+      el.style.display = msg ? '' : 'none';
+    }
+    function safeHttpUrl(u) {
+      if (!u) return '';
+      try {
+        const parsed = new URL(u);
+        return (parsed.protocol === 'http:' || parsed.protocol === 'https:')
+          ? parsed.toString() : '';
+      } catch (_) { return ''; }
+    }
 
     function bootAuth() {
+      if (auth) return;
       auth = createAuth(client);
       auth.onChange((state) => {
         if (state === 'idle') show('signed-out');
@@ -150,6 +174,7 @@
           show('signed-in');
           const p = loadProfile();
           document.getElementById('username').textContent = (p && p.username) || 'mod.io user';
+          refreshSubscribeButtons();
         }
       });
       if (loadToken()) {
@@ -160,99 +185,200 @@
         show('signed-out');
       }
       document.getElementById('btn-request').onclick = async () => {
-        showError('');
+        showAuthError('');
         try { await auth.requestCode(document.getElementById('email').value.trim()); }
-        catch (e) { showError(e.message); }
+        catch (e) { showAuthError(e.message); }
       };
       document.getElementById('btn-exchange').onclick = async () => {
-        showError('');
+        showAuthError('');
         try {
           await auth.exchangeCode(document.getElementById('code').value.trim().toUpperCase());
-          bootBrowse();
-        } catch (e) { showError(e.message); }
+          // No re-bootBrowse — refreshSubscribeButtons (above) updated visible cards.
+        } catch (e) { showAuthError(e.message); }
       };
-      document.getElementById('btn-cancel-code').onclick = () => auth.signOut();
-      document.getElementById('btn-signout').onclick = () => auth.signOut();
+      document.getElementById('btn-cancel-code').onclick = () => doSignOut();
+      document.getElementById('btn-signout').onclick = () => doSignOut();
+    }
+
+    async function doSignOut() {
+      if (!auth) return;
+      // Tell mod.io to invalidate the token; ignore failures, we still clear local state.
+      try { if (client && loadToken()) await logout(client); } catch (_) {}
+      auth.signOut();
+      refreshSubscribeButtons();
     }
 
     async function loadTags() {
       if (!client) return;
       try {
         const r = await getGameTags(client);
-        allTags = (r.tag_options || []).flatMap(g => (g.tags || []));
+        tagGroups = (r.tag_options || []).map(g => ({
+          name: String(g.name || ''),
+          tags: (g.tags || []).map(String),
+        }));
         renderTagChips();
       } catch (e) { console.warn('tags failed', e); }
     }
     function renderTagChips() {
       const host = document.getElementById('tag-chips');
       host.innerHTML = '';
-      for (const t of allTags) {
-        const b = document.createElement('span');
-        b.textContent = t;
-        b.style.cssText = `padding:2px 8px; margin-left:4px; cursor:pointer;
-          border:1px solid rgba(184,170,145,0.45);
-          background:${activeTags.has(t) ? 'rgba(180,30,30,0.45)' : 'rgba(241,229,207,0.88)'};`;
-        b.onclick = () => {
-          if (activeTags.has(t)) activeTags.delete(t); else activeTags.add(t);
-          renderTagChips();
-          searchSoon();
-        };
-        host.appendChild(b);
+      for (const g of tagGroups) {
+        if (!g.tags.length) continue;
+        const groupWrap = document.createElement('span');
+        groupWrap.style.cssText = 'margin-left:8px; white-space:nowrap;';
+        if (g.name) {
+          const label = document.createElement('span');
+          label.textContent = g.name + ':';
+          label.style.cssText = 'opacity:0.55; font-size:11px; margin-right:4px;';
+          groupWrap.appendChild(label);
+        }
+        for (const t of g.tags) {
+          const b = document.createElement('button');
+          b.type = 'button';
+          b.textContent = t;
+          const isActive = activeTags.has(t);
+          b.style.cssText = `padding:2px 8px; margin-left:4px; cursor:pointer;
+            border:1px solid rgba(184,170,145,0.45); font: inherit; color: inherit;
+            background:${isActive ? 'rgba(180,30,30,0.45)' : 'rgba(241,229,207,0.88)'};`;
+          b.onclick = () => {
+            if (activeTags.has(t)) activeTags.delete(t);
+            else activeTags.set(t, g.name);
+            renderTagChips();
+            searchSoon();
+          };
+          groupWrap.appendChild(b);
+        }
+        host.appendChild(groupWrap);
       }
     }
+    function buildTagsInQuery() {
+      // mod.io accepts both bare 'tags-in' and group-scoped 'tags-in[Group]'.
+      // We send the bare list (one CSV) since that's what the API spec documents
+      // for the generic filter. Grouping is preserved client-side for UX only.
+      if (!activeTags.size) return undefined;
+      return Array.from(activeTags.keys()).join(',');
+    }
     async function loadPage(reset) {
-      if (!client || busy) return;
-      busy = true;
-      if (reset) { offset = 0; document.getElementById('browse').innerHTML = ''; }
+      if (!client) return;
+      if (reset && searchAbort) { searchAbort.abort(); }
+      const myAbort = new AbortController();
+      searchAbort = myAbort;
+      if (reset) {
+        offset = 0;
+        document.getElementById('browse').innerHTML = '';
+        lastModItems = [];
+      }
       try {
         const q = document.getElementById('search').value.trim();
         const sort = document.getElementById('sort').value;
-        const tagsIn = activeTags.size ? Array.from(activeTags).join(',') : undefined;
-        const r = await listMods(client, { q, sort, tagsIn, limit: PAGE, offset });
-        renderMods(r.data || [], reset);
-        offset += (r.data || []).length;
+        const tagsIn = buildTagsInQuery();
+        const r = await listMods(client, { q, sort, tagsIn, limit: PAGE, offset }, myAbort.signal);
+        if (myAbort.signal.aborted) return;
+        const items = r.data || [];
+        renderMods(items, reset);
+        offset += items.length;
         const more = (offset < (r.result_total || 0));
         document.getElementById('btn-loadmore').style.display = more ? '' : 'none';
-      } catch (e) { showError(e.message); }
-      finally { busy = false; }
+      } catch (e) {
+        if (e && (e.name === 'AbortError' || myAbort.signal.aborted)) return;
+        showAuthError(e.message);
+      } finally {
+        if (searchAbort === myAbort) searchAbort = null;
+        if (pendingSearch && !myAbort.signal.aborted) {
+          pendingSearch = false;
+          loadPage(true);
+        }
+      }
     }
     function renderMods(items, reset) {
       const host = document.getElementById('browse');
       if (reset) host.innerHTML = '';
+      const subbed = !!loadToken();
       for (const m of items) {
-        const el = document.createElement('div');
-        el.className = 'card';
-        const logo = (m.logo && m.logo.thumb_320x180) || '';
-        const subbed = !!loadToken();
-        el.innerHTML = `
-          <div class="logo" style="background-image:url('${logo}'); background-size:cover; background-position:center;"></div>
-          <div class="name">${m.name}</div>
-          <div class="summary">${(m.summary || '').slice(0, 140)}</div>
-          <button class="card-sub" ${subbed ? '' : 'disabled title="Sign in to subscribe"'}>Subscribe</button>`;
-        el.querySelector('.card-sub').onclick = () => doSubscribe(m);
-        host.appendChild(el);
+        lastModItems.push(m);
+        host.appendChild(buildCard(m, subbed));
+      }
+    }
+    function buildCard(m, subbed) {
+      const el = document.createElement('div');
+      el.className = 'card';
+
+      const logo = document.createElement('div');
+      logo.className = 'logo';
+      const logoUrl = safeHttpUrl(m && m.logo && m.logo.thumb_320x180);
+      if (logoUrl) {
+        // CSSOM-set; the URL is already validated as http(s).
+        logo.style.backgroundImage = `url("${logoUrl.replace(/"/g, '%22')}")`;
+        logo.style.backgroundSize = 'cover';
+        logo.style.backgroundPosition = 'center';
+      }
+      el.appendChild(logo);
+
+      const name = document.createElement('div');
+      name.className = 'name';
+      name.textContent = String(m && m.name || '');
+      el.appendChild(name);
+
+      const summary = document.createElement('div');
+      summary.className = 'summary';
+      summary.textContent = String(m && m.summary || '').slice(0, 140);
+      el.appendChild(summary);
+
+      const btn = document.createElement('button');
+      btn.className = 'card-sub';
+      btn.textContent = 'Subscribe';
+      if (!subbed) {
+        btn.disabled = true;
+        btn.title = 'Sign in to subscribe';
+      }
+      btn.onclick = () => doSubscribe(m);
+      el.appendChild(btn);
+
+      return el;
+    }
+    function refreshSubscribeButtons() {
+      // Repaint Subscribe state on every visible card without re-fetching.
+      const host = document.getElementById('browse');
+      if (!host) return;
+      const subbed = !!loadToken();
+      for (const btn of host.querySelectorAll('.card-sub')) {
+        btn.disabled = !subbed;
+        btn.title = subbed ? '' : 'Sign in to subscribe';
       }
     }
     function searchSoon() {
       clearTimeout(searchTimer);
-      searchTimer = setTimeout(() => loadPage(true), 300);
+      searchTimer = setTimeout(() => {
+        if (searchAbort) {
+          // A previous fetch is in flight — schedule a refetch when it completes.
+          pendingSearch = true;
+          searchAbort.abort();
+        } else {
+          loadPage(true);
+        }
+      }, 300);
     }
     async function doSubscribe(m) {
-      if (!loadToken()) { showError('Sign in to subscribe.'); return; }
+      if (!loadToken()) { showAuthError('Sign in to subscribe.'); return; }
+      showInstallError('');
       try {
         await subscribe(client, m.id);
         const files = await listModfiles(client, m.id, { limit: 1, sort: '-date_added' });
         const live = (files.data || [])[0];
-        if (!live) { showError('No release available.'); return; }
+        if (!live) { showInstallError('No release available.'); return; }
+        // The binary_url is a pre-signed CDN URL — no bearer needed (and we
+        // wouldn't want to leak it to a CDN anyway). C++ side won't read Token.
         tsic.publishMessage('UI.Cmd.Mod.InstallSubscribed', {
-          ModId: m.name_id, ModName: m.name,
-          FileUrl: live.download.binary_url,
-          FileHash: (live.filehash && live.filehash.md5) || '',
-          Token: loadToken(),
+          ModId: String(m.name_id || ''),
+          ModName: String(m.name || ''),
+          FileUrl: String(live.download && live.download.binary_url || ''),
+          FileHash: String((live.filehash && live.filehash.md5) || ''),
         });
-      } catch (e) { showError(e.message); }
+      } catch (e) { showInstallError(e.message); }
     }
     function bootBrowse() {
+      if (bootedBrowse) return;
+      bootedBrowse = true;
       loadTags();
       loadPage(true);
       document.getElementById('search').oninput = searchSoon;
@@ -268,35 +394,83 @@
       for (const m of installedMods) {
         const row = document.createElement('div');
         row.className = 'installed-row';
-        row.innerHTML = `
-          <input type="checkbox" ${m.bEnabled ? 'checked' : ''} />
-          <span class="name">${m.DisplayName} <span style="opacity:0.5; font-size:11px;">${m.Version || ''}</span></span>
-          <button data-act="up">↑</button>
-          <button data-act="down">↓</button>`;
-        row.querySelector('input').onchange = (e) =>
+
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.checked = !!m.bEnabled;
+        cb.onchange = (e) =>
           tsic.publishMessage('UI.Cmd.Mod.SetEnabled', { ModId: m.ModId, Enabled: e.target.checked });
-        row.querySelector('[data-act=up]').onclick = () => moveInstalled(m.ModId, -1);
-        row.querySelector('[data-act=down]').onclick = () => moveInstalled(m.ModId, +1);
+        row.appendChild(cb);
+
+        const nameSpan = document.createElement('span');
+        nameSpan.className = 'name';
+        nameSpan.textContent = String(m.DisplayName || '');
+        if (m.Version) {
+          const v = document.createElement('span');
+          v.style.cssText = 'opacity:0.5; font-size:11px; margin-left:4px;';
+          v.textContent = String(m.Version);
+          nameSpan.appendChild(v);
+        }
+        row.appendChild(nameSpan);
+
+        const up = document.createElement('button');
+        up.type = 'button';
+        up.textContent = '↑';
+        up.onclick = () => moveInstalled(m.ModId, -1);
+        row.appendChild(up);
+
+        const down = document.createElement('button');
+        down.type = 'button';
+        down.textContent = '↓';
+        down.onclick = () => moveInstalled(m.ModId, +1);
+        row.appendChild(down);
+
         host.appendChild(row);
       }
       if (!installedMods.length) {
-        host.innerHTML = '<div style="opacity:0.6;">No mods installed yet.</div>';
+        const empty = document.createElement('div');
+        empty.style.opacity = '0.6';
+        empty.textContent = 'No mods installed yet.';
+        host.appendChild(empty);
+      }
+    }
+    function mergeNewModsIntoOrder() {
+      // Any installed mod missing from order goes to the end so the published
+      // Order is complete and SetOrder doesn't drop its slot.
+      const known = new Set(installedOrder);
+      for (const m of installedMods) {
+        if (m && m.ModId && !known.has(m.ModId)) {
+          installedOrder.push(m.ModId);
+          known.add(m.ModId);
+        }
       }
     }
     function moveInstalled(modId, delta) {
+      mergeNewModsIntoOrder();
       const i = installedOrder.indexOf(modId);
-      if (i < 0) installedOrder = [modId, ...installedOrder];
-      const j = Math.max(0, Math.min(installedOrder.length - 1, i + delta));
-      if (i === j && i >= 0) return;
-      if (i >= 0) installedOrder.splice(i, 1);
+      if (i < 0) installedOrder.unshift(modId);
+      const baseIndex = installedOrder.indexOf(modId);
+      const j = Math.max(0, Math.min(installedOrder.length - 1, baseIndex + delta));
+      if (baseIndex === j) return;
+      installedOrder.splice(baseIndex, 1);
       installedOrder.splice(j, 0, modId);
-      tsic.publishMessage('UI.Cmd.Mod.SetLoadOrder', { Order: installedOrder });
+      tsic.publishMessage('UI.Cmd.Mod.SetLoadOrder', { Order: installedOrder.slice() });
     }
+
+    function teardown() {
+      clearTimeout(searchTimer);
+      searchTimer = null;
+      if (searchAbort) { try { searchAbort.abort(); } catch (_) {} searchAbort = null; }
+      pendingSearch = false;
+    }
+    window.addEventListener('pagehide', teardown);
+    window.addEventListener('beforeunload', teardown);
 
     function whenReady(cb){ if (window.tsic){cb();return;} setTimeout(()=>whenReady(cb),16); }
     whenReady(() => {
       tsic.on('tsic.msg.UI.Mod.IoConfig', (p) => {
-        if (!p || !p.GameId) { show('disabled'); return; }
+        // Treat missing GameId OR missing ApiKey as "mod.io not configured".
+        if (!p || !p.GameId || !p.ApiKey) { show('disabled'); return; }
         cfg = { gameId: Number(p.GameId), apiKey: p.ApiKey, env: p.Env,
                 baseUrl: makeBaseUrl(Number(p.GameId), p.Env) };
         client = createClient(cfg, () => loadToken());
@@ -308,11 +482,11 @@
         renderInstalled();
       });
       tsic.on('tsic.msg.UI.Mod.LoadOrder', (p) => {
-        installedOrder = (p && p.Order) || [];
+        installedOrder = (p && p.Order) ? p.Order.slice() : [];
         renderInstalled();
       });
       tsic.on('tsic.msg.UI.Mod.InstallFailed', (p) => {
-        if (p && p.Reason) showError(`Install failed (${p.ModId}): ${p.Reason}`);
+        if (p && p.Reason) showInstallError(`Install failed (${p.ModId}): ${p.Reason}`);
       });
       document.getElementById('btn-back').onclick = () =>
         tsic.publishMessage('UI.Cmd.Menu.Navigate', { Screen: 'MainMenu' });
