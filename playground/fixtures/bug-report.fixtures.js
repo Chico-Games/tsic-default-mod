@@ -5,5 +5,9 @@ TSICPlayground.register({
     screen: '/screens/bug-report.html',
     initialState() { return {}; },
     project() { return []; },
-    scenarios: [{ label: 'Open', apply() {} }],
+    scenarios: [
+        { label: 'Open',          apply() {}, expect: { visualChange: false, injects: 0 } },
+        { label: 'Replay open',   apply() {}, expect: { visualChange: false, injects: 0 } },
+        { label: 'Open #3',       apply() {}, expect: { visualChange: false, injects: 0 } },
+    ],
 });

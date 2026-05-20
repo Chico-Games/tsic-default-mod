@@ -43,7 +43,16 @@
         const host = document.getElementById('recipes');
         host.innerHTML = '';
         const cat = (window.tsic && window.tsic.itemCatalog) || {};
-        for (const r of lastRecipes) {
+        const visibleRecipes = lastRecipes.filter(r => r.bDiscovered !== false);
+        if (visibleRecipes.length === 0) {
+          const empty = document.createElement('div');
+          empty.className = 'tsic-empty';
+          empty.textContent = 'No rituals available yet.';
+          host.appendChild(empty);
+          if (window.tsic && window.tsic.focus) window.tsic.focus.refresh();
+          return;
+        }
+        for (const r of visibleRecipes) {
           const row = document.createElement('div');
           row.className = 'tsic-panel bs-row';
           const meta = document.createElement('div');

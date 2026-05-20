@@ -40,6 +40,8 @@
     .field-rebind { background: var(--cat-paper-panel); color: var(--cat-ink-dark); border:1px solid var(--tsic-border); padding: 2px 10px; cursor:pointer; min-width: 120px; font-family: inherit; }
     .field-rebind.waiting { background: var(--tsic-accent-dim); }
     .tsic-footer-flag { margin-left: auto; display:inline-flex; gap:8px; align-items:center; }
+    /* [hidden] is otherwise overridden by display:inline-flex above. */
+    .tsic-footer-flag[hidden] { display: none; }
     #restart-required { color: var(--tsic-warning, #d88); font-size: 13px; letter-spacing: 1px; text-transform: uppercase; }
   </style>
 </head><body>

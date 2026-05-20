@@ -11,11 +11,17 @@
   <script src="/shared/tsic-focus.js" defer></script>
   <script src="/shared/tsic-dropdown.js" defer></script>
   <style>
-    html, body { background: rgba(35,31,24,0.50); color: var(--cat-ink-dark); }
-    .credits { padding: 60px 80px; max-width: 720px; margin: 0 auto;
+    html, body { background: transparent; color: var(--cat-ink-dark);
+            margin: 0; min-height: 100vh; display: flex;
+            align-items: center; justify-content: center; }
+    .credits { width: min(720px, calc(100% - 48px));
+               padding: 48px 64px; box-sizing: border-box;
+               background: var(--cat-bg);
+               border: 1px solid var(--cat-border);
+               box-shadow: var(--cat-shadow-soft);
                font-family: var(--cat-font-serif); }
-    h1 { letter-spacing: 18px; font-weight: 200; font-size: 56px; margin: 0 0 8px;
-         color: var(--cat-ink-dark); }
+    h1 { letter-spacing: 8px; font-weight: 200; font-size: 36px; margin: 0 0 16px;
+         text-transform: uppercase; color: var(--cat-ink-dark); }
     h2 { letter-spacing: 6px; font-weight: 300; font-size: 18px;
          text-transform: uppercase; color: var(--cat-ink-soft); margin: 32px 0 8px; }
     ul { list-style: none; padding: 0; margin: 0; }
@@ -23,8 +29,7 @@
   </style>
 </head><body>
   <div class="credits">
-    <h1>TSIC</h1>
-    <div class="tsic-eyebrow" style="letter-spacing:8px;">The Store is Closed</div>
+    <h1>The Store is Closed</h1>
 
     <h2>Design &amp; Programming</h2>
     <ul>

@@ -107,11 +107,12 @@
         const host = document.getElementById('inv-tabs');
         host.innerHTML = '';
         for (const t of TABS) {
-            const div = document.createElement('div');
-            div.className = 'inv-tab' + (activeTab === t.id ? ' active' : '');
-            div.textContent = t.id;
-            div.addEventListener('click', () => { activeTab = t.id; refresh(); });
-            host.appendChild(div);
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'inv-tab' + (activeTab === t.id ? ' active' : '');
+            btn.textContent = t.id;
+            btn.addEventListener('click', () => { activeTab = t.id; refresh(); });
+            host.appendChild(btn);
         }
     }
 

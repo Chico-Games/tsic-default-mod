@@ -35,9 +35,30 @@ TSICPlayground.register({
         { label: 'Damaged set',     apply(s) { s.recipes = s.recipes.map(r => ({ ...r, Durability: 0.4 })); } },
         { label: 'Pristine',        apply(s) { s.recipes = s.recipes.map(r => ({ ...r, Durability: r.MaxDurability })); } },
         { label: 'Almost broken',   apply(s) { s.recipes = s.recipes.map(r => ({ ...r, Durability: 0.08 })); } },
+        { label: 'Mixed durability',apply(s) {
+            s.recipes = s.recipes.map((r, i) => ({ ...r, Durability: [0.95, 0.4, 0.12][i] || 0.5 }));
+            // Add a third item so the mix is visible
+            s.recipes = [
+                ...s.recipes,
+                { RecipeId: 'ID_HammerB', Name: 'Spare Hammer', bDiscovered: true, bStationLevelSufficient: true,
+                  Ingredients: [{ ItemId: 'ID_Iron', Count: 1 }], Outputs: [], Durability: 0.12, MaxDurability: 1 },
+            ];
+        } },
+        // The repair page renders a list keyed by Durability bars; changing
+        // only material counts doesn't redraw the durability bars, so these
+        // material-only scenarios produce no visual delta. Inject still fires.
         { label: 'No materials',    apply() {
             TSICPlaygroundInventory.reset({ items: [], maxSlots: 32, maxWeight: 30 });
-        } },
+        }, expect: { visualChange: false } },
+        { label: 'Wood-only',       apply() {
+            TSICPlaygroundInventory.reset({ items: [{ ItemId: 'ID_Wood', Count: 10, SlotIndex: 0 }], maxSlots: 32, maxWeight: 30 });
+        }, expect: { visualChange: false } },
+        { label: 'Plenty of materials', apply() {
+            TSICPlaygroundInventory.reset({ items: [
+                { ItemId: 'ID_Wood', Count: 99, SlotIndex: 0 },
+                { ItemId: 'ID_Iron', Count: 99, SlotIndex: 1 },
+            ], maxSlots: 32, maxWeight: 999 });
+        }, expect: { visualChange: false } },
         { label: 'Nothing to repair', apply(s) { s.recipes = []; } },
     ],
     onPublish(state, channel, payload) {

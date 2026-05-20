@@ -6,8 +6,88 @@
   <link rel="stylesheet" href="/shared/base.css">
   <link rel="stylesheet" href="/shared/components.css">
   <link rel="stylesheet" href="/shared/hud.css">
-  <script src="/shared/router.js" defer></script>
-  <script src="/shared/hud.js" defer></script>
+  <style>
+    /* CSS-only liveness animation for the diagnostic pips. A bouncing dot
+       inside each pip — if the dot stops, the page is frozen. */
+    @keyframes pip-bounce {
+      0%, 100% { transform: translateY(0); }
+      50%      { transform: translateY(-8px); }
+    }
+    .pip-dot {
+      display: inline-block;
+      width: 8px; height: 8px;
+      background: #000;
+      border-radius: 50%;
+      margin-right: 6px;
+      vertical-align: middle;
+      animation: pip-bounce 600ms ease-in-out infinite;
+    }
+    .pip-dot.delay-1 { animation-delay: 100ms; }
+    .pip-dot.delay-2 { animation-delay: 200ms; }
+    .pip-dot.delay-3 { animation-delay: 300ms; }
+    .pip-base {
+      padding: 6px 10px; font: bold 13px monospace;
+      border: 2px solid #000; pointer-events: none; z-index: 99999;
+      position: fixed;
+    }
+
+    /* === BIG OBVIOUS LIVENESS BALL ===
+       60px lime-green ball at top-centre, bouncing up and down + changing
+       hue + scaling. Impossible to miss if the page is alive. If you don't
+       see it move, the page is frozen (or CSS animations aren't running). */
+    @keyframes big-bounce {
+      0%   { transform: translate(-50%, 0)    scale(1);   filter: hue-rotate(0deg);   }
+      25%  { transform: translate(-50%, 30px) scale(0.7); filter: hue-rotate(90deg);  }
+      50%  { transform: translate(-50%, 0)    scale(1.2); filter: hue-rotate(180deg); }
+      75%  { transform: translate(-50%, 30px) scale(0.7); filter: hue-rotate(270deg); }
+      100% { transform: translate(-50%, 0)    scale(1);   filter: hue-rotate(360deg); }
+    }
+    #liveness-ball {
+      position: fixed; top: 24px; left: 50%;
+      width: 60px; height: 60px;
+      background: #0f0;
+      border: 4px solid #000;
+      border-radius: 50%;
+      box-shadow: 0 0 24px rgba(0,255,0,0.6);
+      pointer-events: none;
+      z-index: 99999;
+      animation: big-bounce 1200ms ease-in-out infinite;
+    }
+  </style>
+  <script>
+    // Inline marker (1) — yellow pip bottom-left. Confirms inline JS runs.
+    (function () {
+      function paint() {
+        if (!document.body) { setTimeout(paint, 16); return; }
+        var d = document.createElement('div');
+        d.id = 'inline-marker';
+        d.className = 'pip-base';
+        d.style.cssText += 'left:8px; bottom:8px; background:yellow; color:#000;';
+        d.innerHTML = '<span class="pip-dot"></span>inline ' + new Date().toLocaleTimeString();
+        document.body.appendChild(d);
+      }
+      paint();
+    })();
+  </script>
+  <script src="/shared/router.js"></script>
+  <script src="/shared/hud.js"></script>
+  <script>
+    // Inline marker (2) — cyan pip bottom-right. Runs AFTER external scripts.
+    (function () {
+      function paint() {
+        if (!document.body) { setTimeout(paint, 16); return; }
+        var d = document.createElement('div');
+        d.id = 'inline-marker-2';
+        d.className = 'pip-base';
+        d.style.cssText += 'right:8px; bottom:8px; background:cyan; color:#000;';
+        d.innerHTML = '<span class="pip-dot delay-2"></span>after-external ' + new Date().toLocaleTimeString();
+        document.body.appendChild(d);
+      }
+      paint();
+    })();
+  </script>
 </head><body>
+  <!-- BIG OBVIOUS animated ball — top-centre. Bounces, scales, colour-shifts. -->
+  <div id="liveness-ball"></div>
   <!-- HUD chrome is injected by hud.js -->
 </body></html>

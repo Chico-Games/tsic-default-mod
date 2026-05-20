@@ -49,23 +49,44 @@ TSICPlayground.register({
         ];
     },
     scenarios: [
-        { label: 'Idle',          apply(s) { s.queue = []; } },
-        { label: 'One running',   apply(s) { s.queue = [
+        { label: 'Idle',                apply(s) { s.queue = []; }, expect: { visualChange: false } },
+        { label: 'One starting',        apply(s) { s.queue = [
+            { QueueIndex: 0, RecipeId: 'R_Bread', Progress: 0.05, bIsActive: true },
+        ]; } },
+        { label: 'One running',         apply(s) { s.queue = [
             { QueueIndex: 0, RecipeId: 'R_Bread', Progress: 0.42, bIsActive: true },
         ]; } },
-        { label: 'Three queued',  apply(s) { s.queue = [
+        { label: 'About to finish',     apply(s) { s.queue = [
+            { QueueIndex: 0, RecipeId: 'R_Bread', Progress: 0.95, bIsActive: true },
+        ]; } },
+        { label: 'Three queued',        apply(s) { s.queue = [
             { QueueIndex: 0, RecipeId: 'R_Bread', Progress: 0.75, bIsActive: true },
             { QueueIndex: 1, RecipeId: 'R_Bread', Progress: 0,    bIsActive: false },
             { QueueIndex: 2, RecipeId: 'R_Nail',  Progress: 0,    bIsActive: false },
         ]; } },
-        { label: 'Insufficient',  apply() {
+        { label: 'Full queue (6)',      apply(s) { s.queue = Array.from({length: 6}, (_, i) => ({
+            QueueIndex: i,
+            RecipeId: i % 2 === 0 ? 'R_Bread' : 'R_Nail',
+            Progress: i === 0 ? 0.6 : 0,
+            bIsActive: i === 0,
+        })); } },
+        { label: 'Mixed types',         apply(s) { s.queue = [
+            { QueueIndex: 0, RecipeId: 'R_Nail',  Progress: 0.3, bIsActive: true  },
+            { QueueIndex: 1, RecipeId: 'R_Bread', Progress: 0,   bIsActive: false },
+            { QueueIndex: 2, RecipeId: 'R_Nail',  Progress: 0,   bIsActive: false },
+            { QueueIndex: 3, RecipeId: 'R_Bread', Progress: 0,   bIsActive: false },
+        ]; } },
+        { label: 'Insufficient (empty inv)', apply() {
             TSICPlaygroundInventory.reset({ items: [], maxSlots: 32, maxWeight: 30 });
         } },
-        { label: 'Tick +20% prog',apply(s) {
+        // Tick/Complete operate on the queue, but with reset-before-each the
+        // queue is empty when these run, so they're no-ops against initial.
+        // Useful in interactive playground; visualChange:false in sweep.
+        { label: 'Tick +20% prog',      apply(s) {
             const active = s.queue.find(e => e.bIsActive);
             if (active) active.Progress = Math.min(1.0, (active.Progress || 0) + 0.2);
-        } },
-        { label: 'Complete active', apply(s) {
+        }, expect: { visualChange: false } },
+        { label: 'Complete active',     apply(s) {
             const active = s.queue.find(e => e.bIsActive);
             if (!active) return;
             const recipe = s.recipes.find(r => r.RecipeId === active.RecipeId);
@@ -75,13 +96,13 @@ TSICPlayground.register({
             s.queue.splice(s.queue.indexOf(active), 1);
             s.queue.forEach((e, i) => { e.QueueIndex = i; });
             if (s.queue.length) s.queue[0].bIsActive = true;
-        } },
+        }, expect: { visualChange: false } },
+        { label: 'Recipes locked',      apply(s) { s.recipes = s.recipes.map(r => ({ ...r, bStationLevelSufficient: false, RequiredStationLevel: 5 })); } },
     ],
     onPublish(state, channel, payload) {
         if (channel === 'UI.Cmd.Recipe.Start' && payload.Kind === 'Production') {
             const recipe = state.recipes.find(r => r.RecipeId === payload.RecipeId);
             if (!recipe || !TSICPlaygroundInventory.canAfford(recipe)) return;
-            // Consume ingredients up-front (matches the in-game production flow).
             for (const ing of recipe.Ingredients || []) {
                 TSICPlaygroundInventory.consume(ing.ItemId, ing.Count);
             }
@@ -92,7 +113,6 @@ TSICPlayground.register({
         } else if (channel === 'UI.Cmd.Recipe.Cancel' && payload.Kind === 'Production') {
             const idx = state.queue.findIndex(e => e.QueueIndex === payload.QueueIndex);
             if (idx >= 0) {
-                // Refund ingredients on cancel — matches the production controller.
                 const recipe = state.recipes.find(r => r.RecipeId === state.queue[idx].RecipeId);
                 for (const ing of (recipe && recipe.Ingredients) || []) {
                     TSICPlaygroundInventory.add(ing.ItemId, ing.Count);

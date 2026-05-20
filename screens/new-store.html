@@ -11,27 +11,29 @@
   <script src="/shared/tsic-focus.js" defer></script>
   <script src="/shared/tsic-dropdown.js" defer></script>
   <style>
-    html, body { background: rgba(35,31,24,0.50); color: var(--cat-ink-dark); }
-    .wrap { max-width: 720px; margin: 0 auto; padding: 48px 64px;
+    html, body { background: transparent; color: var(--cat-ink-dark);
+            margin: 0; min-height: 100vh; display: flex;
+            align-items: center; justify-content: center; }
+    .wrap { width: min(560px, calc(100% - 48px));
+            padding: 40px 56px; box-sizing: border-box;
+            background: var(--cat-bg);
+            border: 1px solid var(--cat-border);
+            box-shadow: var(--cat-shadow-soft);
             font-family: var(--cat-font-serif); }
     h1 { letter-spacing: 12px; font-weight: 200; font-size: 36px;
-         text-transform: uppercase; color: var(--cat-ink-dark); margin: 0 0 32px; }
+         text-transform: uppercase; color: var(--cat-ink-dark); margin: 0 0 24px; }
     label { display:block; letter-spacing: 4px; text-transform: uppercase;
             font-size: 11px; opacity: 0.7; margin: 16px 0 6px; }
-    input[type=text] { width: 100%; padding: 10px 12px;
-            background: rgba(241,229,207,0.88);
-            border: 1px solid rgba(184,170,145,0.45);
-            color: var(--cat-ink-dark); font: inherit; }
-    .layouts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-    .layout { padding: 10px; border: 1px solid rgba(184,170,145,0.45);
-              background: rgba(241,229,207,0.78); cursor: pointer; }
-    .layout.selected { border-color: rgba(180,30,30,0.85);
-              background: rgba(180,30,30,0.18); }
-    .layout img { width: 100%; aspect-ratio: 1; object-fit: cover;
-              background: #222; }
-    .layout .name { margin-top: 6px; font-size: 12px; letter-spacing: 2px; }
+    /* Make the layout dropdown read as a button, not a text box. */
+    #layout-dd { width: 100%; padding: 10px 14px; font-size: 14px;
+            background: var(--cat-green); color: #f7edd9;
+            border-color: var(--cat-green); }
+    #layout-dd:hover { background: var(--cat-green-hover, var(--cat-green));
+            color: #f7edd9; }
+    #layout-dd .tsic-dropdown-caret { font-size: 12px; opacity: 0.9; }
     .mods { display: flex; flex-direction: column; gap: 4px;
-            border: 1px solid rgba(241,229,207,0.60); padding: 8px; }
+            border: 1px solid rgba(184,170,145,0.45); padding: 8px;
+            background: rgba(241,229,207,0.45); }
     .mod-row { display: flex; align-items: center; gap: 8px; padding: 4px 0; }
     .mod-row .name { flex: 1; }
     .mod-row button { background: rgba(241,229,207,0.88);
@@ -47,14 +49,12 @@
     <h1>New Game</h1>
 
     <div data-tsic-focus-group="fields">
-      <label>Store Name</label>
-      <input id="store-name" type="text" maxlength="40" />
-
-      <label>Player Name</label>
-      <input id="player-name" type="text" maxlength="40" />
-
       <label>Layout</label>
-      <div class="layouts" id="layouts" data-tsic-focus-group="layouts"></div>
+      <button class="tsic-dropdown" id="layout-dd" data-tsic-focusable
+              data-tsic-initial-focus data-tsic-options='[]'>
+        <span class="tsic-dropdown-label">— Select —</span>
+        <span class="tsic-dropdown-caret">▾</span>
+      </button>
 
       <label>Active Mods</label>
       <div class="mods" id="mods" data-tsic-focus-group="mods"></div>
@@ -62,7 +62,7 @@
     </div>
 
     <div class="actions" data-tsic-focus-group="actions">
-      <button class="tsic-button" id="btn-back" data-tsic-initial-focus>Back</button>
+      <button class="tsic-button" id="btn-back">Back</button>
       <button class="tsic-button" id="btn-create" disabled>Create</button>
     </div>
   </div>
@@ -73,20 +73,25 @@
       let order = [];
       let selectedLayout = null;
 
-      function renderLayouts() {
-        const host = document.getElementById('layouts');
-        host.innerHTML = '';
-        for (const L of layouts) {
-          const el = document.createElement('div');
-          el.className = 'layout' + (selectedLayout === L.LayoutId ? ' selected' : '');
-          el.innerHTML = `<img src="${L.ThumbnailUrl}" alt="">
-                          <div class="name">${L.DisplayName}</div>`;
-          el.onclick = () => { selectedLayout = L.LayoutId; renderLayouts(); validate(); };
-          host.appendChild(el);
+      function refreshLayoutDD() {
+        const dd = document.getElementById('layout-dd');
+        const opts = layouts.map(L => ({ value: L.LayoutId, label: L.DisplayName }));
+        // Tsic-dropdown expects JSON in data-tsic-options.
+        dd.setAttribute('data-tsic-options', JSON.stringify(opts));
+        if (window.tsic && tsic.dropdown && tsic.dropdown.options) {
+          tsic.dropdown.options(dd, opts);
         }
-        if (!layouts.length) {
-          host.innerHTML = '<div style="opacity:0.6;">No layouts available.</div>';
+        // Preserve current selection if still valid; otherwise default to first.
+        if (!opts.find(o => o.value === selectedLayout)) {
+          selectedLayout = opts.length ? opts[0].value : null;
+          if (selectedLayout && tsic.dropdown && tsic.dropdown.set) {
+            tsic.dropdown.set(dd, selectedLayout);
+          } else {
+            const lbl = dd.querySelector('.tsic-dropdown-label');
+            if (lbl) lbl.textContent = opts.length ? opts[0].label : '— None —';
+          }
         }
+        validate();
       }
 
       function renderMods() {
@@ -98,21 +103,35 @@
         for (const m of mods) {
           const row = document.createElement('div');
           row.className = 'mod-row';
-          row.innerHTML = `
-            <input type="checkbox" ${m.bEnabled ? 'checked' : ''} />
-            <span class="name">${m.DisplayName}</span>
-            <button data-act="up">↑</button>
-            <button data-act="down">↓</button>`;
-          row.querySelector('input').onchange = (e) => {
-            tsic.publishMessage('UI.Cmd.Mod.SetEnabled', {
-              ModId: m.ModId, Enabled: e.target.checked });
-          };
-          row.querySelector('[data-act=up]').onclick = () => move(m.ModId, -1);
-          row.querySelector('[data-act=down]').onclick = () => move(m.ModId, +1);
+
+          const cb = document.createElement('input');
+          cb.type = 'checkbox';
+          cb.checked = !!m.bEnabled;
+          cb.onchange = (e) => tsic.publishMessage('UI.Cmd.Mod.SetEnabled',
+            { ModId: m.ModId, Enabled: e.target.checked });
+
+          const name = document.createElement('span');
+          name.className = 'name';
+          name.textContent = String(m.DisplayName || '');
+
+          const up = document.createElement('button');
+          up.dataset.act = 'up';
+          up.textContent = '↑';
+          up.onclick = () => move(m.ModId, -1);
+
+          const down = document.createElement('button');
+          down.dataset.act = 'down';
+          down.textContent = '↓';
+          down.onclick = () => move(m.ModId, +1);
+
+          row.append(cb, name, up, down);
           host.appendChild(row);
         }
         if (!mods.length) {
-          host.innerHTML = '<div style="opacity:0.6;">No mods installed. Open Manage Mods to subscribe.</div>';
+          const empty = document.createElement('div');
+          empty.style.opacity = '0.6';
+          empty.textContent = 'No mods installed. Open Manage Mods to subscribe.';
+          host.appendChild(empty);
         }
       }
 
@@ -127,26 +146,32 @@
       }
 
       function validate() {
-        const name = document.getElementById('store-name').value.trim();
-        document.getElementById('btn-create').disabled = !name || !selectedLayout;
+        document.getElementById('btn-create').disabled = !selectedLayout;
       }
 
       function whenReady(cb){ if (window.tsic){cb();return;} setTimeout(()=>whenReady(cb),16); }
       whenReady(() => {
-        tsic.on('tsic.msg.UI.Menu.Layouts', (p) => { layouts = (p && p.Layouts) || []; renderLayouts(); });
+        const dd = document.getElementById('layout-dd');
+        dd.addEventListener('tsic-change', (e) => {
+          selectedLayout = (e.detail && e.detail.value) || null;
+          validate();
+        });
+
+        tsic.on('tsic.msg.UI.Menu.Layouts', (p) => { layouts = (p && p.Layouts) || []; refreshLayoutDD(); });
         tsic.on('tsic.msg.UI.Mod.InstalledList', (p) => { mods = (p && p.Mods) || []; renderMods(); });
         tsic.on('tsic.msg.UI.Mod.LoadOrder', (p) => { order = (p && p.Order) || []; renderMods(); });
 
-        document.getElementById('store-name').oninput = validate;
         document.getElementById('btn-back').onclick = () =>
           tsic.publishMessage('UI.Cmd.Menu.Navigate', { Screen: 'MainMenu' });
         document.getElementById('link-manage').onclick = () =>
           tsic.publishMessage('UI.Cmd.Menu.Navigate', { Screen: 'Mods' });
         document.getElementById('btn-create').onclick = () => {
+          if (!selectedLayout) return;
           const enabledMods = mods.filter(m => m.bEnabled).map(m => m.ModId);
+          // StoreName / PlayerName left empty — C++ auto-generates "Store N" + "Owner".
           tsic.publishMessage('UI.Cmd.Menu.StartGame', {
-            StoreName: document.getElementById('store-name').value.trim(),
-            PlayerName: document.getElementById('player-name').value.trim(),
+            StoreName: '',
+            PlayerName: '',
             LayoutId: selectedLayout,
             EnabledMods: enabledMods,
             LoadOrder: order,

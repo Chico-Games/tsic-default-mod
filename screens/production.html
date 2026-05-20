@@ -128,7 +128,10 @@
             const name = (cat[itemId] || {}).Name || e.RecipeId;
             const head = document.createElement('div');
             head.className = 'q-head';
-            head.innerHTML = `<span class="name">${e.QueueIndex+1}. ${name}</span>`;
+            const nameSpan = document.createElement('span');
+            nameSpan.className = 'name';
+            nameSpan.textContent = `${e.QueueIndex+1}. ${name}`;
+            head.appendChild(nameSpan);
             const btn = document.createElement('button');
             btn.className = 'tsic-button cancel q-cancel';
             btn.textContent = 'Cancel';

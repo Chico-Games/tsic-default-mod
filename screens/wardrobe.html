@@ -83,7 +83,7 @@
               }
             }
             slot.title = s.SlotTag || '';
-            slot.onclick = () => tsic.publishMessage('UI.Cmd.Equipment.Unequip', { SlotTag: s.SlotTag || '', ItemId: s.ItemId || '' });
+            slot.onclick = () => tsic.publishMessage('UI.Cmd.Equipment.Unequip', { ItemId: '', SlotTag: s.SlotTag || '' });
             host.appendChild(slot);
           }
         });

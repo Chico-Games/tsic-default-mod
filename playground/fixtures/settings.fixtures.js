@@ -39,14 +39,51 @@ TSICPlayground.register({
     project(state) {
         return [['tsic.msg.UI.Settings.Catalog', { Json: JSON.stringify(state.catalog) }]];
     },
+    // The settings page only re-renders the visible page (Audio first), so
+    // changes to non-displayed pages or to Footer flags don't move the
+    // currently-shown pane.  Mark those scenarios visualChange:false; the
+    // inject is the assertion that matters.
     scenarios: [
-        { label: 'Default',    apply() {} },
-        { label: 'Restart required', apply(s) { s.catalog.Footer.RestartRequired = true; } },
-        { label: 'Quiet audio',apply(s) {
+        { label: 'Default',           apply() {},                                                                                  expect: { visualChange: false } },
+        { label: 'Dirty (unsaved)',   apply(s) { s.catalog.Footer.AnyDirty = true; s.catalog.Footer.RestartRequired = false; },     expect: { visualChange: false } },
+        { label: 'Restart required',  apply(s) { s.catalog.Footer.RestartRequired = true; s.catalog.Footer.AnyDirty = true; } },
+        { label: 'Apply countdown',   apply(s) { s.catalog.Footer.ApplyCountdownSeconds = 12; } },
+        { label: 'Quiet audio',       apply(s) {
             for (const p of s.catalog.Pages) for (const g of p.Groups) for (const f of g.Settings) {
                 if (f.Key && f.Key.startsWith('audio.')) f.Value = 0.1;
             }
         } },
+        { label: 'Audio muted',       apply(s) {
+            for (const p of s.catalog.Pages) for (const g of p.Groups) for (const f of g.Settings) {
+                if (f.Key && f.Key.startsWith('audio.')) f.Value = 0;
+            }
+        } },
+        { label: 'Audio max',         apply(s) {
+            for (const p of s.catalog.Pages) for (const g of p.Groups) for (const f of g.Settings) {
+                if (f.Key && f.Key.startsWith('audio.')) f.Value = 1.0;
+            }
+        } },
+        { label: 'Windowed 1080',     apply(s) {
+            for (const p of s.catalog.Pages) for (const g of p.Groups) for (const f of g.Settings) {
+                if (f.Key === 'video.fullscreen') f.Value = false;
+                if (f.Key === 'video.resolution') f.Value = '1920x1080';
+            }
+        }, expect: { visualChange: false } },
+        { label: 'Wide FOV (110)',    apply(s) {
+            for (const p of s.catalog.Pages) for (const g of p.Groups) for (const f of g.Settings) {
+                if (f.Key === 'gameplay.fov') f.Value = 110;
+            }
+        }, expect: { visualChange: false } },
+        { label: 'Narrow FOV (60)',   apply(s) {
+            for (const p of s.catalog.Pages) for (const g of p.Groups) for (const f of g.Settings) {
+                if (f.Key === 'gameplay.fov') f.Value = 60;
+            }
+        }, expect: { visualChange: false } },
+        { label: 'No keybind',        apply(s) {
+            for (const p of s.catalog.Pages) for (const g of p.Groups) for (const f of g.Settings) {
+                if (f.Type === 'keybind') f.Bindings = [];
+            }
+        }, expect: { visualChange: false } },
     ],
     onPublish(state, channel, payload) {
         if (channel === 'UI.Cmd.Settings.Set' && payload && payload.Key) {

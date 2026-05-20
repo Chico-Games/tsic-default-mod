@@ -14,14 +14,13 @@
             align-items: center; justify-content: center; gap: 36px;
             pointer-events: none; }
     .title-block { text-align: center; pointer-events: none; font-family: var(--cat-font-serif); }
-    .title-block h1 { margin: 0; font-size: 88px; letter-spacing: 18px;
+    .title-block h1 { margin: 0; font-size: 48px; letter-spacing: 10px;
             font-weight: 200; color: var(--cat-ink-dark);
+            text-transform: uppercase;
             text-shadow: 0 4px 18px rgba(35,31,24,0.20); }
-    .title-block .sub { margin-top: 6px; font-size: 13px; letter-spacing: 8px;
-            color: var(--cat-ink-soft); text-transform: uppercase; }
     .buttons { display: flex; flex-direction: column; gap: 12px; width: 320px;
             pointer-events: auto; }
-    .menu-btn { background: rgba(241,229,207,0.92); color: var(--cat-ink-dark);
+    .menu-btn { background: rgba(212,193,157,0.94); color: var(--cat-ink-dark);
             border: 1px solid var(--cat-border);
             padding: 14px 20px; font-family: var(--cat-font-serif);
             font-size: 15px; font-weight: 700; letter-spacing: 4px;
@@ -37,8 +36,7 @@
 </head><body>
   <div class="menu">
     <div class="title-block">
-      <h1>TSIC</h1>
-      <div class="sub">The Store Is Closed</div>
+      <h1>The Store Is Closed</h1>
     </div>
     <div class="buttons" data-tsic-focus-group="nav">
       <button class="menu-btn" id="btn-start" data-tsic-initial-focus>Start New Game</button>

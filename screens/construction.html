@@ -26,8 +26,8 @@
     .c-row.disabled { opacity: 0.45; pointer-events: none; }
     #c-cost { padding: 8px; font-size:11px; background:rgba(241,229,207,0.88); border-top:1px solid var(--tsic-border); }
     .c-cost-row { display:flex; justify-content:space-between; padding:2px 0; }
-    .c-cost-row .have-less { color:#fca5a5; }
-    .c-cost-row .have-ok   { color:#a7f3d0; }
+    .c-cost-row .have-less { color:#9f2e25; }
+    .c-cost-row .have-ok   { color:#166534; }
   </style>
 </head><body>
   <!-- Sidebar of constructable items (left edge) -->
@@ -135,12 +135,16 @@
         pill.style.display = 'block';
         if (p.bCanPlace) {
           text.textContent = 'READY';
-          pill.style.color = '#7fff9a';
-          pill.style.borderColor = 'rgba(127,255,154,0.45)';
+          pill.style.color = '#0f4d24';
+          text.style.color = '#0f4d24';
+          text.style.fontWeight = '700';
+          pill.style.borderColor = 'rgba(15,77,36,0.65)';
         } else {
           text.textContent = (p.FailureReason || 'BLOCKED').toUpperCase();
-          pill.style.color = '#ff7a7a';
-          pill.style.borderColor = 'rgba(255,122,122,0.45)';
+          pill.style.color = '#9f2e25';
+          text.style.color = '#9f2e25';
+          text.style.fontWeight = '700';
+          pill.style.borderColor = 'rgba(159,46,37,0.65)';
         }
         axis.textContent = p.RotationAxis ? `· axis: ${p.RotationAxis}` : '';
       }

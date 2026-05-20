@@ -55,11 +55,37 @@
         loadIframe();
     }
 
+    // Browser can't resolve UE-only schemes like tex://. Screens (inventory,
+    // wardrobe) poll tex://character-preview every 100ms and load
+    // tex://item-icon/<id> for every stack — without this stub the browser
+    // fires hundreds of 404-bound requests per page load. Swap any tex:* URL
+    // to a 1x1 transparent PNG data URL so no request is ever made.
+    const TEX_STUB = 'data:image/gif;base64,R0lGODlhAQABAAAAACw=';
+    function stubTexScheme(win) {
+        try {
+            const ImgProto = win.HTMLImageElement && win.HTMLImageElement.prototype;
+            if (!ImgProto || ImgProto.__tsicTexStubInstalled) return;
+            const desc = Object.getOwnPropertyDescriptor(ImgProto, 'src');
+            if (!desc || !desc.set) return;
+            Object.defineProperty(ImgProto, 'src', {
+                configurable: true,
+                enumerable: desc.enumerable,
+                get: desc.get,
+                set(v) {
+                    if (typeof v === 'string' && /^(tex|pak):/i.test(v)) v = TEX_STUB;
+                    desc.set.call(this, v);
+                },
+            });
+            ImgProto.__tsicTexStubInstalled = true;
+        } catch (e) { /* sandboxed cross-origin iframe — best-effort */ }
+    }
+
     function loadIframe() {
         const iframe = el('pg-iframe');
         const onLoad = () => {
             iframe.removeEventListener('load', onLoad);
             activeWin = iframe.contentWindow;
+            stubTexScheme(activeWin);
             const cats = resolveCatalogs(activeFixture, activeState);
             activeHandle = global.TSICTestHarness.installMockTsic(activeWin, {
                 itemCatalog: cats.items || {},

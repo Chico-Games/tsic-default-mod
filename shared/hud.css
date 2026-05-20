@@ -1,7 +1,7 @@
 #hud-chrome {
   position: fixed; left: 0; top: 0; right: 0; bottom: 0;
   pointer-events: none;
-  z-index: 0;
+  z-index: 10;
 }
 
 #hud-chrome .interaction-prompt {
@@ -18,7 +18,13 @@
   text-transform: uppercase;
 }
 
-/* Toast container is fixed top-right; built by hud.js with inline layout. */
+#toast-container {
+  position: fixed; right: 24px; top: 24px;
+  display: flex; flex-direction: column; gap: 8px;
+  z-index: 100;
+  pointer-events: none;
+}
+
 .toast {
   min-width: 220px;
   max-width: 360px;
@@ -31,13 +37,18 @@
   font-weight: 700;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  pointer-events: auto;
+  pointer-events: none;
   animation: tsic-toast-in 200ms ease-out;
 }
 .toast--info    { border-left-color: var(--cat-green); }
 .toast--warning { border-left-color: #b58a00; }
 .toast--error   { border-left-color: var(--cat-red); }
+.toast--leaving { animation: tsic-toast-out 200ms ease-in forwards; }
 @keyframes tsic-toast-in {
   from { transform: translateX(20px); opacity: 0; }
   to   { transform: translateX(0);    opacity: 1; }
+}
+@keyframes tsic-toast-out {
+  from { transform: translateX(0);    opacity: 1; }
+  to   { transform: translateX(20px); opacity: 0; }
 }

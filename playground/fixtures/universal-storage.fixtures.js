@@ -8,9 +8,11 @@ TSICPlayground.register({
     screen: '/screens/universal-storage.html',
     catalogs: {
         items: {
-            ID_Wood: { Name: 'Wood', Category: 'CraftingMaterial', Weight: 1 },
-            ID_Iron: { Name: 'Iron', Category: 'CraftingMaterial', Weight: 1.5 },
-            ID_Coin: { Name: 'Coin', Category: 'CraftingMaterial', Weight: 0.01 },
+            ID_Wood:  { Name: 'Wood',  Category: 'CraftingMaterial', Weight: 1 },
+            ID_Iron:  { Name: 'Iron',  Category: 'CraftingMaterial', Weight: 1.5 },
+            ID_Stone: { Name: 'Stone', Category: 'CraftingMaterial', Weight: 2 },
+            ID_Coin:  { Name: 'Coin',  Category: 'CraftingMaterial', Weight: 0.01 },
+            ID_Bread: { Name: 'Bread', Category: 'Consumable',       Weight: 0.2 },
         },
     },
     initialState() {
@@ -43,12 +45,30 @@ TSICPlayground.register({
         return out;
     },
     scenarios: [
-        { label: 'Default',         apply() {} },
-        { label: 'Empty universal', apply(s) { s.containers['Universal'].items = []; } },
-        { label: 'Full universal',  apply(s) {
-            s.containers['Universal'].items = Array.from({length: 30}, (_, i) => ({
-                ItemId: 'ID_Wood', Count: 1, SlotIndex: i,
+        { label: 'Default',          apply() {}, expect: { visualChange: false } },
+        { label: 'Empty universal',  apply(s) { s.containers['Universal'].items = []; } },
+        { label: 'Half-full universal', apply(s) {
+            s.containers['Universal'].items = Array.from({length: 32}, (_, i) => ({
+                ItemId: ['ID_Wood','ID_Iron','ID_Stone','ID_Coin','ID_Bread'][i % 5],
+                Count: 1 + (i % 12), SlotIndex: i,
             }));
+        } },
+        { label: 'Full universal',   apply(s) {
+            s.containers['Universal'].items = Array.from({length: 64}, (_, i) => ({
+                ItemId: ['ID_Wood','ID_Iron','ID_Stone','ID_Coin','ID_Bread'][i % 5],
+                Count: 1, SlotIndex: i,
+            }));
+        } },
+        { label: 'Coin-only stash',  apply(s) {
+            s.containers['Universal'].items = [
+                { ItemId: 'ID_Coin', Count: 999, SlotIndex: 0 },
+                { ItemId: 'ID_Coin', Count: 250, SlotIndex: 1 },
+            ];
+        } },
+        { label: 'Player empty',     apply(s) { s.containers['Player'].items = []; } },
+        { label: 'Player overflow',  apply(s) {
+            s.containers['Player'].items = Array.from({length: 8}, (_, i) => ({ ItemId: 'ID_Stone', Count: 5, SlotIndex: i }));
+            s.containers['Player'].maxWeight = 20;
         } },
     ],
     onPublish(state, channel, payload) {

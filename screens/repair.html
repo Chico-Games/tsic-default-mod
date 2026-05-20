@@ -33,36 +33,45 @@
     (function(){
       function whenReady(cb){ if(window.tsic){cb();return;} setTimeout(()=>whenReady(cb),16); }
       let opened = null;
+      let stationId = null;
 
       function render() {
         const host = document.getElementById('repair-list');
         host.innerHTML = '';
-        const items = (opened && opened.Items) || [];
-        if (items.length === 0) {
+        // UI.Recipe.StationOpened publishes `Recipes` (same envelope used by
+        // crafting / upgrade). Each entry has RecipeId + Durability/MaxDurability.
+        const recipes = (opened && opened.Recipes) || [];
+        if (recipes.length === 0) {
           const empty = document.createElement('div');
           empty.className = 'tsic-empty';
           empty.textContent = 'No items here need repair.';
           host.appendChild(empty);
           return;
         }
-        for (const it of items) {
+        for (const r of recipes) {
+          const itemId = r.RecipeId;
+          const dur = (typeof r.Durability === 'number') ? r.Durability : 1;
+          const max = (typeof r.MaxDurability === 'number' && r.MaxDurability > 0) ? r.MaxDurability : 1;
+          const pct = Math.max(0, Math.min(1, dur / max));
           const row = document.createElement('div');
           row.className = 'repair-row';
           const iconWrap = document.createElement('div');
           iconWrap.className = 'icon';
-          if (it.ItemId) {
+          if (itemId) {
             const img = document.createElement('img');
-            img.src = `tex://item-icon/${encodeURIComponent(it.ItemId)}`;
+            img.src = `tex://item-icon/${encodeURIComponent(itemId)}`;
             img.onerror = () => { img.style.visibility = 'hidden'; };
             iconWrap.appendChild(img);
           }
           const label = document.createElement('div');
           label.style.flex = '1';
-          label.textContent = (window.tsic && window.tsic.itemName) ? window.tsic.itemName(it.ItemId) : it.ItemId;
+          const name = (window.tsic && window.tsic.itemName) ? window.tsic.itemName(itemId) : (r.Name || itemId);
+          label.textContent = `${name} — ${Math.round(pct * 100)}%`;
           const btn = document.createElement('button');
           btn.className = 'tsic-button';
-          btn.textContent = 'Repair';
-          btn.onclick = () => tsic.publishMessage('UI.Cmd.Recipe.Start', { Kind: 'Repair', RecipeId: it.ItemId });
+          btn.textContent = pct >= 0.999 ? 'Pristine' : 'Repair';
+          btn.disabled = pct >= 0.999;
+          btn.onclick = () => tsic.publishMessage('UI.Cmd.Recipe.Start', { Kind: 'Repair', StationId: stationId, RecipeId: itemId, Count: 1 });
           row.appendChild(iconWrap);
           row.appendChild(label);
           row.appendChild(btn);
@@ -76,7 +85,7 @@
         // and the helper plumbing already routes through the recipe-family channel.
         tsic.on('tsic.msg.UI.Recipe.StationOpened', (p) => {
           if (!p || p.Kind !== 'Repair') return;
-          opened = p; render();
+          opened = p; stationId = p.StationId; render();
         });
         window.addEventListener('tsic-item-catalog', render);
         document.getElementById('btn-close').onclick = () =>

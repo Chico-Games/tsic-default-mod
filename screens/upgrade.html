@@ -38,11 +38,19 @@
       function whenReady(cb){ if(window.tsic){cb();return;} setTimeout(()=>whenReady(cb),16); }
       let stationId = null;
       let lastRecipes = [];
+      let materialCounts = {};
 
       function render() {
         const host = document.getElementById('recipes');
         host.innerHTML = '';
         const cat = (window.tsic && window.tsic.itemCatalog) || {};
+        if (lastRecipes.length === 0) {
+          const empty = document.createElement('div');
+          empty.className = 'tsic-empty';
+          empty.textContent = 'Already at max tier — no further upgrades available.';
+          host.appendChild(empty);
+          return;
+        }
         for (const r of lastRecipes) {
           const row = document.createElement('div');
           row.className = 'tsic-panel up-row';
@@ -61,17 +69,27 @@
             img.src = `tex://item-icon/${encodeURIComponent(i.ItemId)}`;
             img.onerror = () => { img.style.visibility = 'hidden'; };
             ing.appendChild(img);
+            const have = (materialCounts && materialCounts[i.ItemId]) || 0;
+            const enough = have >= i.Count;
             const lbl = document.createElement('span');
-            lbl.textContent = `${(cat[i.ItemId] || {}).Name || i.ItemId} x${i.Count}`;
+            lbl.textContent = `${(cat[i.ItemId] || {}).Name || i.ItemId} x${i.Count} (have ${have})`;
+            lbl.style.color = enough ? 'var(--cat-ink-dark)' : 'var(--cat-red, #b91c1c)';
             ing.appendChild(lbl);
             ings.appendChild(ing);
           }
           meta.appendChild(ings);
           row.appendChild(meta);
+          const canBuy = window.TSICRecipeInfo
+              ? window.TSICRecipeInfo.canCraft(r, materialCounts)
+              : (r.Ingredients || []).every(i => ((materialCounts && materialCounts[i.ItemId]) || 0) >= i.Count);
           const btn = document.createElement('button');
           btn.className = 'tsic-button';
           btn.textContent = 'Purchase';
-          btn.onclick = () => tsic.publishMessage('UI.Cmd.Recipe.Start', { Kind: 'Upgrade', StationId: stationId, RecipeId: r.RecipeId, Count: 1 });
+          btn.disabled = !canBuy;
+          btn.onclick = () => {
+            if (!canBuy) return;
+            tsic.publishMessage('UI.Cmd.Recipe.Start', { Kind: 'Upgrade', StationId: stationId, RecipeId: r.RecipeId, Count: 1 });
+          };
           row.appendChild(btn);
           host.appendChild(row);
         }
@@ -82,6 +100,7 @@
           if (!p || p.Kind !== 'Upgrade') return;
           stationId = p.StationId;
           lastRecipes = p.Recipes || [];
+          materialCounts = p.MaterialCounts || {};
           render();
         });
         window.addEventListener('tsic-item-catalog', render);

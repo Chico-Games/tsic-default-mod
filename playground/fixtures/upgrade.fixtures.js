@@ -29,18 +29,40 @@ TSICPlayground.register({
         }]];
     },
     scenarios: [
-        { label: 'Plenty', apply() {
+        { label: 'Plenty',          apply() {
             TSICPlaygroundInventory.reset({ items: [
                 { ItemId: 'ID_Iron', Count: 99, SlotIndex: 0 },
                 { ItemId: 'ID_Gold', Count: 99, SlotIndex: 1 },
             ], maxSlots: 32, maxWeight: 999 });
         } },
-        { label: 'Tier 2 ready', apply() {
-            TSICPlaygroundInventory.reset({ items: [{ ItemId: 'ID_Iron', Count: 8, SlotIndex: 0 }], maxSlots: 32, maxWeight: 50 });
+        { label: 'Tier 2 only ready', apply() {
+            TSICPlaygroundInventory.reset({ items: [{ ItemId: 'ID_Iron', Count: 4, SlotIndex: 0 }], maxSlots: 32, maxWeight: 50 });
+        } },
+        { label: 'Tier 2 + partial Tier 3', apply() {
+            TSICPlaygroundInventory.reset({ items: [
+                { ItemId: 'ID_Iron', Count: 8, SlotIndex: 0 },
+                { ItemId: 'ID_Gold', Count: 1, SlotIndex: 1 },
+            ], maxSlots: 32, maxWeight: 50 });
         } },
         { label: 'Insufficient',    apply() {
             TSICPlaygroundInventory.reset({ items: [], maxSlots: 32, maxWeight: 30 });
         } },
+        { label: 'Wrong materials', apply() {
+            TSICPlaygroundInventory.reset({ items: [
+                { ItemId: 'ID_Wood', Count: 99, SlotIndex: 0 },
+                { ItemId: 'ID_Stone', Count: 99, SlotIndex: 1 },
+            ], maxSlots: 32, maxWeight: 50 });
+        } },
+        { label: 'Big tier ladder',  apply(s) { s.recipes = [
+            { RecipeId: 'U_Tier2', Name: 'Tier 2', bDiscovered: true, bStationLevelSufficient: true,
+              Ingredients: [{ ItemId: 'ID_Iron', Count: 4 }] },
+            { RecipeId: 'U_Tier3', Name: 'Tier 3', bDiscovered: true, bStationLevelSufficient: true,
+              Ingredients: [{ ItemId: 'ID_Iron', Count: 8 }, { ItemId: 'ID_Gold', Count: 2 }] },
+            { RecipeId: 'U_Tier4', Name: 'Tier 4', bDiscovered: true, bStationLevelSufficient: true,
+              Ingredients: [{ ItemId: 'ID_Iron', Count: 16 }, { ItemId: 'ID_Gold', Count: 6 }] },
+            { RecipeId: 'U_Tier5', Name: 'Tier 5 (locked)', bDiscovered: false, bStationLevelSufficient: true,
+              Ingredients: [{ ItemId: 'ID_Gold', Count: 20 }] },
+        ]; } },
         { label: 'Maxed (no list)', apply(s) { s.recipes = []; } },
     ],
     onPublish(state, channel, payload) {

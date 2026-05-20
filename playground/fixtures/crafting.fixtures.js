@@ -40,8 +40,6 @@ TSICPlayground.register({
                 Recipes: state.recipes,
                 MaterialCounts: TSICPlaygroundInventory.materialCounts(),
             }],
-            // Also push inventory so the inventory screen stays in sync if
-            // you swap to it via the screen picker without resetting state.
             ['tsic.msg.UI.Inventory.Updated', {
                 OwnerId: 'Player',
                 Items: TSICPlaygroundInventory.items(),
@@ -59,15 +57,41 @@ TSICPlayground.register({
                 { ItemId: 'ID_Stone', Count: 99, SlotIndex: 2 },
             ], maxSlots: 32, maxWeight: 999 });
         } },
-        { label: 'Insufficient', apply() {
+        { label: 'Insufficient (all)', apply() {
             TSICPlaygroundInventory.reset({ items: [{ ItemId: 'ID_Wheat', Count: 1, SlotIndex: 0 }], maxSlots: 32, maxWeight: 30 });
         } },
         { label: 'Just enough for bread', apply() {
             TSICPlaygroundInventory.reset({ items: [{ ItemId: 'ID_Wheat', Count: 2, SlotIndex: 0 }], maxSlots: 32, maxWeight: 30 });
         } },
-        { label: 'All locked',            apply(s) { s.recipes = s.recipes.map(r => ({ ...r, bDiscovered: false })); } },
+        // Material counts shift but the recipe affordability flag is the same
+        // as initial (both bread and axe affordable in both states), so the
+        // visible list/buttons don't change. Inject still fires.
+        { label: 'Bread + axe affordable', apply() {
+            TSICPlaygroundInventory.reset({ items: [
+                { ItemId: 'ID_Wheat', Count: 5, SlotIndex: 0 },
+                { ItemId: 'ID_Wood',  Count: 3, SlotIndex: 1 },
+                { ItemId: 'ID_Stone', Count: 1, SlotIndex: 2 },
+            ], maxSlots: 32, maxWeight: 30 });
+        }, expect: { visualChange: false } },
+        { label: 'Most discovered',     apply(s) {
+            s.recipes = s.recipes.map(r => ({ ...r, bDiscovered: true }));
+        } },
+        { label: 'All locked',          apply(s) { s.recipes = s.recipes.map(r => ({ ...r, bDiscovered: false })); } },
         { label: 'Station level too low', apply(s) { s.recipes = s.recipes.map(r => ({ ...r, bStationLevelSufficient: false, RequiredStationLevel: 3 })); } },
-        { label: 'Empty list',            apply(s) { s.recipes = []; } },
+        { label: 'Big recipe list',     apply(s) {
+            s.recipes = [
+                ...s.recipes,
+                { RecipeId: 'R_Apple',  Name: 'Apple Pie',  bDiscovered: true, bStationLevelSufficient: true,
+                  Ingredients: [{ ItemId: 'ID_Apple', Count: 3 }], Outputs: [{ ItemId: 'ID_Bread', Count: 1 }], Duration: 4 },
+                { RecipeId: 'R_Rope',   Name: 'Rope',       bDiscovered: true, bStationLevelSufficient: true,
+                  Ingredients: [{ ItemId: 'ID_Wheat', Count: 3 }], Outputs: [{ ItemId: 'ID_Rope', Count: 1 }], Duration: 2 },
+                { RecipeId: 'R_Nail',   Name: 'Nail x4',    bDiscovered: true, bStationLevelSufficient: true,
+                  Ingredients: [{ ItemId: 'ID_Iron', Count: 1 }], Outputs: [{ ItemId: 'ID_Nail', Count: 4 }], Duration: 3 },
+                { RecipeId: 'R_Coin',   Name: 'Coin',       bDiscovered: false, bStationLevelSufficient: true,
+                  Ingredients: [{ ItemId: 'ID_Gold', Count: 1 }], Outputs: [{ ItemId: 'ID_Coin', Count: 10 }], Duration: 5 },
+            ];
+        } },
+        { label: 'Empty list',          apply(s) { s.recipes = []; } },
     ],
     onPublish(state, channel, payload) {
         if (channel === 'UI.Cmd.Recipe.Start' && payload.Kind === 'Crafting') {

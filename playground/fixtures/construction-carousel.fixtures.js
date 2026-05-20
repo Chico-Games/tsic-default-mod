@@ -24,12 +24,22 @@ TSICPlayground.register({
     },
     project(state) { return [['tsic.msg.UI.Construction.Carousel', state.carousel]]; },
     scenarios: [
-        { label: 'Default',     apply() {} },
-        { label: 'Blocked',     apply(s) { s.carousel.BlockedReason = 'Overlap'; } },
-        { label: 'No prev/next',apply(s) { s.carousel.Prev = []; s.carousel.Next = []; } },
-        { label: 'Roll forward',apply(s) {
+        { label: 'Default',          apply() {}, expect: { visualChange: false } },
+        { label: 'Blocked (overlap)',apply(s) { s.carousel.BlockedReason = 'Overlap'; } },
+        { label: 'Blocked (no floor)',apply(s) { s.carousel.BlockedReason = 'NoFloor'; } },
+        { label: 'No prev/next',     apply(s) { s.carousel.Prev = []; s.carousel.Next = []; } },
+        { label: 'No prev only',     apply(s) { s.carousel.Prev = []; } },
+        { label: 'No next only',     apply(s) { s.carousel.Next = []; } },
+        { label: 'Long lists',       apply(s) {
+            s.carousel.Prev = Array.from({length: 6}, (_, i) => ({ Label: 'Prev ' + i, FurnitureId: 'CBD_Prev' + i }));
+            s.carousel.Next = Array.from({length: 6}, (_, i) => ({ Label: 'Next ' + i, FurnitureId: 'CBD_Next' + i }));
+        } },
+        { label: 'Pitch axis',       apply(s) { s.carousel.RotationAxis = 'Pitch'; } },
+        { label: 'Roll axis',        apply(s) { s.carousel.RotationAxis = 'Roll'; } },
+        { label: 'Roll forward',     apply(s) {
             s.carousel.Prev.unshift(s.carousel.Current);
             s.carousel.Current = s.carousel.Next.shift();
         } },
+        { label: 'Long label',       apply(s) { s.carousel.Current = { Label: 'Constructed reinforced workbench', FurnitureId: 'CBD_LongLabel' }; } },
     ],
 });

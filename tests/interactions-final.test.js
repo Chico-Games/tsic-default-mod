@@ -109,9 +109,9 @@ TSICTestHarness.register({
     },
 });
 
-// ---- Loading: progress between 0 and 1 ----------------------------------
+// ---- Loading: label updates re-render -----------------------------------
 TSICTestHarness.register({
-    name: 'LoadingScreen: progress updates re-render the bar',
+    name: 'LoadingScreen: label updates re-render',
     file: '/screens/loading-screen.html',
     async run(ctx) {
         ctx.inject('tsic.msg.UI.Loading.Progress', { Progress: 0.1, Label: 'Step 1' });

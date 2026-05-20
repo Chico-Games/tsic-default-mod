@@ -27,6 +27,10 @@
                 const desc = cat[it.ItemId] || {};
                 const row = el('div', { className: 'tsic-list-row' });
                 row.dataset.slot = it.SlotIndex;
+                // Opt the row into the spatial-nav focus engine. The engine
+                // only renders a focus ring under Gamepad mode, so mouse/KBM
+                // users see no visual change.
+                row.setAttribute('data-tsic-focusable', '');
                 if (opts.selectedIdx === it.SlotIndex) row.classList.add('is-selected');
 
                 const iconWrap = el('div', { className: 'icon' });

@@ -58,6 +58,34 @@ TSICPlayground.register({
                 { ItemId: 'ID_Coin',  Count: 42, SlotIndex: 6 },
             ], maxSlots: 32, maxWeight: 50 });
         } },
+        { label: 'Big stacks (99)', apply() {
+            TSICPlaygroundInventory.reset({ items: [
+                { ItemId: 'ID_Wood',  Count: 99, SlotIndex: 0 },
+                { ItemId: 'ID_Stone', Count: 99, SlotIndex: 1 },
+                { ItemId: 'ID_Bread', Count: 99, SlotIndex: 2 },
+                { ItemId: 'ID_Wheat', Count: 99, SlotIndex: 3 },
+            ], maxSlots: 32, maxWeight: 999 });
+        } },
+        { label: 'Mostly full grid', apply() {
+            TSICPlaygroundInventory.reset({
+                items: Array.from({length: 24}, (_, i) => ({
+                    ItemId: ['ID_Wood','ID_Stone','ID_Bread','ID_Wheat','ID_Coin','ID_Rope'][i % 6],
+                    Count: 1 + (i * 3) % 9,
+                    SlotIndex: i,
+                })),
+                maxSlots: 32, maxWeight: 200,
+            });
+        } },
+        { label: 'Full grid (32/32)', apply() {
+            TSICPlaygroundInventory.reset({
+                items: Array.from({length: 32}, (_, i) => ({
+                    ItemId: ['ID_Wood','ID_Stone','ID_Bread','ID_Wheat','ID_Coin','ID_Iron','ID_Rope','ID_Nail'][i % 8],
+                    Count: 1 + (i * 7) % 13,
+                    SlotIndex: i,
+                })),
+                maxSlots: 32, maxWeight: 999,
+            });
+        } },
         { label: '75% capacity', apply() {
             TSICPlaygroundInventory.reset({ items: [{ ItemId: 'ID_Stone', Count: 11, SlotIndex: 0 }], maxSlots: 32, maxWeight: 30 });
         } },
@@ -67,9 +95,33 @@ TSICPlayground.register({
                 maxSlots: 32, maxWeight: 10,
             });
         } },
+        { label: 'Tiny capacity', apply() {
+            TSICPlaygroundInventory.reset({
+                items: [
+                    { ItemId: 'ID_Bread', Count: 1, SlotIndex: 0 },
+                    { ItemId: 'ID_Wood',  Count: 1, SlotIndex: 1 },
+                ],
+                maxSlots: 4, maxWeight: 3,
+            });
+        } },
+        { label: 'Sparse gaps', apply() {
+            TSICPlaygroundInventory.reset({ items: [
+                { ItemId: 'ID_Bread', Count: 1,  SlotIndex: 0 },
+                { ItemId: 'ID_Wood',  Count: 2,  SlotIndex: 5 },
+                { ItemId: 'ID_Stone', Count: 3,  SlotIndex: 10 },
+                { ItemId: 'ID_Axe',   Count: 1,  SlotIndex: 31 },
+            ], maxSlots: 32, maxWeight: 30 });
+        } },
         { label: 'Pickup +bread', apply() { TSICPlaygroundInventory.add('ID_Bread', 1); } },
-        { label: 'Equip axe',     apply(s) {
+        { label: 'Equip axe', apply(s) {
             s.equipment.Slots = [{ SlotTag: 'Equipment.MainHand', ItemId: 'ID_Axe' }];
+        } },
+        { label: 'Equip full kit', apply(s) {
+            s.equipment.Slots = [
+                { SlotTag: 'Equipment.MainHand', ItemId: 'ID_Axe' },
+                { SlotTag: 'Equipment.OffHand',  ItemId: 'ID_Hammer' },
+                { SlotTag: 'Equipment.Head',     ItemId: 'ID_Hammer' },
+            ];
         } },
     ],
     onPublish(state, channel, payload) {

@@ -8,17 +8,23 @@ TSICPlayground.register({
     screen: '/screens/wardrobe.html',
     catalogs: {
         items: {
-            ID_HatBlue: { Name: 'Blue Cap', Category: 'Cosmetic' },
-            ID_HatRed:  { Name: 'Red Cap',  Category: 'Cosmetic' },
-            ID_Coat:    { Name: 'Coat',     Category: 'Cosmetic' },
+            ID_HatBlue:  { Name: 'Blue Cap',   Category: 'Cosmetic' },
+            ID_HatRed:   { Name: 'Red Cap',    Category: 'Cosmetic' },
+            ID_HatGold:  { Name: 'Gold Crown', Category: 'Cosmetic' },
+            ID_Coat:     { Name: 'Coat',       Category: 'Cosmetic' },
+            ID_Robe:     { Name: 'Robe',       Category: 'Cosmetic' },
+            ID_BootsBlk: { Name: 'Black Boots',Category: 'Cosmetic' },
+            ID_BootsBrn: { Name: 'Brown Boots',Category: 'Cosmetic' },
+            ID_Gloves:   { Name: 'Gloves',     Category: 'Cosmetic' },
         },
     },
     initialState() {
         return {
             slots: [
-                { SlotTag: 'Equipment.Cosmetic.Head', ItemId: 'ID_HatBlue', IconUrl: '' },
-                { SlotTag: 'Equipment.Cosmetic.Body', ItemId: 'ID_Coat',    IconUrl: '' },
-                { SlotTag: 'Equipment.Cosmetic.Feet', ItemId: '',           IconUrl: '' },
+                { SlotTag: 'Equipment.Cosmetic.Head',  ItemId: 'ID_HatBlue',  IconUrl: '' },
+                { SlotTag: 'Equipment.Cosmetic.Body',  ItemId: 'ID_Coat',     IconUrl: '' },
+                { SlotTag: 'Equipment.Cosmetic.Feet',  ItemId: '',            IconUrl: '' },
+                { SlotTag: 'Equipment.Cosmetic.Hands', ItemId: '',            IconUrl: '' },
             ],
         };
     },
@@ -29,13 +35,38 @@ TSICPlayground.register({
         ];
     },
     scenarios: [
-        { label: 'Default',         apply() {} },
-        { label: 'Empty',           apply(s) { s.slots = s.slots.map(slot => ({ ...slot, ItemId: '' })); } },
-        { label: 'Hat swap (red)',  apply(s) { s.slots[0].ItemId = 'ID_HatRed'; } },
-        { label: 'Full set',        apply(s) {
-            s.slots[0].ItemId = 'ID_HatBlue';
-            s.slots[1].ItemId = 'ID_Coat';
-            s.slots[2].ItemId = 'ID_HatRed'; // placeholder for feet
+        { label: 'Default',          apply() {}, expect: { visualChange: false } },
+        { label: 'Empty',            apply(s) { s.slots = s.slots.map(slot => ({ ...slot, ItemId: '' })); } },
+        { label: 'Hat swap (red)',   apply(s) {
+            const head = s.slots.find(x => x.SlotTag === 'Equipment.Cosmetic.Head');
+            if (head) head.ItemId = 'ID_HatRed';
+        } },
+        { label: 'Hat swap (gold)',  apply(s) {
+            const head = s.slots.find(x => x.SlotTag === 'Equipment.Cosmetic.Head');
+            if (head) head.ItemId = 'ID_HatGold';
+        } },
+        { label: 'Robe outfit',      apply(s) {
+            const find = tag => s.slots.find(x => x.SlotTag === tag);
+            find('Equipment.Cosmetic.Head').ItemId = 'ID_HatGold';
+            find('Equipment.Cosmetic.Body').ItemId = 'ID_Robe';
+            find('Equipment.Cosmetic.Feet').ItemId = 'ID_BootsBlk';
+        } },
+        { label: 'Full set',         apply(s) {
+            const find = tag => s.slots.find(x => x.SlotTag === tag);
+            find('Equipment.Cosmetic.Head').ItemId  = 'ID_HatBlue';
+            find('Equipment.Cosmetic.Body').ItemId  = 'ID_Coat';
+            find('Equipment.Cosmetic.Feet').ItemId  = 'ID_BootsBrn';
+            find('Equipment.Cosmetic.Hands').ItemId = 'ID_Gloves';
+        } },
+        { label: 'Mismatched palette', apply(s) {
+            const find = tag => s.slots.find(x => x.SlotTag === tag);
+            find('Equipment.Cosmetic.Head').ItemId  = 'ID_HatRed';
+            find('Equipment.Cosmetic.Body').ItemId  = 'ID_Robe';
+            find('Equipment.Cosmetic.Feet').ItemId  = 'ID_BootsBrn';
+            find('Equipment.Cosmetic.Hands').ItemId = 'ID_Gloves';
+        } },
+        { label: 'Hat only',         apply(s) {
+            s.slots = s.slots.map(slot => ({ ...slot, ItemId: slot.SlotTag === 'Equipment.Cosmetic.Head' ? 'ID_HatBlue' : '' }));
         } },
     ],
     onPublish(state, channel, payload) {
