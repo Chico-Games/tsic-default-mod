@@ -1,5 +1,5 @@
 TSICTestHarness.register({
-    name: 'SaveLoad: renders slots and Load publishes',
+    name: 'SaveLoad: renders slots and clicking the row publishes LoadSlot',
     file: '/screens/save-load.html',
     async run(ctx) {
         ctx.inject('tsic.msg.UI.Save.Slots', {
@@ -9,10 +9,11 @@ TSICTestHarness.register({
             ],
         });
         await new Promise(r => setTimeout(r, 80));
-        ctx.expect(ctx.assert.truthy(ctx.doc.body.textContent.indexOf('Slot 1') >= 0));
+        const rows = ctx.doc.querySelectorAll('#slots button.slot-row');
+        ctx.expect(ctx.assert.truthy(rows.length === 2));
         ctx.clearPublishes();
-        const load = Array.from(ctx.doc.querySelectorAll('button')).find(b => /load/i.test(b.textContent || ''));
-        load && load.click();
-        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Menu.LoadSlot'));
+        rows[0].click();
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Menu.LoadSlot',
+            { where: p => p.SlotId === 's1' }));
     },
 });

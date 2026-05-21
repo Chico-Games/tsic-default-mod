@@ -44,8 +44,26 @@
     #inv-info h3 { font-size: 14px; }
     #inv-info p { margin: 4px 0; }
     #inv-equip-row { display:flex; gap:6px; padding:6px; background: rgba(184,170,145,0.35); border:1px solid var(--tsic-border); flex-wrap: wrap; flex: 0 0 auto; }
-    .equip-slot { width:42px; height:42px; background: rgba(241,229,207,0.55); border:1px solid var(--tsic-border); display:flex; align-items:center; justify-content:center; font-size:9px; color: var(--cat-ink-soft); cursor:pointer; }
+    .equip-slot {
+      width:48px; height:48px;
+      background: rgba(241,229,207,0.55);
+      border:1px solid var(--tsic-border);
+      display:flex; align-items:center; justify-content:center;
+      font-size:9px; letter-spacing:1px; text-transform:uppercase;
+      color: var(--cat-ink-soft);
+      cursor:pointer;
+      position: relative;
+    }
+    .equip-slot.is-empty {
+      background: rgba(241,229,207,0.20);
+      border-style: dashed;
+      color: var(--cat-ink-muted, var(--cat-ink-soft));
+      opacity: 0.75;
+    }
+    .equip-slot:hover { background: rgba(241,229,207,0.88); }
+    .equip-slot.is-empty:hover { background: rgba(241,229,207,0.45); opacity: 1; }
     .equip-slot img { width:100%; height:100%; object-fit:contain; pointer-events:none; }
+    .equip-slot.is-drop-target { outline: 2px solid var(--cat-green); outline-offset: -2px; }
     #inv-char-preview { flex: 1 1 auto; min-height: 120px; background: rgba(241,229,207,0.92); border:1px solid var(--tsic-border); display:flex; align-items:center; justify-content:center; }
     #inv-char-preview img { width:100%; height:100%; object-fit:contain; }
   </style>
@@ -54,7 +72,7 @@
   <div id="inv-panel" class="tsic-panel tsic-panel--screen">
     <div id="inv-header">
       <h2 class="tsic-title" style="margin:0;">Inventory</h2>
-      <div id="inv-tabs"></div>
+      <div id="inv-tabs" data-tsic-tab-bar></div>
       <div class="spacer"></div>
       <div id="inv-capacity">
         <div id="inv-capacity-line">
@@ -165,18 +183,14 @@
             onClick: (it) => {
                 if (!it) return;
                 selectedSlot = it.SlotIndex;
-                refresh();
-            },
-            onDblClick: (it) => {
-                if (!it) return;
                 const desc = cat[it.ItemId];
-                if (!desc) return;
-                if (desc.Category === 'Equipment') {
+                if (desc && desc.Category === 'Equipment') {
                     tsic.publishMessage('UI.Cmd.Equipment.Equip', { ItemId: String(it.SlotIndex), SlotTag: '' });
-                } else if (desc.Category === 'Consumable') {
+                } else if (desc && desc.Category === 'Consumable') {
                     tsic.publishMessage('UI.Cmd.Inventory.Use', { OwnerId: 'Player', SlotIndex: it.SlotIndex });
                 }
-                // Materials / Other: no-op (selection-only).
+                // Materials / Other: no primary action — clicking just selects + shows info.
+                refresh();
             },
             onRMB: (it, e) => {
                 if (!it) return;
@@ -191,13 +205,6 @@
                 });
                 window.TSICContextMenu.open({ x: e.clientX, y: e.clientY, entries });
             },
-            onDrop: (src, targetSlot) => {
-                if (src.slot === targetSlot) return;
-                tsic.publishMessage('UI.Cmd.Inventory.Transfer', {
-                    FromOwnerId: 'Player', ToOwnerId: 'Player',
-                    FromSlot: src.slot, ToSlot: targetSlot, Count: 0
-                });
-            }
         };
         window.TSICInventory.renderList(document.getElementById('inv-list'), items, opts);
 
@@ -227,15 +234,37 @@
         window.TSICInventory.renderInfoPanel(host, desc, instance);
     }
 
+    // Canonical slot order the inventory always shows, even before the
+    // server has sent UI.Equipment.Updated. Once a real update arrives any
+    // additional/replaced slot tags from the server take precedence.
+    const DEFAULT_EQUIP_SLOTS = [
+        'Equipment.MainHand',
+        'Equipment.OffHand',
+        'Equipment.Head',
+        'Equipment.Body',
+        'Equipment.Feet',
+    ];
+
     function renderEquipment() {
         const host = document.getElementById('inv-equip-row');
         host.innerHTML = '';
-        const slots = (lastEquipment && lastEquipment.Slots) || [];
-        for (const s of slots) {
+        // Build a tag→slot map from server data so the canonical order
+        // controls layout while server-provided ItemIds populate it.
+        const byTag = new Map();
+        const serverSlots = (lastEquipment && lastEquipment.Slots) || [];
+        for (const s of serverSlots) if (s && s.SlotTag) byTag.set(s.SlotTag, s);
+        // Default order first, then any extra server slots not in the default set.
+        const tagOrder = DEFAULT_EQUIP_SLOTS.slice();
+        for (const s of serverSlots) {
+            if (s && s.SlotTag && tagOrder.indexOf(s.SlotTag) === -1) tagOrder.push(s.SlotTag);
+        }
+        for (const tag of tagOrder) {
+            const s = byTag.get(tag) || { SlotTag: tag, ItemId: '' };
             const div = document.createElement('div');
-            div.className = 'equip-slot';
+            const isEmpty = !s.ItemId;
+            div.className = 'equip-slot' + (isEmpty ? ' is-empty' : '');
             const label = (s.SlotTag || '').split('.').pop();
-            if (s.ItemId) {
+            if (!isEmpty) {
                 const img = document.createElement('img');
                 img.src = `tex://item-icon/${encodeURIComponent(s.ItemId)}`;
                 div.appendChild(img);
@@ -245,6 +274,7 @@
                 });
             } else {
                 div.textContent = label;
+                div.title = `${label} (empty)`;
             }
             // Every equipment slot accepts an inventory-row drop. The backend's
             // RequestEquip routes the item to the slot that matches its type, so
@@ -281,6 +311,9 @@
     }
 
     whenReady(() => {
+        // Render the empty-slot squares immediately so the inventory shows
+        // the player's slots even before the server sends Equipment.Updated.
+        renderEquipment();
         tsic.on('tsic.msg.UI.Inventory.Updated', (p) => {
             if (!p || p.OwnerId !== 'Player') return;
             lastUpdate = p;

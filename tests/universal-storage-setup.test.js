@@ -10,14 +10,14 @@ TSICTestHarness.register({
 });
 
 TSICTestHarness.register({
-    name: 'UniversalStorageSetup: clicking Bind publishes LinkGroup',
+    name: 'UniversalStorageSetup: clicking a group row publishes LinkGroup',
     file: '/screens/universal-storage-setup.html?entityId=42',
     async run(ctx) {
         ctx.inject('tsic.msg.UI.UniversalStorage.Groups', { GroupNames: ['Vault'] });
         await new Promise(r => setTimeout(r, 60));
         ctx.clearPublishes();
-        const bind = Array.from(ctx.doc.querySelectorAll('button')).find(b => /bind/i.test(b.textContent || ''));
-        bind && bind.click();
+        const row = ctx.doc.querySelector('#uss-list button.uss-row');
+        row && row.click();
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.UniversalStorage.LinkGroup',
             { where: p => p.GroupName === 'Vault' && p.EntityId === 42 }));
     },

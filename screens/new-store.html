@@ -31,14 +31,35 @@
     #layout-dd:hover { background: var(--cat-green-hover, var(--cat-green));
             color: #f7edd9; }
     #layout-dd .tsic-dropdown-caret { font-size: 12px; opacity: 0.9; }
-    .mods { display: flex; flex-direction: column; gap: 4px;
-            border: 1px solid rgba(184,170,145,0.45); padding: 8px;
-            background: rgba(241,229,207,0.45); }
-    .mod-row { display: flex; align-items: center; gap: 8px; padding: 4px 0; }
-    .mod-row .name { flex: 1; }
-    .mod-row button { background: rgba(241,229,207,0.88);
+    .mods-split { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .mods-panel {
+            display: flex; flex-direction: column;
+            border: 1px solid rgba(184,170,145,0.45);
+            background: rgba(241,229,207,0.45);
+            min-height: 120px; max-height: 240px;
+    }
+    .mods-panel-head {
+            padding: 4px 8px; font-size: 10px; letter-spacing: 3px;
+            text-transform: uppercase; color: var(--cat-ink-soft);
+            border-bottom: 1px solid rgba(184,170,145,0.35);
+    }
+    .mods-list { flex: 1; overflow-y: auto; padding: 4px; display: flex; flex-direction: column; gap: 2px; }
+    .mods-list-empty { font-size: 11px; opacity: 0.5; padding: 6px 4px; font-style: italic; }
+    .mod-row {
+            display: flex; align-items: center; gap: 4px;
+            padding: 3px 4px;
+            background: rgba(241,229,207,0.55);
+            border: 1px solid transparent;
+    }
+    .mod-row:hover { background: rgba(241,229,207,0.85); border-color: var(--tsic-border); }
+    .mod-row .name { flex: 1; font-size: 12px; }
+    .mod-row button {
+            background: rgba(241,229,207,0.88);
             border: 1px solid rgba(184,170,145,0.45); color: var(--cat-ink-dark);
-            padding: 2px 8px; cursor: pointer; }
+            padding: 1px 7px; cursor: pointer; font-size: 12px; line-height: 1.4;
+    }
+    .mod-row button:hover { background: rgba(241,229,207,1.0); }
+    .mod-row button:disabled { opacity: 0.35; cursor: not-allowed; }
     .actions { margin-top: 24px; display: flex; justify-content: space-between; }
     .manage-link { display: inline-block; margin-top: 6px;
             color: var(--cat-ink-soft); cursor: pointer;
@@ -57,7 +78,16 @@
       </button>
 
       <label>Active Mods</label>
-      <div class="mods" id="mods" data-tsic-focus-group="mods"></div>
+      <div class="mods-split">
+        <div class="mods-panel" data-tsic-focus-group="mods-enabled">
+          <div class="mods-panel-head">Enabled</div>
+          <div id="mods-enabled" class="mods-list"></div>
+        </div>
+        <div class="mods-panel" data-tsic-focus-group="mods-available">
+          <div class="mods-panel-head">Available</div>
+          <div id="mods-available" class="mods-list"></div>
+        </div>
+      </div>
       <span class="manage-link" id="link-manage" data-tsic-focusable tabindex="0">Manage Mods →</span>
     </div>
 
@@ -95,43 +125,78 @@
       }
 
       function renderMods() {
-        const host = document.getElementById('mods');
-        host.innerHTML = '';
+        const enabledHost = document.getElementById('mods-enabled');
+        const availHost = document.getElementById('mods-available');
+        enabledHost.innerHTML = '';
+        availHost.innerHTML = '';
         const indexOf = (id) => order.indexOf(id) >= 0 ? order.indexOf(id) : 9999;
-        mods.sort((a, b) => indexOf(a.ModId) - indexOf(b.ModId));
+        const enabled  = mods.filter(m =>  m.bEnabled).sort((a, b) => indexOf(a.ModId) - indexOf(b.ModId));
+        const available = mods.filter(m => !m.bEnabled);
 
-        for (const m of mods) {
-          const row = document.createElement('div');
-          row.className = 'mod-row';
-
-          const cb = document.createElement('input');
-          cb.type = 'checkbox';
-          cb.checked = !!m.bEnabled;
-          cb.onchange = (e) => tsic.publishMessage('UI.Cmd.Mod.SetEnabled',
-            { ModId: m.ModId, Enabled: e.target.checked });
-
-          const name = document.createElement('span');
-          name.className = 'name';
-          name.textContent = String(m.DisplayName || '');
-
-          const up = document.createElement('button');
-          up.dataset.act = 'up';
-          up.textContent = '↑';
-          up.onclick = () => move(m.ModId, -1);
-
-          const down = document.createElement('button');
-          down.dataset.act = 'down';
-          down.textContent = '↓';
-          down.onclick = () => move(m.ModId, +1);
-
-          row.append(cb, name, up, down);
-          host.appendChild(row);
+        function setEnabled(id, on) {
+          tsic.publishMessage('UI.Cmd.Mod.SetEnabled', { ModId: id, Enabled: on });
         }
-        if (!mods.length) {
+
+        if (enabled.length === 0) {
           const empty = document.createElement('div');
-          empty.style.opacity = '0.6';
-          empty.textContent = 'No mods installed. Open Manage Mods to subscribe.';
-          host.appendChild(empty);
+          empty.className = 'mods-list-empty';
+          empty.textContent = 'No mods enabled.';
+          enabledHost.appendChild(empty);
+        } else {
+          for (let i = 0; i < enabled.length; i++) {
+            const m = enabled[i];
+            const row = document.createElement('div');
+            row.className = 'mod-row';
+            row.setAttribute('data-tsic-focusable', '');
+            row.tabIndex = -1;
+
+            const name = document.createElement('span');
+            name.className = 'name';
+            name.textContent = String(m.DisplayName || m.ModId || '');
+
+            const up = document.createElement('button');
+            up.type = 'button'; up.textContent = '↑'; up.title = 'Move up';
+            up.disabled = (i === 0);
+            up.onclick = () => move(m.ModId, -1);
+
+            const down = document.createElement('button');
+            down.type = 'button'; down.textContent = '↓'; down.title = 'Move down';
+            down.disabled = (i === enabled.length - 1);
+            down.onclick = () => move(m.ModId, +1);
+
+            const remove = document.createElement('button');
+            remove.type = 'button'; remove.textContent = '→'; remove.title = 'Disable (move to Available)';
+            remove.onclick = () => setEnabled(m.ModId, false);
+
+            row.append(name, up, down, remove);
+            enabledHost.appendChild(row);
+          }
+        }
+
+        if (available.length === 0) {
+          const empty = document.createElement('div');
+          empty.className = 'mods-list-empty';
+          empty.textContent = mods.length ? 'All installed mods are enabled.'
+                                          : 'No mods installed. Open Manage Mods to subscribe.';
+          availHost.appendChild(empty);
+        } else {
+          for (const m of available) {
+            const row = document.createElement('div');
+            row.className = 'mod-row';
+            row.setAttribute('data-tsic-focusable', '');
+            row.tabIndex = -1;
+
+            const add = document.createElement('button');
+            add.type = 'button'; add.textContent = '←'; add.title = 'Enable (move to Enabled)';
+            add.onclick = () => setEnabled(m.ModId, true);
+
+            const name = document.createElement('span');
+            name.className = 'name';
+            name.textContent = String(m.DisplayName || m.ModId || '');
+
+            row.append(add, name);
+            availHost.appendChild(row);
+          }
         }
       }
 

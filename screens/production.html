@@ -84,6 +84,8 @@
             const locked = !r.bDiscovered || !r.bStationLevelSufficient;
             const row = document.createElement('div');
             row.className = 'tsic-list-row' + (selectedRecipeId === r.RecipeId ? ' is-selected' : '') + (locked ? ' is-locked' : '');
+            row.setAttribute('data-tsic-focusable', '');
+            row.tabIndex = -1;
 
             const iconWrap = document.createElement('div');
             iconWrap.className = 'icon';
@@ -106,7 +108,16 @@
             if (locked) right.textContent = !r.bDiscovered ? 'undiscovered' : 'station Lv. ↑';
             row.appendChild(right);
 
-            row.addEventListener('click', () => { selectedRecipeId = r.RecipeId; renderAll(); });
+            const selectRecipe = () => { selectedRecipeId = r.RecipeId; renderAll(); };
+            const commitRecipe = () => {
+                selectRecipe();
+                const add = document.getElementById('p-add');
+                if (add && !add.disabled) add.click();
+            };
+            row.addEventListener('click', selectRecipe);
+            row.addEventListener('focusin', selectRecipe);
+            row.addEventListener('dblclick', commitRecipe);
+            row.addEventListener('tsic:confirm', (e) => { e.preventDefault(); commitRecipe(); });
             host.appendChild(row);
         }
     }

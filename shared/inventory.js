@@ -11,9 +11,11 @@
     window.TSICInventory = {
         el,
         // Vertical scrollable item list. Renders one .tsic-list-row per stack
-        // (not per slot — empty slots aren't shown). Each row is icon | name |
-        // right-aligned count and weight. Drag-drop is per-stack on the visible
-        // slot index. Used by inventory + storage.
+        // (RE-style — no slot grid, no reorder; SlotIndex is just an identity).
+        // Each row is a real <button> so gamepad Confirm + mouse click both
+        // trigger opts.onClick. Drag is one-way: rows can be dragstart sources
+        // (used by inventory.html to drag onto equipment slots) but rows are
+        // not drop targets — there's no in-list reorder.
         renderList(host, items, opts) {
             const cat = (opts && opts.catalog) || (window.tsic && window.tsic.itemCatalog) || {};
             host.innerHTML = '';
@@ -25,12 +27,9 @@
             }
             for (const it of list) {
                 const desc = cat[it.ItemId] || {};
-                const row = el('div', { className: 'tsic-list-row' });
+                const row = el('button', { className: 'tsic-list-row' });
+                row.type = 'button';
                 row.dataset.slot = it.SlotIndex;
-                // Opt the row into the spatial-nav focus engine. The engine
-                // only renders a focus ring under Gamepad mode, so mouse/KBM
-                // users see no visual change.
-                row.setAttribute('data-tsic-focusable', '');
                 if (opts.selectedIdx === it.SlotIndex) row.classList.add('is-selected');
 
                 const iconWrap = el('div', { className: 'icon' });
@@ -63,13 +62,6 @@
                     row.classList.add('is-dragging');
                 });
                 row.addEventListener('dragend', () => row.classList.remove('is-dragging'));
-                row.addEventListener('dragover', (e) => e.preventDefault());
-                row.addEventListener('drop', (e) => {
-                    e.preventDefault();
-                    const raw = e.dataTransfer.getData('application/tsic-item');
-                    if (!raw) return;
-                    try { opts.onDrop && opts.onDrop(JSON.parse(raw), it.SlotIndex); } catch {}
-                });
                 host.appendChild(row);
             }
         },

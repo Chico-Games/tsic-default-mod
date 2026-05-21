@@ -12,7 +12,9 @@
   <script src="/shared/tsic-dropdown.js" defer></script>
 </head><body>
   <style>
-    .slot-row { display: grid; grid-template-columns: 84px 1fr auto;
+    /* Slot row is a tsic-row-button; override default flex with a grid so the
+       thumb / meta layout matches the original. */
+    .slot-row { display: grid; grid-template-columns: 84px 1fr;
                 gap: 12px; align-items: center; padding: 10px 12px; }
     .slot-thumb { width: 84px; height: 56px; background: rgba(35,31,24,0.20);
                   border: 1px solid var(--cat-border);
@@ -76,8 +78,10 @@
             return;
           }
           for (const s of slots) {
-            const el = document.createElement('div');
-            el.className = 'tsic-panel slot-row';
+            const el = document.createElement('button');
+            el.type = 'button';
+            el.className = 'tsic-row-button slot-row';
+            el.setAttribute('aria-label', `Load save from ${formatOpened(s.TimestampIso)}`);
 
             const thumbWrap = document.createElement('div');
             thumbWrap.className = 'slot-thumb';
@@ -101,12 +105,8 @@
             playtime.textContent = `Playtime ${formatPlaytime(s.PlaytimeSeconds)}`;
             meta.append(opened, playtime);
 
-            const load = document.createElement('button');
-            load.className = 'tsic-button';
-            load.textContent = 'Load';
-            load.onclick = () => tsic.publishMessage('UI.Cmd.Menu.LoadSlot', { SlotId: s.SlotId });
-
-            el.append(thumbWrap, meta, load);
+            el.append(thumbWrap, meta);
+            el.onclick = () => tsic.publishMessage('UI.Cmd.Menu.LoadSlot', { SlotId: s.SlotId });
             host.appendChild(el);
           }
         });

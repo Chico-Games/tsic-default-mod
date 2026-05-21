@@ -31,6 +31,8 @@
                 const li = document.createElement('div');
                 li.className = 'lore-index' + (i === index ? ' current' : '');
                 li.textContent = (texts[i] && texts[i].Heading) || `(${i + 1})`;
+                li.setAttribute('data-tsic-focusable', '');
+                li.tabIndex = -1;
                 li.onclick = () => { index = clamp(i); render(); publishSelect(); };
                 list.appendChild(li);
             }

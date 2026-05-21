@@ -15,8 +15,9 @@
   <style>
     #uss-panel { width: 480px; padding: 20px; }
     #uss-list  { display:flex; flex-direction:column; gap:4px; max-height: 280px; overflow:auto; margin: 12px 0; }
-    .uss-row   { display:flex; align-items:center; gap:8px; padding:6px 10px; background:rgba(241,229,207,0.55); border:1px solid var(--tsic-border); cursor:pointer; }
-    .uss-row:hover { background:rgba(241,229,207,0.55); }
+    /* Layered on tsic-row-button — translucent panel look. */
+    .uss-row   { gap:8px; padding:6px 10px; background:rgba(241,229,207,0.55); }
+    .uss-row:hover { background:rgba(241,229,207,0.85); }
     .uss-modal-overlay { z-index:1000; }
     .uss-modal { width: 360px; padding: 16px; }
     .uss-error { color: var(--cat-red, #9f2e25); font-size: 11px; min-height: 14px; margin-top: 4px; }
@@ -53,17 +54,15 @@
           return;
         }
         for (const name of groups) {
-          const row = document.createElement('div');
-          row.className = 'uss-row';
+          const row = document.createElement('button');
+          row.type = 'button';
+          row.className = 'tsic-row-button uss-row';
+          row.setAttribute('aria-label', `Bind to group ${name}`);
           const label = document.createElement('span');
           label.style.flex = '1';
           label.textContent = name;
-          const btn = document.createElement('button');
-          btn.className = 'tsic-button';
-          btn.textContent = 'Bind';
-          btn.onclick = () => tsic.publishMessage('UI.Cmd.UniversalStorage.LinkGroup', { GroupName: name, EntityId: entityId });
           row.appendChild(label);
-          row.appendChild(btn);
+          row.onclick = () => tsic.publishMessage('UI.Cmd.UniversalStorage.LinkGroup', { GroupName: name, EntityId: entityId });
           host.appendChild(row);
         }
       }

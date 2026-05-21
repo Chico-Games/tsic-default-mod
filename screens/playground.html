@@ -62,6 +62,79 @@
     .pg-focus-dirs { grid-template-columns: 1fr 1fr 1fr 1fr; }
     .pg-focus-dirs .pg-btn { font-size: 16px; padding: 8px 6px; }
 
+    /* D-pad: 3x3 cross. Arrow buttons go in the cardinal cells, corners
+       stay empty. Used by both the QUICK row and the focus-engine block. */
+    .pg-dpad {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-rows: 1fr 1fr 1fr;
+      gap: 3px;
+      width: 132px;
+      margin: 4px auto;
+    }
+    .pg-dpad .pg-btn { text-align: center; font-size: 16px; padding: 8px 0; line-height: 1; }
+    .pg-dpad-up    { grid-column: 2; grid-row: 1; }
+    .pg-dpad-left  { grid-column: 1; grid-row: 2; }
+    .pg-dpad-right { grid-column: 3; grid-row: 2; }
+    .pg-dpad-down  { grid-column: 2; grid-row: 3; }
+
+    /* Axis2D virtual joystick. */
+    .pg-axis2d {
+      margin-top: 12px;
+      padding: 10px;
+      border: 1px solid #334155;
+      border-radius: 3px;
+      background: rgba(30, 41, 59, 0.55);
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .pg-axis2d-h {
+      font-size: 11px; letter-spacing: 3px; color: #fbbf24;
+      padding-bottom: 4px; border-bottom: 1px solid #334155;
+    }
+    .pg-axis2d-row { display: flex; gap: 10px; align-items: center; }
+    .pg-joystick {
+      position: relative;
+      width: 120px; height: 120px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 50% 50%, #1e293b 0%, #0f172a 100%);
+      border: 1px solid #334155;
+      flex: 0 0 auto;
+      touch-action: none;
+      user-select: none;
+    }
+    .pg-joystick::before {
+      /* Crosshair guide. */
+      content: ''; position: absolute; inset: 0;
+      background:
+        linear-gradient(to right, transparent 49%, #334155 49%, #334155 51%, transparent 51%),
+        linear-gradient(to bottom, transparent 49%, #334155 49%, #334155 51%, transparent 51%);
+      border-radius: 50%;
+      pointer-events: none;
+      opacity: 0.5;
+    }
+    .pg-joystick-knob {
+      position: absolute;
+      left: 50%; top: 50%;
+      width: 44px; height: 44px;
+      margin: -22px 0 0 -22px;
+      border-radius: 50%;
+      background: linear-gradient(180deg, #fbbf24 0%, #d97706 100%);
+      border: 1px solid #92400e;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+      cursor: grab;
+      transition: transform 80ms ease-out;
+    }
+    .pg-joystick.dragging .pg-joystick-knob { cursor: grabbing; transition: none; }
+    .pg-axis2d-readout {
+      flex: 1;
+      font-family: 'Consolas', monospace;
+      font-size: 12px;
+      color: #cbd5e1;
+      display: flex; flex-direction: column; gap: 4px;
+      min-width: 0;
+    }
+    .pg-axis2d-readout .v { color: #fbbf24; }
+
     /* Debug panel. */
     .pg-dbg { display: flex; flex-direction: column; gap: 10px; font-size: 12px; }
     .pg-dbg .pg-dbg-sec { border: 1px solid #1f2937; background: rgba(15, 23, 42, 0.55); border-radius: 3px; }

@@ -6,24 +6,6 @@
 // crosshair.html files still exist for the playground / snap-test runner
 // and for any future multi-WebView mounting we may want to bring back.
 
-// === DEBUG: paint a marker the instant this script is parsed, before
-// anything else. If we don't see this red pip, hud.js never loaded
-// (404 / wrong path / defer broken in Ultralight). ===
-(function debugLoadMarker() {
-  function paint() {
-    if (!document.body) { setTimeout(paint, 16); return; }
-    if (document.getElementById('hud-script-loaded-pip')) return;
-    const d = document.createElement('div');
-    d.id = 'hud-script-loaded-pip';
-    d.className = 'pip-base';
-    d.innerHTML = '<span class="pip-dot delay-1" style="background:#fff;"></span>'
-                + 'hud.js loaded ' + new Date().toLocaleTimeString();
-    d.style.cssText += 'left:8px; top:8px; background:#f00; color:#fff;';
-    document.body.appendChild(d);
-  }
-  paint();
-})();
-
 (function () {
   function el(tag, attrs, ...children) {
     const e = document.createElement(tag);
@@ -102,40 +84,32 @@
     #hud-health .numbers { font-size: 12px; }
     #hud-stamina .numbers { font-size: 11px; }
 
-    /* Crosshair: 24px wide cross of two thin white lines + a 4px centre
-       dot, all with a subtle black outline so it's visible on bright AND
-       dark backgrounds. */
     #hud-crosshair {
       position: fixed; left: 50%; top: 50%;
       transform: translate(-50%, -50%);
-      width: 24px; height: 24px;
+      width: 4px; height: 4px;
+      background: #fff;
+      box-shadow: 0 0 0 1px rgba(0,0,0,0.85);
+      border-radius: 50%;
       pointer-events: none;
       z-index: 20;
     }
-    #hud-crosshair::before,
-    #hud-crosshair::after {
-      content: ''; position: absolute;
-      background: #fff;
-      box-shadow: 0 0 0 1px rgba(0,0,0,0.6);
-    }
-    /* Horizontal bar */
-    #hud-crosshair::before {
-      left: 0; right: 0; top: 50%;
-      height: 2px; transform: translateY(-50%);
-    }
-    /* Vertical bar */
-    #hud-crosshair::after {
-      top: 0; bottom: 0; left: 50%;
-      width: 2px; transform: translateX(-50%);
-    }
-    /* Centre dot via the parent's background */
-    #hud-crosshair {
-      background: radial-gradient(circle at center,
-        #fff 0 2px,
-        transparent 3px 100%);
-    }
     #hud-crosshair.hidden { display: none; }
   `;
+
+  // Toasts can appear on any screen, but the rest of the HUD chrome
+  // (crosshair, health/stamina bars, interaction prompt) belongs only on
+  // the in-game screen — otherwise every panel that loads hud.js stamps
+  // its own duplicate crosshair into its DOM.
+  function isInGameScreen() {
+    const meta = document.querySelector('meta[name="tsic-screen"]');
+    return !!meta && meta.getAttribute('content') === 'InGame';
+  }
+
+  function ensureToastContainer() {
+    if (document.getElementById('toast-container')) return;
+    document.body.appendChild(el('div', { id: 'toast-container' }));
+  }
 
   function buildChrome() {
     if (document.getElementById('hud-chrome')) return;
@@ -149,17 +123,6 @@
     const prompt = el('div', { class: 'interaction-prompt', id: 'interaction-prompt', style: 'display:none;' }, '');
     chrome.appendChild(prompt);
     document.body.appendChild(chrome);
-
-    document.body.appendChild(el('div', { id: 'toast-container' }));
-
-    // Debug pip — proves hud.js ran. Click-through, top-right corner.
-    document.body.appendChild(el('div', {
-      id: 'hud-debug-pip',
-      style: 'position:fixed; right:8px; top:8px; padding:4px 8px; '
-           + 'background:#0f0; color:#000; font:11px monospace; '
-           + 'font-weight:700; border:2px solid #000; '
-           + 'pointer-events:none; z-index:9999;',
-    }, 'HUD ' + new Date().toLocaleTimeString()));
 
     // Health bar
     document.body.appendChild(el('div', { id: 'hud-health', class: 'hud-bar' },
@@ -244,6 +207,13 @@
   }
 
   whenReady(() => {
+    // Toasts work on every screen.
+    ensureToastContainer();
+    tsic.on('tsic.msg.UI.Toast.Show', showToast);
+
+    // The rest of the HUD chrome is in-game only.
+    if (!isInGameScreen()) return;
+
     buildChrome();
 
     // Interaction prompt — primary target's label.
@@ -254,9 +224,6 @@
       if (target) { el.textContent = target.Label || 'Interact'; el.style.display = ''; }
       else { el.style.display = 'none'; }
     });
-
-    // Toasts.
-    tsic.on('tsic.msg.UI.Toast.Show', showToast);
 
     // Health + stamina bars (live attribute bridges; sticky).
     attachBar('hud-health', 'tsic.attr.player.health', {

@@ -15,7 +15,9 @@
   <script src="/shared/hud.js" defer></script>
   <script src="/shared/catalog.js" defer></script>
   <style>
-    .up-row { display:flex; align-items:center; gap:10px; padding:8px 12px; }
+    /* Layered on tsic-row-button — keep gap/padding consistent with the
+       crafting/summoner siblings. */
+    .up-row { gap:10px; padding:8px 12px; }
     .up-meta { flex:1; min-width:0; display:flex; flex-direction:column; gap:4px; }
     .up-name { font-weight:700; }
     .up-ings { display:flex; flex-wrap:wrap; gap:6px 12px; font-size:11px; opacity:0.85; }
@@ -52,8 +54,13 @@
           return;
         }
         for (const r of lastRecipes) {
-          const row = document.createElement('div');
-          row.className = 'tsic-panel up-row';
+          const canBuy = window.TSICRecipeInfo
+              ? window.TSICRecipeInfo.canCraft(r, materialCounts)
+              : (r.Ingredients || []).every(i => ((materialCounts && materialCounts[i.ItemId]) || 0) >= i.Count);
+          const row = document.createElement('button');
+          row.type = 'button';
+          row.className = 'tsic-row-button up-row';
+          row.disabled = !canBuy;
           const meta = document.createElement('div');
           meta.className = 'up-meta';
           const name = document.createElement('div');
@@ -79,18 +86,10 @@
           }
           meta.appendChild(ings);
           row.appendChild(meta);
-          const canBuy = window.TSICRecipeInfo
-              ? window.TSICRecipeInfo.canCraft(r, materialCounts)
-              : (r.Ingredients || []).every(i => ((materialCounts && materialCounts[i.ItemId]) || 0) >= i.Count);
-          const btn = document.createElement('button');
-          btn.className = 'tsic-button';
-          btn.textContent = 'Purchase';
-          btn.disabled = !canBuy;
-          btn.onclick = () => {
+          row.onclick = () => {
             if (!canBuy) return;
             tsic.publishMessage('UI.Cmd.Recipe.Start', { Kind: 'Upgrade', StationId: stationId, RecipeId: r.RecipeId, Count: 1 });
           };
-          row.appendChild(btn);
           host.appendChild(row);
         }
       }

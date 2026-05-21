@@ -85,9 +85,28 @@ TSICTestHarness.register({
     },
 });
 
-// ---- New: single-click is select-only (does NOT publish Use/Equip) ----
+// ---- Single-click on Equipment publishes Equip (row IS the action) -----
 TSICTestHarness.register({
-    name: 'Inventory/Click: single-click selects without publishing Use or Equip',
+    name: 'Inventory/Click: equipment click publishes UI.Cmd.Equipment.Equip',
+    file: '/screens/inventory.html',
+    async run(ctx) {
+        ctx.setItemCatalog({ ID_Axe: { Name: 'Axe', Category: 'Equipment' } });
+        ctx.inject('tsic.msg.UI.Inventory.Updated', {
+            OwnerId: 'Player', Items: [{ ItemId: 'ID_Axe', Count: 1, SlotIndex: 3 }],
+            MaxSlots: 32, MaxWeight: 50, CurrentWeight: 1,
+        });
+        await ctx.waitFor(() => ctx.doc.querySelector('#inv-list .tsic-list-row[data-slot="3"]'));
+        ctx.clearPublishes();
+        ctx.doc.querySelector('#inv-list .tsic-list-row[data-slot="3"]').click();
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Equipment.Equip',
+            { where: p => p.ItemId === '3' }));
+        ctx.expect(ctx.assert.domExists(ctx.doc, '#inv-list .tsic-list-row[data-slot="3"].is-selected'));
+    },
+});
+
+// ---- Single-click on Consumable publishes Use ----
+TSICTestHarness.register({
+    name: 'Inventory/Click: consumable click publishes UI.Cmd.Inventory.Use',
     file: '/screens/inventory.html',
     async run(ctx) {
         ctx.setItemCatalog({ ID_Bread: { Name: 'Bread', Category: 'Consumable' } });
@@ -98,54 +117,14 @@ TSICTestHarness.register({
         await ctx.waitFor(() => ctx.doc.querySelector('#inv-list .tsic-list-row[data-slot="0"]'));
         ctx.clearPublishes();
         ctx.doc.querySelector('#inv-list .tsic-list-row[data-slot="0"]').click();
-        await new Promise(r => setTimeout(r, 30));
-        ctx.expect(ctx.assert.notPublished(ctx.handle, 'UI.Cmd.Inventory.Use'));
-        ctx.expect(ctx.assert.notPublished(ctx.handle, 'UI.Cmd.Equipment.Equip'));
-        ctx.expect(ctx.assert.domExists(ctx.doc, '#inv-list .tsic-list-row[data-slot="0"].is-selected'));
-    },
-});
-
-// ---- New: double-click on Equipment publishes Equip ----
-TSICTestHarness.register({
-    name: 'Inventory/DblClick: equipment double-click publishes UI.Cmd.Equipment.Equip',
-    file: '/screens/inventory.html',
-    async run(ctx) {
-        ctx.setItemCatalog({ ID_Axe: { Name: 'Axe', Category: 'Equipment' } });
-        ctx.inject('tsic.msg.UI.Inventory.Updated', {
-            OwnerId: 'Player', Items: [{ ItemId: 'ID_Axe', Count: 1, SlotIndex: 3 }],
-            MaxSlots: 32, MaxWeight: 50, CurrentWeight: 1,
-        });
-        await ctx.waitFor(() => ctx.doc.querySelector('#inv-list .tsic-list-row[data-slot="3"]'));
-        ctx.clearPublishes();
-        ctx.doc.querySelector('#inv-list .tsic-list-row[data-slot="3"]')
-            .dispatchEvent(new ctx.win.MouseEvent('dblclick', { bubbles: true }));
-        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Equipment.Equip',
-            { where: p => p.ItemId === '3' }));
-    },
-});
-
-// ---- New: double-click on Consumable publishes Use ----
-TSICTestHarness.register({
-    name: 'Inventory/DblClick: consumable double-click publishes UI.Cmd.Inventory.Use',
-    file: '/screens/inventory.html',
-    async run(ctx) {
-        ctx.setItemCatalog({ ID_Bread: { Name: 'Bread', Category: 'Consumable' } });
-        ctx.inject('tsic.msg.UI.Inventory.Updated', {
-            OwnerId: 'Player', Items: [{ ItemId: 'ID_Bread', Count: 1, SlotIndex: 0 }],
-            MaxSlots: 32, MaxWeight: 50, CurrentWeight: 0.2,
-        });
-        await ctx.waitFor(() => ctx.doc.querySelector('#inv-list .tsic-list-row[data-slot="0"]'));
-        ctx.clearPublishes();
-        ctx.doc.querySelector('#inv-list .tsic-list-row[data-slot="0"]')
-            .dispatchEvent(new ctx.win.MouseEvent('dblclick', { bubbles: true }));
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Inventory.Use',
             { where: p => p.SlotIndex === 0 }));
     },
 });
 
-// ---- New: double-click on Material is a no-op ----
+// ---- Single-click on Material is a no-op for actions (just selects) ----
 TSICTestHarness.register({
-    name: 'Inventory/DblClick: material double-click is a no-op',
+    name: 'Inventory/Click: material click selects only — no Use or Equip',
     file: '/screens/inventory.html',
     async run(ctx) {
         ctx.setItemCatalog({ ID_W: { Name: 'Wood', Category: 'CraftingMaterial' } });
@@ -155,11 +134,11 @@ TSICTestHarness.register({
         });
         await ctx.waitFor(() => ctx.doc.querySelector('#inv-list .tsic-list-row[data-slot="0"]'));
         ctx.clearPublishes();
-        ctx.doc.querySelector('#inv-list .tsic-list-row[data-slot="0"]')
-            .dispatchEvent(new ctx.win.MouseEvent('dblclick', { bubbles: true }));
+        ctx.doc.querySelector('#inv-list .tsic-list-row[data-slot="0"]').click();
         await new Promise(r => setTimeout(r, 30));
         ctx.expect(ctx.assert.notPublished(ctx.handle, 'UI.Cmd.Inventory.Use'));
         ctx.expect(ctx.assert.notPublished(ctx.handle, 'UI.Cmd.Equipment.Equip'));
+        ctx.expect(ctx.assert.domExists(ctx.doc, '#inv-list .tsic-list-row[data-slot="0"].is-selected'));
     },
 });
 

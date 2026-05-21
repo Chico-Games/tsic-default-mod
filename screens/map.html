@@ -85,6 +85,37 @@
     #map-viewport.pad-cursor #pad-cursor { display: block; }
     .ic-cluster { fill: rgba(35,31,24,0.35); stroke: #ffffff; }
     .ic-cluster-text { fill: #ffffff; font-family: 'Consolas', monospace; font-size: 14px; }
+    /* World-bounds outline. Sized in setBounds(); non-scaling stroke so the
+       border stays a constant 2 screen pixels across the whole zoom range. */
+    #world-bounds {
+      fill: none;
+      stroke: #5a4a30;
+      stroke-width: 2;
+      vector-effect: non-scaling-stroke;
+      pointer-events: none;
+    }
+    .bound-coord {
+      fill: #5a4a30;
+      font-family: 'Consolas', monospace;
+      pointer-events: none;
+      opacity: 0.85;
+    }
+    /* Hover-info chip — follows mouse / sits next to gamepad crosshair. */
+    #hover-chip {
+      position: absolute;
+      left: 0; top: 0;
+      padding: 3px 7px;
+      background: rgba(35,31,24,0.85);
+      color: #f3e8c8;
+      font-family: 'Consolas', monospace;
+      font-size: 12px;
+      letter-spacing: 1px;
+      border: 1px solid #5a4a30;
+      pointer-events: none;
+      white-space: nowrap;
+      display: none;
+      z-index: 5;
+    }
   </style>
 </head><body>
   <div id="map-root">
@@ -94,13 +125,16 @@
         <img id="world-tex" src="/runtime/world-map.imgsrc">
         <img id="fow-tex"   src="/runtime/fow.imgsrc">
         <svg id="overlay" xmlns="http://www.w3.org/2000/svg">
+          <rect id="world-bounds" x="0" y="0" width="0" height="0"></rect>
           <g id="g-icons"></g>
           <g id="g-pings"></g>
           <g id="g-players"></g>
+          <g id="g-coords"></g>
         </svg>
       </div>
       <div id="empty">Waiting for map data…</div>
       <div id="pad-cursor"></div>
+      <div id="hover-chip"></div>
     </div>
     <div id="legend">
       <span><span class="swatch" style="background:#3498db;"></span>Player</span>
@@ -123,8 +157,15 @@
       const PLAYER_BASE_PX = 8;
       const PING_HALF_PX = 8;
       const PING_STROKE_PX = 3;
+      // Screen-pixel radius the hover picker uses to grab a target near the
+      // mouse cursor or the gamepad crosshair. Converted to local units via
+      // 1/state.scale so it stays a constant on-screen distance at any zoom.
+      const PICK_RADIUS_PX = 16;
       let bounds = { minX: 0, minY: 0, maxX: 0, maxY: 0, hasData: false };
-      const state = { panX: 0, panY: 0, scale: 1 };
+      // mouseX/mouseY are viewport-relative; -1 means "no mouse over the
+      // viewport" (initial state or after mouseleave). isPad mirrors the
+      // .pad-cursor class on the viewport.
+      const state = { panX: 0, panY: 0, scale: 1, isPad: false, mouseX: -1, mouseY: -1 };
       // Latest payloads kept so we can re-render after pan/zoom changes
       // (so counter-scaled geometry stays correct).
       let latestSnapshot = null;
@@ -198,6 +239,11 @@
           svg.setAttribute('width',  w);
           svg.setAttribute('height', h);
           svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+          const wb = document.getElementById('world-bounds');
+          if (wb) {
+            wb.setAttribute('width',  w);
+            wb.setAttribute('height', h);
+          }
           fitToBounds();
         }
       }
@@ -308,7 +354,9 @@
         const baseY = PLAYER_BASE_PX * inv;
         const baseX = PLAYER_BASE_PX * inv;
         const sw = 1 * inv;
-        for (const pl of (players || [])) {
+        const list = players || [];
+        for (let i = 0; i < list.length; i++) {
+          const pl = list[i];
           const pos = worldToLocal((pl.Position && pl.Position.X) || 0,
                                    (pl.Position && pl.Position.Y) || 0);
           // Match the prior stub's convention: rotate by yaw directly.
@@ -316,10 +364,15 @@
           // axis mapping and is best confirmed in PIE; flagged as
           // follow-up if rotation reads wrong.
           const yaw = (pl.YawDeg || 0);
+          // Temporary self-detection: treat Players[0] as the local player.
+          // The C++ snapshot doesn't yet carry a self identifier, and the
+          // server iterates controllers in order so the local PC is normally
+          // first. Replace with a real flag once FScpUIMapPlayer gains one.
+          const isSelf = (i === 0);
           const tri = el('polygon', {
             points: `0,${tipY} ${baseX},${baseY} ${-baseX},${baseY}`,
             transform: `translate(${pos.x},${pos.y}) rotate(${yaw})`,
-            class: 'pl-self', 'stroke-width': sw,
+            class: isSelf ? 'pl-self' : 'pl-other', 'stroke-width': sw,
           });
           const title = el('title');
           title.textContent = pl.Name || pl.PlayerId || 'Player';
@@ -347,15 +400,145 @@
         }
       }
 
+      function renderBoundsCoords() {
+        const g = document.getElementById('g-coords');
+        g.textContent = '';
+        if (!bounds.hasData) return;
+        const inv = state.scale > 0 ? (1 / state.scale) : 1;
+        const inset = 6 * inv;
+        const fs = 11 * inv;
+        const w = (bounds.maxX - bounds.minX) * PX_PER_CM;
+        const h = (bounds.maxY - bounds.minY) * PX_PER_CM;
+        // World axes: +X right, +Y up; screen +Y down. worldToLocal flips Y,
+        // so the world top-left corner sits at local (0, 0).
+        const corners = [
+          { lx: inset,     ly: inset + fs,  anchor: 'start', wx: bounds.minX, wy: bounds.maxY },
+          { lx: w - inset, ly: inset + fs,  anchor: 'end',   wx: bounds.maxX, wy: bounds.maxY },
+          { lx: inset,     ly: h - inset,   anchor: 'start', wx: bounds.minX, wy: bounds.minY },
+          { lx: w - inset, ly: h - inset,   anchor: 'end',   wx: bounds.maxX, wy: bounds.minY },
+        ];
+        for (const c of corners) {
+          const t = el('text', {
+            x: c.lx, y: c.ly,
+            'text-anchor': c.anchor,
+            class: 'bound-coord',
+            'font-size': fs,
+          });
+          t.textContent = `${Math.round(c.wx)}, ${Math.round(c.wy)}`;
+          g.appendChild(t);
+        }
+      }
+
+      // Picker — find the topmost player/ping/icon within PICK_RADIUS_PX
+      // screen pixels of (lx, ly). Priority: players > pings > icons.
+      function pickAt(lx, ly) {
+        if (!latestSnapshot || !bounds.hasData) return null;
+        const inv = state.scale > 0 ? (1 / state.scale) : 1;
+        const r = PICK_RADIUS_PX * inv;
+        const r2 = r * r;
+        const players = latestSnapshot.Players || [];
+        for (const pl of players) {
+          const p = worldToLocal((pl.Position && pl.Position.X) || 0,
+                                 (pl.Position && pl.Position.Y) || 0);
+          const dx = lx - p.x, dy = ly - p.y;
+          if (dx * dx + dy * dy <= r2) return { type: 'player', entity: pl };
+        }
+        const pings = latestPings || [];
+        for (const pg of pings) {
+          const loc = pg.Location || {};
+          const p = worldToLocal(loc.X || 0, loc.Y || 0);
+          const dx = lx - p.x, dy = ly - p.y;
+          if (dx * dx + dy * dy <= r2) return { type: 'ping', entity: pg };
+        }
+        const icons = latestSnapshot.Icons || [];
+        for (const ic of icons) {
+          const p = worldToLocal((ic.Position && ic.Position.X) || 0,
+                                 (ic.Position && ic.Position.Y) || 0);
+          const dx = lx - p.x, dy = ly - p.y;
+          if (dx * dx + dy * dy <= r2) return { type: 'icon', entity: ic };
+        }
+        return null;
+      }
+
+      function describePick(pick) {
+        if (!pick) return null;
+        const e = pick.entity;
+        if (pick.type === 'player') {
+          const x = Math.round((e.Position && e.Position.X) || 0);
+          const y = Math.round((e.Position && e.Position.Y) || 0);
+          return `${e.Name || e.PlayerId || 'Player'} • (${x}, ${y})`;
+        }
+        if (pick.type === 'ping') {
+          const loc = e.Location || {};
+          const x = Math.round(loc.X || 0);
+          const y = Math.round(loc.Y || 0);
+          return [e.PingType || 'Ping', e.OwnerId, `(${x}, ${y})`].filter(Boolean).join(' • ');
+        }
+        const x = Math.round((e.Position && e.Position.X) || 0);
+        const y = Math.round((e.Position && e.Position.Y) || 0);
+        return [e.Label, e.Category, `(${x}, ${y})`].filter(Boolean).join(' • ');
+      }
+
+      function hideHoverChip() {
+        const chip = document.getElementById('hover-chip');
+        if (chip) chip.style.display = 'none';
+      }
+
+      function updateHoverChip() {
+        const chip = document.getElementById('hover-chip');
+        const vp = document.getElementById('map-viewport');
+        if (!chip || !vp || !bounds.hasData) { hideHoverChip(); return; }
+        let cx, cy;
+        if (state.isPad) {
+          // Gamepad crosshair sits at viewport center.
+          cx = vp.clientWidth  / 2;
+          cy = vp.clientHeight / 2;
+        } else {
+          if (state.mouseX < 0) { hideHoverChip(); return; }
+          cx = state.mouseX;
+          cy = state.mouseY;
+        }
+        const lx = (cx - state.panX) / state.scale;
+        const ly = (cy - state.panY) / state.scale;
+        const text = describePick(pickAt(lx, ly));
+        if (!text) { hideHoverChip(); return; }
+        chip.textContent = text;
+        chip.style.display = 'block';
+        // Anchor: just below-right of cursor / crosshair; flip if it would
+        // run off the right or bottom edge of the viewport.
+        const offset = state.isPad ? 18 : 12;
+        let px = cx + offset, py = cy + offset;
+        const w = chip.offsetWidth;
+        const h = chip.offsetHeight;
+        if (px + w > vp.clientWidth)  px = Math.max(0, cx - offset - w);
+        if (py + h > vp.clientHeight) py = Math.max(0, cy - offset - h);
+        chip.style.left = px + 'px';
+        chip.style.top  = py + 'px';
+      }
+
       function rerender() {
         const p = latestSnapshot;
         const empty = document.getElementById('empty');
+        // Early-return paths must clear the SVG groups, otherwise stale
+        // renders from the previous snapshot stay visible underneath the
+        // "Waiting…" / "Unavailable" banner (caught by the playground when
+        // swapping into the "No snapshot" scenario).
         if (!p) {
+          document.getElementById('g-icons').textContent = '';
+          document.getElementById('g-players').textContent = '';
+          document.getElementById('g-pings').textContent = '';
+          document.getElementById('g-coords').textContent = '';
+          hideHoverChip();
           empty.textContent = 'Waiting for map data…';
           empty.style.display = '';
           return;
         }
         if (!bounds.hasData) {
+          document.getElementById('g-icons').textContent = '';
+          document.getElementById('g-players').textContent = '';
+          document.getElementById('g-pings').textContent = '';
+          document.getElementById('g-coords').textContent = '';
+          hideHoverChip();
           empty.textContent = 'Map bounds unavailable.';
           empty.style.display = '';
           return;
@@ -370,6 +553,8 @@
         renderIcons(p.Icons);
         renderPlayers(p.Players);
         renderPings(latestPings);
+        renderBoundsCoords();
+        updateHoverChip();
       }
 
       function onSnapshot(p) {
@@ -400,6 +585,9 @@
         dragLastX = ev.clientX;
         dragLastY = ev.clientY;
         applyTransform();
+        // The cursor sits still in screen space but the world moves under it
+        // during drag-pan, so the picked entity changes.
+        updateHoverChip();
       }
       function onMouseUp() {
         dragging = false;
@@ -508,6 +696,8 @@
           state.panX += dx;
           state.panY += dy;
           applyTransform();
+          // Crosshair stays at viewport center but the world slides under it.
+          updateHoverChip();
         }
         const GAMEPAD_PAN_PX_PER_SEC = 800;
         tsic.on('tsic.msg.UI.Input.IA_UI_MapZoomIn',  (e) => { if (e.Phase === 'Triggered') zoomBy(+1, e.ElapsedSec); });
@@ -529,8 +719,26 @@
         // input device is the gamepad. The cursor sits at the viewport
         // center and acts as the snap-to anchor for IA_UI_MapPlacePing.
         tsic.on('tsic.msg.UI.Input.Mode.Changed', (p) => {
-          const isPad = (p && (p.Device === 'gamepad' || p.Mode === 'Gamepad'));
-          vp.classList.toggle('pad-cursor', !!isPad);
+          const isPad = !!(p && (p.Device === 'gamepad' || p.Mode === 'Gamepad'));
+          state.isPad = isPad;
+          vp.classList.toggle('pad-cursor', isPad);
+          // Re-anchor the hover chip to the new picker (crosshair vs cursor).
+          updateHoverChip();
+        });
+
+        // Track mouse position over the viewport for the hover picker. Note
+        // the drag-pan listener at window level still updates state.panX/Y;
+        // this listener only feeds state.mouseX/Y for picking.
+        vp.addEventListener('mousemove', (ev) => {
+          const rect = vp.getBoundingClientRect();
+          state.mouseX = ev.clientX - rect.left;
+          state.mouseY = ev.clientY - rect.top;
+          updateHoverChip();
+        });
+        vp.addEventListener('mouseleave', () => {
+          state.mouseX = -1;
+          state.mouseY = -1;
+          if (!state.isPad) hideHoverChip();
         });
       });
     })();

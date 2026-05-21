@@ -58,10 +58,10 @@
                 <button class="tsic-button cancel" id="ss-take-all" type="button">Take All</button>
             </div>
             <div class="tsic-split">
-                <div class="tsic-split-col">
+                <div class="tsic-split-col" data-tsic-tab-context="player">
                     <div class="ss-col-head">
                         <div class="tsic-eyebrow">Your Inventory</div>
-                        <div class="ss-tabs" data-side="player"></div>
+                        <div class="ss-tabs" data-side="player" data-tsic-tab-bar></div>
                     </div>
                     <div id="ss-player-list" class="tsic-list-pane"></div>
                     <div class="ss-capacity" data-side="player">
@@ -69,10 +69,10 @@
                         <div class="ss-capacity-bar"><div class="ss-capacity-fill"></div></div>
                     </div>
                 </div>
-                <div class="tsic-split-col">
+                <div class="tsic-split-col" data-tsic-tab-context="container">
                     <div class="ss-col-head">
                         <div class="tsic-eyebrow" id="ss-container-eyebrow">${opts.containerEyebrow || 'Container'}</div>
-                        <div class="ss-tabs" data-side="container"></div>
+                        <div class="ss-tabs" data-side="container" data-tsic-tab-bar></div>
                     </div>
                     <div id="ss-container-list" class="tsic-list-pane"></div>
                     <div class="ss-capacity" data-side="container">

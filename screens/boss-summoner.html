@@ -15,7 +15,8 @@
   <script src="/shared/hud.js" defer></script>
   <script src="/shared/catalog.js" defer></script>
   <style>
-    .bs-row { display:flex; align-items:center; gap:10px; padding:8px 12px; }
+    /* Layered on tsic-row-button. */
+    .bs-row { gap:10px; padding:8px 12px; }
     .bs-meta { flex:1; min-width:0; display:flex; flex-direction:column; gap:4px; }
     .bs-name { font-weight:700; }
     .bs-ings { display:flex; flex-wrap:wrap; gap:6px 12px; font-size:11px; opacity:0.85; }
@@ -53,8 +54,9 @@
           return;
         }
         for (const r of visibleRecipes) {
-          const row = document.createElement('div');
-          row.className = 'tsic-panel bs-row';
+          const row = document.createElement('button');
+          row.type = 'button';
+          row.className = 'tsic-row-button bs-row';
           const meta = document.createElement('div');
           meta.className = 'bs-meta';
           const name = document.createElement('div');
@@ -77,11 +79,7 @@
           }
           meta.appendChild(ings);
           row.appendChild(meta);
-          const btn = document.createElement('button');
-          btn.className = 'tsic-button';
-          btn.textContent = 'Summon';
-          btn.onclick = () => tsic.publishMessage('UI.Cmd.Recipe.Start', { Kind: 'Boss', StationId: stationId, RecipeId: r.RecipeId, Count: 1 });
-          row.appendChild(btn);
+          row.onclick = () => tsic.publishMessage('UI.Cmd.Recipe.Start', { Kind: 'Boss', StationId: stationId, RecipeId: r.RecipeId, Count: 1 });
           host.appendChild(row);
         }
         if (window.tsic && window.tsic.focus) window.tsic.focus.refresh();

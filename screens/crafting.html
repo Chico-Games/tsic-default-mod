@@ -64,6 +64,8 @@
             const locked = !r.bDiscovered || !r.bStationLevelSufficient;
             const row = document.createElement('div');
             row.className = 'tsic-list-row' + (selectedRecipeId === r.RecipeId ? ' is-selected' : '') + (locked ? ' is-locked' : '');
+            row.setAttribute('data-tsic-focusable', '');
+            row.tabIndex = -1;
 
             const iconWrap = document.createElement('div');
             iconWrap.className = 'icon';
@@ -84,7 +86,21 @@
             if (!r.bStationLevelSufficient) right.textContent = `lvl ${r.RequiredStationLevel}`;
             row.appendChild(right);
 
-            row.addEventListener('click', () => { selectedRecipeId = r.RecipeId; renderAll(); });
+            const selectRecipe = () => { selectedRecipeId = r.RecipeId; renderAll(); };
+            const commitRecipe = () => {
+                selectRecipe();
+                const craft = document.getElementById('c-craft');
+                if (craft && !craft.disabled) craft.click();
+            };
+            row.addEventListener('click', selectRecipe);
+            // Gamepad nav onto this row = same as clicking it (auto-preview).
+            row.addEventListener('focusin', selectRecipe);
+            // Double-click on mouse = commit. Same on gamepad Confirm: the
+            // engine fires a 'tsic:confirm' custom event before falling back
+            // to el.click(); preventDefault keeps confirm from re-firing
+            // the single-click select handler too.
+            row.addEventListener('dblclick', commitRecipe);
+            row.addEventListener('tsic:confirm', (e) => { e.preventDefault(); commitRecipe(); });
             host.appendChild(row);
         }
     }

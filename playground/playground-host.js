@@ -118,12 +118,16 @@
             }
             projectAndInject();
             if (global.TSICPlaygroundDebug) global.TSICPlaygroundDebug.onIframeReady(activeWin, activeHandle);
-            // Let the input pane refresh its focus-engine readout against
-            // the freshly-loaded iframe (give the page's deferred scripts
-            // a beat to install tsic-focus on the mock).
+            // Let the input pane refresh its focus-engine readout AND
+            // re-sync Gamepad mode if the playground had it on — otherwise
+            // every fixture swap drops the new iframe back to KBM mode and
+            // the user has to toggle Gamepad off/on to see the focus ring.
             setTimeout(() => {
-                if (global.TSICPlaygroundInput && global.TSICPlaygroundInput.__lastRefresh) {
-                    try { global.TSICPlaygroundInput.__lastRefresh(); } catch (e) {}
+                if (!global.TSICPlaygroundInput) return;
+                const fn = global.TSICPlaygroundInput.__onIframeReloaded
+                    || global.TSICPlaygroundInput.__lastRefresh;
+                if (fn) {
+                    try { fn(); } catch (e) {}
                 }
             }, 80);
         };
