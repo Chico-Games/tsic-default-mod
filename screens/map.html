@@ -37,16 +37,38 @@
     #map-content {
       position: absolute; left: 0; top: 0;
       transform-origin: 0 0;
-      will-change: transform;
+      /* `will-change: transform` was here as an optimization hint — DO NOT
+         re-add it under Ultralight 1.4. It promotes #map-content to its own
+         compositing layer, and any element inside a composited layer fails
+         to render (the offscreen never composites back to the main view).
+         The same family of CSS gaps affects `transform: rotate/skew`,
+         `opacity` stacking contexts, and `clip-path`. See CLAUDE.md →
+         TSICWebUI for the full list. */
     }
-    #world-tex, #fow-tex, #overlay {
+    #world-tex, #fow-tex, #overlay,
+    #debug-height-tex, #debug-maze-tex {
       position: absolute; left: 0; top: 0;
       pointer-events: none;
       user-select: none;
       -webkit-user-drag: none;
     }
     #world-tex { image-rendering: pixelated; }
-    #fow-tex   { mix-blend-mode: multiply; opacity: 0.85; }
+    /* Debug overlays (toggled by WebUI.Map.DebugHeight / WebUI.Map.DebugMazeRegions
+       console commands; sticky `tsic.debug.Map.Overlay` event drives display). The
+       1px-per-tile texture is stretched to world bounds via CSS w/h; `pixelated`
+       keeps the per-tile cells crisp at all zoom levels. Alpha is baked into the
+       texture pixels — `opacity:<1` is on the Ultralight 1.4 broken list. */
+    #debug-height-tex, #debug-maze-tex {
+      image-rendering: pixelated;
+      display: none;
+    }
+    /* `opacity: 0.85` and `mix-blend-mode: multiply` both promote the element
+       to a stacking-context layer that Ultralight 1.4 fails to composite back
+       (see CLAUDE.md → TSICWebUI). Until 1.4.1 ships GPU-accelerated
+       compositing, the fow layer renders at full opacity with normal blend.
+       For a dimmed look, bake the desired alpha into the FOW texture's pixel
+       data instead of using CSS opacity. */
+    #fow-tex   { image-rendering: pixelated; }
     .ic { cursor: default; }
     .ic.clickable { cursor: pointer; pointer-events: auto; }
     .ic-spawn   { fill: #f1c40f; }
@@ -100,6 +122,21 @@
       pointer-events: none;
       opacity: 0.85;
     }
+    /* Ctrl+Click teleport-cheat flash ring. The animation uses fill-opacity
+       (an SVG attribute) rather than CSS `opacity` because the latter would
+       promote the circle to a compositing layer that Ultralight 1.4 fails
+       to paint — see CLAUDE.md → TSICWebUI. */
+    @keyframes tp-flash {
+      from { fill-opacity: 1;   r: 4;  }
+      to   { fill-opacity: 0;   r: 24; }
+    }
+    .tp-flash {
+      fill: #f1c40f;
+      stroke: #ffffff;
+      stroke-width: 1;
+      animation: tp-flash 600ms ease-out forwards;
+      pointer-events: none;
+    }
     /* Hover-info chip — follows mouse / sits next to gamepad crosshair. */
     #hover-chip {
       position: absolute;
@@ -123,6 +160,8 @@
     <div id="map-viewport">
       <div id="map-content">
         <img id="world-tex" src="/runtime/world-map.imgsrc">
+        <img id="debug-height-tex" src="/runtime/world-debug-height.imgsrc">
+        <img id="debug-maze-tex"   src="/runtime/world-debug-maze.imgsrc">
         <img id="fow-tex"   src="/runtime/fow.imgsrc">
         <svg id="overlay" xmlns="http://www.w3.org/2000/svg">
           <rect id="world-bounds" x="0" y="0" width="0" height="0"></rect>
@@ -130,6 +169,7 @@
           <g id="g-pings"></g>
           <g id="g-players"></g>
           <g id="g-coords"></g>
+          <g id="g-cheat-fx"></g>
         </svg>
       </div>
       <div id="empty">Waiting for map data…</div>
@@ -142,7 +182,7 @@
       <span><span class="swatch" style="background:#2ecc71;"></span>Teleporter</span>
       <span><span class="swatch" style="background:#e74c3c;"></span>Landmark</span>
       <span><span class="swatch" style="background:#ffcc00;"></span>Ping</span>
-      <span id="hint">drag = pan · wheel = zoom · R = reset · Esc = close · RMB = ping</span>
+      <span id="hint">drag = pan · wheel = zoom · R = reset · Esc = close · RMB = ping · WebUI.Map.DebugHeight / DebugMazeRegions</span>
     </div>
   </div>
   <script>
@@ -230,8 +270,9 @@
           const h = (bounds.maxY - bounds.minY) * PX_PER_CM;
           c.style.width  = `${w}px`;
           c.style.height = `${h}px`;
-          for (const id of ['world-tex', 'fow-tex']) {
+          for (const id of ['world-tex', 'fow-tex', 'debug-height-tex', 'debug-maze-tex']) {
             const img = document.getElementById(id);
+            if (!img) continue;
             img.style.width  = `${w}px`;
             img.style.height = `${h}px`;
           }
@@ -429,6 +470,21 @@
         }
       }
 
+      // Ctrl+Click teleport-cheat flash. Spawns a short-lived SVG circle that
+      // pulses and fades over 600ms, then removes itself.
+      function flashTeleportMarker(lx, ly) {
+        const g = document.getElementById('g-cheat-fx');
+        if (!g) return;
+        const inv = state.scale > 0 ? (1 / state.scale) : 1;
+        const ring = el('circle', {
+          cx: lx, cy: ly, r: 4 * inv,
+          class: 'tp-flash',
+          'stroke-width': 1 * inv,
+        });
+        g.appendChild(ring);
+        setTimeout(() => { if (ring.parentNode) ring.parentNode.removeChild(ring); }, 700);
+      }
+
       // Picker — find the topmost player/ping/icon within PICK_RADIUS_PX
       // screen pixels of (lx, ly). Priority: players > pings > icons.
       function pickAt(lx, ly) {
@@ -573,6 +629,26 @@
 
       function onMouseDown(ev) {
         if (ev.button !== 0) return;
+        if (ev.ctrlKey && !ev.shiftKey && !ev.altKey) {
+          // Ctrl+LMB = debug-cheat teleport. Convert click to world coords,
+          // clamp to world bounds, ship as a console command via the existing
+          // UI.Cmd.Cheat.Execute channel. No-op if bounds aren't loaded yet.
+          const vp = document.getElementById('map-viewport');
+          const rect = vp.getBoundingClientRect();
+          const lx = (ev.clientX - rect.left - state.panX) / state.scale;
+          const ly = (ev.clientY - rect.top  - state.panY) / state.scale;
+          if (!bounds.hasData) return;
+          const { wx, wy } = localToWorld(lx, ly);
+          const X = Math.max(bounds.minX, Math.min(bounds.maxX, wx));
+          const Y = Math.max(bounds.minY, Math.min(bounds.maxY, wy));
+          tsic.publishMessage('UI.Cmd.Cheat.Execute', {
+            Command: `Teleport2D ${X.toFixed(0)} ${Y.toFixed(0)}`,
+          });
+          flashTeleportMarker(lx, ly);
+          ev.preventDefault();
+          ev.stopPropagation();
+          return;
+        }
         dragging = true;
         dragLastX = ev.clientX;
         dragLastY = ev.clientY;
@@ -715,6 +791,32 @@
         });
         tsic.on('tsic.msg.UI.Map.Snapshot', onSnapshot);
         tsic.on('tsic.msg.UI.Ping.Set', onPingSet);
+
+        // Debug-overlay toggle (driven by WebUI.Map.DebugHeight /
+        // WebUI.Map.DebugMazeRegions console commands). Sticky channel:
+        // a freshly-opened map screen replays the last toggled state.
+        // Payload: { Layer: 'height'|'maze', Visible: bool }.
+        // We re-set the <img> src on show so Ultralight refetches the
+        // ImageSource — the texture is only registered after the first
+        // toggle, so the initial fetch on page-load resolves empty.
+        tsic.on('tsic.debug.Map.Overlay', (p) => {
+          if (!p || !p.Layer) return;
+          const id = p.Layer === 'height' ? 'debug-height-tex'
+                   : p.Layer === 'maze'   ? 'debug-maze-tex'
+                   : null;
+          if (!id) return;
+          const img = document.getElementById(id);
+          if (!img) return;
+          if (p.Visible) {
+            const base = id === 'debug-height-tex'
+              ? '/runtime/world-debug-height.imgsrc'
+              : '/runtime/world-debug-maze.imgsrc';
+            img.src = `${base}?t=${Date.now()}`;
+            img.style.display = 'block';
+          } else {
+            img.style.display = 'none';
+          }
+        });
         // Gamepad crosshair: toggle a class on the viewport when the active
         // input device is the gamepad. The cursor sits at the viewport
         // center and acts as the snap-to anchor for IA_UI_MapPlacePing.
