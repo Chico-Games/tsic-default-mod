@@ -182,7 +182,7 @@
       <span><span class="swatch" style="background:#2ecc71;"></span>Teleporter</span>
       <span><span class="swatch" style="background:#e74c3c;"></span>Landmark</span>
       <span><span class="swatch" style="background:#ffcc00;"></span>Ping</span>
-      <span id="hint">drag = pan · wheel = zoom · R = reset · Esc = close · RMB = ping · WebUI.Map.DebugHeight / DebugMazeRegions</span>
+      <span id="hint" data-base="drag = pan · wheel = zoom · R = reset · Esc = close · RMB = ping · WebUI.Map.DebugHeight / DebugMazeRegions">drag = pan · wheel = zoom · R = reset · Esc = close · RMB = ping · WebUI.Map.DebugHeight / DebugMazeRegions</span>
     </div>
   </div>
   <script>
@@ -826,6 +826,23 @@
           vp.classList.toggle('pad-cursor', isPad);
           // Re-anchor the hover chip to the new picker (crosshair vs cursor).
           updateHoverChip();
+        });
+
+        // Cheat-availability gate — UI.Cheat.Catalog is broadcast once on session
+        // start, only when the cheat manager is enabled (see ScpUIDirectorSubsystem
+        // line 719). First receipt is sufficient to surface the Ctrl+Click hint.
+        let cheatEnabled = false;
+        function updateHint() {
+          const h = document.getElementById('hint');
+          if (!h) return;
+          const base = h.getAttribute('data-base') || h.textContent;
+          h.textContent = cheatEnabled
+            ? base + ' · Ctrl+Click = teleport (cheats)'
+            : base;
+        }
+        tsic.on('tsic.msg.UI.Cheat.Catalog', () => {
+          cheatEnabled = true;
+          updateHint();
         });
 
         // Track mouse position over the viewport for the hover picker. Note
