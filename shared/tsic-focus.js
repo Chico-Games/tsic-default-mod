@@ -520,6 +520,34 @@
             cycleTab(-1);
         });
 
+        // IA_UI_NextPage / IA_UI_PreviousPage — page-jump the nearest
+        // scrollable ancestor of the focused element. Falls back to the
+        // active scrolling root when no element is focused.
+        function pageStep(delta) {
+            const focused = document.querySelector('[data-tsic-focused]') || document.activeElement;
+            let scroller = focused;
+            while (scroller && scroller !== document.body) {
+                const cs = getComputedStyle(scroller);
+                const oy = cs.overflowY;
+                if ((oy === 'auto' || oy === 'scroll') && scroller.scrollHeight > scroller.clientHeight) {
+                    break;
+                }
+                scroller = scroller.parentElement;
+            }
+            const target = (scroller && scroller !== document.body) ? scroller : document.scrollingElement;
+            if (!target) return;
+            const step = (target.clientHeight || window.innerHeight) * 0.9 * delta;
+            target.scrollBy({ top: step, left: 0, behavior: 'auto' });
+        }
+        t.on('tsic.msg.UI.Input.IA_UI_NextPage', (payload) => {
+            if (!payload || payload.Phase !== 'Started') return;
+            pageStep(+1);
+        });
+        t.on('tsic.msg.UI.Input.IA_UI_PreviousPage', (payload) => {
+            if (!payload || payload.Phase !== 'Started') return;
+            pageStep(-1);
+        });
+
         // First-paint stamp so CSS can branch immediately.
         stampMode(State.mode);
 

@@ -334,6 +334,24 @@
                 tsic.publishMessage('UI.Cmd.Hotbar.Assign', { SlotIndex: slotIndex, ItemId: String(it.SlotIndex) });
             });
         });
+
+        // IA_UI_DropItem (gamepad Y / Delete) — drop the hovered or focused row.
+        // Single-item stacks drop instantly; stacks > 1 open the quantity modal.
+        tsic.on('tsic.msg.UI.Input.IA_UI_DropItem', (e) => {
+            if (e.Phase !== 'Started' || !hoveredItem) return;
+            const it = hoveredItem;
+            if (it.Count > 1 && window.TSICInventory && window.TSICInventory.openQuantityModal) {
+                window.TSICInventory.openQuantityModal(it.Count, (count) => {
+                    tsic.publishMessage('UI.Cmd.Inventory.Drop', {
+                        OwnerId: 'Player', SlotIndex: it.SlotIndex, Count: count,
+                    });
+                });
+            } else {
+                tsic.publishMessage('UI.Cmd.Inventory.Drop', {
+                    OwnerId: 'Player', SlotIndex: it.SlotIndex, Count: 1,
+                });
+            }
+        });
         window.addEventListener('tsic-item-catalog', refresh);
 
         document.getElementById('btn-close').addEventListener('click', () => {

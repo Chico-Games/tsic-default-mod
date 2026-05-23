@@ -86,7 +86,7 @@
 
     #hud-crosshair {
       position: fixed; left: 50%; top: 50%;
-      transform: translate(-50%, -50%);
+      margin-left: -2px; margin-top: -2px;
       width: 4px; height: 4px;
       background: #fff;
       box-shadow: 0 0 0 1px rgba(0,0,0,0.85);
@@ -95,6 +95,14 @@
       z-index: 20;
     }
     #hud-crosshair.hidden { display: none; }
+
+    /* IA_HUDToggle: hide every HUD chrome element (everything hud.js + the
+       overlay screens add). Toast container is exempt — toasts should still
+       be visible since they're transient notifications, not chrome. */
+    body.hud-hidden #hud-chrome,
+    body.hud-hidden #hud-health,
+    body.hud-hidden #hud-stamina,
+    body.hud-hidden #hud-crosshair { display: none !important; }
   `;
 
   // Toasts can appear on any screen, but the rest of the HUD chrome
@@ -239,6 +247,13 @@
       if (!dot || !p) return;
       const isMenuMode = String(p.Device || '') === 'mouse' && String(p.Focus || '') === 'ui';
       dot.classList.toggle('hidden', isMenuMode);
+    });
+
+    // HUD toggle (IA_HUDToggle, default H). The input bridge fires Started
+    // on key press; we flip body.hud-hidden which hides every chrome element.
+    tsic.on('tsic.msg.UI.Input.IA_HUDToggle', (e) => {
+      if (!e || e.Phase !== 'Started') return;
+      document.body.classList.toggle('hud-hidden');
     });
   });
 })();

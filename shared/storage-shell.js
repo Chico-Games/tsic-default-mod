@@ -333,6 +333,10 @@
             tsic.publishMessage('UI.Cmd.Pause.Resume', {});
         });
         panel.querySelector('#ss-take-all').addEventListener('click', takeAll);
+        // IA_UI_TakeAll (gamepad shoulder / hotkey) — same effect as the button.
+        tsic.on('tsic.msg.UI.Input.IA_UI_TakeAll', (e) => {
+            if (e && e.Phase === 'Started') takeAll();
+        });
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') panel.querySelector('#ss-close').click();
         });

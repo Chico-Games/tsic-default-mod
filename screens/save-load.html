@@ -27,6 +27,13 @@
     .slot-meta .opened { color: var(--cat-ink-dark); }
     .slot-meta .playtime { color: var(--cat-ink-soft); }
     .slot-empty { opacity: 0.6; padding: 16px; text-align: center; }
+    .slot-row { position: relative; }
+    .slot-delete { position: absolute; top: 6px; right: 8px;
+                   padding: 2px 8px; font-size: 11px;
+                   background: rgba(150,30,30,0.85); color: #fff;
+                   border: 1px solid rgba(80,15,15,0.85); border-radius: 3px;
+                   cursor: pointer; pointer-events: auto; }
+    .slot-delete:hover { background: rgba(180,40,40,0.95); }
   </style>
   <div class="tsic-modal-scrim tsic-modal-scrim--clear">
     <div class="tsic-panel" style="width:520px; background: var(--cat-bg);">
@@ -105,7 +112,18 @@
             playtime.textContent = `Playtime ${formatPlaytime(s.PlaytimeSeconds)}`;
             meta.append(opened, playtime);
 
-            el.append(thumbWrap, meta);
+            const del = document.createElement('span');
+            del.className = 'slot-delete';
+            del.textContent = 'Delete';
+            del.setAttribute('role', 'button');
+            del.setAttribute('aria-label', `Delete save ${s.SlotId}`);
+            del.onclick = (ev) => {
+              ev.stopPropagation();
+              if (!confirm('Delete this save? This cannot be undone.')) return;
+              tsic.publishMessage('UI.Cmd.Save.DeleteSlot', { SlotId: s.SlotId });
+            };
+
+            el.append(thumbWrap, meta, del);
             el.onclick = () => tsic.publishMessage('UI.Cmd.Menu.LoadSlot', { SlotId: s.SlotId });
             host.appendChild(el);
           }

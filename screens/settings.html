@@ -2,6 +2,8 @@
 <html lang="en"><head>
   <meta charset="utf-8">
   <meta name="tsic-screen" content="Settings">
+  <meta name="tsic-input-mode" content="InputMode.Menu.Settings">
+  <meta name="tsic-cancel-cmd" content="UI.Cmd.Settings.Back">
   <meta name="tsic-focus" content="enabled">
   <meta name="tsic-action-bar-context" content='[]'>
   <title>Settings</title>
@@ -25,9 +27,9 @@
     .tsic-tab { background: transparent; border: 1px solid transparent; color: var(--cat-ink-dark); padding: 4px 12px; cursor: pointer; font-family: inherit; }
     .tsic-tab.active { border-color: var(--tsic-accent); background: var(--cat-paper-panel); }
     .group  { margin-bottom: 24px; }
-    .group h3 { letter-spacing: 3px; opacity:0.7; font-size: 13px; margin: 0 0 8px; text-transform: uppercase; }
+    .group h3 { letter-spacing: 3px; font-size: 13px; margin: 0 0 8px; text-transform: uppercase; color: var(--cat-ink-soft); }
     .field  { display:flex; align-items:center; justify-content:space-between; padding: 8px 0; border-bottom: 1px solid var(--tsic-border); gap: 16px; }
-    .field label { opacity: 0.9; flex: 1; }
+    .field label { flex: 1; color: var(--cat-ink-dark); font-size: 14px; }
     .field-control { display:flex; align-items:center; gap: 8px; }
     .field input[type=range] { width: 240px; }
     .field select { background: var(--cat-paper-panel); color: var(--cat-ink-dark); border: 1px solid var(--tsic-border); padding: 2px 6px; font-family: inherit; }

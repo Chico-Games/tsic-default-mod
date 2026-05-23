@@ -27,10 +27,20 @@
     /* Make the layout dropdown read as a button, not a text box. */
     #layout-dd { width: 100%; padding: 10px 14px; font-size: 14px;
             background: var(--cat-green); color: #f7edd9;
-            border-color: var(--cat-green); }
+            border-color: var(--cat-green);
+            display: flex; align-items: center; justify-content: space-between;
+            gap: 12px; }
     #layout-dd:hover { background: var(--cat-green-hover, var(--cat-green));
             color: #f7edd9; }
-    #layout-dd .tsic-dropdown-caret { font-size: 12px; opacity: 0.9; }
+    #layout-dd .tsic-dropdown-label { flex: 1; text-align: left; }
+    #layout-dd .tsic-dropdown-caret {
+            font-size: 16px; line-height: 1; opacity: 1;
+            padding-left: 10px; margin-left: 4px;
+            border-left: 1px solid rgba(247,237,217,0.35); }
+    #layout-dd[data-tsic-value=""] .tsic-dropdown-label,
+    #layout-dd:not([data-tsic-value]) .tsic-dropdown-label { opacity: 0.75; font-style: italic; }
+    .field-hint { display: block; font-size: 11px; font-style: italic;
+            color: var(--cat-ink-soft); margin-top: 6px; letter-spacing: 0; text-transform: none; }
     .mods-split { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     .mods-panel {
             display: flex; flex-direction: column;
@@ -70,12 +80,13 @@
     <h1>New Game</h1>
 
     <div data-tsic-focus-group="fields">
-      <label>Layout</label>
+      <label>Map</label>
       <button class="tsic-dropdown" id="layout-dd" data-tsic-focusable
               data-tsic-initial-focus data-tsic-options='[]'>
-        <span class="tsic-dropdown-label">— Select —</span>
-        <span class="tsic-dropdown-caret">▾</span>
+        <span class="tsic-dropdown-label">Select a map…</span>
+        <span class="tsic-dropdown-caret" aria-hidden="true">▼</span>
       </button>
+      <span class="field-hint">Choose which map to play on.</span>
 
       <label>Active Mods</label>
       <div class="mods-split">
@@ -114,11 +125,21 @@
         // Preserve current selection if still valid; otherwise default to first.
         if (!opts.find(o => o.value === selectedLayout)) {
           selectedLayout = opts.length ? opts[0].value : null;
-          if (selectedLayout && tsic.dropdown && tsic.dropdown.set) {
-            tsic.dropdown.set(dd, selectedLayout);
+          if (selectedLayout) {
+            if (tsic.dropdown && tsic.dropdown.set) {
+              tsic.dropdown.set(dd, selectedLayout);
+            } else {
+              // tsic-dropdown.js is deferred; if a sticky replay reaches us
+              // before it installs, mirror what .set would do directly.
+              dd.setAttribute('data-tsic-value', String(selectedLayout));
+              const match = opts.find(o => o.value === selectedLayout);
+              const lbl = dd.querySelector('.tsic-dropdown-label');
+              if (lbl && match) lbl.textContent = String(match.label != null ? match.label : match.value);
+            }
           } else {
+            dd.removeAttribute('data-tsic-value');
             const lbl = dd.querySelector('.tsic-dropdown-label');
-            if (lbl) lbl.textContent = opts.length ? opts[0].label : '— None —';
+            if (lbl) lbl.textContent = '— No maps available —';
           }
         }
         validate();
@@ -214,7 +235,11 @@
         document.getElementById('btn-create').disabled = !selectedLayout;
       }
 
-      function whenReady(cb){ if (window.tsic){cb();return;} setTimeout(()=>whenReady(cb),16); }
+      // Also wait for tsic.dropdown — it's installed by a deferred script, so
+      // it lands AFTER this inline script. If we subscribe to a sticky channel
+      // (UI.Menu.Layouts) before then, the cached replay fires the handler
+      // synchronously and we can't push the default selection through .set().
+      function whenReady(cb){ if (window.tsic && window.tsic.dropdown){cb();return;} setTimeout(()=>whenReady(cb),16); }
       whenReady(() => {
         const dd = document.getElementById('layout-dd');
         dd.addEventListener('tsic-change', (e) => {

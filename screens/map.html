@@ -37,6 +37,16 @@
     #map-content {
       position: absolute; left: 0; top: 0;
       transform-origin: 0 0;
+      /* Pixel-perfect zoom: the `transform: scale()` applied at runtime would
+         normally resample the rasterized children with bilinear filtering at
+         the GPU stage. Setting image-rendering on the scaled container (in
+         addition to on `#world-tex` itself) propagates the nearest-neighbor
+         hint through Ultralight 1.4's compositor so the world texture stays
+         crisp at every zoom level. The three values are duplicate fallbacks
+         (browsers pick the last one they understand). */
+      image-rendering: pixelated;
+      image-rendering: -webkit-optimize-contrast;
+      image-rendering: crisp-edges;
       /* `will-change: transform` was here as an optimization hint — DO NOT
          re-add it under Ultralight 1.4. It promotes #map-content to its own
          compositing layer, and any element inside a composited layer fails
@@ -45,20 +55,32 @@
          `opacity` stacking contexts, and `clip-path`. See CLAUDE.md →
          TSICWebUI for the full list. */
     }
-    #world-tex, #fow-tex, #overlay,
+    #world-tex, #fow-tex, #overlay, #overlay-top,
     #debug-height-tex, #debug-maze-tex {
       position: absolute; left: 0; top: 0;
       pointer-events: none;
       user-select: none;
       -webkit-user-drag: none;
     }
-    #world-tex { image-rendering: pixelated; }
+    /* Explicit stacking — Ultralight's layer compositor occasionally fails to
+       paint an SVG sitting on top of an alpha-channel <img> (the FOW texture).
+       Force the world-state SVG above the texture stack via z-index, and lift
+       the local-player marker into its own SVG (`#overlay-top`) above that so a
+       partial compositing failure on the world-state layer can't take the
+       player marker down with it. */
+    #world-tex          { z-index: 1; image-rendering: pixelated; }
+    #debug-height-tex   { z-index: 2; }
+    #debug-maze-tex     { z-index: 3; }
+    #debug-all-tex      { z-index: 4; }
+    #fow-tex            { z-index: 5; }
+    #overlay            { z-index: 6; }
+    #overlay-top        { z-index: 7; }
     /* Debug overlays (toggled by WebUI.Map.DebugHeight / WebUI.Map.DebugMazeRegions
        console commands; sticky `tsic.debug.Map.Overlay` event drives display). The
        1px-per-tile texture is stretched to world bounds via CSS w/h; `pixelated`
        keeps the per-tile cells crisp at all zoom levels. Alpha is baked into the
        texture pixels — `opacity:<1` is on the Ultralight 1.4 broken list. */
-    #debug-height-tex, #debug-maze-tex {
+    #debug-height-tex, #debug-maze-tex, #debug-all-tex {
       image-rendering: pixelated;
       display: none;
     }
@@ -67,8 +89,12 @@
        (see CLAUDE.md → TSICWebUI). Until 1.4.1 ships GPU-accelerated
        compositing, the fow layer renders at full opacity with normal blend.
        For a dimmed look, bake the desired alpha into the FOW texture's pixel
-       data instead of using CSS opacity. */
-    #fow-tex   { image-rendering: pixelated; }
+       data instead of using CSS opacity.
+       FOW currently hidden while we diagnose whether the muted-color look on
+       the basemap is from FOW (transpose-aligned wrong → covers explored tiles)
+       or from the biome MapColor palette itself. Re-enable by removing the
+       `display: none` once that's resolved. */
+    #fow-tex   { image-rendering: pixelated; display: none; }
     .ic { cursor: default; }
     .ic.clickable { cursor: pointer; pointer-events: auto; }
     .ic-spawn   { fill: #f1c40f; }
@@ -76,8 +102,14 @@
     .ic-death   { fill: #9b59b6; }
     .ic-land    { fill: #e74c3c; }
     .ic-other   { fill: #bbbbbb; }
-    .pl-self    { fill: #3498db; stroke: #fff; }
-    .pl-other   { fill: #888888; stroke: #fff; }
+    /* Larger, higher-contrast player marker — the previous 8×12 triangle with
+       a 1px stroke was easy to lose against busy biome textures. The halo is
+       drawn as a separate fatter polygon underneath the fill polygon so the
+       white outline is unmistakable even after the SVG path-atlas gets pushed
+       through Ultralight's compositor. */
+    .pl-self      { fill: #3498db; stroke: #ffffff; }
+    .pl-self-halo { fill: #ffffff; opacity: 1; }
+    .pl-other     { fill: #888888; stroke: #ffffff; }
     .ping       { stroke: #ffcc00; }
     #legend {
       flex: 0 0 auto;
@@ -137,7 +169,10 @@
       animation: tp-flash 600ms ease-out forwards;
       pointer-events: none;
     }
-    /* Hover-info chip — follows mouse / sits next to gamepad crosshair. */
+    /* Hover-info chip — follows mouse / sits next to gamepad crosshair.
+       `white-space: pre` preserves explicit newlines (the tile-hover text uses
+       \n to put biome / floor / coords on three lines) while still keeping
+       single-line entity-hover strings on one line. */
     #hover-chip {
       position: absolute;
       left: 0; top: 0;
@@ -147,9 +182,10 @@
       font-family: 'Consolas', monospace;
       font-size: 12px;
       letter-spacing: 1px;
+      line-height: 1.35;
       border: 1px solid #5a4a30;
       pointer-events: none;
-      white-space: nowrap;
+      white-space: pre;
       display: none;
       z-index: 5;
     }
@@ -162,6 +198,7 @@
         <img id="world-tex" src="/runtime/world-map.imgsrc">
         <img id="debug-height-tex" src="/runtime/world-debug-height.imgsrc">
         <img id="debug-maze-tex"   src="/runtime/world-debug-maze.imgsrc">
+        <img id="debug-all-tex"    src="/runtime/world-debug-all.imgsrc">
         <img id="fow-tex"   src="/runtime/fow.imgsrc">
         <svg id="overlay" xmlns="http://www.w3.org/2000/svg">
           <rect id="world-bounds" x="0" y="0" width="0" height="0"></rect>
@@ -170,6 +207,12 @@
           <g id="g-players"></g>
           <g id="g-coords"></g>
           <g id="g-cheat-fx"></g>
+        </svg>
+        <!-- Dedicated top-of-stack SVG for the local-player marker (and any
+             "must always be visible" overlay). Sized + viewBox-set alongside
+             #overlay in setBounds(). -->
+        <svg id="overlay-top" xmlns="http://www.w3.org/2000/svg">
+          <g id="g-players-top"></g>
         </svg>
       </div>
       <div id="empty">Waiting for map data…</div>
@@ -210,6 +253,11 @@
       // (so counter-scaled geometry stays correct).
       let latestSnapshot = null;
       let latestPings = null;
+      // Static per-tile world data from UI.Map.TileGrid. tileGrid.biomes /
+      // tileGrid.heights are flat arrays of length worldSize*worldSize indexed
+      // by (north * worldSize + east). RLE is expanded once on receipt so
+      // hover lookups are O(1) per mouse move.
+      let tileGrid = null;
 
       function whenReady(cb) {
         if (window.tsic) { cb(); return; }
@@ -222,15 +270,25 @@
         return e;
       }
 
+      // North-up projection of the UE world onto the map texture.
+      //   UE world: +X = North (forward), +Y = East (right).
+      //   Texture pixel layout (after FColorArr::Add2DArrayAtPosition's Y-flip):
+      //     col = East = world Y          → screen horizontal
+      //     row = (size-1) - North        → screen vertical (top = +North)
+      //   So: local.x maps to world Y, local.y maps to (maxX - world X).
+      // bounds.{min,max}X are the world-X (North) range, bounds.{min,max}Y the
+      // world-Y (East) range — i.e. they match UE world coordinates, not screen
+      // axes. Don't be fooled by the "X / Y" labels; this preserves the C++
+      // snapshot's payload exactly.
       function worldToLocal(wx, wy) {
-        const x = (wx - bounds.minX) * PX_PER_CM;
-        const y = (bounds.maxY - wy) * PX_PER_CM;
+        const x = (wy - bounds.minY) * PX_PER_CM;
+        const y = (bounds.maxX - wx) * PX_PER_CM;
         return { x, y };
       }
 
       function localToWorld(lx, ly) {
-        const wx = bounds.minX + lx / PX_PER_CM;
-        const wy = bounds.maxY - ly / PX_PER_CM;
+        const wy = bounds.minY + lx / PX_PER_CM;
+        const wx = bounds.maxX - ly / PX_PER_CM;
         return { wx, wy };
       }
 
@@ -270,16 +328,19 @@
           const h = (bounds.maxY - bounds.minY) * PX_PER_CM;
           c.style.width  = `${w}px`;
           c.style.height = `${h}px`;
-          for (const id of ['world-tex', 'fow-tex', 'debug-height-tex', 'debug-maze-tex']) {
+          for (const id of ['world-tex', 'fow-tex', 'debug-height-tex', 'debug-maze-tex', 'debug-all-tex']) {
             const img = document.getElementById(id);
             if (!img) continue;
             img.style.width  = `${w}px`;
             img.style.height = `${h}px`;
           }
-          const svg = document.getElementById('overlay');
-          svg.setAttribute('width',  w);
-          svg.setAttribute('height', h);
-          svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+          for (const sid of ['overlay', 'overlay-top']) {
+            const svg = document.getElementById(sid);
+            if (!svg) continue;
+            svg.setAttribute('width',  w);
+            svg.setAttribute('height', h);
+            svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+          }
           const wb = document.getElementById('world-bounds');
           if (wb) {
             wb.setAttribute('width',  w);
@@ -388,37 +449,66 @@
       }
 
       function renderPlayers(players) {
-        const g = document.getElementById('g-players');
+        const g    = document.getElementById('g-players');
+        const gTop = document.getElementById('g-players-top');
         g.textContent = '';
+        gTop.textContent = '';
         const inv = state.scale > 0 ? (1 / state.scale) : 1;
-        const tipY = -PLAYER_TIP_PX * inv;
-        const baseY = PLAYER_BASE_PX * inv;
-        const baseX = PLAYER_BASE_PX * inv;
-        const sw = 1 * inv;
+        // Bumped from 12/8/1 → 18/12/2 — small markers were getting lost
+        // against the biome texture even at 1:1 zoom.
+        const tipPx  = 18;
+        const basePx = 12;
+        const tipY = -tipPx * inv;
+        const baseY = basePx * inv;
+        const baseX = basePx * inv;
+        const sw = 2 * inv;
+        // Halo is drawn 3px wider per edge so the white outline survives
+        // anti-aliasing and any compositor pixel-snap loss.
+        const haloTipY  = -(tipPx  + 3) * inv;
+        const haloBaseY =  (basePx + 3) * inv;
+        const haloBaseX =  (basePx + 3) * inv;
         const list = players || [];
         for (let i = 0; i < list.length; i++) {
           const pl = list[i];
           const pos = worldToLocal((pl.Position && pl.Position.X) || 0,
                                    (pl.Position && pl.Position.Y) || 0);
-          // Match the prior stub's convention: rotate by yaw directly.
-          // Whether this needs a 90° offset depends on the world->screen
-          // axis mapping and is best confirmed in PIE; flagged as
-          // follow-up if rotation reads wrong.
+          // North-up projection makes yaw map 1:1 to SVG clockwise rotation:
+          // yaw=0 (facing +X / north) → triangle UP, yaw=90 → RIGHT, etc.
           const yaw = (pl.YawDeg || 0);
           // Temporary self-detection: treat Players[0] as the local player.
           // The C++ snapshot doesn't yet carry a self identifier, and the
           // server iterates controllers in order so the local PC is normally
           // first. Replace with a real flag once FScpUIMapPlayer gains one.
           const isSelf = (i === 0);
+          const xform = `translate(${pos.x},${pos.y}) rotate(${yaw})`;
+          // Render into #g-players for non-self players (and as a baseline
+          // for self). Local player ALSO renders into #g-players-top with a
+          // halo so it survives any z-stacking / compositor failures on the
+          // primary overlay.
           const tri = el('polygon', {
             points: `0,${tipY} ${baseX},${baseY} ${-baseX},${baseY}`,
-            transform: `translate(${pos.x},${pos.y}) rotate(${yaw})`,
+            transform: xform,
             class: isSelf ? 'pl-self' : 'pl-other', 'stroke-width': sw,
           });
           const title = el('title');
           title.textContent = pl.Name || pl.PlayerId || 'Player';
           tri.appendChild(title);
           g.appendChild(tri);
+
+          if (isSelf) {
+            const halo = el('polygon', {
+              points: `0,${haloTipY} ${haloBaseX},${haloBaseY} ${-haloBaseX},${haloBaseY}`,
+              transform: xform,
+              class: 'pl-self-halo',
+            });
+            const triTop = el('polygon', {
+              points: `0,${tipY} ${baseX},${baseY} ${-baseX},${baseY}`,
+              transform: xform,
+              class: 'pl-self', 'stroke-width': sw,
+            });
+            gTop.appendChild(halo);
+            gTop.appendChild(triTop);
+          }
         }
       }
 
@@ -450,13 +540,14 @@
         const fs = 11 * inv;
         const w = (bounds.maxX - bounds.minX) * PX_PER_CM;
         const h = (bounds.maxY - bounds.minY) * PX_PER_CM;
-        // World axes: +X right, +Y up; screen +Y down. worldToLocal flips Y,
-        // so the world top-left corner sits at local (0, 0).
+        // North-up projection: screen-up = +X (North), screen-right = +Y (East).
+        //   TL = NW = (maxX, minY), TR = NE = (maxX, maxY),
+        //   BL = SW = (minX, minY), BR = SE = (minX, maxY).
         const corners = [
-          { lx: inset,     ly: inset + fs,  anchor: 'start', wx: bounds.minX, wy: bounds.maxY },
+          { lx: inset,     ly: inset + fs,  anchor: 'start', wx: bounds.maxX, wy: bounds.minY },
           { lx: w - inset, ly: inset + fs,  anchor: 'end',   wx: bounds.maxX, wy: bounds.maxY },
           { lx: inset,     ly: h - inset,   anchor: 'start', wx: bounds.minX, wy: bounds.minY },
-          { lx: w - inset, ly: h - inset,   anchor: 'end',   wx: bounds.maxX, wy: bounds.minY },
+          { lx: w - inset, ly: h - inset,   anchor: 'end',   wx: bounds.minX, wy: bounds.maxY },
         ];
         for (const c of corners) {
           const t = el('text', {
@@ -516,6 +607,92 @@
         return null;
       }
 
+      // Expand `[{Value, Count}, ...]` into a flat array of length
+      // expectedLen. The bridge ships FRLEEntry as a struct so JSON arrives
+      // in PascalCase. Stops early if the RLE runs out, pads with zeros so
+      // out-of-range lookups are well-defined.
+      function expandRLE(entries, expectedLen) {
+        const out = new Array(expectedLen | 0).fill(0);
+        if (!Array.isArray(entries)) return out;
+        let i = 0;
+        for (const e of entries) {
+          const v = (e && e.Value) | 0;
+          let n = (e && e.Count) | 0;
+          if (n <= 0) continue;
+          if (i + n > expectedLen) n = expectedLen - i;
+          for (let k = 0; k < n; k++) out[i + k] = v;
+          i += n;
+          if (i >= expectedLen) break;
+        }
+        return out;
+      }
+
+      function onTileGrid(p) {
+        if (!p || !p.WorldSize || p.WorldSize <= 0) { tileGrid = null; return; }
+        const total = (p.WorldSize | 0) * (p.WorldSize | 0);
+        tileGrid = {
+          worldSize: p.WorldSize | 0,
+          tileSize: p.TileSizeUnits || 0,
+          // C++ matches Snapshot.MinBounds = (0, 0), Snapshot.MaxBounds = (FullW, FullW).
+          // We re-derive instead of trusting the snapshot in case TileGrid arrives first.
+          minX: (p.MinBounds && p.MinBounds.X) || 0,
+          minY: (p.MinBounds && p.MinBounds.Y) || 0,
+          maxX: (p.MaxBounds && p.MaxBounds.X) || 0,
+          maxY: (p.MaxBounds && p.MaxBounds.Y) || 0,
+          palette: Array.isArray(p.BiomePalette) ? p.BiomePalette : [],
+          biomes:  expandRLE(p.BiomeRLE,  total),
+          heights: expandRLE(p.HeightRLE, total),
+        };
+      }
+
+      // Convert a world coordinate to a tile lookup result.
+      // worldgen tile index = North * WorldSize + East, where
+      //   North = floor(world.X / TileSize),  East = floor(world.Y / TileSize).
+      // Returns null for positions outside the grid.
+      function tileAt(wx, wy) {
+        if (!tileGrid || tileGrid.tileSize <= 0 || tileGrid.worldSize <= 0) return null;
+        const N = Math.floor(wx / tileGrid.tileSize);
+        const E = Math.floor(wy / tileGrid.tileSize);
+        if (N < 0 || E < 0 || N >= tileGrid.worldSize || E >= tileGrid.worldSize) return null;
+        const idx = N * tileGrid.worldSize + E;
+        const paletteIdx = tileGrid.biomes[idx] | 0;
+        const biomeName = (paletteIdx >= 0 && paletteIdx < tileGrid.palette.length)
+          ? tileGrid.palette[paletteIdx]
+          : '';
+        return {
+          index: idx,
+          north: N,
+          east: E,
+          biome: biomeName,
+          height: tileGrid.heights[idx] | 0,
+        };
+      }
+
+      // Split a PascalCase / camelCase name into space-separated words so a tag
+      // like "ShowFloor" reads "Show Floor" when the BiomeDefinition.DisplayName
+      // field is empty. Leaves names that already contain a space alone.
+      function humanizeBiome(name) {
+        if (!name || /\s/.test(name)) return name || '';
+        return name
+          .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+          .replace(/([A-Z]+)([A-Z][a-z])/g, '$1 $2');
+      }
+
+      function describeTile(wx, wy) {
+        const t = tileAt(wx, wy);
+        if (!t) return null;
+        // Three lines (relies on #hover-chip's `white-space: pre`):
+        //   biome
+        //   Floor N
+        //   (X, Y)
+        const lines = [];
+        const biome = humanizeBiome(t.biome);
+        if (biome) lines.push(biome);
+        lines.push('Floor ' + t.height);
+        lines.push('(' + Math.round(wx) + ', ' + Math.round(wy) + ')');
+        return lines.join('\n');
+      }
+
       function describePick(pick) {
         if (!pick) return null;
         const e = pick.entity;
@@ -556,7 +733,13 @@
         }
         const lx = (cx - state.panX) / state.scale;
         const ly = (cy - state.panY) / state.scale;
-        const text = describePick(pickAt(lx, ly));
+        // Prefer entity hover (player/ping/icon); fall back to tile info so the
+        // chip is informative whenever the cursor is over the map texture.
+        let text = describePick(pickAt(lx, ly));
+        if (!text) {
+          const { wx, wy } = localToWorld(lx, ly);
+          text = describeTile(wx, wy);
+        }
         if (!text) { hideHoverChip(); return; }
         chip.textContent = text;
         chip.style.display = 'block';
@@ -582,6 +765,7 @@
         if (!p) {
           document.getElementById('g-icons').textContent = '';
           document.getElementById('g-players').textContent = '';
+          document.getElementById('g-players-top').textContent = '';
           document.getElementById('g-pings').textContent = '';
           document.getElementById('g-coords').textContent = '';
           hideHoverChip();
@@ -592,6 +776,7 @@
         if (!bounds.hasData) {
           document.getElementById('g-icons').textContent = '';
           document.getElementById('g-players').textContent = '';
+          document.getElementById('g-players-top').textContent = '';
           document.getElementById('g-pings').textContent = '';
           document.getElementById('g-coords').textContent = '';
           hideHoverChip();
@@ -790,12 +975,13 @@
                  e.Value.Y * GAMEPAD_PAN_PX_PER_SEC * dt);
         });
         tsic.on('tsic.msg.UI.Map.Snapshot', onSnapshot);
+        tsic.on('tsic.msg.UI.Map.TileGrid', onTileGrid);
         tsic.on('tsic.msg.UI.Ping.Set', onPingSet);
 
         // Debug-overlay toggle (driven by WebUI.Map.DebugHeight /
         // WebUI.Map.DebugMazeRegions console commands). Sticky channel:
         // a freshly-opened map screen replays the last toggled state.
-        // Payload: { Layer: 'height'|'maze', Visible: bool }.
+        // Payload: { Layer: 'height'|'maze'|'all', Visible: bool }.
         // We re-set the <img> src on show so Ultralight refetches the
         // ImageSource — the texture is only registered after the first
         // toggle, so the initial fetch on page-load resolves empty.
@@ -803,14 +989,17 @@
           if (!p || !p.Layer) return;
           const id = p.Layer === 'height' ? 'debug-height-tex'
                    : p.Layer === 'maze'   ? 'debug-maze-tex'
+                   : p.Layer === 'all'    ? 'debug-all-tex'
                    : null;
           if (!id) return;
           const img = document.getElementById(id);
           if (!img) return;
           if (p.Visible) {
-            const base = id === 'debug-height-tex'
-              ? '/runtime/world-debug-height.imgsrc'
-              : '/runtime/world-debug-maze.imgsrc';
+            const base = id === 'debug-height-tex' ? '/runtime/world-debug-height.imgsrc'
+                       : id === 'debug-maze-tex'   ? '/runtime/world-debug-maze.imgsrc'
+                       : id === 'debug-all-tex'    ? '/runtime/world-debug-all.imgsrc'
+                       : null;
+            if (!base) return;
             img.src = `${base}?t=${Date.now()}`;
             img.style.display = 'block';
           } else {
