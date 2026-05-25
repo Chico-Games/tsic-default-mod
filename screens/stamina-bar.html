@@ -45,9 +45,9 @@
       function whenReady(cb) { if (window.tsic) { cb(); return; } setTimeout(() => whenReady(cb), 16); }
 
       function applyAttr(p) {
-        if (!p) return;
-        current = Number(p.current) || 0;
-        max     = Number(p.max) || 1;
+        if (!p || p.Channel !== 'Stamina') return;
+        current = Number(p.Current) || 0;
+        max     = Number(p.Max) || 1;
         const target = max > 0 ? Math.max(0, Math.min(1, current / max)) : 0;
         if (target < prevTarget - 1e-4) {
           lastDrainTime = performance.now() / 1000;
@@ -81,7 +81,7 @@
       }
 
       whenReady(() => {
-        tsic.on('tsic.attr.player.stamina', applyAttr);
+        tsic.on('tsic.msg.UI.Player.Attribute', applyAttr);
         requestAnimationFrame(frame);
       });
     })();

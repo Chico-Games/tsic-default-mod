@@ -113,11 +113,11 @@
 
     whenReady(() => {
       $('disconnected').textContent = '';
-      // Live health attribute (sticky — replayed on page reload).
-      tsic.on('tsic.attr.player.health', (p) => {
-        if (!p || typeof p !== 'object') return;
-        current = Number(p.current) || 0;
-        max = Number(p.max) || 1;
+      // Live health attribute (cached — replayed on page reload).
+      tsic.on('tsic.msg.UI.Player.Attribute', (p) => {
+        if (!p || p.Channel !== 'Health') return;
+        current = Number(p.Current) || 0;
+        max = Number(p.Max) || 1;
         if (!hasAttr) {
           // Sync trailing bar to the first real value so it doesn't drain
           // from 100% on startup.

@@ -21,7 +21,7 @@ TSICTestHarness.register({
     name: 'HealthBar: damage event subscriber doesn\'t throw',
     file: '/screens/health-bar.html',
     async run(ctx) {
-        ctx.inject('tsic.attr.player.health', { current: 80, max: 100 });
+        ctx.inject('tsic.msg.UI.Player.Attribute', { Channel: 'Health', Current: 80, Max: 100 });
         ctx.inject('tsic.msg.Message.DamageEvent', { Damage: 20 });
         await ctx.waitFor(() => /80 \/ 100/.test(ctx.doc.getElementById('numbers').textContent), { timeout: 2000 });
         ctx.expect(ctx.assert.domText(ctx.doc, '#numbers', /80 \/ 100/));
@@ -33,8 +33,8 @@ TSICTestHarness.register({
     name: 'StaminaBar: rapid drop still surfaces final value',
     file: '/screens/stamina-bar.html',
     async run(ctx) {
-        ctx.inject('tsic.attr.player.stamina', { current: 100, max: 100 });
-        ctx.inject('tsic.attr.player.stamina', { current: 25, max: 100 });
+        ctx.inject('tsic.msg.UI.Player.Attribute', { Channel: 'Stamina', Current: 100, Max: 100 });
+        ctx.inject('tsic.msg.UI.Player.Attribute', { Channel: 'Stamina', Current: 25, Max: 100 });
         await ctx.waitFor(() => /25 \/ 100/.test(ctx.doc.body.textContent), { timeout: 2000 });
         ctx.expect(ctx.assert.truthy(/25 \/ 100/.test(ctx.doc.body.textContent)));
     },

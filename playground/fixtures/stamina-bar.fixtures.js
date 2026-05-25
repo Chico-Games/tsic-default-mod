@@ -1,11 +1,11 @@
 // /screens/stamina-bar.html subscribes to:
-//   tsic.attr.player.stamina  { current, max }
+//   tsic.msg.UI.Player.Attribute  { Channel, Current, Max }
 TSICPlayground.register({
     id: 'stamina-bar',
     label: 'Stamina Bar',
     screen: '/screens/stamina-bar.html',
     initialState() { return { current: 80, max: 100 }; },
-    project(s) { return [['tsic.attr.player.stamina', { current: s.current, max: s.max }]]; },
+    project(s) { return [['tsic.msg.UI.Player.Attribute', { Channel: 'Stamina', Current: s.current, Max: s.max }]]; },
     scenarios: [
         { label: 'Full',          apply(s) { s.current = s.max; } },
         { label: '90%',           apply(s) { s.current = 90; } },

@@ -150,22 +150,22 @@
 
   // ---------- bars ----------
 
-  function attachBar(rootId, attrChannel, opts) {
+  function createBar(rootId, opts) {
     const root = document.getElementById(rootId);
-    if (!root) return;
+    if (!root) return null;
     const trail = root.querySelector('.trail-fill');
     const live  = root.querySelector('.live-fill');
     const nums  = root.querySelector('.numbers');
 
-    let current = 1, max = 1;
-    let liveN = 1, trailN = 1;
+    let current = 0, max = 0;
+    let liveN = 0, trailN = 0;
     let lastDecayTime = -1e9;
-    let prevTarget = 1;
+    let prevTarget = 0;
 
     function applyAttr(p) {
       if (!p) return;
-      current = Number(p.current) || 0;
-      max     = Number(p.max) || 1;
+      current = Number(p.Current) || 0;
+      max     = Number(p.Max) || 1;
       if (opts.decayOnDecrease) {
         const target = max > 0 ? Math.max(0, Math.min(1, current / max)) : 0;
         if (target < prevTarget - 1e-4) {
@@ -202,9 +202,9 @@
       requestAnimationFrame(frame);
     }
 
-    tsic.on(attrChannel, applyAttr);
     if (opts.damageChannel) tsic.on(opts.damageChannel, onDamage);
     requestAnimationFrame(frame);
+    return { applyAttr };
   }
 
   // ---------- boot ----------
@@ -233,12 +233,17 @@
       else { el.style.display = 'none'; }
     });
 
-    // Health + stamina bars (live attribute bridges; sticky).
-    attachBar('hud-health', 'tsic.attr.player.health', {
+    // Health + stamina bars — unified attribute message channel.
+    const healthBar = createBar('hud-health', {
       delay: 2.0, decayRate: 0.2, damageChannel: 'tsic.msg.Message.DamageEvent',
     });
-    attachBar('hud-stamina', 'tsic.attr.player.stamina', {
+    const staminaBar = createBar('hud-stamina', {
       delay: 1.0, decayRate: 0.3, decayOnDecrease: true,
+    });
+    tsic.on('tsic.msg.UI.Player.Attribute', (p) => {
+      if (!p) return;
+      if (p.Channel === 'Health' && healthBar) healthBar.applyAttr(p);
+      if (p.Channel === 'Stamina' && staminaBar) staminaBar.applyAttr(p);
     });
 
     // Crosshair visibility — hide when an HTML screen takes over the cursor.

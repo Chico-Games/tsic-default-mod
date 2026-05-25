@@ -44,9 +44,9 @@
       function whenReady(cb) { if (window.tsic) { cb(); return; } setTimeout(() => whenReady(cb), 16); }
 
       function applyAttr(p) {
-        if (!p) return;
-        current = Number(p.current) || 0;
-        max     = Number(p.max) || 1;
+        if (!p || p.Channel !== 'Health') return;
+        current = Number(p.Current) || 0;
+        max     = Number(p.Max) || 1;
       }
 
       function onDamage(p) {
@@ -80,7 +80,7 @@
       }
 
       whenReady(() => {
-        tsic.on('tsic.attr.player.health', applyAttr);
+        tsic.on('tsic.msg.UI.Player.Attribute', applyAttr);
         tsic.on('tsic.msg.Message.DamageEvent', onDamage);
         requestAnimationFrame(frame);
       });
