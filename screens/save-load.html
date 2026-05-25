@@ -64,8 +64,9 @@
         const time = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         return `${date}  ${time}`;
       }
-      function safeHttpUrl(u) {
+      function safeThumbnailUrl(u) {
         if (typeof u !== 'string' || !u) return null;
+        if (u.startsWith('data:image/png;base64,')) return u;
         try {
           const parsed = new URL(u);
           return (parsed.protocol === 'http:' || parsed.protocol === 'https:') ? parsed.href : null;
@@ -92,7 +93,7 @@
 
             const thumbWrap = document.createElement('div');
             thumbWrap.className = 'slot-thumb';
-            const thumbUrl = safeHttpUrl(s.ThumbnailUrl);
+            const thumbUrl = safeThumbnailUrl(s.ThumbnailUrl);
             if (thumbUrl) {
               const img = document.createElement('img');
               img.src = thumbUrl;

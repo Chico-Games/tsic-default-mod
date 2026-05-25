@@ -121,7 +121,9 @@
       display: flex; gap: 18px; flex-wrap: wrap;
     }
     #legend .swatch { display:inline-block; width:10px; height:10px; vertical-align:middle; margin-right:4px; }
-    #hint { margin-left: auto; opacity: 0.6; }
+    /* opacity:<1 promotes to compositing layer → invisible in UL 1.4.
+       Use rgba color to achieve a dimmed look instead. */
+    #hint { margin-left: auto; color: rgba(108, 94, 73, 0.6); }
     #empty {
       position: absolute; inset: 0;
       display: flex; align-items: center; justify-content: center;
@@ -148,11 +150,12 @@
       vector-effect: non-scaling-stroke;
       pointer-events: none;
     }
+    /* opacity:<1 promotes to compositing layer → invisible in UL 1.4.
+       Use fill-opacity (SVG attribute) or a lighter fill color instead. */
     .bound-coord {
-      fill: #5a4a30;
+      fill: rgba(90, 74, 48, 0.85);
       font-family: 'Consolas', monospace;
       pointer-events: none;
-      opacity: 0.85;
     }
     /* Ctrl+Click teleport-cheat flash ring. The animation uses fill-opacity
        (an SVG attribute) rather than CSS `opacity` because the latter would
@@ -248,6 +251,8 @@
       // mouseX/mouseY are viewport-relative; -1 means "no mouse over the
       // viewport" (initial state or after mouseleave). isPad mirrors the
       // .pad-cursor class on the viewport.
+      let MIN_SCALE = 0.05;
+      const MAX_SCALE = 16;
       const state = { panX: 0, panY: 0, scale: 1, isPad: false, mouseX: -1, mouseY: -1 };
       // Latest payloads kept so we can re-render after pan/zoom changes
       // (so counter-scaled geometry stays correct).
@@ -298,6 +303,17 @@
           `translate(${state.panX}px, ${state.panY}px) scale(${state.scale})`;
       }
 
+      function updateMinScale() {
+        const vp = document.getElementById('map-viewport');
+        if (!bounds.hasData || !vp) return;
+        const widthCm  = (bounds.maxX - bounds.minX) * PX_PER_CM;
+        const heightCm = (bounds.maxY - bounds.minY) * PX_PER_CM;
+        if (widthCm <= 0 || heightCm <= 0) return;
+        const sx = vp.clientWidth  / widthCm;
+        const sy = vp.clientHeight / heightCm;
+        MIN_SCALE = Math.min(sx, sy) * 0.95;
+      }
+
       function fitToBounds() {
         const vp = document.getElementById('map-viewport');
         if (!bounds.hasData || !vp) return;
@@ -306,7 +322,8 @@
         if (widthCm <= 0 || heightCm <= 0) return;
         const sx = vp.clientWidth  / widthCm;
         const sy = vp.clientHeight / heightCm;
-        state.scale = Math.max(0.0001, Math.min(sx, sy) * 0.95);
+        MIN_SCALE = Math.min(sx, sy) * 0.95;
+        state.scale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, Math.min(sx, sy) * 0.95));
         state.panX = (vp.clientWidth  - widthCm  * state.scale) / 2;
         state.panY = (vp.clientHeight - heightCm * state.scale) / 2;
         applyTransform();
@@ -863,8 +880,7 @@
         const factor = ev.deltaY < 0 ? 1.1 : (1 / 1.1);
         const lx = (cx - state.panX) / state.scale;
         const ly = (cy - state.panY) / state.scale;
-        // Clamp scale so wheel-down can't drop us to a degenerate value.
-        state.scale = Math.max(0.0001, state.scale * factor);
+        state.scale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, state.scale * factor));
         state.panX = cx - lx * state.scale;
         state.panY = cy - ly * state.scale;
         applyTransform();
@@ -921,7 +937,7 @@
           const cy = rect.height / 2;
           const lx = (cx - state.panX) / state.scale;
           const ly = (cy - state.panY) / state.scale;
-          state.scale = Math.max(0.0001, state.scale * factor);
+          state.scale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, state.scale * factor));
           state.panX = cx - lx * state.scale;
           state.panY = cy - ly * state.scale;
           applyTransform();

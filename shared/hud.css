@@ -43,12 +43,16 @@
 .toast--info    { border-left-color: var(--cat-green); }
 .toast--warning { border-left-color: #b58a00; }
 .toast--error   { border-left-color: var(--cat-red); }
+/* CSS opacity promotes to a compositing layer that Ultralight 1.4 can't
+   paint back — animate color + background via rgba instead. border-left-color
+   is left out so severity-variant classes (.toast--info/warning/error) aren't
+   overridden by the keyframe. */
 .toast--leaving { animation: tsic-toast-out 200ms ease-in forwards; }
 @keyframes tsic-toast-in {
-  from { transform: translateX(20px); opacity: 0; }
-  to   { transform: translateX(0);    opacity: 1; }
+  from { transform: translateX(20px); color: rgba(37,33,25,0); background: rgba(241,229,207,0); }
+  to   { transform: translateX(0);    color: rgba(37,33,25,1); background: rgba(241,229,207,0.92); }
 }
 @keyframes tsic-toast-out {
-  from { transform: translateX(0);    opacity: 1; }
-  to   { transform: translateX(20px); opacity: 0; }
+  from { transform: translateX(0);    color: rgba(37,33,25,1); background: rgba(241,229,207,0.92); }
+  to   { transform: translateX(20px); color: rgba(37,33,25,0); background: rgba(241,229,207,0); }
 }
