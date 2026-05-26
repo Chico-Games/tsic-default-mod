@@ -58,20 +58,18 @@
   background:
     linear-gradient(
       90deg,
-      rgba(99, 78, 52, 0.18),
+      rgba(99, 78, 52, 0.13),
       transparent 6%,
       transparent 94%,
-      rgba(99, 78, 52, 0.12)
+      rgba(99, 78, 52, 0.09)
     ),
     linear-gradient(
       180deg,
-      rgba(255, 255, 255, 0.35),
+      rgba(255, 255, 255, 0.25),
       transparent 20%,
       transparent 80%,
-      rgba(63, 48, 31, 0.08)
+      rgba(63, 48, 31, 0.06)
     );
-  mix-blend-mode: multiply;
-  opacity: 0.72;
 }
 
 .catalogue-content {

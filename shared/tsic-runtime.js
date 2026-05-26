@@ -108,13 +108,13 @@
         };
 
         // ---- Item-icon URL helper (used everywhere we render an item) ----
-        // Falls back to the catalog's iconIconUrl when present, otherwise the
-        // built-in tex:// scheme. Pages should call this instead of building
-        // tex:// strings inline.
+        // Falls back to the catalog's itemIconUrl when present, otherwise the
+        // /tex/ file-system path. Pages should call this instead of building
+        // tex paths inline.
         t.iconUrlFor = function (itemId) {
             if (!itemId) return null;
             if (typeof t.itemIconUrl === 'function') return t.itemIconUrl(itemId);
-            return `tex://item-icon/${encodeURIComponent(itemId)}`;
+            return `/tex/item-icon/${encodeURIComponent(itemId)}`;
         };
     }
 

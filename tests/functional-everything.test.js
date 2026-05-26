@@ -48,7 +48,7 @@ TSICTestHarness.register({
         ctx.inject('tsic.msg.UI.Stomach.State', {
             Slots: [
                 { ItemId: '',         IconUrl: '', Duration: 0, RemainingTime: 0 },
-                { ItemId: 'ID_Bread', IconUrl: 'tex://item-icon/ID_Bread', Duration: 30, RemainingTime: 15 },
+                { ItemId: 'ID_Bread', IconUrl: '/tex/item-icon/ID_Bread', Duration: 30, RemainingTime: 15 },
                 { ItemId: '',         IconUrl: '', Duration: 0, RemainingTime: 0 },
             ],
         });

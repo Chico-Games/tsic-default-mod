@@ -43,7 +43,9 @@
 
 .tsic-button:disabled,
 .tsic-button[disabled] {
-  opacity: 0.45;
+  background: rgba(52, 65, 45, 0.45);
+  color: rgba(247, 237, 217, 0.6);
+  border-color: rgba(39, 49, 32, 0.45);
   cursor: not-allowed;
   transform: none;
 }
@@ -151,7 +153,7 @@
 .tsic-row-button:active { transform: translateY(1px); }
 .tsic-row-button:disabled,
 .tsic-row-button[disabled] {
-  opacity: 0.5;
+  color: rgba(47, 43, 34, 0.5);
   cursor: not-allowed;
   background: var(--cat-paper-muted);
 }

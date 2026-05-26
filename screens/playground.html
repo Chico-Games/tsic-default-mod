@@ -3,6 +3,7 @@
   <meta charset="utf-8">
   <meta name="tsic-screen" content="Playground">
   <meta name="tsic-debug" content="true">
+  <meta name="tsic-input-mode" content="InputMode.Menu">
   <title>TSIC SPA Playground</title>
   <style>
     html, body { margin: 0; padding: 0; height: 100%; background: #0a0a0a; color: #e2e8f0; font-family: 'Segoe UI', system-ui, sans-serif; }
@@ -107,11 +108,10 @@
       /* Crosshair guide. */
       content: ''; position: absolute; inset: 0;
       background:
-        linear-gradient(to right, transparent 49%, #334155 49%, #334155 51%, transparent 51%),
-        linear-gradient(to bottom, transparent 49%, #334155 49%, #334155 51%, transparent 51%);
+        linear-gradient(to right, transparent 49%, rgba(51,65,85,0.5) 49%, rgba(51,65,85,0.5) 51%, transparent 51%),
+        linear-gradient(to bottom, transparent 49%, rgba(51,65,85,0.5) 49%, rgba(51,65,85,0.5) 51%, transparent 51%);
       border-radius: 50%;
       pointer-events: none;
-      opacity: 0.5;
     }
     .pg-joystick-knob {
       position: absolute;
@@ -213,7 +213,6 @@
   <script src="/playground/fixtures/pause-menu.fixtures.js"></script>
   <script src="/playground/fixtures/ping.fixtures.js"></script>
   <script src="/playground/fixtures/ping-markers.fixtures.js"></script>
-  <script src="/playground/fixtures/player-indicators.fixtures.js"></script>
   <script src="/playground/fixtures/production.fixtures.js"></script>
   <script src="/playground/fixtures/quantity-picker.fixtures.js"></script>
   <script src="/playground/fixtures/repair.fixtures.js"></script>
@@ -244,6 +243,7 @@
         <button id="pg-reload">Reload</button>
         <button id="pg-dump">Dump state</button>
         <button id="pg-subscribed">Subscribed</button>
+        <button id="pg-close" style="margin-left:auto;background:#a33;border-color:#c55;color:#eee;">Close</button>
       </div>
       <div id="pg-iframe-wrap"><iframe id="pg-iframe" src="about:blank"></iframe></div>
     </div>
@@ -264,6 +264,11 @@
     </div>
   </div>
   <script>
-    document.addEventListener('DOMContentLoaded', () => TSICPlaygroundHost.boot());
+    document.addEventListener('DOMContentLoaded', () => {
+      TSICPlaygroundHost.boot();
+      document.getElementById('pg-close').addEventListener('click', () => {
+        if (window.tsic) tsic.publishMessage('UI.Cmd.Debug.Close', {});
+      });
+    });
   </script>
 </body></html>

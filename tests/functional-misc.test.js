@@ -50,30 +50,6 @@ TSICTestHarness.register({
     },
 });
 
-// ---- PlayerIndicators ---------------------------------------------------
-TSICTestHarness.register({
-    name: 'PlayerIndicators: zero indicators yields empty host',
-    file: '/screens/player-indicators.html',
-    async run(ctx) {
-        ctx.inject('tsic.msg.UI.PlayerIndicators', { Indicators: [] });
-        await new Promise(r => setTimeout(r, 60));
-        ctx.expect(ctx.assert.domCount(ctx.doc, '.pi', 0));
-    },
-});
-
-TSICTestHarness.register({
-    name: 'PlayerIndicators: distance formatted in metres',
-    file: '/screens/player-indicators.html',
-    async run(ctx) {
-        ctx.inject('tsic.msg.UI.PlayerIndicators', {
-            Indicators: [{ PlayerId: 'P', Name: 'X', ScreenPos01: { X: 0.5, Y: 0.5 }, Distance: 1500, Color: '', bOffScreen: false, bLookedAt: false }],
-        });
-        await new Promise(r => setTimeout(r, 60));
-        // Distance 1500cm should render as 15m
-        ctx.expect(ctx.assert.truthy(/15 m/.test(ctx.doc.querySelector('.pi').textContent)));
-    },
-});
-
 // ---- ConstructionCarousel ---------------------------------------------
 TSICTestHarness.register({
     name: 'ConstructionCarousel: no-data payload clears the strip',

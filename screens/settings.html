@@ -33,12 +33,12 @@
     .field-control { display:flex; align-items:center; gap: 8px; }
     .field input[type=range] { width: 240px; }
     .field select { background: var(--cat-paper-panel); color: var(--cat-ink-dark); border: 1px solid var(--tsic-border); padding: 2px 6px; font-family: inherit; }
-    .field .value-label { opacity: 0.6; min-width: 36px; text-align: right; }
+    .field .value-label { color: rgba(47,43,34,0.6); min-width: 36px; text-align: right; }
     .field-toggle      { width: 44px; height: 22px; background: var(--cat-border-strong); border-radius: 12px; position:relative; cursor:pointer; transition: background 100ms linear; }
     .field-toggle.on   { background: var(--tsic-accent); }
     .field-toggle::after { content:''; position:absolute; left:3px; top:3px; width:16px; height:16px; background:#fff; border-radius:50%; transition: left 100ms linear; }
     .field-toggle.on::after { left: 25px; }
-    .field-toggle.disabled { opacity: 0.4; cursor: not-allowed; }
+    .field-toggle.disabled { background: rgba(184,170,145,0.4); cursor: not-allowed; }
     .field-rebind { background: var(--cat-paper-panel); color: var(--cat-ink-dark); border:1px solid var(--tsic-border); padding: 2px 10px; cursor:pointer; min-width: 120px; font-family: inherit; }
     .field-rebind.waiting { background: var(--tsic-accent-dim); }
     .tsic-footer-flag { margin-left: auto; display:inline-flex; gap:8px; align-items:center; }

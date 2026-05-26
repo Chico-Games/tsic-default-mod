@@ -56,7 +56,7 @@
             recipeCatalog: options.recipeCatalog || {},
             itemName(id) { const d = this.itemCatalog[id]; return d ? (d.Name || id) : id; },
             itemCategory(id) { const d = this.itemCatalog[id]; return d ? d.Category : null; },
-            itemIconUrl(id) { return `tex://item-icon/${encodeURIComponent(id)}`; },
+            itemIconUrl(id) { return `/tex/item-icon/${encodeURIComponent(id)}`; },
         };
 
         const handle = {

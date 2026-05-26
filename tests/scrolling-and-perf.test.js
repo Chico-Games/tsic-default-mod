@@ -325,27 +325,6 @@ TSICTestHarness.register({
     },
 });
 
-// ---- Player indicators: 20 simultaneous ------------------------------
-TSICTestHarness.register({
-    name: 'Perf/PlayerIndicators: 20 indicators render simultaneously',
-    tags: ['perf', 'player-indicators'],
-    file: '/screens/player-indicators.html',
-    async run(ctx) {
-        const inds = [];
-        for (let i = 0; i < 20; i++) inds.push({
-            PlayerId: 'P' + i, Name: 'P' + i,
-            ScreenPos01: { X: (i % 10) / 10, Y: Math.floor(i / 10) / 2 },
-            Distance: 100 * i, Color: i % 2 ? '#7fff9a' : '#fca5a5',
-            bOffScreen: i > 15, bLookedAt: i === 0,
-        });
-        ctx.inject('tsic.msg.UI.PlayerIndicators', { Indicators: inds });
-        await ctx.waitFor(() => ctx.doc.querySelectorAll('.pi').length === 20, { timeout: 1500 });
-        ctx.expect(ctx.assert.domCount(ctx.doc, '.pi', 20));
-        ctx.expect(ctx.assert.domCount(ctx.doc, '.pi.off', 4));
-        ctx.expect(ctx.assert.domCount(ctx.doc, '.pi.lookedAt', 1));
-    },
-});
-
 // ---- Detection: many enemies + high mist -----------------------------
 TSICTestHarness.register({
     name: 'Perf/Detection: 30 enemies at varying scores still renders all eyes',

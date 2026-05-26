@@ -4,8 +4,8 @@ TSICTestHarness.register({
     async run(ctx) {
         ctx.inject('tsic.msg.UI.Stomach.State', {
             Slots: [
-                { ItemId: 'ID_Bread', IconUrl: 'tex://item-icon/ID_Bread', Duration: 60, RemainingTime: 40 },
-                { ItemId: 'ID_Apple', IconUrl: 'tex://item-icon/ID_Apple', Duration: 30, RemainingTime: 5  },
+                { ItemId: 'ID_Bread', IconUrl: '/tex/item-icon/ID_Bread', Duration: 60, RemainingTime: 40 },
+                { ItemId: 'ID_Apple', IconUrl: '/tex/item-icon/ID_Apple', Duration: 30, RemainingTime: 5  },
                 { ItemId: '', IconUrl: '', Duration: 0, RemainingTime: 0 },
             ],
         });

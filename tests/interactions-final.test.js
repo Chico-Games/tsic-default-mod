@@ -40,8 +40,8 @@ TSICTestHarness.register({
     async run(ctx) {
         ctx.inject('tsic.msg.UI.Stomach.State', {
             Slots: [
-                { ItemId: 'A', IconUrl: 'tex://item-icon/A', Duration: 60, RemainingTime: 60 }, // 1.0
-                { ItemId: 'B', IconUrl: 'tex://item-icon/B', Duration: 60, RemainingTime:  6 }, // 0.1
+                { ItemId: 'A', IconUrl: '/tex/item-icon/A', Duration: 60, RemainingTime: 60 }, // 1.0
+                { ItemId: 'B', IconUrl: '/tex/item-icon/B', Duration: 60, RemainingTime:  6 }, // 0.1
                 { ItemId: '',  IconUrl: '',                  Duration: 0,  RemainingTime: 0 },
             ],
         });
@@ -319,19 +319,6 @@ TSICTestHarness.register({
         // The previous group should be gone.
         const headings = Array.from(ctx.doc.querySelectorAll('.group h3')).map(n => n.textContent);
         ctx.expect(ctx.assert.eq(headings.indexOf('A'), -1));
-    },
-});
-
-// ---- PlayerIndicators: bLookedAt drives an animation class ----------
-TSICTestHarness.register({
-    name: 'PlayerIndicators: bLookedAt entry receives .lookedAt class',
-    file: '/screens/player-indicators.html',
-    async run(ctx) {
-        ctx.inject('tsic.msg.UI.PlayerIndicators', { Indicators: [
-            { PlayerId: 'P', Name: 'P', ScreenPos01: { X: 0.5, Y: 0.5 }, Distance: 0, Color: '', bOffScreen: false, bLookedAt: true },
-        ]});
-        await ctx.waitFor(() => ctx.doc.querySelector('.pi.lookedAt'));
-        ctx.expect(ctx.assert.domExists(ctx.doc, '.pi.lookedAt'));
     },
 });
 

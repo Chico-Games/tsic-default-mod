@@ -55,11 +55,11 @@
         loadIframe();
     }
 
-    // Browser can't resolve UE-only schemes like tex://. Screens (inventory,
-    // wardrobe) poll tex://character-preview every 100ms and load
-    // tex://item-icon/<id> for every stack — without this stub the browser
-    // fires hundreds of 404-bound requests per page load. Swap any tex:* URL
-    // to a 1x1 transparent PNG data URL so no request is ever made.
+    // Browser can't resolve UE-only /tex/ or /runtime/ paths. Screens load
+    // /tex/item-icon/<id> for every stack and /runtime/*.imgsrc for live
+    // textures — without this stub the browser fires hundreds of 404-bound
+    // requests per page load. Swap any matching URL to a 1x1 transparent
+    // PNG data URL so no request is ever made.
     const TEX_STUB = 'data:image/gif;base64,R0lGODlhAQABAAAAACw=';
     function stubTexScheme(win) {
         try {
@@ -72,7 +72,7 @@
                 enumerable: desc.enumerable,
                 get: desc.get,
                 set(v) {
-                    if (typeof v === 'string' && /^(tex|pak):/i.test(v)) v = TEX_STUB;
+                    if (typeof v === 'string' && (/^(tex|pak):/i.test(v) || /^\/tex\//i.test(v) || /^\/runtime\//i.test(v))) v = TEX_STUB;
                     desc.set.call(this, v);
                 },
             });

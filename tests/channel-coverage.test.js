@@ -156,16 +156,15 @@ TSICTestHarness.register({
 
 // ---- UI.CharacterPreview.Ready ----------------------------------------
 TSICTestHarness.register({
-    name: 'Channels/CharacterPreview.Ready: inventory starts polling on Ready',
+    name: 'Channels/CharacterPreview.Ready: inventory sets img src on Ready',
     tags: ['channel', 'inventory'],
     file: '/screens/inventory.html',
     async run(ctx) {
         ctx.inject('tsic.msg.UI.CharacterPreview.Ready', { bReady: true, ResolutionPx: 512 });
         await new Promise(r => setTimeout(r, 150));
-        // The page renders an <img id="inv-char-img"> and starts a 100ms poll
-        // for tex://character-preview?t=<frame>. We can't observe the network
-        // request, but the page should still survive.
+        const img = ctx.doc.getElementById('inv-char-img');
         ctx.expect(ctx.assert.domExists(ctx.doc, '#inv-char-img'));
+        ctx.expect(img.src.includes('character-preview.imgsrc'), 'img src set after Ready');
     },
 });
 
