@@ -14,7 +14,7 @@ TSICPlayground.register({
             screenName: 'Default',
             mode: 'MouseAndKeyboard',
             abilities: { Slots: [
-                { InputName: 'IA_UI_ConfirmAccept', AbilityName: 'Interact', SubText: '', StatusInt: 0, bVisible: true },
+                { InputName: 'IA_UI_ConfirmAccept', AbilityName: 'Interact', SubText: '', StatusInt: 0, bVisible: true, KeyboardKeyText: 'E' },
             ] },
             menu: { Entries: [] },
         };
@@ -30,44 +30,44 @@ TSICPlayground.register({
     scenarios: [
         { label: 'Menu: Inventory',   apply(s) { s.screenName = 'Inventory'; } },
         { label: 'Menu: Crafting',    apply(s) { s.screenName = 'Crafting'; s.menu = { Entries: [
-            { ActionName: 'IA_UI_ConfirmAccept', Label: 'Craft',   Priority: 10 },
-            { ActionName: 'IA_UI_CancelBack',    Label: 'Close',   Priority: 9 },
-            { ActionName: 'IA_UI_ActionBar1',    Label: 'Stack',   Priority: 8 },
+            { ActionName: 'IA_UI_ConfirmAccept', Label: 'Craft',   Priority: 10, KeyboardKeyText: 'E' },
+            { ActionName: 'IA_UI_CancelBack',    Label: 'Close',   Priority: 9,  KeyboardKeyText: 'Esc' },
+            { ActionName: 'IA_UI_ActionBar1',    Label: 'Stack',   Priority: 8,  KeyboardKeyText: 'Q' },
         ] }; } },
         { label: 'Menu: Storage',     apply(s) { s.screenName = 'Storage'; s.menu = { Entries: [
-            { ActionName: 'IA_UI_ConfirmAccept', Label: 'Take',    Priority: 10 },
-            { ActionName: 'IA_UI_ActionBar1',    Label: 'Take all',Priority: 9 },
-            { ActionName: 'IA_UI_CancelBack',    Label: 'Close',   Priority: 8 },
+            { ActionName: 'IA_UI_ConfirmAccept', Label: 'Take',    Priority: 10, KeyboardKeyText: 'E' },
+            { ActionName: 'IA_UI_ActionBar1',    Label: 'Take all',Priority: 9,  KeyboardKeyText: 'Q' },
+            { ActionName: 'IA_UI_CancelBack',    Label: 'Close',   Priority: 8,  KeyboardKeyText: 'Esc' },
         ] }; } },
         { label: 'Gameplay (no menu)',apply(s) { s.screenName = null; s.menu = { Entries: [] }; }, expect: { visualChange: false } },
         { label: 'Menu empty',        apply(s) { s.screenName = 'Inventory'; s.menu = { Entries: [] }; } },
         { label: 'Menu crowded',      apply(s) { s.screenName = 'Inventory'; s.menu = { Entries: [
-            { ActionName: 'IA_UI_ConfirmAccept', Label: 'Build',   Priority: 10 },
-            { ActionName: 'IA_UI_CancelBack',    Label: 'Cancel',  Priority: 9 },
-            { ActionName: 'IA_UI_ActionBar1',    Label: 'Pick up', Priority: 8 },
-            { ActionName: 'IA_UI_ActionBar2',    Label: 'Inspect', Priority: 7 },
-            { ActionName: 'IA_UI_ActionBar3',    Label: 'Drop',    Priority: 6 },
+            { ActionName: 'IA_UI_ConfirmAccept', Label: 'Build',   Priority: 10, KeyboardKeyText: 'E' },
+            { ActionName: 'IA_UI_CancelBack',    Label: 'Cancel',  Priority: 9,  KeyboardKeyText: 'Esc' },
+            { ActionName: 'IA_UI_ActionBar1',    Label: 'Pick up', Priority: 8,  KeyboardKeyText: 'Q' },
+            { ActionName: 'IA_UI_ActionBar2',    Label: 'Inspect', Priority: 7,  KeyboardKeyText: 'R' },
+            { ActionName: 'IA_UI_ActionBar3',    Label: 'Drop',    Priority: 6,  KeyboardKeyText: 'F' },
         ] }; } },
         { label: 'Empty ability row', apply(s) { s.abilities = { Slots: [] }; s.screenName = null; } },
         { label: 'Cooldown ability',  apply(s) { s.abilities = { Slots: [
-            { InputName: 'IA_UI_ConfirmAccept', AbilityName: 'Dash', SubText: '', StatusInt: 2, CooldownPercent: 0.55, bVisible: true },
+            { InputName: 'IA_UI_ConfirmAccept', AbilityName: 'Dash', SubText: '', StatusInt: 2, CooldownPercent: 0.55, bVisible: true, KeyboardKeyText: 'E' },
         ] }; s.screenName = null; } },
         { label: 'Cooldown almost ready', apply(s) { s.abilities = { Slots: [
-            { InputName: 'IA_UI_ConfirmAccept', AbilityName: 'Dash', SubText: '', StatusInt: 2, CooldownPercent: 0.92, bVisible: true },
+            { InputName: 'IA_UI_ConfirmAccept', AbilityName: 'Dash', SubText: '', StatusInt: 2, CooldownPercent: 0.92, bVisible: true, KeyboardKeyText: 'E' },
         ] }; s.screenName = null; } },
         { label: 'Blocked ability',   apply(s) { s.abilities = { Slots: [
-            { InputName: 'IA_UI_ConfirmAccept', AbilityName: 'Throw', SubText: '', StatusInt: 1, bVisible: true },
+            { InputName: 'IA_UI_ConfirmAccept', AbilityName: 'Throw', SubText: '', StatusInt: 1, bVisible: true, KeyboardKeyText: 'E' },
         ] }; s.screenName = null; } },
         { label: 'Five abilities',    apply(s) { s.abilities = { Slots: [
-            { InputName: 'IA_UI_ConfirmAccept', AbilityName: 'Attack',  SubText: 'Axe',  StatusInt: 0, bVisible: true },
-            { InputName: 'IA_UI_ActionBar1',    AbilityName: 'Block',   SubText: '',     StatusInt: 0, bVisible: true },
-            { InputName: 'IA_UI_ActionBar2',    AbilityName: 'Dash',    SubText: '',     StatusInt: 2, CooldownPercent: 0.4, bVisible: true },
-            { InputName: 'IA_UI_ActionBar3',    AbilityName: 'Throw',   SubText: 'Rock', StatusInt: 1, bVisible: true },
-            { InputName: 'IA_UI_CancelBack',    AbilityName: 'Cancel',  SubText: '',     StatusInt: 0, bVisible: true },
+            { InputName: 'IA_PrimaryFire',      AbilityName: 'Attack',  SubText: 'Axe',  StatusInt: 0, bVisible: true, KeyboardKeyText: 'LMB' },
+            { InputName: 'IA_SecondaryFire',    AbilityName: 'Block',   SubText: '',     StatusInt: 0, bVisible: true, KeyboardKeyText: 'RMB' },
+            { InputName: 'IA_Sprint',           AbilityName: 'Dash',    SubText: '',     StatusInt: 2, CooldownPercent: 0.4, bVisible: true, KeyboardKeyText: 'Shift' },
+            { InputName: 'IA_Interact',         AbilityName: 'Throw',   SubText: 'Rock', StatusInt: 1, bVisible: true, KeyboardKeyText: 'E' },
+            { InputName: 'IA_UI_CancelBack',    AbilityName: 'Cancel',  SubText: '',     StatusInt: 0, bVisible: true, KeyboardKeyText: 'Esc' },
         ] }; s.screenName = null; } },
         { label: 'Hidden slot',       apply(s) { s.abilities = { Slots: [
-            { InputName: 'IA_UI_ConfirmAccept', AbilityName: 'Use', SubText: '', StatusInt: 0, bVisible: true  },
-            { InputName: 'IA_UI_CancelBack',    AbilityName: 'Hidden', SubText: '', StatusInt: 0, bVisible: false },
+            { InputName: 'IA_UI_ConfirmAccept', AbilityName: 'Use', SubText: '', StatusInt: 0, bVisible: true, KeyboardKeyText: 'E' },
+            { InputName: 'IA_UI_CancelBack',    AbilityName: 'Hidden', SubText: '', StatusInt: 0, bVisible: false, KeyboardKeyText: 'Esc' },
         ] }; s.screenName = null; } },
         // Mode flips inject the channel but the action-bar page reads mode for
         // glyph hints — in the mock those glyphs don't render visibly, so
