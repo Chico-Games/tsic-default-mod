@@ -37,7 +37,6 @@
   </div>
   <script>
     (function(){
-      function whenReady(cb){ if(window.tsic){cb();return;} setTimeout(()=>whenReady(cb),16); }
       let groups = [];
       let entityId = 0;
 
@@ -102,15 +101,18 @@
         });
       }
 
-      whenReady(()=>{
-        tsic.on('tsic.msg.UI.UniversalStorage.Groups', (p) => {
-          groups = (p && p.GroupNames) || [];
+      (function boot() {
+        if (!window.tsic) { setTimeout(boot, 16); return; }
+        tsic.whenReady(function () {
+          tsic.on('tsic.msg.UI.UniversalStorage.Groups', (p) => {
+            groups = (p && p.GroupNames) || [];
+            render();
+          });
+          document.getElementById('btn-new').onclick    = openCreateModal;
+          document.getElementById('btn-cancel').onclick = () => tsic.publishMessage('UI.Cmd.Pause.Resume', {});
           render();
         });
-        document.getElementById('btn-new').onclick    = openCreateModal;
-        document.getElementById('btn-cancel').onclick = () => tsic.publishMessage('UI.Cmd.Pause.Resume', {});
-        render();
-      });
+      })();
     })();
   </script>
 </body></html>

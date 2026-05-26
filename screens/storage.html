@@ -22,12 +22,9 @@
 </head><body>
   <div id="ss-root" class="tsic-modal-scrim"></div>
   <script>
-    (function () {
-      function whenReady(cb) {
-        if (window.tsic && window.TSICInventory && window.TSICStorageShell) { cb(); return; }
-        setTimeout(() => whenReady(cb), 16);
-      }
-      whenReady(() => {
+    (function boot() {
+      if (!window.tsic || !window.TSICInventory || !window.TSICStorageShell) { setTimeout(boot, 16); return; }
+      tsic.whenReady(function () {
         window.TSICStorageShell.mount({
           title: 'Storage',
           containerEyebrow: 'Container',

@@ -39,7 +39,6 @@
   </div>
   <script>
     (function(){
-      function whenReady(cb){ if(window.tsic){cb();return;} setTimeout(()=>whenReady(cb),16); }
       let opened = null;
       let stationId = null;
 
@@ -92,18 +91,21 @@
         }
       }
 
-      whenReady(()=>{
-        // Reuse UI.Recipe.StationOpened envelope (Kind="Repair") so we don't need
-        // a new C++ message; the legacy URepairStationScreen extends EntityHelperWidget
-        // and the helper plumbing already routes through the recipe-family channel.
-        tsic.on('tsic.msg.UI.Recipe.StationOpened', (p) => {
-          if (!p || p.Kind !== 'Repair') return;
-          opened = p; stationId = p.StationId; render();
+      (function boot() {
+        if (!window.tsic) { setTimeout(boot, 16); return; }
+        tsic.whenReady(function () {
+          // Reuse UI.Recipe.StationOpened envelope (Kind="Repair") so we don't need
+          // a new C++ message; the legacy URepairStationScreen extends EntityHelperWidget
+          // and the helper plumbing already routes through the recipe-family channel.
+          tsic.on('tsic.msg.UI.Recipe.StationOpened', (p) => {
+            if (!p || p.Kind !== 'Repair') return;
+            opened = p; stationId = p.StationId; render();
+          });
+          window.addEventListener('tsic-item-catalog', render);
+          document.getElementById('btn-close').onclick = () =>
+            tsic.publishMessage('UI.Cmd.Pause.Resume', {});
         });
-        window.addEventListener('tsic-item-catalog', render);
-        document.getElementById('btn-close').onclick = () =>
-          tsic.publishMessage('UI.Cmd.Pause.Resume', {});
-      });
+      })();
     })();
   </script>
 </body></html>

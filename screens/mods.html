@@ -38,11 +38,11 @@
              background: rgba(241,229,207,0.88); padding: 8px; }
     .card .logo { width: 100%; aspect-ratio: 16 / 9; background: #222; }
     .card .name { font-weight: bold; margin-top: 6px; }
-    .card .summary { font-size: 12px; opacity: 0.75; margin: 6px 0; }
+    .card .summary { font-size: 12px; color: rgba(37,33,25,0.75); margin: 6px 0; }
     .card-sub { background: rgba(35,31,24,0.35);
              border: 1px solid rgba(255,255,255,0.35); color: var(--cat-ink-dark);
              padding: 4px 10px; cursor: pointer; font: inherit; }
-    .card-sub:disabled { opacity: 0.4; cursor: default; }
+    .card-sub:disabled { color: rgba(37,33,25,0.4); background: rgba(35,31,24,0.15); cursor: default; }
     .installed-list { display: flex; flex-direction: column; gap: 4px; }
     .installed-row { display: flex; align-items: center; gap: 8px; padding: 4px 0; }
     .installed-row .name { flex: 1; }
@@ -61,7 +61,7 @@
           <input id="email" type="email" placeholder="you@example.com">
           <button id="btn-request">Email me a code</button>
         </div>
-        <div style="opacity:0.6; font-size:11px;">mod.io will email a 5-character code.</div>
+        <div style="color:rgba(37,33,25,0.6); font-size:11px;">mod.io will email a 5-character code.</div>
       </div>
       <div class="auth-strip" id="auth-awaiting-code" style="display:none;">
         <div>
@@ -76,7 +76,7 @@
         <button id="btn-signout">Sign out</button>
       </div>
       <div class="auth-strip" id="auth-disabled" style="display:none;">
-        <div style="opacity:0.75;">mod.io is not configured for this project.</div>
+        <div style="color:rgba(37,33,25,0.75);">mod.io is not configured for this project.</div>
       </div>
       <div class="error" id="auth-error" style="display:none;"></div>
     </div>
@@ -95,7 +95,7 @@
             <option value="-ratings_weighted_aggregate">Top Rated</option>
           </select>
         </div>
-        <div id="tag-chips" style="opacity:0.8;"></div>
+        <div id="tag-chips" style="color:rgba(37,33,25,0.8);"></div>
       </div>
       <div class="browse" id="browse"></div>
       <div style="text-align:center; margin-top:10px;">
@@ -106,7 +106,7 @@
     </div>
 
     <div class="panel" id="panel-installed">
-      <div style="margin-bottom:8px; opacity:0.75; letter-spacing:3px;
+      <div style="margin-bottom:8px; color:rgba(37,33,25,0.75); letter-spacing:3px;
                   text-transform:uppercase; font-size:11px;">
         Installed (Load Order)
       </div>
@@ -229,7 +229,7 @@
         if (g.name) {
           const label = document.createElement('span');
           label.textContent = g.name + ':';
-          label.style.cssText = 'opacity:0.55; font-size:11px; margin-right:4px;';
+          label.style.cssText = 'color:rgba(37,33,25,0.55); font-size:11px; margin-right:4px;';
           groupWrap.appendChild(label);
         }
         for (const t of g.tags) {
@@ -407,7 +407,7 @@
         nameSpan.textContent = String(m.DisplayName || '');
         if (m.Version) {
           const v = document.createElement('span');
-          v.style.cssText = 'opacity:0.5; font-size:11px; margin-left:4px;';
+          v.style.cssText = 'color:rgba(37,33,25,0.5); font-size:11px; margin-left:4px;';
           v.textContent = String(m.Version);
           nameSpan.appendChild(v);
         }
@@ -429,7 +429,7 @@
       }
       if (!installedMods.length) {
         const empty = document.createElement('div');
-        empty.style.opacity = '0.6';
+        empty.style.color = 'rgba(37,33,25,0.6)';
         empty.textContent = 'No mods installed yet.';
         host.appendChild(empty);
       }
@@ -466,8 +466,9 @@
     window.addEventListener('pagehide', teardown);
     window.addEventListener('beforeunload', teardown);
 
-    function whenReady(cb){ if (window.tsic){cb();return;} setTimeout(()=>whenReady(cb),16); }
-    whenReady(() => {
+    (function boot() {
+    if (!window.tsic) { setTimeout(boot, 16); return; }
+    tsic.whenReady(function () {
       tsic.on('tsic.msg.UI.Mod.IoConfig', (p) => {
         // Treat missing GameId OR missing ApiKey as "mod.io not configured".
         if (!p || !p.GameId || !p.ApiKey) { show('disabled'); return; }
@@ -491,5 +492,6 @@
       document.getElementById('btn-back').onclick = () =>
         tsic.publishMessage('UI.Cmd.Menu.Navigate', { Screen: 'MainMenu' });
     });
+    })();
   </script>
 </body></html>

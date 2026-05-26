@@ -38,7 +38,6 @@
   </div>
   <script>
     (function(){
-      function whenReady(cb){ if(window.tsic){cb();return;} setTimeout(()=>whenReady(cb),16); }
       let stationId = null;
       let lastRecipes = [];
 
@@ -85,17 +84,20 @@
         if (window.tsic && window.tsic.focus) window.tsic.focus.refresh();
       }
 
-      whenReady(()=>{
-        tsic.on('tsic.msg.UI.Recipe.StationOpened', (p) => {
-          if (!p || p.Kind !== 'Boss') return;
-          stationId = p.StationId;
-          lastRecipes = p.Recipes || [];
-          render();
+      (function boot() {
+        if (!window.tsic) { setTimeout(boot, 16); return; }
+        tsic.whenReady(function () {
+          tsic.on('tsic.msg.UI.Recipe.StationOpened', (p) => {
+            if (!p || p.Kind !== 'Boss') return;
+            stationId = p.StationId;
+            lastRecipes = p.Recipes || [];
+            render();
+          });
+          window.addEventListener('tsic-item-catalog', render);
+          document.getElementById('btn-close').onclick = () =>
+            tsic.publishMessage('UI.Cmd.Pause.Resume', {});
         });
-        window.addEventListener('tsic-item-catalog', render);
-        document.getElementById('btn-close').onclick = () =>
-          tsic.publishMessage('UI.Cmd.Pause.Resume', {});
-      });
+      })();
     })();
   </script>
 </body></html>

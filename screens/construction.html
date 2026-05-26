@@ -23,7 +23,7 @@
     .c-tab  { padding:4px 8px; background:rgba(241,229,207,0.55); border:1px solid var(--tsic-border); cursor:pointer; font-size:10px; letter-spacing:1px; }
     .c-tab.active { background: var(--tsic-accent-dim); }
     .c-row { display:flex; align-items:center; gap:8px; padding:6px 10px; }
-    .c-row.disabled { opacity: 0.45; pointer-events: none; }
+    .c-row.disabled { color: rgba(47,43,34,0.45); pointer-events: none; }
     #c-cost { padding: 8px; font-size:11px; background:rgba(241,229,207,0.88); border-top:1px solid var(--tsic-border); }
     .c-cost-row { display:flex; justify-content:space-between; padding:2px 0; }
     .c-cost-row .have-less { color:#9f2e25; }
@@ -41,7 +41,7 @@
   <!-- Preview status pill (top-center) -->
   <div id="preview-pill" class="tsic-panel" style="position:fixed;top:24px;left:50%;transform:translateX(-50%);padding:6px 16px;font-size:12px;letter-spacing:2px;display:none;">
     <span id="preview-text">—</span>
-    <span id="rotation-axis" style="opacity:0.65;font-size:10px;margin-left:8px;"></span>
+    <span id="rotation-axis" style="color:rgba(47,43,34,0.65);font-size:10px;margin-left:8px;"></span>
   </div>
 
   <!-- Action buttons (bottom-center) -->
@@ -53,8 +53,6 @@
 
   <script>
     (function(){
-      function whenReady(cb){ if(window.tsic){cb();return;} setTimeout(()=>whenReady(cb),16); }
-
       let lastItems = [];
       let activeCategory = 'All';
       let hoveredItem = null;
@@ -149,21 +147,24 @@
         axis.textContent = p.RotationAxis ? `· axis: ${p.RotationAxis}` : '';
       }
 
-      whenReady(()=>{
-        tsic.on('tsic.msg.UI.Construction.Available', (p) => {
-          lastItems = (p && p.Items) || [];
-          renderTabs(); renderItems();
-        });
-        tsic.on('tsic.msg.UI.Construction.PreviewState', (p) => renderPreview(p));
-        window.addEventListener('tsic-item-catalog', () => renderCostFor(hoveredItem));
+      (function boot() {
+        if (!window.tsic) { setTimeout(boot, 16); return; }
+        tsic.whenReady(function () {
+          tsic.on('tsic.msg.UI.Construction.Available', (p) => {
+            lastItems = (p && p.Items) || [];
+            renderTabs(); renderItems();
+          });
+          tsic.on('tsic.msg.UI.Construction.PreviewState', (p) => renderPreview(p));
+          window.addEventListener('tsic-item-catalog', () => renderCostFor(hoveredItem));
 
-        document.getElementById('btn-confirm').onclick = () =>
-          tsic.publishMessage('UI.Cmd.Construction.Confirm', {});
-        document.getElementById('btn-cancel').onclick = () =>
-          tsic.publishMessage('UI.Cmd.Construction.Cancel', {});
-        document.getElementById('btn-deconstruct').onclick = () =>
-          tsic.publishMessage('UI.Cmd.Construction.Deconstruct', { EntityId: 0 });
-      });
+          document.getElementById('btn-confirm').onclick = () =>
+            tsic.publishMessage('UI.Cmd.Construction.Confirm', {});
+          document.getElementById('btn-cancel').onclick = () =>
+            tsic.publishMessage('UI.Cmd.Construction.Cancel', {});
+          document.getElementById('btn-deconstruct').onclick = () =>
+            tsic.publishMessage('UI.Cmd.Construction.Deconstruct', { EntityId: 0 });
+        });
+      })();
     })();
   </script>
 </body></html>

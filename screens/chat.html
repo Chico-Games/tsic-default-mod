@@ -80,8 +80,6 @@
   </div>
   <script>
     (function () {
-      function whenReady(cb){ if(window.tsic){cb();return;} setTimeout(()=>whenReady(cb),16); }
-
       function escapeHtml(s) {
         return String(s == null ? '' : s)
           .replace(/&/g, '&amp;')
@@ -143,7 +141,9 @@
         input.value = '';
       }
 
-      whenReady(() => {
+      (function boot() {
+      if (!window.tsic) { setTimeout(boot, 16); return; }
+      tsic.whenReady(function () {
         const input = document.getElementById('chat-input');
 
         // Subscribe immediately so cache replay delivers history whenever this
@@ -175,6 +175,7 @@
           }
         });
       });
+      })();
     })();
   </script>
 </body></html>

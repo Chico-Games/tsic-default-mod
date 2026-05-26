@@ -10,9 +10,9 @@
     html, body { background: transparent; }
     #cc-root { position: fixed; left: 50%; bottom: 96px; transform: translateX(-50%); pointer-events: none; }
     #cc-row  { display:flex; align-items:center; gap:6px; padding: 8px 12px; background: rgba(241,229,207,0.92); border-radius: 6px; border: 1px solid var(--tsic-border); }
-    .cc-slot { width: 56px; height: 56px; background:rgba(241,229,207,0.88); border:1px solid var(--tsic-border); display:flex; align-items:center; justify-content:center; font-size:9px; color: var(--cat-ink-soft); opacity: 0.55; position: relative; }
+    .cc-slot { width: 56px; height: 56px; background:rgba(241,229,207,0.48); border:1px solid var(--tsic-border); display:flex; align-items:center; justify-content:center; font-size:9px; color: rgba(108,94,73,0.55); position: relative; }
     .cc-slot img { max-width: 80%; max-height: 80%; object-fit: contain; }
-    .cc-slot.current { opacity: 1; transform: scale(1.12); border-color: var(--tsic-accent); }
+    .cc-slot.current { background:rgba(241,229,207,0.88); color: var(--cat-ink-soft); transform: scale(1.12); border-color: var(--tsic-accent); }
     .cc-slot.unafford::after { content:''; position:absolute; inset:0; background:rgba(220,38,38,0.18); pointer-events:none; }
     .cc-label { position: absolute; bottom: -16px; left: 0; right: 0; font-size: 9px; text-align: center; color: #ddd; }
     #cc-rotation { color: #cbd5e1; font-size: 11px; letter-spacing: 2px; margin-top: 4px; text-align:center; }
@@ -26,8 +26,6 @@
   </div>
   <script>
     (function(){
-      function whenReady(cb){ if(window.tsic){cb();return;} setTimeout(()=>whenReady(cb),16); }
-
       function slotEl(s, isCurrent) {
         const div = document.createElement('div');
         div.className = 'cc-slot' + (isCurrent ? ' current' : '') + (s && s.bAffordable === false ? ' unafford' : '');
@@ -41,22 +39,25 @@
         return div;
       }
 
-      whenReady(()=>{
-        tsic.on('tsic.msg.UI.Construction.Carousel', (p) => {
-          const row = document.getElementById('cc-row');
-          const rot = document.getElementById('cc-rotation');
-          const blk = document.getElementById('cc-blocked');
-          row.innerHTML = '';
-          if (!p) { rot.textContent = ''; blk.textContent = ''; return; }
-          const prev = (p.Prev || []).slice(0, 4).reverse();   // closest-to-current first
-          const next = (p.Next || []).slice(0, 4);
-          for (const s of prev) row.appendChild(slotEl(s, false));
-          row.appendChild(slotEl(p.Current, true));
-          for (const s of next) row.appendChild(slotEl(s, false));
-          rot.textContent = p.RotationAxis ? `ROTATION: ${p.RotationAxis}` : '';
-          blk.textContent = p.BlockedReason ? p.BlockedReason.toUpperCase() : '';
+      (function boot() {
+        if (!window.tsic) { setTimeout(boot, 16); return; }
+        tsic.whenReady(function () {
+          tsic.on('tsic.msg.UI.Construction.Carousel', (p) => {
+            const row = document.getElementById('cc-row');
+            const rot = document.getElementById('cc-rotation');
+            const blk = document.getElementById('cc-blocked');
+            row.innerHTML = '';
+            if (!p) { rot.textContent = ''; blk.textContent = ''; return; }
+            const prev = (p.Prev || []).slice(0, 4).reverse();   // closest-to-current first
+            const next = (p.Next || []).slice(0, 4);
+            for (const s of prev) row.appendChild(slotEl(s, false));
+            row.appendChild(slotEl(p.Current, true));
+            for (const s of next) row.appendChild(slotEl(s, false));
+            rot.textContent = p.RotationAxis ? `ROTATION: ${p.RotationAxis}` : '';
+            blk.textContent = p.BlockedReason ? p.BlockedReason.toUpperCase() : '';
+          });
         });
-      });
+      })();
     })();
   </script>
 </body></html>

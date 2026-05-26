@@ -70,8 +70,6 @@
     let materialCounts = {};
     let selectedRecipeId = null;
 
-    function whenReady(cb){ if(window.tsic && window.TSICRecipeInfo){cb();return;} setTimeout(()=>whenReady(cb),16); }
-
     function renderList() {
         const host = document.getElementById('p-list');
         host.innerHTML = '';
@@ -209,7 +207,9 @@
     }
     function renderAll() { renderList(); renderQueue(); renderInfo(); }
 
-    whenReady(() => {
+    (function boot() {
+    if (!window.tsic || !window.TSICRecipeInfo) { setTimeout(boot, 16); return; }
+    tsic.whenReady(function () {
         tsic.on('tsic.msg.UI.Recipe.StationOpened', (p) => {
             if (!p || p.Kind !== 'Production') return;
             stationId = p.StationId;
@@ -250,6 +250,7 @@
             if (e.key === 'Escape') document.getElementById('btn-close').click();
         });
     });
+    })();
 })();
 </script>
 </body></html>

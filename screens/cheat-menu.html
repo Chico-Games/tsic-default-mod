@@ -20,9 +20,9 @@
 
     .cm-grid     { display:grid; grid-template-columns: repeat(auto-fill, minmax(360px,1fr)); gap: 14px; max-width: 1280px; }
     .cm-section  { border:1px solid var(--tsic-border); padding: 10px 12px; background: rgba(255,253,247,0.7); }
-    .cm-section h3 { letter-spacing: 3px; opacity:0.7; font-size: 12px; margin: 0 0 8px; text-transform: uppercase; }
+    .cm-section h3 { letter-spacing: 3px; color: rgba(59,47,28,0.7); font-size: 12px; margin: 0 0 8px; text-transform: uppercase; }
     .cm-row      { display:flex; flex-wrap:wrap; gap: 6px; align-items:center; margin-bottom: 6px; }
-    .cm-row label { font-size: 11px; opacity:0.7; min-width: 70px; }
+    .cm-row label { font-size: 11px; color: rgba(59,47,28,0.7); min-width: 70px; }
     .cm-row button { padding: 3px 9px; font-size: 12px; }
     .cm-input    { background: transparent; color: var(--cat-ink-dark); border:1px solid var(--tsic-border); padding: 2px 6px; min-width: 160px; font-family: inherit; }
     .cm-input--sm{ min-width: 70px; }
@@ -30,8 +30,8 @@
     .cm-exec     { background:#7c2d12; color: #fdf6e3; border:1px solid #c2410c; padding: 3px 10px; cursor:pointer; font-size: 12px; }
     .cm-toggle   { display:inline-flex; gap:4px; align-items:center; font-size: 12px; cursor:pointer; user-select:none; }
     .cm-toggle input { margin:0; }
-    .cm-readout  { font-size: 11px; opacity:0.7; margin-left:auto; }
-    .cm-meta     { font-size: 11px; opacity: 0.6; margin-top: 6px; }
+    .cm-readout  { font-size: 11px; color: rgba(59,47,28,0.7); margin-left:auto; }
+    .cm-meta     { font-size: 11px; color: rgba(59,47,28,0.6); margin-top: 6px; }
 
     #cm-bottom { display:flex; gap:6px; margin-top: 14px; }
     #cm-custom { flex: 1; display:flex; gap:6px; }
@@ -261,8 +261,6 @@
 
   <script>
     (function(){
-      function whenReady(cb){ if(window.tsic){cb();return;} setTimeout(()=>whenReady(cb),16); }
-
       // Local state — populated from UI.Cheat.Catalog and UI.Players.List.
       const state = {
         catalog: null,                 // FScpUICheatCatalog payload
@@ -470,7 +468,9 @@
 
       // -------------- BIND --------------
 
-      whenReady(() => {
+      (function boot() {
+      if (!window.tsic) { setTimeout(boot, 16); return; }
+      tsic.whenReady(function () {
         // Subscribe to catalog + player list.
         tsic.on('tsic.msg.UI.Cheat.Catalog', (p) => {
           state.catalog = p || null;
@@ -559,6 +559,7 @@
         refreshFurnitureSelect();
         refreshTargetPlayerSelects();
       });
+      })();
     })();
   </script>
 </body></html>
