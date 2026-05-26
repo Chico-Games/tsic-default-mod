@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="/shared/components.css">
   <link rel="stylesheet" href="/shared/hud.css">
   <script src="/shared/router.js" defer></script>
+  <script src="/shared/tsic-runtime.js" defer></script>
   <script src="/shared/tsic-focus.js" defer></script>
   <script src="/shared/tsic-dropdown.js" defer></script>
   <script src="/shared/hud.js" defer></script>
@@ -34,24 +35,21 @@
     </div>
   </div>
   <script>
-    (function(){
-      function whenReady(cb){ if (window.tsic){cb();return;} setTimeout(()=>whenReady(cb),16); }
-      whenReady(()=>{
-        tsic.on('tsic.msg.UI.Players.List', (p)=>{
-          const host = document.getElementById('players');
-          host.innerHTML = '';
-          if (!p || !p.Players) return;
-          for (const pl of p.Players) {
-            const row = document.createElement('div');
-            row.className = 'pl-row';
-            row.textContent = pl.Name + (pl.bIsHost ? ' (host)' : '');
-            host.appendChild(row);
-          }
-        });
-        document.getElementById('btn-resume').onclick = () => tsic.publishMessage('UI.Cmd.Pause.Resume', {});
-        document.getElementById('btn-settings').onclick = () => tsic.publishMessage('UI.Cmd.Pause.Settings', {});
-        document.getElementById('btn-menu').onclick = () => tsic.publishMessage('UI.Cmd.Pause.QuitToMenu', {});
+    tsic.bootMenu(function (ctx) {
+      ctx.on('tsic.msg.UI.Players.List', (p)=>{
+        const host = document.getElementById('players');
+        host.innerHTML = '';
+        if (!p || !p.Players) return;
+        for (const pl of p.Players) {
+          const row = document.createElement('div');
+          row.className = 'pl-row';
+          row.textContent = pl.Name + (pl.bIsHost ? ' (host)' : '');
+          host.appendChild(row);
+        }
       });
-    })();
+      document.getElementById('btn-resume').onclick = () => tsic.publishMessage('UI.Cmd.Pause.Resume', {});
+      document.getElementById('btn-settings').onclick = () => tsic.publishMessage('UI.Cmd.Pause.Settings', {});
+      document.getElementById('btn-menu').onclick = () => tsic.publishMessage('UI.Cmd.Pause.QuitToMenu', {});
+    });
   </script>
 </body></html>

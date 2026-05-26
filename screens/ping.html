@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="/shared/components.css">
   <link rel="stylesheet" href="/shared/hud.css">
   <script src="/shared/router.js" defer></script>
+  <script src="/shared/tsic-runtime.js" defer></script>
   <script src="/shared/hud.js" defer></script>
   <style>
     /* Modal radial wheel — paper backdrop (tsic-modal-scrim--paper), centred. */
@@ -59,8 +60,6 @@
         { id: 'Map',    label: 'DANGER', color: '#f1c40f' },
       ];
 
-      function whenReady(cb){ if(window.tsic){cb();return;} setTimeout(()=>whenReady(cb),16); }
-
       function publish(type) {
         // Location is a placeholder; gameplay-side overrides with the look-at hit.
         tsic.publishMessage('UI.Cmd.Ping.Request', {
@@ -95,13 +94,13 @@
         }
       }
 
-      whenReady(() => {
+      tsic.bootMenu(function (ctx) {
         build();
         // Subscribe to the ping set just to keep cache replay alive on this page;
         // we don't render it here (3D world handles that), but having the listener
         // means cached payloads flow on context-ready.
-        tsic.on('tsic.msg.UI.Ping.Set', () => { /* no-op for now */ });
-      });
+        ctx.on('tsic.msg.UI.Ping.Set', () => { /* no-op for now */ });
+      }, { escape: false, closeButton: false });
     })();
   </script>
 </body></html>

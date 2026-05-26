@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="/shared/components.css">
   <link rel="stylesheet" href="/shared/hud.css">
   <script src="/shared/router.js" defer></script>
+  <script src="/shared/tsic-runtime.js" defer></script>
   <script src="/shared/tsic-focus.js" defer></script>
   <script src="/shared/hud.js" defer></script>
   <script src="/shared/dom.js" defer></script>
@@ -23,41 +24,38 @@
     </div>
   </div>
   <script>
-    (function(){
-      function whenReady(cb){ if(window.tsic){cb();return;} setTimeout(()=>whenReady(cb),16); }
-      whenReady(()=>{
-        tsic.on('tsic.msg.UI.Equipment.Updated', (p) => {
-          const host = document.getElementById('grid');
-          host.innerHTML = '';
-          for (const s of ((p && p.Slots) || [])) {
-            const slot = document.createElement('div');
-            slot.className = 'tsic-slot';
-            slot.style.cssText = 'width:72px;height:72px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:2px;';
-            if (s.IconUrl) {
-              slot.style.backgroundImage = `url(${s.IconUrl})`;
-              slot.style.backgroundSize = 'cover';
-            } else {
-              const shortTag = (s.SlotTag || '').split('.').pop();
-              const label = document.createElement('div');
-              label.style.cssText = 'font-size:10px;color: var(--cat-ink-soft);';
-              label.textContent = shortTag;
-              slot.appendChild(label);
-              if (s.ItemId) {
-                const shortItem = (s.ItemId || '').replace(/^ID_/, '').slice(0, 8);
-                const item = document.createElement('div');
-                item.style.cssText = 'font-size:9px;color: var(--cat-ink-dark);';
-                item.textContent = shortItem;
-                slot.appendChild(item);
-              }
+    tsic.bootMenu(function (ctx) {
+      ctx.on('tsic.msg.UI.Equipment.Updated', (p) => {
+        const host = document.getElementById('grid');
+        host.innerHTML = '';
+        for (const s of ((p && p.Slots) || [])) {
+          const slot = document.createElement('div');
+          slot.className = 'tsic-slot';
+          slot.style.cssText = 'width:72px;height:72px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:2px;';
+          if (s.IconUrl) {
+            slot.style.backgroundImage = `url(${s.IconUrl})`;
+            slot.style.backgroundSize = 'cover';
+          } else {
+            const shortTag = (s.SlotTag || '').split('.').pop();
+            const label = document.createElement('div');
+            label.style.cssText = 'font-size:10px;color: var(--cat-ink-soft);';
+            label.textContent = shortTag;
+            slot.appendChild(label);
+            if (s.ItemId) {
+              const shortItem = (s.ItemId || '').replace(/^ID_/, '').slice(0, 8);
+              const item = document.createElement('div');
+              item.style.cssText = 'font-size:9px;color: var(--cat-ink-dark);';
+              item.textContent = shortItem;
+              slot.appendChild(item);
             }
-            slot.title = s.SlotTag || '';
-            slot.onclick = () => tsic.publishMessage('UI.Cmd.Equipment.Unequip', { ItemId: '', SlotTag: s.SlotTag || '' });
-            host.appendChild(slot);
           }
-        });
-        document.getElementById('btn-close').onclick = () =>
-          tsic.publishMessage('UI.Cmd.Pause.Resume', {});
+          slot.title = s.SlotTag || '';
+          slot.onclick = () => tsic.publishMessage('UI.Cmd.Equipment.Unequip', { ItemId: '', SlotTag: s.SlotTag || '' });
+          host.appendChild(slot);
+        }
       });
-    })();
+      document.getElementById('btn-close').onclick = () =>
+        tsic.publishMessage('UI.Cmd.Pause.Resume', {});
+    });
   </script>
 </body></html>

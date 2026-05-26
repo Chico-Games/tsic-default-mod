@@ -8,12 +8,13 @@
   <link rel="stylesheet" href="/shared/components.css">
   <link rel="stylesheet" href="/shared/hud.css">
   <script src="/shared/router.js" defer></script>
+  <script src="/shared/tsic-runtime.js" defer></script>
   <script src="/shared/tsic-focus.js" defer></script>
   <script src="/shared/tsic-dropdown.js" defer></script>
   <script src="/shared/hud.js" defer></script>
   <style>
     .field { display:flex; flex-direction:column; gap:4px; margin-top: 10px; }
-    .field > label { font-size:11px; letter-spacing:1px; opacity:0.75; text-transform:uppercase; }
+    .field > label { font-size:11px; letter-spacing:1px; color: rgba(59,47,28,0.75); text-transform:uppercase; }
     .field > select, .field > textarea {
       background: transparent;
       color: var(--cat-ink-dark);
@@ -64,34 +65,30 @@
     </div>
   </div>
   <script>
-    (function () {
-      function whenReady(cb){ if(window.tsic){cb();return;} setTimeout(()=>whenReady(cb),16); }
+    tsic.bootMenu(function (ctx) {
+      // Tell the host which rectangles capture clicks. The whole modal panel
+      // is interactive; everything else falls through (though body bg covers
+      // the world anyway via rgba). For simplicity, mark the entire viewport
+      // as interactive while this screen is up.
+      if (typeof tsic.setInteractiveRects === 'function') {
+        tsic.setInteractiveRects([{ x: 0, y: 0, w: window.innerWidth, h: window.innerHeight }]);
+      }
 
-      whenReady(() => {
-        // Tell the host which rectangles capture clicks. The whole modal panel
-        // is interactive; everything else falls through (though body bg covers
-        // the world anyway via rgba). For simplicity, mark the entire viewport
-        // as interactive while this screen is up.
-        if (typeof tsic.setInteractiveRects === 'function') {
-          tsic.setInteractiveRects([{ x: 0, y: 0, w: window.innerWidth, h: window.innerHeight }]);
-        }
-
-        document.getElementById('btn-submit').onclick = () => {
-          const category = document.getElementById('br-category').value || 'Other';
-          const description = (document.getElementById('br-description').value || '').trim();
-          const bIncludeScreenshot = !!document.getElementById('br-screenshot').checked;
-          const bIncludeLog = !!document.getElementById('br-log').checked;
-          tsic.publishMessage('UI.Cmd.BugReport.Submit', {
-            Category: category,
-            Description: description,
-            bIncludeScreenshot: bIncludeScreenshot,
-            bIncludeLog: bIncludeLog,
-          });
-          tsic.publishMessage('UI.Cmd.Pause.Resume', {});
-        };
-        document.getElementById('btn-cancel').onclick = () =>
-          tsic.publishMessage('UI.Cmd.Pause.Resume', {});
-      });
-    })();
+      document.getElementById('btn-submit').onclick = () => {
+        const category = document.getElementById('br-category').value || 'Other';
+        const description = (document.getElementById('br-description').value || '').trim();
+        const bIncludeScreenshot = !!document.getElementById('br-screenshot').checked;
+        const bIncludeLog = !!document.getElementById('br-log').checked;
+        tsic.publishMessage('UI.Cmd.BugReport.Submit', {
+          Category: category,
+          Description: description,
+          bIncludeScreenshot: bIncludeScreenshot,
+          bIncludeLog: bIncludeLog,
+        });
+        tsic.publishMessage('UI.Cmd.Pause.Resume', {});
+      };
+      document.getElementById('btn-cancel').onclick = () =>
+        tsic.publishMessage('UI.Cmd.Pause.Resume', {});
+    });
   </script>
 </body></html>
