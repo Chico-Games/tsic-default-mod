@@ -50,8 +50,6 @@
     let selectedRecipeId = null;
     let craftPendingAt = 0;
 
-    function whenReady(cb){ if(window.tsic && window.TSICRecipeInfo){cb();return;} setTimeout(()=>whenReady(cb),16); }
-
     function renderList() {
         const host = document.getElementById('c-list');
         host.innerHTML = '';
@@ -73,7 +71,7 @@
             iconWrap.className = 'icon';
             if (r.bDiscovered) {
                 const img = document.createElement('img');
-                img.src = `/tex/item-icon/${encodeURIComponent((r.Outputs[0]||{}).ItemId||'')}`;
+                img.src = TSIC.itemIconUrl((r.Outputs[0]||{}).ItemId||'');
                 iconWrap.appendChild(img);
             }
             row.appendChild(iconWrap);
@@ -118,7 +116,9 @@
         renderInfo(recipe);
     }
 
-    whenReady(() => {
+    (function boot() {
+    if (!window.tsic || !window.TSICRecipeInfo) { setTimeout(boot, 16); return; }
+    tsic.whenReady(function () {
         tsic.on('tsic.msg.UI.Recipe.StationOpened', (p) => {
             if (!p || p.Kind !== 'Crafting') return;
             stationId = p.StationId;
@@ -153,6 +153,7 @@
             tsic.publishMessage('UI.Cmd.Pause.Resume', {});
         });
     });
+    })();
 })();
 </script>
 </body></html>

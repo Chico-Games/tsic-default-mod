@@ -119,8 +119,6 @@
     let hoveredItem = null;
     let selectedSlot = -1;
 
-    function whenReady(cb){ if(window.tsic && window.TSICInventory){cb();return;} setTimeout(()=>whenReady(cb),16); }
-
     function renderTabs() {
         const host = document.getElementById('inv-tabs');
         host.innerHTML = '';
@@ -267,7 +265,7 @@
             const label = (s.SlotTag || '').split('.').pop();
             if (!isEmpty) {
                 const img = document.createElement('img');
-                img.src = `/tex/item-icon/${encodeURIComponent(s.ItemId)}`;
+                img.src = TSIC.itemIconUrl(s.ItemId);
                 div.appendChild(img);
                 div.title = `${label} — click to unequip`;
                 div.addEventListener('click', () => {
@@ -299,7 +297,9 @@
         }
     }
 
-    whenReady(() => {
+    (function boot() {
+    if (!window.tsic || !window.TSICInventory) { setTimeout(boot, 16); return; }
+    tsic.whenReady(function () {
         // Render the empty-slot squares immediately so the inventory shows
         // the player's slots even before the server sends Equipment.Updated.
         renderEquipment();
@@ -365,6 +365,7 @@
 
         tsic.publishMessage('UI.Cmd.CharacterPreview.Show', {});
     });
+    })();
 })();
 </script>
 </body></html>
