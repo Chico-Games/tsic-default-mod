@@ -123,6 +123,7 @@
       <button data-action="combo-debug">combo matrix &rarr;</button>
       <button data-action="player-debug">player marker debug &rarr;</button>
       <button data-action="overlay-test">overlay test (12 variants) &rarr;</button>
+      <button data-action="marker-test">marker render test (18 methods) &rarr;</button>
       <button data-action="close" style="margin-left:auto;background:#a33;border-color:#c55;">Close</button>
     </div>
     <div id="grid">
@@ -210,6 +211,7 @@
         else if (action === 'combo-debug') window.location.href = '/screens/map-combo-debug.html';
         else if (action === 'player-debug') window.location.href = '/screens/map-player-debug.html';
         else if (action === 'overlay-test') window.location.href = '/screens/map-overlay-test.html';
+        else if (action === 'marker-test') window.location.href = '/screens/map-marker-test.html';
         else if (action === 'close') { if (window.tsic) tsic.publishMessage('UI.Cmd.Debug.Close', {}); }
       });
 

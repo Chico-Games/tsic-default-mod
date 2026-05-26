@@ -19,7 +19,7 @@
 }
 
 #toast-container {
-  position: fixed; right: 24px; top: 24px;
+  position: fixed; left: 24px; top: 24px;
   display: flex; flex-direction: column; gap: 8px;
   z-index: 100;
   pointer-events: none;
@@ -49,10 +49,10 @@
    overridden by the keyframe. */
 .toast--leaving { animation: tsic-toast-out 200ms ease-in forwards; }
 @keyframes tsic-toast-in {
-  from { transform: translateX(20px); color: rgba(37,33,25,0); background: rgba(241,229,207,0); }
-  to   { transform: translateX(0);    color: rgba(37,33,25,1); background: rgba(241,229,207,0.92); }
+  from { transform: translateX(-20px); color: rgba(37,33,25,0); background: rgba(241,229,207,0); }
+  to   { transform: translateX(0);     color: rgba(37,33,25,1); background: rgba(241,229,207,0.92); }
 }
 @keyframes tsic-toast-out {
-  from { transform: translateX(0);    color: rgba(37,33,25,1); background: rgba(241,229,207,0.92); }
-  to   { transform: translateX(20px); color: rgba(37,33,25,0); background: rgba(241,229,207,0); }
+  from { transform: translateX(0);     color: rgba(37,33,25,1); background: rgba(241,229,207,0.92); }
+  to   { transform: translateX(-20px); color: rgba(37,33,25,0); background: rgba(241,229,207,0); }
 }

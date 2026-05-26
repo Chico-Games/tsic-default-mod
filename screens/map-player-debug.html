@@ -113,6 +113,7 @@
     <div id="toolbar">
       <button data-action="back">&larr; Textures</button>
       <button data-action="overlay-test">Overlay Test (12 variants) &rarr;</button>
+      <button data-action="marker-test">Marker Render Test (18 methods) &rarr;</button>
       <span id="status" class="empty">no UI.Map.Snapshot received yet</span>
       <span class="info" style="margin-left:auto;">
         Esc returns &middot; green = LIVE PIE snapshot &middot; orange = fixed FIXTURE
@@ -599,6 +600,7 @@
           if (!btn) return;
           if (btn.dataset.action === 'back') window.location.href = '/screens/map-debug.html';
           if (btn.dataset.action === 'overlay-test') window.location.href = '/screens/map-overlay-test.html';
+          if (btn.dataset.action === 'marker-test') window.location.href = '/screens/map-marker-test.html';
           if (btn.dataset.action === 'close') { if (window.tsic) tsic.publishMessage('UI.Cmd.Debug.Close', {}); }
         });
 
