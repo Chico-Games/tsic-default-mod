@@ -16,22 +16,17 @@
   <script src="/shared/catalog.js" defer></script>
   <script src="/shared/dom.js" defer></script>
   <script src="/shared/icons.js" defer></script>
+  <script src="/shared/recipe-info.js" defer></script>
+  <script src="/shared/recipe-station.js" defer></script>
   <style>
-    /* Override tsic-row-button's panel-paper bg with the existing translucent
-       look so the repair list keeps its tighter visual weight. */
-    .repair-row { gap:8px; padding:6px 8px; background:rgba(241,229,207,0.55); }
-    .repair-row:hover { background:rgba(241,229,207,0.85); }
-    .repair-row .icon { width:28px; height:28px; display:flex; align-items:center; justify-content:center; flex:0 0 auto; }
-    .repair-row .icon img { width:100%; height:100%; object-fit:contain; }
-    .repair-row .label { flex:1; }
-    .repair-row .pristine-tag { font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--cat-ink-soft); }
+    .repair-bar { height:8px; background:rgba(184,170,145,0.45); margin-top:8px; }
+    .repair-bar > div { height:100%; transition: width 0.15s; }
   </style>
 </head><body>
   <div id="repair-root" class="tsic-modal-scrim">
     <div id="repair-panel" class="tsic-panel tsic-panel--screen">
       <h2 class="tsic-title" style="margin:0 0 8px;">Repair</h2>
-      <div class="tsic-eyebrow">Items needing repair</div>
-      <div id="repair-list" class="tsic-list-pane" style="flex:1 1 auto;"></div>
+      <div id="repair-station"></div>
       <div class="tsic-close-row">
         <button class="tsic-button" id="btn-close" data-tsic-initial-focus>Close</button>
       </div>
@@ -39,69 +34,56 @@
   </div>
   <script>
     (function(){
-      let opened = null;
-      let stationId = null;
+      function durPct(r) {
+        var dur = (typeof r.Durability === 'number') ? r.Durability : 1;
+        var max = (typeof r.MaxDurability === 'number' && r.MaxDurability > 0) ? r.MaxDurability : 1;
+        return Math.max(0, Math.min(1, dur / max));
+      }
+      function isPristine(r) { return durPct(r) >= 0.999; }
 
-      function render() {
-        const host = document.getElementById('repair-list');
-        host.innerHTML = '';
-        // UI.Recipe.StationOpened publishes `Recipes` (same envelope used by
-        // crafting / upgrade). Each entry has RecipeId + Durability/MaxDurability.
-        const recipes = (opened && opened.Recipes) || [];
-        if (recipes.length === 0) {
-          const empty = document.createElement('div');
-          empty.className = 'tsic-empty';
-          empty.textContent = 'No items here need repair.';
-          host.appendChild(empty);
-          return;
-        }
-        for (const r of recipes) {
-          const itemId = r.RecipeId;
-          const dur = (typeof r.Durability === 'number') ? r.Durability : 1;
-          const max = (typeof r.MaxDurability === 'number' && r.MaxDurability > 0) ? r.MaxDurability : 1;
-          const pct = Math.max(0, Math.min(1, dur / max));
-          const pristine = pct >= 0.999;
-          const row = document.createElement('button');
-          row.type = 'button';
-          row.className = 'tsic-row-button repair-row';
-          row.disabled = pristine;
-          const iconWrap = document.createElement('div');
-          iconWrap.className = 'icon';
-          if (itemId) {
-            const img = TSIC.iconImg(TSIC.itemIconUrl(itemId));
-            iconWrap.appendChild(img);
-          }
-          const label = document.createElement('div');
-          label.className = 'label';
-          const name = (window.tsic && window.tsic.itemName) ? window.tsic.itemName(itemId) : (r.Name || itemId);
-          label.textContent = `${name} — ${Math.round(pct * 100)}%`;
-          row.appendChild(iconWrap);
-          row.appendChild(label);
-          if (pristine) {
-            const tag = document.createElement('span');
-            tag.className = 'pristine-tag';
-            tag.textContent = 'Pristine';
-            row.appendChild(tag);
-          }
-          row.onclick = () => {
-            if (pristine) return;
-            tsic.publishMessage('UI.Cmd.Recipe.Start', { Kind: 'Repair', StationId: stationId, RecipeId: itemId, Count: 1 });
-          };
-          host.appendChild(row);
-        }
+      function barColor(pct) {
+        if (pct >= 0.7) return '#7fffae';
+        if (pct >= 0.35) return '#f5c542';
+        return '#e88';
       }
 
       (function boot() {
-        if (!window.tsic) { setTimeout(boot, 16); return; }
+        if (!window.tsic || !window.TSIC.RecipeStation) { setTimeout(boot, 16); return; }
         tsic.whenReady(function () {
-          // Reuse UI.Recipe.StationOpened envelope (Kind="Repair") so we don't need
-          // a new C++ message; the legacy URepairStationScreen extends EntityHelperWidget
-          // and the helper plumbing already routes through the recipe-family channel.
-          tsic.on('tsic.msg.UI.Recipe.StationOpened', (p) => {
-            if (!p || p.Kind !== 'Repair') return;
-            opened = p; stationId = p.StationId; render();
+          TSIC.RecipeStation.mount(document.getElementById('repair-station'), {
+            kind: 'Repair',
+            actionLabel: 'Repair',
+            emptyText: 'No items here need repair.',
+            rowIcon: function(r) { return r.RecipeId; },
+            rowName: function(r) {
+              var name = (window.tsic && window.tsic.itemName) ? window.tsic.itemName(r.RecipeId) : (r.Name || r.RecipeId);
+              return name + ' — ' + Math.round(durPct(r) * 100) + '%';
+            },
+            rowRight: function(r) { return isPristine(r) ? 'Pristine' : ''; },
+            isLocked: function(r) { return isPristine(r); },
+            canAction: function(r) { return r && !isPristine(r); },
+            renderInfo: function(host, recipe) {
+              host.innerHTML = '';
+              if (!recipe) return;
+              var pct = durPct(recipe);
+              var name = (window.tsic && window.tsic.itemName) ? window.tsic.itemName(recipe.RecipeId) : (recipe.Name || recipe.RecipeId);
+              host.appendChild(TSIC.el('h3', { style: 'margin:0 0 6px;' }, name));
+              host.appendChild(TSIC.el('div', { style: 'font-size:10px;letter-spacing:2px;color:rgba(37,33,25,0.55);margin-top:8px;' }, 'DURABILITY'));
+              host.appendChild(TSIC.el('div', { style: 'font-size:14px;font-weight:700;' },
+                Math.round(pct * 100) + '% (' + Math.round(recipe.Durability || 0) + ' / ' + Math.round(recipe.MaxDurability || 0) + ')'));
+              var bar = document.createElement('div');
+              bar.className = 'repair-bar';
+              var inner = document.createElement('div');
+              inner.style.width = (pct * 100).toFixed(1) + '%';
+              inner.style.background = barColor(pct);
+              bar.appendChild(inner);
+              host.appendChild(bar);
+              if (isPristine(recipe)) {
+                host.appendChild(TSIC.el('div', { style: 'margin-top:12px;font-size:11px;color:rgba(37,33,25,0.55);font-style:italic;' }, 'This item is in pristine condition.'));
+              }
+            }
           });
-          window.addEventListener('tsic-item-catalog', render);
+
           document.getElementById('btn-close').onclick = () =>
             tsic.publishMessage('UI.Cmd.Pause.Resume', {});
         });

@@ -17,26 +17,12 @@
   <script src="/shared/recipe-info.js" defer></script>
   <script src="/shared/dom.js" defer></script>
   <script src="/shared/icons.js" defer></script>
-  <style>
-    #c-info { padding:10px; background: rgba(241,229,207,0.88); border:1px solid var(--tsic-border); flex: 1 1 auto; overflow:auto; min-height: 0; }
-    #c-craft { width:100%; padding: 8px; flex: 0 0 auto; }
-    #c-craft:disabled { background:rgba(52,65,45,0.4); color:rgba(247,237,217,0.5); border-color:rgba(39,49,32,0.4); box-shadow:none; cursor:not-allowed; }
-  </style>
+  <script src="/shared/recipe-station.js" defer></script>
 </head><body>
 <div id="c-root" class="tsic-modal-scrim">
   <div id="c-panel" class="tsic-panel tsic-panel--screen">
     <h2 class="tsic-title" style="margin:0 0 8px;">Crafting</h2>
-    <div class="tsic-split">
-      <div class="tsic-split-col">
-        <div class="tsic-eyebrow">Recipes</div>
-        <div id="c-list" class="tsic-list-pane"></div>
-      </div>
-      <div class="tsic-split-col">
-        <div class="tsic-eyebrow">Details</div>
-        <div id="c-info"></div>
-        <button id="c-craft" class="tsic-button" disabled>Craft</button>
-      </div>
-    </div>
+    <div id="c-station"></div>
     <div class="tsic-close-row">
       <button class="tsic-button" id="btn-close" data-tsic-initial-focus>Close (Esc)</button>
     </div>
@@ -44,109 +30,17 @@
 </div>
 <script>
 (function(){
-    let stationId = null;
-    let lastStation = null;
-    let materialCounts = {};
-    let selectedRecipeId = null;
-    let craftPendingAt = 0;
-
-    function renderList() {
-        const host = document.getElementById('c-list');
-        host.innerHTML = '';
-        if (!lastStation) return;
-        const cat = window.tsic.itemCatalog || {};
-        const recipes = lastStation.Recipes || [];
-        if (recipes.length === 0) {
-            host.appendChild(Object.assign(document.createElement('div'), { className: 'tsic-empty', textContent: 'No recipes available.' }));
-            return;
-        }
-        for (const r of recipes) {
-            const locked = !r.bDiscovered || !r.bStationLevelSufficient;
-            const row = document.createElement('div');
-            row.className = 'tsic-list-row' + (selectedRecipeId === r.RecipeId ? ' is-selected' : '') + (locked ? ' is-locked' : '');
-            row.setAttribute('data-tsic-focusable', '');
-            row.tabIndex = -1;
-
-            const iconWrap = document.createElement('div');
-            iconWrap.className = 'icon';
-            if (r.bDiscovered) {
-                const img = document.createElement('img');
-                img.src = TSIC.itemIconUrl((r.Outputs[0]||{}).ItemId||'');
-                iconWrap.appendChild(img);
-            }
-            row.appendChild(iconWrap);
-
-            const name = document.createElement('div');
-            name.className = 'name';
-            name.textContent = r.bDiscovered ? ((cat[(r.Outputs[0]||{}).ItemId] || {}).Name || r.Name) : '???';
-            row.appendChild(name);
-
-            const right = document.createElement('div');
-            right.className = 'right';
-            if (!r.bStationLevelSufficient) right.textContent = `lvl ${r.RequiredStationLevel}`;
-            row.appendChild(right);
-
-            const selectRecipe = () => { selectedRecipeId = r.RecipeId; renderAll(); };
-            const commitRecipe = () => {
-                selectRecipe();
-                const craft = document.getElementById('c-craft');
-                if (craft && !craft.disabled) craft.click();
-            };
-            row.addEventListener('click', selectRecipe);
-            // Gamepad nav onto this row = same as clicking it (auto-preview).
-            row.addEventListener('focusin', selectRecipe);
-            // Double-click on mouse = commit. Same on gamepad Confirm: the
-            // engine fires a 'tsic:confirm' custom event before falling back
-            // to el.click(); preventDefault keeps confirm from re-firing
-            // the single-click select handler too.
-            row.addEventListener('dblclick', commitRecipe);
-            row.addEventListener('tsic:confirm', (e) => { e.preventDefault(); commitRecipe(); });
-            host.appendChild(row);
-        }
-    }
-    function renderInfo(recipe) {
-        window.TSICRecipeInfo.render(document.getElementById('c-info'), recipe, materialCounts);
-        const btn = document.getElementById('c-craft');
-        btn.disabled = !window.TSICRecipeInfo.canCraft(recipe, materialCounts);
-    }
-    function renderAll() {
-        renderList();
-        if (!lastStation) return;
-        const recipe = (lastStation.Recipes || []).find(r => r.RecipeId === selectedRecipeId);
-        renderInfo(recipe);
-    }
-
     (function boot() {
-    if (!window.tsic || !window.TSICRecipeInfo) { setTimeout(boot, 16); return; }
+    if (!window.tsic || !window.TSICRecipeInfo || !window.TSIC.RecipeStation) { setTimeout(boot, 16); return; }
     tsic.whenReady(function () {
-        tsic.on('tsic.msg.UI.Recipe.StationOpened', (p) => {
-            if (!p || p.Kind !== 'Crafting') return;
-            stationId = p.StationId;
-            lastStation = p;
-            materialCounts = p.MaterialCounts || {};
-            if (!selectedRecipeId && (p.Recipes || []).length > 0) {
-                selectedRecipeId = p.Recipes[0].RecipeId;
-            }
-            renderAll();
+        TSIC.RecipeStation.mount(document.getElementById('c-station'), {
+            kind: 'Crafting',
+            actionLabel: 'Craft',
+            soundSuccess: 'Craft.Success',
+            soundFail: 'Craft.Fail',
         });
-        tsic.on('tsic.msg.UI.Toast.Show', (p) => {
-            if (!p) return;
-            const sev = (p.Severity && p.Severity.TagName) || '';
-            if (Date.now() - craftPendingAt < 500 && /Warning|Error/i.test(sev)) {
-                tsic.publishMessage('UI.Cmd.Sound.Play', { SoundKey: 'Craft.Fail', VolumeScale: 1.0 });
-            }
-        });
-        window.addEventListener('tsic-item-catalog', renderAll);
 
-        document.getElementById('c-craft').addEventListener('click', () => {
-            const recipe = lastStation && (lastStation.Recipes || []).find(r => r.RecipeId === selectedRecipeId);
-            if (!recipe || !window.TSICRecipeInfo.canCraft(recipe, materialCounts)) return;
-            craftPendingAt = Date.now();
-            tsic.publishMessage('UI.Cmd.Recipe.Start', { Kind: 'Crafting', StationId: stationId, RecipeId: recipe.RecipeId, Count: 1 });
-            tsic.publishMessage('UI.Cmd.Sound.Play', { SoundKey: 'Craft.Success', VolumeScale: 1.0 });
-        });
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') document.getElementById('c-craft').click();
             if (e.key === 'Escape') document.getElementById('btn-close').click();
         });
         document.getElementById('btn-close').addEventListener('click', () => {
