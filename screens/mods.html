@@ -33,6 +33,15 @@
              border: 1px solid rgba(255,255,255,0.35); color: var(--cat-ink-dark);
              padding: 8px 16px; cursor: pointer; font: inherit; }
     .auth-strip button:hover { background: rgba(180,30,30,0.55); }
+    .auth-heading { font-size: 13px; letter-spacing: 3px; text-transform: uppercase;
+             color: rgba(37,33,25,0.6); margin: 0 0 10px; }
+    .auth-explain { font-size: 12px; color: rgba(37,33,25,0.7); line-height: 1.6;
+             margin-bottom: 12px; }
+    .auth-explain a { color: rgba(180,30,30,0.85); text-decoration: underline; }
+    .auth-explain a:hover { color: rgba(180,30,30,1); }
+    .auth-steps { font-size: 12px; color: rgba(37,33,25,0.6); line-height: 1.5;
+             margin: 0; padding: 0 0 0 18px; list-style: decimal; }
+    .auth-steps li { margin-bottom: 2px; }
     .error { color: #ef6c6c; font-size: 12px; margin-top: 6px; }
     .browse { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
     .card { border: 1px solid rgba(184,170,145,0.45);
@@ -57,20 +66,38 @@
     <h1>Mods</h1>
 
     <div class="panel" id="panel-auth">
-      <div class="auth-strip" id="auth-signed-out" style="display:none;">
-        <div>
-          <input id="email" type="email" placeholder="you@example.com">
-          <button id="btn-request">Email me a code</button>
+      <div id="auth-signed-out" style="display:none;">
+        <div class="auth-heading">Sign in with mod.io</div>
+        <div class="auth-explain">
+          You need a <a href="https://mod.io" target="_blank" rel="noopener">mod.io</a> account
+          to subscribe to and install mods.
+          Don't have one? <a href="https://mod.io/join" target="_blank" rel="noopener">Create a free account</a> — then come back here and enter your email below.
         </div>
-        <div style="color:rgba(37,33,25,0.6); font-size:11px;">mod.io will email a 5-character code.</div>
+        <div class="auth-strip">
+          <div>
+            <input id="email" type="email" placeholder="you@example.com">
+            <button id="btn-request">Send login code</button>
+          </div>
+        </div>
+        <ol class="auth-steps" style="margin-top: 8px;">
+          <li>Enter the email linked to your mod.io account above</li>
+          <li>Check your inbox for a 5-character code from mod.io</li>
+          <li>Enter the code here to sign in</li>
+        </ol>
       </div>
-      <div class="auth-strip" id="auth-awaiting-code" style="display:none;">
-        <div>
-          <input id="code" type="text" placeholder="A1B2C" maxlength="5"
-                 style="letter-spacing: 8px; text-align: center; text-transform: uppercase;">
-          <button id="btn-exchange">Sign in</button>
+      <div id="auth-awaiting-code" style="display:none;">
+        <div class="auth-heading">Enter your code</div>
+        <div class="auth-explain">
+          A 5-character code was sent to your email. Check your inbox (and spam folder) and enter it below.
         </div>
-        <button id="btn-cancel-code">Cancel</button>
+        <div class="auth-strip">
+          <div>
+            <input id="code" type="text" placeholder="A1B2C" maxlength="5"
+                   style="letter-spacing: 8px; text-align: center; text-transform: uppercase;">
+            <button id="btn-exchange">Sign in</button>
+          </div>
+          <button id="btn-cancel-code">Cancel</button>
+        </div>
       </div>
       <div class="auth-strip" id="auth-signed-in" style="display:none;">
         <div><b id="username"></b></div>
@@ -122,7 +149,7 @@
 
   <script type="module">
     import { createClient, makeBaseUrl, listMods, getGameTags, subscribe,
-             listModfiles, logout } from '/shared/modio.js';
+             unsubscribe, listModfiles, listSubscribed, logout } from '/shared/modio.js';
     import { createAuth, loadToken, loadProfile, clearToken } from '/shared/modio-auth.js';
 
     let cfg = null;
@@ -139,6 +166,7 @@
     let installedOrder = [];
     let bootedBrowse = false;
     let lastModItems = [];        // last rendered card payloads; used to repaint Subscribe state
+    let subscribedMap = new Map();
 
     function show(id) {
       for (const sel of ['signed-out','awaiting-code','signed-in','disabled']) {
@@ -194,7 +222,14 @@
         showAuthError('');
         try {
           await auth.exchangeCode(document.getElementById('code').value.trim().toUpperCase());
-          // No re-bootBrowse — refreshSubscribeButtons (above) updated visible cards.
+          const token = loadToken();
+          const expires = localStorage.getItem('tsic.modio.tokenExpires');
+          if (token) {
+            tsic.publishMessage('UI.Cmd.Mod.SaveToken', {
+              Token: token,
+              ExpiresEpoch: Number(expires) || 0,
+            });
+          }
         } catch (e) { showAuthError(e.message); }
       };
       document.getElementById('btn-cancel-code').onclick = () => doSignOut();
@@ -203,9 +238,10 @@
 
     async function doSignOut() {
       if (!auth) return;
-      // Tell mod.io to invalidate the token; ignore failures, we still clear local state.
       try { if (client && loadToken()) await logout(client); } catch (_) {}
       auth.signOut();
+      tsic.publishMessage('UI.Cmd.Mod.ClearToken', {});
+      subscribedMap.clear();
       refreshSubscribeButtons();
     }
 
@@ -303,12 +339,12 @@
     function buildCard(m, subbed) {
       const el = document.createElement('div');
       el.className = 'card';
+      el.dataset.nameId = String(m && m.name_id || '');
 
       const logo = document.createElement('div');
       logo.className = 'logo';
       const logoUrl = safeHttpUrl(m && m.logo && m.logo.thumb_320x180);
       if (logoUrl) {
-        // CSSOM-set; the URL is already validated as http(s).
         logo.style.backgroundImage = `url("${logoUrl.replace(/"/g, '%22')}")`;
         logo.style.backgroundSize = 'cover';
         logo.style.backgroundPosition = 'center';
@@ -327,24 +363,56 @@
 
       const btn = document.createElement('button');
       btn.className = 'card-sub';
-      btn.textContent = 'Subscribe';
+      const nameId = String(m && m.name_id || '');
+      const isSub = subscribedMap.has(nameId);
+
       if (!subbed) {
+        btn.textContent = 'Subscribe';
         btn.disabled = true;
         btn.title = 'Sign in to subscribe';
+      } else if (isSub) {
+        btn.textContent = 'Unsubscribe';
+        btn.style.background = 'rgba(180,30,30,0.55)';
+        btn.onclick = () => doUnsubscribe(m);
+      } else {
+        btn.textContent = 'Subscribe';
+        btn.onclick = () => doSubscribe(m);
       }
-      btn.onclick = () => doSubscribe(m);
       el.appendChild(btn);
 
       return el;
     }
     function refreshSubscribeButtons() {
-      // Repaint Subscribe state on every visible card without re-fetching.
       const host = document.getElementById('browse');
       if (!host) return;
       const subbed = !!loadToken();
-      for (const btn of host.querySelectorAll('.card-sub')) {
-        btn.disabled = !subbed;
-        btn.title = subbed ? '' : 'Sign in to subscribe';
+      for (const card of host.querySelectorAll('.card')) {
+        const nameId = card.dataset.nameId || '';
+        const btn = card.querySelector('.card-sub');
+        if (!btn) continue;
+        const isSub = subscribedMap.has(nameId);
+
+        if (!subbed) {
+          btn.textContent = 'Subscribe';
+          btn.disabled = true;
+          btn.title = 'Sign in to subscribe';
+          btn.style.background = '';
+          btn.onclick = null;
+        } else if (isSub) {
+          btn.textContent = 'Unsubscribe';
+          btn.disabled = false;
+          btn.title = '';
+          btn.style.background = 'rgba(180,30,30,0.55)';
+          const m = lastModItems.find(mod => String(mod.name_id) === nameId);
+          btn.onclick = m ? () => doUnsubscribe(m) : null;
+        } else {
+          btn.textContent = 'Subscribe';
+          btn.disabled = false;
+          btn.title = '';
+          btn.style.background = '';
+          const m = lastModItems.find(mod => String(mod.name_id) === nameId);
+          btn.onclick = m ? () => doSubscribe(m) : null;
+        }
       }
     }
     function searchSoon() {
@@ -364,17 +432,25 @@
       showInstallError('');
       try {
         await subscribe(client, m.id);
-        const files = await listModfiles(client, m.id, { limit: 1, sort: '-date_added' });
-        const live = (files.data || [])[0];
-        if (!live) { showInstallError('No release available.'); return; }
-        // The binary_url is a pre-signed CDN URL — no bearer needed (and we
-        // wouldn't want to leak it to a CDN anyway). C++ side won't read Token.
-        tsic.publishMessage('UI.Cmd.Mod.InstallSubscribed', {
-          ModId: String(m.name_id || ''),
-          ModName: String(m.name || ''),
-          FileUrl: String(live.download && live.download.binary_url || ''),
-          FileHash: String((live.filehash && live.filehash.md5) || ''),
+        tsic.publishMessage('UI.Cmd.Mod.Subscribe', {
+          ModIoId: m.id,
+          NameId: String(m.name_id || ''),
+          DisplayName: String(m.name || ''),
         });
+        subscribedMap.set(String(m.name_id), { modIoId: m.id, hasUpdate: false, installed: false });
+        refreshSubscribeButtons();
+      } catch (e) { showInstallError(e.message); }
+    }
+    async function doUnsubscribe(m) {
+      if (!loadToken()) { return; }
+      showInstallError('');
+      try {
+        await unsubscribe(client, m.id);
+        tsic.publishMessage('UI.Cmd.Mod.Unsubscribe', {
+          NameId: String(m.name_id || ''),
+        });
+        subscribedMap.delete(String(m.name_id));
+        refreshSubscribeButtons();
       } catch (e) { showInstallError(e.message); }
     }
     function bootBrowse() {
@@ -392,6 +468,9 @@
       host.innerHTML = '';
       const indexOf = (id) => installedOrder.indexOf(id) >= 0 ? installedOrder.indexOf(id) : 9999;
       installedMods.sort((a, b) => indexOf(a.ModId) - indexOf(b.ModId));
+
+      let hasAnyUpdate = false;
+
       for (const m of installedMods) {
         const row = document.createElement('div');
         row.className = 'installed-row';
@@ -414,6 +493,18 @@
         }
         row.appendChild(nameSpan);
 
+        const subInfo = subscribedMap.get(m.ModId);
+        if (subInfo && subInfo.hasUpdate) {
+          hasAnyUpdate = true;
+          const updateBtn = document.createElement('button');
+          updateBtn.type = 'button';
+          updateBtn.textContent = 'Update';
+          updateBtn.style.cssText = 'background:rgba(30,120,180,0.45); border:1px solid rgba(255,255,255,0.35); color:var(--cat-ink-dark); padding:2px 8px; cursor:pointer; font:inherit; margin-right:4px;';
+          updateBtn.onclick = () =>
+            tsic.publishMessage('UI.Cmd.Mod.CheckUpdates', {});
+          row.appendChild(updateBtn);
+        }
+
         const up = document.createElement('button');
         up.type = 'button';
         up.textContent = '↑';
@@ -426,8 +517,35 @@
         down.onclick = () => moveInstalled(m.ModId, +1);
         row.appendChild(down);
 
+        const uninstallBtn = document.createElement('button');
+        uninstallBtn.type = 'button';
+        uninstallBtn.textContent = 'Uninstall';
+        uninstallBtn.style.cssText = 'background:rgba(180,30,30,0.45); border:1px solid rgba(255,255,255,0.35); color:var(--cat-ink-dark); padding:2px 8px; cursor:pointer; font:inherit; margin-left:4px;';
+        uninstallBtn.onclick = () =>
+          tsic.publishMessage('UI.Cmd.Mod.Uninstall', { NameId: m.ModId });
+        row.appendChild(uninstallBtn);
+
         host.appendChild(row);
       }
+
+      let updateAllBtn = document.getElementById('btn-update-all');
+      if (hasAnyUpdate) {
+        if (!updateAllBtn) {
+          updateAllBtn = document.createElement('button');
+          updateAllBtn.id = 'btn-update-all';
+          updateAllBtn.type = 'button';
+          updateAllBtn.textContent = 'Update All';
+          updateAllBtn.style.cssText = 'background:rgba(30,120,180,0.45); border:1px solid rgba(255,255,255,0.35); color:var(--cat-ink-dark); padding:4px 12px; cursor:pointer; font:inherit; margin-bottom:8px;';
+          updateAllBtn.onclick = () =>
+            tsic.publishMessage('UI.Cmd.Mod.CheckUpdates', {});
+          const panel = document.getElementById('panel-installed');
+          panel.insertBefore(updateAllBtn, host);
+        }
+        updateAllBtn.style.display = '';
+      } else if (updateAllBtn) {
+        updateAllBtn.style.display = 'none';
+      }
+
       if (!installedMods.length) {
         const empty = document.createElement('div');
         empty.style.color = 'rgba(37,33,25,0.6)';
@@ -489,6 +607,28 @@
       });
       tsic.on('tsic.msg.UI.Mod.InstallFailed', (p) => {
         if (p && p.Reason) showInstallError(`Install failed (${p.ModId}): ${p.Reason}`);
+      });
+      tsic.on('tsic.msg.UI.Mod.Subscriptions', (p) => {
+        subscribedMap.clear();
+        const subs = (p && p.Subs) || [];
+        for (const s of subs) {
+          subscribedMap.set(s.NameId, {
+            modIoId: s.ModIoId,
+            hasUpdate: !!s.bHasUpdate,
+            installed: !!s.bInstalled,
+          });
+        }
+        refreshSubscribeButtons();
+        renderInstalled();
+      });
+      tsic.on('tsic.msg.UI.Mod.UpdateProgress', (p) => {
+        if (!p) return;
+        if (p.State === 'done' || p.State === 'failed') {
+          renderInstalled();
+        }
+        if (p.State === 'failed' && p.Error) {
+          showInstallError(`Update failed (${p.NameId}): ${p.Error}`);
+        }
       });
       document.getElementById('btn-back').onclick = () =>
         tsic.publishMessage('UI.Cmd.Menu.Navigate', { Screen: 'MainMenu' });
