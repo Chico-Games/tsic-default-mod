@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="/shared/hud.css">
   <script src="/shared/router.js" defer></script>
   <script src="/shared/hud.js" defer></script>
+  <script src="/shared/icons.js" defer></script>
   <script src="/shared/tsic-runtime.js" defer></script>
   <style>
     /* Two presentation modes share the same publisher + DOM root, but render
@@ -160,28 +161,33 @@
         return name;
       }
 
-      function makeKey(iconUrl, inputName) {
+      function makeKey(iconUrl, inputName, keyText) {
+        var resolvedUrl = iconUrl;
+        if (!resolvedUrl && keyText && window.TSIC && window.TSIC.keyIconUrl) {
+          resolvedUrl = TSIC.keyIconUrl(keyText, preferGamepad());
+        }
+        if (!resolvedUrl && !keyText && !inputName) return null;
         const key = document.createElement('span');
         key.className = 'ab-key';
-        if (iconUrl) {
+        if (resolvedUrl) {
           const img = document.createElement('img');
-          img.src = iconUrl;
-          img.alt = inputName || '';
+          img.src = resolvedUrl;
+          img.alt = keyText || inputName || '';
           img.onerror = () => {
             img.replaceWith(Object.assign(document.createElement('span'),
-              { className: 'ab-key-fallback', textContent: bracketedName(inputName) }));
+              { className: 'ab-key-fallback', textContent: keyText || bracketedName(inputName) }));
           };
           key.appendChild(img);
         } else {
           const fallback = document.createElement('span');
           fallback.className = 'ab-key-fallback';
-          fallback.textContent = bracketedName(inputName);
+          fallback.textContent = keyText || bracketedName(inputName);
           key.appendChild(fallback);
         }
         return key;
       }
 
-      function renderRow(iconUrl, inputName, name, sub, statusInt, cooldownPct) {
+      function renderRow(iconUrl, inputName, name, sub, statusInt, cooldownPct, keyText) {
         const row = document.createElement('span');
         row.className = 'ab-row';
         if (statusInt !== undefined) row.dataset.status = STATUS_LABEL[statusInt | 0] || 'available';
@@ -189,13 +195,6 @@
             row.style.setProperty('--tsic-cd-percent',
                 String(Math.max(0, Math.min(100, Math.round((cooldownPct || 0) * 100)))));
         }
-        const key = makeKey(iconUrl, inputName);
-        if (cooldownPct !== undefined && cooldownPct > 0 && cooldownPct < 1) {
-            const sweep = document.createElement('div');
-            sweep.className = 'ab-cd-sweep';
-            key.appendChild(sweep);
-        }
-        row.appendChild(key);
         const txt = document.createElement('span');
         txt.className = 'ab-text';
         const nm = document.createElement('span');
@@ -209,6 +208,15 @@
             txt.appendChild(sb);
         }
         row.appendChild(txt);
+        const key = makeKey(iconUrl, inputName, keyText);
+        if (key) {
+            if (cooldownPct !== undefined && cooldownPct > 0 && cooldownPct < 1) {
+                const sweep = document.createElement('div');
+                sweep.className = 'ab-cd-sweep';
+                key.appendChild(sweep);
+            }
+            row.appendChild(key);
+        }
         return row;
       }
 
@@ -224,7 +232,8 @@
           }
           first = false;
           const iconUrl = preferGamepad() ? s.GamepadIconUrl : s.KeyboardIconUrl;
-          host.appendChild(renderRow(iconUrl, s.InputName, s.AbilityName, s.SubText, s.StatusInt, s.CooldownPercent));
+          const keyText = preferGamepad() ? s.GamepadKeyText : s.KeyboardKeyText;
+          host.appendChild(renderRow(iconUrl, s.InputName, s.AbilityName, s.SubText, s.StatusInt, s.CooldownPercent, keyText));
         }
         applyVisibility();
       }
@@ -240,7 +249,8 @@
           }
           first = false;
           const iconUrl = preferGamepad() ? e.GamepadIconUrl : e.KeyboardIconUrl;
-          host.appendChild(renderRow(iconUrl, e.ActionName, e.Label));
+          const keyText = preferGamepad() ? e.GamepadKeyText : e.KeyboardKeyText;
+          host.appendChild(renderRow(iconUrl, e.ActionName, e.Label, undefined, undefined, undefined, keyText));
         }
         applyVisibility();
       }
