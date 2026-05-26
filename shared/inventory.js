@@ -166,7 +166,7 @@
                             FromOwnerId: fromOwnerId, ToOwnerId: toOwnerId,
                             FromSlot: it.SlotIndex, ToSlot: -1, Count: 1
                         });
-                        publish('UI.Cmd.Sound.Play', { SoundKey: 'Inventory.Transfer', VolumeScale: 1.0 });
+                        tsic.playSound('Inventory.Transfer');
                         return;
                     }
                     window.TSICInventory.openQuantityModal(max, (count) => {
@@ -174,7 +174,7 @@
                             FromOwnerId: fromOwnerId, ToOwnerId: toOwnerId,
                             FromSlot: it.SlotIndex, ToSlot: -1, Count: count
                         });
-                        publish('UI.Cmd.Sound.Play', { SoundKey: 'Inventory.Transfer', VolumeScale: 1.0 });
+                        tsic.playSound('Inventory.Transfer');
                     }, { title: 'Transfer how many?', confirmLabel: 'Transfer' });
                 }});
             }
@@ -182,12 +182,12 @@
                 const max = it.Count || 1;
                 if (max <= 1) {
                     publish('UI.Cmd.Inventory.Drop', { OwnerId: fromOwnerId, SlotIndex: it.SlotIndex, Count: 1 });
-                    publish('UI.Cmd.Sound.Play', { SoundKey: 'Inventory.Drop', VolumeScale: 1.0 });
+                    tsic.playSound('Inventory.Drop');
                     return;
                 }
                 window.TSICInventory.openQuantityModal(max, (count) => {
                     publish('UI.Cmd.Inventory.Drop', { OwnerId: fromOwnerId, SlotIndex: it.SlotIndex, Count: count });
-                    publish('UI.Cmd.Sound.Play', { SoundKey: 'Inventory.Drop', VolumeScale: 1.0 });
+                    tsic.playSound('Inventory.Drop');
                 });
             }});
             return entries;

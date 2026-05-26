@@ -7,6 +7,7 @@
   <title>Map Debug Grid</title>
   <script src="/shared/router.js" defer></script>
   <script src="/shared/tsic-focus.js" defer></script>
+  <script src="/shared/icons.js" defer></script>
   <style>
     html, body { margin: 0; padding: 0; height: 100%; background: #111; color: #ddd;
       font-family: 'Consolas', monospace; overflow: hidden; }
@@ -151,7 +152,7 @@
       const CSS_CYCLE  = ['on', 'off'];
 
       function setSrcWithCacheBust(img, id) {
-        img.src = `/runtime/${id}.imgsrc?t=${Date.now()}`;
+        img.src = TSIC.runtimeImgUrl(id) + '?t=' + Date.now();
       }
 
       function wireCell(cell) {

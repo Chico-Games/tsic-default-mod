@@ -11,6 +11,7 @@
   <script src="/shared/tsic-focus.js" defer></script>
   <script src="/shared/tsic-dropdown.js" defer></script>
   <script src="/shared/hud.js" defer></script>
+  <script src="/shared/icons.js" defer></script>
   <style>
     #wardrobe-grid  { display:flex; flex-wrap:wrap; gap:6px; align-content:start; flex: 1 1 auto; overflow:auto; padding:8px; background: rgba(241,229,207,0.55); border:1px solid var(--tsic-border); }
     #wardrobe-preview { flex: 1 1 auto; min-height: 240px; background: rgba(241,229,207,0.92); border:1px solid var(--tsic-border); display:flex; align-items:center; justify-content:center; }
@@ -74,7 +75,7 @@
         });
         tsic.on('tsic.msg.UI.CharacterPreview.Ready', (p) => {
           if (p && p.bReady) {
-            document.getElementById('wardrobe-preview-img').src = '/runtime/character-preview.imgsrc';
+            document.getElementById('wardrobe-preview-img').src = TSIC.runtimeImgUrl('character-preview');
           }
         });
         document.getElementById('btn-close').onclick = () => {

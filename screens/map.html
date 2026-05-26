@@ -11,6 +11,7 @@
   <script src="/shared/tsic-focus.js" defer></script>
   <script src="/shared/tsic-dropdown.js" defer></script>
   <script src="/shared/hud.js" defer></script>
+  <script src="/shared/icons.js" defer></script>
   <style>
     #map-root {
       position: fixed; inset: 0;
@@ -1022,12 +1023,12 @@
           const img = document.getElementById(id);
           if (!img) return;
           if (p.Visible) {
-            const base = id === 'debug-height-tex' ? '/runtime/world-debug-height.imgsrc'
-                       : id === 'debug-maze-tex'   ? '/runtime/world-debug-maze.imgsrc'
-                       : id === 'debug-all-tex'    ? '/runtime/world-debug-all.imgsrc'
-                       : null;
+            var base = id === 'debug-height-tex' ? TSIC.runtimeImgUrl('world-debug-height')
+                     : id === 'debug-maze-tex'   ? TSIC.runtimeImgUrl('world-debug-maze')
+                     : id === 'debug-all-tex'    ? TSIC.runtimeImgUrl('world-debug-all')
+                     : null;
             if (!base) return;
-            img.src = `${base}?t=${Date.now()}`;
+            img.src = base + '?t=' + Date.now();
             img.style.display = 'block';
           } else {
             img.style.display = 'none';

@@ -185,7 +185,7 @@
       if (!p || !soundFail) return;
       var sev = (p.Severity && p.Severity.TagName) || '';
       if (Date.now() - actionPendingAt < 500 && /Warning|Error/i.test(sev)) {
-        tsic.publishMessage('UI.Cmd.Sound.Play', { SoundKey: soundFail, VolumeScale: 1.0 });
+        tsic.playSound(soundFail);
       }
     }
 
@@ -203,7 +203,7 @@
         tsic.publishMessage('UI.Cmd.Recipe.Start', { Kind: kind, StationId: stationId, RecipeId: recipe.RecipeId, Count: 1 });
       }
       if (soundSuccess) {
-        tsic.publishMessage('UI.Cmd.Sound.Play', { SoundKey: soundSuccess, VolumeScale: 1.0 });
+        tsic.playSound(soundSuccess);
       }
     }
 

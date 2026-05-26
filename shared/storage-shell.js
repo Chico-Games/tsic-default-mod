@@ -32,7 +32,7 @@
         return (items || []).filter(it => tab.filter(categoryFor(it.ItemId)));
     }
     function playTransferSound() {
-        try { tsic.publishMessage('UI.Cmd.Sound.Play', { SoundKey: 'Inventory.Transfer', VolumeScale: 1.0 }); } catch {}
+        try { tsic.playSound('Inventory.Transfer'); } catch {}
     }
 
     function describe(it) {

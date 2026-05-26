@@ -147,7 +147,7 @@
             btn.textContent = 'Cancel';
             btn.addEventListener('click', () => {
                 tsic.publishMessage('UI.Cmd.Recipe.Cancel', { Kind: 'Production', StationId: stationId, QueueIndex: e.QueueIndex });
-                tsic.publishMessage('UI.Cmd.Sound.Play', { SoundKey: 'Recipe.Removed', VolumeScale: 1.0 });
+                tsic.playSound('Recipe.Removed');
             });
             head.appendChild(btn);
             div.appendChild(head);
@@ -232,7 +232,7 @@
         });
         tsic.on('tsic.msg.UI.Recipe.Completed', (p) => {
             if (p && p.Kind === 'Production') {
-                tsic.publishMessage('UI.Cmd.Sound.Play', { SoundKey: 'Recipe.Completed', VolumeScale: 1.0 });
+                tsic.playSound('Recipe.Completed');
             }
         });
         window.addEventListener('tsic-item-catalog', renderAll);
@@ -241,7 +241,7 @@
             const recipe = lastStation && (lastStation.Recipes || []).find(r => r.RecipeId === selectedRecipeId);
             if (!recipe || !window.TSICRecipeInfo.canCraft(recipe, materialCounts)) return;
             tsic.publishMessage('UI.Cmd.Recipe.Start', { Kind: 'Production', StationId: stationId, RecipeId: recipe.RecipeId, Count: 1 });
-            tsic.publishMessage('UI.Cmd.Sound.Play', { SoundKey: 'Recipe.Added', VolumeScale: 1.0 });
+            tsic.playSound('Recipe.Added');
         });
         document.getElementById('btn-close').addEventListener('click', () => {
             tsic.publishMessage('UI.Cmd.Pause.Resume', {});
