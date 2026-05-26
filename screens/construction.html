@@ -18,10 +18,9 @@
   <script src="/shared/tsic-dropdown.js" defer></script>
   <script src="/shared/hud.js" defer></script>
   <script src="/shared/catalog.js" defer></script>
+  <script src="/shared/tab-filter.js" defer></script>
   <style>
     #c-tabs { display:flex; gap:4px; margin-bottom:8px; }
-    .c-tab  { padding:4px 8px; background:rgba(241,229,207,0.55); border:1px solid var(--tsic-border); cursor:pointer; font-size:10px; letter-spacing:1px; }
-    .c-tab.active { background: var(--tsic-accent-dim); }
     .c-row { display:flex; align-items:center; gap:8px; padding:6px 10px; }
     .c-row.disabled { color: rgba(47,43,34,0.45); pointer-events: none; }
     #c-cost { padding: 8px; font-size:11px; background:rgba(241,229,207,0.88); border-top:1px solid var(--tsic-border); }
@@ -54,8 +53,8 @@
   <script>
     (function(){
       let lastItems = [];
-      let activeCategory = 'All';
       let hoveredItem = null;
+      let tabFilter = null;
 
       function categoryFor(it) { return (it && (it.Category || it.Type)) || 'Other'; }
 
@@ -65,16 +64,9 @@
         return ['All', ...Array.from(set).sort()];
       }
 
-      function renderTabs() {
-        const host = document.getElementById('c-tabs');
-        host.innerHTML = '';
-        for (const cat of uniqueCategories(lastItems)) {
-          const div = document.createElement('div');
-          div.className = 'c-tab' + (activeCategory === cat ? ' active' : '');
-          div.textContent = cat;
-          div.onclick = () => { activeCategory = cat; renderItems(); renderTabs(); };
-          host.appendChild(div);
-        }
+      function rebuildTabs() {
+        if (!tabFilter) return;
+        tabFilter.setTabs(uniqueCategories(lastItems).map(function (c) { return { id: c, label: c }; }));
       }
 
       function renderCostFor(item) {
@@ -103,6 +95,7 @@
       function renderItems() {
         const host = document.getElementById('items');
         host.innerHTML = '';
+        const activeCategory = tabFilter ? tabFilter.getActive() : 'All';
         const items = (lastItems || []).filter(it => activeCategory === 'All' || categoryFor(it) === activeCategory);
         for (const it of items) {
           const row = document.createElement('button');
@@ -148,11 +141,14 @@
       }
 
       (function boot() {
-        if (!window.tsic) { setTimeout(boot, 16); return; }
+        if (!window.tsic || !window.TSIC || !window.TSIC.TabFilter) { setTimeout(boot, 16); return; }
+        tabFilter = TSIC.TabFilter.create(
+          document.getElementById('c-tabs'), [{ id: 'All', label: 'All' }], function () { renderItems(); }
+        );
         tsic.whenReady(function () {
           tsic.on('tsic.msg.UI.Construction.Available', (p) => {
             lastItems = (p && p.Items) || [];
-            renderTabs(); renderItems();
+            rebuildTabs(); renderItems();
           });
           tsic.on('tsic.msg.UI.Construction.PreviewState', (p) => renderPreview(p));
           window.addEventListener('tsic-item-catalog', () => renderCostFor(hoveredItem));

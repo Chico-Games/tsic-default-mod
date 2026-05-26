@@ -17,13 +17,12 @@
   <script src="/shared/icons.js" defer></script>
   <script src="/shared/inventory.js" defer></script>
   <script src="/shared/context-menu.js" defer></script>
+  <script src="/shared/tab-filter.js" defer></script>
   <script src="/shared/action-bar.js" defer></script>
   <style>
     #inv-header { display:flex; align-items:baseline; gap:18px; margin-bottom:8px; }
     #inv-header .spacer { flex:1; }
     #inv-tabs { display:flex; gap:4px; }
-    .inv-tab { padding:4px 10px; background:rgba(241,229,207,0.55); border:1px solid var(--tsic-border); cursor:pointer; font-size:11px; letter-spacing:1px; text-transform:uppercase; }
-    .inv-tab.active { background: var(--tsic-accent-dim); }
     #inv-capacity { display:flex; flex-direction:column; gap:2px; font-size:11px; min-width:200px; }
     #inv-capacity-line { display:flex; justify-content:space-between; color:rgba(37,33,25,0.75); }
     #inv-capacity-bar { height:5px; background:rgba(241,229,207,0.55); border-radius:3px; overflow:hidden; }
@@ -106,31 +105,19 @@
 </div>
 <script>
 (function(){
-    const TABS = [
-        { id: 'All',   filter: null },
-        { id: 'Tools', filter: i => i.Category === 'Equipment' },
-        { id: 'Cons.', filter: i => i.Category === 'Consumable' },
-        { id: 'Mats',  filter: i => i.Category === 'CraftingMaterial' },
-        { id: 'Other', filter: i => !['Equipment','Consumable','CraftingMaterial'].includes(i.Category) },
-    ];
-    let activeTab = 'All';
+    const TAB_FILTERS = {
+        'All':   null,
+        'Tools': i => i.Category === 'Equipment',
+        'Cons.': i => i.Category === 'Consumable',
+        'Mats':  i => i.Category === 'CraftingMaterial',
+        'Other': i => !['Equipment','Consumable','CraftingMaterial'].includes(i.Category),
+    };
+    const TAB_DEFS = Object.keys(TAB_FILTERS).map(id => ({ id: id, label: id }));
+    let tabFilter = null; // initialized once TSIC.TabFilter is available
     let lastUpdate = null;
     let lastEquipment = null;
     let hoveredItem = null;
     let selectedSlot = -1;
-
-    function renderTabs() {
-        const host = document.getElementById('inv-tabs');
-        host.innerHTML = '';
-        for (const t of TABS) {
-            const btn = document.createElement('button');
-            btn.type = 'button';
-            btn.className = 'inv-tab' + (activeTab === t.id ? ' active' : '');
-            btn.textContent = t.id;
-            btn.addEventListener('click', () => { activeTab = t.id; refresh(); });
-            host.appendChild(btn);
-        }
-    }
 
     function publishHoverContext(it) {
         if (!window.tsic || !window.tsic.setMenuActionContext) return;
@@ -156,10 +143,10 @@
     }
 
     function refresh() {
-        renderTabs();
         if (!lastUpdate) return;
         const cat = window.tsic.itemCatalog || {};
-        const filter = (TABS.find(t => t.id === activeTab) || {}).filter;
+        const activeTab = tabFilter ? tabFilter.getActive() : 'All';
+        const filter = TAB_FILTERS[activeTab] || null;
         const items = (lastUpdate.Items || []).filter(it => {
             if (!filter) return true;
             const desc = cat[it.ItemId];
@@ -298,7 +285,10 @@
     }
 
     (function boot() {
-    if (!window.tsic || !window.TSICInventory) { setTimeout(boot, 16); return; }
+    if (!window.tsic || !window.TSICInventory || !window.TSIC || !window.TSIC.TabFilter) { setTimeout(boot, 16); return; }
+    tabFilter = TSIC.TabFilter.create(
+        document.getElementById('inv-tabs'), TAB_DEFS, function () { refresh(); }
+    );
     tsic.whenReady(function () {
         // Render the empty-slot squares immediately so the inventory shows
         // the player's slots even before the server sends Equipment.Updated.
