@@ -271,31 +271,21 @@
         document.getElementById('ab-menu')    .classList.toggle('hidden', menuHidden);
       }
 
-      function waitForBoot(cb) {
-        // Wait for both the mock-or-real tsic AND the runtime helpers to be
-        // installed (the runtime is deferred so it lands after the page's
-        // inline script). Falls back to a hand-rolled whenReady if the
-        // runtime never loads — this page predates it.
-        if (window.tsic && typeof tsic.bootMenu === 'function') { cb(); return; }
-        if (window.tsic && performance.now() > 1500) {
-          // Runtime never landed; fall back gracefully.
-          tsic.bootMenu = (setup) => setup({ on: (ch, cb2) => tsic.on(ch, cb2) });
-          cb(); return;
-        }
-        setTimeout(() => waitForBoot(cb), 16);
-      }
-      waitForBoot(() => tsic.bootMenu(({ on }) => {
-        on('tsic.msg.UI.ActionBar.Abilities', (p) => { lastAbilities = p || { Slots: [] };   renderGameplay(); });
-        on('tsic.msg.UI.ActionBar.MenuContext', (p) => { lastMenu     = p || { Entries: [] }; renderMenu(); });
-        on('tsic.msg.UI.Screen.Changed', (p) => { activeScreen = (p && p.Name) || null; applyVisibility(); });
-        on('tsic.msg.UI.Input.Mode.Changed', (p) => {
-          currentMode = (p && p.Mode) || 'MouseAndKeyboard';
-          renderGameplay(); renderMenu();
-        });
-        // Initial paint in case sticky messages already fired before subscribe.
-        renderGameplay();
-        renderMenu();
-      }, { escape: false, closeButton: false }));
+      (function boot() {
+        if (!window.tsic || typeof tsic.bootMenu !== 'function') { setTimeout(boot, 16); return; }
+        tsic.bootMenu(function (ctx) {
+          ctx.on('tsic.msg.UI.ActionBar.Abilities', (p) => { lastAbilities = p || { Slots: [] };   renderGameplay(); });
+          ctx.on('tsic.msg.UI.ActionBar.MenuContext', (p) => { lastMenu     = p || { Entries: [] }; renderMenu(); });
+          ctx.on('tsic.msg.UI.Screen.Changed', (p) => { activeScreen = (p && p.Name) || null; applyVisibility(); });
+          ctx.on('tsic.msg.UI.Input.Mode.Changed', (p) => {
+            currentMode = (p && p.Mode) || 'MouseAndKeyboard';
+            renderGameplay(); renderMenu();
+          });
+          // Initial paint in case sticky messages already fired before subscribe.
+          renderGameplay();
+          renderMenu();
+        }, { escape: false, closeButton: false });
+      })();
     })();
   </script>
 </body></html>

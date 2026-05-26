@@ -24,6 +24,8 @@
 (function () {
   'use strict';
 
+  var el = TSIC.el;
+
   function mount(rootEl, opts) {
     var kind = opts.kind;
     var actionLabel = opts.actionLabel || 'Confirm';
@@ -38,48 +40,27 @@
     var actionPendingAt = 0;
 
     // --- DOM scaffold ---
-    var listPane = document.createElement('div');
-    listPane.className = 'tsic-list-pane';
-    listPane.setAttribute('data-tsic-focus-group', 'rs-list');
+    var listPane = el('div', { class: 'tsic-list-pane', 'data-tsic-focus-group': 'rs-list' });
 
-    var listCol = document.createElement('div');
-    listCol.className = 'tsic-split-col';
-    var listEyebrow = document.createElement('div');
-    listEyebrow.className = 'tsic-eyebrow';
-    listEyebrow.textContent = 'Recipes';
-    listCol.appendChild(listEyebrow);
-    listCol.appendChild(listPane);
+    var listEyebrow = el('div', { class: 'tsic-eyebrow' }, 'Recipes');
+    var listCol = el('div', { class: 'tsic-split-col' }, listEyebrow, listPane);
 
-    var infoPane = document.createElement('div');
-    infoPane.style.cssText = 'padding:10px; background:rgba(241,229,207,0.88); border:1px solid var(--tsic-border); flex:1 1 auto; overflow:auto; min-height:0;';
+    var infoPane = el('div', { style: 'padding:10px; background:rgba(241,229,207,0.88); border:1px solid var(--tsic-border); flex:1 1 auto; overflow:auto; min-height:0;' });
 
-    var actionBtn = document.createElement('button');
-    actionBtn.className = 'tsic-button';
+    var actionBtn = el('button', { class: 'tsic-button', style: 'width:100%; padding:8px; flex:0 0 auto;' }, actionLabel);
     actionBtn.disabled = true;
-    actionBtn.textContent = actionLabel;
-    actionBtn.style.cssText = 'width:100%; padding:8px; flex:0 0 auto;';
 
-    var detailCol = document.createElement('div');
-    detailCol.className = 'tsic-split-col';
-    var detailEyebrow = document.createElement('div');
-    detailEyebrow.className = 'tsic-eyebrow';
-    detailEyebrow.textContent = 'Details';
-    detailCol.appendChild(detailEyebrow);
-    detailCol.appendChild(infoPane);
-    detailCol.appendChild(actionBtn);
+    var detailEyebrow = el('div', { class: 'tsic-eyebrow' }, 'Details');
+    var detailCol = el('div', { class: 'tsic-split-col' }, detailEyebrow, infoPane, actionBtn);
 
     // Optional extra content area (e.g. production queue)
     var extraHost = null;
     if (typeof opts.renderExtra === 'function') {
-      extraHost = document.createElement('div');
-      extraHost.style.cssText = 'flex:0 0 auto;';
+      extraHost = el('div', { style: 'flex:0 0 auto;' });
       detailCol.appendChild(extraHost);
     }
 
-    var split = document.createElement('div');
-    split.className = 'tsic-split';
-    split.appendChild(listCol);
-    split.appendChild(detailCol);
+    var split = el('div', { class: 'tsic-split' }, listCol, detailCol);
 
     rootEl.appendChild(split);
 
@@ -122,39 +103,30 @@
       if (!lastStation) return;
       var recipes = lastStation.Recipes || [];
       if (recipes.length === 0) {
-        listPane.appendChild(Object.assign(document.createElement('div'),
-          { className: 'tsic-empty', textContent: emptyText }));
+        listPane.appendChild(el('div', { class: 'tsic-empty' }, emptyText));
         return;
       }
       for (var i = 0; i < recipes.length; i++) {
         (function (r) {
           var locked = isLocked(r);
-          var row = document.createElement('div');
-          row.className = 'tsic-list-row'
+          var rowClass = 'tsic-list-row'
             + (selectedRecipeId === r.RecipeId ? ' is-selected' : '')
             + (locked ? ' is-locked' : '');
-          row.setAttribute('data-tsic-focusable', '');
+          var row = el('div', { class: rowClass, 'data-tsic-focusable': '' });
           row.tabIndex = -1;
 
-          var iconWrap = document.createElement('div');
-          iconWrap.className = 'icon';
+          var iconWrap = el('div', { class: 'icon' });
           var iconId = getRowIcon(r);
           if (iconId) {
             iconWrap.appendChild(TSIC.iconImg(TSIC.itemIconUrl(iconId)));
           }
           row.appendChild(iconWrap);
 
-          var name = document.createElement('div');
-          name.className = 'name';
-          name.textContent = getRecipeName(r);
-          row.appendChild(name);
+          row.appendChild(el('div', { class: 'name' }, getRecipeName(r)));
 
           var rightText = getRowRight(r);
           if (rightText) {
-            var right = document.createElement('div');
-            right.className = 'right';
-            right.textContent = rightText;
-            row.appendChild(right);
+            row.appendChild(el('div', { class: 'right' }, rightText));
           }
 
           var selectRecipe = function () { selectedRecipeId = r.RecipeId; renderAll(); };

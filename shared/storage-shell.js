@@ -142,22 +142,20 @@
             window.TSICContextMenu.open({ x: e.clientX, y: e.clientY, entries });
         }
 
-        function renderTabs(side) {
-            const host = panel.querySelector(`.ss-tabs[data-side="${side}"]`);
-            host.innerHTML = '';
-            const active = side === 'player' ? state.playerTab : state.containerTab;
-            for (const t of TABS) {
-                const b = document.createElement('button');
-                b.type = 'button';
-                b.className = 'ss-tab' + (active === t.id ? ' is-active' : '');
-                b.textContent = t.id;
-                b.addEventListener('click', () => {
-                    if (side === 'player') state.playerTab = t.id;
-                    else                   state.containerTab = t.id;
-                    renderAll();
-                });
-                host.appendChild(b);
-            }
+        const tabDefs = TABS.map(t => ({ id: t.id, label: t.id }));
+        const playerTabFilter = TSIC.TabFilter.create(
+            panel.querySelector('.ss-tabs[data-side="player"]'),
+            tabDefs,
+            function (id) { state.playerTab = id; renderAll(); }
+        );
+        const containerTabFilter = TSIC.TabFilter.create(
+            panel.querySelector('.ss-tabs[data-side="container"]'),
+            tabDefs,
+            function (id) { state.containerTab = id; renderAll(); }
+        );
+        function syncTabs() {
+            playerTabFilter.setActive(state.playerTab);
+            containerTabFilter.setActive(state.containerTab);
         }
 
         function renderCapacity(side) {
@@ -233,8 +231,7 @@
         }
 
         function renderAll() {
-            renderTabs('player');
-            renderTabs('container');
+            syncTabs();
             renderCapacity('player');
             renderCapacity('container');
             const cat = (window.tsic && window.tsic.itemCatalog) || {};

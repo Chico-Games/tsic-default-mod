@@ -90,21 +90,21 @@ async function inIframe(page, fn) {
     // tab-context routing for the engine.)
     await page.evaluate(() => {
         const f = document.getElementById('pg-iframe');
-        const tab = f.contentDocument.querySelector('.ss-tabs[data-side="player"] .ss-tab');
+        const tab = f.contentDocument.querySelector('.ss-tabs[data-side="player"] .tsic-tab');
         if (tab) f.contentWindow.tsic.focus.focus(tab, { trust: true });
     });
     const playerBefore = await page.evaluate(() => {
         const f = document.getElementById('pg-iframe');
-        const a = f.contentDocument.querySelector('.ss-tabs[data-side="player"] .ss-tab.is-active');
-        const b = f.contentDocument.querySelector('.ss-tabs[data-side="container"] .ss-tab.is-active');
+        const a = f.contentDocument.querySelector('.ss-tabs[data-side="player"] .tsic-tab.is-active');
+        const b = f.contentDocument.querySelector('.ss-tabs[data-side="container"] .tsic-tab.is-active');
         return { player: a && a.textContent, container: b && b.textContent };
     });
     console.log('Storage (player side focused) before:', playerBefore);
     await clickPgAction('IA_UI_NextTab');
     const playerAfter = await page.evaluate(() => {
         const f = document.getElementById('pg-iframe');
-        const a = f.contentDocument.querySelector('.ss-tabs[data-side="player"] .ss-tab.is-active');
-        const b = f.contentDocument.querySelector('.ss-tabs[data-side="container"] .ss-tab.is-active');
+        const a = f.contentDocument.querySelector('.ss-tabs[data-side="player"] .tsic-tab.is-active');
+        const b = f.contentDocument.querySelector('.ss-tabs[data-side="container"] .tsic-tab.is-active');
         return { player: a && a.textContent, container: b && b.textContent };
     });
     console.log('Storage (player side focused) after NextTab:', playerAfter);
@@ -112,13 +112,13 @@ async function inIframe(page, fn) {
     // Focus a tab button on the CONTAINER side.
     await page.evaluate(() => {
         const f = document.getElementById('pg-iframe');
-        const tab = f.contentDocument.querySelector('.ss-tabs[data-side="container"] .ss-tab');
+        const tab = f.contentDocument.querySelector('.ss-tabs[data-side="container"] .tsic-tab');
         if (tab) f.contentWindow.tsic.focus.focus(tab, { trust: true });
     });
     await clickPgAction('IA_UI_NextTab');
     const containerAfter = await inIframe(page, (f) => {
-        const a = f.contentDocument.querySelector('.ss-tabs[data-side="player"] .ss-tab.is-active');
-        const b = f.contentDocument.querySelector('.ss-tabs[data-side="container"] .ss-tab.is-active');
+        const a = f.contentDocument.querySelector('.ss-tabs[data-side="player"] .tsic-tab.is-active');
+        const b = f.contentDocument.querySelector('.ss-tabs[data-side="container"] .tsic-tab.is-active');
         return { player: a && a.textContent, container: b && b.textContent };
     });
     console.log('Storage (container side focused) after NextTab:', containerAfter);

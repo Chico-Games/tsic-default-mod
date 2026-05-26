@@ -121,7 +121,7 @@ button.tsic-list-row {
 }
 .tsic-list-row:hover { background: rgba(241, 229, 207, 0.85); border-color: var(--tsic-border); }
 .tsic-list-row.is-selected { background: var(--tsic-accent-dim); border-color: var(--cat-border-strong); }
-.tsic-list-row.is-locked { opacity: 0.45; cursor: not-allowed; }
+.tsic-list-row.is-locked { color: rgba(37, 33, 25, 0.45); cursor: not-allowed; }
 .tsic-list-row .icon {
     width: 28px; height: 28px;
     flex: 0 0 auto;
@@ -151,10 +151,13 @@ button.tsic-list-row {
     gap: 8px;
 }
 .ss-tabs { display: flex; gap: 4px; flex-wrap: wrap; }
-.ss-tab {
+/* Storage tabs use the shared TabFilter (.tsic-tab) but override its
+   segment-bar style to keep the compact chip look. */
+.ss-tabs .tsic-tab {
     padding: 2px 8px;
     background: rgba(241, 229, 207, 0.55);
     border: 1px solid var(--tsic-border);
+    border-bottom-width: 1px;
     cursor: pointer;
     font-size: 10px;
     letter-spacing: 1px;
@@ -162,7 +165,7 @@ button.tsic-list-row {
     color: var(--cat-ink-dark);
     font-family: var(--cat-font-serif);
 }
-.ss-tab.is-active { background: var(--tsic-accent-dim); }
+.ss-tabs .tsic-tab.is-active { background: var(--tsic-accent-dim); border-bottom-color: var(--tsic-border); }
 .ss-capacity {
     display: flex; flex-direction: column; gap: 2px;
     font-size: 11px;
@@ -171,7 +174,7 @@ button.tsic-list-row {
 .ss-capacity-line {
     display: flex;
     justify-content: space-between;
-    opacity: 0.75;
+    color: rgba(37, 33, 25, 0.75);
 }
 .ss-capacity-bar {
     height: 5px;
@@ -313,8 +316,7 @@ button.tsic-list-row {
 /* Divider — soft hairline that matches the catalogue border colour. */
 .tsic-divider {
     height: 1px;
-    background: var(--cat-border-strong);
-    opacity: 0.45;
+    background: rgba(157, 146, 126, 0.45);
     margin: 12px 0;
 }
 
@@ -338,14 +340,14 @@ button.tsic-list-row {
     border-radius: 2px;
 }
 .tsic-context-item:hover { background: var(--tsic-accent-dim); }
-.tsic-context-item.is-disabled { opacity: 0.4; pointer-events: none; }
+.tsic-context-item.is-disabled { color: rgba(47, 43, 34, 0.4); pointer-events: none; }
 
 /* ---------- Drag-and-drop affordances ---------- */
 .is-drop-target {
     outline: 2px dashed var(--tsic-accent, #d6a648);
     outline-offset: -2px;
 }
-.is-dragging { opacity: 0.5; }
+.is-dragging { color: rgba(47, 43, 34, 0.5); background: rgba(241, 229, 207, 0.3); }
 
 /* ---------- Controller focus (tsic-focus.js) ----------
  * In Gamepad mode the focused element must look obviously selected — the
@@ -420,9 +422,8 @@ html[data-tsic-input="Gamepad"] .catalogue-button-danger[data-tsic-focused]    {
 html[data-tsic-input="Gamepad"] .catalogue-button-ghost[data-tsic-focused]     { background: #f5ead6; }
 html[data-tsic-input="Gamepad"] .catalogue-category-row[data-tsic-focused]     { background: #eee2cc; }
 
-/* Storage shell tabs (.ss-tab) and inventory tabs (.inv-tab) — see
- * screens/storage.html and screens/inventory.html. */
-html[data-tsic-input="Gamepad"] .ss-tab[data-tsic-focused],
+/* Storage shell tabs (.tsic-tab inside .ss-tabs) and inventory tabs (.inv-tab). */
+html[data-tsic-input="Gamepad"] .ss-tabs .tsic-tab[data-tsic-focused],
 html[data-tsic-input="Gamepad"] .inv-tab[data-tsic-focused] {
     background: rgba(241, 229, 207, 0.92);
 }
@@ -442,7 +443,7 @@ html[data-tsic-input="Gamepad"] .inv-tab[data-tsic-focused] {
 }
 .tsic-dropdown:hover { background: rgba(241, 229, 207, 0.85); }
 .tsic-dropdown[aria-expanded="true"] { background: var(--tsic-accent-dim); }
-.tsic-dropdown-caret { font-size: 10px; opacity: 0.7; }
+.tsic-dropdown-caret { font-size: 10px; color: rgba(37, 33, 25, 0.7); }
 .tsic-dropdown-label {
     flex: 1 1 auto;
     text-align: left;

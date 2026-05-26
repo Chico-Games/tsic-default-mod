@@ -18,12 +18,13 @@
   <script src="/shared/icons.js" defer></script>
   <script src="/shared/inventory.js" defer></script>
   <script src="/shared/context-menu.js" defer></script>
+  <script src="/shared/tab-filter.js" defer></script>
   <script src="/shared/storage-shell.js" defer></script>
 </head><body>
   <div id="ss-root" class="tsic-modal-scrim"></div>
   <script>
     (function boot() {
-      if (!window.tsic || !window.TSICInventory || !window.TSICStorageShell) { setTimeout(boot, 16); return; }
+      if (!window.tsic || !window.TSICInventory || !window.TSICStorageShell || !(window.TSIC && window.TSIC.TabFilter)) { setTimeout(boot, 16); return; }
       tsic.whenReady(function () {
         window.TSICStorageShell.mount({
           title: 'Universal Storage',

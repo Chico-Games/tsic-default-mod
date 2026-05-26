@@ -102,13 +102,13 @@ TSICTestHarness.register({
             { ItemId: 'ID_Bread', Count: 1, SlotIndex: 1 },
             { ItemId: 'ID_Wheat', Count: 1, SlotIndex: 2 },
         ]});
-        await ctx.waitFor(() => ctx.doc.querySelectorAll('.ss-tabs[data-side="container"] .ss-tab').length === 5);
+        await ctx.waitFor(() => ctx.doc.querySelectorAll('.ss-tabs[data-side="container"] .tsic-tab').length === 5);
         for (const label of ['Tools','Cons.','Mats','Other','All']) {
-            Array.from(ctx.doc.querySelectorAll('.ss-tabs[data-side="container"] .ss-tab'))
+            Array.from(ctx.doc.querySelectorAll('.ss-tabs[data-side="container"] .tsic-tab'))
                 .find(e => e.textContent === label).click();
             await new Promise(r => setTimeout(r, 15));
             ctx.expect(ctx.assert.eq(
-                ctx.doc.querySelector('.ss-tabs[data-side="container"] .ss-tab.is-active').textContent, label));
+                ctx.doc.querySelector('.ss-tabs[data-side="container"] .tsic-tab.is-active').textContent, label));
         }
     },
 });

@@ -16,6 +16,8 @@
 
 (function () {
   function el(tag, attrs) {
+    if (window.TSIC && window.TSIC.el) return TSIC.el.apply(null, arguments);
+    // Minimal fallback for screens that don't load dom.js
     var e = document.createElement(tag);
     if (attrs) for (var k in attrs) e.setAttribute(k, attrs[k]);
     for (var i = 2; i < arguments.length; i++) {

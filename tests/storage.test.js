@@ -50,9 +50,9 @@ TSICTestHarness.register({
             ],
             MaxSlots: 32,
         });
-        await ctx.waitFor(() => ctx.doc.querySelectorAll('.ss-tabs[data-side="container"] .ss-tab').length === 5);
+        await ctx.waitFor(() => ctx.doc.querySelectorAll('.ss-tabs[data-side="container"] .tsic-tab').length === 5);
         // Click "Tools" tab on the container side
-        const toolsTab = Array.from(ctx.doc.querySelectorAll('.ss-tabs[data-side="container"] .ss-tab'))
+        const toolsTab = Array.from(ctx.doc.querySelectorAll('.ss-tabs[data-side="container"] .tsic-tab'))
             .find(e => e.textContent === 'Tools');
         toolsTab.click();
         await new Promise(r => setTimeout(r, 30));
