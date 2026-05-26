@@ -14,13 +14,15 @@
   <script src="/shared/tsic-dropdown.js" defer></script>
   <script src="/shared/hud.js" defer></script>
   <script src="/shared/catalog.js" defer></script>
+  <script src="/shared/dom.js" defer></script>
+  <script src="/shared/icons.js" defer></script>
   <style>
     /* Layered on tsic-row-button — keep gap/padding consistent with the
        crafting/summoner siblings. */
     .up-row { gap:10px; padding:8px 12px; }
     .up-meta { flex:1; min-width:0; display:flex; flex-direction:column; gap:4px; }
     .up-name { font-weight:700; }
-    .up-ings { display:flex; flex-wrap:wrap; gap:6px 12px; font-size:11px; opacity:0.85; }
+    .up-ings { display:flex; flex-wrap:wrap; gap:6px 12px; font-size:11px; color: rgba(59,47,28,0.85); }
     .up-ings .up-ing { display:flex; align-items:center; gap:4px; }
     .up-ings .up-ing img { width:18px; height:18px; object-fit:contain; }
   </style>
@@ -72,9 +74,7 @@
           for (const i of (r.Ingredients || [])) {
             const ing = document.createElement('span');
             ing.className = 'up-ing';
-            const img = document.createElement('img');
-            img.src = `tex://item-icon/${encodeURIComponent(i.ItemId)}`;
-            img.onerror = () => { img.style.visibility = 'hidden'; };
+            const img = TSIC.iconImg(TSIC.itemIconUrl(i.ItemId));
             ing.appendChild(img);
             const have = (materialCounts && materialCounts[i.ItemId]) || 0;
             const enough = have >= i.Count;

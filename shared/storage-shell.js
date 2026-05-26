@@ -204,8 +204,7 @@
             head.style.cssText = 'display:flex;align-items:center;gap:10px;';
             const icon = document.createElement('div');
             icon.style.cssText = 'width:42px;height:42px;background:rgba(241,229,207,0.55);border:1px solid var(--tsic-border);display:flex;align-items:center;justify-content:center;flex:0 0 auto;';
-            const img = document.createElement('img');
-            img.src = `tex://item-icon/${encodeURIComponent(desc.ItemId)}`;
+            const img = TSIC.iconImg(TSIC.itemIconUrl(desc.ItemId));
             img.style.cssText = 'width:100%;height:100%;object-fit:contain;';
             icon.appendChild(img);
             head.appendChild(icon);
@@ -215,7 +214,7 @@
             name.style.cssText = 'font-weight:700;font-size:13px;';
             name.textContent = desc.Name || it.ItemId;
             const sub = document.createElement('div');
-            sub.style.cssText = 'font-size:11px;opacity:0.75;';
+            sub.style.cssText = 'font-size:11px;color:rgba(37,33,25,0.75);';
             const parts = [];
             if (desc.Category) parts.push(desc.Category);
             if (typeof desc.Weight === 'number') parts.push(`${desc.Weight.toFixed(2)} kg`);
@@ -225,7 +224,7 @@
             meta.appendChild(sub);
             if (desc.Description) {
                 const body = document.createElement('div');
-                body.style.cssText = 'font-size:11px;opacity:0.85;margin-top:2px;';
+                body.style.cssText = 'font-size:11px;color:rgba(37,33,25,0.85);margin-top:2px;';
                 body.textContent = desc.Description;
                 meta.appendChild(body);
             }

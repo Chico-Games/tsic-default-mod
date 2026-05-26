@@ -14,16 +14,18 @@
   <script src="/shared/tsic-dropdown.js" defer></script>
   <script src="/shared/hud.js" defer></script>
   <script src="/shared/catalog.js" defer></script>
+  <script src="/shared/dom.js" defer></script>
+  <script src="/shared/icons.js" defer></script>
   <script src="/shared/recipe-info.js" defer></script>
   <style>
     #p-header { display:flex; align-items:baseline; gap:12px; margin-bottom:8px; }
-    #p-throb { font-size:10px; opacity:0.6; letter-spacing:2px; visibility:hidden; }
+    #p-throb { font-size:10px; color:rgba(47,43,34,0.6); letter-spacing:2px; visibility:hidden; }
     #p-throb.on { visibility:visible; animation: pulse 1.5s infinite; }
-    @keyframes pulse { 0%, 100% { opacity:0.6; } 50% { opacity:1.0; } }
+    @keyframes pulse { 0%, 100% { color:rgba(47,43,34,0.6); } 50% { color:rgba(47,43,34,1.0); } }
 
     #p-info { padding:10px; background: rgba(241,229,207,0.88); border:1px solid var(--tsic-border); flex: 0 0 auto; max-height: 50%; overflow:auto; }
     #p-add { width:100%; padding: 8px; flex: 0 0 auto; }
-    #p-add:disabled { opacity:0.4; cursor:not-allowed; }
+    #p-add:disabled { color:rgba(47,43,34,0.4); background:rgba(241,229,207,0.4); cursor:not-allowed; }
 
     .q-entry { padding:6px 8px; background: rgba(241,229,207,0.55); border:1px solid var(--tsic-border); display:flex; flex-direction:column; gap:4px; }
     .q-entry .q-head { display:flex; align-items:center; gap:6px; font-size:12px; }
@@ -90,8 +92,7 @@
             const iconWrap = document.createElement('div');
             iconWrap.className = 'icon';
             if (r.bDiscovered) {
-                const img = document.createElement('img');
-                img.src = `tex://item-icon/${encodeURIComponent((r.Outputs[0]||{}).ItemId||'')}`;
+                const img = TSIC.iconImg(TSIC.itemIconUrl((r.Outputs[0]||{}).ItemId||''));
                 iconWrap.appendChild(img);
             }
             row.appendChild(iconWrap);

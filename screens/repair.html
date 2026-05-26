@@ -14,6 +14,8 @@
   <script src="/shared/tsic-dropdown.js" defer></script>
   <script src="/shared/hud.js" defer></script>
   <script src="/shared/catalog.js" defer></script>
+  <script src="/shared/dom.js" defer></script>
+  <script src="/shared/icons.js" defer></script>
   <style>
     /* Override tsic-row-button's panel-paper bg with the existing translucent
        look so the repair list keeps its tighter visual weight. */
@@ -67,9 +69,7 @@
           const iconWrap = document.createElement('div');
           iconWrap.className = 'icon';
           if (itemId) {
-            const img = document.createElement('img');
-            img.src = `tex://item-icon/${encodeURIComponent(itemId)}`;
-            img.onerror = () => { img.style.visibility = 'hidden'; };
+            const img = TSIC.iconImg(TSIC.itemIconUrl(itemId));
             iconWrap.appendChild(img);
           }
           const label = document.createElement('div');
