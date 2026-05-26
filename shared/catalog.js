@@ -2,7 +2,7 @@
 // + tsic.recipeCatalog. Every screen reads from these for display lookups.
 (function () {
     (function boot() {
-        if (!window.tsic) { setTimeout(boot, 16); return; }
+        if (!window.tsic || typeof tsic.whenReady !== 'function') { setTimeout(boot, 16); return; }
         tsic.whenReady(function () {
             window.tsic.itemCatalog = window.tsic.itemCatalog || {};
             window.tsic.recipeCatalog = window.tsic.recipeCatalog || {};

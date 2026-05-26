@@ -155,7 +155,7 @@
   window.__tsicPublishMenuActionContext = publishMenuContext;
 
   (function boot() {
-    if (!window.tsic) { setTimeout(boot, 16); return; }
+    if (!window.tsic || typeof tsic.whenReady !== 'function') { setTimeout(boot, 16); return; }
     tsic.whenReady(function () {
     // Screen routing.
     window.tsic.on('tsic.msg.UI.Screen.Changed', (payload /*, meta, name*/) => {
