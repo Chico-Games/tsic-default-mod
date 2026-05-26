@@ -29,14 +29,17 @@
     </div>
   </div>
   <script>
-    tsic.bootMenu(function (ctx) {
-      // Server is responsible for actually respawning the player; we just signal intent
-      // via the existing Pause.Resume command. When a dedicated Death.Respawn command
-      // lands on C++, swap this for it.
-      document.getElementById('btn-respawn').onclick = () =>
-        tsic.publishMessage('UI.Cmd.Pause.Resume', {});
-      document.getElementById('btn-menu').onclick = () =>
-        tsic.publishMessage('UI.Cmd.Pause.QuitToMenu', {});
-    });
+    (function boot() {
+      if (!window.tsic || typeof tsic.bootMenu !== 'function') { setTimeout(boot, 16); return; }
+      tsic.bootMenu(function (ctx) {
+        // Server is responsible for actually respawning the player; we just signal intent
+        // via the existing Pause.Resume command. When a dedicated Death.Respawn command
+        // lands on C++, swap this for it.
+        document.getElementById('btn-respawn').onclick = () =>
+          tsic.publishMessage('UI.Cmd.Pause.Resume', {});
+        document.getElementById('btn-menu').onclick = () =>
+          tsic.publishMessage('UI.Cmd.Pause.QuitToMenu', {});
+      });
+    })();
   </script>
 </body></html>

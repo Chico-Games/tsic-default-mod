@@ -49,17 +49,20 @@
     </div>
   </div>
   <script>
-    tsic.bootMenu(function (ctx) {
-      function nav(screen) {
-        return () => tsic.publishMessage('UI.Cmd.Menu.Navigate', { Screen: screen });
-      }
-      document.getElementById('btn-start').onclick    = nav('NewStore');
-      document.getElementById('btn-load').onclick     = nav('LoadSave');
-      document.getElementById('btn-mods').onclick     = nav('Mods');
-      document.getElementById('btn-settings').onclick = nav('Settings');
-      document.getElementById('btn-credits').onclick  = nav('Credits');
-      document.getElementById('btn-exit').onclick     = () =>
-        tsic.publishMessage('UI.Cmd.Menu.Exit', {});
-    });
+    (function boot() {
+      if (!window.tsic || typeof tsic.bootMenu !== 'function') { setTimeout(boot, 16); return; }
+      tsic.bootMenu(function (ctx) {
+        function nav(screen) {
+          return () => tsic.publishMessage('UI.Cmd.Menu.Navigate', { Screen: screen });
+        }
+        document.getElementById('btn-start').onclick    = nav('NewStore');
+        document.getElementById('btn-load').onclick     = nav('LoadSave');
+        document.getElementById('btn-mods').onclick     = nav('Mods');
+        document.getElementById('btn-settings').onclick = nav('Settings');
+        document.getElementById('btn-credits').onclick  = nav('Credits');
+        document.getElementById('btn-exit').onclick     = () =>
+          tsic.publishMessage('UI.Cmd.Menu.Exit', {});
+      });
+    })();
   </script>
 </body></html>

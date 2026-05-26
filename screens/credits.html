@@ -59,9 +59,12 @@
     </div>
   </div>
   <script>
-    tsic.bootMenu(function (ctx) {
-      document.getElementById('btn-back').onclick = () =>
-        tsic.publishMessage('UI.Cmd.Menu.Navigate', { Screen: 'MainMenu' });
-    });
+    (function boot() {
+      if (!window.tsic || typeof tsic.bootMenu !== 'function') { setTimeout(boot, 16); return; }
+      tsic.bootMenu(function (ctx) {
+        document.getElementById('btn-back').onclick = () =>
+          tsic.publishMessage('UI.Cmd.Menu.Navigate', { Screen: 'MainMenu' });
+      });
+    })();
   </script>
 </body></html>

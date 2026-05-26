@@ -41,33 +41,36 @@
       const toSlot      = parseInt(params.get('toSlot')   || '-1', 10);
       const maxCount    = Math.max(1, parseInt(params.get('maxCount') || '99', 10));
 
-      tsic.bootMenu(function (ctx) {
-        const slider = document.getElementById('slider');
-        const num = document.getElementById('num');
-        slider.max = maxCount;
-        num.max = maxCount;
-        slider.value = Math.min(slider.value, maxCount);
-        num.value = slider.value;
-        slider.oninput = () => { num.value = slider.value; };
-        num.oninput = () => {
-          const v = Math.max(1, Math.min(maxCount, parseInt(num.value || '1', 10) || 1));
-          num.value = v;
-          slider.value = v;
-        };
-        document.getElementById('btn-confirm').onclick = () => {
-          const count = parseInt(slider.value, 10) || 1;
-          tsic.publishMessage('UI.Cmd.Inventory.Transfer', {
-            FromOwnerId: fromOwnerId,
-            ToOwnerId: toOwnerId,
-            FromSlot: fromSlot,
-            ToSlot: toSlot,
-            Count: count
-          });
-          tsic.publishMessage('UI.Cmd.Pause.Resume', {});
-        };
-        document.getElementById('btn-cancel').onclick = () =>
-          tsic.publishMessage('UI.Cmd.Pause.Resume', {});
-      });
+      (function boot() {
+        if (!window.tsic || typeof tsic.bootMenu !== 'function') { setTimeout(boot, 16); return; }
+        tsic.bootMenu(function (ctx) {
+          const slider = document.getElementById('slider');
+          const num = document.getElementById('num');
+          slider.max = maxCount;
+          num.max = maxCount;
+          slider.value = Math.min(slider.value, maxCount);
+          num.value = slider.value;
+          slider.oninput = () => { num.value = slider.value; };
+          num.oninput = () => {
+            const v = Math.max(1, Math.min(maxCount, parseInt(num.value || '1', 10) || 1));
+            num.value = v;
+            slider.value = v;
+          };
+          document.getElementById('btn-confirm').onclick = () => {
+            const count = parseInt(slider.value, 10) || 1;
+            tsic.publishMessage('UI.Cmd.Inventory.Transfer', {
+              FromOwnerId: fromOwnerId,
+              ToOwnerId: toOwnerId,
+              FromSlot: fromSlot,
+              ToSlot: toSlot,
+              Count: count
+            });
+            tsic.publishMessage('UI.Cmd.Pause.Resume', {});
+          };
+          document.getElementById('btn-cancel').onclick = () =>
+            tsic.publishMessage('UI.Cmd.Pause.Resume', {});
+        });
+      })();
     })();
   </script>
 </body></html>

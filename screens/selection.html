@@ -70,9 +70,12 @@
         if (window.tsic && window.tsic.focus) window.tsic.focus.refresh();
       }
 
-      tsic.bootMenu(function (ctx) {
-        ctx.on('tsic.msg.UI.Selection.Opened', (p) => render(p));
-      }, { escape: false, closeButton: false });
+      (function boot() {
+        if (!window.tsic || typeof tsic.bootMenu !== 'function') { setTimeout(boot, 16); return; }
+        tsic.bootMenu(function (ctx) {
+          ctx.on('tsic.msg.UI.Selection.Opened', (p) => render(p));
+        }, { escape: false, closeButton: false });
+      })();
     })();
   </script>
 </body></html>

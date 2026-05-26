@@ -72,65 +72,68 @@
         } catch { return null; }
       }
 
-      tsic.bootMenu(function (ctx) {
-        ctx.on('tsic.msg.UI.Save.Slots', (p)=>{
-          const host = document.getElementById('slots');
-          host.innerHTML = '';
-          const slots = (p && p.Slots) || [];
-          if (!slots.length) {
-            const empty = document.createElement('div');
-            empty.className = 'slot-empty';
-            empty.textContent = 'No saves yet.';
-            host.appendChild(empty);
-            return;
-          }
-          for (const s of slots) {
-            const el = document.createElement('button');
-            el.type = 'button';
-            el.className = 'tsic-row-button slot-row';
-            el.setAttribute('aria-label', `Load save from ${formatOpened(s.TimestampIso)}`);
-
-            const thumbWrap = document.createElement('div');
-            thumbWrap.className = 'slot-thumb';
-            const thumbUrl = safeThumbnailUrl(s.ThumbnailUrl);
-            if (thumbUrl) {
-              const img = document.createElement('img');
-              img.src = thumbUrl;
-              img.alt = '';
-              thumbWrap.appendChild(img);
-            } else {
-              thumbWrap.textContent = 'No image';
+      (function boot() {
+        if (!window.tsic || typeof tsic.bootMenu !== 'function') { setTimeout(boot, 16); return; }
+        tsic.bootMenu(function (ctx) {
+          ctx.on('tsic.msg.UI.Save.Slots', (p)=>{
+            const host = document.getElementById('slots');
+            host.innerHTML = '';
+            const slots = (p && p.Slots) || [];
+            if (!slots.length) {
+              const empty = document.createElement('div');
+              empty.className = 'slot-empty';
+              empty.textContent = 'No saves yet.';
+              host.appendChild(empty);
+              return;
             }
+            for (const s of slots) {
+              const el = document.createElement('button');
+              el.type = 'button';
+              el.className = 'tsic-row-button slot-row';
+              el.setAttribute('aria-label', `Load save from ${formatOpened(s.TimestampIso)}`);
 
-            const meta = document.createElement('div');
-            meta.className = 'slot-meta';
-            const opened = document.createElement('span');
-            opened.className = 'opened';
-            opened.textContent = formatOpened(s.TimestampIso);
-            const playtime = document.createElement('span');
-            playtime.className = 'playtime';
-            playtime.textContent = `Playtime ${formatPlaytime(s.PlaytimeSeconds)}`;
-            meta.append(opened, playtime);
+              const thumbWrap = document.createElement('div');
+              thumbWrap.className = 'slot-thumb';
+              const thumbUrl = safeThumbnailUrl(s.ThumbnailUrl);
+              if (thumbUrl) {
+                const img = document.createElement('img');
+                img.src = thumbUrl;
+                img.alt = '';
+                thumbWrap.appendChild(img);
+              } else {
+                thumbWrap.textContent = 'No image';
+              }
 
-            const del = document.createElement('span');
-            del.className = 'slot-delete';
-            del.textContent = 'Delete';
-            del.setAttribute('role', 'button');
-            del.setAttribute('aria-label', `Delete save ${s.SlotId}`);
-            del.onclick = (ev) => {
-              ev.stopPropagation();
-              if (!confirm('Delete this save? This cannot be undone.')) return;
-              tsic.publishMessage('UI.Cmd.Save.DeleteSlot', { SlotId: s.SlotId });
-            };
+              const meta = document.createElement('div');
+              meta.className = 'slot-meta';
+              const opened = document.createElement('span');
+              opened.className = 'opened';
+              opened.textContent = formatOpened(s.TimestampIso);
+              const playtime = document.createElement('span');
+              playtime.className = 'playtime';
+              playtime.textContent = `Playtime ${formatPlaytime(s.PlaytimeSeconds)}`;
+              meta.append(opened, playtime);
 
-            el.append(thumbWrap, meta, del);
-            el.onclick = () => tsic.publishMessage('UI.Cmd.Menu.LoadSlot', { SlotId: s.SlotId });
-            host.appendChild(el);
-          }
+              const del = document.createElement('span');
+              del.className = 'slot-delete';
+              del.textContent = 'Delete';
+              del.setAttribute('role', 'button');
+              del.setAttribute('aria-label', `Delete save ${s.SlotId}`);
+              del.onclick = (ev) => {
+                ev.stopPropagation();
+                if (!confirm('Delete this save? This cannot be undone.')) return;
+                tsic.publishMessage('UI.Cmd.Save.DeleteSlot', { SlotId: s.SlotId });
+              };
+
+              el.append(thumbWrap, meta, del);
+              el.onclick = () => tsic.publishMessage('UI.Cmd.Menu.LoadSlot', { SlotId: s.SlotId });
+              host.appendChild(el);
+            }
+          });
+          document.getElementById('btn-back').onclick = () =>
+            tsic.publishMessage('UI.Cmd.Menu.Navigate', { Screen: 'MainMenu' });
         });
-        document.getElementById('btn-back').onclick = () =>
-          tsic.publishMessage('UI.Cmd.Menu.Navigate', { Screen: 'MainMenu' });
-      });
+      })();
     })();
   </script>
 </body></html>

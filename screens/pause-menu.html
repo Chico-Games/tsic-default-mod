@@ -35,21 +35,24 @@
     </div>
   </div>
   <script>
-    tsic.bootMenu(function (ctx) {
-      ctx.on('tsic.msg.UI.Players.List', (p)=>{
-        const host = document.getElementById('players');
-        host.innerHTML = '';
-        if (!p || !p.Players) return;
-        for (const pl of p.Players) {
-          const row = document.createElement('div');
-          row.className = 'pl-row';
-          row.textContent = pl.Name + (pl.bIsHost ? ' (host)' : '');
-          host.appendChild(row);
-        }
+    (function boot() {
+      if (!window.tsic || typeof tsic.bootMenu !== 'function') { setTimeout(boot, 16); return; }
+      tsic.bootMenu(function (ctx) {
+        ctx.on('tsic.msg.UI.Players.List', (p)=>{
+          const host = document.getElementById('players');
+          host.innerHTML = '';
+          if (!p || !p.Players) return;
+          for (const pl of p.Players) {
+            const row = document.createElement('div');
+            row.className = 'pl-row';
+            row.textContent = pl.Name + (pl.bIsHost ? ' (host)' : '');
+            host.appendChild(row);
+          }
+        });
+        document.getElementById('btn-resume').onclick = () => tsic.publishMessage('UI.Cmd.Pause.Resume', {});
+        document.getElementById('btn-settings').onclick = () => tsic.publishMessage('UI.Cmd.Pause.Settings', {});
+        document.getElementById('btn-menu').onclick = () => tsic.publishMessage('UI.Cmd.Pause.QuitToMenu', {});
       });
-      document.getElementById('btn-resume').onclick = () => tsic.publishMessage('UI.Cmd.Pause.Resume', {});
-      document.getElementById('btn-settings').onclick = () => tsic.publishMessage('UI.Cmd.Pause.Settings', {});
-      document.getElementById('btn-menu').onclick = () => tsic.publishMessage('UI.Cmd.Pause.QuitToMenu', {});
-    });
+    })();
   </script>
 </body></html>

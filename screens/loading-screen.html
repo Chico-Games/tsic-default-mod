@@ -62,9 +62,12 @@
         const label = stripTrailingDots((payload && payload.Label) || 'Loading');
         document.getElementById('loading-label-text').textContent = label || 'Loading';
       }
-      tsic.bootMenu(function (ctx) {
-        ctx.on('tsic.msg.UI.Loading.Progress', render);
-      }, { escape: false, closeButton: false });
+      (function boot() {
+        if (!window.tsic || typeof tsic.bootMenu !== 'function') { setTimeout(boot, 16); return; }
+        tsic.bootMenu(function (ctx) {
+          ctx.on('tsic.msg.UI.Loading.Progress', render);
+        }, { escape: false, closeButton: false });
+      })();
     })();
   </script>
 </body></html>

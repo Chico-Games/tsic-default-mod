@@ -94,13 +94,16 @@
         }
       }
 
-      tsic.bootMenu(function (ctx) {
-        build();
-        // Subscribe to the ping set just to keep cache replay alive on this page;
-        // we don't render it here (3D world handles that), but having the listener
-        // means cached payloads flow on context-ready.
-        ctx.on('tsic.msg.UI.Ping.Set', () => { /* no-op for now */ });
-      }, { escape: false, closeButton: false });
+      (function boot() {
+        if (!window.tsic || typeof tsic.bootMenu !== 'function') { setTimeout(boot, 16); return; }
+        tsic.bootMenu(function (ctx) {
+          build();
+          // Subscribe to the ping set just to keep cache replay alive on this page;
+          // we don't render it here (3D world handles that), but having the listener
+          // means cached payloads flow on context-ready.
+          ctx.on('tsic.msg.UI.Ping.Set', () => { /* no-op for now */ });
+        }, { escape: false, closeButton: false });
+      })();
     })();
   </script>
 </body></html>

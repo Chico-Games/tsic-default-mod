@@ -82,22 +82,25 @@
         if (window.tsic && window.tsic.focus) window.tsic.focus.refresh();
       }
 
-      tsic.bootMenu(function (ctx) {
-        ctx.on('tsic.msg.UI.Teleporter.Destinations', (p) => render(p));
-        document.getElementById('btn-cancel').onclick = () =>
-          tsic.publishMessage('UI.Cmd.Pause.Resume', {});
-        // Rename the *source* teleporter (the one the player is standing at).
-        const renameInput  = document.getElementById('rename-input');
-        const renameButton = document.getElementById('btn-rename');
-        const doRename = () => {
-          const name = (renameInput.value || '').trim();
-          if (!name || !fromId) return;
-          tsic.publishMessage('UI.Cmd.Teleporter.Rename', { EntityId: fromId, NewName: name });
-          renameInput.value = '';
-        };
-        renameButton.onclick = doRename;
-        renameInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') doRename(); });
-      });
+      (function boot() {
+        if (!window.tsic || typeof tsic.bootMenu !== 'function') { setTimeout(boot, 16); return; }
+        tsic.bootMenu(function (ctx) {
+          ctx.on('tsic.msg.UI.Teleporter.Destinations', (p) => render(p));
+          document.getElementById('btn-cancel').onclick = () =>
+            tsic.publishMessage('UI.Cmd.Pause.Resume', {});
+          // Rename the *source* teleporter (the one the player is standing at).
+          const renameInput  = document.getElementById('rename-input');
+          const renameButton = document.getElementById('btn-rename');
+          const doRename = () => {
+            const name = (renameInput.value || '').trim();
+            if (!name || !fromId) return;
+            tsic.publishMessage('UI.Cmd.Teleporter.Rename', { EntityId: fromId, NewName: name });
+            renameInput.value = '';
+          };
+          renameButton.onclick = doRename;
+          renameInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') doRename(); });
+        });
+      })();
     })();
   </script>
 </body></html>
