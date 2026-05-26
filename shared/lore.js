@@ -8,7 +8,6 @@
 // The page is expected to contain:
 //   #lore-title, #lore-group, #lore-heading, #lore-body, #lore-prev, #lore-next, #lore-close, #lore-index-list
 (function(){
-    function whenReady(cb){ if(window.tsic){cb();return;} setTimeout(()=>whenReady(cb),16); }
     function $(id){ return document.getElementById(id); }
 
     const me = document.currentScript;
@@ -51,21 +50,24 @@
         tsic.publishMessage('UI.Cmd.Pause.Resume', {});
     }
 
-    whenReady(() => {
-        tsic.on('tsic.msg.UI.LoreScreen.Opened', (p) => {
-            if (!p || (kind && p.ScreenKind && p.ScreenKind !== kind)) return;
-            texts = Array.isArray(p.Texts) ? p.Texts : [];
-            index = clamp(p.InitialIndex || 0);
+    (function boot() {
+        if (!window.tsic) { setTimeout(boot, 16); return; }
+        tsic.whenReady(function () {
+            tsic.on('tsic.msg.UI.LoreScreen.Opened', (p) => {
+                if (!p || (kind && p.ScreenKind && p.ScreenKind !== kind)) return;
+                texts = Array.isArray(p.Texts) ? p.Texts : [];
+                index = clamp(p.InitialIndex || 0);
+                render();
+            });
+            const prev = $('lore-prev'); if (prev) prev.onclick = () => { index = clamp(index - 1); render(); publishSelect(); };
+            const next = $('lore-next'); if (next) next.onclick = () => { index = clamp(index + 1); render(); publishSelect(); };
+            const close= $('lore-close');if (close) close.onclick = publishClose;
+            window.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowLeft')  { index = clamp(index - 1); render(); publishSelect(); }
+                if (e.key === 'ArrowRight') { index = clamp(index + 1); render(); publishSelect(); }
+                if (e.key === 'Escape')     publishClose();
+            });
             render();
         });
-        const prev = $('lore-prev'); if (prev) prev.onclick = () => { index = clamp(index - 1); render(); publishSelect(); };
-        const next = $('lore-next'); if (next) next.onclick = () => { index = clamp(index + 1); render(); publishSelect(); };
-        const close= $('lore-close');if (close) close.onclick = publishClose;
-        window.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowLeft')  { index = clamp(index - 1); render(); publishSelect(); }
-            if (e.key === 'ArrowRight') { index = clamp(index + 1); render(); publishSelect(); }
-            if (e.key === 'Escape')     publishClose();
-        });
-        render();
-    });
+    })();
 })();

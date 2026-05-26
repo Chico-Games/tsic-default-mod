@@ -31,7 +31,7 @@
   const OVERLAY_SCREENS = new Set([
     'ActionBar', 'Hotbar', 'HealthBar', 'StaminaBar', 'Stomach',
     'Crosshair', 'Detection', 'CircularProgress', 'Notifications',
-    'PlayerIndicators', 'Ping', 'PingMarkers',
+    'Ping', 'PingMarkers',
   ]);
   const SCREEN_TO_FILE = {
     MainMenu: 'main-menu',
@@ -64,7 +64,6 @@
     UniversalStorageSetup: 'universal-storage-setup',
     CheatMenu: 'cheat-menu',
     VoiceChat: 'voice-chat',
-    PlayerIndicators: 'player-indicators',
     PingMarkers: 'ping-markers',
     CircularProgress: 'circular-progress',
     ConstructionCarousel: 'construction-carousel',
@@ -92,11 +91,6 @@
 
   function fileFor(name) {
     return SCREEN_TO_FILE[name] || null;
-  }
-
-  function whenReady(cb) {
-    if (window.tsic) { cb(); return; }
-    setTimeout(() => whenReady(cb), 16);
   }
 
   function activeInputModeTag() {
@@ -160,7 +154,9 @@
   // Exposed early so shared/action-bar.js can route through us.
   window.__tsicPublishMenuActionContext = publishMenuContext;
 
-  whenReady(() => {
+  (function boot() {
+    if (!window.tsic) { setTimeout(boot, 16); return; }
+    tsic.whenReady(function () {
     // Screen routing.
     window.tsic.on('tsic.msg.UI.Screen.Changed', (payload /*, meta, name*/) => {
       if (!payload || !payload.Name) return;
@@ -241,7 +237,8 @@
       window.addEventListener('beforeunload', clearOnce);
       window.addEventListener('pagehide', clearOnce);
     }
-  });
+    });
+  })();
 
   // Expose for ad-hoc dev navigation.
   window.tsicGoto = function (name) {
