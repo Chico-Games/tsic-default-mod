@@ -62,8 +62,42 @@
     return img;
   }
 
+  // ---- Runtime image sources (GPU-composited UE textures) ----
+  // These use Ultralight's ImageSourceProvider — the .imgsrc extension is
+  // a naming convention, not parsed by C++. The texture must be registered
+  // on the C++ side via UTSICWebUISubsystem::RegisterImageSourceFromTexture
+  // or RegisterImageSourceFromRenderTarget before the URL resolves.
+  //
+  // Known sources: 'world-map', 'character-preview', 'fow',
+  //   'world-debug-height', 'world-debug-maze', 'world-debug-all'
+
+  function runtimeImgUrl(name) {
+    return '/runtime/' + name + '.imgsrc';
+  }
+
+  function runtimeImg(name, opts) {
+    var o = opts || {};
+    var img = document.createElement('img');
+    img.src = runtimeImgUrl(name);
+    if (o.id) img.id = o.id;
+    if (o.alt) img.alt = o.alt;
+    if (o['class']) img.className = o['class'];
+    if (o.width) { img.style.width = o.width + 'px'; img.style.height = (o.height || o.width) + 'px'; }
+    return img;
+  }
+
+  // Cache-busted reload for debug overlays that register their texture
+  // after page load (first fetch returns empty, toggle re-fetches).
+  function runtimeImgReload(imgEl) {
+    var base = imgEl.src.split('?')[0];
+    imgEl.src = base + '?t=' + Date.now();
+  }
+
   window.TSIC = window.TSIC || {};
   window.TSIC.keyIconUrl = keyIconUrl;
   window.TSIC.itemIconUrl = itemIconUrl;
   window.TSIC.iconImg = iconImg;
+  window.TSIC.runtimeImgUrl = runtimeImgUrl;
+  window.TSIC.runtimeImg = runtimeImg;
+  window.TSIC.runtimeImgReload = runtimeImgReload;
 })();
