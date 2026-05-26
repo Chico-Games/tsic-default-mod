@@ -1,118 +1,71 @@
-// Builds the persistent in-game HUD chrome. Because in-game.html is the
-// only HTML page mounted as the Root WebView after the Slate UI tree was
-// deleted, all of the HUD overlays (interaction prompt, toasts, health
-// bar, stamina bar, crosshair) get assembled here as DOM under
-// document.body. The standalone health-bar.html / stamina-bar.html /
-// crosshair.html files still exist for the playground / snap-test runner
-// and for any future multi-WebView mounting we may want to bring back.
+// shared/hud.js — HUD orchestrator (pure).
+//
+// Builds DOM shells for all HUD elements and dynamically loads component
+// scripts. Contains ZERO component logic — each component lives in its
+// own file:
+//
+//   hud-toast.js        — toast notifications (loaded on ALL screens)
+//   hud-health.js       — health bar with damage trail
+//   hud-stamina.js      — stamina bar with decrease trail
+//   hud-crosshair.js    — crosshair visibility
+//   hud-interaction.js  — interaction prompt label
+//   hud-action-bar.js   — gameplay action bar (System A)
+//
+// The HUD toggle (body.hud-hidden) stays here — it's orchestrator-level
+// since it hides ALL chrome elements at once.
 
 (function () {
-  function el(tag, attrs, ...children) {
-    const e = document.createElement(tag);
-    if (attrs) for (const k in attrs) e.setAttribute(k, attrs[k]);
-    for (const c of children) e.append(typeof c === 'string' ? document.createTextNode(c) : c);
+  function el(tag, attrs) {
+    var e = document.createElement(tag);
+    if (attrs) for (var k in attrs) e.setAttribute(k, attrs[k]);
+    for (var i = 2; i < arguments.length; i++) {
+      var c = arguments[i];
+      if (c != null) e.append(typeof c === 'string' ? document.createTextNode(c) : c);
+    }
     return e;
   }
 
-  // ---------- toasts ----------
+  // ---- Inline styles for HUD chrome ----
 
-  function severityClass(tag) {
-    if (!tag) return '';
-    const parts = String(tag).split('.');
-    const leaf = parts[parts.length - 1].toLowerCase();
-    if (leaf === 'error' || leaf === 'danger') return 'toast--error';
-    if (leaf === 'warning' || leaf === 'warn') return 'toast--warning';
-    if (leaf === 'info') return 'toast--info';
-    return '';
-  }
+  var STYLE = [
+    '.hud-bar { position:fixed; left:24px; width:240px; border:1px solid rgba(184,170,145,0.45); background:rgba(241,229,207,0.88); border-radius:3px; overflow:hidden; font-family:"Segoe UI",system-ui,sans-serif; pointer-events:none; z-index:20; }',
+    '#hud-health { bottom:60px; height:18px; }',
+    '#hud-stamina { bottom:36px; height:14px; }',
+    '.hud-bar .trail-fill, .hud-bar .live-fill { position:absolute; left:0; top:0; bottom:0; }',
+    '#hud-health .trail-fill { background:#6b1010; width:100%; }',
+    '#hud-health .live-fill { background:#ce2424; width:100%; transition:width 0.05s linear; }',
+    '#hud-stamina .trail-fill { background:#133a73; width:100%; }',
+    '#hud-stamina .live-fill { background:#1f8fff; width:100%; transition:width 0.05s linear; }',
+    '.hud-bar .numbers { position:absolute; left:0; right:0; top:50%; transform:translateY(-50%); text-align:center; font-weight:700; color:#fff; text-shadow:0 1px 2px rgba(0,0,0,0.75); }',
+    '#hud-health .numbers { font-size:12px; }',
+    '#hud-stamina .numbers { font-size:11px; }',
+    '#hud-crosshair { position:fixed; left:50%; top:50%; margin-left:-2px; margin-top:-2px; width:4px; height:4px; background:#fff; box-shadow:0 0 0 1px rgba(0,0,0,0.85); border-radius:50%; pointer-events:none; z-index:20; }',
+    '#hud-crosshair.hidden { display:none; }',
+    'body.hud-hidden #hud-chrome, body.hud-hidden #hud-health, body.hud-hidden #hud-stamina, body.hud-hidden #hud-crosshair, body.hud-hidden #ab-shell-gameplay { display:none !important; }',
+    '#ab-shell-gameplay { position:fixed; bottom:18px; right:24px; max-width:calc(100vw - 48px); color:var(--cat-ink-dark); pointer-events:none; z-index:20; }',
+    '#ab-shell-gameplay.hidden { display:none; }',
+    '#ab-gameplay { display:flex; flex-direction:column; align-items:flex-end; gap:6px; text-shadow:0 0 3px rgba(247,237,217,0.85), 0 0 6px rgba(247,237,217,0.55), 0 1px 2px rgba(0,0,0,0.45); }',
+    '.ab-row { display:inline-flex; align-items:center; gap:8px; font-family:Georgia,"Libre Baskerville",serif; font-size:12px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color:var(--cat-ink-dark); }',
+    '.ab-row[data-status="blocked"] { color:var(--cat-red); }',
+    '.ab-row[data-status="cooldown"] { color:rgba(37,33,25,0.55); }',
+    '.ab-row[data-status="single-use-used"] { text-decoration:line-through; }',
+    '.ab-key { position:relative; display:inline-flex; align-items:center; justify-content:center; min-width:26px; height:22px; padding:0 6px; background:transparent; border:1px solid currentColor; color:inherit; font-family:Georgia,"Libre Baskerville",serif; font-size:11px; font-weight:700; overflow:hidden; }',
+    '.ab-key img { max-width:18px; max-height:18px; object-fit:contain; }',
+    '.ab-key-fallback { padding:0 2px; }',
+    '.ab-cd-sweep { position:absolute; inset:0; pointer-events:none; background:conic-gradient(rgba(35,31,24,0.5) calc(var(--tsic-cd-percent,0) * 1%), transparent 0); }',
+    '.ab-text { display:inline-flex; align-items:baseline; gap:6px; }',
+    '.ab-name { font-weight:700; }',
+    '.ab-sub { font-size:10px; font-weight:400; letter-spacing:0.04em; text-transform:none; }',
+  ].join('\n');
 
-  function extractSeverityTag(sev) {
-    if (!sev) return '';
-    if (typeof sev === 'string') return sev;
-    if (typeof sev === 'object' && typeof sev.TagName === 'string') return sev.TagName;
-    return '';
-  }
+  // ---- Screen detection ----
 
-  const TOAST_VISIBLE_MS = 3000;
-  const TOAST_EXIT_MS = 200;
-
-  function showToast(payload) {
-    const container = document.getElementById('toast-container');
-    if (!container) return;
-    const text = (payload && (payload.Text || payload.text)) || '';
-    if (!text) return;
-    const sev = extractSeverityTag(payload && payload.Severity);
-    const div = document.createElement('div');
-    div.className = 'toast ' + severityClass(sev);
-    div.textContent = String(text);
-    container.appendChild(div);
-    setTimeout(() => {
-      if (!div.parentNode) return;
-      div.classList.add('toast--leaving');
-      setTimeout(() => { if (div.parentNode) div.parentNode.removeChild(div); }, TOAST_EXIT_MS);
-    }, TOAST_VISIBLE_MS);
-  }
-
-  // ---------- inline HUD styles ----------
-
-  const STYLE = `
-    .hud-bar {
-      position: fixed; left: 24px;
-      width: 240px;
-      border: 1px solid rgba(184,170,145,0.45);
-      background: rgba(241,229,207,0.88);
-      border-radius: 3px; overflow: hidden;
-      font-family: 'Segoe UI', system-ui, sans-serif;
-      pointer-events: none;
-      z-index: 20;
-    }
-    #hud-health { bottom: 60px; height: 18px; }
-    #hud-stamina { bottom: 36px; height: 14px; }
-    .hud-bar .trail-fill, .hud-bar .live-fill {
-      position: absolute; left: 0; top: 0; bottom: 0;
-    }
-    #hud-health .trail-fill { background: #6b1010; width: 100%; }
-    #hud-health .live-fill { background: #ce2424; width: 100%; transition: width 0.05s linear; }
-    #hud-stamina .trail-fill { background: #133a73; width: 100%; }
-    #hud-stamina .live-fill { background: #1f8fff; width: 100%; transition: width 0.05s linear; }
-    .hud-bar .numbers {
-      position: absolute; left: 0; right: 0; top: 50%;
-      transform: translateY(-50%);
-      text-align: center; font-weight: 700;
-      color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.75);
-    }
-    #hud-health .numbers { font-size: 12px; }
-    #hud-stamina .numbers { font-size: 11px; }
-
-    #hud-crosshair {
-      position: fixed; left: 50%; top: 50%;
-      margin-left: -2px; margin-top: -2px;
-      width: 4px; height: 4px;
-      background: #fff;
-      box-shadow: 0 0 0 1px rgba(0,0,0,0.85);
-      border-radius: 50%;
-      pointer-events: none;
-      z-index: 20;
-    }
-    #hud-crosshair.hidden { display: none; }
-
-    /* IA_HUDToggle: hide every HUD chrome element (everything hud.js + the
-       overlay screens add). Toast container is exempt — toasts should still
-       be visible since they're transient notifications, not chrome. */
-    body.hud-hidden #hud-chrome,
-    body.hud-hidden #hud-health,
-    body.hud-hidden #hud-stamina,
-    body.hud-hidden #hud-crosshair { display: none !important; }
-  `;
-
-  // Toasts can appear on any screen, but the rest of the HUD chrome
-  // (crosshair, health/stamina bars, interaction prompt) belongs only on
-  // the in-game screen — otherwise every panel that loads hud.js stamps
-  // its own duplicate crosshair into its DOM.
   function isInGameScreen() {
-    const meta = document.querySelector('meta[name="tsic-screen"]');
+    var meta = document.querySelector('meta[name="tsic-screen"]');
     return !!meta && meta.getAttribute('content') === 'InGame';
   }
+
+  // ---- DOM construction ----
 
   function ensureToastContainer() {
     if (document.getElementById('toast-container')) return;
@@ -122,143 +75,66 @@
   function buildChrome() {
     if (document.getElementById('hud-chrome')) return;
 
-    const style = document.createElement('style');
+    var style = document.createElement('style');
     style.id = 'hud-inline-styles';
     style.textContent = STYLE;
     document.head.appendChild(style);
 
-    const chrome = el('div', { id: 'hud-chrome' });
-    const prompt = el('div', { class: 'interaction-prompt', id: 'interaction-prompt', style: 'display:none;' }, '');
-    chrome.appendChild(prompt);
+    var chrome = el('div', { id: 'hud-chrome' });
+    chrome.appendChild(el('div', { class: 'interaction-prompt', id: 'interaction-prompt', style: 'display:none;' }));
     document.body.appendChild(chrome);
 
-    // Health bar
     document.body.appendChild(el('div', { id: 'hud-health', class: 'hud-bar' },
-      el('div', { class: 'trail-fill' }),
-      el('div', { class: 'live-fill' }),
-      el('div', { class: 'numbers' }, '— / —')));
+      el('div', { class: 'trail-fill' }), el('div', { class: 'live-fill' }), el('div', { class: 'numbers' }, '— / —')));
 
-    // Stamina bar
     document.body.appendChild(el('div', { id: 'hud-stamina', class: 'hud-bar' },
-      el('div', { class: 'trail-fill' }),
-      el('div', { class: 'live-fill' }),
-      el('div', { class: 'numbers' }, '— / —')));
+      el('div', { class: 'trail-fill' }), el('div', { class: 'live-fill' }), el('div', { class: 'numbers' }, '— / —')));
 
-    // Crosshair
     document.body.appendChild(el('div', { id: 'hud-crosshair' }));
+
+    var abShell = el('div', { id: 'ab-shell-gameplay', class: 'ab-shell hidden' });
+    abShell.appendChild(el('div', { id: 'ab-gameplay' }));
+    document.body.appendChild(abShell);
   }
 
-  // ---------- bars ----------
+  // ---- Dynamic script loading ----
 
-  function createBar(rootId, opts) {
-    const root = document.getElementById(rootId);
-    if (!root) return null;
-    const trail = root.querySelector('.trail-fill');
-    const live  = root.querySelector('.live-fill');
-    const nums  = root.querySelector('.numbers');
-
-    let current = 0, max = 0;
-    let liveN = 0, trailN = 0;
-    let lastDecayTime = -1e9;
-    let prevTarget = 0;
-
-    function applyAttr(p) {
-      if (!p) return;
-      current = Number(p.Current) || 0;
-      max     = Number(p.Max) || 1;
-      if (opts.decayOnDecrease) {
-        const target = max > 0 ? Math.max(0, Math.min(1, current / max)) : 0;
-        if (target < prevTarget - 1e-4) {
-          lastDecayTime = performance.now() / 1000;
-        }
-        prevTarget = target;
-      }
-    }
-
-    function onDamage(p) {
-      if (!p) return;
-      lastDecayTime = performance.now() / 1000;
-    }
-
-    let last = performance.now() / 1000;
-    function frame() {
-      const now = performance.now() / 1000;
-      const dt = Math.max(0, now - last);
-      last = now;
-
-      const target = max > 0 ? Math.max(0, Math.min(1, current / max)) : 0;
-      if (target > liveN) trailN = Math.max(trailN, target);
-      liveN = target;
-
-      if ((now - lastDecayTime) >= opts.delay) {
-        const step = opts.decayRate * dt;
-        if (trailN > liveN) trailN = Math.max(liveN, trailN - step);
-      }
-      if (trailN < liveN) trailN = liveN;
-
-      if (trail) trail.style.width = (trailN * 100).toFixed(1) + '%';
-      if (live)  live.style.width  = (liveN  * 100).toFixed(1) + '%';
-      if (nums)  nums.textContent  = Math.round(current) + ' / ' + Math.round(max);
-      requestAnimationFrame(frame);
-    }
-
-    if (opts.damageChannel) tsic.on(opts.damageChannel, onDamage);
-    requestAnimationFrame(frame);
-    return { applyAttr };
+  function loadScript(src) {
+    var s = document.createElement('script');
+    s.src = src;
+    document.head.appendChild(s);
   }
 
-  // ---------- boot ----------
+  // ---- Boot ----
 
   function whenReady(cb) {
     if (window.tsic && document.body) { cb(); return; }
-    setTimeout(() => whenReady(cb), 16);
+    setTimeout(function () { whenReady(cb); }, 16);
   }
 
-  whenReady(() => {
-    // Toasts work on every screen.
+  whenReady(function () {
+    // Toast container works on every screen.
     ensureToastContainer();
-    tsic.on('tsic.msg.UI.Toast.Show', showToast);
+    loadScript('/shared/hud-toast.js');
 
-    // The rest of the HUD chrome is in-game only.
+    // The rest of the HUD chrome is InGame only.
     if (!isInGameScreen()) return;
 
     buildChrome();
 
-    // Interaction prompt — primary target's label.
-    tsic.on('tsic.msg.UI.Interaction.Targets', (p) => {
-      const el = document.getElementById('interaction-prompt');
-      if (!el) return;
-      const target = p && p.Targets && p.Targets.find(t => t.bIsPrimary);
-      if (target) { el.textContent = target.Label || 'Interact'; el.style.display = ''; }
-      else { el.style.display = 'none'; }
-    });
-
-    // Health + stamina bars — unified attribute message channel.
-    const healthBar = createBar('hud-health', {
-      delay: 2.0, decayRate: 0.2, damageChannel: 'tsic.msg.Message.DamageEvent',
-    });
-    const staminaBar = createBar('hud-stamina', {
-      delay: 1.0, decayRate: 0.3, decayOnDecrease: true,
-    });
-    tsic.on('tsic.msg.UI.Player.Attribute', (p) => {
-      if (!p) return;
-      if (p.Channel === 'Health' && healthBar) healthBar.applyAttr(p);
-      if (p.Channel === 'Stamina' && staminaBar) staminaBar.applyAttr(p);
-    });
-
-    // Crosshair visibility — hide when an HTML screen takes over the cursor.
-    tsic.on('tsic.msg.UI.Input.Mode.Changed', (p) => {
-      const dot = document.getElementById('hud-crosshair');
-      if (!dot || !p) return;
-      const isMenuMode = String(p.Device || '') === 'mouse' && String(p.Focus || '') === 'ui';
-      dot.classList.toggle('hidden', isMenuMode);
-    });
-
-    // HUD toggle (IA_HUDToggle, default H). The input bridge fires Started
-    // on key press; we flip body.hud-hidden which hides every chrome element.
-    tsic.on('tsic.msg.UI.Input.IA_HUDToggle', (e) => {
+    // HUD toggle (IA_HUDToggle, default H) — orchestrator-level since it
+    // hides ALL chrome at once via body.hud-hidden.
+    tsic.on('tsic.msg.UI.Input.IA_HUDToggle', function (e) {
       if (!e || e.Phase !== 'Started') return;
       document.body.classList.toggle('hud-hidden');
     });
+
+    // Load component scripts. Each self-initialises by subscribing to
+    // tsic channels and operating on the DOM shells created above.
+    loadScript('/shared/hud-health.js');
+    loadScript('/shared/hud-stamina.js');
+    loadScript('/shared/hud-crosshair.js');
+    loadScript('/shared/hud-interaction.js');
+    loadScript('/shared/hud-action-bar.js');
   });
 })();
