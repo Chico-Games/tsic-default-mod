@@ -57,6 +57,19 @@
             itemName(id) { const d = this.itemCatalog[id]; return d ? (d.Name || id) : id; },
             itemCategory(id) { const d = this.itemCatalog[id]; return d ? d.Category : null; },
             itemIconUrl(id) { return `/tex/item-icon/${encodeURIComponent(id)}`; },
+            whenReady(cb) { try { cb(); } catch (e) { console.warn('[harness] whenReady cb threw', e); } },
+            onReady(channel, cb) { fake.on(channel, cb); },
+            resume() { fake.publishMessage('UI.Cmd.Pause.Resume', {}); },
+            closeScreen() { fake.publishMessage('UI.Cmd.GameScreen.Close', {}); },
+            playSound(key, vol) { fake.publishMessage('UI.Cmd.Sound.Play', { SoundKey: key, VolumeScale: typeof vol === 'number' ? vol : 1.0 }); },
+            qs(sel, root) { return (root || win.document).querySelector(sel); },
+            qsa(sel, root) { return Array.from((root || win.document).querySelectorAll(sel)); },
+            iconUrlFor(id) { return id ? `/tex/item-icon/${encodeURIComponent(id)}` : null; },
+            onClick(target, fn) { const el = (typeof target === 'string') ? win.document.querySelector(target) : target; if (!el) return ()=>{}; el.addEventListener('click', fn); return ()=>el.removeEventListener('click', fn); },
+            onKey(key, fn) { const h = (ev) => { if (ev.key === key) fn(ev); }; win.addEventListener('keydown', h); return ()=>win.removeEventListener('keydown', h); },
+            bindEscape(opts) { const o = opts || {}; return fake.onKey('Escape', () => { if (o.handler) o.handler(); else if (o.closeScreen) fake.closeScreen(); else fake.resume(); }); },
+            bindCloseButton(sel, opts) { return fake.onClick(sel || '#btn-close', () => { const o = opts || {}; if (o.handler) o.handler(); else if (o.closeScreen) fake.closeScreen(); else fake.resume(); }); },
+            bootMenu(setup, opts) { const o = opts || {}; const ctx = { on: (ch, cb) => fake.on(ch, cb), publish: (ch, p) => fake.publishMessage(ch, p || {}) }; try { if (setup) setup(ctx); } catch(e) { console.warn('[harness] bootMenu threw', e); } if (o.escape !== false) fake.bindEscape({ closeScreen: !!o.closeScreen, handler: o.onClose }); if (o.closeButton !== false) fake.bindCloseButton(o.closeButton || '#btn-close', { closeScreen: !!o.closeScreen, handler: o.onClose }); },
         };
 
         const handle = {
