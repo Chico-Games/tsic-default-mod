@@ -1,5 +1,5 @@
-(function () {
-    function whenReady(cb) { if (window.tsic) { cb(); return; } setTimeout(() => whenReady(cb), 16); }
+(function boot() {
+    if (!window.tsic) { setTimeout(boot, 16); return; }
 
     const STATIC_CATALOG = {
         Pages: [
@@ -255,16 +255,14 @@
         }
     }
 
-    whenReady(() => {
-        tsic.on('tsic.msg.UI.Settings.Catalog', onCatalog);
-        tsic.on('tsic.msg.UI.Settings.Value', onValue);
-        tsic.on('tsic.msg.UI.Settings.Footer', onFooter);
-        tsic.on('tsic.msg.UI.Settings.ApplyToast', onApplyToast);
-        window.addEventListener('keydown', onGlobalKey, true);
-        const backBtn = document.getElementById('btn-back');     if (backBtn)  backBtn.onclick  = goBack;
-        const resetBtn = document.getElementById('btn-reset');   if (resetBtn) resetBtn.onclick = doReset;
-        const keepBtn = document.getElementById('btn-keep');     if (keepBtn)  keepBtn.onclick  = () => tsic.publishMessage('UI.Cmd.Settings.Apply', { SettingsJson: '{}' });
-        const revertBtn = document.getElementById('btn-revert'); if (revertBtn)revertBtn.onclick= doRevert;
-        onCatalog({ Json: JSON.stringify(STATIC_CATALOG) });
-    });
+    tsic.on('tsic.msg.UI.Settings.Catalog', onCatalog);
+    tsic.on('tsic.msg.UI.Settings.Value', onValue);
+    tsic.on('tsic.msg.UI.Settings.Footer', onFooter);
+    tsic.on('tsic.msg.UI.Settings.ApplyToast', onApplyToast);
+    window.addEventListener('keydown', onGlobalKey, true);
+    const backBtn = document.getElementById('btn-back');     if (backBtn)  backBtn.onclick  = goBack;
+    const resetBtn = document.getElementById('btn-reset');   if (resetBtn) resetBtn.onclick = doReset;
+    const keepBtn = document.getElementById('btn-keep');     if (keepBtn)  keepBtn.onclick  = () => tsic.publishMessage('UI.Cmd.Settings.Apply', { SettingsJson: '{}' });
+    const revertBtn = document.getElementById('btn-revert'); if (revertBtn)revertBtn.onclick= doRevert;
+    onCatalog({ Json: JSON.stringify(STATIC_CATALOG) });
 })();

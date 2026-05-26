@@ -3,6 +3,7 @@
   <meta charset="utf-8">
   <meta name="tsic-screen" content="WebUIDebug">
   <meta name="tsic-debug" content="true">
+  <meta name="tsic-input-mode" content="InputMode.Menu">
   <title>WebUI Debug</title>
   <script src="/shared/router.js" defer></script>
   <style>
@@ -359,6 +360,7 @@
     <button class="hdr-btn" id="btn-pause">PAUSE</button>
     <button class="hdr-btn" id="btn-clear">CLEAR</button>
     <button class="hdr-btn" id="btn-export">EXPORT</button>
+    <button class="hdr-btn" id="btn-close" style="background:#a33;border-color:#c55;">CLOSE</button>
   </div>
 
   <!-- ── Main 3-column Layout ────────────────────── -->
@@ -1267,11 +1269,6 @@
   }, true);
 
   // ── Bridge Boot ─────────────────────────────────
-  function whenReady(cb) {
-    if (window.tsic) { cb(); return; }
-    setTimeout(() => whenReady(cb), 16);
-  }
-
   function boot() {
     $('dot-bridge').className = 'dot on';
 
@@ -1470,6 +1467,9 @@
   });
 
   $('btn-export').addEventListener('click', exportLog);
+  $('btn-close').addEventListener('click', () => {
+    if (window.tsic) tsic.publishMessage('UI.Cmd.Debug.Close', {});
+  });
   $('clear-keys').addEventListener('click', () => { keyEvents.length = 0; renderKeys(); });
 
   // Stop propagation on filter inputs so they don't trigger game keybindings
@@ -1483,7 +1483,10 @@
   lastFpsUpdate = performance.now();
   lastRateTick = performance.now();
   requestAnimationFrame(tick);
-  whenReady(boot);
+  (function waitForBridge() {
+    if (!window.tsic) { setTimeout(waitForBridge, 16); return; }
+    boot();
+  })();
 })();
 </script>
 </body></html>

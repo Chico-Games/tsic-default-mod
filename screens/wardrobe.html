@@ -36,25 +36,10 @@
     </div>
   </div>
   <script>
-    (function(){
-      function whenReady(cb){ if(window.tsic){cb();return;} setTimeout(()=>whenReady(cb),16); }
-      let charPreviewFrame = 0;
-      let charPreviewTimer = null;
+    (function boot(){
+      if(!window.tsic){ setTimeout(boot,16); return; }
 
-      function startCharPreviewPolling() {
-        if (charPreviewTimer) return;
-        const img = document.getElementById('wardrobe-preview-img');
-        charPreviewTimer = setInterval(() => {
-          charPreviewFrame++;
-          img.src = `tex://character-preview?t=${charPreviewFrame}`;
-        }, 100);
-      }
-      function stopCharPreviewPolling() {
-        if (charPreviewTimer) { clearInterval(charPreviewTimer); charPreviewTimer = null; }
-      }
-
-      whenReady(()=>{
-        tsic.on('tsic.msg.UI.Equipment.Updated', (p) => {
+      tsic.on('tsic.msg.UI.Equipment.Updated', (p) => {
           const host = document.getElementById('wardrobe-grid');
           host.innerHTML = '';
           for (const s of ((p && p.Slots) || [])) {
@@ -88,15 +73,15 @@
           }
         });
         tsic.on('tsic.msg.UI.CharacterPreview.Ready', (p) => {
-          if (p && p.bReady) startCharPreviewPolling();
+          if (p && p.bReady) {
+            document.getElementById('wardrobe-preview-img').src = '/runtime/character-preview.imgsrc';
+          }
         });
         document.getElementById('btn-close').onclick = () => {
           tsic.publishMessage('UI.Cmd.CharacterPreview.Hide', {});
-          stopCharPreviewPolling();
           tsic.publishMessage('UI.Cmd.Pause.Resume', {});
         };
-        tsic.publishMessage('UI.Cmd.CharacterPreview.Show', {});
-      });
+      tsic.publishMessage('UI.Cmd.CharacterPreview.Show', {});
     })();
   </script>
 </body></html>

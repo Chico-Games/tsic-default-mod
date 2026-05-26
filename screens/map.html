@@ -37,44 +37,76 @@
     #map-content {
       position: absolute; left: 0; top: 0;
       transform-origin: 0 0;
-      /* Pixel-perfect zoom: the `transform: scale()` applied at runtime would
-         normally resample the rasterized children with bilinear filtering at
-         the GPU stage. Setting image-rendering on the scaled container (in
-         addition to on `#world-tex` itself) propagates the nearest-neighbor
-         hint through Ultralight 1.4's compositor so the world texture stays
-         crisp at every zoom level. The three values are duplicate fallbacks
-         (browsers pick the last one they understand). */
       image-rendering: pixelated;
       image-rendering: -webkit-optimize-contrast;
       image-rendering: crisp-edges;
-      /* `will-change: transform` was here as an optimization hint — DO NOT
-         re-add it under Ultralight 1.4. It promotes #map-content to its own
-         compositing layer, and any element inside a composited layer fails
-         to render (the offscreen never composites back to the main view).
-         The same family of CSS gaps affects `transform: rotate/skew`,
-         `opacity` stacking contexts, and `clip-path`. See CLAUDE.md →
-         TSICWebUI for the full list. */
+      background-color: white;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.2);
     }
-    #world-tex, #fow-tex, #overlay, #overlay-top,
+    /* Lifted paper shadow — two diagonal shadows below the poster that
+       simulate curled corners lifting off the surface. */
+    #map-content::before {
+      content: "";
+      position: absolute;
+      width: 100%; height: 4%;
+      left: 0; bottom: -4%;
+      z-index: -1;
+      pointer-events: none;
+      background-image:
+        linear-gradient(177deg, rgba(0,0,0,0.22) 10%, transparent 50%),
+        linear-gradient(-177deg, rgba(0,0,0,0.22) 10%, transparent 50%);
+      background-size: 49% 100%, 49% 100%;
+      background-position: 2% 0, 98% 0;
+      background-repeat: no-repeat;
+    }
+    /* Fold panel overlay — edge shadows simulate a 2×3 folded paper grid,
+       plus subtle inner-edge darkening for paper thickness. */
+    #map-content::after {
+      content: "";
+      position: absolute;
+      left: 0; top: 0;
+      width: 100%; height: 100%;
+      z-index: 2;
+      pointer-events: none;
+      background-image:
+        linear-gradient(to right, rgba(255,255,255,0.1) 0.5%, rgba(0,0,0,0.15) 1.2%, transparent 1.2%),
+        linear-gradient(to bottom, rgba(255,255,255,0.1) 0.5%, rgba(0,0,0,0.15) 1.2%, transparent 1.2%),
+        linear-gradient(to bottom, rgba(255,255,255,0.1) 0.5%, rgba(0,0,0,0.15) 1.2%, transparent 1.2%),
+        linear-gradient(265deg, rgba(0,0,0,0.2), transparent 10%),
+        linear-gradient(5deg, rgba(0,0,0,0.2), transparent 15%),
+        linear-gradient(-5deg, rgba(0,0,0,0.1), transparent 10%),
+        linear-gradient(5deg, rgba(0,0,0,0.1), transparent 10%),
+        linear-gradient(-265deg, rgba(0,0,0,0.2), transparent 10%),
+        linear-gradient(-5deg, rgba(0,0,0,0.2), transparent 15%),
+        linear-gradient(266deg, rgba(0,0,0,0.2), transparent 10%);
+      background-size:
+        50% 100%, 100% 33.3333%, 100% 33.3333%,
+        50% 33.3333%, 50% 33.3333%, 50% 33.3333%,
+        50% 33.3333%, 50% 33.3333%, 50% 33.3333%, 50% 33.3333%;
+      background-position:
+        right top, left center, left bottom,
+        left top, left top, right top,
+        left center, right center, right center, left bottom;
+      background-repeat: no-repeat;
+    }
+    #world-tex, #fow-tex, #overlay,
     #debug-height-tex, #debug-maze-tex {
       position: absolute; left: 0; top: 0;
       pointer-events: none;
       user-select: none;
       -webkit-user-drag: none;
     }
-    /* Explicit stacking — Ultralight's layer compositor occasionally fails to
-       paint an SVG sitting on top of an alpha-channel <img> (the FOW texture).
-       Force the world-state SVG above the texture stack via z-index, and lift
-       the local-player marker into its own SVG (`#overlay-top`) above that so a
-       partial compositing failure on the world-state layer can't take the
-       player marker down with it. */
+    /* Explicit stacking — z-index lifts the SVG overlay above the texture
+       stack. Players render as pure HTML divs (CSS border-radius teardrop)
+       in #player-layer because SVG does not composite over <img> in UL 1.4. */
     #world-tex          { z-index: 1; image-rendering: pixelated; }
     #debug-height-tex   { z-index: 2; }
     #debug-maze-tex     { z-index: 3; }
     #debug-all-tex      { z-index: 4; }
     #fow-tex            { z-index: 5; }
     #overlay            { z-index: 6; }
-    #overlay-top        { z-index: 7; }
+    /* Player markers live in #map-viewport (outside the transform)
+       so they render the same way as the combo debug test page. */
     /* Debug overlays (toggled by WebUI.Map.DebugHeight / WebUI.Map.DebugMazeRegions
        console commands; sticky `tsic.debug.Map.Overlay` event drives display). The
        1px-per-tile texture is stretched to world bounds via CSS w/h; `pixelated`
@@ -102,14 +134,15 @@
     .ic-death   { fill: #9b59b6; }
     .ic-land    { fill: #e74c3c; }
     .ic-other   { fill: #bbbbbb; }
-    /* Larger, higher-contrast player marker — the previous 8×12 triangle with
-       a 1px stroke was easy to lose against busy biome textures. The halo is
-       drawn as a separate fatter polygon underneath the fill polygon so the
-       white outline is unmistakable even after the SVG path-atlas gets pushed
-       through Ultralight's compositor. */
-    .pl-self      { fill: #3498db; stroke: #ffffff; }
-    .pl-self-halo { fill: #ffffff; opacity: 1; }
-    .pl-other     { fill: #888888; stroke: #ffffff; }
+    .pl-marker {
+      position: absolute;
+      box-sizing: border-box;
+      border: 2px solid #fff;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 3;
+      box-shadow: 0 0 4px rgba(0,0,0,0.6);
+    }
     .ping       { stroke: #ffcc00; }
     #legend {
       flex: 0 0 auto;
@@ -207,15 +240,8 @@
           <rect id="world-bounds" x="0" y="0" width="0" height="0"></rect>
           <g id="g-icons"></g>
           <g id="g-pings"></g>
-          <g id="g-players"></g>
           <g id="g-coords"></g>
           <g id="g-cheat-fx"></g>
-        </svg>
-        <!-- Dedicated top-of-stack SVG for the local-player marker (and any
-             "must always be visible" overlay). Sized + viewBox-set alongside
-             #overlay in setBounds(). -->
-        <svg id="overlay-top" xmlns="http://www.w3.org/2000/svg">
-          <g id="g-players-top"></g>
         </svg>
       </div>
       <div id="empty">Waiting for map data…</div>
@@ -232,15 +258,15 @@
     </div>
   </div>
   <script>
-    (function () {
+    (function boot() {
+      if (!window.tsic) { setTimeout(boot, 16); return; }
+
       // 1 px per cm — UE world units are cm. We rely on transform to scale.
       const PX_PER_CM = 1;
       // Target screen-pixel size for icons/players/pings. The actual SVG
       // geometry is scaled by 1/state.scale so these stay readable as the
       // map zooms.
       const ICON_PX = 8;
-      const PLAYER_TIP_PX = 12;
-      const PLAYER_BASE_PX = 8;
       const PING_HALF_PX = 8;
       const PING_STROKE_PX = 3;
       // Screen-pixel radius the hover picker uses to grab a target near the
@@ -263,11 +289,6 @@
       // by (north * worldSize + east). RLE is expanded once on receipt so
       // hover lookups are O(1) per mouse move.
       let tileGrid = null;
-
-      function whenReady(cb) {
-        if (window.tsic) { cb(); return; }
-        setTimeout(() => whenReady(cb), 16);
-      }
 
       function el(tag, attrs) {
         const e = document.createElementNS('http://www.w3.org/2000/svg', tag);
@@ -343,6 +364,8 @@
           const c = document.getElementById('map-content');
           const w = (bounds.maxX - bounds.minX) * PX_PER_CM;
           const h = (bounds.maxY - bounds.minY) * PX_PER_CM;
+          const pad = Math.round(Math.min(w, h) * 0.04);
+          c.style.padding = `${pad}px`;
           c.style.width  = `${w}px`;
           c.style.height = `${h}px`;
           for (const id of ['world-tex', 'fow-tex', 'debug-height-tex', 'debug-maze-tex', 'debug-all-tex']) {
@@ -351,7 +374,7 @@
             img.style.width  = `${w}px`;
             img.style.height = `${h}px`;
           }
-          for (const sid of ['overlay', 'overlay-top']) {
+          for (const sid of ['overlay']) {
             const svg = document.getElementById(sid);
             if (!svg) continue;
             svg.setAttribute('width',  w);
@@ -465,67 +488,58 @@
         }
       }
 
+      // Player markers rendered in #map-viewport (outside the CSS
+      // transform on #map-content) using screen-space coordinates.
+      // This matches the combo-debug technique that works in UL 1.4.
+      let playerMarkers = [];
+
+      function worldToScreen(wx, wy) {
+        const local = worldToLocal(wx, wy);
+        return {
+          x: state.panX + local.x * state.scale,
+          y: state.panY + local.y * state.scale,
+        };
+      }
+
+      function clearPlayerMarkers() {
+        for (const m of playerMarkers) {
+          if (m.div.parentNode) m.div.parentNode.removeChild(m.div);
+        }
+        playerMarkers = [];
+      }
+
+      function repositionPlayers() {
+        if (!bounds.hasData) return;
+        for (const m of playerMarkers) {
+          const s = worldToScreen(m.wx, m.wy);
+          m.div.style.left = (s.x - m.sz / 2) + 'px';
+          m.div.style.top  = (s.y - m.sz / 2) + 'px';
+        }
+      }
+
       function renderPlayers(players) {
-        const g    = document.getElementById('g-players');
-        const gTop = document.getElementById('g-players-top');
-        g.textContent = '';
-        gTop.textContent = '';
-        const inv = state.scale > 0 ? (1 / state.scale) : 1;
-        // Bumped from 12/8/1 → 18/12/2 — small markers were getting lost
-        // against the biome texture even at 1:1 zoom.
-        const tipPx  = 18;
-        const basePx = 12;
-        const tipY = -tipPx * inv;
-        const baseY = basePx * inv;
-        const baseX = basePx * inv;
-        const sw = 2 * inv;
-        // Halo is drawn 3px wider per edge so the white outline survives
-        // anti-aliasing and any compositor pixel-snap loss.
-        const haloTipY  = -(tipPx  + 3) * inv;
-        const haloBaseY =  (basePx + 3) * inv;
-        const haloBaseX =  (basePx + 3) * inv;
+        clearPlayerMarkers();
+        if (!bounds.hasData) return;
+        const vp = document.getElementById('map-viewport');
         const list = players || [];
         for (let i = 0; i < list.length; i++) {
           const pl = list[i];
-          const pos = worldToLocal((pl.Position && pl.Position.X) || 0,
-                                   (pl.Position && pl.Position.Y) || 0);
-          // North-up projection makes yaw map 1:1 to SVG clockwise rotation:
-          // yaw=0 (facing +X / north) → triangle UP, yaw=90 → RIGHT, etc.
-          const yaw = (pl.YawDeg || 0);
-          // Temporary self-detection: treat Players[0] as the local player.
-          // The C++ snapshot doesn't yet carry a self identifier, and the
-          // server iterates controllers in order so the local PC is normally
-          // first. Replace with a real flag once FScpUIMapPlayer gains one.
+          const wx = (pl.Position && pl.Position.X) || 0;
+          const wy = (pl.Position && pl.Position.Y) || 0;
           const isSelf = (i === 0);
-          const xform = `translate(${pos.x},${pos.y}) rotate(${yaw})`;
-          // Render into #g-players for non-self players (and as a baseline
-          // for self). Local player ALSO renders into #g-players-top with a
-          // halo so it survives any z-stacking / compositor failures on the
-          // primary overlay.
-          const tri = el('polygon', {
-            points: `0,${tipY} ${baseX},${baseY} ${-baseX},${baseY}`,
-            transform: xform,
-            class: isSelf ? 'pl-self' : 'pl-other', 'stroke-width': sw,
-          });
-          const title = el('title');
-          title.textContent = pl.Name || pl.PlayerId || 'Player';
-          tri.appendChild(title);
-          g.appendChild(tri);
+          const color = pl.Color || (isSelf ? '#3498db' : '#888888');
+          const sz = isSelf ? 14 : 10;
+          const s = worldToScreen(wx, wy);
 
-          if (isSelf) {
-            const halo = el('polygon', {
-              points: `0,${haloTipY} ${haloBaseX},${haloBaseY} ${-haloBaseX},${haloBaseY}`,
-              transform: xform,
-              class: 'pl-self-halo',
-            });
-            const triTop = el('polygon', {
-              points: `0,${tipY} ${baseX},${baseY} ${-baseX},${baseY}`,
-              transform: xform,
-              class: 'pl-self', 'stroke-width': sw,
-            });
-            gTop.appendChild(halo);
-            gTop.appendChild(triTop);
-          }
+          const dot = document.createElement('div');
+          dot.className = 'pl-marker';
+          dot.style.width = sz + 'px';
+          dot.style.height = sz + 'px';
+          dot.style.background = color;
+          dot.style.left = (s.x - sz / 2) + 'px';
+          dot.style.top  = (s.y - sz / 2) + 'px';
+          vp.appendChild(dot);
+          playerMarkers.push({ div: dot, wx: wx, wy: wy, sz: sz });
         }
       }
 
@@ -781,10 +795,9 @@
         // swapping into the "No snapshot" scenario).
         if (!p) {
           document.getElementById('g-icons').textContent = '';
-          document.getElementById('g-players').textContent = '';
-          document.getElementById('g-players-top').textContent = '';
           document.getElementById('g-pings').textContent = '';
           document.getElementById('g-coords').textContent = '';
+          clearPlayerMarkers();
           hideHoverChip();
           empty.textContent = 'Waiting for map data…';
           empty.style.display = '';
@@ -792,10 +805,9 @@
         }
         if (!bounds.hasData) {
           document.getElementById('g-icons').textContent = '';
-          document.getElementById('g-players').textContent = '';
-          document.getElementById('g-players-top').textContent = '';
           document.getElementById('g-pings').textContent = '';
           document.getElementById('g-coords').textContent = '';
+          clearPlayerMarkers();
           hideHoverChip();
           empty.textContent = 'Map bounds unavailable.';
           empty.style.display = '';
@@ -863,8 +875,7 @@
         dragLastX = ev.clientX;
         dragLastY = ev.clientY;
         applyTransform();
-        // The cursor sits still in screen space but the world moves under it
-        // during drag-pan, so the picked entity changes.
+        repositionPlayers();
         updateHoverChip();
       }
       function onMouseUp() {
@@ -915,7 +926,7 @@
         }
       }
 
-      whenReady(() => {
+      {
         const vp = document.getElementById('map-viewport');
         vp.addEventListener('mousedown', onMouseDown);
         window.addEventListener('mousemove', onMouseMove);
@@ -973,7 +984,7 @@
           state.panX += dx;
           state.panY += dy;
           applyTransform();
-          // Crosshair stays at viewport center but the world slides under it.
+          repositionPlayers();
           updateHoverChip();
         }
         const GAMEPAD_PAN_PX_PER_SEC = 800;
@@ -1064,7 +1075,7 @@
           state.mouseY = -1;
           if (!state.isPad) hideHoverChip();
         });
-      });
+      }
     })();
   </script>
 </body></html>

@@ -24,19 +24,17 @@
 </head><body>
   <div id="cp-host" class="inactive"><div id="cp-ring"></div></div>
   <script>
-    (function(){
-      function whenReady(cb){ if(window.tsic){cb();return;} setTimeout(()=>whenReady(cb),16); }
-      whenReady(()=>{
-        tsic.on('tsic.msg.UI.CircularProgress.State', (p) => {
-          const host = document.getElementById('cp-host');
-          const ring = document.getElementById('cp-ring');
-          const active = !!(p && p.bActive && (p.Total > 0));
-          host.classList.toggle('inactive', !active);
-          if (!active) return;
-          const pct = Math.max(0, Math.min(100, Math.round((p.Elapsed / p.Total) * 100)));
-          ring.style.setProperty('--cp-p', String(pct));
-          if (p.Color) ring.style.setProperty('--cp-color', p.Color);
-        });
+    (function boot(){
+      if(!window.tsic){ setTimeout(boot,16); return; }
+      tsic.on('tsic.msg.UI.CircularProgress.State', (p) => {
+        const host = document.getElementById('cp-host');
+        const ring = document.getElementById('cp-ring');
+        const active = !!(p && p.bActive && (p.Total > 0));
+        host.classList.toggle('inactive', !active);
+        if (!active) return;
+        const pct = Math.max(0, Math.min(100, Math.round((p.Elapsed / p.Total) * 100)));
+        ring.style.setProperty('--cp-p', String(pct));
+        if (p.Color) ring.style.setProperty('--cp-color', p.Color);
       });
     })();
   </script>

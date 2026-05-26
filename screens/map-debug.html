@@ -60,6 +60,14 @@
       display: flex; align-items: center; justify-content: center;
       min-height: 0; min-width: 0;
       overflow: auto;
+      position: relative;
+    }
+    .player-dot {
+      position: absolute; z-index: 10;
+      border-radius: 50%;
+      border: 2px solid #fff;
+      box-shadow: 0 0 6px rgba(0,0,0,0.9);
+      pointer-events: none;
     }
     /* Backdrop cycle — body[data-bg]. Magenta is the classic "missing texture"
        tell; checker reveals per-pixel alpha; black shows a solid backdrop. */
@@ -110,13 +118,17 @@
         <button data-action="css">on</button>
       </div>
       <button data-action="reload">reload all</button>
+      <button data-action="combo-debug">combo matrix &rarr;</button>
       <button data-action="player-debug">player marker debug &rarr;</button>
-      <span class="info">Esc returns · re-run WebUI.Map.DebugGrid to rebuild overlay textures</span>
+      <button data-action="overlay-test">overlay test (12 variants) &rarr;</button>
+      <button data-action="close" style="margin-left:auto;background:#a33;border-color:#c55;">Close</button>
     </div>
     <div id="grid">
       <div class="cell" data-id="world-map">
-        <div class="hdr"><span class="name">world-map</span><span class="status">loading…</span></div>
-        <div class="imgwrap"><img alt=""></div>
+        <div class="hdr"><span class="name">world-map</span><span id="player-count" style="color:#3498db;margin-right:8px"></span><span class="status">loading…</span></div>
+        <div class="imgwrap" id="map-imgwrap">
+          <img alt="">
+        </div>
       </div>
       <div class="cell" data-id="world-debug-height">
         <div class="hdr"><span class="name">world-debug-height</span><span class="status">loading…</span></div>
@@ -193,11 +205,120 @@
         else if (action === 'size') cycleAttr('size', SIZE_CYCLE);
         else if (action === 'css')  cycleAttr('css', CSS_CYCLE);
         else if (action === 'reload') reloadAll();
+        else if (action === 'combo-debug') window.location.href = '/screens/map-combo-debug.html';
         else if (action === 'player-debug') window.location.href = '/screens/map-player-debug.html';
+        else if (action === 'overlay-test') window.location.href = '/screens/map-overlay-test.html';
+        else if (action === 'close') { if (window.tsic) tsic.publishMessage('UI.Cmd.Debug.Close', {}); }
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') { e.preventDefault(); if (window.tsic) tsic.publishMessage('UI.Cmd.Debug.Close', {}); }
       });
 
       for (const cell of document.querySelectorAll('.cell')) {
         wireCell(cell);
+      }
+
+      // --- Player marker overlay on the world-map cell (div-based) ---
+      let mapBounds = null;
+      let latestPlayers = null;
+      let playerDots = [];
+
+      function clearPlayerDots() {
+        for (let k = 0; k < playerDots.length; k++) {
+          if (playerDots[k].parentNode) playerDots[k].parentNode.removeChild(playerDots[k]);
+        }
+        playerDots = [];
+      }
+
+      function containedRect(img) {
+        const ew = img.clientWidth, eh = img.clientHeight;
+        const nw = img.naturalWidth || 1, nh = img.naturalHeight || 1;
+        const imgAR = nw / nh, elemAR = ew / eh;
+        let rw, rh, ox, oy;
+        if (elemAR > imgAR) { rh = eh; rw = eh * imgAR; ox = (ew - rw) / 2; oy = 0; }
+        else { rw = ew; rh = ew / imgAR; ox = 0; oy = (eh - rh) / 2; }
+        return { ox, oy, rw, rh };
+      }
+
+      function renderDebugPlayers() {
+        clearPlayerDots();
+        const wrap = document.getElementById('map-imgwrap');
+        const img = wrap ? wrap.querySelector('img') : null;
+        if (!wrap || !img || !mapBounds || !latestPlayers || latestPlayers.length === 0) return;
+        if (!img.naturalWidth || !img.clientWidth) return;
+        const worldW = mapBounds.maxY - mapBounds.minY;
+        const worldH = mapBounds.maxX - mapBounds.minX;
+        if (worldW <= 0 || worldH <= 0) return;
+        const imgR = img.getBoundingClientRect();
+        const wrapR = wrap.getBoundingClientRect();
+        const offX = imgR.left - wrapR.left;
+        const offY = imgR.top  - wrapR.top;
+        const cr = containedRect(img);
+        for (let i = 0; i < latestPlayers.length; i++) {
+          const pl = latestPlayers[i];
+          const wx = (pl.Position && pl.Position.X) || 0;
+          const wy = (pl.Position && pl.Position.Y) || 0;
+          const lx = (wy - mapBounds.minY) / worldW;
+          const ly = (mapBounds.maxX - wx) / worldH;
+          const px = offX + cr.ox + lx * cr.rw;
+          const py = offY + cr.oy + ly * cr.rh;
+          const isSelf = (i === 0);
+          const color = pl.Color || (isSelf ? '#3498db' : '#888');
+          // Direction line
+          const arrLen = 10;
+          const arrow = document.createElement('div');
+          arrow.style.cssText = 'position:absolute;z-index:9;pointer-events:none;'
+            + 'left:' + px + 'px;top:' + py + 'px;'
+            + 'width:' + arrLen + 'px;height:2px;'
+            + 'background:#fff;'
+            + 'transform-origin:0 50%;margin-top:-1px;'
+            + 'transform:rotate(' + (pl.YawDeg || 0) + 'deg);';
+          wrap.appendChild(arrow);
+          playerDots.push(arrow);
+          // Dot
+          const sz = isSelf ? 10 : 7;
+          const dot = document.createElement('div');
+          dot.className = 'player-dot';
+          dot.style.left = (px - sz / 2) + 'px';
+          dot.style.top  = (py - sz / 2) + 'px';
+          dot.style.width = sz + 'px';
+          dot.style.height = sz + 'px';
+          dot.style.background = color;
+          wrap.appendChild(dot);
+          playerDots.push(dot);
+        }
+      }
+
+      function onDebugSnapshot(p) {
+        if (!p) return;
+        const minB = p.MinBounds || {};
+        const maxB = p.MaxBounds || {};
+        mapBounds = {
+          minX: minB.X || 0, minY: minB.Y || 0,
+          maxX: maxB.X || 0, maxY: maxB.Y || 0,
+        };
+        latestPlayers = p.Players || [];
+        const countEl = document.getElementById('player-count');
+        if (countEl) {
+          countEl.textContent = latestPlayers.length > 0
+            ? latestPlayers.length + ' player' + (latestPlayers.length > 1 ? 's' : '')
+            : '';
+        }
+        renderDebugPlayers();
+      }
+
+      (function bootMapDebug() {
+        if (!window.tsic) { setTimeout(bootMapDebug, 16); return; }
+        tsic.on('tsic.msg.UI.Map.Snapshot', onDebugSnapshot);
+      })();
+
+      const mapImg = document.querySelector('#map-imgwrap img');
+      if (mapImg) {
+        if (typeof ResizeObserver !== 'undefined') {
+          new ResizeObserver(function () { renderDebugPlayers(); }).observe(mapImg);
+        }
+        mapImg.addEventListener('load', function () { renderDebugPlayers(); });
       }
     })();
   </script>

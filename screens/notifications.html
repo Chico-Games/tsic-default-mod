@@ -48,13 +48,13 @@
 </head><body>
   <div id="notif-stack"></div>
   <script>
-    (function () {
+    (function boot() {
+      if (!window.tsic) { setTimeout(boot, 16); return; }
+
       const MAX_VISIBLE = 5;
       const LIFETIME_MS = 8000;
       const EXIT_OFFSET_MS = 1000;
       const stack = [];
-
-      function whenReady(cb) { if (window.tsic) { cb(); return; } setTimeout(() => whenReady(cb), 16); }
 
       function dropOldest() {
         const old = stack.shift();
@@ -109,9 +109,7 @@
         }, LIFETIME_MS);
       }
 
-      whenReady(() => {
-        tsic.on('tsic.msg.UI.Notification.Show', spawn);
-      });
+      tsic.on('tsic.msg.UI.Notification.Show', spawn);
     })();
   </script>
 </body></html>

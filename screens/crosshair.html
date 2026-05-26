@@ -20,15 +20,13 @@
 </head><body>
   <div id="dot"></div>
   <script>
-    (function () {
-      function whenReady(cb) { if (window.tsic) { cb(); return; } setTimeout(() => whenReady(cb), 16); }
-      whenReady(() => {
-        const dot = document.getElementById('dot');
-        tsic.on('tsic.msg.UI.Input.Mode.Changed', (p) => {
-          if (!p || !dot) return;
-          const isMenuMode = String(p.Device || '') === 'mouse' && String(p.Focus || '') === 'ui';
-          dot.classList.toggle('hidden', isMenuMode);
-        });
+    (function boot() {
+      if (!window.tsic) { setTimeout(boot, 16); return; }
+      const dot = document.getElementById('dot');
+      tsic.on('tsic.msg.UI.Input.Mode.Changed', (p) => {
+        if (!p || !dot) return;
+        const isMenuMode = String(p.Device || '') === 'mouse' && String(p.Focus || '') === 'ui';
+        dot.classList.toggle('hidden', isMenuMode);
       });
     })();
   </script>

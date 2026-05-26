@@ -31,11 +31,10 @@
 </head><body>
   <div id="pm-root"></div>
   <script>
-    (function(){
-      function whenReady(cb){ if(window.tsic){cb();return;} setTimeout(()=>whenReady(cb),16); }
+    (function boot(){
+      if(!window.tsic){ setTimeout(boot,16); return; }
       let known = new Set();
-      whenReady(()=>{
-        tsic.on('tsic.msg.UI.Ping.Set', (p) => {
+      tsic.on('tsic.msg.UI.Ping.Set', (p) => {
           const pings = (p && p.Pings) || [];
           const now = new Set(pings.map(x => x.PingId));
           // Notify on adds; ignore removes.
@@ -52,7 +51,6 @@
           // Trim removed ids so we re-notify if they reappear.
           for (const id of Array.from(known)) if (!now.has(id)) known.delete(id);
         });
-      });
     })();
   </script>
 </body></html>

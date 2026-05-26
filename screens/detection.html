@@ -14,9 +14,7 @@
     #mist {
       position: fixed; inset: 0;
       pointer-events: none;
-      backdrop-filter: blur(0px);
-      -webkit-backdrop-filter: blur(0px);
-      transition: backdrop-filter 200ms ease, -webkit-backdrop-filter 200ms ease, background 200ms ease;
+      transition: background 200ms ease;
     }
     #ring {
       position: fixed;
@@ -36,7 +34,7 @@
       box-shadow: 0 0 12px rgba(231,76,60,0.9);
       display: flex; align-items: center; justify-content: center;
       font-size: 18px;
-      transition: opacity 120ms ease;
+      transition: box-shadow 120ms ease, border-color 120ms ease;
     }
     .eye::after {
       content: '';
@@ -49,8 +47,8 @@
   <div id="mist"></div>
   <div id="ring"></div>
   <script>
-    (function () {
-      function whenReady(cb){ if(window.tsic){cb();return;} setTimeout(()=>whenReady(cb),16); }
+    (function boot() {
+      if (!window.tsic) { setTimeout(boot, 16); return; }
 
       function render(p) {
         const ring = document.getElementById('ring');
@@ -58,8 +56,6 @@
         ring.textContent = '';
 
         if (!p) {
-          mist.style.backdropFilter = 'blur(0px)';
-          mist.style.webkitBackdropFilter = 'blur(0px)';
           mist.style.background = 'transparent';
           return;
         }
@@ -77,22 +73,22 @@
           const y = 50 + r * (-Math.cos(bearing));
           eye.style.left = x + '%';
           eye.style.top = y + '%';
-          eye.style.opacity = String(Math.max(0.3, Math.min(1, e.DetectionScore || 0)));
+          // Ultralight: opacity < 1 makes the element invisible. Bake the
+          // detection score into the box-shadow alpha instead.
+          const score = Math.max(0.3, Math.min(1, e.DetectionScore || 0));
+          eye.style.boxShadow = `0 0 12px rgba(231,76,60,${(score * 0.9).toFixed(2)})`;
+          eye.style.borderColor = `rgba(255,255,255,${score.toFixed(2)})`;
           ring.appendChild(eye);
         }
 
-        // Screen mist drives the blur. ScreenMist is 0..1.
+        // Screen mist effect. backdrop-filter is not supported in Ultralight 1.4,
+        // so we rely on darkening the background only.
         const mistAmt = Math.max(0, Math.min(1, p.ScreenMist || 0));
-        const blurPx = (mistAmt * 6).toFixed(2) + 'px';
-        mist.style.backdropFilter = `blur(${blurPx})`;
-        mist.style.webkitBackdropFilter = `blur(${blurPx})`;
-        // Darken slightly as mist rises so the effect reads even on bright scenes.
+        // Darken as mist rises so the effect reads even on bright scenes.
         mist.style.background = `rgba(20,5,10,${(mistAmt * 0.35).toFixed(2)})`;
       }
 
-      whenReady(() => {
-        tsic.on('tsic.msg.UI.Detection.State', (p) => render(p));
-      });
+      tsic.on('tsic.msg.UI.Detection.State', (p) => render(p));
     })();
   </script>
 </body></html>

@@ -33,7 +33,9 @@
     <div id="s-numbers">— / —</div>
   </div>
   <script>
-    (function () {
+    (function boot() {
+      if (!window.tsic) { setTimeout(boot, 16); return; }
+
       const DRAIN_DELAY = 1.0;
       const DRAIN_INTERP_FRAC = 0.3;
 
@@ -41,8 +43,6 @@
       let stamN = 1, drainN = 1;
       let lastDrainTime = -1e9;
       let prevTarget = 1;
-
-      function whenReady(cb) { if (window.tsic) { cb(); return; } setTimeout(() => whenReady(cb), 16); }
 
       function applyAttr(p) {
         if (!p || p.Channel !== 'Stamina') return;
@@ -80,10 +80,8 @@
         requestAnimationFrame(frame);
       }
 
-      whenReady(() => {
-        tsic.on('tsic.msg.UI.Player.Attribute', applyAttr);
-        requestAnimationFrame(frame);
-      });
+      tsic.on('tsic.msg.UI.Player.Attribute', applyAttr);
+      requestAnimationFrame(frame);
     })();
   </script>
 </body></html>
