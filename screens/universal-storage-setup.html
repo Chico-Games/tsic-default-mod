@@ -102,7 +102,7 @@
       }
 
       (function boot() {
-        if (!window.tsic) { setTimeout(boot, 16); return; }
+        if (!window.tsic || typeof tsic.whenReady !== 'function') { setTimeout(boot, 16); return; }
         tsic.whenReady(function () {
           tsic.on('tsic.msg.UI.UniversalStorage.Groups', (p) => {
             groups = (p && p.GroupNames) || [];

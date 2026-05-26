@@ -467,7 +467,7 @@
     window.addEventListener('beforeunload', teardown);
 
     (function boot() {
-    if (!window.tsic) { setTimeout(boot, 16); return; }
+    if (!window.tsic || typeof tsic.whenReady !== 'function') { setTimeout(boot, 16); return; }
     tsic.whenReady(function () {
       tsic.on('tsic.msg.UI.Mod.IoConfig', (p) => {
         // Treat missing GameId OR missing ApiKey as "mod.io not configured".
