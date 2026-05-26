@@ -13,6 +13,8 @@
   <script src="/shared/tsic-dropdown.js" defer></script>
   <script src="/shared/hud.js" defer></script>
   <script src="/shared/catalog.js" defer></script>
+  <script src="/shared/dom.js" defer></script>
+  <script src="/shared/icons.js" defer></script>
   <script src="/shared/inventory.js" defer></script>
   <script src="/shared/context-menu.js" defer></script>
   <script src="/shared/action-bar.js" defer></script>
@@ -23,7 +25,7 @@
     .inv-tab { padding:4px 10px; background:rgba(241,229,207,0.55); border:1px solid var(--tsic-border); cursor:pointer; font-size:11px; letter-spacing:1px; text-transform:uppercase; }
     .inv-tab.active { background: var(--tsic-accent-dim); }
     #inv-capacity { display:flex; flex-direction:column; gap:2px; font-size:11px; min-width:200px; }
-    #inv-capacity-line { display:flex; justify-content:space-between; opacity:0.75; }
+    #inv-capacity-line { display:flex; justify-content:space-between; color:rgba(37,33,25,0.75); }
     #inv-capacity-bar { height:5px; background:rgba(241,229,207,0.55); border-radius:3px; overflow:hidden; }
     #inv-capacity-fill { height:100%; width:0; background:#cbd5e1; transition: width 100ms linear, background 100ms linear; }
     #inv-capacity[data-state="warning"] #inv-capacity-fill { background:#f59e0b; }
@@ -55,13 +57,13 @@
       position: relative;
     }
     .equip-slot.is-empty {
-      background: rgba(241,229,207,0.20);
+      background: rgba(241,229,207,0.15);
       border-style: dashed;
-      color: var(--cat-ink-muted, var(--cat-ink-soft));
-      opacity: 0.75;
+      border-color: rgba(184,170,145,0.75);
+      color: rgba(81,71,57,0.75);
     }
     .equip-slot:hover { background: rgba(241,229,207,0.88); }
-    .equip-slot.is-empty:hover { background: rgba(241,229,207,0.45); opacity: 1; }
+    .equip-slot.is-empty:hover { background: rgba(241,229,207,0.45); color: var(--cat-ink-muted, var(--cat-ink-soft)); border-color: var(--cat-border); }
     .equip-slot img { width:100%; height:100%; object-fit:contain; pointer-events:none; }
     .equip-slot.is-drop-target { outline: 2px solid var(--cat-green); outline-offset: -2px; }
     #inv-char-preview { flex: 1 1 auto; min-height: 120px; background: rgba(241,229,207,0.92); border:1px solid var(--tsic-border); display:flex; align-items:center; justify-content:center; }
@@ -116,8 +118,6 @@
     let lastEquipment = null;
     let hoveredItem = null;
     let selectedSlot = -1;
-    let charPreviewFrame = 0;
-    let charPreviewTimer = null;
 
     function whenReady(cb){ if(window.tsic && window.TSICInventory){cb();return;} setTimeout(()=>whenReady(cb),16); }
 
@@ -238,11 +238,12 @@
     // server has sent UI.Equipment.Updated. Once a real update arrives any
     // additional/replaced slot tags from the server take precedence.
     const DEFAULT_EQUIP_SLOTS = [
-        'Equipment.MainHand',
-        'Equipment.OffHand',
-        'Equipment.Head',
-        'Equipment.Body',
-        'Equipment.Feet',
+        'Entity.Inventory.Item.Equipment.Slot.Head',
+        'Entity.Inventory.Item.Equipment.Slot.Body',
+        'Entity.Inventory.Item.Equipment.Slot.Legs',
+        'Entity.Inventory.Item.Equipment.Slot.Shoes',
+        'Entity.Inventory.Item.Equipment.Slot.Weapon',
+        'Entity.Inventory.Item.Equipment.Slot.Gloves',
     ];
 
     function renderEquipment() {
@@ -266,7 +267,7 @@
             const label = (s.SlotTag || '').split('.').pop();
             if (!isEmpty) {
                 const img = document.createElement('img');
-                img.src = `tex://item-icon/${encodeURIComponent(s.ItemId)}`;
+                img.src = `/tex/item-icon/${encodeURIComponent(s.ItemId)}`;
                 div.appendChild(img);
                 div.title = `${label} — click to unequip`;
                 div.addEventListener('click', () => {
@@ -298,18 +299,6 @@
         }
     }
 
-    function startCharPreviewPolling() {
-        if (charPreviewTimer) return;
-        const img = document.getElementById('inv-char-img');
-        charPreviewTimer = setInterval(() => {
-            charPreviewFrame++;
-            img.src = `tex://character-preview?t=${charPreviewFrame}`;
-        }, 100);
-    }
-    function stopCharPreviewPolling() {
-        if (charPreviewTimer) { clearInterval(charPreviewTimer); charPreviewTimer = null; }
-    }
-
     whenReady(() => {
         // Render the empty-slot squares immediately so the inventory shows
         // the player's slots even before the server sends Equipment.Updated.
@@ -325,7 +314,9 @@
             renderEquipment();
         });
         tsic.on('tsic.msg.UI.CharacterPreview.Ready', (p) => {
-            if (p && p.bReady) startCharPreviewPolling();
+            if (p && p.bReady) {
+                document.getElementById('inv-char-img').src = '/runtime/character-preview.imgsrc';
+            }
         });
         tsic.on('tsic.msg.UI.Input.IA_UI_AddToHotbar', (e) => {
             if (e.Phase !== 'Started' || !hoveredItem || !window.TSICInventory) return;
@@ -356,13 +347,11 @@
 
         document.getElementById('btn-close').addEventListener('click', () => {
             tsic.publishMessage('UI.Cmd.CharacterPreview.Hide', {});
-            stopCharPreviewPolling();
             tsic.publishMessage('UI.Cmd.Pause.Resume', {});
         });
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 tsic.publishMessage('UI.Cmd.CharacterPreview.Hide', {});
-                stopCharPreviewPolling();
                 tsic.publishMessage('UI.Cmd.Pause.Resume', {});
             }
             if (/^[0-9]$/.test(e.key) && hoveredItem) {

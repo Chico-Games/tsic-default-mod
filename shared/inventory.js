@@ -1,15 +1,11 @@
 // Renderers + drag-drop + modal helpers for the inventory page. Reads from
 // tsic.itemCatalog for display data. The page itself stays declarative.
+//
+// Depends on: shared/dom.js (TSIC.el), shared/icons.js (TSIC.itemIconUrl, TSIC.iconImg)
 (function(){
-    function el(tag, props = {}, children = []) {
-        const e = document.createElement(tag);
-        Object.assign(e, props);
-        if (props.style) e.style.cssText = props.style;
-        for (const c of children) e.appendChild(typeof c === 'string' ? document.createTextNode(c) : c);
-        return e;
-    }
+    var el = TSIC.el;
+
     window.TSICInventory = {
-        el,
         // Vertical scrollable item list. Renders one .tsic-list-row per stack
         // (RE-style — no slot grid, no reorder; SlotIndex is just an identity).
         // Each row is a real <button> so gamepad Confirm + mouse click both
@@ -21,28 +17,26 @@
             host.innerHTML = '';
             const list = items || [];
             if (list.length === 0) {
-                const empty = el('div', { className: 'tsic-empty', textContent: opts.emptyLabel || 'Empty' });
+                const empty = el('div', { class: 'tsic-empty' }, opts.emptyLabel || 'Empty');
                 host.appendChild(empty);
                 return;
             }
             for (const it of list) {
                 const desc = cat[it.ItemId] || {};
-                const row = el('button', { className: 'tsic-list-row' });
-                row.type = 'button';
+                const row = el('button', { class: 'tsic-list-row', type: 'button' });
                 row.dataset.slot = it.SlotIndex;
                 if (opts.selectedIdx === it.SlotIndex) row.classList.add('is-selected');
 
-                const iconWrap = el('div', { className: 'icon' });
+                const iconWrap = el('div', { class: 'icon' });
                 if (it.ItemId) {
-                    const img = el('img', { src: `tex://item-icon/${encodeURIComponent(it.ItemId)}` });
-                    iconWrap.appendChild(img);
+                    iconWrap.appendChild(TSIC.iconImg(TSIC.itemIconUrl(it.ItemId)));
                 }
                 row.appendChild(iconWrap);
 
-                const name = el('div', { className: 'name', textContent: desc.Name || it.ItemId || 'Unknown' });
+                const name = el('div', { class: 'name' }, desc.Name || it.ItemId || 'Unknown');
                 row.appendChild(name);
 
-                const right = el('div', { className: 'right' });
+                const right = el('div', { class: 'right' });
                 const stackText = it.Count > 1 ? `×${it.Count}` : '';
                 const weightText = (desc.Weight && it.Count)
                     ? `${((desc.Weight || 0) * (it.Count || 1)).toFixed(2)} kg`
@@ -72,16 +66,16 @@
             for (const it of (items || [])) indexed.set(it.SlotIndex, it);
             for (let i = 0; i < totalSlots; i++) {
                 const it = indexed.get(i);
-                const slot = el('div', { className: 'tsic-slot' + (opts.selectedIdx === i ? ' selected' : '') });
+                const slot = el('div', { class: 'tsic-slot' + (opts.selectedIdx === i ? ' selected' : '') });
                 slot.dataset.slot = i;
                 if (it) {
                     if (it.ItemId) {
-                        const img = el('img', { src: `tex://item-icon/${encodeURIComponent(it.ItemId)}`,
-                            style: 'width:100%;height:100%;object-fit:contain;pointer-events:none;' });
+                        const img = TSIC.iconImg(TSIC.itemIconUrl(it.ItemId));
+                        img.style.cssText = 'width:100%;height:100%;object-fit:contain;pointer-events:none;';
                         slot.appendChild(img);
                     }
                     if (it.Count > 1) {
-                        slot.appendChild(el('span', { className: 'count', textContent: String(it.Count) }));
+                        slot.appendChild(el('span', { class: 'count' }, String(it.Count)));
                     }
                 }
                 slot.addEventListener('mouseenter', () => opts.onHover && opts.onHover(it, i));
@@ -109,11 +103,12 @@
         renderInfoPanel(host, itemDescriptor, itemInstance) {
             host.innerHTML = '';
             if (!itemDescriptor) return;
-            host.appendChild(el('img', { src: `tex://item-icon/${encodeURIComponent(itemDescriptor.ItemId)}`,
-                style: 'width:96px;height:96px;object-fit:contain;display:block;margin:0 auto 8px;' }));
-            host.appendChild(el('h3', { textContent: itemDescriptor.Name, style: 'margin:0 0 4px;' }));
-            host.appendChild(el('p', { textContent: itemDescriptor.Description || '', style: 'font-size:12px;opacity:0.75;' }));
-            const meta = el('div', { style: 'margin-top:8px;font-size:11px;opacity:0.65;' });
+            const infoImg = TSIC.iconImg(TSIC.itemIconUrl(itemDescriptor.ItemId));
+            infoImg.style.cssText = 'width:96px;height:96px;object-fit:contain;display:block;margin:0 auto 8px;';
+            host.appendChild(infoImg);
+            host.appendChild(el('h3', { style: 'margin:0 0 4px;' }, itemDescriptor.Name));
+            host.appendChild(el('p', { style: 'font-size:12px;color:rgba(37,33,25,0.75);' }, itemDescriptor.Description || ''));
+            const meta = el('div', { style: 'margin-top:8px;font-size:11px;color:rgba(37,33,25,0.65);' });
             meta.innerHTML = `<div>Category: ${itemDescriptor.Category || 'Other'}</div>`
                 + `<div>Weight: ${(itemDescriptor.Weight || 0).toFixed(2)}</div>`
                 + (itemInstance && itemInstance.Count > 1 ? `<div>Stack: ${itemInstance.Count}</div>` : '');
@@ -123,14 +118,14 @@
             const title = (opts && opts.title) || 'Drop how many?';
             const confirmLabel = (opts && opts.confirmLabel) || 'Drop';
             const overlay = el('div', { style: 'position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:1000;' });
-            const panel = el('div', { className: 'tsic-panel', style: 'width:300px;padding:16px;' });
-            panel.appendChild(el('h3', { textContent: title, style: 'margin:0 0 12px;' }));
-            const slider = el('input', { type: 'range', min: 1, max: maxCount, value: maxCount, style: 'width:100%;' });
-            const num = el('div', { textContent: String(maxCount), style: 'text-align:center;font-size:18px;margin:8px 0;' });
+            const panel = el('div', { class: 'tsic-panel', style: 'width:300px;padding:16px;' });
+            panel.appendChild(el('h3', { style: 'margin:0 0 12px;' }, title));
+            const slider = el('input', { type: 'range', min: '1', max: String(maxCount), value: String(maxCount), style: 'width:100%;' });
+            const num = el('div', { style: 'text-align:center;font-size:18px;margin:8px 0;' }, String(maxCount));
             slider.addEventListener('input', () => num.textContent = slider.value);
             const buttons = el('div', { style: 'display:flex;gap:8px;justify-content:flex-end;' });
-            const cancel = el('button', { className: 'tsic-button', textContent: 'Cancel' });
-            const ok = el('button', { className: 'tsic-button', textContent: confirmLabel });
+            const cancel = el('button', { class: 'tsic-button' }, 'Cancel');
+            const ok = el('button', { class: 'tsic-button' }, confirmLabel);
             cancel.addEventListener('click', () => overlay.remove());
             ok.addEventListener('click', () => { overlay.remove(); onConfirm(parseInt(slider.value, 10)); });
             buttons.appendChild(cancel); buttons.appendChild(ok);
@@ -201,14 +196,14 @@
             // C++ NumHotbarSlots == 10. Slot index space is 0..9; the modal's
             // visible labels follow the keyboard convention (1..9, 0).
             const overlay = el('div', { style: 'position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:1000;' });
-            const panel = el('div', { className: 'tsic-panel', style: 'padding:16px;' });
-            panel.appendChild(el('h3', { textContent: 'Pick hotbar slot (1-9 or 0)', style: 'margin:0 0 12px;' }));
+            const panel = el('div', { class: 'tsic-panel', style: 'padding:16px;' });
+            panel.appendChild(el('h3', { style: 'margin:0 0 12px;' }, 'Pick hotbar slot (1-9 or 0)'));
             const row = el('div', { style: 'display:flex;gap:6px;' });
             const buttons = [];
             const finish = (slotIndex) => { overlay.remove(); window.removeEventListener('keydown', onKey, true); onPick(slotIndex); };
             for (let i = 0; i < 10; i++) {
                 const label = i === 9 ? '0' : String(i + 1);
-                const btn = el('button', { className: 'tsic-button', textContent: label, style: 'width:48px;height:48px;' });
+                const btn = el('button', { class: 'tsic-button', style: 'width:48px;height:48px;' }, label);
                 btn.addEventListener('click', () => finish(i));
                 buttons.push(btn);
                 row.appendChild(btn);

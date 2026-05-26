@@ -9,11 +9,13 @@
   <script src="/shared/router.js" defer></script>
   <script src="/shared/hud.js" defer></script>
   <script src="/shared/catalog.js" defer></script>
+  <script src="/shared/dom.js" defer></script>
+  <script src="/shared/icons.js" defer></script>
   <style>
     #hotbar-row { display:flex; gap:6px; padding: 8px; background: rgba(241,229,207,0.92); border-radius: 4px; }
     #hotbar-row .tsic-slot.selected { box-shadow: 0 0 0 2px var(--tsic-accent); }
     #hotbar-row .tsic-slot img { width:100%; height:100%; object-fit:contain; pointer-events:none; }
-    #hotbar-row .tsic-slot .key { position:absolute; bottom:2px; right:4px; font-size:9px; opacity:0.7; pointer-events:none; }
+    #hotbar-row .tsic-slot .key { position:absolute; bottom:2px; right:4px; font-size:9px; color:rgba(37,33,25,0.7); pointer-events:none; }
     #hotbar-row .tsic-slot { position:relative; }
   </style>
 </head><body>
@@ -54,7 +56,7 @@
           const item = slotHasItem ? playerItemsBySlot.get(inventorySlot) : null;
           if (item && item.ItemId) {
             const img = document.createElement('img');
-            img.src = `tex://item-icon/${encodeURIComponent(item.ItemId)}`;
+            img.src = `/tex/item-icon/${encodeURIComponent(item.ItemId)}`;
             img.onerror = () => { img.style.visibility = 'hidden'; };
             slot.appendChild(img);
             if (item.Count > 1) {

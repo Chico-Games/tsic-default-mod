@@ -15,10 +15,12 @@
   <script src="/shared/hud.js" defer></script>
   <script src="/shared/catalog.js" defer></script>
   <script src="/shared/recipe-info.js" defer></script>
+  <script src="/shared/dom.js" defer></script>
+  <script src="/shared/icons.js" defer></script>
   <style>
     #c-info { padding:10px; background: rgba(241,229,207,0.88); border:1px solid var(--tsic-border); flex: 1 1 auto; overflow:auto; min-height: 0; }
     #c-craft { width:100%; padding: 8px; flex: 0 0 auto; }
-    #c-craft:disabled { opacity:0.4; cursor:not-allowed; }
+    #c-craft:disabled { background:rgba(52,65,45,0.4); color:rgba(247,237,217,0.5); border-color:rgba(39,49,32,0.4); box-shadow:none; cursor:not-allowed; }
   </style>
 </head><body>
 <div id="c-root" class="tsic-modal-scrim">
@@ -71,7 +73,7 @@
             iconWrap.className = 'icon';
             if (r.bDiscovered) {
                 const img = document.createElement('img');
-                img.src = `tex://item-icon/${encodeURIComponent((r.Outputs[0]||{}).ItemId||'')}`;
+                img.src = `/tex/item-icon/${encodeURIComponent((r.Outputs[0]||{}).ItemId||'')}`;
                 iconWrap.appendChild(img);
             }
             row.appendChild(iconWrap);
