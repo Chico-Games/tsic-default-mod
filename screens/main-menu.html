@@ -18,6 +18,54 @@
       align-items: center;
       justify-content: center;
       padding: 32px;
+
+      /* ── Background tuning knobs ────────────────────────────────────────
+       *   --menu-paper-alpha  : opacity of the cream paper backdrop
+       *                         (0 = fully see-through, 1 = solid paper)
+       *   --menu-dot-strength : how dark the halftone dots are
+       *                         (0 = invisible, 1 = solid black ink)
+       * These two are INDEPENDENT — the dots are painted on separate
+       * pseudo-element layers, so dialing paper to 0 leaves the dots at
+       * their full strength, and vice versa.
+       * ──────────────────────────────────────────────────────────────────*/
+      --menu-paper-alpha: 0.35;
+      --menu-dot-strength: 0.45;
+
+      background-color: rgba(240, 232, 208, var(--menu-paper-alpha));
+      isolation: isolate;
+    }
+    /* Halftone background with a size gradient — big dots haloed around the
+       cover, tiny dots at the outer edges. Two layered pseudos, each masked
+       to its own radial band; the overlap blends into a mid-size feel. */
+    .menu-stage::before,
+    .menu-stage::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+    }
+    .menu-stage::before {
+      /* Inner halo — large dots immediately around the cover. */
+      background-image:
+        radial-gradient(rgba(10, 10, 10, var(--menu-dot-strength)) 14%, transparent 15%),
+        radial-gradient(rgba(10, 10, 10, var(--menu-dot-strength)) 14%, transparent 15%);
+      background-size: 18px 18px;
+      background-position: 0 0, 9px 9px;
+      -webkit-mask-image: radial-gradient(ellipse at center, transparent 18%, #000 36%, transparent 78%);
+              mask-image: radial-gradient(ellipse at center, transparent 18%, #000 36%, transparent 78%);
+    }
+    .menu-stage::after {
+      /* Outer field — tiny dots fading out toward the corners. The outer
+         dots use ~78% of the dot-strength knob so the size gradient also
+         reads as a slight density gradient. */
+      background-image:
+        radial-gradient(rgba(10, 10, 10, calc(var(--menu-dot-strength) * 0.78)) 14%, transparent 15%),
+        radial-gradient(rgba(10, 10, 10, calc(var(--menu-dot-strength) * 0.78)) 14%, transparent 15%);
+      background-size: 6px 6px;
+      background-position: 0 0, 3px 3px;
+      -webkit-mask-image: radial-gradient(ellipse at center, transparent 50%, #000 100%);
+              mask-image: radial-gradient(ellipse at center, transparent 50%, #000 100%);
     }
     .menu-cover {
       width: 520px;
@@ -25,6 +73,9 @@
       padding: 0;
     }
     .menu-cover .tsic-masthead { padding: 18px 22px 10px; margin: 0; }
+    /* Pin the issue chip + date to the TOP right of the masthead — old-school
+       magazine periodical info sits in the corner, not slumped at the bottom. */
+    .menu-cover .tsic-masthead-meta { align-self: flex-start; }
     .menu-cover .tsic-masthead-title { font-size: 64px; }
     .menu-cover .tsic-masthead-title em {
       font-style: italic;
@@ -164,6 +215,71 @@
       animation: showroom-twinkle var(--duration, 4s) ease-in-out infinite var(--delay, 0s);
     }
 
+    /* ────── Kids-room-specific ────── */
+    @keyframes showroom-fairy-twinkle {
+      0%, 100% { opacity: 0.4; fill: var(--paper-muted); }
+      50%      { opacity: 1;   fill: var(--lamp-light, #fff8b8); }
+    }
+    .showroom-fairy-light {
+      animation: showroom-fairy-twinkle 3s ease-in-out infinite var(--delay, 0s);
+    }
+
+    @keyframes showroom-rock {
+      0%, 100% { transform: rotate(-2.5deg); }
+      50%      { transform: rotate( 2.5deg); }
+    }
+    .showroom-rocking-horse {
+      transform-origin: 210px 160px;
+      animation: showroom-rock 3.5s ease-in-out infinite;
+    }
+
+    /* ────── Hallway-specific (flickering lamp + pendulum + twitch) ──────
+     * The spooky-flicker animation is shared between the bulb and the beam
+     * so they flicker in sync — like a single failing bulb. The bulb gets
+     * an inline transform-origin so the scale-blip stays anchored. */
+    @keyframes showroom-spooky-flicker {
+      0%, 21%, 25%, 51%, 55%, 81%, 85%, 100% { opacity: 0.85; transform: scale(1);    }
+      22%, 24%                                { opacity: 0.30; transform: scale(0.97); }
+      23%                                     { opacity: 0.10; transform: scale(0.95); }
+      52%, 54%                                { opacity: 0.20; transform: scale(0.96); }
+      53%                                     { opacity: 0.80; transform: scale(1);    }
+      82%, 84%                                { opacity: 0.40; transform: scale(0.98); }
+      83%                                     { opacity: 0.10; transform: scale(0.92); }
+    }
+    .showroom-spooky-bulb { animation: showroom-spooky-flicker 7s infinite; }
+    .showroom-spooky-beam { animation: showroom-spooky-flicker 7s infinite; }
+
+    @keyframes showroom-pendulum-swing {
+      0%, 100% { transform: rotate( 7deg); }
+      50%      { transform: rotate(-7deg); }
+    }
+    .showroom-pendulum {
+      transform-origin: 38px 65px;
+      animation: showroom-pendulum-swing 2s ease-in-out infinite;
+    }
+
+    @keyframes showroom-head-twitch {
+      0%, 78%, 85%, 100% { transform: rotate(  0deg); }
+      79%                { transform: rotate( 15deg); }
+      80%                { transform: rotate( -8deg); }
+      81%                { transform: rotate(  5deg); }
+      82%                { transform: rotate( -2deg); }
+    }
+    .showroom-creepy-head {
+      transform-origin: 115px 55px;
+      animation: showroom-head-twitch 8s infinite;
+    }
+
+    @keyframes showroom-eyes-dart {
+      0%,  15%  { transform: translate(0, 0); }
+      18%, 35%  { transform: translate(-2px, 0.5px); }
+      38%, 55%  { transform: translate( 1.5px, -0.5px); }
+      58%, 75%  { transform: translate( 2px, 0); }
+      78%, 95%  { transform: translate(-1px, 0.5px); }
+      100%      { transform: translate(0, 0); }
+    }
+    .showroom-eyes { animation: showroom-eyes-dart 5s infinite; }
+
     .menu-rows { padding: 6px 4px 10px; }
 
     .menu-row-dept {
@@ -203,14 +319,41 @@
       <!-- MASTHEAD -->
       <div class="tsic-masthead">
         <div class="tsic-masthead-title">
-          The <em>Store</em>
-          <em>is closed.</em>
+          <em>The Store is</em>
+          Closed.
         </div>
         <div class="tsic-masthead-meta">
-          <span class="tsic-masthead-issue">VOL. 042 · WINTER COLLECTION</span>
-          <span class="tsic-masthead-date">RESTOCK PENDING · DEC 1989</span>
+          <span class="tsic-masthead-issue">Vol.1 — The Store Opens</span>
+          <span class="tsic-masthead-date" id="kicker-slot">RESTOCK PENDING · DEC 1983</span>
         </div>
       </div>
+
+      <script>
+        // Kicker text — randomized on each load like a periodical "splash"
+        // line. The " · DEC 1983" suffix is appended automatically; entries
+        // here are just the rotating prefix. Add, remove, or reorder freely.
+        (function pickKicker() {
+          const TAGLINES = [
+            // — opening day / debut —
+            'PREVIEW ISSUE', 'OPENING DAY', 'GRAND OPENING', 'DEBUT EDITION',
+            'INAUGURAL ISSUE', 'CHARTER ISSUE', 'FIRST PRESSING',
+            'FRESH OFF THE PRESS', 'RIBBON CUTTING', 'SOFT OPENING',
+            // — retail flavor —
+            'NOW HIRING', 'ALL DEPARTMENTS OPEN', 'FREE WITH PURCHASE',
+            'WHILE SUPPLIES LAST', 'AS SEEN ON TV', "COLLECTOR'S EDITION",
+            // — slightly off —
+            'DOORS OPEN SOON', 'STOCK ARRIVING', 'MIND THE FLOORS',
+            'WATCH YOUR STEP', 'FOR DISPLAY ONLY', 'RESTOCK PENDING',
+            // — past closing —
+            'AFTER HOURS', 'NO REFUNDS', 'FINAL SALE', 'CHECK BEHIND YOU',
+            'AISLE 13 SEALED', 'THE STORE REMEMBERS',
+          ];
+          const slot = document.getElementById('kicker-slot');
+          if (!slot) return;
+          const pick = TAGLINES[Math.floor(Math.random() * TAGLINES.length)];
+          slot.textContent = pick + ' · DEC 1983';
+        })();
+      </script>
 
       <!-- FEATURE SPREAD — random showroom cloned into #showroom-slot at boot -->
       <div class="menu-feature">
@@ -234,22 +377,22 @@
         </button>
         <button class="tsic-row-button" id="btn-mods">
           <span class="menu-row-dept">Dept. 33</span>
-          Special Catalogues
+          Mods
           <span class="menu-pg">PG. 33</span>
         </button>
         <button class="tsic-row-button" id="btn-settings">
           <span class="menu-row-dept">Dept. 88</span>
-          Store Settings
+          Settings
           <span class="menu-pg">PG. 88</span>
         </button>
         <button class="tsic-row-button" id="btn-credits">
           <span class="menu-row-dept">Dept. 99</span>
-          About the Brand
+          Credits
           <span class="menu-pg">PG. 99</span>
         </button>
         <button class="tsic-row-button" id="btn-exit">
           <span class="menu-row-dept">Fire Exit</span>
-          Leave the Premises
+          Leave the Store
           <span class="menu-pg">END</span>
         </button>
       </div>
@@ -513,6 +656,297 @@
       <circle cx="210" cy="145" r="1"   class="showroom-mote" style="--duration: 5s;   --delay: 2s;   --drift-x: -15px;" />
       <circle cx="260" cy="115" r="1.5" class="showroom-mote" style="--duration: 7s;   --delay: 3s;   --drift-x: -8px;" />
       <circle cx="180" cy="150" r="0.8" class="showroom-mote" style="--duration: 4.5s; --delay: 1.5s; --drift-x: -10px;" />
+    </svg>
+  </template>
+
+  <!-- ─── Showroom D · Dining Room ─── -->
+  <template data-showroom data-id="dining-room" data-cap="Showroom D · Dining Room">
+    <svg viewBox="0 0 280 180" aria-hidden="true" style="--lamp-light:#fff8b8;">
+      <defs>
+        <linearGradient id="showroom-beam-gradient" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%"   stop-color="#fff8b8" stop-opacity="0.8" />
+          <stop offset="100%" stop-color="#fff8b8" stop-opacity="0" />
+        </linearGradient>
+        <filter id="showroom-glow" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="2.5" result="coloredBlur"/>
+          <feMerge>
+            <feMergeNode in="coloredBlur"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+      </defs>
+
+      <!-- ambient shadows under each piece of furniture -->
+      <ellipse cx="60"  cy="160" rx="18" ry="2" class="showroom-shadow" style="animation-delay: -1s;" />
+      <ellipse cx="140" cy="160" rx="60" ry="4" class="showroom-shadow" />
+      <ellipse cx="220" cy="160" rx="18" ry="2" class="showroom-shadow" style="animation-delay: -2s;" />
+      <ellipse cx="20"  cy="160" rx="15" ry="2" class="showroom-shadow" style="animation-delay: -3s;" />
+
+      <rect x="0" y="160" width="280" height="2" fill="currentColor" />
+
+      <!-- framed artwork on the back wall -->
+      <rect x="95"  y="25" width="90" height="50" rx="2" stroke="currentColor" stroke-width="2" fill="none" />
+      <circle cx="120" cy="50" r="12" fill="var(--paper-muted)" />
+      <path d="M 140 75 L 140 40 L 170 75 Z" fill="currentColor" />
+
+      <!-- sideboard + potted plant -->
+      <rect x="5"  y="100" width="30" height="60" fill="currentColor" />
+      <rect x="5"  y="105" width="30" height="2"  fill="var(--paper-muted)" />
+      <rect x="19" y="110" width="2"  height="40" fill="var(--paper-bright)" />
+      <rect x="14" y="85"  width="12" height="15" rx="1" fill="currentColor" />
+      <path d="M 20 85 Q 5 60 10 45 Q 20 65 20 85" fill="var(--paper-muted)" />
+      <path d="M 20 85 Q 35 65 32 50 Q 15 70 20 85" fill="currentColor" />
+      <path d="M 20 85 Q 15 70 20 60 Q 25 70 20 85" fill="currentColor" />
+
+      <!-- chair back legs (drawn behind the table for depth) -->
+      <rect x="52"  y="130" width="4" height="30" rx="1" fill="currentColor" />
+      <rect x="224" y="130" width="4" height="30" rx="1" fill="currentColor" />
+
+      <!-- dining table -->
+      <rect x="70"  y="115" width="140" height="6"  rx="2" fill="currentColor" />
+      <rect x="85"  y="121" width="6"   height="39"        fill="currentColor" />
+      <rect x="189" y="121" width="6"   height="39"        fill="currentColor" />
+      <rect x="88"  y="145" width="104" height="3"         fill="currentColor" />
+
+      <!-- wine glasses -->
+      <path d="M 115 100 L 121 100 L 119 108 L 117 108 Z" fill="currentColor" />
+      <rect x="117.5" y="108" width="1" height="6" fill="currentColor" />
+      <rect x="115"   y="114" width="6" height="1" fill="currentColor" />
+      <path d="M 159 100 L 165 100 L 163 108 L 161 108 Z" fill="currentColor" />
+      <rect x="161.5" y="108" width="1" height="6" fill="currentColor" />
+      <rect x="159"   y="114" width="6" height="1" fill="currentColor" />
+
+      <!-- bowls -->
+      <path d="M 85  107 L 105 107 Q 105 115 95  115 Q 85  115 85  107 Z" fill="currentColor" />
+      <path d="M 175 107 L 195 107 Q 195 115 185 115 Q 175 115 175 107 Z" fill="currentColor" />
+
+      <!-- steam rising from the hot bowls -->
+      <path d="M 95  103 Q 90 93 97  83 T 93  68" stroke="var(--paper-muted)" stroke-width="1.5" fill="none" class="showroom-steam" style="--duration: 4.5s; --delay: 0s;   transform-origin: 95px 103px;"  stroke-linecap="round" />
+      <path d="M 185 103 Q 190 93 183 83 T 187 68" stroke="var(--paper-muted)" stroke-width="1.5" fill="none" class="showroom-steam" style="--duration: 5s;   --delay: 1.5s; transform-origin: 185px 103px;" stroke-linecap="round" />
+
+      <!-- chair front layers — left -->
+      <rect x="45" y="75"  width="5"  height="55" rx="2.5" fill="currentColor" />
+      <rect x="45" y="126" width="30" height="4"  rx="2"   fill="currentColor" />
+      <rect x="68" y="130" width="4"  height="30" rx="1"   fill="currentColor" />
+
+      <!-- chair front layers — right -->
+      <rect x="230" y="75"  width="5"  height="55" rx="2.5" fill="currentColor" />
+      <rect x="205" y="126" width="30" height="4"  rx="2"   fill="currentColor" />
+      <rect x="208" y="130" width="4"  height="30" rx="1"   fill="currentColor" />
+
+      <!-- pendant lamp cord + shade -->
+      <rect x="139" y="0" width="2" height="30" fill="currentColor" />
+      <polygon points="120,40 160,40 145,20 135,20" fill="currentColor" />
+
+      <!-- light beam casting down over the table -->
+      <polygon points="120,40 160,40 220,160 60,160" fill="url(#showroom-beam-gradient)" class="showroom-beam" />
+
+      <!-- pendant bulb -->
+      <circle cx="140" cy="42" r="5" fill="#fff8b8" filter="url(#showroom-glow)" class="showroom-bulb" style="transform-origin: 140px 42px;" />
+
+      <!-- dust motes caught in the pendant beam -->
+      <circle cx="140" cy="110" r="1.2" class="showroom-mote" style="--duration: 6s;   --delay: 0s;   --drift-x: -12px;" />
+      <circle cx="120" cy="130" r="1"   class="showroom-mote" style="--duration: 5s;   --delay: 2s;   --drift-x: 15px;" />
+      <circle cx="160" cy="90"  r="1.5" class="showroom-mote" style="--duration: 7s;   --delay: 3s;   --drift-x: -8px;" />
+      <circle cx="130" cy="70"  r="0.8" class="showroom-mote" style="--duration: 4.5s; --delay: 1.5s; --drift-x: 10px;" />
+    </svg>
+  </template>
+
+  <!-- ─── Showroom E · Kids Room ─── -->
+  <template data-showroom data-id="kids-room" data-cap="Showroom E · Kids Room">
+    <svg viewBox="0 0 280 180" aria-hidden="true" style="--lamp-light:#fff8b8;">
+      <defs>
+        <linearGradient id="showroom-beam-gradient" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%"   stop-color="#fff8b8" stop-opacity="0.8" />
+          <stop offset="100%" stop-color="#fff8b8" stop-opacity="0" />
+        </linearGradient>
+        <filter id="showroom-glow" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="2.5" result="coloredBlur"/>
+          <feMerge>
+            <feMergeNode in="coloredBlur"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+      </defs>
+
+      <!-- ambient shadows -->
+      <ellipse cx="75"  cy="160" rx="45" ry="3" class="showroom-shadow" style="animation-delay: -1s;" />
+      <ellipse cx="145" cy="160" rx="20" ry="2" class="showroom-shadow" style="animation-delay: -2s;" />
+      <ellipse cx="210" cy="160" rx="40" ry="3" class="showroom-shadow" />
+
+      <rect x="0" y="160" width="280" height="2" fill="currentColor" />
+
+      <!-- fairy-light wire draped across the back wall -->
+      <path d="M 0 30 Q 35 45 70 30 Q 105 45 140 20 Q 175 45 210 30 Q 245 45 280 20" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.2" />
+
+      <!-- twinkling fairy-light bulbs -->
+      <circle cx="18"  cy="36" r="2.5" class="showroom-fairy-light" style="--delay: 0s;"   />
+      <circle cx="35"  cy="38" r="2.5" class="showroom-fairy-light" style="--delay: 1.2s;" />
+      <circle cx="52"  cy="36" r="2.5" class="showroom-fairy-light" style="--delay: 0.5s;" />
+      <circle cx="70"  cy="30" r="2.5" class="showroom-fairy-light" style="--delay: 2s;"   />
+      <circle cx="88"  cy="36" r="2.5" class="showroom-fairy-light" style="--delay: 0.8s;" />
+      <circle cx="105" cy="38" r="2.5" class="showroom-fairy-light" style="--delay: 1.5s;" />
+      <circle cx="122" cy="32" r="2.5" class="showroom-fairy-light" style="--delay: 0.2s;" />
+      <circle cx="158" cy="32" r="2.5" class="showroom-fairy-light" style="--delay: 1s;"   />
+      <circle cx="175" cy="38" r="2.5" class="showroom-fairy-light" style="--delay: 0.4s;" />
+      <circle cx="192" cy="36" r="2.5" class="showroom-fairy-light" style="--delay: 1.8s;" />
+      <circle cx="210" cy="30" r="2.5" class="showroom-fairy-light" style="--delay: 0.7s;" />
+      <circle cx="228" cy="36" r="2.5" class="showroom-fairy-light" style="--delay: 1.4s;" />
+      <circle cx="245" cy="38" r="2.5" class="showroom-fairy-light" style="--delay: 0.1s;" />
+      <circle cx="262" cy="32" r="2.5" class="showroom-fairy-light" style="--delay: 1.9s;" />
+
+      <!-- play teepee — wooden poles + muted back wall -->
+      <line x1="75" y1="50" x2="65" y2="35" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" />
+      <line x1="75" y1="50" x2="82" y2="32" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" />
+      <line x1="75" y1="50" x2="72" y2="38" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" />
+      <polygon points="75,50 40,160 110,160" fill="var(--paper-muted)" />
+
+      <!-- teddy bear sitting inside the teepee -->
+      <rect x="65" y="145" width="14" height="12" rx="4" fill="currentColor" />
+      <circle cx="72" cy="140" r="6"   fill="currentColor" />
+      <circle cx="68" cy="135" r="2.5" fill="currentColor" />
+      <circle cx="76" cy="135" r="2.5" fill="currentColor" />
+
+      <!-- teepee front flaps + fold-back accents -->
+      <polygon points="75,50 30,160 65,160" fill="currentColor" />
+      <polygon points="75,50 120,160 85,160" fill="currentColor" />
+      <polygon points="75,50 65,160 72,160" fill="var(--paper-bright)" opacity="0.3" />
+      <polygon points="75,50 85,160 78,160" fill="var(--paper-bright)" opacity="0.3" />
+
+      <!-- rocking horse, gently rocking on its base -->
+      <g class="showroom-rocking-horse">
+        <path d="M 170 155 Q 210 165 250 155" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" />
+        <line x1="190" y1="135" x2="185" y2="155" stroke="currentColor" stroke-width="4" stroke-linecap="round" />
+        <line x1="230" y1="135" x2="235" y2="155" stroke="currentColor" stroke-width="4" stroke-linecap="round" />
+        <path d="M 185 130 Q 170 135 175 145" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" />
+        <rect x="180" y="125" width="55" height="16" rx="8" fill="currentColor" />
+        <rect x="200" y="122" width="15" height="6"  rx="3" fill="var(--paper-muted)" />
+        <polygon points="210,130 225,130 235,100 220,100" fill="currentColor" />
+        <rect x="220" y="95" width="22" height="12" rx="4" fill="currentColor" />
+        <polygon points="222,95 220,85 228,95" fill="currentColor" />
+        <circle cx="235" cy="100" r="1.5" fill="var(--paper-bright)" />
+      </g>
+
+      <!-- scattered toy blocks + ball on the floor -->
+      <rect x="135" y="150" width="10" height="10" rx="1" fill="currentColor" />
+      <rect x="147" y="150" width="10" height="10" rx="1" fill="currentColor" />
+      <rect x="141" y="140" width="10" height="10" rx="1" fill="currentColor" />
+      <circle cx="125" cy="154" r="6" fill="var(--paper-muted)" stroke="currentColor" stroke-width="1.5" />
+
+      <!-- star lantern cord -->
+      <line x1="140" y1="0" x2="140" y2="30" stroke="currentColor" stroke-width="1.5" />
+
+      <!-- light beam from the star lantern -->
+      <polygon points="140,47 185,160 95,160" fill="url(#showroom-beam-gradient)" class="showroom-beam" />
+
+      <!-- glowing star bulb -->
+      <path d="M 140 30 L 143 38 L 152 38 L 145 44 L 147 52 L 140 47 L 133 52 L 135 44 L 128 38 L 137 38 Z" fill="#fff8b8" filter="url(#showroom-glow)" class="showroom-bulb" style="transform-origin: 140px 40px;" />
+
+      <!-- dust motes drifting in the lantern beam -->
+      <circle cx="140" cy="110" r="1.2" class="showroom-mote" style="--duration: 6s;   --delay: 0s;   --drift-x: -12px;" />
+      <circle cx="120" cy="130" r="1"   class="showroom-mote" style="--duration: 5s;   --delay: 2s;   --drift-x: 15px;" />
+      <circle cx="160" cy="100" r="1.5" class="showroom-mote" style="--duration: 7s;   --delay: 3s;   --drift-x: -8px;" />
+      <circle cx="130" cy="80"  r="0.8" class="showroom-mote" style="--duration: 4.5s; --delay: 1.5s; --drift-x: 10px;" />
+    </svg>
+  </template>
+
+  <!-- ─── Showroom F · Hallway ─── -->
+  <template data-showroom data-id="hallway" data-cap="Showroom F · Hallway">
+    <svg viewBox="0 0 280 180" aria-hidden="true" style="--lamp-light:#fff8b8;">
+      <defs>
+        <!-- diagonal beam — light spills from the table lamp across the hall -->
+        <linearGradient id="showroom-beam-gradient" x1="1" y1="0" x2="0" y2="1">
+          <stop offset="0%"   stop-color="#fff8b8" stop-opacity="0.8" />
+          <stop offset="100%" stop-color="#fff8b8" stop-opacity="0" />
+        </linearGradient>
+        <filter id="showroom-glow" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="2.5" result="coloredBlur"/>
+          <feMerge>
+            <feMergeNode in="coloredBlur"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+      </defs>
+
+      <!-- ambient shadows -->
+      <ellipse cx="38"  cy="160" rx="30" ry="3" class="showroom-shadow" style="animation-delay: -1s;" />
+      <ellipse cx="220" cy="160" rx="45" ry="3" class="showroom-shadow" />
+
+      <!-- the figure's elongated shadow stretching away from the lamp -->
+      <polygon points="125,160 145,160 60,175 40,175" fill="currentColor" opacity="0.12" />
+
+      <rect x="0" y="160" width="280" height="2" fill="currentColor" />
+
+      <!-- background doorway -->
+      <rect x="100" y="30" width="50" height="130" fill="none" stroke="currentColor" stroke-width="2.5" />
+      <line x1="115" y1="150" x2="150" y2="150" stroke="var(--paper-muted)" stroke-width="2" />
+      <polygon points="100,30 115,40 115,160 100,160" fill="currentColor" />
+      <circle cx="110" cy="95" r="1.5" fill="var(--paper-bright)" />
+
+      <!-- the shadow figure — hunched, squeezing into the doorframe -->
+      <path d="M 125 160 Q 120 100 125 70 Q 128 55 115 52 Q 130 25 145 40 Q 148 100 145 160 Z" fill="currentColor" />
+      <!-- left arm wrapped slightly around the doorframe -->
+      <path d="M 112 60 Q 105 100 110 155" stroke="currentColor" stroke-width="3"   fill="none" stroke-linecap="round" />
+      <!-- right arm hanging behind the body -->
+      <path d="M 130 65 Q 135 110 132 155" stroke="currentColor" stroke-width="3.5" fill="none" stroke-linecap="round" />
+
+      <!-- twitching head with darting eyes -->
+      <g class="showroom-creepy-head">
+        <circle cx="112" cy="55" r="8" fill="currentColor" />
+        <g class="showroom-eyes">
+          <circle cx="108" cy="55" r="1.2" fill="var(--paper-bright)" />
+          <circle cx="113" cy="56" r="1.2" fill="var(--paper-bright)" />
+        </g>
+      </g>
+
+      <!-- grandfather clock body + molding -->
+      <rect x="20" y="25" width="36" height="135" rx="2" fill="currentColor" />
+      <rect x="16" y="20" width="44" height="5"   rx="1" fill="currentColor" />
+
+      <!-- clock face -->
+      <rect x="24" y="29" width="28" height="32" rx="2" fill="var(--paper-bright)" />
+      <circle cx="38" cy="45" r="11" fill="currentColor" />
+      <circle cx="38" cy="45" r="9"  fill="var(--paper-muted)" />
+      <line x1="38" y1="45" x2="38" y2="38" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+      <line x1="38" y1="45" x2="43" y2="45" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+
+      <!-- pendulum window + swinging pendulum -->
+      <rect x="26" y="65" width="24" height="60" rx="1" fill="var(--paper-bright)" />
+      <g class="showroom-pendulum">
+        <line x1="38" y1="65" x2="38" y2="110" stroke="currentColor" stroke-width="2" />
+        <circle cx="38" cy="112" r="5" fill="currentColor" />
+      </g>
+
+      <!-- abstract artwork above the console table -->
+      <rect x="190" y="25" width="50" height="45" rx="1" stroke="currentColor" stroke-width="2" fill="none" />
+      <path d="M 190 50 Q 215 25 240 70" stroke="var(--paper-muted)" stroke-width="2" fill="none" />
+      <circle cx="205" cy="40" r="4" fill="currentColor" />
+
+      <!-- console table -->
+      <rect x="175" y="110" width="90" height="5" rx="1" fill="currentColor" />
+      <rect x="182" y="115" width="4"  height="45"      fill="currentColor" />
+      <rect x="254" y="115" width="4"  height="45"      fill="currentColor" />
+      <rect x="186" y="145" width="68" height="2"       fill="currentColor" />
+
+      <!-- old rotary phone -->
+      <path d="M 235 110 L 230 100 L 250 100 L 245 110 Z" fill="currentColor" />
+      <rect x="228" y="97" width="24" height="3" rx="1.5" fill="currentColor" />
+
+      <!-- table lamp base + stem + shade -->
+      <rect x="208" y="105" width="4" height="5"  fill="currentColor" />
+      <rect x="209" y="85"  width="2" height="20" fill="currentColor" />
+      <polygon points="200,85 220,85 215,70 205,70" fill="currentColor" />
+
+      <!-- erratic light beam casting across the hallway -->
+      <polygon points="200,85 220,85 280,160 100,160" fill="url(#showroom-beam-gradient)" class="showroom-spooky-beam" />
+
+      <!-- glitching bulb -->
+      <circle cx="210" cy="85" r="4" fill="#fff8b8" filter="url(#showroom-glow)" class="showroom-spooky-bulb" style="transform-origin: 210px 85px;" />
+
+      <!-- dust motes caught in the flickering light -->
+      <circle cx="210" cy="130" r="1.2" class="showroom-mote" style="--duration: 7s; --delay: 0s; --drift-x: -12px;" />
+      <circle cx="180" cy="115" r="1"   class="showroom-mote" style="--duration: 6s; --delay: 2s; --drift-x: -15px;" />
+      <circle cx="230" cy="140" r="1.5" class="showroom-mote" style="--duration: 8s; --delay: 3s; --drift-x: -8px;"  />
     </svg>
   </template>
 

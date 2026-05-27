@@ -31,6 +31,9 @@
             { label: 'Showroom · Living Room', apply() { postShowroom('living-room'); }, expect: { visualChange: false, injects: 0 } },
             { label: 'Showroom · Kitchen',     apply() { postShowroom('kitchen');     }, expect: { visualChange: false, injects: 0 } },
             { label: 'Showroom · Bedroom',     apply() { postShowroom('bedroom');     }, expect: { visualChange: false, injects: 0 } },
+            { label: 'Showroom · Dining Room', apply() { postShowroom('dining-room'); }, expect: { visualChange: false, injects: 0 } },
+            { label: 'Showroom · Kids Room',   apply() { postShowroom('kids-room');   }, expect: { visualChange: false, injects: 0 } },
+            { label: 'Showroom · Hallway',     apply() { postShowroom('hallway');     }, expect: { visualChange: false, injects: 0 } },
             { label: 'Showroom · Random',      apply() { postShowroom();              }, expect: { visualChange: false, injects: 0 } },
         ],
     });
