@@ -11,14 +11,12 @@
  *                        keep working with no HTML edits.
  */
 
-@import url("/shared/catalogue.css");
 @import url("/shared/tsic-ui.css");
 
 :root {
   /* ───── Raw palette: synthwave deep night ───── */
   --bg-deep:        #0d0e15;
   --bg-panel:       #1a0f2e;
-  --bg-panel-2:     #251447;
   --bg-overlay:     rgba(13, 14, 21, 0.78);
 
   /* Raw palette: magazine paper */
@@ -36,12 +34,9 @@
 
   /* Raw palette: neon */
   --neon-pink:      #ff0099;
-  --neon-pink-hot:  #ff00ff;
   --neon-cyan:      #00f7ff;
-  --neon-cyan-hot:  #00ffff;
   --neon-yellow:    #ffe600;
   --neon-purple:    #b300ff;
-  --neon-orange:    #ff6b00;
   --neon-green:     #39ff14;
 
   /* Raw palette: magazine accents */
@@ -49,14 +44,11 @@
   --mag-red-dark:   #c70000;
   --mag-red-deep:   #a80000;
   --mag-yellow:     #ffcc00;
-  --mag-blue:       #0066ff;
 
   /* Borders */
   --border-black:   #0a0a0a;
   --border-neon:    var(--neon-pink);
   --border-cyan:    var(--neon-cyan);
-  --border-muted:   #5a4a82;
-  --border-paper:   #9d927e;
 
   /* Shadows — the magazine "offset-block" look + neon glows */
   --shadow-block-sm:    2px 2px 0 var(--ink-night);
@@ -64,7 +56,6 @@
   --shadow-block-lg:    6px 6px 0 var(--ink-night);
   --shadow-block-red:   4px 4px 0 var(--mag-red);
   --shadow-block-cyan:  3px 3px 0 var(--neon-cyan);
-  --shadow-soft-dark:   0 8px 24px rgba(0, 0, 0, 0.55);
 
   --shadow-neon-pink:   0 0 5px var(--neon-pink), 0 0 14px rgba(255, 0, 153, 0.55);
   --shadow-neon-cyan:   0 0 5px var(--neon-cyan), 0 0 14px rgba(0, 247, 255, 0.55);
@@ -121,14 +112,12 @@
 
   --cat-green:         var(--mag-red);
   --cat-green-hover:   var(--mag-red-dark);
-  --cat-green-soft:    rgba(230, 0, 0, 0.85);
 
   --cat-red:           var(--mag-red-dark);
   --cat-red-hover:     var(--mag-red-deep);
 
   --cat-border:        var(--border-black);
   --cat-border-strong: var(--border-black);
-  --cat-border-soft:   #c9c2af;
 
   --cat-shadow-soft:   var(--shadow-block-sm);
   --cat-shadow:        var(--shadow-block);
@@ -200,6 +189,58 @@ input[type=range]:active::-webkit-slider-thumb { cursor: grabbing; }
 
 .tsic-stage--dim { background-color: var(--bg-deep); }
 
+/* Magazine stage with a SIZE-GRADIENT halftone — big dots haloed around
+   the centred cover, tiny dots at the outer edges. Two pseudo-layers
+   each masked to a radial band; the overlap blends into a mid-size band.
+   Bundles centred-cover flex layout, so a screen just needs:
+       <div class="tsic-stage--magazine-gradient"><div class="tsic-panel tsic-cover">…</div></div>
+   Independent tuning knobs (set per-screen if you need to override):
+     --tsic-stage-paper-alpha   cream-paper opacity   (0 see-through … 1 solid)
+     --tsic-stage-dot-strength  halftone ink darkness (0 invisible    … 1 solid) */
+.tsic-stage--magazine-gradient {
+  --tsic-stage-paper-alpha: 0.35;
+  --tsic-stage-dot-strength: 0.45;
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+  background-color: rgba(240, 232, 208, var(--tsic-stage-paper-alpha));
+  color: var(--ink-night);
+  isolation: isolate;
+}
+.tsic-stage--magazine-gradient::before,
+.tsic-stage--magazine-gradient::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+.tsic-stage--magazine-gradient::before {
+  /* Inner halo — large dots hugging the cover. */
+  background-image:
+    radial-gradient(rgba(10, 10, 10, var(--tsic-stage-dot-strength)) 14%, transparent 15%),
+    radial-gradient(rgba(10, 10, 10, var(--tsic-stage-dot-strength)) 14%, transparent 15%);
+  background-size: 18px 18px;
+  background-position: 0 0, 9px 9px;
+  -webkit-mask-image: radial-gradient(ellipse at center, transparent 18%, #000 36%, transparent 78%);
+          mask-image: radial-gradient(ellipse at center, transparent 18%, #000 36%, transparent 78%);
+}
+.tsic-stage--magazine-gradient::after {
+  /* Outer field — tiny dots fading out toward the corners. Outer dots
+     ride at ~78% of dot-strength so the size gradient also reads as a
+     subtle density gradient. */
+  background-image:
+    radial-gradient(rgba(10, 10, 10, calc(var(--tsic-stage-dot-strength) * 0.78)) 14%, transparent 15%),
+    radial-gradient(rgba(10, 10, 10, calc(var(--tsic-stage-dot-strength) * 0.78)) 14%, transparent 15%);
+  background-size: 6px 6px;
+  background-position: 0 0, 3px 3px;
+  -webkit-mask-image: radial-gradient(ellipse at center, transparent 50%, #000 100%);
+          mask-image: radial-gradient(ellipse at center, transparent 50%, #000 100%);
+}
+
 /* ───────────── PATTERN UTILITIES ───────────── */
 
 .tsic-halftone {
@@ -270,26 +311,6 @@ input[type=range]:active::-webkit-slider-thumb { cursor: grabbing; }
   font-weight: 900;
   text-transform: uppercase;
   filter: drop-shadow(0 2px 0 rgba(0, 0, 0, 0.45));
-}
-
-/* Glitch-shake animation — drop onto any element with .tsic-glitch. */
-.tsic-glitch       { animation: tsic-glitch-loop 4s steps(1, end) infinite; }
-.tsic-glitch-hover:hover { animation: tsic-glitch-shake 0.2s linear infinite; }
-
-@keyframes tsic-glitch-loop {
-  0%,   88%, 100% { transform: translate(0, 0); }
-  90%             { transform: translate(-2px, 1px); }
-  92%             { transform: translate(2px, -1px); }
-  94%             { transform: translate(-1px, 0); }
-  96%             { transform: translate(1px, 1px); }
-}
-@keyframes tsic-glitch-shake {
-  0%   { transform: translate(0, 0); }
-  20%  { transform: translate(-2px, 1px); }
-  40%  { transform: translate(-1px, -1px); }
-  60%  { transform: translate(2px, 1px); }
-  80%  { transform: translate(1px, -1px); }
-  100% { transform: translate(0, 0); }
 }
 
 /* Slow neon pulse — for "PRESS START" style attractors. Animates the

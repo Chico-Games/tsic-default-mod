@@ -13,58 +13,110 @@
   <script src="/shared/tsic-focus.js" defer></script>
   <script src="/shared/tsic-dropdown.js" defer></script>
   <style>
-    html, body { background: transparent; color: var(--cat-ink-dark);
-            margin: 0; min-height: 100vh; display: flex;
-            align-items: center; justify-content: center; }
-    .wrap { width: min(1024px, calc(100% - 48px));
-            padding: 32px 48px; box-sizing: border-box;
-            background: var(--cat-bg);
-            border: 1px solid var(--cat-border);
-            box-shadow: var(--cat-shadow-soft);
-            font-family: var(--cat-font-serif); }
-    h1 { letter-spacing: 12px; font-weight: 200; font-size: 36px;
-         text-transform: uppercase; color: var(--cat-ink-dark); margin: 0 0 24px; }
-    .panel { border: 1px solid rgba(241,229,207,0.60);
-             background: rgba(241,229,207,0.88); padding: 16px; margin-bottom: 16px; }
-    .auth-strip { display: flex; justify-content: space-between; align-items: center; }
-    .auth-strip input { background: rgba(241,229,207,0.88);
-             border: 1px solid rgba(184,170,145,0.45);
-             color: var(--cat-ink-dark); padding: 8px 12px; font: inherit; margin-right: 8px; }
-    .auth-strip button { background: rgba(35,31,24,0.35);
-             border: 1px solid rgba(255,255,255,0.35); color: var(--cat-ink-dark);
-             padding: 8px 16px; cursor: pointer; font: inherit; }
-    .auth-strip button:hover { background: rgba(180,30,30,0.55); }
-    .auth-heading { font-size: 13px; letter-spacing: 3px; text-transform: uppercase;
-             color: rgba(37,33,25,0.6); margin: 0 0 10px; }
-    .auth-explain { font-size: 12px; color: rgba(37,33,25,0.7); line-height: 1.6;
-             margin-bottom: 12px; }
-    .auth-explain a { color: rgba(180,30,30,0.85); text-decoration: underline; }
-    .auth-explain a:hover { color: rgba(180,30,30,1); }
-    .auth-steps { font-size: 12px; color: rgba(37,33,25,0.6); line-height: 1.5;
-             margin: 0; padding: 0 0 0 18px; list-style: decimal; }
+    .mods-body { padding: 8px 22px 14px; }
+    .mods-body .panel {
+      border: 2px solid var(--ink-night);
+      background: var(--paper-bright);
+      padding: 14px 16px;
+      margin-bottom: 14px;
+    }
+    .auth-strip { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+    .auth-strip input {
+      background: var(--paper-bright);
+      border: 1px solid var(--ink-night);
+      color: var(--ink-night);
+      padding: 6px 10px;
+      font: inherit;
+      margin-right: 6px;
+    }
+    .auth-strip button {
+      background: var(--ink-night);
+      border: 1px solid var(--ink-night);
+      color: var(--paper-cream);
+      padding: 6px 14px;
+      cursor: pointer;
+      font: inherit;
+      font-family: var(--font-display);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .auth-strip button:hover { background: var(--mag-red); border-color: var(--mag-red); }
+    .auth-heading {
+      font-family: var(--font-display);
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+      margin: 0 0 8px;
+    }
+    .auth-explain { font-size: 13px; color: var(--ink-night); line-height: 1.6; margin-bottom: 10px; }
+    .auth-explain a { color: var(--mag-red); text-decoration: underline; }
+    .auth-explain a:hover { color: var(--mag-red-dark); }
+    .auth-steps { font-size: 12px; color: var(--ink-soft); line-height: 1.5; margin: 0; padding: 0 0 0 18px; list-style: decimal; }
     .auth-steps li { margin-bottom: 2px; }
-    .error { color: #ef6c6c; font-size: 12px; margin-top: 6px; }
+    .error { color: var(--mag-red); font-size: 12px; margin-top: 6px; }
+
     .browse { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-    .card { border: 1px solid rgba(184,170,145,0.45);
-             background: rgba(241,229,207,0.88); padding: 8px; }
-    .card .logo { width: 100%; aspect-ratio: 16 / 9; background: #222; }
-    .card .name { font-weight: bold; margin-top: 6px; }
-    .card .summary { font-size: 12px; color: rgba(37,33,25,0.75); margin: 6px 0; }
-    .card-sub { background: rgba(35,31,24,0.35);
-             border: 1px solid rgba(255,255,255,0.35); color: var(--cat-ink-dark);
-             padding: 4px 10px; cursor: pointer; font: inherit; }
-    .card-sub:disabled { color: rgba(37,33,25,0.4); background: rgba(35,31,24,0.15); cursor: default; }
+    .card {
+      border: 1px solid var(--ink-night);
+      background: var(--paper-soft);
+      padding: 8px;
+    }
+    .card .logo { width: 100%; aspect-ratio: 16 / 9; background: var(--ink-night); }
+    .card .name { font-family: var(--font-display); font-weight: 800; letter-spacing: 0.04em; margin-top: 6px; color: var(--ink-night); }
+    .card .summary { font-size: 12px; color: var(--ink-soft); margin: 6px 0; line-height: 1.4; }
+    .card-sub {
+      background: var(--ink-night);
+      border: 1px solid var(--ink-night);
+      color: var(--paper-cream);
+      padding: 3px 10px;
+      cursor: pointer;
+      font: inherit;
+      font-family: var(--font-display);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-size: 12px;
+    }
+    .card-sub:hover { background: var(--mag-red); border-color: var(--mag-red); }
+    .card-sub:disabled { color: var(--ink-mute); background: var(--paper-soft); border-color: var(--ink-mute); cursor: default; }
+
     .installed-list { display: flex; flex-direction: column; gap: 4px; }
-    .installed-row { display: flex; align-items: center; gap: 8px; padding: 4px 0; }
-    .installed-row .name { flex: 1; }
-    .installed-row button { background: rgba(241,229,207,0.88);
-             border: 1px solid rgba(184,170,145,0.45); color: var(--cat-ink-dark);
-             padding: 2px 8px; cursor: pointer; }
-    .actions { margin-top: 24px; }
+    .installed-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 6px;
+      background: var(--paper-soft);
+      border: 1px solid transparent;
+    }
+    .installed-row:hover { border-color: var(--ink-night); }
+    .installed-row .name { flex: 1; font-family: var(--font-body); color: var(--ink-night); }
+    .installed-row button {
+      background: var(--paper-bright);
+      border: 1px solid var(--ink-night);
+      color: var(--ink-night);
+      padding: 2px 8px;
+      cursor: pointer;
+      font: inherit;
+    }
+    .installed-row button:hover { background: var(--mag-yellow); }
   </style>
 </head><body>
-  <div class="wrap">
-    <h1>Mods</h1>
+  <div class="tsic-stage--magazine-gradient">
+    <div class="tsic-panel tsic-cover" style="--tsic-cover-width: 1024px;">
+      <div class="tsic-masthead">
+        <div class="tsic-masthead-title">
+          <em>Special</em>
+          Catalogues.
+        </div>
+        <div class="tsic-masthead-meta">
+          <span class="tsic-masthead-issue">Dept. 33</span>
+          <span class="tsic-masthead-date">SUBSCRIBE · INSTALL · ORDER</span>
+        </div>
+      </div>
+
+      <div class="mods-body">
 
     <div class="panel" id="panel-auth">
       <div id="auth-signed-out" style="display:none;">
@@ -116,7 +168,7 @@
           <input id="search" type="text" placeholder="Search mods…" style="width:300px;">
           <select id="sort" style="background:rgba(241,229,207,0.88);
                                    border:1px solid rgba(184,170,145,0.45);
-                                   color: var(--cat-ink-dark); padding:8px;">
+                                   color: var(--ink-night); padding:8px;">
             <option value="popular">Popular</option>
             <option value="-date_added">Recently Added</option>
             <option value="-downloads_total">Most Downloaded</option>
@@ -129,7 +181,7 @@
       <div class="browse" id="browse"></div>
       <div style="text-align:center; margin-top:10px;">
         <button id="btn-loadmore" style="background:rgba(241,229,207,0.92);
-                  border:1px solid rgba(255,255,255,0.3); color: var(--cat-ink-dark);
+                  border:1px solid rgba(255,255,255,0.3); color: var(--ink-night);
                   padding:6px 16px; cursor:pointer; display:none;">Load more</button>
       </div>
     </div>
@@ -143,8 +195,15 @@
       <div class="error" id="install-error" style="display:none;"></div>
     </div>
 
-    <div class="tsic-button-row tsic-button-row--start" style="margin-top:24px;">
-      <button class="tsic-button" id="btn-back" data-tsic-initial-focus>Back</button>
+      </div><!-- /mods-body -->
+
+      <div class="tsic-cover-rows" data-tsic-focus-group="actions">
+        <button class="tsic-row-button" id="btn-back" data-tsic-initial-focus>
+          <span class="tsic-row-dept">Fire Exit</span>
+          Back to Main
+          <span class="tsic-row-pg">PG. 01</span>
+        </button>
+      </div>
     </div>
   </div>
 
@@ -259,7 +318,7 @@
     }
     function renderTagChips() {
       const host = document.getElementById('tag-chips');
-      host.innerHTML = '';
+      host.replaceChildren();
       for (const g of tagGroups) {
         if (!g.tags.length) continue;
         const groupWrap = document.createElement('span');
@@ -303,7 +362,7 @@
       searchAbort = myAbort;
       if (reset) {
         offset = 0;
-        document.getElementById('browse').innerHTML = '';
+        document.getElementById('browse').replaceChildren();
         lastModItems = [];
       }
       try {
@@ -330,7 +389,7 @@
     }
     function renderMods(items, reset) {
       const host = document.getElementById('browse');
-      if (reset) host.innerHTML = '';
+      if (reset) host.replaceChildren();
       const subbed = !!loadToken();
       for (const m of items) {
         lastModItems.push(m);
@@ -466,7 +525,7 @@
 
     function renderInstalled() {
       const host = document.getElementById('installed-list');
-      host.innerHTML = '';
+      host.replaceChildren();
       const indexOf = (id) => installedOrder.indexOf(id) >= 0 ? installedOrder.indexOf(id) : 9999;
       installedMods.sort((a, b) => indexOf(a.ModId) - indexOf(b.ModId));
 
@@ -500,7 +559,7 @@
           const updateBtn = document.createElement('button');
           updateBtn.type = 'button';
           updateBtn.textContent = 'Update';
-          updateBtn.style.cssText = 'background:rgba(30,120,180,0.45); border:1px solid rgba(255,255,255,0.35); color:var(--cat-ink-dark); padding:2px 8px; cursor:pointer; font:inherit; margin-right:4px;';
+          updateBtn.style.cssText = 'background:rgba(30,120,180,0.45); border:1px solid rgba(255,255,255,0.35); color:var(--ink-night); padding:2px 8px; cursor:pointer; font:inherit; margin-right:4px;';
           updateBtn.onclick = () =>
             tsic.publishMessage('UI.Cmd.Mod.CheckUpdates', {});
           row.appendChild(updateBtn);
@@ -521,7 +580,7 @@
         const uninstallBtn = document.createElement('button');
         uninstallBtn.type = 'button';
         uninstallBtn.textContent = 'Uninstall';
-        uninstallBtn.style.cssText = 'background:rgba(180,30,30,0.45); border:1px solid rgba(255,255,255,0.35); color:var(--cat-ink-dark); padding:2px 8px; cursor:pointer; font:inherit; margin-left:4px;';
+        uninstallBtn.style.cssText = 'background:rgba(180,30,30,0.45); border:1px solid rgba(255,255,255,0.35); color:var(--ink-night); padding:2px 8px; cursor:pointer; font:inherit; margin-left:4px;';
         uninstallBtn.onclick = () =>
           tsic.publishMessage('UI.Cmd.Mod.Uninstall', { NameId: m.ModId });
         row.appendChild(uninstallBtn);
@@ -536,7 +595,7 @@
           updateAllBtn.id = 'btn-update-all';
           updateAllBtn.type = 'button';
           updateAllBtn.textContent = 'Update All';
-          updateAllBtn.style.cssText = 'background:rgba(30,120,180,0.45); border:1px solid rgba(255,255,255,0.35); color:var(--cat-ink-dark); padding:4px 12px; cursor:pointer; font:inherit; margin-bottom:8px;';
+          updateAllBtn.style.cssText = 'background:rgba(30,120,180,0.45); border:1px solid rgba(255,255,255,0.35); color:var(--ink-night); padding:4px 12px; cursor:pointer; font:inherit; margin-bottom:8px;';
           updateAllBtn.onclick = () =>
             tsic.publishMessage('UI.Cmd.Mod.CheckUpdates', {});
           const panel = document.getElementById('panel-installed');

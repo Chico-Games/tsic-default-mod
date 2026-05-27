@@ -493,17 +493,6 @@ html[data-tsic-input="Gamepad"] .tsic-row-button[data-tsic-focused] {
     padding-left: 22px;
 }
 
-/* Catalogue button family. */
-html[data-tsic-input="Gamepad"] .catalogue-button[data-tsic-focused] {
-    transform: translate(-1px, -1px);
-}
-html[data-tsic-input="Gamepad"] .catalogue-button-primary[data-tsic-focused]   { background: #ff1a1a; }
-html[data-tsic-input="Gamepad"] .catalogue-button-secondary[data-tsic-focused] { background: var(--paper-muted); }
-html[data-tsic-input="Gamepad"] .catalogue-button-outline[data-tsic-focused]   { background: var(--paper-muted); }
-html[data-tsic-input="Gamepad"] .catalogue-button-danger[data-tsic-focused]    { background: var(--mag-red-dark); }
-html[data-tsic-input="Gamepad"] .catalogue-button-ghost[data-tsic-focused]     { background: var(--paper-soft); }
-html[data-tsic-input="Gamepad"] .catalogue-category-row[data-tsic-focused]     { background: var(--paper-muted); }
-
 /* Storage shell tabs and inventory tabs. */
 html[data-tsic-input="Gamepad"] .ss-tabs .tsic-tab[data-tsic-focused],
 html[data-tsic-input="Gamepad"] .inv-tab[data-tsic-focused] {

@@ -4,29 +4,21 @@
   <meta name="tsic-screen" content="Loading">
   <title>Loading</title>
   <link rel="stylesheet" href="/shared/base.css">
+  <link rel="stylesheet" href="/shared/components.css">
   <script src="/shared/router.js" defer></script>
-    <script src="/shared/tsic-bridge.js" defer></script>
+  <script src="/shared/tsic-bridge.js" defer></script>
   <script src="/shared/tsic-runtime.js" defer></script>
   <style>
-    .loading-wrap { position:fixed; inset:0;
-                    display:flex; align-items:center; justify-content:center;
-                    background: var(--cat-bg); }
-    .loading-card { padding: 24px 48px;
-                    background: var(--cat-bg);
-                    border: 1px solid var(--cat-border);
-                    box-shadow: var(--cat-shadow-soft);
-                    font-family: var(--cat-font-serif);
-                    color: var(--cat-ink-dark);
-                    min-width: 360px;
-                    text-align: center; }
-    .loading-label { font-size: 18px;
-                     letter-spacing: 6px;
-                     text-transform: uppercase; }
-    .loading-dots { display: inline-block;
-                    letter-spacing: 0;
-                    margin-left: 0.15em; }
-    .loading-dots > span { display: inline-block;
-                           opacity: 0; }
+    .loading-body {
+      padding: 12px 22px 22px;
+      text-align: center;
+      font-family: var(--font-terminal);
+      font-size: 18px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+    }
+    .loading-dots > span { display: inline-block; opacity: 0; }
     .loading-dots > span:nth-child(1) { animation: tsic-loading-dot-1 1.4s infinite; }
     .loading-dots > span:nth-child(2) { animation: tsic-loading-dot-2 1.4s infinite; }
     .loading-dots > span:nth-child(3) { animation: tsic-loading-dot-3 1.4s infinite; }
@@ -47,28 +39,34 @@
     }
   </style>
 </head><body>
-  <div class="loading-wrap">
-    <div class="loading-card">
-      <div class="loading-label">
-        <span id="loading-label-text">Loading</span><span class="loading-dots" aria-hidden="true"><span>.</span><span>.</span><span>.</span></span>
+  <div class="tsic-stage--magazine-gradient" style="--tsic-stage-paper-alpha: 0.92;">
+    <div class="tsic-panel tsic-cover" style="--tsic-cover-width: 420px;">
+      <div class="tsic-masthead">
+        <div class="tsic-masthead-title">
+          <em>Now opening:</em>
+          <span id="loading-label-text">The Store</span>
+        </div>
+        <div class="tsic-masthead-meta">
+          <span class="tsic-masthead-issue">Vol. 1</span>
+          <span class="tsic-masthead-date">Printing…</span>
+        </div>
+      </div>
+      <div class="loading-body">
+        <span id="loading-status">Loading</span><span class="loading-dots" aria-hidden="true"><span>.</span><span>.</span><span>.</span></span>
       </div>
     </div>
   </div>
   <script>
     (function () {
-      function stripTrailingDots(s) {
-        return (s || '').replace(/[\s.…]+$/, '');
-      }
+      function stripTrailingDots(s) { return (s || '').replace(/[\s.…]+$/, ''); }
       function render(payload) {
         const label = stripTrailingDots((payload && payload.Label) || 'Loading');
-        document.getElementById('loading-label-text').textContent = label || 'Loading';
+        document.getElementById('loading-label-text').textContent = label || 'The Store';
+        document.getElementById('loading-status').textContent = label || 'Loading';
       }
-      (function boot() {
-        if (!window.tsic || typeof tsic.bootMenu !== 'function') { setTimeout(boot, 16); return; }
-        tsic.bootMenu(function (ctx) {
-          ctx.on('tsic.msg.UI.Loading.Progress', render);
-        }, { escape: false, closeButton: false });
-      })();
+      tsic.whenReady(() => tsic.bootMenu(function (ctx) {
+        ctx.on('tsic.msg.UI.Loading.Progress', render);
+      }, { escape: false, closeButton: false }));
     })();
   </script>
 </body></html>

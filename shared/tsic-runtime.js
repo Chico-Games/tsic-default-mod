@@ -107,6 +107,17 @@
             });
         };
 
+        // ---- Magazine helpers -------------------------------------------
+        // Pick a random tagline from `taglines` and write it into `slot`
+        // (an element or element-id). Appends `suffix` if provided. Used
+        // for Minecraft-splash-style kicker lines on menu screens.
+        t.kicker = function (slot, taglines, suffix) {
+            const el = (typeof slot === 'string') ? document.getElementById(slot) : slot;
+            if (!el || !taglines || !taglines.length) return;
+            const pick = taglines[Math.floor(Math.random() * taglines.length)];
+            el.textContent = pick + (suffix || '');
+        };
+
         // ---- Item-icon URL helper (used everywhere we render an item) ----
         // Falls back to the catalog's itemIconUrl when present, otherwise the
         // /tex/ file-system path. Pages should call this instead of building

@@ -32,9 +32,6 @@
   pointer-events: auto;
 }
 
-/* Optional inner trim — gives the page a perforated-edge feel. */
-.tsic-panel--trim { box-shadow: var(--shadow-block), inset 0 0 0 2px var(--paper-bright); }
-
 /* Synthwave dark panel — for screens that want the night-sky look (mods,
    credits, death-screen, debug overlays). */
 .tsic-panel--dark {
@@ -268,6 +265,40 @@
 .tsic-row-button:disabled:hover,
 .tsic-row-button[disabled]:hover { padding-left: 14px; background: var(--paper-muted); }
 
+/* Decorative dept/page tags that frame a row label like a magazine
+   article header. Use as <span>s inside a .tsic-row-button.
+     .tsic-row-dept  flush-left "section number", e.g. "Dept. 04"
+     .tsic-row-pg    flush-right "page number" chip, fades in on hover/focus
+   The hover/focus selectors are scoped to .tsic-row-button so the
+   accessories react when the parent row is interacted with. */
+.tsic-row-dept {
+  font-family: var(--font-terminal);
+  font-size: 13px;
+  color: var(--ink-soft);
+  letter-spacing: 0.10em;
+  margin-right: 12px;
+  flex: 0 0 auto;
+  min-width: 70px;
+  text-align: left;
+  text-transform: uppercase;
+}
+.tsic-row-pg {
+  margin-left: auto;
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  background: var(--ink-night);
+  color: var(--paper-cream);
+  padding: 3px 8px;
+  opacity: 0;
+  transition: opacity 140ms ease;
+}
+.tsic-row-button:hover .tsic-row-pg,
+.tsic-row-button[data-tsic-focused] .tsic-row-pg { opacity: 1; }
+.tsic-row-button:hover .tsic-row-dept,
+.tsic-row-button[data-tsic-focused] .tsic-row-dept { color: var(--mag-red); }
+
 /* Variant: dark synthwave row — for screens inside .tsic-panel--dark. */
 .tsic-row-button--dark {
   background: rgba(255, 0, 153, 0.04);
@@ -409,6 +440,72 @@
   text-transform: uppercase;
 }
 
+/* Magazine COVER — extension of .tsic-panel that sizes the panel and
+   restyles its masthead for the "cover page" treatment used by menu
+   screens (main-menu, pause, settings, credits, save-load, etc.).
+   Pairs with .tsic-stage--magazine-gradient as the centred backdrop.
+   Apply alongside .tsic-panel:
+       <div class="tsic-panel tsic-cover">
+         <div class="tsic-masthead">
+           <div class="tsic-masthead-title">
+             <em>The Store is</em>
+             Closed.
+           </div>
+           <div class="tsic-masthead-meta">
+             <span class="tsic-masthead-issue">Vol.1 — …</span>
+             <span class="tsic-masthead-date">…</span>
+           </div>
+         </div>
+         <div class="tsic-cover-rows">…row buttons…</div>
+       </div>
+   The cover-scoped rules:
+     - turn .tsic-masthead-title em into a small italic block kicker
+       above the focal word (instead of inline red mag-emphasis)
+     - pin .tsic-masthead-meta to the TOP-right corner like an old-school
+       periodical (overrides the masthead's default bottom-align)
+   Tunable: --tsic-cover-width (default 520px). */
+.tsic-cover {
+  width: var(--tsic-cover-width, 520px);
+  max-width: 92vw;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+.tsic-cover .tsic-masthead { padding: 18px 22px 10px; margin: 0; }
+.tsic-cover .tsic-masthead-meta { align-self: flex-start; }
+.tsic-cover .tsic-masthead-title { font-size: 64px; }
+.tsic-cover .tsic-masthead-title em {
+  font-style: italic;
+  font-weight: 400;
+  font-size: 24px;
+  display: block;
+  letter-spacing: 0.02em;
+  color: var(--ink-night);
+  margin-top: -4px;
+}
+.tsic-cover-rows { padding: 6px 4px 10px; }
+
+/* Dark halftone CHIP — small HUD overlay with bright text on a dark
+   dotted backdrop. Inverted version of the magazine paper aesthetic
+   for HUD widgets that need to read against a live game scene.
+   Tunable:
+     --tsic-chip-bg-alpha       backdrop opacity over the game scene
+     --tsic-chip-dot-strength   dot brightness against the dark bg */
+.tsic-chip--dark {
+  --tsic-chip-bg-alpha: 0.68;
+  --tsic-chip-dot-strength: 0.22;
+  color: var(--paper-bright);
+  padding: 4px 10px;
+  background-color: rgba(18, 14, 10, var(--tsic-chip-bg-alpha));
+  background-image:
+    radial-gradient(rgba(241, 229, 207, var(--tsic-chip-dot-strength)) 14%, transparent 15%),
+    radial-gradient(rgba(241, 229, 207, var(--tsic-chip-dot-strength)) 14%, transparent 15%);
+  background-size: 8px 8px;
+  background-position: 0 0, 4px 4px;
+  border: 1px solid rgba(255, 255, 255, 0.20);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+
 /* Byline — small, dim, uppercase, sits under a section title. */
 .tsic-byline {
   font-family: var(--font-body);
@@ -440,15 +537,6 @@
   text-transform: uppercase;
   z-index: 5;
 }
-.tsic-sticker--round {
-  width: 96px; height: 96px;
-  border-radius: 50%;
-  padding: 0 8px;
-}
-.tsic-sticker--pink { background: var(--neon-pink); color: #ffffff; }
-.tsic-sticker--cyan { background: var(--neon-cyan); color: var(--ink-night); }
-.tsic-sticker--red  { background: var(--mag-red);   color: #ffffff; }
-
 /* Badge — small inline label. "NEW!", "HOT", "PG. 42", etc. */
 .tsic-badge {
   display: inline-block;
@@ -460,15 +548,6 @@
   font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-}
-.tsic-badge--red    { background: var(--mag-red);   color: #ffffff; }
-.tsic-badge--yellow { background: var(--mag-yellow); color: var(--ink-night); }
-.tsic-badge--pink   { background: var(--neon-pink);  color: #ffffff; }
-.tsic-badge--cyan   { background: var(--neon-cyan);  color: var(--ink-night); }
-.tsic-badge--outline {
-  background: transparent;
-  color: var(--ink-night);
-  border: 1px solid var(--ink-night);
 }
 
 /* Corner label — sits in a panel's top-left, magazine-style. */
@@ -502,12 +581,6 @@
   height: 0;
   border: 0;
   border-top: 2px dashed var(--ink-mute);
-  margin: 12px 0;
-}
-.tsic-divider--solid-heavy {
-  height: 0;
-  border: 0;
-  border-top: 4px solid var(--ink-night);
   margin: 12px 0;
 }
 

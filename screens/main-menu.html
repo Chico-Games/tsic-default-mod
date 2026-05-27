@@ -12,81 +12,6 @@
   <script src="/shared/tsic-focus.js" defer></script>
   <script src="/shared/tsic-dropdown.js" defer></script>
   <style>
-    .menu-stage {
-      position: fixed; inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 32px;
-
-      /* ── Background tuning knobs ────────────────────────────────────────
-       *   --menu-paper-alpha  : opacity of the cream paper backdrop
-       *                         (0 = fully see-through, 1 = solid paper)
-       *   --menu-dot-strength : how dark the halftone dots are
-       *                         (0 = invisible, 1 = solid black ink)
-       * These two are INDEPENDENT — the dots are painted on separate
-       * pseudo-element layers, so dialing paper to 0 leaves the dots at
-       * their full strength, and vice versa.
-       * ──────────────────────────────────────────────────────────────────*/
-      --menu-paper-alpha: 0.35;
-      --menu-dot-strength: 0.45;
-
-      background-color: rgba(240, 232, 208, var(--menu-paper-alpha));
-      isolation: isolate;
-    }
-    /* Halftone background with a size gradient — big dots haloed around the
-       cover, tiny dots at the outer edges. Two layered pseudos, each masked
-       to its own radial band; the overlap blends into a mid-size feel. */
-    .menu-stage::before,
-    .menu-stage::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      z-index: -1;
-      pointer-events: none;
-    }
-    .menu-stage::before {
-      /* Inner halo — large dots immediately around the cover. */
-      background-image:
-        radial-gradient(rgba(10, 10, 10, var(--menu-dot-strength)) 14%, transparent 15%),
-        radial-gradient(rgba(10, 10, 10, var(--menu-dot-strength)) 14%, transparent 15%);
-      background-size: 18px 18px;
-      background-position: 0 0, 9px 9px;
-      -webkit-mask-image: radial-gradient(ellipse at center, transparent 18%, #000 36%, transparent 78%);
-              mask-image: radial-gradient(ellipse at center, transparent 18%, #000 36%, transparent 78%);
-    }
-    .menu-stage::after {
-      /* Outer field — tiny dots fading out toward the corners. The outer
-         dots use ~78% of the dot-strength knob so the size gradient also
-         reads as a slight density gradient. */
-      background-image:
-        radial-gradient(rgba(10, 10, 10, calc(var(--menu-dot-strength) * 0.78)) 14%, transparent 15%),
-        radial-gradient(rgba(10, 10, 10, calc(var(--menu-dot-strength) * 0.78)) 14%, transparent 15%);
-      background-size: 6px 6px;
-      background-position: 0 0, 3px 3px;
-      -webkit-mask-image: radial-gradient(ellipse at center, transparent 50%, #000 100%);
-              mask-image: radial-gradient(ellipse at center, transparent 50%, #000 100%);
-    }
-    .menu-cover {
-      width: 520px;
-      max-width: 92vw;
-      padding: 0;
-    }
-    .menu-cover .tsic-masthead { padding: 18px 22px 10px; margin: 0; }
-    /* Pin the issue chip + date to the TOP right of the masthead — old-school
-       magazine periodical info sits in the corner, not slumped at the bottom. */
-    .menu-cover .tsic-masthead-meta { align-self: flex-start; }
-    .menu-cover .tsic-masthead-title { font-size: 64px; }
-    .menu-cover .tsic-masthead-title em {
-      font-style: italic;
-      font-weight: 400;
-      font-size: 24px;
-      display: block;
-      letter-spacing: 0.02em;
-      color: var(--ink-night);
-      margin-top: -4px;
-    }
-
     /* Showroom feature tile — magazine "photo" of the showroom. Halftone
        background with an inline-SVG furniture silhouette. A random showroom
        template is cloned into .menu-feature-photo at boot. */
@@ -279,42 +204,11 @@
       100%      { transform: translate(0, 0); }
     }
     .showroom-eyes { animation: showroom-eyes-dart 5s infinite; }
-
-    .menu-rows { padding: 6px 4px 10px; }
-
-    .menu-row-dept {
-      font-family: var(--font-terminal);
-      font-size: 13px;
-      color: var(--ink-soft);
-      letter-spacing: 0.10em;
-      margin-right: 12px;
-      flex: 0 0 auto;
-      min-width: 70px;
-      text-align: left;
-      text-transform: uppercase;
-    }
-
-    .menu-pg {
-      margin-left: auto;
-      font-family: var(--font-body);
-      font-size: 10px;
-      font-weight: 800;
-      letter-spacing: 0.12em;
-      background: var(--ink-night);
-      color: var(--paper-cream);
-      padding: 3px 8px;
-      opacity: 0;
-      transition: opacity 140ms ease;
-    }
-    .tsic-row-button:hover .menu-pg,
-    .tsic-row-button[data-tsic-focused] .menu-pg { opacity: 1; }
-    .tsic-row-button:hover .menu-row-dept,
-    .tsic-row-button[data-tsic-focused] .menu-row-dept { color: var(--mag-red); }
   </style>
 </head><body>
 
-  <div class="menu-stage">
-    <div class="menu-cover tsic-panel" style="padding:0;">
+  <div class="tsic-stage--magazine-gradient">
+    <div class="tsic-panel tsic-cover">
 
       <!-- MASTHEAD -->
       <div class="tsic-masthead">
@@ -329,30 +223,24 @@
       </div>
 
       <script>
-        // Kicker text — randomized on each load like a periodical "splash"
-        // line. The " · DEC 1983" suffix is appended automatically; entries
-        // here are just the rotating prefix. Add, remove, or reorder freely.
-        (function pickKicker() {
-          const TAGLINES = [
-            // — opening day / debut —
-            'PREVIEW ISSUE', 'OPENING DAY', 'GRAND OPENING', 'DEBUT EDITION',
-            'INAUGURAL ISSUE', 'CHARTER ISSUE', 'FIRST PRESSING',
-            'FRESH OFF THE PRESS', 'RIBBON CUTTING', 'SOFT OPENING',
-            // — retail flavor —
-            'NOW HIRING', 'ALL DEPARTMENTS OPEN', 'FREE WITH PURCHASE',
-            'WHILE SUPPLIES LAST', 'AS SEEN ON TV', "COLLECTOR'S EDITION",
-            // — slightly off —
-            'DOORS OPEN SOON', 'STOCK ARRIVING', 'MIND THE FLOORS',
-            'WATCH YOUR STEP', 'FOR DISPLAY ONLY', 'RESTOCK PENDING',
-            // — past closing —
-            'AFTER HOURS', 'NO REFUNDS', 'FINAL SALE', 'CHECK BEHIND YOU',
-            'AISLE 13 SEALED', 'THE STORE REMEMBERS',
-          ];
-          const slot = document.getElementById('kicker-slot');
-          if (!slot) return;
-          const pick = TAGLINES[Math.floor(Math.random() * TAGLINES.length)];
-          slot.textContent = pick + ' · DEC 1983';
-        })();
+        // Kicker text — randomized on each load via tsic.kicker(). The
+        // suffix " · DEC 1983" is appended automatically; entries below
+        // are just the rotating prefix. Add, remove, or reorder freely.
+        tsic.whenReady(() => tsic.kicker('kicker-slot', [
+          // — opening day / debut —
+          'PREVIEW ISSUE', 'OPENING DAY', 'GRAND OPENING', 'DEBUT EDITION',
+          'INAUGURAL ISSUE', 'CHARTER ISSUE', 'FIRST PRESSING',
+          'FRESH OFF THE PRESS', 'RIBBON CUTTING', 'SOFT OPENING',
+          // — retail flavor —
+          'NOW HIRING', 'ALL DEPARTMENTS OPEN', 'FREE WITH PURCHASE',
+          'WHILE SUPPLIES LAST', 'AS SEEN ON TV', "COLLECTOR'S EDITION",
+          // — slightly off —
+          'DOORS OPEN SOON', 'STOCK ARRIVING', 'MIND THE FLOORS',
+          'WATCH YOUR STEP', 'FOR DISPLAY ONLY', 'RESTOCK PENDING',
+          // — past closing —
+          'AFTER HOURS', 'NO REFUNDS', 'FINAL SALE', 'CHECK BEHIND YOU',
+          'AISLE 13 SEALED', 'THE STORE REMEMBERS',
+        ], ' · DEC 1983'));
       </script>
 
       <!-- FEATURE SPREAD — random showroom cloned into #showroom-slot at boot -->
@@ -364,36 +252,36 @@
       </div>
 
       <!-- MENU ROWS -->
-      <div class="menu-rows" data-tsic-focus-group="nav">
+      <div class="tsic-cover-rows" data-tsic-focus-group="nav">
         <button class="tsic-row-button" id="btn-start" data-tsic-initial-focus>
-          <span class="menu-row-dept">Dept. 04</span>
+          <span class="tsic-row-dept">Dept. 04</span>
           New Game
-          <span class="menu-pg">PG. 04</span>
+          <span class="tsic-row-pg">PG. 04</span>
         </button>
         <button class="tsic-row-button" id="btn-load">
-          <span class="menu-row-dept">Dept. 12</span>
+          <span class="tsic-row-dept">Dept. 12</span>
           Load Save
-          <span class="menu-pg">PG. 12</span>
+          <span class="tsic-row-pg">PG. 12</span>
         </button>
         <button class="tsic-row-button" id="btn-mods">
-          <span class="menu-row-dept">Dept. 33</span>
+          <span class="tsic-row-dept">Dept. 33</span>
           Mods
-          <span class="menu-pg">PG. 33</span>
+          <span class="tsic-row-pg">PG. 33</span>
         </button>
         <button class="tsic-row-button" id="btn-settings">
-          <span class="menu-row-dept">Dept. 88</span>
+          <span class="tsic-row-dept">Dept. 88</span>
           Settings
-          <span class="menu-pg">PG. 88</span>
+          <span class="tsic-row-pg">PG. 88</span>
         </button>
         <button class="tsic-row-button" id="btn-credits">
-          <span class="menu-row-dept">Dept. 99</span>
+          <span class="tsic-row-dept">Dept. 99</span>
           Credits
-          <span class="menu-pg">PG. 99</span>
+          <span class="tsic-row-pg">PG. 99</span>
         </button>
         <button class="tsic-row-button" id="btn-exit">
-          <span class="menu-row-dept">Fire Exit</span>
+          <span class="tsic-row-dept">Fire Exit</span>
           Leave the Store
-          <span class="menu-pg">END</span>
+          <span class="tsic-row-pg">END</span>
         </button>
       </div>
     </div>

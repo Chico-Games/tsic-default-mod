@@ -17,28 +17,15 @@
          - Gameplay group: vertical stack, bottom-right.
          - Menu group: horizontal strip, bottom-centre, sits under whichever
            modal panel is open.
-       Both share a magazine-halftone backdrop (.ab-shell base style) —
-       same dot grid as the main menu but with darker ink so the strip
-       reads as a tight HUD chip over any game scene. */
+       Both ride on the shared .tsic-chip--dark halftone backdrop (see
+       components.css) — only the positioning / layout is per-shell here. */
     html, body { background: transparent; }
 
     .ab-shell {
       position: fixed;
       bottom: 18px;
       max-width: calc(100vw - 48px);
-      /* Light-on-dark: bright text reads cleanly against a dark halftone
-         chip so prompts stay legible no matter what's behind the HUD. */
-      color: var(--paper-bright);
       pointer-events: none;
-      padding: 4px 10px;
-      background-color: rgba(18, 14, 10, 0.68);
-      background-image:
-        radial-gradient(rgba(241, 229, 207, 0.22) 14%, transparent 15%),
-        radial-gradient(rgba(241, 229, 207, 0.22) 14%, transparent 15%);
-      background-size: 8px 8px;
-      background-position: 0 0, 4px 4px;
-      border: 1px solid rgba(255, 255, 255, 0.20);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
     }
     .ab-shell.hidden { display: none; }
 
@@ -145,10 +132,10 @@
     #ab-gameplay .ab-separator { display: none; }
   </style>
 </head><body>
-  <div id="ab-shell-gameplay" class="ab-shell hidden">
+  <div id="ab-shell-gameplay" class="ab-shell tsic-chip--dark hidden">
     <div id="ab-gameplay"></div>
   </div>
-  <div id="ab-shell-menu" class="ab-shell hidden">
+  <div id="ab-shell-menu" class="ab-shell tsic-chip--dark hidden">
     <div id="ab-menu"></div>
   </div>
   <script>
