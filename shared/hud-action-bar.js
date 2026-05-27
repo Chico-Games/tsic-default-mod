@@ -52,7 +52,16 @@
         img.src = resolvedUrl;
         img.alt = keyText || '';
         img.onerror = function () {
-          if (keyText) {
+          var svgUrl = resolve(keyText, isGP);
+          if (svgUrl && svgUrl !== resolvedUrl) {
+            img.onerror = function () {
+              if (keyText) {
+                img.replaceWith(Object.assign(document.createElement('span'),
+                  { className: 'ab-key-fallback', textContent: keyText }));
+              } else { key.remove(); }
+            };
+            img.src = svgUrl;
+          } else if (keyText) {
             img.replaceWith(Object.assign(document.createElement('span'),
               { className: 'ab-key-fallback', textContent: keyText }));
           } else { key.remove(); }

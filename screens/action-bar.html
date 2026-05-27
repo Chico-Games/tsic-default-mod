@@ -9,6 +9,7 @@
   <script src="/shared/router.js" defer></script>
   <script src="/shared/hud.js" defer></script>
   <script src="/shared/icons.js" defer></script>
+    <script src="/shared/tsic-bridge.js" defer></script>
   <script src="/shared/tsic-runtime.js" defer></script>
   <style>
     /* Two presentation modes share the same publisher + DOM root, but render
@@ -174,8 +175,17 @@
           img.src = resolvedUrl;
           img.alt = keyText || inputName || '';
           img.onerror = () => {
-            img.replaceWith(Object.assign(document.createElement('span'),
-              { className: 'ab-key-fallback', textContent: keyText || bracketedName(inputName) }));
+            var svgUrl = (window.TSIC && window.TSIC.keyIconUrl) ? TSIC.keyIconUrl(keyText, preferGamepad()) : '';
+            if (svgUrl && svgUrl !== resolvedUrl) {
+              img.onerror = () => {
+                img.replaceWith(Object.assign(document.createElement('span'),
+                  { className: 'ab-key-fallback', textContent: keyText || bracketedName(inputName) }));
+              };
+              img.src = svgUrl;
+            } else {
+              img.replaceWith(Object.assign(document.createElement('span'),
+                { className: 'ab-key-fallback', textContent: keyText || bracketedName(inputName) }));
+            }
           };
           key.appendChild(img);
         } else {

@@ -62,17 +62,16 @@
     return img;
   }
 
-  // ---- Runtime image sources (GPU-composited UE textures) ----
-  // These use Ultralight's ImageSourceProvider — the .imgsrc extension is
-  // a naming convention, not parsed by C++. The texture must be registered
-  // on the C++ side via UTSICWebUISubsystem::RegisterImageSourceFromTexture
-  // or RegisterImageSourceFromRenderTarget before the URL resolves.
+  // ---- Runtime image sources (served as PNG by the TSIC scheme handler) ----
+  // The texture must be registered on the C++ side via
+  // UTSICWebUISubsystem::RegisterImageSourceFromTexture or
+  // RegisterImageSourceFromRenderTarget before the URL resolves.
   //
   // Known sources: 'world-map', 'character-preview', 'fow',
   //   'world-debug-height', 'world-debug-maze', 'world-debug-all'
 
   function runtimeImgUrl(name) {
-    return '/runtime/' + name + '.imgsrc';
+    return '/runtime/' + name + '.png';
   }
 
   function runtimeImg(name, opts) {

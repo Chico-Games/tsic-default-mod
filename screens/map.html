@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="/shared/base.css">
   <link rel="stylesheet" href="/shared/components.css">
   <link rel="stylesheet" href="/shared/hud.css">
+    <script src="/shared/tsic-bridge.js" defer></script>
   <script src="/shared/tsic-runtime.js" defer></script>
   <script src="/shared/router.js" defer></script>
   <script src="/shared/tsic-focus.js" defer></script>
@@ -499,23 +500,33 @@
         };
       }
 
-      function drawPlayerPin(ctx, x, y, angleDeg, color, sz) {
-        const sc = sz / 20;
+      function drawPlayerArrow(ctx, x, y, yawDeg, color, sz) {
         ctx.save();
         ctx.translate(x, y);
-        ctx.rotate(angleDeg * Math.PI / 180);
-        ctx.scale(sc, sc);
-        ctx.translate(-10, -10);
+        ctx.rotate((yawDeg - 90) * Math.PI / 180);
+        var s = sz / 8;
         ctx.beginPath();
-        ctx.arc(10, 10, 10, Math.PI, Math.PI / 2, false);
-        ctx.lineTo(0, 20);
+        ctx.moveTo(8 * s, 0);
+        ctx.lineTo(-4 * s, -5 * s);
+        ctx.lineTo(-2 * s, 0);
+        ctx.lineTo(-4 * s, 5 * s);
         ctx.closePath();
         ctx.fillStyle = color;
         ctx.fill();
         ctx.strokeStyle = '#fff';
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 1.5;
         ctx.stroke();
         ctx.restore();
+      }
+
+      function drawPlayerDot(ctx, x, y, color, radius) {
+        ctx.beginPath();
+        ctx.arc(x, y, radius, 0, Math.PI * 2);
+        ctx.fillStyle = color;
+        ctx.fill();
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth = 1;
+        ctx.stroke();
       }
 
       function redrawPlayerCanvas() {
@@ -537,10 +548,13 @@
           const wy = (pl.Position && pl.Position.Y) || 0;
           const isSelf = (i === 0);
           const color = pl.Color || (isSelf ? '#3498db' : '#888888');
-          const sz = isSelf ? 18 : 13;
           const yaw = pl.YawDeg || 0;
           const s = worldToScreen(wx, wy);
-          drawPlayerPin(ctx, s.x, s.y, yaw, color, sz);
+          if (isSelf) {
+            drawPlayerArrow(ctx, s.x, s.y, yaw, color, 10);
+          } else {
+            drawPlayerDot(ctx, s.x, s.y, color, 5);
+          }
         }
       }
 

@@ -1,11 +1,16 @@
 // shared/hud-minimap.js — Minimap with fixed zoom, always follows the player.
 // DOM: #hud-minimap, #minimap-tex, #minimap-canvas (created by hud.js).
-// Channel: UI.Map.Snapshot (player positions + world bounds at ~2 Hz).
+// Channel: UI.Map.Snapshot (player positions + world bounds at ~10 Hz).
+//
+// Position and rotation are interpolated between snapshots using
+// requestAnimationFrame so movement appears smooth even if the message
+// rate drops.
 (function () {
   var SIZE = 180;
   var HALF = SIZE / 2;
   var PX_PER_CM = 1;
-  var ZOOM_FRACTION = 0.15;
+  var ZOOM_FRACTION = 0.06;
+  var LERP_SPEED = 12;
 
   var container = document.getElementById('hud-minimap');
   var tex = document.getElementById('minimap-tex');
@@ -16,9 +21,15 @@
   var bounds = { minX: 0, minY: 0, maxX: 0, maxY: 0, hasData: false };
   var worldW = 0, worldH = 0;
   var scale = 1;
-  var selfLocal = { x: 0, y: 0 };
-  var selfYaw = 0;
+
+  var targetLocal = { x: 0, y: 0 };
+  var currentLocal = { x: 0, y: 0 };
+  var targetYaw = 0;
+  var currentYaw = 0;
+  var firstSnapshot = true;
   var players = [];
+  var animating = false;
+  var lastTime = 0;
 
   function worldToLocal(wx, wy) {
     return {
@@ -45,10 +56,17 @@
     scale = HALF / visibleRadius;
   }
 
+  function lerpAngle(from, to, t) {
+    var diff = to - from;
+    while (diff > 180) diff -= 360;
+    while (diff < -180) diff += 360;
+    return from + diff * t;
+  }
+
   function render() {
     if (!bounds.hasData) return;
-    var lx = selfLocal.x;
-    var ly = selfLocal.y;
+    var lx = currentLocal.x;
+    var ly = currentLocal.y;
     var tx = HALF - lx * scale;
     var ty = HALF - ly * scale;
     tex.style.transform = 'translate(' + tx + 'px,' + ty + 'px) scale(' + scale + ')';
@@ -75,7 +93,7 @@
 
     ctx.save();
     ctx.translate(HALF, HALF);
-    ctx.rotate((selfYaw - 90) * Math.PI / 180);
+    ctx.rotate((currentYaw - 90) * Math.PI / 180);
     ctx.beginPath();
     ctx.moveTo(8, 0);
     ctx.lineTo(-4, -5);
@@ -90,18 +108,47 @@
     ctx.restore();
   }
 
+  function tick(now) {
+    if (!bounds.hasData) { animating = false; return; }
+    var dt = lastTime ? Math.min((now - lastTime) / 1000, 0.05) : 0.016;
+    lastTime = now;
+
+    var t = Math.min(1, LERP_SPEED * dt);
+    currentLocal.x += (targetLocal.x - currentLocal.x) * t;
+    currentLocal.y += (targetLocal.y - currentLocal.y) * t;
+    currentYaw = lerpAngle(currentYaw, targetYaw, t);
+
+    render();
+    requestAnimationFrame(tick);
+  }
+
+  function startAnimation() {
+    if (animating) return;
+    animating = true;
+    lastTime = 0;
+    requestAnimationFrame(tick);
+  }
+
   tsic.on('tsic.msg.UI.Map.Snapshot', function (p) {
     if (!p) return;
     updateBounds(p.MinBounds, p.MaxBounds);
     players = p.Players || [];
     if (players.length > 0) {
       var me = players[0];
-      selfLocal = worldToLocal(
+      var pos = worldToLocal(
         (me.Position && me.Position.X) || 0,
         (me.Position && me.Position.Y) || 0
       );
-      selfYaw = me.YawDeg || 0;
+      targetLocal.x = pos.x;
+      targetLocal.y = pos.y;
+      targetYaw = me.YawDeg || 0;
+      if (firstSnapshot) {
+        currentLocal.x = targetLocal.x;
+        currentLocal.y = targetLocal.y;
+        currentYaw = targetYaw;
+        firstSnapshot = false;
+      }
     }
-    render();
+    startAnimation();
   });
 })();
