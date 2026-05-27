@@ -27,6 +27,34 @@ TSICPlayground.register({
             ['tsic.msg.UI.Input.Mode.Changed', { Mode: state.mode }],
         ];
     },
+    controls: [
+        // Live cooldown driver — drag to set the ring's fill percent on the
+        // first gameplay slot. 0 hides the ring (status idle), 1 also hides
+        // it (cooldown done). Forces gameplay mode so the ring is visible.
+        {
+            label: 'Cooldown',
+            min: 0, max: 1, step: 0.01,
+            format(v) { return Math.round(v * 100) + '%'; },
+            read(s) {
+                const slot = s && s.abilities && s.abilities.Slots && s.abilities.Slots[0];
+                return (slot && typeof slot.CooldownPercent === 'number') ? slot.CooldownPercent : 0;
+            },
+            apply(s, v) {
+                if (!s.abilities) s.abilities = { Slots: [] };
+                if (!s.abilities.Slots[0]) {
+                    s.abilities.Slots[0] = {
+                        InputName: 'IA_UI_ConfirmAccept', AbilityName: 'Dash',
+                        SubText: '', bVisible: true, KeyboardKeyText: 'E',
+                    };
+                }
+                const slot = s.abilities.Slots[0];
+                if (v > 0 && v < 1) { slot.StatusInt = 2; slot.CooldownPercent = v; }
+                else                { slot.StatusInt = 0; delete slot.CooldownPercent; }
+                s.screenName = null;       // gameplay mode shows abilities
+                s.menu = { Entries: [] };
+            },
+        },
+    ],
     scenarios: [
         { label: 'Menu: Inventory',   apply(s) { s.screenName = 'Inventory'; } },
         { label: 'Menu: Crafting',    apply(s) { s.screenName = 'Crafting'; s.menu = { Entries: [

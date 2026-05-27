@@ -12,37 +12,40 @@
     <script src="/shared/tsic-bridge.js" defer></script>
   <script src="/shared/tsic-runtime.js" defer></script>
   <style>
-    /* Two presentation modes share the same publisher + DOM root, but render
-       very differently:
-         - Gameplay group: vertical stack, bottom-right, no shell/chip
-           backgrounds — keys and text float over the scene the way most
-           action games (Souls/Elden Ring, etc.) draw contextual prompts.
-           Legibility comes from a paper-halo text-shadow, not a chip.
+    /* Two presentation modes share the same publisher + DOM root, but
+       render with different layouts:
+         - Gameplay group: vertical stack, bottom-right.
          - Menu group: horizontal strip, bottom-centre, sits under whichever
-           modal panel is open. Keeps a faint paper backdrop so it reads as
-           a footer for the modal rather than free-floating HUD. */
+           modal panel is open.
+       Both share a magazine-halftone backdrop (.ab-shell base style) —
+       same dot grid as the main menu but with darker ink so the strip
+       reads as a tight HUD chip over any game scene. */
     html, body { background: transparent; }
 
     .ab-shell {
       position: fixed;
       bottom: 18px;
       max-width: calc(100vw - 48px);
-      color: var(--cat-ink-dark);
+      /* Light-on-dark: bright text reads cleanly against a dark halftone
+         chip so prompts stay legible no matter what's behind the HUD. */
+      color: var(--paper-bright);
       pointer-events: none;
+      padding: 4px 10px;
+      background-color: rgba(18, 14, 10, 0.68);
+      background-image:
+        radial-gradient(rgba(241, 229, 207, 0.22) 14%, transparent 15%),
+        radial-gradient(rgba(241, 229, 207, 0.22) 14%, transparent 15%);
+      background-size: 8px 8px;
+      background-position: 0 0, 4px 4px;
+      border: 1px solid rgba(255, 255, 255, 0.20);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
     }
     .ab-shell.hidden { display: none; }
 
-    #ab-shell-gameplay {
-      right: 24px;
-      /* No shell chrome — gameplay bar is just a column of prompts. */
-    }
+    #ab-shell-gameplay { right: 24px; }
     #ab-shell-menu {
       left: 50%;
       transform: translateX(-50%);
-      padding: 6px 12px;
-      background: rgba(241, 229, 207, 0.35);
-      border: 1px solid var(--cat-border-soft);
-      box-shadow: var(--cat-shadow-soft);
     }
 
     /* Vertical stack, right-justified so keys hug the screen edge. */
@@ -50,12 +53,15 @@
       display: flex;
       flex-direction: column;
       align-items: flex-end;
-      gap: 6px;
-      /* Cream halo + thin dark shadow keeps ink readable on any scene. */
+      /* Generous row spacing so the cooldown ring + label don't crowd
+         neighbouring rows. */
+      gap: 14px;
+      /* Dark halo + thin black shadow keeps bright text crisp against the
+         dotted halftone chip. */
       text-shadow:
-        0 0 3px rgba(247, 237, 217, 0.85),
-        0 0 6px rgba(247, 237, 217, 0.55),
-        0 1px 2px rgba(0, 0, 0, 0.45);
+        0 0 3px rgba(0, 0, 0, 0.85),
+        0 0 6px rgba(0, 0, 0, 0.55),
+        0 1px 2px rgba(0, 0, 0, 0.55);
     }
     #ab-menu {
       display: flex;
@@ -81,40 +87,46 @@
       font-weight: 700;
       letter-spacing: 0.06em;
       text-transform: uppercase;
-      color: var(--cat-ink-dark);
+      color: var(--paper-bright);
     }
-    .ab-row[data-status="blocked"]         { opacity: 0.55; color: var(--cat-red); }
+    .ab-row[data-status="blocked"]         { opacity: 0.55; }
     .ab-row[data-status="cooldown"]        { opacity: 0.75; filter: saturate(0.55); }
     .ab-row[data-status="single-use-used"] { opacity: 0.35; text-decoration: line-through; }
 
     .ab-key {
+      /* No chrome on the key itself — just a 32×32 host for the icon and
+         the cooldown ring centred around it. */
       position: relative;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      min-width: 26px;
-      height: 22px;
-      padding: 0 6px;
+      width: 32px;
+      height: 32px;
       background: transparent;
-      border: 1px solid currentColor;
       color: inherit;
       font-family: Georgia, "Libre Baskerville", serif;
-      font-size: 11px;
+      font-size: 13px;
       font-weight: 700;
-      overflow: hidden;
     }
-    /* Menu group sits over a solid modal — give its keys a faint chip back
-       so they read as physical keys, not the ghost outlines used in-world. */
-    #ab-menu .ab-key {
-      background: rgba(244, 235, 217, 0.55);
-      border-color: var(--cat-border-strong);
-    }
-    .ab-key img { max-width: 18px; max-height: 18px; object-fit: contain; }
+    .ab-key img { width: 22px; height: 22px; object-fit: contain; }
     .ab-key-fallback { padding: 0 2px; }
     .ab-cd-sweep {
-      position: absolute; inset: 0; pointer-events: none;
-      background: conic-gradient(rgba(35,31,24,0.5) calc(var(--tsic-cd-percent,0) * 1%), transparent 0);
-      mix-blend-mode: multiply;
+      /* Cooldown ring — a thin white arc that wraps the key and fills
+         clockwise from 12 o'clock as the cooldown progresses. Sized 32×32
+         and centred on the key so it sits just outside the chip border;
+         the radial mask isolates the visible 2px ring band. */
+      position: absolute;
+      left: 50%; top: 50%;
+      width: 32px; height: 32px;
+      margin: -16px 0 0 -16px;
+      pointer-events: none;
+      border-radius: 50%;
+      background: conic-gradient(
+        rgba(255, 255, 255, 0.92) calc(var(--tsic-cd-percent, 0) * 1%),
+        transparent 0
+      );
+      -webkit-mask: radial-gradient(transparent 11px, #000 12px);
+              mask: radial-gradient(transparent 11px, #000 12px);
     }
 
     .ab-text { display: inline-flex; align-items: baseline; gap: 6px; }

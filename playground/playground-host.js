@@ -245,6 +245,52 @@
             });
             host.appendChild(b);
         }
+        // Continuous controls (e.g. cooldown sliders). Each control mutates
+        // state on `input` and re-projects, giving live preview. Optional
+        // `read(state)` syncs the slider UI back to current state on render
+        // and after scenarios run; without it the slider position is purely
+        // the user's drag history.
+        const controls = activeFixture.controls || [];
+        for (const ctrl of controls) {
+            const wrap = document.createElement('div');
+            wrap.style.cssText = 'display:flex;flex-direction:column;gap:3px;padding:8px 4px 2px;margin-top:6px;border-top:1px solid #1f2937;';
+
+            const labelRow = document.createElement('div');
+            labelRow.style.cssText = 'display:flex;justify-content:space-between;font-size:11px;letter-spacing:1px;color:#94a3b8;text-transform:uppercase;';
+            const labelText = document.createElement('span');
+            labelText.textContent = ctrl.label;
+            const valueText = document.createElement('span');
+            valueText.style.color = '#fbbf24';
+            labelRow.appendChild(labelText);
+            labelRow.appendChild(valueText);
+
+            const slider = document.createElement('input');
+            slider.type = 'range';
+            slider.min = ctrl.min != null ? ctrl.min : 0;
+            slider.max = ctrl.max != null ? ctrl.max : 1;
+            slider.step = ctrl.step != null ? ctrl.step : 0.01;
+            const initial = ctrl.read ? ctrl.read(activeState) : (ctrl.value != null ? ctrl.value : 0);
+            slider.value = initial;
+            slider.style.cssText = 'width:100%;cursor:pointer;accent-color:#fbbf24;';
+
+            function fmt(v) { return ctrl.format ? ctrl.format(v) : String(v); }
+            valueText.textContent = fmt(parseFloat(slider.value));
+
+            slider.addEventListener('input', () => {
+                const v = parseFloat(slider.value);
+                valueText.textContent = fmt(v);
+                try { ctrl.apply(activeState, v); }
+                catch (e) {
+                    logRow('fail', `control "${ctrl.label}" threw: ${e.message}`);
+                    return;
+                }
+                projectAndInject();
+            });
+
+            wrap.appendChild(labelRow);
+            wrap.appendChild(slider);
+            host.appendChild(wrap);
+        }
     }
 
     // Fixtures whose target screen has <meta name="tsic-focus" content="enabled">.
