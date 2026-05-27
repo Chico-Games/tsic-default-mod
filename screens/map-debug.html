@@ -98,8 +98,8 @@
       image-rendering: pixelated;
     }
     /* `nocss` mode — wipe all CSS off the <img>. Final fallback for ruling
-       out an Ultralight CSS bug; if a texture renders here but nowhere else,
-       the bug is in the stylesheet, not the GPU driver or pixel data. */
+       out a stylesheet issue; if a texture renders here but nowhere else,
+       the bug is in the CSS, not the texture provider or pixel data. */
     body[data-css="off"] .cell img {
       all: revert;
       width: auto; height: auto;

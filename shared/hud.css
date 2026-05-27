@@ -1,23 +1,36 @@
+/* shared/hud.css — in-game HUD overlay styles.
+ *
+ * HUD elements sit on top of gameplay. Backgrounds use rgba for translucency
+ * so the world reads through; borders are neon to stand out against any
+ * backdrop; text uses display fonts with subtle glow so labels pop.
+ */
+
 #hud-chrome {
   position: fixed; left: 0; top: 0; right: 0; bottom: 0;
   pointer-events: none;
   z-index: 10;
 }
 
+/* Interaction prompt — "PRESS E TO OPEN" near the world centre. */
 #hud-chrome .interaction-prompt {
-  position: absolute; left: 50%; bottom: 18%;
+  position: absolute;
+  left: 50%; bottom: 18%;
+  /* axis-aligned translate only — translate(-50%) on position:absolute is ok */
   transform: translateX(-50%);
-  padding: 8px 14px;
-  background: rgba(241, 229, 207, 0.92);
-  border: 1px solid var(--cat-border);
-  color: var(--cat-ink);
-  font-family: Georgia, "Libre Baskerville", serif;
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
+  padding: 8px 16px;
+  background: rgba(13, 14, 21, 0.78);
+  border: 1px solid var(--neon-cyan);
+  box-shadow: 0 0 8px rgba(0, 247, 255, 0.45), inset 0 0 10px rgba(0, 247, 255, 0.10);
+  color: var(--neon-cyan);
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 400;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
+  text-shadow: 0 0 4px rgba(0, 247, 255, 0.6);
 }
 
+/* Toasts — corner notifications. Synthwave dark plate with neon left bar. */
 #toast-container {
   position: fixed; left: 24px; top: 24px;
   display: flex; flex-direction: column; gap: 8px;
@@ -26,33 +39,80 @@
 }
 
 .toast {
-  min-width: 220px;
-  max-width: 360px;
-  padding: 8px 12px;
-  background: rgba(241, 229, 207, 0.92);
-  border-left: 3px solid var(--cat-green);
-  color: var(--cat-ink-dark);
-  font-family: Georgia, "Libre Baskerville", serif;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.05em;
+  min-width: 240px;
+  max-width: 380px;
+  padding: 8px 14px;
+  background: rgba(13, 14, 21, 0.85);
+  border: 1px solid rgba(0, 247, 255, 0.45);
+  border-left: 4px solid var(--neon-cyan);
+  box-shadow: 0 0 8px rgba(0, 247, 255, 0.30), 0 4px 12px rgba(0, 0, 0, 0.45);
+  color: #ffffff;
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   pointer-events: none;
   animation: tsic-toast-in 200ms ease-out;
 }
-.toast--info    { border-left-color: var(--cat-green); }
-.toast--warning { border-left-color: #b58a00; }
-.toast--error   { border-left-color: var(--cat-red); }
-/* CSS opacity promotes to a compositing layer that Ultralight 1.4 can't
-   paint back — animate color + background via rgba instead. border-left-color
-   is left out so severity-variant classes (.toast--info/warning/error) aren't
-   overridden by the keyframe. */
+
+.toast--info {
+  border-left-color: var(--neon-cyan);
+  border-color: rgba(0, 247, 255, 0.45);
+  box-shadow: 0 0 8px rgba(0, 247, 255, 0.30), 0 4px 12px rgba(0, 0, 0, 0.45);
+}
+.toast--warning {
+  border-left-color: var(--mag-yellow);
+  border-color: rgba(255, 204, 0, 0.45);
+  box-shadow: 0 0 8px rgba(255, 204, 0, 0.30), 0 4px 12px rgba(0, 0, 0, 0.45);
+  color: var(--mag-yellow);
+}
+.toast--error {
+  border-left-color: var(--mag-red);
+  border-color: rgba(230, 0, 0, 0.45);
+  box-shadow: 0 0 8px rgba(230, 0, 0, 0.40), 0 4px 12px rgba(0, 0, 0, 0.45);
+  color: #ff5a5a;
+}
+
 .toast--leaving { animation: tsic-toast-out 200ms ease-in forwards; }
+
 @keyframes tsic-toast-in {
-  from { transform: translateX(-20px); color: rgba(37,33,25,0); background: rgba(241,229,207,0); }
-  to   { transform: translateX(0);     color: rgba(37,33,25,1); background: rgba(241,229,207,0.92); }
+  from { transform: translateX(-20px); opacity: 0; }
+  to   { transform: translateX(0);     opacity: 1; }
 }
 @keyframes tsic-toast-out {
-  from { transform: translateX(0);     color: rgba(37,33,25,1); background: rgba(241,229,207,0.92); }
-  to   { transform: translateX(-20px); color: rgba(37,33,25,0); background: rgba(241,229,207,0); }
+  from { transform: translateX(0);     opacity: 1; }
+  to   { transform: translateX(-20px); opacity: 0; }
+}
+
+/* Health & stamina bars use .tsic-bar-track--neon — see components.css. */
+
+/* Action-bar prompts (key + label pill that surfaces context actions). */
+.tsic-action-prompt {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px;
+  background: rgba(13, 14, 21, 0.78);
+  border: 1px solid var(--neon-pink);
+  color: #ffffff;
+  font-family: var(--font-display);
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-shadow: 0 0 3px rgba(255, 0, 153, 0.6);
+  box-shadow: 0 0 6px rgba(255, 0, 153, 0.35);
+}
+.tsic-action-prompt .key {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  background: var(--mag-red);
+  border: 1px solid var(--ink-night);
+  font-family: var(--font-pixel);
+  font-size: 10px;
+  color: #ffffff;
 }

@@ -1,17 +1,156 @@
+/* shared/base.css — TSIC WebUI foundation
+ *
+ * Design language: "Synthwave Magazine" — neon synthwave body backdrop with
+ * magazine-page foreground panels (cream paper, heavy black borders, offset
+ * block shadow). Inspired by late-80s gaming-magazine aesthetics.
+ *
+ * Token philosophy:
+ *   1. Raw palette vars  (--neon-pink, --paper-cream, --ink-night, ...)
+ *   2. Semantic tokens   (--tsic-accent, --tsic-bg, --tsic-text, ...)
+ *   3. Legacy --cat-*    remapped onto the new palette so existing screens
+ *                        keep working with no HTML edits.
+ */
+
 @import url("/shared/catalogue.css");
 @import url("/shared/tsic-ui.css");
 
+:root {
+  /* ───── Raw palette: synthwave deep night ───── */
+  --bg-deep:        #0d0e15;
+  --bg-panel:       #1a0f2e;
+  --bg-panel-2:     #251447;
+  --bg-overlay:     rgba(13, 14, 21, 0.78);
+
+  /* Raw palette: magazine paper */
+  --paper:          #f4ecd8;
+  --paper-cream:    #f0e8d0;
+  --paper-bright:   #fffdf3;
+  --paper-soft:     #ede4cb;
+  --paper-muted:    #e3d8b8;
+
+  /* Raw palette: ink (text on paper) */
+  --ink-night:      #0a0a0a;
+  --ink:            #1a1612;
+  --ink-soft:       #4a4239;
+  --ink-mute:       #6c6357;
+
+  /* Raw palette: neon */
+  --neon-pink:      #ff0099;
+  --neon-pink-hot:  #ff00ff;
+  --neon-cyan:      #00f7ff;
+  --neon-cyan-hot:  #00ffff;
+  --neon-yellow:    #ffe600;
+  --neon-purple:    #b300ff;
+  --neon-orange:    #ff6b00;
+  --neon-green:     #39ff14;
+
+  /* Raw palette: magazine accents */
+  --mag-red:        #e60000;
+  --mag-red-dark:   #c70000;
+  --mag-red-deep:   #a80000;
+  --mag-yellow:     #ffcc00;
+  --mag-blue:       #0066ff;
+
+  /* Borders */
+  --border-black:   #0a0a0a;
+  --border-neon:    var(--neon-pink);
+  --border-cyan:    var(--neon-cyan);
+  --border-muted:   #5a4a82;
+  --border-paper:   #9d927e;
+
+  /* Shadows — the magazine "offset-block" look + neon glows */
+  --shadow-block-sm:    2px 2px 0 var(--ink-night);
+  --shadow-block:       4px 4px 0 var(--ink-night);
+  --shadow-block-lg:    6px 6px 0 var(--ink-night);
+  --shadow-block-red:   4px 4px 0 var(--mag-red);
+  --shadow-block-cyan:  3px 3px 0 var(--neon-cyan);
+  --shadow-soft-dark:   0 8px 24px rgba(0, 0, 0, 0.55);
+
+  --shadow-neon-pink:   0 0 5px var(--neon-pink), 0 0 14px rgba(255, 0, 153, 0.55);
+  --shadow-neon-cyan:   0 0 5px var(--neon-cyan), 0 0 14px rgba(0, 247, 255, 0.55);
+  --shadow-neon-yellow: 0 0 5px var(--neon-yellow), 0 0 12px rgba(255, 230, 0, 0.55);
+
+  --glow-pink:          0 0 4px var(--neon-pink), 0 0 10px var(--neon-pink);
+  --glow-cyan:          0 0 4px var(--neon-cyan), 0 0 10px var(--neon-cyan);
+  --glow-yellow:        0 0 4px var(--neon-yellow), 0 0 10px var(--neon-yellow);
+
+  /* ───── Fonts ─────
+   * Stack relies on Windows system fonts (Bahnschrift, Impact, Consolas)
+   * that approximate the retro vibe. Drop TTFs into
+   * /Plugins/TSICWebUI/Content/UI/Web/fonts/ and add @font-face entries
+   * below if you want true retro typefaces. */
+  --font-display:  "Bebas Neue", "Bahnschrift Condensed", Impact, "Arial Black", sans-serif;
+  --font-action:   "Russo One", Bahnschrift, "Bahnschrift Condensed", Impact, "Arial Black", sans-serif;
+  --font-mag:      var(--font-display);
+  --font-terminal: "VT323", Consolas, "Cascadia Code", "Courier New", monospace;
+  --font-pixel:    "Press Start 2P", "VT323", Consolas, monospace;
+  --font-body:     "Inter", "Segoe UI", system-ui, sans-serif;
+  --cat-font-serif: var(--font-mag); /* legacy alias */
+
+  /* ───── Semantic tokens (new code uses these) ───── */
+  --tsic-bg:           var(--bg-deep);
+  --tsic-bg-panel:     var(--bg-panel);
+  --tsic-bg-paper:     var(--paper-cream);
+  --tsic-bg-overlay:   var(--bg-overlay);
+  --tsic-text:         #ffffff;
+  --tsic-text-dim:     #b9b1c8;
+  --tsic-text-ink:     var(--ink);
+  --tsic-text-ink-dim: var(--ink-soft);
+  --tsic-accent:       var(--neon-pink);
+  --tsic-accent-cool:  var(--neon-cyan);
+  --tsic-accent-warm:  var(--neon-yellow);
+  --tsic-accent-dim:   rgba(255, 0, 153, 0.30);
+  --tsic-border:       var(--border-black);
+  --tsic-border-neon:  var(--neon-pink);
+  --tsic-danger:       var(--mag-red);
+
+  /* ───── Legacy --cat-* remap ─────
+   * Screens still reference --cat-paper, --cat-ink, --cat-green, etc. Map
+   * them onto the synthwave palette so old markup picks up the new look.
+   * Loose mapping: paper → paper, ink → ink, green (the old primary) →
+   * magazine red (the new primary). */
+  --cat-paper:         var(--paper);
+  --cat-paper-panel:   var(--paper-cream);
+  --cat-paper-soft:    var(--paper-soft);
+  --cat-paper-muted:   var(--paper-muted);
+
+  --cat-ink:           var(--ink);
+  --cat-ink-dark:      var(--ink-night);
+  --cat-ink-muted:     var(--ink-soft);
+  --cat-ink-soft:      var(--ink-mute);
+
+  --cat-green:         var(--mag-red);
+  --cat-green-hover:   var(--mag-red-dark);
+  --cat-green-soft:    rgba(230, 0, 0, 0.85);
+
+  --cat-red:           var(--mag-red-dark);
+  --cat-red-hover:     var(--mag-red-deep);
+
+  --cat-border:        var(--border-black);
+  --cat-border-strong: var(--border-black);
+  --cat-border-soft:   #c9c2af;
+
+  --cat-shadow-soft:   var(--shadow-block-sm);
+  --cat-shadow:        var(--shadow-block);
+
+  --cat-bg:            var(--paper-cream);
+  --tsic-bg-strong:    var(--paper-bright);
+}
+
+/* ───── Reset + base layout ───── */
 * { box-sizing: border-box; }
+
 html, body {
   margin: 0; padding: 0; width: 100%; height: 100%;
-  font-family: Georgia, "Libre Baskerville", serif;
-  color: var(--cat-ink);
-  /* The WebUI overlays the game world. Default to transparent so HUD /
-     in-game pages don't paint a full-screen fill over gameplay. Menu
-     screens that want a panel look set their own background inline. */
+  font-family: var(--font-body);
+  color: var(--tsic-text);
+  /* WebUI overlays the game world — default transparent so HUD pages don't
+     paint a full-screen fill. Menu screens opt into a stage by adding a
+     .tsic-stage--* class to <body>. */
   background: transparent;
   overflow: hidden;
 }
+
 button { cursor: pointer; font-family: inherit; }
 input, textarea, select { font-family: inherit; }
 
@@ -31,10 +170,6 @@ textarea,
   -webkit-user-select: text;
   cursor: text;
 }
-/* Range slider — explicit pointer/grab cursors so the thumb stays draggable
-   even though the universal `cursor: default` rule above would otherwise
-   override the browser's built-in slider styling. touch-action+pointer-events
-   make sure no parent transparently swallows the drag. */
 input[type=range] {
   cursor: pointer;
   pointer-events: auto;
@@ -43,17 +178,191 @@ input[type=range] {
 input[type=range]::-webkit-slider-thumb { cursor: grab; }
 input[type=range]:active::-webkit-slider-thumb { cursor: grabbing; }
 
-:root {
-  /* tsic-* vars remap onto the catalogue palette so every legacy class
-     inherits the paper / ink look automatically. */
-  --tsic-bg:        var(--cat-paper-panel);
-  --tsic-bg-strong: var(--cat-paper);
-  --tsic-accent:     var(--cat-green);
-  --tsic-accent-dim: var(--cat-green-soft);
-  --tsic-border:     var(--cat-border);
-  --tsic-text-dim:   var(--cat-ink-muted);
+/* ───────────── STAGES ─────────────
+ * A "stage" is the screen-level body backdrop. Body stays transparent by
+ * default (HUD pages overlay the game). Menu screens opt into a stage:
+ *
+ *   <body class="tsic-stage--magazine">    ← off-white halftone paper
+ *   <body class="tsic-stage--dim">         ← solid dark
+ */
 
-  /* Font tokens — promote the repeated literal to a single source of truth
-     so utility classes and pages can reference --cat-font-serif. */
-  --cat-font-serif: Georgia, "Libre Baskerville", serif;
+/* Magazine stage — bright halftone paper. For "browsing the catalogue"
+   pages where a flat dark stage would be too plain. */
+.tsic-stage--magazine {
+  background-color: var(--paper-cream);
+  background-image:
+    radial-gradient(rgba(10, 10, 10, 0.10) 14%, transparent 15%),
+    radial-gradient(rgba(10, 10, 10, 0.08) 14%, transparent 15%);
+  background-size: 10px 10px, 10px 10px;
+  background-position: 0 0, 5px 5px;
+  color: var(--ink-night);
 }
+
+.tsic-stage--dim { background-color: var(--bg-deep); }
+
+/* ───────────── PATTERN UTILITIES ───────────── */
+
+.tsic-halftone {
+  background-image:
+    radial-gradient(rgba(10, 10, 10, 0.55) 14%, transparent 15%),
+    radial-gradient(rgba(10, 10, 10, 0.55) 14%, transparent 15%);
+  background-size: 10px 10px, 10px 10px;
+  background-position: 0 0, 5px 5px;
+}
+
+.tsic-halftone--light {
+  background-image:
+    radial-gradient(rgba(255, 255, 255, 0.35) 14%, transparent 15%),
+    radial-gradient(rgba(255, 255, 255, 0.35) 14%, transparent 15%);
+  background-size: 10px 10px, 10px 10px;
+  background-position: 0 0, 5px 5px;
+}
+
+.tsic-stripes {
+  background: repeating-linear-gradient(
+    45deg,
+    var(--mag-yellow), var(--mag-yellow) 10px,
+    var(--ink-night) 10px,  var(--ink-night) 20px
+  );
+}
+.tsic-stripes--red {
+  background: repeating-linear-gradient(
+    45deg,
+    var(--mag-red),  var(--mag-red) 10px,
+    var(--ink-night) 10px, var(--ink-night) 20px
+  );
+}
+.tsic-stripes--neon {
+  background: repeating-linear-gradient(
+    45deg,
+    var(--neon-pink), var(--neon-pink) 8px,
+    transparent       8px, transparent  16px
+  );
+}
+
+/* "Synth grid" — flat tech grid backdrop for inline panels (different from
+   the perspective floor on the stage). */
+.tsic-grid-bg {
+  background-color: var(--bg-panel);
+  background-image:
+    linear-gradient(rgba(255, 0, 153, 0.18) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 0, 153, 0.18) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+/* ───────────── TEXT UTILITIES ───────────── */
+
+.tsic-neon-pink   { color: var(--neon-pink);   text-shadow: var(--glow-pink); }
+.tsic-neon-cyan   { color: var(--neon-cyan);   text-shadow: var(--glow-cyan); }
+.tsic-neon-yellow { color: var(--neon-yellow); text-shadow: var(--glow-yellow); }
+.tsic-neon-green  { color: var(--neon-green);  text-shadow: 0 0 4px var(--neon-green), 0 0 10px var(--neon-green); }
+
+/* Chrome text — silvered gradient via background-clip with a drop shadow
+   for depth. */
+.tsic-chrome-text {
+  background-image: linear-gradient(180deg,
+    #ffffff 0%, #c2c8d4 26%, #6e7689 50%,
+    #ffffff 51%, #ffffff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+  font-weight: 900;
+  text-transform: uppercase;
+  filter: drop-shadow(0 2px 0 rgba(0, 0, 0, 0.45));
+}
+
+/* Glitch-shake animation — drop onto any element with .tsic-glitch. */
+.tsic-glitch       { animation: tsic-glitch-loop 4s steps(1, end) infinite; }
+.tsic-glitch-hover:hover { animation: tsic-glitch-shake 0.2s linear infinite; }
+
+@keyframes tsic-glitch-loop {
+  0%,   88%, 100% { transform: translate(0, 0); }
+  90%             { transform: translate(-2px, 1px); }
+  92%             { transform: translate(2px, -1px); }
+  94%             { transform: translate(-1px, 0); }
+  96%             { transform: translate(1px, 1px); }
+}
+@keyframes tsic-glitch-shake {
+  0%   { transform: translate(0, 0); }
+  20%  { transform: translate(-2px, 1px); }
+  40%  { transform: translate(-1px, -1px); }
+  60%  { transform: translate(2px, 1px); }
+  80%  { transform: translate(1px, -1px); }
+  100% { transform: translate(0, 0); }
+}
+
+/* Slow neon pulse — for "PRESS START" style attractors. Animates the
+   text-shadow strength between a soft and a bright halo. */
+.tsic-pulse-pink { animation: tsic-pulse-pink 1.6s ease-in-out infinite; }
+.tsic-pulse-cyan { animation: tsic-pulse-cyan 1.6s ease-in-out infinite; }
+
+@keyframes tsic-pulse-pink {
+  0%, 100% { text-shadow: 0 0 4px var(--neon-pink), 0 0 10px var(--neon-pink); }
+  50%      { text-shadow: 0 0 8px var(--neon-pink), 0 0 24px var(--neon-pink), 0 0 36px rgba(255, 0, 153, 0.45); }
+}
+@keyframes tsic-pulse-cyan {
+  0%, 100% { text-shadow: 0 0 4px var(--neon-cyan), 0 0 10px var(--neon-cyan); }
+  50%      { text-shadow: 0 0 8px var(--neon-cyan), 0 0 24px var(--neon-cyan), 0 0 36px rgba(0, 247, 255, 0.45); }
+}
+
+/* Magazine headline — uppercase condensed display. */
+.tsic-headline {
+  font-family: var(--font-display);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  line-height: 0.95;
+  color: var(--ink-night);
+  margin: 0;
+}
+
+/* Font-family helpers — apply to any element. */
+.tsic-font-pixel    { font-family: var(--font-pixel); }
+.tsic-font-terminal { font-family: var(--font-terminal); }
+.tsic-font-action   { font-family: var(--font-action); }
+.tsic-font-display  { font-family: var(--font-display); }
+.tsic-font-mag      { font-family: var(--font-mag); }
+
+/* ───────────── GLOBAL SCROLLBAR ─────────────
+ * Default: neon-on-deep, matches the synthwave stage. Containers inside a
+ * magazine panel can opt into the paper-track variant via .tsic-scroll--paper. */
+
+* { scrollbar-width: thin; scrollbar-color: var(--neon-pink) #181225; }
+::-webkit-scrollbar { width: 12px; height: 12px; }
+::-webkit-scrollbar-track {
+  background: #181225;
+  border-left: 1px solid #2a1a4a;
+}
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--neon-pink), var(--neon-purple));
+  border: 2px solid #181225;
+  border-radius: 6px;
+  box-shadow: 0 0 4px rgba(255, 0, 153, 0.8);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--neon-pink);
+  box-shadow: 0 0 10px var(--neon-pink);
+}
+::-webkit-scrollbar-corner { background: #181225; }
+
+/* Paper-track variant — apply class to a scrollable element OR to a parent
+   to retheme any descendant scrollbars. */
+.tsic-scroll--paper,
+.tsic-scroll--paper * { scrollbar-color: var(--mag-red) #d9cfb8; }
+.tsic-scroll--paper::-webkit-scrollbar-track,
+.tsic-scroll--paper *::-webkit-scrollbar-track {
+  background: #d9cfb8;
+  border-left: 1px solid var(--ink-soft);
+}
+.tsic-scroll--paper::-webkit-scrollbar-thumb,
+.tsic-scroll--paper *::-webkit-scrollbar-thumb {
+  background: var(--mag-red);
+  border: 2px solid #d9cfb8;
+  border-radius: 4px;
+  box-shadow: none;
+}
+.tsic-scroll--paper::-webkit-scrollbar-thumb:hover,
+.tsic-scroll--paper *::-webkit-scrollbar-thumb:hover { background: var(--mag-red-dark); }
+.tsic-scroll--paper::-webkit-scrollbar-corner,
+.tsic-scroll--paper *::-webkit-scrollbar-corner { background: #d9cfb8; }

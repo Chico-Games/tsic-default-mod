@@ -15,10 +15,9 @@
       gap: 6px; z-index: 50; pointer-events: none;
       max-width: 380px;
     }
-    /* CSS opacity promotes to a compositing layer that Ultralight 1.4
-       can't composite back — use rgba color/background for fade instead.
-       The slide-in via transform handles the entrance; for exit we slide
-       out AND fade background/text to transparent. */
+    /* Notification slide-in + fade. Entrance: translateX from -110%; exit
+       fades background and text rgba to transparent over a longer duration
+       so dismissals feel softer than arrivals. */
     .notif {
       display: flex; align-items: flex-start; gap: 10px;
       padding: 8px 12px;

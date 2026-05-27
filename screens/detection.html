@@ -75,16 +75,16 @@
           const y = 50 + r * (-Math.cos(bearing));
           eye.style.left = x + '%';
           eye.style.top = y + '%';
-          // Ultralight: opacity < 1 makes the element invisible. Bake the
-          // detection score into the box-shadow alpha instead.
+          // Detection score drives the eye's box-shadow + border alpha so
+          // a more "locked-on" detector glows brighter and reads at a glance.
           const score = Math.max(0.3, Math.min(1, e.DetectionScore || 0));
           eye.style.boxShadow = `0 0 12px rgba(231,76,60,${(score * 0.9).toFixed(2)})`;
           eye.style.borderColor = `rgba(255,255,255,${score.toFixed(2)})`;
           ring.appendChild(eye);
         }
 
-        // Screen mist effect. backdrop-filter is not supported in Ultralight 1.4,
-        // so we rely on darkening the background only.
+        // Screen mist effect — darken the backdrop as detection rises so
+        // the danger reads even on bright scenes.
         const mistAmt = Math.max(0, Math.min(1, p.ScreenMist || 0));
         // Darken as mist rises so the effect reads even on bright scenes.
         mist.style.background = `rgba(20,5,10,${(mistAmt * 0.35).toFixed(2)})`;

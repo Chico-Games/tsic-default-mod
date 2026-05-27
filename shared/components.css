@@ -1,166 +1,559 @@
-/* Legacy .tsic-* classes restyled to match the catalogue UI palette so every
-   existing page renders in the unified paper-and-ink look without HTML edits. */
+/* shared/components.css — TSIC reusable component library.
+ *
+ * Class-name surface kept stable so existing screens pick up the new look
+ * without HTML edits. Visuals follow the "Synthwave Magazine" language:
+ *   - PANELS look like magazine pages (cream paper, black border, offset shadow)
+ *   - BUTTONS use the magazine offset-block pattern for primary actions and
+ *     neon-outline glow for secondary
+ *   - HUD overlays use translucent synthwave dark with neon edges
+ *
+ * Reusable components added in this redesign:
+ *   .tsic-button (red block) / .secondary (cyan neon outline) / .ghost (text)
+ *   .tsic-panel  (magazine paper) / .tsic-panel--dark / .tsic-panel--neon
+ *   .tsic-sticker, .tsic-badge, .tsic-masthead, .tsic-byline
+ *   .tsic-row-button, .tsic-slot, .tsic-bar-track / .tsic-bar-fill
+ *   .tsic-input (paper) / .tsic-input--dark
+ *   .tsic-divider--dashed, .tsic-corner-label, .tsic-arrow-bullet
+ */
 
+/* ═════════════════════════════════════════════════════════════
+   PANELS — the "magazine page" foreground containers
+   ═════════════════════════════════════════════════════════════ */
+
+/* The default panel reads as a magazine page sitting on top of the stage.
+   Heavy black border, cream paper background, offset block shadow. */
 .tsic-panel {
   position: relative;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.36), rgba(255, 255, 255, 0.03)),
-    radial-gradient(circle at 10% 15%, rgba(82, 68, 47, 0.06) 0 1px, transparent 1px),
-    radial-gradient(circle at 70% 80%, rgba(82, 68, 47, 0.045) 0 1px, transparent 1px),
-    var(--cat-paper);
-  background-size: auto, 13px 13px, 19px 19px, auto;
-  border: 1px solid var(--cat-border);
-  box-shadow: inset 0 0 28px rgba(88, 72, 47, 0.08);
-  color: var(--cat-ink);
-  padding: 16px;
+  background: var(--paper-cream);
+  border: 4px solid var(--ink-night);
+  color: var(--ink-night);
+  padding: 18px;
+  box-shadow: var(--shadow-block);
   pointer-events: auto;
 }
 
+/* Optional inner trim — gives the page a perforated-edge feel. */
+.tsic-panel--trim { box-shadow: var(--shadow-block), inset 0 0 0 2px var(--paper-bright); }
+
+/* Synthwave dark panel — for screens that want the night-sky look (mods,
+   credits, death-screen, debug overlays). */
+.tsic-panel--dark {
+  background:
+    linear-gradient(180deg, rgba(255, 0, 153, 0.06), rgba(0, 0, 0, 0)),
+    var(--bg-panel);
+  border: 2px solid var(--neon-pink);
+  box-shadow: var(--shadow-neon-pink), inset 0 0 30px rgba(255, 0, 153, 0.10);
+  color: var(--tsic-text);
+}
+
+/* Cyan-edge variant. */
+.tsic-panel--cyan {
+  background:
+    linear-gradient(180deg, rgba(0, 247, 255, 0.06), rgba(0, 0, 0, 0)),
+    var(--bg-panel);
+  border: 2px solid var(--neon-cyan);
+  box-shadow: var(--shadow-neon-cyan), inset 0 0 30px rgba(0, 247, 255, 0.10);
+  color: var(--tsic-text);
+}
+
+/* HUD overlay panel — translucent dark with subtle neon edge. Used by
+   toasts / chat / detection / interaction prompts. Lets the world read
+   through but stays legible. */
+.tsic-hud-panel {
+  background: rgba(13, 14, 21, 0.78);
+  border: 1px solid var(--neon-pink);
+  box-shadow: 0 0 8px rgba(255, 0, 153, 0.5), inset 0 0 12px rgba(255, 0, 153, 0.10);
+  color: var(--tsic-text);
+  padding: 10px 14px;
+}
+.tsic-hud-panel--cyan {
+  border-color: var(--neon-cyan);
+  box-shadow: 0 0 8px rgba(0, 247, 255, 0.5), inset 0 0 12px rgba(0, 247, 255, 0.10);
+}
+
+/* ═════════════════════════════════════════════════════════════
+   BUTTONS
+   ═════════════════════════════════════════════════════════════ */
+
+/* Primary: magazine red block. Heavy black border, offset shadow that
+   "presses" on click via translate. */
 .tsic-button {
   display: inline-flex;
-  min-height: 32px;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  background: var(--cat-green);
-  color: #f7edd9;
-  border: 1px solid #273120;
-  padding: 8px 14px;
-  font-family: Georgia, "Libre Baskerville", serif;
-  font-size: 12px;
+  min-height: 36px;
+  padding: 8px 18px;
+  background: var(--mag-red);
+  color: #ffffff;
+  border: 3px solid var(--ink-night);
+  font-family: var(--font-display);
+  font-size: 16px;
   font-weight: 700;
   line-height: 1;
+  letter-spacing: 0.10em;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  box-shadow: var(--cat-shadow-soft);
+  box-shadow: var(--shadow-block);
   cursor: pointer;
-  transition: background-color 160ms ease, color 160ms ease,
-              border-color 160ms ease, transform 120ms ease,
-              box-shadow 160ms ease;
+  transition: transform 80ms ease, box-shadow 80ms ease,
+              background-color 140ms ease, color 140ms ease;
 }
-.tsic-button:hover { background: var(--cat-green-hover); transform: translateY(-1px); }
-.tsic-button:active { transform: translateY(0); }
-
+.tsic-button:hover {
+  background: #ff1a1a;
+  transform: translate(-1px, -1px);
+  box-shadow: 5px 5px 0 var(--ink-night);
+}
+.tsic-button:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 var(--ink-night);
+}
 .tsic-button:disabled,
 .tsic-button[disabled] {
-  background: rgba(52, 65, 45, 0.45);
-  color: rgba(247, 237, 217, 0.6);
-  border-color: rgba(39, 49, 32, 0.45);
+  background: #5a2222;
+  color: rgba(255, 255, 255, 0.55);
+  box-shadow: var(--shadow-block-sm);
   cursor: not-allowed;
   transform: none;
 }
 
-/* Secondary look — used by Cancel / Back / Close buttons. */
-.tsic-button.cancel, .tsic-button.secondary,
+/* Secondary: neon-outline button, transparent fill, cyan glow. */
+.tsic-button.secondary,
+.tsic-button.cancel,
 .tsic-button[data-variant="secondary"] {
-  background: #f4ebd9;
-  color: var(--cat-ink);
-  border-color: var(--cat-border-strong);
+  background: transparent;
+  color: var(--neon-cyan);
+  border: 2px solid var(--neon-cyan);
+  text-shadow: var(--glow-cyan);
+  box-shadow: var(--shadow-neon-cyan), inset 0 0 8px rgba(0, 247, 255, 0.30);
+  letter-spacing: 0.14em;
+}
+.tsic-button.secondary:hover,
+.tsic-button.cancel:hover,
+.tsic-button[data-variant="secondary"]:hover {
+  background: var(--neon-cyan);
+  color: var(--bg-deep);
+  text-shadow: none;
+  box-shadow: 0 0 18px var(--neon-cyan), inset 0 0 12px rgba(0, 0, 0, 0.25);
+  transform: none;
+}
+.tsic-button.secondary:active,
+.tsic-button.cancel:active,
+.tsic-button[data-variant="secondary"]:active {
+  transform: translate(1px, 1px);
+  box-shadow: 0 0 6px var(--neon-cyan), inset 0 0 4px rgba(0, 247, 255, 0.30);
+}
+
+/* Pink variant — for "danger highlight" or attractor actions. */
+.tsic-button.pink,
+.tsic-button[data-variant="pink"] {
+  background: transparent;
+  color: var(--neon-pink);
+  border-color: var(--neon-pink);
+  text-shadow: var(--glow-pink);
+  box-shadow: var(--shadow-neon-pink), inset 0 0 8px rgba(255, 0, 153, 0.30);
+}
+.tsic-button.pink:hover,
+.tsic-button[data-variant="pink"]:hover {
+  background: var(--neon-pink);
+  color: var(--bg-deep);
+  text-shadow: none;
+  box-shadow: 0 0 18px var(--neon-pink), inset 0 0 12px rgba(0, 0, 0, 0.25);
+}
+
+/* Ghost — text-link button that subtly underlines on hover. */
+.tsic-button.ghost,
+.tsic-button[data-variant="ghost"] {
+  background: transparent;
+  border: 0;
+  color: var(--tsic-text);
+  box-shadow: none;
+  text-shadow: none;
+  letter-spacing: 0.10em;
+}
+.tsic-button.ghost:hover,
+.tsic-button[data-variant="ghost"]:hover {
+  color: var(--neon-cyan);
+  text-shadow: var(--glow-cyan);
+  background: transparent;
+  transform: none;
   box-shadow: none;
 }
-.tsic-button.cancel:hover, .tsic-button.secondary:hover,
-.tsic-button[data-variant="secondary"]:hover { background: #f9f1e3; }
 
+/* Small + large size modifiers. */
+.tsic-button.sm { min-height: 28px; padding: 4px 12px; font-size: 12px; }
+.tsic-button.lg { min-height: 48px; padding: 12px 28px; font-size: 22px; }
+
+/* ═════════════════════════════════════════════════════════════
+   INPUTS
+   ═════════════════════════════════════════════════════════════ */
+
+/* Paper input — for use inside .tsic-panel (magazine page). */
 .tsic-input {
-  background: var(--cat-paper-soft);
-  color: var(--cat-ink);
-  border: 1px solid var(--cat-border-strong);
+  background: var(--paper-bright);
+  color: var(--ink-night);
+  border: 2px solid var(--ink-night);
   padding: 6px 10px;
-  font-family: Georgia, "Libre Baskerville", serif;
-  font-size: 12px;
+  font-family: var(--font-terminal);
+  font-size: 14px;
+  letter-spacing: 0.04em;
 }
-.tsic-input::placeholder { color: var(--cat-ink-soft); }
-.tsic-input:focus { outline: none; border-color: var(--cat-green); }
+.tsic-input::placeholder { color: var(--ink-mute); }
+.tsic-input:focus { outline: none; border-color: var(--mag-red); }
+
+/* Dark input — for use inside .tsic-panel--dark / on synthwave bg. */
+.tsic-input--dark {
+  background: #0a0612;
+  color: var(--neon-cyan);
+  border: 1px solid var(--neon-cyan);
+  padding: 6px 10px;
+  font-family: var(--font-terminal);
+  font-size: 14px;
+  letter-spacing: 0.04em;
+  text-shadow: 0 0 3px var(--neon-cyan);
+}
+.tsic-input--dark::placeholder { color: rgba(0, 247, 255, 0.45); text-shadow: none; }
+.tsic-input--dark:focus {
+  outline: none;
+  box-shadow: 0 0 8px var(--neon-cyan), inset 0 0 6px rgba(0, 247, 255, 0.30);
+}
+
+/* ═════════════════════════════════════════════════════════════
+   ROW-AS-BUTTON — magazine "article" list rows
+   ═════════════════════════════════════════════════════════════
+   The whole row is a single button. Bold uppercase headline, dashed
+   separator between rows, red `>>` indicator that slides on hover. Used
+   by save/load, repair, upgrade, summoner, universal-storage-setup. */
+
+.tsic-row-button {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 12px 14px;
+  background: var(--paper-bright);
+  border: 0;
+  border-top: 2px dashed var(--ink-mute);
+  color: var(--ink-night);
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 120ms ease, padding-left 160ms ease, color 120ms ease;
+}
+.tsic-row-button:first-child { border-top: 0; }
+.tsic-row-button::before {
+  content: '>>';
+  color: var(--mag-red);
+  font-weight: 900;
+  margin-right: 4px;
+  transition: transform 160ms ease;
+}
+.tsic-row-button:hover {
+  background: var(--paper-muted);
+  padding-left: 22px;
+}
+.tsic-row-button:hover::before { transform: translateX(2px); }
+.tsic-row-button:active { background: var(--paper-soft); }
+.tsic-row-button:disabled,
+.tsic-row-button[disabled] {
+  color: var(--ink-mute);
+  cursor: not-allowed;
+  background: var(--paper-muted);
+}
+.tsic-row-button:disabled::before,
+.tsic-row-button[disabled]::before { color: var(--ink-mute); }
+.tsic-row-button:disabled:hover,
+.tsic-row-button[disabled]:hover { padding-left: 14px; background: var(--paper-muted); }
+
+/* Variant: dark synthwave row — for screens inside .tsic-panel--dark. */
+.tsic-row-button--dark {
+  background: rgba(255, 0, 153, 0.04);
+  border-top-color: rgba(255, 0, 153, 0.35);
+  color: var(--tsic-text);
+}
+.tsic-row-button--dark::before { color: var(--neon-pink); text-shadow: var(--glow-pink); }
+.tsic-row-button--dark:hover {
+  background: rgba(255, 0, 153, 0.14);
+  color: var(--neon-pink);
+}
+
+/* ═════════════════════════════════════════════════════════════
+   INVENTORY SLOTS
+   ═════════════════════════════════════════════════════════════ */
 
 .tsic-slot {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 56px; height: 56px;
-  background: #e9dfc8;
-  border: 1px solid #b7aa91;
-  color: var(--cat-ink);
+  background: var(--paper-bright);
+  border: 2px solid var(--ink-night);
+  color: var(--ink-night);
   position: relative;
+  transition: box-shadow 120ms ease, transform 120ms ease;
 }
+.tsic-slot:hover { transform: translate(-1px, -1px); box-shadow: 3px 3px 0 var(--ink-night); }
 .tsic-slot.selected {
-  background: var(--cat-green);
-  color: #f7edd9;
-  border-color: #273120;
-  box-shadow: 0 0 0 2px rgba(35, 31, 24, 0.18);
+  background: var(--mag-red);
+  border-color: var(--ink-night);
+  color: #ffffff;
+  box-shadow: 0 0 0 2px var(--ink-night), var(--shadow-neon-pink);
 }
 .tsic-slot .count {
   position: absolute; bottom: 2px; right: 4px;
-  font-size: 11px; font-weight: 700;
-  color: var(--cat-ink-dark);
-  text-shadow: 0 1px 2px rgba(247, 237, 217, 0.8);
+  font-family: var(--font-pixel);
+  font-size: 9px;
+  color: var(--ink-night);
+  background: var(--mag-yellow);
+  padding: 1px 3px;
+  border: 1px solid var(--ink-night);
 }
+.tsic-slot.selected .count { background: var(--neon-yellow); }
+
+/* ═════════════════════════════════════════════════════════════
+   PROGRESS BARS — striped magazine charts
+   ═════════════════════════════════════════════════════════════ */
 
 .tsic-bar-track {
-  position: relative; height: 18px;
-  border: 1px solid var(--cat-border-strong);
-  background: #efe2c8;
+  position: relative;
+  height: 18px;
+  border: 2px solid var(--ink-night);
+  background: var(--paper-muted);
   overflow: hidden;
 }
 .tsic-bar-fill {
-  position: absolute; left: 0; top: 0; bottom: 0;
-  background: linear-gradient(180deg, var(--cat-green), var(--cat-green-soft));
-  transition: width 0.1s linear;
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  background: var(--mag-red);
+  background-image: repeating-linear-gradient(
+    45deg,
+    transparent, transparent 5px,
+    rgba(0, 0, 0, 0.18) 5px, rgba(0, 0, 0, 0.18) 10px
+  );
+  transition: width 100ms linear, background-color 100ms linear;
+}
+.tsic-bar-fill--cyan   { background-color: var(--neon-cyan); }
+.tsic-bar-fill--yellow { background-color: var(--mag-yellow); }
+.tsic-bar-fill--green  { background-color: var(--neon-green); }
+.tsic-bar-fill--pink   { background-color: var(--neon-pink); }
+
+/* Neon bar variant for HUD use (health, stamina). Glow + smooth fill. */
+.tsic-bar-track--neon {
+  border: 1px solid var(--neon-cyan);
+  background: rgba(0, 247, 255, 0.10);
+  box-shadow: 0 0 6px rgba(0, 247, 255, 0.35), inset 0 0 6px rgba(0, 0, 0, 0.5);
+}
+.tsic-bar-track--neon .tsic-bar-fill {
+  background: linear-gradient(90deg, var(--neon-cyan), #66ffff);
+  background-image: linear-gradient(90deg, var(--neon-cyan), #66ffff);
+  box-shadow: 0 0 8px var(--neon-cyan);
 }
 
-/* HUD overlay panels — used by chat / notifications / detection etc.
-   They sit over the 3D scene so the panel is parchment-coloured but slightly
-   translucent so the world reads through. */
-.tsic-hud-panel {
-  background: rgba(241, 229, 207, 0.88);
-  border: 1px solid var(--cat-border);
-  color: var(--cat-ink);
-  padding: 10px;
-}
+/* ═════════════════════════════════════════════════════════════
+   MAGAZINE-SPECIFIC COMPONENTS
+   ═════════════════════════════════════════════════════════════ */
 
-/* Generic text-link styling for inline anchors / back-style buttons. */
-.tsic-link {
-  color: var(--cat-green);
-  text-decoration: underline;
-  cursor: pointer;
-}
-.tsic-link:hover { color: var(--cat-green-hover); }
-
-/* Row-as-button — used by list screens (save/load, repair, upgrade, summoner,
-   universal-storage-setup) where each list entry IS its primary action. The
-   whole row is a real <button>, so gamepad focus + Confirm and mouse click
-   trigger the same action. Resets the default button chrome and reuses the
-   paper-panel look; :hover styling auto-mirrors to gamepad focus via
-   tsic-focus.js's hover-rule mirror. */
-.tsic-row-button {
+/* Masthead — the heavy title block at the top of magazine pages. */
+.tsic-masthead {
   display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  border-bottom: 4px solid var(--ink-night);
+  padding-bottom: 8px;
+  margin-bottom: 16px;
+  gap: 16px;
+}
+.tsic-masthead-title {
+  font-family: var(--font-display);
+  font-size: 56px;
+  line-height: 0.9;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: var(--ink-night);
+}
+.tsic-masthead-title em {
+  font-style: normal;
+  color: var(--mag-red);
+}
+.tsic-masthead-meta {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  font-family: var(--font-terminal);
+}
+.tsic-masthead-issue {
+  display: inline-block;
+  background: var(--ink-night);
+  color: var(--paper-cream);
+  padding: 2px 8px;
+  font-family: var(--font-terminal);
+  font-size: 14px;
+  letter-spacing: 0.08em;
+}
+.tsic-masthead-price {
+  font-family: var(--font-display);
+  font-size: 14px;
+  color: var(--ink-night);
+  letter-spacing: 0.05em;
+}
+.tsic-masthead-date {
+  font-family: var(--font-terminal);
+  font-size: 12px;
+  color: var(--ink-soft);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Byline — small, dim, uppercase, sits under a section title. */
+.tsic-byline {
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+/* Sticker — corner badge with offset shadow. Default sits absolutely so a
+   .tsic-panel can place it via inline top/left etc. */
+.tsic-sticker {
+  position: absolute;
+  display: inline-flex;
   align-items: center;
-  width: 100%;
-  background: var(--cat-paper-panel);
-  border: 1px solid var(--cat-border);
-  color: var(--cat-ink);
-  font: inherit;
-  text-align: left;
+  justify-content: center;
+  text-align: center;
+  background: var(--mag-yellow);
+  color: var(--ink-night);
+  border: 3px solid var(--ink-night);
+  box-shadow: var(--shadow-block-sm);
+  padding: 8px 10px;
+  min-width: 72px;
+  font-family: var(--font-action);
+  font-size: 14px;
+  line-height: 1.05;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  z-index: 5;
+}
+.tsic-sticker--round {
+  width: 96px; height: 96px;
+  border-radius: 50%;
+  padding: 0 8px;
+}
+.tsic-sticker--pink { background: var(--neon-pink); color: #ffffff; }
+.tsic-sticker--cyan { background: var(--neon-cyan); color: var(--ink-night); }
+.tsic-sticker--red  { background: var(--mag-red);   color: #ffffff; }
+
+/* Badge — small inline label. "NEW!", "HOT", "PG. 42", etc. */
+.tsic-badge {
+  display: inline-block;
+  background: var(--ink-night);
+  color: var(--paper-cream);
+  padding: 2px 8px;
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.tsic-badge--red    { background: var(--mag-red);   color: #ffffff; }
+.tsic-badge--yellow { background: var(--mag-yellow); color: var(--ink-night); }
+.tsic-badge--pink   { background: var(--neon-pink);  color: #ffffff; }
+.tsic-badge--cyan   { background: var(--neon-cyan);  color: var(--ink-night); }
+.tsic-badge--outline {
+  background: transparent;
+  color: var(--ink-night);
+  border: 1px solid var(--ink-night);
+}
+
+/* Corner label — sits in a panel's top-left, magazine-style. */
+.tsic-corner-label {
+  position: absolute;
+  top: 0; left: 0;
+  background: var(--mag-yellow);
+  color: var(--ink-night);
+  padding: 4px 8px;
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  border-right: 2px solid var(--ink-night);
+  border-bottom: 2px solid var(--ink-night);
+  z-index: 5;
+}
+
+/* Arrow bullet — the `>>` glyph used as menu prefix. Use as <span>. */
+.tsic-arrow-bullet {
+  display: inline-block;
+  color: var(--mag-red);
+  font-family: var(--font-display);
+  font-weight: 900;
+  margin-right: 6px;
+}
+
+/* Divider — dashed mag-style separator (vs the solid .tsic-divider). */
+.tsic-divider--dashed {
+  height: 0;
+  border: 0;
+  border-top: 2px dashed var(--ink-mute);
+  margin: 12px 0;
+}
+.tsic-divider--solid-heavy {
+  height: 0;
+  border: 0;
+  border-top: 4px solid var(--ink-night);
+  margin: 12px 0;
+}
+
+/* Mock barcode — for masthead corners. Pure CSS, no images. */
+.tsic-barcode {
+  display: inline-flex;
+  align-items: stretch;
+  gap: 1px;
+  height: 24px;
+  width: 64px;
+}
+.tsic-barcode::before,
+.tsic-barcode::after {
+  content: '';
+  display: block;
+  background:
+    linear-gradient(90deg,
+      var(--ink-night) 0%, var(--ink-night) 8%, transparent 8%, transparent 14%,
+      var(--ink-night) 14%, var(--ink-night) 18%, transparent 18%, transparent 24%,
+      var(--ink-night) 24%, var(--ink-night) 32%, transparent 32%, transparent 38%,
+      var(--ink-night) 38%, var(--ink-night) 42%, transparent 42%, transparent 50%,
+      var(--ink-night) 50%, var(--ink-night) 56%, transparent 56%, transparent 64%,
+      var(--ink-night) 64%, var(--ink-night) 68%, transparent 68%, transparent 76%,
+      var(--ink-night) 76%, var(--ink-night) 84%, transparent 84%, transparent 90%,
+      var(--ink-night) 90%, var(--ink-night) 100%);
+  flex: 1;
+}
+
+/* ═════════════════════════════════════════════════════════════
+   LINKS
+   ═════════════════════════════════════════════════════════════ */
+
+.tsic-link {
+  color: var(--neon-cyan);
+  text-decoration: underline;
+  text-decoration-color: rgba(0, 247, 255, 0.6);
   cursor: pointer;
-  padding: 8px 12px;
-  transition: background-color 160ms ease, border-color 160ms ease,
-              box-shadow 160ms ease, transform 120ms ease;
+  text-shadow: 0 0 4px rgba(0, 247, 255, 0.5);
+  transition: color 120ms ease, text-shadow 120ms ease;
 }
-.tsic-row-button:hover {
-  background: var(--cat-paper);
-  border-color: var(--cat-border-strong);
-  box-shadow: var(--cat-shadow-soft);
+.tsic-link:hover { color: var(--neon-pink); text-shadow: var(--glow-pink); }
+
+/* Paper-context link — for use inside magazine panels where neon would clash. */
+.tsic-link--ink {
+  color: var(--mag-red);
+  text-decoration-color: var(--mag-red);
+  text-shadow: none;
 }
-.tsic-row-button:active { transform: translateY(1px); }
-.tsic-row-button:disabled,
-.tsic-row-button[disabled] {
-  color: rgba(47, 43, 34, 0.5);
-  cursor: not-allowed;
-  background: var(--cat-paper-muted);
-}
-.tsic-row-button:disabled:hover,
-.tsic-row-button[disabled]:hover {
-  background: var(--cat-paper-muted);
-  border-color: var(--cat-border);
-  box-shadow: none;
-  transform: none;
-}
+.tsic-link--ink:hover { color: var(--mag-red-dark); }
