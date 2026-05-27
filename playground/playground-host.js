@@ -80,6 +80,83 @@
         } catch (e) { /* sandboxed cross-origin iframe — best-effort */ }
     }
 
+    // Live-refresh: poll the iframe's screen + every shared CSS/JS it imports
+    // and reload the iframe whenever any of those files change on disk.
+    //   - Polls each watched URL at POLL_MS with `cache: 'no-store'`
+    //   - Compares a cheap djb2 hash of the response body
+    //   - On change, fires loadIframe() (which cache-busts the URL)
+    // Toggled by the LIVE checkbox in the toolbar; OFF disables the timer.
+    function setupLiveRefresh() {
+        const POLL_MS = 800;
+        const checkbox = el('pg-live');
+        if (!checkbox) return;
+
+        const hashes = new Map();       // canonical-url -> last hash
+        let pollTimer = null;
+        let pollBusy = false;
+        let suppressUntilLoad = false;  // skip polling between reload trigger and iframe 'load'
+
+        function djb2(s) {
+            let h = 5381;
+            for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
+            return h;
+        }
+        async function fetchHash(url) {
+            try {
+                const r = await fetch(url, { cache: 'no-store' });
+                if (!r.ok) return null;
+                return djb2(await r.text());
+            } catch (e) { return null; }
+        }
+        function collectWatched() {
+            const iframe = el('pg-iframe');
+            if (!iframe || !iframe.contentDocument) return [];
+            const urls = new Set();
+            const base = (iframe.src || '').split('?')[0];
+            if (base && !base.startsWith('about:')) urls.add(base);
+            const doc = iframe.contentDocument;
+            doc.querySelectorAll('link[rel=stylesheet][href]').forEach(l => urls.add(l.href.split('?')[0]));
+            doc.querySelectorAll('script[src]').forEach(s => urls.add(s.src.split('?')[0]));
+            return [...urls];
+        }
+        async function tick() {
+            if (!checkbox.checked || pollBusy || suppressUntilLoad) return;
+            pollBusy = true;
+            try {
+                const urls = collectWatched();
+                for (const url of urls) {
+                    const h = await fetchHash(url);
+                    if (h == null) continue;
+                    const prev = hashes.get(url);
+                    if (prev != null && prev !== h) {
+                        logRow('info', `live-refresh: ${url.split('/').pop()} changed → reloading`);
+                        hashes.clear();
+                        suppressUntilLoad = true;
+                        if (activeFixture) loadIframe();
+                        return;
+                    }
+                    hashes.set(url, h);
+                }
+            } finally { pollBusy = false; }
+        }
+        function start() { if (!pollTimer) pollTimer = setInterval(tick, POLL_MS); }
+        function stop()  { if (pollTimer)  { clearInterval(pollTimer); pollTimer = null; } }
+
+        checkbox.addEventListener('change', () => {
+            hashes.clear();
+            if (checkbox.checked) { logRow('info', 'live-refresh: ON');  start(); }
+            else                  { logRow('info', 'live-refresh: OFF'); stop();  }
+        });
+
+        // Re-baseline whenever the iframe navigates to a new screen / reloads.
+        el('pg-iframe').addEventListener('load', () => {
+            hashes.clear();
+            suppressUntilLoad = false;
+        });
+
+        if (checkbox.checked) start();
+    }
+
     function loadIframe() {
         const iframe = el('pg-iframe');
         const onLoad = () => {
@@ -132,7 +209,11 @@
             }, 80);
         };
         iframe.addEventListener('load', onLoad);
-        iframe.src = activeFixture.screen;
+        // Cache-bust query forces WebCore to fetch the screen fresh — needed
+        // so the LIVE auto-refresh (and the manual Reload button) actually
+        // picks up on-disk edits instead of serving the in-memory copy.
+        const screen = activeFixture.screen;
+        iframe.src = screen + (screen.includes('?') ? '&' : '?') + '_pg=' + Date.now();
     }
 
     function renderScenarios() {
@@ -250,6 +331,7 @@
             () => ({ win: activeWin, log: logRow })
         );
         el('pg-reload').addEventListener('click', () => { if (activeFixture) loadIframe(); });
+        setupLiveRefresh();
         el('pg-dump').addEventListener('click', () => {
             if (!activeState) return;
             logRow('info', `STATE: ${fmt(activeState)}`);
