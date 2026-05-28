@@ -158,14 +158,19 @@
     if (!window.tsic || typeof tsic.whenReady !== 'function') { setTimeout(boot, 16); return; }
     tsic.whenReady(function () {
     // Debug overlay support — let C++ know what this page expects to handle.
+    // Read RAW meta values (no defaults), so the debugger can flag "UNBOUND" when a page is missing tsic-cancel-cmd.
     try {
-      const pageMeta = {
-        Screen: myScreen() || '',
-        CancelCmd: cancelCmd() || '',
-        InputMode: activeInputModeTag() || ''
+      const rawMeta = (name) => {
+        const el = document.querySelector(`meta[name="${name}"]`);
+        return el ? (el.getAttribute('content') || '') : '';
       };
-      if (window.tsic && window.tsic.publishMessage) {
-        window.tsic.publishMessage('UI.Debug.PageMeta', pageMeta);
+      const pageMeta = {
+        Screen:    rawMeta('tsic-screen'),
+        CancelCmd: rawMeta('tsic-cancel-cmd'),
+        InputMode: rawMeta('tsic-input-mode'),
+      };
+      if (typeof tsic !== 'undefined' && tsic.publishMessage) {
+        tsic.publishMessage('UI.Debug.PageMeta', pageMeta);
       }
     } catch (e) {
       console.warn('UI.Debug.PageMeta publish failed', e);
