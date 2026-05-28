@@ -44,7 +44,7 @@
     '#hud-stamina .numbers { font-size:11px; }',
     '#hud-crosshair { position:fixed; left:50%; top:50%; margin-left:-2px; margin-top:-2px; width:4px; height:4px; background:#fff; box-shadow:0 0 0 1px rgba(0,0,0,0.85); border-radius:50%; pointer-events:none; z-index:20; }',
     '#hud-crosshair.hidden { display:none; }',
-    'body.hud-hidden #hud-chrome, body.hud-hidden #hud-health, body.hud-hidden #hud-stamina, body.hud-hidden #hud-crosshair, body.hud-hidden #ab-shell-gameplay, body.hud-hidden #hud-minimap { display:none !important; }',
+    'body.hud-hidden #hud-chrome, body.hud-hidden #hud-health, body.hud-hidden #hud-stamina, body.hud-hidden #hud-crosshair, body.hud-hidden #ab-shell-gameplay, body.hud-hidden #hud-minimap, body.hud-hidden #hud-chunk-debug { display:none !important; }',
     '#ab-shell-gameplay { position:fixed; bottom:18px; right:24px; max-width:calc(100vw - 48px); color:var(--cat-ink-dark); pointer-events:none; z-index:20; }',
     '#ab-shell-gameplay.hidden { display:none; }',
     '#ab-gameplay { display:flex; flex-direction:column; align-items:flex-end; gap:6px; text-shadow:0 0 3px rgba(247,237,217,0.85), 0 0 6px rgba(247,237,217,0.55), 0 1px 2px rgba(0,0,0,0.45); }',
@@ -60,8 +60,10 @@
     '.ab-name { font-weight:700; }',
     '.ab-sub { font-size:10px; font-weight:400; letter-spacing:0.04em; text-transform:none; }',
     '#hud-minimap { position:fixed; top:24px; right:24px; width:180px; height:180px; border-radius:50%; overflow:hidden; border:2px solid rgba(184,170,145,0.7); box-shadow:0 2px 8px rgba(0,0,0,0.35); background:#d4c19d; pointer-events:none; z-index:20; }',
-    '#minimap-tex { position:absolute; left:0; top:0; transform-origin:0 0; image-rendering:pixelated; image-rendering:-webkit-optimize-contrast; image-rendering:crisp-edges; pointer-events:none; }',
+    '#minimap-tex, #minimap-fow { position:absolute; left:0; top:0; transform-origin:0 0; image-rendering:pixelated; image-rendering:-webkit-optimize-contrast; image-rendering:crisp-edges; pointer-events:none; }',
     '#minimap-canvas { position:absolute; left:0; top:0; width:100%; height:100%; pointer-events:none; }',
+    '#hud-chunk-debug { display:none; position:fixed; top:214px; right:24px; width:140px; height:140px; overflow:hidden; border:1px solid rgba(184,170,145,0.55); box-shadow:0 2px 6px rgba(0,0,0,0.3); background:#1a1a1a; pointer-events:none; z-index:20; }',
+    '#chunk-debug-tex { position:absolute; left:0; top:0; width:100%; height:100%; image-rendering:pixelated; image-rendering:-webkit-optimize-contrast; image-rendering:crisp-edges; pointer-events:none; }',
   ].join('\n');
 
   // ---- Screen detection ----
@@ -100,12 +102,17 @@
 
     var minimap = el('div', { id: 'hud-minimap' });
     minimap.appendChild(el('img', { id: 'minimap-tex', src: '/runtime/world-map.imgsrc' }));
+    minimap.appendChild(el('img', { id: 'minimap-fow', src: '/runtime/fow.imgsrc' }));
     var minimapCvs = document.createElement('canvas');
     minimapCvs.id = 'minimap-canvas';
     minimapCvs.width = 180;
     minimapCvs.height = 180;
     minimap.appendChild(minimapCvs);
     document.body.appendChild(minimap);
+
+    var chunkDebug = el('div', { id: 'hud-chunk-debug' });
+    chunkDebug.appendChild(el('img', { id: 'chunk-debug-tex' }));
+    document.body.appendChild(chunkDebug);
 
     var abShell = el('div', { id: 'ab-shell-gameplay', class: 'ab-shell hidden' });
     abShell.appendChild(el('div', { id: 'ab-gameplay' }));
@@ -152,5 +159,6 @@
     loadScript('/shared/hud-interaction.js');
     loadScript('/shared/hud-action-bar.js');
     loadScript('/shared/hud-minimap.js');
+    loadScript('/shared/hud-chunk-debug.js');
   });
 })();

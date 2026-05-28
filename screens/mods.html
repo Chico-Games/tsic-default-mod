@@ -479,6 +479,7 @@
         const cb = document.createElement('input');
         cb.type = 'checkbox';
         cb.checked = !!m.bEnabled;
+        cb.disabled = !!m.bLocked;
         cb.onchange = (e) =>
           tsic.publishMessage('UI.Cmd.Mod.SetEnabled', { ModId: m.ModId, Enabled: e.target.checked });
         row.appendChild(cb);
@@ -509,18 +510,21 @@
         const up = document.createElement('button');
         up.type = 'button';
         up.textContent = '↑';
+        up.disabled = !!m.bLocked;
         up.onclick = () => moveInstalled(m.ModId, -1);
         row.appendChild(up);
 
         const down = document.createElement('button');
         down.type = 'button';
         down.textContent = '↓';
+        down.disabled = !!m.bLocked;
         down.onclick = () => moveInstalled(m.ModId, +1);
         row.appendChild(down);
 
         const uninstallBtn = document.createElement('button');
         uninstallBtn.type = 'button';
         uninstallBtn.textContent = 'Uninstall';
+        uninstallBtn.disabled = !!m.bLocked;
         uninstallBtn.style.cssText = 'background:rgba(180,30,30,0.45); border:1px solid rgba(255,255,255,0.35); color:var(--cat-ink-dark); padding:2px 8px; cursor:pointer; font:inherit; margin-left:4px;';
         uninstallBtn.onclick = () =>
           tsic.publishMessage('UI.Cmd.Mod.Uninstall', { NameId: m.ModId });

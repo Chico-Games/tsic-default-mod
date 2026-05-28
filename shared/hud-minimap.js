@@ -9,11 +9,12 @@
   var SIZE = 180;
   var HALF = SIZE / 2;
   var PX_PER_CM = 1;
-  var ZOOM_FRACTION = 0.06;
+  var ZOOM_FRACTION = 0.03;
   var LERP_SPEED = 12;
 
   var container = document.getElementById('hud-minimap');
   var tex = document.getElementById('minimap-tex');
+  var fow = document.getElementById('minimap-fow');
   var cvs = document.getElementById('minimap-canvas');
   if (!container || !tex || !cvs) return;
   var ctx = cvs.getContext('2d');
@@ -48,10 +49,14 @@
     bounds = { minX: minX, minY: minY, maxX: maxX, maxY: maxY,
                hasData: (maxX - minX) > 0 && (maxY - minY) > 0 };
     if (!bounds.hasData) return;
-    worldW = (bounds.maxX - bounds.minX) * PX_PER_CM;
-    worldH = (bounds.maxY - bounds.minY) * PX_PER_CM;
+    worldW = (bounds.maxY - bounds.minY) * PX_PER_CM;
+    worldH = (bounds.maxX - bounds.minX) * PX_PER_CM;
     tex.style.width = worldW + 'px';
     tex.style.height = worldH + 'px';
+    if (fow) {
+      fow.style.width = worldW + 'px';
+      fow.style.height = worldH + 'px';
+    }
     var visibleRadius = Math.max(worldW, worldH) * ZOOM_FRACTION;
     scale = HALF / visibleRadius;
   }
@@ -69,7 +74,9 @@
     var ly = currentLocal.y;
     var tx = HALF - lx * scale;
     var ty = HALF - ly * scale;
-    tex.style.transform = 'translate(' + tx + 'px,' + ty + 'px) scale(' + scale + ')';
+    var xform = 'translate(' + tx + 'px,' + ty + 'px) scale(' + scale + ')';
+    tex.style.transform = xform;
+    if (fow) fow.style.transform = xform;
 
     ctx.clearRect(0, 0, SIZE, SIZE);
 
@@ -128,6 +135,10 @@
     lastTime = 0;
     requestAnimationFrame(tick);
   }
+
+  tsic.on('tsic.msg.UI.Map.Fow', function () {
+    if (fow) fow.src = TSIC.runtimeImgUrl('fow') + '?t=' + Date.now();
+  });
 
   tsic.on('tsic.msg.UI.Map.Snapshot', function (p) {
     if (!p) return;

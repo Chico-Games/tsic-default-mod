@@ -179,16 +179,17 @@
 
             const up = document.createElement('button');
             up.type = 'button'; up.textContent = '↑'; up.title = 'Move up';
-            up.disabled = (i === 0);
+            up.disabled = (i === 0 || !!m.bLocked);
             up.onclick = () => move(m.ModId, -1);
 
             const down = document.createElement('button');
             down.type = 'button'; down.textContent = '↓'; down.title = 'Move down';
-            down.disabled = (i === enabled.length - 1);
+            down.disabled = (i === enabled.length - 1 || !!m.bLocked);
             down.onclick = () => move(m.ModId, +1);
 
             const remove = document.createElement('button');
             remove.type = 'button'; remove.textContent = '→'; remove.title = 'Disable (move to Available)';
+            remove.disabled = !!m.bLocked;
             remove.onclick = () => setEnabled(m.ModId, false);
 
             row.append(name, up, down, remove);

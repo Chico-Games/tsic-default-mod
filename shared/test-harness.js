@@ -15,7 +15,7 @@
 //      should return / resolve when done.
 //
 // The harness is intentionally framework-free — no Jest / Mocha — to keep it
-// runnable inside Ultralight without a build step.
+// runnable inside the WebView without a build step.
 
 (function (global) {
     const NS = global.TSICTestHarness = global.TSICTestHarness || {

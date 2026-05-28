@@ -118,16 +118,10 @@
       display: none;
     }
     /* `opacity: 0.85` and `mix-blend-mode: multiply` both promote the element
-       to a stacking-context layer that Ultralight 1.4 fails to composite back
-       (see CLAUDE.md → TSICWebUI). Until 1.4.1 ships GPU-accelerated
-       compositing, the fow layer renders at full opacity with normal blend.
-       For a dimmed look, bake the desired alpha into the FOW texture's pixel
-       data instead of using CSS opacity.
-       FOW currently hidden while we diagnose whether the muted-color look on
-       the basemap is from FOW (transpose-aligned wrong → covers explored tiles)
-       or from the biome MapColor palette itself. Re-enable by removing the
-       `display: none` once that's resolved. */
-    #fow-tex   { image-rendering: pixelated; display: none; }
+       to a stacking-context layer that fails to composite back
+       (see CLAUDE.md → TSICWebUI). The FOW texture bakes alpha into pixel
+       data: explored = transparent, unexplored = opaque black. */
+    #fow-tex   { image-rendering: pixelated; }
     .ic { cursor: default; }
     .ic.clickable { cursor: pointer; pointer-events: auto; }
     .ic-spawn   { fill: #f1c40f; }
@@ -326,8 +320,8 @@
       function updateMinScale() {
         const vp = document.getElementById('map-viewport');
         if (!bounds.hasData || !vp) return;
-        const widthCm  = (bounds.maxX - bounds.minX) * PX_PER_CM;
-        const heightCm = (bounds.maxY - bounds.minY) * PX_PER_CM;
+        const widthCm  = (bounds.maxY - bounds.minY) * PX_PER_CM;
+        const heightCm = (bounds.maxX - bounds.minX) * PX_PER_CM;
         if (widthCm <= 0 || heightCm <= 0) return;
         const sx = vp.clientWidth  / widthCm;
         const sy = vp.clientHeight / heightCm;
@@ -337,8 +331,8 @@
       function fitToBounds() {
         const vp = document.getElementById('map-viewport');
         if (!bounds.hasData || !vp) return;
-        const widthCm  = (bounds.maxX - bounds.minX) * PX_PER_CM;
-        const heightCm = (bounds.maxY - bounds.minY) * PX_PER_CM;
+        const widthCm  = (bounds.maxY - bounds.minY) * PX_PER_CM;
+        const heightCm = (bounds.maxX - bounds.minX) * PX_PER_CM;
         if (widthCm <= 0 || heightCm <= 0) return;
         const sx = vp.clientWidth  / widthCm;
         const sy = vp.clientHeight / heightCm;
@@ -361,8 +355,8 @@
         bounds = { minX, minY, maxX, maxY, hasData: (maxX - minX) > 0 && (maxY - minY) > 0 };
         if (changed && bounds.hasData) {
           const c = document.getElementById('map-content');
-          const w = (bounds.maxX - bounds.minX) * PX_PER_CM;
-          const h = (bounds.maxY - bounds.minY) * PX_PER_CM;
+          const w = (bounds.maxY - bounds.minY) * PX_PER_CM;
+          const h = (bounds.maxX - bounds.minX) * PX_PER_CM;
           const pad = Math.round(Math.min(w, h) * 0.04);
           c.style.padding = `${pad}px`;
           c.style.width  = `${w}px`;
@@ -1028,6 +1022,11 @@
         tsic.on('tsic.msg.UI.Map.Snapshot', onSnapshot);
         tsic.on('tsic.msg.UI.Map.TileGrid', onTileGrid);
         tsic.on('tsic.msg.UI.Ping.Set', onPingSet);
+
+        tsic.on('tsic.msg.UI.Map.Fow', function() {
+          var img = document.getElementById('fow-tex');
+          if (img) img.src = TSIC.runtimeImgUrl('fow') + '?t=' + Date.now();
+        });
 
         // Debug-overlay toggle (driven by WebUI.Map.DebugHeight /
         // WebUI.Map.DebugMazeRegions console commands). Sticky channel:
