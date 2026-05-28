@@ -157,6 +157,20 @@
   (function boot() {
     if (!window.tsic || typeof tsic.whenReady !== 'function') { setTimeout(boot, 16); return; }
     tsic.whenReady(function () {
+    // Debug overlay support — let C++ know what this page expects to handle.
+    try {
+      const pageMeta = {
+        Screen: myScreen() || '',
+        CancelCmd: cancelCmd() || '',
+        InputMode: activeInputModeTag() || ''
+      };
+      if (window.tsic && window.tsic.publishMessage) {
+        window.tsic.publishMessage('UI.Debug.PageMeta', pageMeta);
+      }
+    } catch (e) {
+      console.warn('UI.Debug.PageMeta publish failed', e);
+    }
+
     // Screen routing.
     window.tsic.on('tsic.msg.UI.Screen.Changed', (payload /*, meta, name*/) => {
       if (!payload || !payload.Name) return;
