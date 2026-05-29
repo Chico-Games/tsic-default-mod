@@ -225,7 +225,7 @@ button.tsic-list-row {
 .ss-capacity-fill {
     height: 100%;
     width: 0;
-    background: var(--neon-cyan);
+    background: var(--ink-night);
     transition: width 100ms linear, background 100ms linear;
 }
 .ss-capacity[data-state="warning"]      .ss-capacity-fill { background: var(--mag-yellow); }
@@ -270,14 +270,9 @@ button.tsic-list-row {
 .tsic-title--lg { font-size: 42px; letter-spacing: 0.04em; }
 .tsic-title--sm { font-size: 18px; letter-spacing: 0.10em; margin-bottom: 6px; }
 
-/* On dark stages titles auto-flip to light + glow. Use .tsic-title--neon. */
-.tsic-title--neon {
-    color: var(--neon-pink);
-    text-shadow: var(--glow-pink);
-}
-.tsic-title--neon-cyan {
-    color: var(--neon-cyan);
-    text-shadow: var(--glow-cyan);
+/* On dark stages a title flips to light paper ink. */
+.tsic-title--light {
+    color: var(--paper-bright);
 }
 
 /* Eyebrow — small uppercase label that sits above content. */
@@ -290,9 +285,8 @@ button.tsic-list-row {
     color: var(--ink-soft);
     margin-bottom: 6px;
 }
-.tsic-eyebrow--neon {
-    color: var(--neon-cyan);
-    text-shadow: 0 0 4px rgba(0, 247, 255, 0.55);
+.tsic-eyebrow--accent {
+    color: var(--mag-red);
 }
 
 /* Meta — terminal-font tiny text used for stack counts, subnames. */
@@ -421,13 +415,13 @@ button.tsic-list-row {
 /* ═════════════ 9. Drag-and-drop ═════════════ */
 
 .is-drop-target {
-    outline: 2px dashed var(--neon-cyan);
+    outline: 2px dashed var(--mag-red);
     outline-offset: -2px;
-    box-shadow: inset 0 0 12px rgba(0, 247, 255, 0.30);
+    box-shadow: inset 0 0 0 3px rgba(230, 0, 0, 0.12);
 }
 .is-dragging {
     color: var(--ink-mute);
-    background: rgba(255, 0, 153, 0.10);
+    background: rgba(230, 0, 0, 0.10);
 }
 
 /* ═════════════ 10. Gamepad focus mirror ═════════════

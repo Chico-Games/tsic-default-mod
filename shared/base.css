@@ -1,11 +1,11 @@
 /* shared/base.css — TSIC WebUI foundation
  *
- * Design language: "Synthwave Magazine" — neon synthwave body backdrop with
- * magazine-page foreground panels (cream paper, heavy black borders, offset
- * block shadow). Inspired by late-80s gaming-magazine aesthetics.
+ * Design language: magazine print — cream-paper pages, heavy black borders,
+ * hard offset block shadows, mag-red / mag-yellow accents. Inspired by
+ * late-80s gaming-magazine aesthetics.
  *
  * Token philosophy:
- *   1. Raw palette vars  (--neon-pink, --paper-cream, --ink-night, ...)
+ *   1. Raw palette vars  (--paper-cream, --ink-night, --mag-red, ...)
  *   2. Semantic tokens   (--tsic-accent, --tsic-bg, --tsic-text, ...)
  *   3. Legacy --cat-*    remapped onto the new palette so existing screens
  *                        keep working with no HTML edits.
@@ -32,13 +32,6 @@
   --ink-soft:       #4a4239;
   --ink-mute:       #6c6357;
 
-  /* Raw palette: neon */
-  --neon-pink:      #ff0099;
-  --neon-cyan:      #00f7ff;
-  --neon-yellow:    #ffe600;
-  --neon-purple:    #b300ff;
-  --neon-green:     #39ff14;
-
   /* Raw palette: magazine accents */
   --mag-red:        #e60000;
   --mag-red-dark:   #c70000;
@@ -47,23 +40,12 @@
 
   /* Borders */
   --border-black:   #0a0a0a;
-  --border-neon:    var(--neon-pink);
-  --border-cyan:    var(--neon-cyan);
 
-  /* Shadows — the magazine "offset-block" look + neon glows */
+  /* Shadows — the magazine "offset-block" look. */
   --shadow-block-sm:    2px 2px 0 var(--ink-night);
   --shadow-block:       4px 4px 0 var(--ink-night);
   --shadow-block-lg:    6px 6px 0 var(--ink-night);
   --shadow-block-red:   4px 4px 0 var(--mag-red);
-  --shadow-block-cyan:  3px 3px 0 var(--neon-cyan);
-
-  --shadow-neon-pink:   0 0 5px var(--neon-pink), 0 0 14px rgba(255, 0, 153, 0.55);
-  --shadow-neon-cyan:   0 0 5px var(--neon-cyan), 0 0 14px rgba(0, 247, 255, 0.55);
-  --shadow-neon-yellow: 0 0 5px var(--neon-yellow), 0 0 12px rgba(255, 230, 0, 0.55);
-
-  --glow-pink:          0 0 4px var(--neon-pink), 0 0 10px var(--neon-pink);
-  --glow-cyan:          0 0 4px var(--neon-cyan), 0 0 10px var(--neon-cyan);
-  --glow-yellow:        0 0 4px var(--neon-yellow), 0 0 10px var(--neon-yellow);
 
   /* ───── Fonts ─────
    * Stack relies on Windows system fonts (Bahnschrift, Impact, Consolas)
@@ -87,12 +69,10 @@
   --tsic-text-dim:     #b9b1c8;
   --tsic-text-ink:     var(--ink);
   --tsic-text-ink-dim: var(--ink-soft);
-  --tsic-accent:       var(--neon-pink);
-  --tsic-accent-cool:  var(--neon-cyan);
-  --tsic-accent-warm:  var(--neon-yellow);
-  --tsic-accent-dim:   rgba(255, 0, 153, 0.30);
+  --tsic-accent:       var(--mag-red);
+  --tsic-accent-warm:  var(--mag-yellow);
+  --tsic-accent-dim:   rgba(230, 0, 0, 0.30);
   --tsic-border:       var(--border-black);
-  --tsic-border-neon:  var(--neon-pink);
   --tsic-danger:       var(--mag-red);
 
   /* ───── Legacy --cat-* remap ─────
@@ -273,30 +253,8 @@ input[type=range]:active::-webkit-slider-thumb { cursor: grabbing; }
     var(--ink-night) 10px, var(--ink-night) 20px
   );
 }
-.tsic-stripes--neon {
-  background: repeating-linear-gradient(
-    45deg,
-    var(--neon-pink), var(--neon-pink) 8px,
-    transparent       8px, transparent  16px
-  );
-}
-
-/* "Synth grid" — flat tech grid backdrop for inline panels (different from
-   the perspective floor on the stage). */
-.tsic-grid-bg {
-  background-color: var(--bg-panel);
-  background-image:
-    linear-gradient(rgba(255, 0, 153, 0.18) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 0, 153, 0.18) 1px, transparent 1px);
-  background-size: 20px 20px;
-}
 
 /* ───────────── TEXT UTILITIES ───────────── */
-
-.tsic-neon-pink   { color: var(--neon-pink);   text-shadow: var(--glow-pink); }
-.tsic-neon-cyan   { color: var(--neon-cyan);   text-shadow: var(--glow-cyan); }
-.tsic-neon-yellow { color: var(--neon-yellow); text-shadow: var(--glow-yellow); }
-.tsic-neon-green  { color: var(--neon-green);  text-shadow: 0 0 4px var(--neon-green), 0 0 10px var(--neon-green); }
 
 /* Chrome text — silvered gradient via background-clip with a drop shadow
    for depth. */
@@ -313,19 +271,6 @@ input[type=range]:active::-webkit-slider-thumb { cursor: grabbing; }
   filter: drop-shadow(0 2px 0 rgba(0, 0, 0, 0.45));
 }
 
-/* Slow neon pulse — for "PRESS START" style attractors. Animates the
-   text-shadow strength between a soft and a bright halo. */
-.tsic-pulse-pink { animation: tsic-pulse-pink 1.6s ease-in-out infinite; }
-.tsic-pulse-cyan { animation: tsic-pulse-cyan 1.6s ease-in-out infinite; }
-
-@keyframes tsic-pulse-pink {
-  0%, 100% { text-shadow: 0 0 4px var(--neon-pink), 0 0 10px var(--neon-pink); }
-  50%      { text-shadow: 0 0 8px var(--neon-pink), 0 0 24px var(--neon-pink), 0 0 36px rgba(255, 0, 153, 0.45); }
-}
-@keyframes tsic-pulse-cyan {
-  0%, 100% { text-shadow: 0 0 4px var(--neon-cyan), 0 0 10px var(--neon-cyan); }
-  50%      { text-shadow: 0 0 8px var(--neon-cyan), 0 0 24px var(--neon-cyan), 0 0 36px rgba(0, 247, 255, 0.45); }
-}
 
 /* Magazine headline — uppercase condensed display. */
 .tsic-headline {
@@ -346,26 +291,22 @@ input[type=range]:active::-webkit-slider-thumb { cursor: grabbing; }
 .tsic-font-mag      { font-family: var(--font-mag); }
 
 /* ───────────── GLOBAL SCROLLBAR ─────────────
- * Default: neon-on-deep, matches the synthwave stage. Containers inside a
- * magazine panel can opt into the paper-track variant via .tsic-scroll--paper. */
+ * Default: ink thumb on a muted-paper track (magazine). The .tsic-scroll--paper
+ * variant below is now an explicit alias of the default. */
 
-* { scrollbar-width: thin; scrollbar-color: var(--neon-pink) #181225; }
+* { scrollbar-width: thin; scrollbar-color: var(--ink-night) var(--paper-muted); }
 ::-webkit-scrollbar { width: 12px; height: 12px; }
 ::-webkit-scrollbar-track {
-  background: #181225;
-  border-left: 1px solid #2a1a4a;
+  background: var(--paper-muted);
+  border-left: 1px solid var(--ink-mute);
 }
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, var(--neon-pink), var(--neon-purple));
-  border: 2px solid #181225;
-  border-radius: 6px;
-  box-shadow: 0 0 4px rgba(255, 0, 153, 0.8);
+  background: var(--ink-night);
+  border: 2px solid var(--paper-muted);
+  border-radius: 0;
 }
-::-webkit-scrollbar-thumb:hover {
-  background: var(--neon-pink);
-  box-shadow: 0 0 10px var(--neon-pink);
-}
-::-webkit-scrollbar-corner { background: #181225; }
+::-webkit-scrollbar-thumb:hover { background: var(--ink-soft); }
+::-webkit-scrollbar-corner { background: var(--paper-muted); }
 
 /* Paper-track variant — apply class to a scrollable element OR to a parent
    to retheme any descendant scrollbars. */

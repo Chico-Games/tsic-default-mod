@@ -1,18 +1,18 @@
 /* shared/components.css — TSIC reusable component library.
  *
  * Class-name surface kept stable so existing screens pick up the new look
- * without HTML edits. Visuals follow the "Synthwave Magazine" language:
+ * without HTML edits. Visuals follow the magazine print language:
  *   - PANELS look like magazine pages (cream paper, black border, offset shadow)
- *   - BUTTONS use the magazine offset-block pattern for primary actions and
- *     neon-outline glow for secondary
- *   - HUD overlays use translucent synthwave dark with neon edges
+ *   - BUTTONS use the letterpress offset-block pattern: red primary, ink-outline
+ *     secondary, ink/red danger, ghost — all on-theme, no glow
+ *   - HUD overlays use translucent dark plates with cream/ink hairlines
  *
- * Reusable components added in this redesign:
- *   .tsic-button (red block) / .secondary (cyan neon outline) / .ghost (text)
- *   .tsic-panel  (magazine paper) / .tsic-panel--dark / .tsic-panel--neon
+ * Core reusable components:
+ *   .tsic-button (red block) + .secondary / .danger / .ghost variants
+ *   .tsic-panel  (magazine paper)
  *   .tsic-sticker, .tsic-badge, .tsic-masthead, .tsic-byline
  *   .tsic-row-button, .tsic-slot, .tsic-bar-track / .tsic-bar-fill
- *   .tsic-input (paper) / .tsic-input--dark
+ *   .tsic-input (paper)
  *   .tsic-divider--dashed, .tsic-corner-label, .tsic-arrow-bullet
  */
 
@@ -30,42 +30,6 @@
   padding: 18px;
   box-shadow: var(--shadow-block);
   pointer-events: auto;
-}
-
-/* Synthwave dark panel — for screens that want the night-sky look (mods,
-   credits, death-screen, debug overlays). */
-.tsic-panel--dark {
-  background:
-    linear-gradient(180deg, rgba(255, 0, 153, 0.06), rgba(0, 0, 0, 0)),
-    var(--bg-panel);
-  border: 2px solid var(--neon-pink);
-  box-shadow: var(--shadow-neon-pink), inset 0 0 30px rgba(255, 0, 153, 0.10);
-  color: var(--tsic-text);
-}
-
-/* Cyan-edge variant. */
-.tsic-panel--cyan {
-  background:
-    linear-gradient(180deg, rgba(0, 247, 255, 0.06), rgba(0, 0, 0, 0)),
-    var(--bg-panel);
-  border: 2px solid var(--neon-cyan);
-  box-shadow: var(--shadow-neon-cyan), inset 0 0 30px rgba(0, 247, 255, 0.10);
-  color: var(--tsic-text);
-}
-
-/* HUD overlay panel — translucent dark with subtle neon edge. Used by
-   toasts / chat / detection / interaction prompts. Lets the world read
-   through but stays legible. */
-.tsic-hud-panel {
-  background: rgba(13, 14, 21, 0.78);
-  border: 1px solid var(--neon-pink);
-  box-shadow: 0 0 8px rgba(255, 0, 153, 0.5), inset 0 0 12px rgba(255, 0, 153, 0.10);
-  color: var(--tsic-text);
-  padding: 10px 14px;
-}
-.tsic-hud-panel--cyan {
-  border-color: var(--neon-cyan);
-  box-shadow: 0 0 8px rgba(0, 247, 255, 0.5), inset 0 0 12px rgba(0, 247, 255, 0.10);
 }
 
 /* ═════════════════════════════════════════════════════════════
@@ -260,23 +224,6 @@
 .tsic-input::placeholder { color: var(--ink-mute); }
 .tsic-input:focus { outline: none; border-color: var(--mag-red); }
 
-/* Dark input — for use inside .tsic-panel--dark / on synthwave bg. */
-.tsic-input--dark {
-  background: #0a0612;
-  color: var(--neon-cyan);
-  border: 1px solid var(--neon-cyan);
-  padding: 6px 10px;
-  font-family: var(--font-terminal);
-  font-size: 14px;
-  letter-spacing: 0.04em;
-  text-shadow: 0 0 3px var(--neon-cyan);
-}
-.tsic-input--dark::placeholder { color: rgba(0, 247, 255, 0.45); text-shadow: none; }
-.tsic-input--dark:focus {
-  outline: none;
-  box-shadow: 0 0 8px var(--neon-cyan), inset 0 0 6px rgba(0, 247, 255, 0.30);
-}
-
 /* ═════════════════════════════════════════════════════════════
    ROW-AS-BUTTON — magazine "article" list rows
    ═════════════════════════════════════════════════════════════
@@ -362,18 +309,6 @@
 .tsic-row-button:hover .tsic-row-dept,
 .tsic-row-button[data-tsic-focused] .tsic-row-dept { color: var(--mag-red); }
 
-/* Variant: dark synthwave row — for screens inside .tsic-panel--dark. */
-.tsic-row-button--dark {
-  background: rgba(255, 0, 153, 0.04);
-  border-top-color: rgba(255, 0, 153, 0.35);
-  color: var(--tsic-text);
-}
-.tsic-row-button--dark::before { color: var(--neon-pink); text-shadow: var(--glow-pink); }
-.tsic-row-button--dark:hover {
-  background: rgba(255, 0, 153, 0.14);
-  color: var(--neon-pink);
-}
-
 /* ═════════════════════════════════════════════════════════════
    INVENTORY SLOTS
    ═════════════════════════════════════════════════════════════ */
@@ -394,7 +329,7 @@
   background: var(--mag-red);
   border-color: var(--ink-night);
   color: #ffffff;
-  box-shadow: 0 0 0 2px var(--ink-night), var(--shadow-neon-pink);
+  box-shadow: 0 0 0 2px var(--ink-night), 3px 3px 0 var(--ink-night);
 }
 .tsic-slot .count {
   position: absolute; bottom: 2px; right: 4px;
@@ -405,7 +340,7 @@
   padding: 1px 3px;
   border: 1px solid var(--ink-night);
 }
-.tsic-slot.selected .count { background: var(--neon-yellow); }
+.tsic-slot.selected .count { background: var(--mag-yellow); }
 
 /* ═════════════════════════════════════════════════════════════
    PROGRESS BARS — striped magazine charts
@@ -429,22 +364,8 @@
   );
   transition: width 100ms linear, background-color 100ms linear;
 }
-.tsic-bar-fill--cyan   { background-color: var(--neon-cyan); }
 .tsic-bar-fill--yellow { background-color: var(--mag-yellow); }
-.tsic-bar-fill--green  { background-color: var(--neon-green); }
-.tsic-bar-fill--pink   { background-color: var(--neon-pink); }
-
-/* Neon bar variant for HUD use (health, stamina). Glow + smooth fill. */
-.tsic-bar-track--neon {
-  border: 1px solid var(--neon-cyan);
-  background: rgba(0, 247, 255, 0.10);
-  box-shadow: 0 0 6px rgba(0, 247, 255, 0.35), inset 0 0 6px rgba(0, 0, 0, 0.5);
-}
-.tsic-bar-track--neon .tsic-bar-fill {
-  background: linear-gradient(90deg, var(--neon-cyan), #66ffff);
-  background-image: linear-gradient(90deg, var(--neon-cyan), #66ffff);
-  box-shadow: 0 0 8px var(--neon-cyan);
-}
+.tsic-bar-fill--ink    { background-color: var(--ink-night); }
 
 /* ═════════════════════════════════════════════════════════════
    MAGAZINE-SPECIFIC COMPONENTS
@@ -677,19 +598,13 @@
    ═════════════════════════════════════════════════════════════ */
 
 .tsic-link {
-  color: var(--neon-cyan);
-  text-decoration: underline;
-  text-decoration-color: rgba(0, 247, 255, 0.6);
-  cursor: pointer;
-  text-shadow: 0 0 4px rgba(0, 247, 255, 0.5);
-  transition: color 120ms ease, text-shadow 120ms ease;
-}
-.tsic-link:hover { color: var(--neon-pink); text-shadow: var(--glow-pink); }
-
-/* Paper-context link — for use inside magazine panels where neon would clash. */
-.tsic-link--ink {
   color: var(--mag-red);
+  text-decoration: underline;
   text-decoration-color: var(--mag-red);
-  text-shadow: none;
+  cursor: pointer;
+  transition: color 120ms ease;
 }
+.tsic-link:hover { color: var(--mag-red-dark); }
+/* Legacy alias — kept so existing .tsic-link--ink markup still resolves. */
+.tsic-link--ink { color: var(--mag-red); text-decoration-color: var(--mag-red); }
 .tsic-link--ink:hover { color: var(--mag-red-dark); }

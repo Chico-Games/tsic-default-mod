@@ -1,8 +1,9 @@
 /* shared/hud.css — in-game HUD overlay styles.
  *
  * HUD elements sit on top of gameplay. Backgrounds use rgba for translucency
- * so the world reads through; borders are neon to stand out against any
- * backdrop; text uses display fonts with subtle glow so labels pop.
+ * so the world reads through; borders are cream/ink hairlines (magazine
+ * palette) and a coloured accent bar carries meaning. A plain drop shadow —
+ * not a glow — keeps labels legible against any backdrop.
  */
 
 #hud-chrome {
@@ -18,19 +19,20 @@
   /* axis-aligned translate only — translate(-50%) on position:absolute is ok */
   transform: translateX(-50%);
   padding: 8px 16px;
-  background: rgba(13, 14, 21, 0.78);
-  border: 1px solid var(--neon-cyan);
-  box-shadow: 0 0 8px rgba(0, 247, 255, 0.45), inset 0 0 10px rgba(0, 247, 255, 0.10);
-  color: var(--neon-cyan);
+  background: rgba(13, 12, 10, 0.82);
+  border: 1px solid rgba(240, 232, 208, 0.55);
+  border-bottom: 3px solid var(--mag-red);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+  color: var(--paper-bright);
   font-family: var(--font-display);
   font-size: 16px;
   font-weight: 400;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  text-shadow: 0 0 4px rgba(0, 247, 255, 0.6);
 }
 
-/* Toasts — corner notifications. Synthwave dark plate with neon left bar. */
+/* Toasts — corner notifications. Translucent dark plate with a coloured
+   left accent bar that carries the toast's severity. */
 #toast-container {
   position: fixed; left: 24px; top: 24px;
   display: flex; flex-direction: column; gap: 8px;
@@ -42,11 +44,11 @@
   min-width: 240px;
   max-width: 380px;
   padding: 8px 14px;
-  background: rgba(13, 14, 21, 0.85);
-  border: 1px solid rgba(0, 247, 255, 0.45);
-  border-left: 4px solid var(--neon-cyan);
-  box-shadow: 0 0 8px rgba(0, 247, 255, 0.30), 0 4px 12px rgba(0, 0, 0, 0.45);
-  color: #ffffff;
+  background: rgba(13, 12, 10, 0.86);
+  border: 1px solid rgba(240, 232, 208, 0.30);
+  border-left: 4px solid var(--paper-cream);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  color: var(--paper-bright);
   font-family: var(--font-display);
   font-size: 14px;
   font-weight: 400;
@@ -57,21 +59,15 @@
 }
 
 .toast--info {
-  border-left-color: var(--neon-cyan);
-  border-color: rgba(0, 247, 255, 0.45);
-  box-shadow: 0 0 8px rgba(0, 247, 255, 0.30), 0 4px 12px rgba(0, 0, 0, 0.45);
+  border-left-color: var(--paper-cream);
 }
 .toast--warning {
   border-left-color: var(--mag-yellow);
-  border-color: rgba(255, 204, 0, 0.45);
-  box-shadow: 0 0 8px rgba(255, 204, 0, 0.30), 0 4px 12px rgba(0, 0, 0, 0.45);
   color: var(--mag-yellow);
 }
 .toast--error {
   border-left-color: var(--mag-red);
-  border-color: rgba(230, 0, 0, 0.45);
-  box-shadow: 0 0 8px rgba(230, 0, 0, 0.40), 0 4px 12px rgba(0, 0, 0, 0.45);
-  color: #ff5a5a;
+  color: #ff5a4d;
 }
 
 .toast--leaving { animation: tsic-toast-out 200ms ease-in forwards; }
@@ -85,23 +81,20 @@
   to   { transform: translateX(-20px); opacity: 0; }
 }
 
-/* Health & stamina bars use .tsic-bar-track--neon — see components.css. */
-
 /* Action-bar prompts (key + label pill that surfaces context actions). */
 .tsic-action-prompt {
   display: inline-flex;
   align-items: center;
   gap: 8px;
   padding: 4px 10px;
-  background: rgba(13, 14, 21, 0.78);
-  border: 1px solid var(--neon-pink);
-  color: #ffffff;
+  background: rgba(13, 12, 10, 0.82);
+  border: 1px solid rgba(240, 232, 208, 0.45);
+  color: var(--paper-bright);
   font-family: var(--font-display);
   font-size: 13px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  text-shadow: 0 0 3px rgba(255, 0, 153, 0.6);
-  box-shadow: 0 0 6px rgba(255, 0, 153, 0.35);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.45);
 }
 .tsic-action-prompt .key {
   display: inline-flex;

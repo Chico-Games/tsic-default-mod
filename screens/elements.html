@@ -50,15 +50,23 @@
       font-family: var(--font-terminal); font-size: 14px; letter-spacing: 1px;
       color: #8a7c66; padding: 4px 10px; background: #1d160f; border-bottom: 1px solid #2a2018;
     }
-    .eg-card-body { padding: 18px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+    .eg-card-body { padding: 20px; display: flex; flex-wrap: wrap; gap: 18px 22px; align-items: center; }
     .eg-card-body.col { flex-direction: column; align-items: stretch; }
+    /* Decorations demo: .tsic-sticker / .tsic-corner-label are position:absolute
+       for real panel use (pinned to a corner). In the gallery that drops them
+       out of flow so they overlap the other specimens — render them in-flow
+       here so each decoration sits on its own with even spacing. */
+    .eg-card-body .tsic-sticker,
+    .eg-card-body .tsic-corner-label { position: static; top: auto; left: auto; }
+    /* The dashed divider is a full-width rule — give it its own row. */
+    .eg-card-body .tsic-divider--dashed { flex: 1 0 100%; margin: 4px 0 0; }
     .eg-paper { background: var(--paper); }
     .eg-dark  { background: var(--ink-night); }
     .eg-gradient { background: radial-gradient(circle at 30% 0%, #241a12, #0d0a07); }
 
     .eg-rng { width: 220px; cursor: pointer; }
     .eg-rng.paper { accent-color: var(--mag-red); }
-    .eg-rng.dark  { accent-color: var(--neon-cyan); }
+    .eg-rng.dark  { accent-color: var(--mag-yellow); }
     .eg-slotgrid { display: grid; grid-template-columns: repeat(4, 56px); gap: 8px; }
     .eg-tag { font-family: var(--font-terminal); font-size: 12px; color: #8a7c66; width: 100%; }
   </style>
@@ -91,14 +99,11 @@
         ],
       },
       {
-        id: 'inputs', title: 'Text Inputs', note: '.tsic-input / .tsic-input--dark',
+        id: 'inputs', title: 'Text Inputs', note: '.tsic-input',
         cards: [
           { theme: 'paper', body: 'col', label: 'paper', html: `
             <input class="tsic-input" placeholder="Placeholder…">
             <input class="tsic-input" value="Filled value">` },
-          { theme: 'dark', body: 'col', label: 'dark (neon)', html: `
-            <input class="tsic-input tsic-input--dark" placeholder="Placeholder…">
-            <input class="tsic-input tsic-input--dark" value="Filled value">` },
         ],
       },
       {
@@ -131,9 +136,6 @@
             <button class="tsic-row-button"><span class="tsic-row-dept">Continue</span></button>
             <button class="tsic-row-button"><span class="tsic-row-dept">New Store</span><span class="tsic-row-pg">p.01</span></button>
             <button class="tsic-row-button" disabled><span class="tsic-row-dept">Locked</span></button>` },
-          { theme: 'dark', body: 'col', label: 'dark (neon)', html: `
-            <button class="tsic-row-button tsic-row-button--dark"><span class="tsic-row-dept">Resume</span></button>
-            <button class="tsic-row-button tsic-row-button--dark"><span class="tsic-row-dept">Settings</span></button>` },
         ],
       },
       {
@@ -151,25 +153,17 @@
       {
         id: 'bars', title: 'Progress Bars', note: '.tsic-bar-track / .tsic-bar-fill',
         cards: [
-          { theme: 'dark', body: 'col', label: 'fills', html: `
-            <div class="tsic-bar-track"><div class="tsic-bar-fill tsic-bar-fill--green" style="width:72%"></div></div>
-            <div class="tsic-bar-track"><div class="tsic-bar-fill tsic-bar-fill--cyan" style="width:48%"></div></div>
+          { theme: 'paper', body: 'col', label: 'fills', html: `
+            <div class="tsic-bar-track"><div class="tsic-bar-fill" style="width:72%"></div></div>
             <div class="tsic-bar-track"><div class="tsic-bar-fill tsic-bar-fill--yellow" style="width:60%"></div></div>
-            <div class="tsic-bar-track"><div class="tsic-bar-fill tsic-bar-fill--pink" style="width:30%"></div></div>` },
-          { theme: 'dark', body: 'col', label: 'neon track', html: `
-            <div class="tsic-bar-track tsic-bar-track--neon"><div class="tsic-bar-fill tsic-bar-fill--cyan" style="width:55%"></div></div>` },
+            <div class="tsic-bar-track"><div class="tsic-bar-fill tsic-bar-fill--ink" style="width:40%"></div></div>` },
         ],
       },
       {
-        id: 'panels', title: 'Panels', note: '.tsic-panel + variants, .tsic-hud-panel',
+        id: 'panels', title: 'Panels', note: '.tsic-panel — magazine page',
         cards: [
-          { theme: 'gradient', label: 'panels', html: `
-            <div class="tsic-panel" style="padding:14px 18px;">Paper panel</div>
-            <div class="tsic-panel tsic-panel--dark" style="padding:14px 18px;">Dark panel</div>
-            <div class="tsic-panel tsic-panel--cyan" style="padding:14px 18px;">Cyan panel</div>` },
-          { theme: 'gradient', label: 'hud panels', html: `
-            <div class="tsic-hud-panel" style="padding:14px 18px;">HUD panel</div>
-            <div class="tsic-hud-panel tsic-hud-panel--cyan" style="padding:14px 18px;">HUD panel · cyan</div>` },
+          { theme: 'gradient', label: 'panel', html: `
+            <div class="tsic-panel" style="padding:14px 18px;">Paper panel</div>` },
         ],
       },
       {
@@ -197,10 +191,10 @@
             <a class="tsic-link tsic-link--ink" href="#">Ink link</a>
             <span class="tsic-barcode"></span>
             <div class="tsic-divider--dashed eg-tag"></div>` },
-          { theme: 'dark', label: 'neon', html: `
+          { theme: 'dark', label: 'on dark', html: `
             <span class="tsic-chip--dark">Dark chip</span>
             <span class="tsic-byline">by · the · staff</span>
-            <a class="tsic-link" href="#">Neon link</a>` },
+            <a class="tsic-link" href="#">Link</a>` },
         ],
       },
     ];
