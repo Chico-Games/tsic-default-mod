@@ -109,15 +109,19 @@ TSICTestHarness.register({
     },
 });
 
-// ---- Loading: label updates re-render -----------------------------------
+// ---- Loading: progress bar tracks Progress ------------------------------
+// The status line cycles funny flavour text on a timer and the headline is
+// static, so only the bar + percentage track the injected Progress value.
 TSICTestHarness.register({
-    name: 'LoadingScreen: label updates re-render',
+    name: 'LoadingScreen: progress bar updates on Progress',
     file: '/screens/loading-screen.html',
     async run(ctx) {
         ctx.inject('tsic.msg.UI.Loading.Progress', { Progress: 0.1, Label: 'Step 1' });
         ctx.inject('tsic.msg.UI.Loading.Progress', { Progress: 0.7, Label: 'Step 7' });
         await new Promise(r => setTimeout(r, 80));
-        ctx.expect(ctx.assert.truthy(/Step 7/.test(ctx.doc.body.textContent || '')));
+        // 0.7 → bar fill 70% and percentage readout "70%".
+        ctx.expect(ctx.assert.truthy(ctx.doc.getElementById('loading-bar-fill').style.width === '70%'));
+        ctx.expect(ctx.assert.truthy(/70%/.test(ctx.doc.getElementById('loading-pct').textContent || '')));
     },
 });
 

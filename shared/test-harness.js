@@ -114,6 +114,23 @@
             channels() { return Array.from(subscribers.keys()); },
         };
 
+        // Migrate any subscriptions made on a PRIOR window.tsic. The shared
+        // tsic-bridge.js stamps window.tsic during the deferred-script phase,
+        // so when the playground installs this mock on iframe 'load' the screen
+        // has often already subscribed (render, router, …) on that bridge
+        // object via its `_subs` registry. Replacing window.tsic without
+        // carrying those over orphans them: injects fire on the fake while the
+        // screen listens on the bridge, so nothing updates. Re-register each
+        // prior callback on the fake so injected messages reach the page.
+        const prior = win.tsic;
+        if (prior && prior !== fake && prior._subs) {
+            for (const channel of Object.keys(prior._subs)) {
+                for (const cb of prior._subs[channel]) {
+                    fake.on(channel, cb);
+                }
+            }
+        }
+
         // Install on the iframe's window so the page's `if (window.tsic)` checks pass.
         win.tsic = fake;
         // Expose the handle to the host for scenario authoring.
