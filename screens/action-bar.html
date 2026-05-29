@@ -163,37 +163,28 @@
       }
 
       function makeKey(iconUrl, inputName, keyText) {
+        // Icon-only: when no key thumbnail resolves, render no key chip at all
+        // (no text fallback).
         var resolvedUrl = iconUrl;
         if (!resolvedUrl && keyText && window.TSIC && window.TSIC.keyIconUrl) {
           resolvedUrl = TSIC.keyIconUrl(keyText, preferGamepad());
         }
-        if (!resolvedUrl && !keyText && !inputName) return null;
+        if (!resolvedUrl) return null;
         const key = document.createElement('span');
         key.className = 'ab-key';
-        if (resolvedUrl) {
-          const img = document.createElement('img');
-          img.src = resolvedUrl;
-          img.alt = keyText || inputName || '';
-          img.onerror = () => {
-            var svgUrl = (window.TSIC && window.TSIC.keyIconUrl) ? TSIC.keyIconUrl(keyText, preferGamepad()) : '';
-            if (svgUrl && svgUrl !== resolvedUrl) {
-              img.onerror = () => {
-                img.replaceWith(Object.assign(document.createElement('span'),
-                  { className: 'ab-key-fallback', textContent: keyText || bracketedName(inputName) }));
-              };
-              img.src = svgUrl;
-            } else {
-              img.replaceWith(Object.assign(document.createElement('span'),
-                { className: 'ab-key-fallback', textContent: keyText || bracketedName(inputName) }));
-            }
-          };
-          key.appendChild(img);
-        } else {
-          const fallback = document.createElement('span');
-          fallback.className = 'ab-key-fallback';
-          fallback.textContent = keyText || bracketedName(inputName);
-          key.appendChild(fallback);
-        }
+        const img = document.createElement('img');
+        img.src = resolvedUrl;
+        img.alt = keyText || inputName || '';
+        img.onerror = () => {
+          var svgUrl = (window.TSIC && window.TSIC.keyIconUrl) ? TSIC.keyIconUrl(keyText, preferGamepad()) : '';
+          if (svgUrl && svgUrl !== resolvedUrl) {
+            img.onerror = () => { key.remove(); };
+            img.src = svgUrl;
+          } else {
+            key.remove();
+          }
+        };
+        key.appendChild(img);
         return key;
       }
 

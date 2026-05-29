@@ -44,35 +44,21 @@
     var resolve = (window.TSIC && window.TSIC.keyIconUrl) || function () { return ''; };
     var resolvedUrl = iconUrl || resolve(keyText, isGP);
 
-    if (resolvedUrl || keyText) {
+    // Icon-only: render no key chip when no thumbnail resolves (no text fallback).
+    if (resolvedUrl) {
       var key = document.createElement('span');
       key.className = 'ab-key';
-      if (resolvedUrl) {
-        var img = document.createElement('img');
-        img.src = resolvedUrl;
-        img.alt = keyText || '';
-        img.onerror = function () {
-          var svgUrl = resolve(keyText, isGP);
-          if (svgUrl && svgUrl !== resolvedUrl) {
-            img.onerror = function () {
-              if (keyText) {
-                img.replaceWith(Object.assign(document.createElement('span'),
-                  { className: 'ab-key-fallback', textContent: keyText }));
-              } else { key.remove(); }
-            };
-            img.src = svgUrl;
-          } else if (keyText) {
-            img.replaceWith(Object.assign(document.createElement('span'),
-              { className: 'ab-key-fallback', textContent: keyText }));
-          } else { key.remove(); }
-        };
-        key.appendChild(img);
-      } else {
-        var fb = document.createElement('span');
-        fb.className = 'ab-key-fallback';
-        fb.textContent = keyText;
-        key.appendChild(fb);
-      }
+      var img = document.createElement('img');
+      img.src = resolvedUrl;
+      img.alt = keyText || '';
+      img.onerror = function () {
+        var svgUrl = resolve(keyText, isGP);
+        if (svgUrl && svgUrl !== resolvedUrl) {
+          img.onerror = function () { key.remove(); };
+          img.src = svgUrl;
+        } else { key.remove(); }
+      };
+      key.appendChild(img);
       if (slot.CooldownPercent > 0 && slot.CooldownPercent < 1) {
         var sweep = document.createElement('div');
         sweep.className = 'ab-cd-sweep';
