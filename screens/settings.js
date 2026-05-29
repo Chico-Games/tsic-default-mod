@@ -38,6 +38,14 @@
     let pendingRebind = null;
     const localState = {};
 
+    // Structural signature of the last render + per-key value updaters. A
+    // Catalog whose structure is unchanged (only Values differ) is patched in
+    // place instead of rebuilding the DOM — otherwise a value echo (e.g. while
+    // dragging a slider) would destroy and recreate the control mid-interaction
+    // and kill the drag.
+    let lastStructSig = null;
+    const controlUpdaters = {};
+
     function valueOf(s) {
         if (s.Key in localState) return localState[s.Key];
         return s.Value;
@@ -91,6 +99,12 @@
                 valueLabel.textContent = String(n);
                 publishSet(s.Key, n);
             };
+            controlUpdaters[s.Key] = (val) => {
+                const n = Number(val);
+                if (Number.isNaN(n)) return;
+                slider.value = String(n);
+                valueLabel.textContent = String(n);
+            };
             ctl.appendChild(slider);
             ctl.appendChild(valueLabel);
         } else if (type === 'bool') {
@@ -103,6 +117,7 @@
                     publishSet(s.Key, localState[s.Key]);
                 };
             }
+            controlUpdaters[s.Key] = (val) => tog.classList.toggle('on', !!val);
             ctl.appendChild(tog);
         } else if (type === 'enum' || Array.isArray(s.Options)) {
             const sel = document.createElement('select');
@@ -118,6 +133,7 @@
                 localState[s.Key] = sel.value;
                 publishSet(s.Key, localState[s.Key]);
             };
+            controlUpdaters[s.Key] = (val) => { sel.value = String(val); };
             ctl.appendChild(sel);
         } else if (type === 'keybind') {
             const slot0 = (s.Bindings && s.Bindings[0]) || { Display: String(v || '<unbound>') };
@@ -175,9 +191,11 @@
         const host = document.getElementById('page');
         if (!host) return;
         host.innerHTML = '';
+        for (const k in controlUpdaters) delete controlUpdaters[k];
         const page = lastCatalog && (lastCatalog.Pages || []).find(p => p.Id === activePageId);
         if (!page) {
             host.textContent = '(no settings yet)';
+            lastStructSig = null;
             return;
         }
         for (const g of (page.Groups || [])) {
@@ -188,6 +206,42 @@
             sec.appendChild(h);
             for (const s of (g.Settings || [])) sec.appendChild(buildField(s));
             host.appendChild(sec);
+        }
+        lastStructSig = structSig(lastCatalog);
+    }
+
+    // Signature of the rendered structure (everything except live Values) +
+    // the active page. Two Catalogs with the same signature are interchangeable
+    // by value-patching; a different signature requires a full rebuild.
+    function structSig(catalog) {
+        try {
+            const pages = (catalog && catalog.Pages) || [];
+            return activePageId + '::' + JSON.stringify(pages.map(p => ({
+                i: p.Id,
+                g: (p.Groups || []).map(g => ({
+                    i: g.Id, t: g.Title,
+                    s: (g.Settings || []).map(s => ({
+                        k: s.Key, t: s.Type, l: s.Label, d: !!s.Disabled,
+                        o: (s.Options || []).map(o => (o && o.Value !== undefined) ? o.Value : o),
+                    })),
+                })),
+            })));
+        } catch (e) { return null; }
+    }
+
+    // Patch the active page's control values from a structurally-identical
+    // Catalog without touching the DOM tree — never destroys a control the user
+    // is interacting with (e.g. a slider being dragged).
+    function applyValues(catalog) {
+        const page = (catalog.Pages || []).find(p => p.Id === activePageId);
+        if (!page) return;
+        for (const g of (page.Groups || [])) {
+            for (const s of (g.Settings || [])) {
+                if (s.Key && controlUpdaters[s.Key]) {
+                    localState[s.Key] = s.Value;
+                    controlUpdaters[s.Key](s.Value);
+                }
+            }
         }
     }
 
@@ -208,9 +262,17 @@
         let parsed = null;
         try { parsed = JSON.parse(payload.Json || '{}'); } catch (e) {}
         lastCatalog = parsed || {};
+        renderFooter(lastCatalog.Footer);
+        // Structure unchanged (only Values differ, e.g. a value echo while
+        // dragging a slider): patch values in place so we never destroy the
+        // control mid-interaction. Otherwise do a full rebuild.
+        if (lastStructSig !== null && structSig(lastCatalog) === lastStructSig
+            && Object.keys(controlUpdaters).length) {
+            applyValues(lastCatalog);
+            return;
+        }
         renderTabs(lastCatalog);
         renderPage();
-        renderFooter(lastCatalog.Footer);
     }
 
     function onValue(payload) {
