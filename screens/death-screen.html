@@ -12,18 +12,25 @@
   <script src="/shared/tsic-runtime.js" defer></script>
   <script src="/shared/tsic-focus.js" defer></script>
   <script src="/shared/hud.js" defer></script>
+  <style>
+    .tsic-death-subtitle {
+      margin: 0;
+      font-family: var(--font-terminal);
+      font-size: 14px;
+      letter-spacing: 0.04em;
+      color: var(--ink-soft);
+      text-align: center;
+      text-transform: uppercase;
+    }
+  </style>
 </head><body>
   <div class="tsic-stage--magazine-gradient" style="--tsic-stage-paper-alpha: 0.55;">
     <div class="tsic-panel tsic-cover" style="--tsic-cover-width: 420px;">
-      <div class="tsic-masthead">
-        <div class="tsic-masthead-title">
-          <em>Final notice:</em>
+      <div class="tsic-masthead" style="flex-direction: column; align-items: center; gap: 8px;">
+        <div class="tsic-masthead-title" style="text-align: center;">
           You Died.
         </div>
-        <div class="tsic-masthead-meta">
-          <span class="tsic-masthead-issue">Obituary</span>
-          <span class="tsic-masthead-date">RESPAWN POINT NEARBY</span>
-        </div>
+        <p class="tsic-death-subtitle">The Store has taken you. Your loved one remains lost.</p>
       </div>
       <div class="tsic-cover-rows" data-tsic-focus-group="nav">
         <button class="tsic-row-button" id="btn-respawn" data-tsic-initial-focus>
