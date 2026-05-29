@@ -168,7 +168,7 @@ TSICTestHarness.register({
 // ---- ActionBar: cooldown 100% draws no sweep --------------------------
 TSICTestHarness.register({
     name: 'ActionBar: cooldown == 1.0 (ready) draws no sweep div',
-    file: '/screens/action-bar.html',
+    file: '/screens/test-action-bar.html',
     async run(ctx) {
         ctx.inject('tsic.msg.UI.ActionBar.Abilities', {
             Slots: [{ InputName: 'IA_X', AbilityName: 'X', bVisible: true, StatusInt: 0, CooldownPercent: 1.0 }],
@@ -181,7 +181,7 @@ TSICTestHarness.register({
 // ---- ActionBar: SubText absent — no .ab-sub div ----------------------
 TSICTestHarness.register({
     name: 'ActionBar: omitting SubText omits the .ab-sub div',
-    file: '/screens/action-bar.html',
+    file: '/screens/test-action-bar.html',
     async run(ctx) {
         ctx.inject('tsic.msg.UI.ActionBar.Abilities', {
             Slots: [{ InputName: 'IA_X', AbilityName: 'X', bVisible: true, StatusInt: 0 }],

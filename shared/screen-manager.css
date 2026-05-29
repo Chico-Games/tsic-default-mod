@@ -1,0 +1,27 @@
+/* Screen-overlay host + tsic-overlay container styles.
+ *
+ * #screen-overlay-host is a fixed full-viewport layer sitting above the HUD
+ * (which is z-index:20) but below any toasts/modals. Each registered screen
+ * lives as a child .tsic-overlay; hidden via [hidden] until activated.
+ *
+ * body.tsic-overlay-open is added when any non-InGame overlay is visible —
+ * use it from screen styles to dim/block the HUD if needed.
+ */
+
+#screen-overlay-host {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    pointer-events: none;          /* host itself is transparent to events */
+}
+
+#screen-overlay-host > .tsic-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: auto;          /* the screen takes events */
+    overflow: hidden;
+}
+
+#screen-overlay-host > .tsic-overlay[hidden] {
+    display: none !important;      /* override inline display from screen CSS */
+}

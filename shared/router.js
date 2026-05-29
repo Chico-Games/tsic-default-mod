@@ -29,7 +29,7 @@
   // (e.g. action-bar swaps between gameplay/menu group, hotbar follows the
   // selected slot). A redirect here breaks the overlay entirely.
   const OVERLAY_SCREENS = new Set([
-    'ActionBar', 'Hotbar', 'HealthBar', 'StaminaBar', 'Stomach',
+    'Hotbar', 'HealthBar', 'StaminaBar', 'Stomach',
     'Crosshair', 'Detection', 'CircularProgress', 'Notifications',
     'Ping', 'PingMarkers',
   ]);
@@ -75,7 +75,6 @@
     Wardrobe: 'wardrobe',
     Hotbar: 'hotbar',
     QuantityPicker: 'quantity-picker',
-    ActionBar: 'action-bar',
     Ping: 'ping',
     Crosshair: 'crosshair',
     Detection: 'detection',
@@ -92,6 +91,13 @@
   function fileFor(name) {
     return SCREEN_TO_FILE[name] || null;
   }
+
+  // Exposed so the SPA shell's screen-manager can resolve a screen name to
+  // a legacy file when falling back to window.location.replace for an
+  // unmigrated menu. Once every menu is registered, the fallback (and this
+  // export) can go away.
+  if (!window.TSIC) window.TSIC = {};
+  window.TSIC.screenFileFor = fileFor;
 
   function activeInputModeTag() {
     const m = document.querySelector('meta[name="tsic-input-mode"]');
@@ -187,6 +193,11 @@
       // replay the active in-game screen on mount and immediately redirect
       // the debug page away (the "WebUI.Map.DebugGrid closing on open" bug).
       if (isDebugScreen()) return;
+      // SPA shell takes over routing once the page declares itself a shell.
+      // The shell's screen-manager.js hides/shows registered overlays in
+      // place; only unmigrated menus fall back to a real navigation, which
+      // the manager itself performs.
+      if (document.querySelector('meta[name="tsic-shell"]')) return;
       const file = fileFor(payload.Name);
       if (!file) {
         console.warn('[router] no file mapping for screen', payload.Name);
@@ -209,10 +220,12 @@
       window.addEventListener('pagehide', removeInputTagOnce);
 
       // IA_UI_CancelBack auto-wiring: only on screens that push a menu input
-      // tag (so IMC_CancelBack is actually active here). Fires regardless of
-      // WebView focus state — the bridge publishes the IA event over IPC,
-      // not via the keyboard event loop. Pages may opt out by setting the
-      // meta to an empty string, or override the command via tsic-cancel-cmd.
+      // tag (so IMC_CancelBack is actually active here). The game viewport keeps
+      // keyboard focus while menus are open (keyboard only leaves for a focused
+      // text field — see tsic-runtime.js), so the Esc InputAction actually fires
+      // and the bridge delivers it over IPC, with no click-to-focus required.
+      // Pages may opt out by setting the meta to an empty string, or override
+      // the command via tsic-cancel-cmd.
       const cmd = cancelCmd();
       if (cmd) {
         window.tsic.on('tsic.msg.UI.Input.IA_UI_CancelBack', (p) => {

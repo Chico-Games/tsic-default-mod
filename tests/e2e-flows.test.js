@@ -200,7 +200,7 @@ TSICTestHarness.register({
 // ---- ActionBar: live device-family swap ---------------------------------
 TSICTestHarness.register({
     name: 'E2E/ActionBar: KBM-then-Gamepad swap re-renders icon family',
-    file: '/screens/action-bar.html',
+    file: '/screens/test-action-bar.html',
     async run(ctx) {
         ctx.mode('MouseAndKeyboard');
         ctx.inject('tsic.msg.UI.ActionBar.Abilities', {

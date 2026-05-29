@@ -1028,6 +1028,13 @@
           if (img) img.src = TSIC.runtimeImgUrl('fow') + '?t=' + Date.now();
         });
 
+        // SetFogOfWarVisible cheat — toggles the map-screen FOW overlay locally.
+        tsic.on('tsic.msg.Cheats.Map.Fow.Visibility', function(p) {
+          var img = document.getElementById('fow-tex');
+          if (!img) return;
+          img.style.display = (p && p.bVisible === false) ? 'none' : '';
+        });
+
         // Debug-overlay toggle (driven by WebUI.Map.DebugHeight /
         // WebUI.Map.DebugMazeRegions console commands). Sticky channel:
         // a freshly-opened map screen replays the last toggled state.

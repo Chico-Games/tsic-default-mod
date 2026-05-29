@@ -54,7 +54,7 @@ TSICTestHarness.register({
 // ---- ActionBar: device-family swap on UI.Input.Mode.Changed -----------
 TSICTestHarness.register({
     name: 'Input/ActionBar: live mode swap re-renders with the new icon family',
-    file: '/screens/action-bar.html',
+    file: '/screens/test-action-bar.html',
     async run(ctx) {
         ctx.inject('tsic.msg.UI.ActionBar.Abilities', {
             Slots: [{

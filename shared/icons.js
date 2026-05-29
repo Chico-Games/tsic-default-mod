@@ -14,6 +14,14 @@
     'Left Control': 'ctrl', 'Right Control': 'ctrl', 'Ctrl': 'ctrl',
     'Left Alt': 'alt', 'Right Alt': 'alt', 'Alt': 'alt',
     'Tab': 'tab', 'Escape': 'esc', 'Esc': 'esc', 'Enter': 'enter',
+    // Mouse wheel rotation (MMB above is the wheel *click*).
+    'Mouse Wheel Up': 'scroll-up', 'MouseScrollUp': 'scroll-up', 'Scroll Up': 'scroll-up',
+    'Mouse Wheel Down': 'scroll-down', 'MouseScrollDown': 'scroll-down', 'Scroll Down': 'scroll-down',
+    // Arrow keys.
+    'Up': 'arrow-up', 'Down': 'arrow-down', 'Left': 'arrow-left', 'Right': 'arrow-right',
+    // Digit FName forms (the numeric-glyph fallback below handles "1".."0").
+    'Zero': '0', 'One': '1', 'Two': '2', 'Three': '3', 'Four': '4',
+    'Five': '5', 'Six': '6', 'Seven': '7', 'Eight': '8', 'Nine': '9',
   };
   var GP = {
     'Gamepad Face Button Bottom': 'face-bottom', 'Gamepad Face Button Left': 'face-left',
@@ -40,6 +48,7 @@
     var kb = KB[keyText];
     if (kb) return '/icons/keyboard/' + kb + '.svg';
     if (/^[A-Za-z]$/.test(keyText)) return '/icons/keyboard/' + keyText.toLowerCase() + '.svg';
+    if (/^[0-9]$/.test(keyText)) return '/icons/keyboard/' + keyText + '.svg';
     return '';
   }
 
@@ -92,6 +101,46 @@
     imgEl.src = base + '?t=' + Date.now();
   }
 
+  // Continuously re-fetch a runtime image source so an animating capture
+  // (e.g. the character preview, which loops an idle animation) updates live
+  // in the browser. Each frame appends a fresh cache-buster so CEF treats it
+  // as a new resource. The next fetch is scheduled only after the current one
+  // finishes (load or error), throttled to opts.fps (default 30) — this
+  // backpressures naturally if PNG encode/transfer can't keep up, and retries
+  // through the empty responses that occur before the first snapshot lands.
+  // Returns a stop() function; call it when the image is no longer visible.
+  function startRuntimeImgStream(imgEl, name, opts) {
+    var o = opts || {};
+    var minInterval = 1000 / (o.fps || 30);
+    var base = runtimeImgUrl(name);
+    var stopped = false;
+    var seq = 0;
+    var lastStart = 0;
+    var timer = null;
+    var now = function () {
+      return (typeof performance !== 'undefined' && performance.now)
+        ? performance.now() : Date.now();
+    };
+    function fetchNext() {
+      if (stopped) return;
+      lastStart = now();
+      imgEl.src = base + '?t=' + (++seq);
+    }
+    function scheduleNext() {
+      if (stopped) return;
+      timer = setTimeout(fetchNext, Math.max(0, minInterval - (now() - lastStart)));
+    }
+    imgEl.addEventListener('load', scheduleNext);
+    imgEl.addEventListener('error', scheduleNext);
+    fetchNext();
+    return function stop() {
+      stopped = true;
+      if (timer) { clearTimeout(timer); timer = null; }
+      imgEl.removeEventListener('load', scheduleNext);
+      imgEl.removeEventListener('error', scheduleNext);
+    };
+  }
+
   window.TSIC = window.TSIC || {};
   window.TSIC.keyIconUrl = keyIconUrl;
   window.TSIC.itemIconUrl = itemIconUrl;
@@ -99,4 +148,5 @@
   window.TSIC.runtimeImgUrl = runtimeImgUrl;
   window.TSIC.runtimeImg = runtimeImg;
   window.TSIC.runtimeImgReload = runtimeImgReload;
+  window.TSIC.startRuntimeImgStream = startRuntimeImgStream;
 })();

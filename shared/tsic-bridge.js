@@ -75,6 +75,14 @@
             ue.tsicbridge.setinteractiverects(JSON.stringify(rects || []));
         },
 
+        // Hand the CEF browser keyboard focus (true) or return it to the game
+        // viewport / Enhanced Input (false). Driven exclusively by text-field
+        // focus tracking in tsic-runtime.js — do not call this from page code.
+        setFocusCapture: function (capture) {
+            if (typeof ue === 'undefined' || !ue.tsicbridge) return;
+            ue.tsicbridge.setfocuscapture(!!capture);
+        },
+
         // C++ -> JS dispatch. Called from C++ via Call("tsicDispatch", data)
         // which executes ue.interface.tsicDispatch(data). We wire it below.
         __dispatch: function (channel, payloadJson, metaJson) {

@@ -219,7 +219,7 @@ TSICTestHarness.register({
 TSICTestHarness.register({
     name: 'Perf/ActionBar: 5 identical broadcasts produce stable DOM',
     tags: ['perf', 'action-bar'],
-    file: '/screens/action-bar.html',
+    file: '/screens/test-action-bar.html',
     async run(ctx) {
         const payload = { Slots: [
             { InputName: 'IA_A', AbilityName: 'A', bVisible: true, StatusInt: 0 },
@@ -235,7 +235,7 @@ TSICTestHarness.register({
 TSICTestHarness.register({
     name: 'Perf/ActionBar: 50 rows render in < 250ms',
     tags: ['perf', 'action-bar'],
-    file: '/screens/action-bar.html',
+    file: '/screens/test-action-bar.html',
     async run(ctx) {
         const slots = [];
         for (let i = 0; i < 50; i++) slots.push({ InputName: 'IA_' + i, AbilityName: 'A' + i, bVisible: true, StatusInt: i % 4 });

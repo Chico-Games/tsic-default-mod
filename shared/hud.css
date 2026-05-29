@@ -4,20 +4,6 @@
   z-index: 10;
 }
 
-#hud-chrome .interaction-prompt {
-  position: absolute; left: 50%; bottom: 18%;
-  transform: translateX(-50%);
-  padding: 8px 14px;
-  background: rgba(241, 229, 207, 0.92);
-  border: 1px solid var(--cat-border);
-  color: var(--cat-ink);
-  font-family: Georgia, "Libre Baskerville", serif;
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
 #toast-container {
   position: fixed; left: 24px; top: 24px;
   display: flex; flex-direction: column; gap: 8px;

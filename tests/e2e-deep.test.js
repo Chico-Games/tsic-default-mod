@@ -35,28 +35,11 @@ TSICTestHarness.register({
     },
 });
 
-// ---- Action bar visibility toggles between gameplay + menus -----------
-TSICTestHarness.register({
-    name: 'E2E/ActionBar: rapid screen flips keep the right group visible each time',
-    file: '/screens/action-bar.html',
-    async run(ctx) {
-        ctx.inject('tsic.msg.UI.ActionBar.Abilities', { Slots: [{ InputName: 'IA_X', AbilityName: 'X', bVisible: true, StatusInt: 0 }] });
-        ctx.inject('tsic.msg.UI.ActionBar.MenuContext', { Entries: [{ ActionName: 'IA_UI_ConfirmAccept', Label: 'OK', Priority: 10 }] });
-        const expectations = [
-            ['InGame',    false, true ],
-            ['Inventory', true,  false],
-            ['Hotbar',    false, true ],
-            ['Crafting',  true,  false],
-            ['InGame',    false, true ],
-        ];
-        for (const [name, gameHidden, menuHidden] of expectations) {
-            ctx.screen(name);
-            await new Promise(r => setTimeout(r, 25));
-            ctx.expect(ctx.assert.eq(ctx.doc.getElementById('ab-gameplay').classList.contains('hidden'), gameHidden, `gameplay hidden on ${name}`));
-            ctx.expect(ctx.assert.eq(ctx.doc.getElementById('ab-menu').classList.contains('hidden'), menuHidden, `menu hidden on ${name}`));
-        }
-    },
-});
+// (Removed: 'E2E/ActionBar: rapid screen flips keep the right group visible'.
+//  That tested screen-based gameplay/menu-group toggling and the #ab-menu bar,
+//  which only existed in the deleted screens/action-bar.html. The live
+//  gameplay bar (hud-action-bar.js) is not screen-gated, and the menu action
+//  bar is not yet wired into the shell — tracked as a separate follow-up.)
 
 // ---- Production: empty → filled → progressed → completed ---------------
 TSICTestHarness.register({
@@ -185,7 +168,7 @@ TSICTestHarness.register({
 // ---- ActionBar: hash-quality changes redraw rows -----------------------
 TSICTestHarness.register({
     name: 'E2E/ActionBar: re-broadcast with new status redraws rows',
-    file: '/screens/action-bar.html',
+    file: '/screens/test-action-bar.html',
     async run(ctx) {
         ctx.inject('tsic.msg.UI.ActionBar.Abilities', { Slots: [{ InputName: 'IA_X', AbilityName: 'X', bVisible: true, StatusInt: 0 }] });
         await ctx.waitFor(() => ctx.doc.querySelector('#ab-gameplay .ab-row[data-status="available"]'));

@@ -1,12 +1,19 @@
-// shared/hud-interaction.js — Interaction prompt ("Press E to Open").
-// DOM: #interaction-prompt (created by hud.js).
-// Shows the primary interaction target's label.
+// shared/hud-interaction.js — Interaction target name + divider inside the
+// gameplay action-bar panel (#ab-shell-gameplay > #interaction-prompt + #ab-divider).
+// Shows the primary interaction target's label and reveals the divider line.
 (function () {
   tsic.on('tsic.msg.UI.Interaction.Targets', function (p) {
-    var el = document.getElementById('interaction-prompt');
-    if (!el) return;
+    var label = document.getElementById('interaction-prompt');
+    var divider = document.getElementById('ab-divider');
+    if (!label || !divider) return;
     var target = p && p.Targets && p.Targets.find(function (t) { return t.bIsPrimary; });
-    if (target) { el.textContent = target.Label || 'Interact'; el.style.display = ''; }
-    else { el.style.display = 'none'; }
+    if (target) {
+      label.textContent = target.Label || 'Interact';
+      label.classList.remove('hidden');
+      divider.classList.remove('hidden');
+    } else {
+      label.classList.add('hidden');
+      divider.classList.add('hidden');
+    }
   });
 })();

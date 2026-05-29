@@ -75,12 +75,17 @@
             host.appendChild(slot);
           }
         });
+        let previewStream = null;
         tsic.on('tsic.msg.UI.CharacterPreview.Ready', (p) => {
-          if (p && p.bReady) {
-            document.getElementById('wardrobe-preview-img').src = TSIC.runtimeImgUrl('character-preview');
-          }
+          if (!p || !p.bReady) return;
+          const img = document.getElementById('wardrobe-preview-img');
+          if (!img) return;
+          // Stream the capture so the character's idle animation plays live.
+          if (previewStream) previewStream();
+          previewStream = TSIC.startRuntimeImgStream(img, 'character-preview');
         });
         document.getElementById('btn-close').onclick = () => {
+          if (previewStream) { previewStream(); previewStream = null; }
           tsic.publishMessage('UI.Cmd.CharacterPreview.Hide', {});
           tsic.publishMessage('UI.Cmd.Pause.Resume', {});
         };

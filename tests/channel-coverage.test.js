@@ -232,14 +232,17 @@ TSICTestHarness.register({
 
 // ---- UI.Screen.Changed (already exercised by ctx.screen, but cover the string)
 TSICTestHarness.register({
-    name: 'Channels/Screen.Changed: explicit broadcast updates action-bar state',
+    name: 'Channels/Screen.Changed: gameplay action bar is not screen-gated',
     tags: ['channel', 'screen'],
-    file: '/screens/action-bar.html',
+    file: '/screens/test-action-bar.html',
     async run(ctx) {
         ctx.inject('tsic.msg.UI.ActionBar.Abilities', { Slots: [{ InputName: 'IA_X', AbilityName: 'X', bVisible: true, StatusInt: 0 }] });
+        await ctx.waitFor(() => ctx.doc.querySelector('#ab-gameplay .ab-row'));
+        // The live gameplay bar (hud-action-bar.js) ignores UI.Screen.Changed; a
+        // broadcast must leave its rows untouched (no menu-screen hiding).
         ctx.inject('tsic.msg.UI.Screen.Changed', { Name: 'PauseMenu' });
-        await ctx.waitFor(() => ctx.doc.getElementById('ab-gameplay').classList.contains('hidden'));
-        ctx.expect(ctx.assert.truthy(true));
+        await new Promise(r => setTimeout(r, 20));
+        ctx.expect(ctx.assert.domCount(ctx.doc, '#ab-gameplay .ab-row', 1));
     },
 });
 
@@ -247,7 +250,7 @@ TSICTestHarness.register({
 TSICTestHarness.register({
     name: 'Channels/Input.Mode.Changed: explicit broadcast flips device family on action-bar',
     tags: ['channel', 'input-bridge'],
-    file: '/screens/action-bar.html',
+    file: '/screens/test-action-bar.html',
     async run(ctx) {
         ctx.inject('tsic.msg.UI.ActionBar.Abilities', {
             Slots: [{ InputName: 'IA_X', AbilityName: 'X', bVisible: true, StatusInt: 0,

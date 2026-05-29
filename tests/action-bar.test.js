@@ -1,6 +1,11 @@
+// Gameplay action-bar tests, run against the LIVE component (shared/hud-action-bar.js)
+// hosted by /screens/test-action-bar.html. The old menu-bar (#ab-menu) tests were
+// removed when the dead screens/action-bar.html was deleted — the menu action bar is
+// not yet wired into the live shell (tracked as a separate follow-up).
+
 TSICTestHarness.register({
-    name: 'ActionBar: gameplay rows render with key fallback',
-    file: '/screens/action-bar.html',
+    name: 'ActionBar: gameplay rows render',
+    file: '/screens/test-action-bar.html',
     async run(ctx) {
         ctx.inject('tsic.msg.UI.ActionBar.Abilities', {
             Slots: [
@@ -15,7 +20,7 @@ TSICTestHarness.register({
 
 TSICTestHarness.register({
     name: 'ActionBar: blocked rows get blocked status colour',
-    file: '/screens/action-bar.html',
+    file: '/screens/test-action-bar.html',
     async run(ctx) {
         ctx.inject('tsic.msg.UI.ActionBar.Abilities', {
             Slots: [
@@ -28,39 +33,34 @@ TSICTestHarness.register({
 });
 
 TSICTestHarness.register({
-    name: 'ActionBar: gameplay group hides on menu screen, menu group shows',
-    file: '/screens/action-bar.html',
+    // Spamming crouch toggles StatusInt every poll, which legitimately re-broadcasts
+    // the slot list. A full innerHTML rebuild recreates the <img>, and CEF shows a
+    // blank frame while it re-decodes — that is the flash. The key icon <img> must be
+    // reused across a status-only change. render() runs synchronously inside the inject
+    // handler, so capture the nodes back-to-back (jsdom can't decode SVGs and fires
+    // img.onerror on the next tick, which would tear the node down; CEF keeps it).
+    name: 'ActionBar: status change reuses key icon img node (no flash on spam)',
+    file: '/screens/test-action-bar.html',
     async run(ctx) {
-        ctx.inject('tsic.msg.UI.ActionBar.Abilities', {
-            Slots: [{ InputName: 'IA_Interact', AbilityName: 'Interact', StatusInt: 0, bVisible: true }],
-        });
-        ctx.inject('tsic.msg.UI.ActionBar.MenuContext', {
-            Entries: [{ ActionName: 'IA_UI_ConfirmAccept', Label: 'Craft', Priority: 10 }],
-        });
-        ctx.screen('Crafting');
-        await new Promise(r => setTimeout(r, 60));
-        ctx.expect(ctx.assert.domHidden(ctx.doc, '#ab-gameplay'));
-        ctx.expect(ctx.assert.domVisible(ctx.doc, '#ab-menu'));
-    },
-});
-
-TSICTestHarness.register({
-    name: 'ActionBar: menu group hides during gameplay',
-    file: '/screens/action-bar.html',
-    async run(ctx) {
-        ctx.inject('tsic.msg.UI.ActionBar.Abilities', {
-            Slots: [{ InputName: 'IA_Interact', AbilityName: 'Interact', StatusInt: 0, bVisible: true }],
-        });
-        ctx.screen('InGame');
-        await new Promise(r => setTimeout(r, 60));
-        ctx.expect(ctx.assert.domVisible(ctx.doc, '#ab-gameplay'));
-        ctx.expect(ctx.assert.domHidden(ctx.doc, '#ab-menu'));
+        const payload = (st) => ({ Slots: [
+            { InputName: 'IA_Crouch', AbilityName: 'Crouch', bVisible: true, StatusInt: st,
+              KeyboardIconUrl: '/icons/keyboard/c.svg' },
+        ]});
+        ctx.inject('tsic.msg.UI.ActionBar.Abilities', payload(0));
+        const first = ctx.doc.querySelector('#ab-gameplay .ab-row .ab-key img');
+        ctx.expect(ctx.assert.truthy(first, 'expected a key icon img after first render'));
+        // Crouch press: Available -> Blocked, same icon URL.
+        ctx.inject('tsic.msg.UI.ActionBar.Abilities', payload(1));
+        const second = ctx.doc.querySelector('#ab-gameplay .ab-row .ab-key img');
+        ctx.expect(ctx.assert.truthy(second === first,
+            'key icon <img> should be reused across a status-only change, not recreated (recreation flashes)'));
+        ctx.expect(ctx.assert.domExists(ctx.doc, '#ab-gameplay .ab-row[data-status="blocked"]'));
     },
 });
 
 TSICTestHarness.register({
     name: 'ActionBar: gamepad mode swaps icon family',
-    file: '/screens/action-bar.html',
+    file: '/screens/test-action-bar.html',
     async run(ctx) {
         ctx.inject('tsic.msg.UI.ActionBar.Abilities', {
             Slots: [{

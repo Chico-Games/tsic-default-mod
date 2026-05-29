@@ -107,6 +107,57 @@
             });
         };
 
+        // ---- Keyboard focus routing ------------------------------------
+        // Hard rule: keyboard input always belongs to the Enhanced Input system.
+        // The C++ UI input bridge turns every InputAction into a UI.Input.* event
+        // that menus react to (close, navigate, tabs), so the web view must NOT
+        // hold keyboard focus during normal menu use — otherwise those actions
+        // never fire and the player has to click the screen to close a menu.
+        //
+        // The single exception: while an actual text-entry element is focused, we
+        // hand keyboard focus to CEF so the player can type, then return it the
+        // moment focus leaves the field. This watches document focus transitions
+        // and toggles native keyboard capture to match — and nothing else ever
+        // captures the keyboard.
+        if (!t.__focusCaptureInstalled && typeof document !== 'undefined' && document.addEventListener) {
+            t.__focusCaptureInstalled = true;
+
+            const TEXT_INPUT_TYPES = {
+                text: 1, search: 1, email: 1, url: 1, tel: 1, password: 1,
+                number: 1, date: 1, time: 1, 'datetime-local': 1, month: 1, week: 1,
+            };
+            const isTextEntry = (el) => {
+                if (!el || el.nodeType !== 1) return false;
+                if (el.isContentEditable) return true;
+                const tag = el.tagName;
+                if (tag === 'TEXTAREA') return true;
+                if (tag === 'INPUT') {
+                    const type = (el.getAttribute('type') || 'text').toLowerCase();
+                    return !!TEXT_INPUT_TYPES[type];
+                }
+                return false;
+            };
+
+            let captured = false;
+            const apply = (want) => {
+                want = !!want;
+                if (want === captured) return;
+                captured = want;
+                if (typeof t.setFocusCapture === 'function') t.setFocusCapture(want);
+            };
+
+            document.addEventListener('focusin', (ev) => {
+                if (isTextEntry(ev.target)) apply(true);
+            }, true);
+
+            document.addEventListener('focusout', () => {
+                // Defer one turn: tabbing between two fields fires focusout then
+                // focusin, and we don't want to bounce the keyboard to gameplay
+                // for a frame in between. Re-read activeElement after it settles.
+                setTimeout(() => apply(isTextEntry(document.activeElement)), 0);
+            }, true);
+        }
+
         // ---- Item-icon URL helper (used everywhere we render an item) ----
         // Falls back to the catalog's itemIconUrl when present, otherwise the
         // /tex/ file-system path. Pages should call this instead of building

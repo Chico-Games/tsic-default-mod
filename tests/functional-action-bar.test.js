@@ -1,36 +1,11 @@
-// Functional coverage for the gameplay + menu action bar visibility / rendering.
-TSICTestHarness.register({
-    name: 'ActionBar/Visibility: every menu screen hides the gameplay group',
-    file: '/screens/action-bar.html',
-    async run(ctx) {
-        ctx.inject('tsic.msg.UI.ActionBar.Abilities', { Slots: [{ InputName: 'IA_X', AbilityName: 'X', bVisible: true, StatusInt: 0 }] });
-        const MENU = ['Inventory','Storage','Crafting','Production','Upgrade','Teleporter','BossSummoner','UniversalStorage','Construction','Map','Settings','PauseMenu','SaveLoad','Mods','Credits','NewStore'];
-        for (const s of MENU) {
-            ctx.screen(s);
-            await new Promise(r => setTimeout(r, 30));
-            const hidden = ctx.doc.getElementById('ab-gameplay').classList.contains('hidden');
-            ctx.expect(ctx.assert.truthy(hidden, `expected #ab-gameplay hidden on screen=${s}`));
-        }
-    },
-});
-
-TSICTestHarness.register({
-    name: 'ActionBar/Visibility: non-menu screen shows the gameplay group',
-    file: '/screens/action-bar.html',
-    async run(ctx) {
-        ctx.inject('tsic.msg.UI.ActionBar.Abilities', { Slots: [{ InputName: 'IA_X', AbilityName: 'X', bVisible: true, StatusInt: 0 }] });
-        for (const s of ['InGame','Hotbar','Equipment','HealthBar','Notifications','Ping','Detection','Crosshair']) {
-            ctx.screen(s);
-            await new Promise(r => setTimeout(r, 20));
-            ctx.expect(ctx.assert.truthy(!ctx.doc.getElementById('ab-gameplay').classList.contains('hidden'),
-                `expected #ab-gameplay visible on screen=${s}`));
-        }
-    },
-});
-
+// Functional coverage for the gameplay action bar (shared/hud-action-bar.js),
+// hosted by /screens/test-action-bar.html. Screen-based visibility and the menu
+// bar (#ab-menu) lived only in the deleted screens/action-bar.html; the live
+// component hides its shell (#ab-shell-gameplay) when nothing is visible and is
+// not screen-gated.
 TSICTestHarness.register({
     name: 'ActionBar: bVisible=false slot is skipped',
-    file: '/screens/action-bar.html',
+    file: '/screens/test-action-bar.html',
     async run(ctx) {
         ctx.inject('tsic.msg.UI.ActionBar.Abilities', {
             Slots: [
@@ -45,29 +20,29 @@ TSICTestHarness.register({
 
 TSICTestHarness.register({
     name: 'ActionBar: empty payload hides the gameplay group',
-    file: '/screens/action-bar.html',
+    file: '/screens/test-action-bar.html',
     async run(ctx) {
+        ctx.inject('tsic.msg.UI.ActionBar.Abilities', { Slots: [{ InputName: 'IA_A', AbilityName: 'A', bVisible: true, StatusInt: 0 }] });
+        await ctx.waitFor(() => ctx.doc.querySelector('#ab-gameplay .ab-row'));
         ctx.inject('tsic.msg.UI.ActionBar.Abilities', { Slots: [] });
-        ctx.screen('InGame');
-        await new Promise(r => setTimeout(r, 60));
-        ctx.expect(ctx.assert.truthy(ctx.doc.getElementById('ab-gameplay').classList.contains('hidden'),
-            'expected #ab-gameplay hidden when slots are empty'));
+        await new Promise(r => setTimeout(r, 30));
+        ctx.expect(ctx.assert.domHidden(ctx.doc, '#ab-shell-gameplay'));
     },
 });
 
 TSICTestHarness.register({
     name: 'ActionBar: cooldown sweep appears for partial cooldowns only',
-    file: '/screens/action-bar.html',
+    file: '/screens/test-action-bar.html',
     async run(ctx) {
         ctx.inject('tsic.msg.UI.ActionBar.Abilities', {
             Slots: [
-                { InputName: 'IA_A', AbilityName: 'A', bVisible: true, StatusInt: 0, CooldownPercent: 0.0 },
-                { InputName: 'IA_B', AbilityName: 'B', bVisible: true, StatusInt: 0, CooldownPercent: 0.4 },
-                { InputName: 'IA_C', AbilityName: 'C', bVisible: true, StatusInt: 0, CooldownPercent: 1.0 },
+                { InputName: 'IA_A', AbilityName: 'A', bVisible: true, StatusInt: 0, CooldownPercent: 0.0, KeyboardIconUrl: '/icons/keyboard/a.svg' },
+                { InputName: 'IA_B', AbilityName: 'B', bVisible: true, StatusInt: 0, CooldownPercent: 0.4, KeyboardIconUrl: '/icons/keyboard/b.svg' },
+                { InputName: 'IA_C', AbilityName: 'C', bVisible: true, StatusInt: 0, CooldownPercent: 1.0, KeyboardIconUrl: '/icons/keyboard/c.svg' },
             ],
         });
         await ctx.waitFor(() => ctx.doc.querySelectorAll('#ab-gameplay .ab-row').length === 3);
-        // Only the middle row has the sweep div.
+        // Only the middle row (0 < pct < 1) has the sweep div.
         const sweeps = ctx.doc.querySelectorAll('#ab-gameplay .ab-cd-sweep');
         ctx.expect(ctx.assert.eq(sweeps.length, 1));
     },
@@ -75,7 +50,7 @@ TSICTestHarness.register({
 
 TSICTestHarness.register({
     name: 'ActionBar: sub-text truncates beyond ~30 chars',
-    file: '/screens/action-bar.html',
+    file: '/screens/test-action-bar.html',
     async run(ctx) {
         const long = 'A'.repeat(60);
         ctx.inject('tsic.msg.UI.ActionBar.Abilities', {
@@ -89,7 +64,7 @@ TSICTestHarness.register({
 
 TSICTestHarness.register({
     name: 'ActionBar: status colour classes mapped from StatusInt 0..3',
-    file: '/screens/action-bar.html',
+    file: '/screens/test-action-bar.html',
     async run(ctx) {
         ctx.inject('tsic.msg.UI.ActionBar.Abilities', {
             Slots: [
@@ -109,15 +84,13 @@ TSICTestHarness.register({
 });
 
 TSICTestHarness.register({
-    name: 'ActionBar: bracketed name fallback strips IA_UI_ prefix in menu group',
-    file: '/screens/action-bar.html',
+    name: 'ActionBar: name falls back to bracketed InputName (IA_ stripped)',
+    file: '/screens/test-action-bar.html',
     async run(ctx) {
-        ctx.inject('tsic.msg.UI.ActionBar.MenuContext', {
-            Entries: [{ ActionName: 'IA_UI_SomeAction', Label: '', Priority: 10 }],
+        ctx.inject('tsic.msg.UI.ActionBar.Abilities', {
+            Slots: [{ InputName: 'IA_Sprint', bVisible: true, StatusInt: 0 }],
         });
-        ctx.screen('Crafting');
-        await ctx.waitFor(() => ctx.doc.querySelectorAll('#ab-menu .ab-row').length >= 1);
-        const txt = ctx.doc.querySelector('#ab-menu .ab-name').textContent;
-        ctx.expect(ctx.assert.eq(txt, 'SomeAction'));
+        await ctx.waitFor(() => ctx.doc.querySelector('#ab-gameplay .ab-name'));
+        ctx.expect(ctx.assert.eq(ctx.doc.querySelector('#ab-gameplay .ab-name').textContent, 'Sprint'));
     },
 });

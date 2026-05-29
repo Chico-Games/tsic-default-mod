@@ -32,7 +32,7 @@ TSICTestHarness.register({
 // ---- Action bar: 50 ability rows -----------------------------------------
 TSICTestHarness.register({
     name: 'Stress/ActionBar: 50 visible rows all render',
-    file: '/screens/action-bar.html',
+    file: '/screens/test-action-bar.html',
     async run(ctx) {
         const slots = [];
         for (let i = 0; i < 50; i++) slots.push({ InputName: `IA_${i}`, AbilityName: `A${i}`, bVisible: true, StatusInt: i % 4 });
@@ -183,10 +183,12 @@ TSICTestHarness.register({
     },
 });
 
-// ---- Action bar: gamepad mode + missing GamepadIconUrl falls back to text -
+// ---- Action bar: gamepad mode + no resolvable gamepad icon = no key chip ---
 TSICTestHarness.register({
-    name: 'Stress/ActionBar: gamepad mode without GamepadIconUrl falls back to text',
-    file: '/screens/action-bar.html',
+    // Icon-only bar: gamepad mode with no gamepad icon and no resolvable key text
+    // renders the row WITHOUT a key chip — there is no text fallback.
+    name: 'Stress/ActionBar: gamepad mode without a resolvable gamepad icon renders no key chip',
+    file: '/screens/test-action-bar.html',
     async run(ctx) {
         ctx.mode('Gamepad');
         ctx.inject('tsic.msg.UI.ActionBar.Abilities', {
@@ -194,7 +196,7 @@ TSICTestHarness.register({
                       KeyboardIconUrl: '/icons/keyboard/e.svg', GamepadIconUrl: '' }],
         });
         await ctx.waitFor(() => ctx.doc.querySelector('#ab-gameplay .ab-row'));
-        ctx.expect(ctx.assert.domExists(ctx.doc, '#ab-gameplay .ab-key .ab-key-fallback'));
+        ctx.expect(ctx.assert.domCount(ctx.doc, '#ab-gameplay .ab-key', 0));
     },
 });
 

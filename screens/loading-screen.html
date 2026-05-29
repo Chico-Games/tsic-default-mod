@@ -50,7 +50,7 @@
   <div class="loading-wrap">
     <div class="loading-card">
       <div class="loading-label">
-        <span id="loading-label-text">Loading</span><span class="loading-dots" aria-hidden="true"><span>.</span><span>.</span><span>.</span></span>
+        <span id="loading-label-text">Constructing Store</span><span class="loading-dots" aria-hidden="true"><span>.</span><span>.</span><span>.</span></span>
       </div>
     </div>
   </div>
@@ -60,8 +60,8 @@
         return (s || '').replace(/[\s.…]+$/, '');
       }
       function render(payload) {
-        const label = stripTrailingDots((payload && payload.Label) || 'Loading');
-        document.getElementById('loading-label-text').textContent = label || 'Loading';
+        const label = stripTrailingDots((payload && payload.Label) || 'Constructing Store');
+        document.getElementById('loading-label-text').textContent = label || 'Constructing Store';
       }
       (function boot() {
         if (!window.tsic || typeof tsic.bootMenu !== 'function') { setTimeout(boot, 16); return; }
