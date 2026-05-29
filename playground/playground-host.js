@@ -253,14 +253,14 @@
         const controls = activeFixture.controls || [];
         for (const ctrl of controls) {
             const wrap = document.createElement('div');
-            wrap.style.cssText = 'display:flex;flex-direction:column;gap:3px;padding:8px 4px 2px;margin-top:6px;border-top:1px solid #1f2937;';
+            wrap.style.cssText = 'display:flex;flex-direction:column;gap:3px;padding:8px 4px 2px;margin-top:6px;border-top:1px solid var(--pg-line, rgba(224,204,168,0.08));';
 
             const labelRow = document.createElement('div');
-            labelRow.style.cssText = 'display:flex;justify-content:space-between;font-size:11px;letter-spacing:1px;color:#94a3b8;text-transform:uppercase;';
+            labelRow.style.cssText = 'display:flex;justify-content:space-between;font-family:var(--font-mono,monospace);font-size:11px;letter-spacing:1px;color:var(--pg-dim,#a59b89);text-transform:uppercase;';
             const labelText = document.createElement('span');
             labelText.textContent = ctrl.label;
             const valueText = document.createElement('span');
-            valueText.style.color = '#fbbf24';
+            valueText.style.color = 'var(--pg-accent, #e0a86a)';
             labelRow.appendChild(labelText);
             labelRow.appendChild(valueText);
 
@@ -271,7 +271,7 @@
             slider.step = ctrl.step != null ? ctrl.step : 0.01;
             const initial = ctrl.read ? ctrl.read(activeState) : (ctrl.value != null ? ctrl.value : 0);
             slider.value = initial;
-            slider.style.cssText = 'width:100%;cursor:pointer;accent-color:#fbbf24;';
+            slider.style.cssText = 'width:100%;cursor:pointer;accent-color:var(--pg-accent, #e0a86a);';
 
             function fmt(v) { return ctrl.format ? ctrl.format(v) : String(v); }
             valueText.textContent = fmt(parseFloat(slider.value));
