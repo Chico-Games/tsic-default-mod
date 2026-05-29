@@ -21,6 +21,20 @@
     .pg-scn-dot { width: 8px; height: 8px; border-radius: 50%; background: #1f2937; flex: 0 0 auto; }
     .pg-scn-dot.on { background: #fbbf24; box-shadow: 0 0 6px rgba(251, 191, 36, 0.5); }
 
+    .pg-cat-h {
+      position: sticky; top: 0; z-index: 1;
+      display: flex; align-items: center; gap: 6px;
+      padding: 6px 12px; cursor: pointer; user-select: none;
+      font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+      color: #94a3b8; background: #0f1623; border-bottom: 1px solid #1f2937;
+    }
+    .pg-cat-h:hover { color: #cbd5e1; }
+    .pg-cat-h .pg-cat-caret { font-size: 9px; color: #475569; transition: transform 120ms; }
+    .pg-cat.collapsed .pg-cat-caret { transform: rotate(-90deg); }
+    .pg-cat-h .pg-cat-count { margin-left: auto; color: #475569; font-size: 10px; }
+    .pg-cat.collapsed .pg-cat-rows { display: none; }
+    .pg-cat .pg-scn { padding-left: 20px; }
+
     #viewer { display: flex; flex-direction: column; min-width: 0; }
     #toolbar { padding: 6px 12px; border-bottom: 1px solid #1f2937; font-size: 12px; display: flex; gap: 8px; align-items: center; }
     #toolbar button { background: #1f2937; color: #e2e8f0; border: 1px solid #374151; padding: 4px 10px; font-size: 11px; cursor: pointer; }
@@ -195,6 +209,7 @@
 
   <!-- Fixture files (alphabetical). -->
   <!-- FIXTURES-START -->
+  <script src="/playground/fixtures/elements.fixtures.js"></script>
   <script src="/playground/fixtures/action-bar.fixtures.js"></script>
   <script src="/playground/fixtures/boss-summoner.fixtures.js"></script>
   <script src="/playground/fixtures/bug-report.fixtures.js"></script>

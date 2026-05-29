@@ -307,35 +307,120 @@
     ]);
     NS.FOCUS_ENGINE_IDS = FOCUS_ENGINE_IDS;
 
+    // Screen-fixture → category. Element fixtures set fixture.category directly
+    // (see elements.fixtures.js); for the ~40 screen fixtures we keep the
+    // mapping here so adding a category never means touching 40 files.
+    // A fixture missing from both falls into "Other" (so new screens still show).
+    const CATEGORY_ORDER = [
+        'Menus & Flow', 'HUD', 'Inventory & Equipment', 'Crafting & Building',
+        'Storage & Transport', 'World & Map', 'Social', 'Enemies', 'Misc',
+        'Elements', 'Other',
+    ];
+    const CATEGORY_MAP = {
+        'main-menu': 'Menus & Flow', 'pause-menu': 'Menus & Flow', 'new-store': 'Menus & Flow',
+        'settings': 'Menus & Flow', 'save-load': 'Menus & Flow', 'mods': 'Menus & Flow',
+        'credits': 'Menus & Flow', 'loading-screen': 'Menus & Flow', 'death-screen': 'Menus & Flow',
+
+        'action-bar': 'HUD', 'health-bar': 'HUD', 'stamina-bar': 'HUD', 'crosshair': 'HUD',
+        'hotbar': 'HUD', 'interaction': 'HUD', 'notifications': 'HUD', 'circular-progress': 'HUD',
+        'detection': 'HUD', 'ping': 'HUD', 'ping-markers': 'HUD',
+
+        'inventory': 'Inventory & Equipment', 'equipment': 'Inventory & Equipment',
+        'wardrobe': 'Inventory & Equipment', 'quantity-picker': 'Inventory & Equipment',
+        'stomach': 'Inventory & Equipment',
+
+        'crafting': 'Crafting & Building', 'production': 'Crafting & Building',
+        'construction': 'Crafting & Building', 'construction-carousel': 'Crafting & Building',
+        'repair': 'Crafting & Building', 'upgrade': 'Crafting & Building',
+
+        'storage': 'Storage & Transport', 'universal-storage': 'Storage & Transport',
+        'universal-storage-setup': 'Storage & Transport', 'teleporter': 'Storage & Transport',
+
+        'map': 'World & Map',
+
+        'chat': 'Social', 'voice-chat': 'Social',
+
+        'boss-summoner': 'Enemies', 'cage': 'Enemies',
+
+        'bug-report': 'Misc', 'cheat-menu': 'Misc', 'lore': 'Misc', 'selection': 'Misc',
+    };
+    function categoryOf(fx) { return fx.category || CATEGORY_MAP[fx.id] || 'Other'; }
+
+    function makeScreenRow(fx) {
+        const row = document.createElement('div');
+        row.className = 'pg-scn';
+        const usesFocus = FOCUS_ENGINE_IDS.has(fx.id);
+        const dot = document.createElement('span');
+        dot.className = 'pg-scn-dot' + (usesFocus ? ' on' : '');
+        dot.title = usesFocus ? 'Uses controller focus engine' : 'No focus engine (HUD / passive view)';
+        row.appendChild(dot);
+        const label = document.createElement('span');
+        label.textContent = fx.label;
+        row.appendChild(label);
+        row.title = fx.screen + (usesFocus ? '  ·  tsic-focus enabled' : '');
+        row.dataset.id = fx.id;
+        row.addEventListener('click', () => {
+            document.querySelectorAll('.pg-scn').forEach(n => n.classList.remove('active'));
+            row.classList.add('active');
+            selectFixture(fx.id);
+        });
+        return row;
+    }
+
     function renderScreenList() {
         const list = el('pg-screens');
         list.innerHTML = '';
         const sorted = TSICPlayground.fixtures.slice().sort((a, b) => a.label.localeCompare(b.label));
+
+        const groups = new Map();
         for (const fx of sorted) {
-            const row = document.createElement('div');
-            row.className = 'pg-scn';
-            const usesFocus = FOCUS_ENGINE_IDS.has(fx.id);
-            const dot = document.createElement('span');
-            dot.className = 'pg-scn-dot' + (usesFocus ? ' on' : '');
-            dot.title = usesFocus ? 'Uses controller focus engine' : 'No focus engine (HUD / passive view)';
-            row.appendChild(dot);
-            const label = document.createElement('span');
-            label.textContent = fx.label;
-            row.appendChild(label);
-            row.title = fx.screen + (usesFocus ? '  ·  tsic-focus enabled' : '');
-            row.dataset.id = fx.id;
-            row.addEventListener('click', () => {
-                document.querySelectorAll('.pg-scn').forEach(n => n.classList.remove('active'));
-                row.classList.add('active');
-                selectFixture(fx.id);
-            });
-            list.appendChild(row);
+            const cat = categoryOf(fx);
+            if (!groups.has(cat)) groups.set(cat, []);
+            groups.get(cat).push(fx);
         }
+        const cats = [
+            ...CATEGORY_ORDER.filter(c => groups.has(c)),
+            ...[...groups.keys()].filter(c => !CATEGORY_ORDER.includes(c)),
+        ];
+
+        for (const cat of cats) {
+            const fxs = groups.get(cat);
+            const wrap = document.createElement('div');
+            wrap.className = 'pg-cat';
+
+            const header = document.createElement('div');
+            header.className = 'pg-cat-h';
+            const caret = document.createElement('span');
+            caret.className = 'pg-cat-caret'; caret.textContent = '▾';
+            const name = document.createElement('span'); name.textContent = cat;
+            const count = document.createElement('span');
+            count.className = 'pg-cat-count'; count.textContent = fxs.length;
+            header.appendChild(caret); header.appendChild(name); header.appendChild(count);
+            header.addEventListener('click', () => wrap.classList.toggle('collapsed'));
+            wrap.appendChild(header);
+
+            const rows = document.createElement('div');
+            rows.className = 'pg-cat-rows';
+            for (const fx of fxs) rows.appendChild(makeScreenRow(fx));
+            wrap.appendChild(rows);
+
+            list.appendChild(wrap);
+        }
+
         const filter = el('pg-filter');
         filter.addEventListener('input', () => {
             const q = filter.value.trim().toLowerCase();
-            for (const row of list.children) {
-                row.style.display = !q || row.textContent.toLowerCase().includes(q) ? '' : 'none';
+            for (const wrap of list.children) {
+                const rows = wrap.querySelector('.pg-cat-rows');
+                if (!rows) continue;
+                let visible = 0;
+                for (const row of rows.children) {
+                    const show = !q || row.textContent.toLowerCase().includes(q);
+                    row.style.display = show ? '' : 'none';
+                    if (show) visible++;
+                }
+                wrap.style.display = visible ? '' : 'none';
+                if (q) wrap.classList.remove('collapsed');  // expand so matches show
             }
         });
     }
