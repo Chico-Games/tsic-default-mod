@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<title>TSIC — Button Specimen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=VT323&display=swap" rel="stylesheet">
+<style>
+  /* ───────────────────────────────────────────────────────────────
+     Self-contained design mockup. Tokens mirror shared/base.css so the
+     specimen reads exactly like the in-game magazine theme. The button
+     rules below are the PROPOSAL — once approved they port into
+     shared/components.css (.tsic-button + variants).
+     ─────────────────────────────────────────────────────────────── */
+  :root {
+    --paper:        #f4ecd8;
+    --paper-cream:  #f0e8d0;
+    --paper-bright: #fffdf3;
+    --paper-soft:   #ede4cb;
+    --paper-muted:  #e3d8b8;
+    --ink-night:    #0a0a0a;
+    --ink:          #1a1612;
+    --ink-soft:     #4a4239;
+    --ink-mute:     #6c6357;
+    --mag-red:      #e60000;
+    --mag-red-dark: #c70000;
+    --mag-red-deep: #a80000;
+    --mag-yellow:   #ffcc00;
+    --shadow-block-sm: 2px 2px 0 var(--ink-night);
+    --shadow-block:    4px 4px 0 var(--ink-night);
+    --shadow-block-lg: 6px 6px 0 var(--ink-night);
+    --font-display: "Bebas Neue", Impact, "Arial Black", sans-serif;
+    --font-terminal: "VT323", Consolas, monospace;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; min-height: 100%; }
+  body {
+    background:
+      /* halftone dot wash + paper */
+      radial-gradient(circle at center, rgba(10,10,10,0.05) 1px, transparent 1.4px) 0 0 / 14px 14px,
+      var(--paper);
+    color: var(--ink-night);
+    font-family: var(--font-terminal);
+    padding: 48px 40px 80px;
+  }
+  .sheet { max-width: 1100px; margin: 0 auto; }
+
+  /* Masthead */
+  .head { border-bottom: 5px solid var(--ink-night); padding-bottom: 10px; margin-bottom: 6px;
+          display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; }
+  .head h1 { font-family: var(--font-display); font-size: 76px; line-height: 0.82; margin: 0;
+             letter-spacing: 0.01em; }
+  .head h1 em { font-style: normal; color: var(--mag-red); }
+  .head .meta { text-align: right; font-size: 19px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-soft); }
+  .rule2 { height: 0; border-top: 2px solid var(--ink-night); margin-bottom: 34px; }
+
+  section { margin: 0 0 38px; }
+  .sec-h { font-family: var(--font-display); font-size: 28px; letter-spacing: 0.08em;
+           text-transform: uppercase; margin: 0 0 4px; display: flex; align-items: baseline; gap: 12px; }
+  .sec-h .n { color: var(--mag-red); }
+  .sec-note { font-size: 18px; color: var(--ink-soft); letter-spacing: 0.04em; margin: 0 0 16px; max-width: 64ch; }
+  .row { display: flex; flex-wrap: wrap; gap: 18px 16px; align-items: center; }
+  .label { font-size: 15px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-mute);
+           width: 100%; margin: 6px 0 -4px; }
+
+  /* ═══════════════════════════════════════════════════════════════
+     PROPOSED BUTTON SYSTEM — letterpress / risograph print plates
+     One family, one shape language, four roles. Hard offset shadow
+     = the "lift". Hover lifts further; active slams flush. No glow.
+     ═══════════════════════════════════════════════════════════════ */
+  .tsic-button {
+    position: relative;
+    display: inline-flex; align-items: center; justify-content: center; gap: 9px;
+    min-height: 40px; padding: 10px 22px;
+    font-family: var(--font-display); font-size: 19px; font-weight: 400;
+    letter-spacing: 0.12em; text-transform: uppercase; line-height: 1;
+    color: var(--paper-bright);
+    background: var(--mag-red);
+    border: 3px solid var(--ink-night);
+    box-shadow: var(--shadow-block);
+    cursor: pointer; user-select: none;
+    transition: transform 90ms ease, box-shadow 90ms ease,
+                background-color 150ms ease, color 150ms ease;
+  }
+  /* Letterpress inner hairline — the "plate edge". */
+  .tsic-button::before {
+    content: ''; position: absolute; inset: 0;
+    border: 1px solid rgba(255, 253, 243, 0.28);
+    pointer-events: none;
+  }
+  /* Hover: lift up-left, shadow grows. */
+  .tsic-button:hover { transform: translate(-2px, -2px); box-shadow: var(--shadow-block-lg);
+                       background: #ff1a1a; }
+  /* Active: slam flush into the page. */
+  .tsic-button:active { transform: translate(3px, 3px); box-shadow: 1px 1px 0 var(--ink-night); }
+  .tsic-button:disabled, .tsic-button[disabled] {
+    background: var(--paper-muted); color: var(--ink-mute);
+    box-shadow: var(--shadow-block-sm); cursor: not-allowed; transform: none;
+  }
+  .tsic-button:disabled::before, .tsic-button[disabled]::before { border-color: transparent; }
+
+  /* SECONDARY — ink-outline plate on paper; hover inverts to solid ink. */
+  .tsic-button.secondary, .tsic-button.cancel, .tsic-button[data-variant="secondary"] {
+    background: var(--paper-bright); color: var(--ink-night);
+  }
+  .tsic-button.secondary::before, .tsic-button.cancel::before,
+  .tsic-button[data-variant="secondary"]::before { border-color: rgba(10,10,10,0.14); }
+  .tsic-button.secondary:hover, .tsic-button.cancel:hover,
+  .tsic-button[data-variant="secondary"]:hover { background: var(--ink-night); color: var(--paper-bright); }
+
+  /* DANGER — ink plate, red type; hover floods red. */
+  .tsic-button.danger, .tsic-button.pink, .tsic-button[data-variant="danger"] {
+    background-color: var(--ink-night); color: #ff5a4d;
+    background-image: radial-gradient(rgba(255,90,77,0.55) 1.1px, transparent 1.6px);
+    background-size: 9px 9px; animation: tsic-btn-dots 2.8s linear infinite;
+  }
+  .tsic-button.danger::before, .tsic-button.pink::before,
+  .tsic-button[data-variant="danger"]::before { border-color: rgba(230,0,0,0.30); }
+  .tsic-button.danger:hover, .tsic-button.pink:hover,
+  .tsic-button[data-variant="danger"]:hover {
+    background-color: var(--mag-red); color: var(--paper-bright);
+    background-image: radial-gradient(rgba(255,253,243,0.40) 1.1px, transparent 1.6px); }
+  @keyframes tsic-btn-dots { from { background-position: 0 0; } to { background-position: 18px 9px; } }
+
+  /* GHOST — type-only; red underline sweeps in from the left. */
+  .tsic-button.ghost, .tsic-button[data-variant="ghost"] {
+    background: transparent; border-color: transparent; box-shadow: none;
+    color: var(--ink-night); padding-left: 8px; padding-right: 8px;
+  }
+  .tsic-button.ghost::before, .tsic-button[data-variant="ghost"]::before { border: 0; }
+  .tsic-button.ghost::after, .tsic-button[data-variant="ghost"]::after {
+    content: ''; position: absolute; left: 8px; right: 8px; bottom: 4px; height: 3px;
+    background: var(--mag-red); transform: scaleX(0); transform-origin: left;
+    transition: transform 180ms ease;
+  }
+  .tsic-button.ghost:hover, .tsic-button[data-variant="ghost"]:hover {
+    color: var(--mag-red); background: transparent; transform: none; box-shadow: none; }
+  .tsic-button.ghost:hover::after, .tsic-button[data-variant="ghost"]:hover::after { transform: scaleX(1); }
+  .tsic-button.ghost:active, .tsic-button[data-variant="ghost"]:active {
+    color: var(--mag-red-deep); transform: translateY(1px); box-shadow: none; }
+  .tsic-button.ghost:active::after, .tsic-button[data-variant="ghost"]:active::after {
+    transform: scaleX(1); transition: none; height: 4px; background: var(--mag-red-deep); }
+
+  /* Size modifiers. */
+  .tsic-button.sm { min-height: 30px; padding: 5px 13px; font-size: 15px; }
+  .tsic-button.lg { min-height: 52px; padding: 14px 32px; font-size: 26px; }
+
+  /* Focused state (keyboard / gamepad) — on-theme ink ring, mirrors hover. */
+  .tsic-button.is-focused { outline: 3px solid var(--ink-night); outline-offset: 4px;
+                            transform: translate(-2px,-2px); box-shadow: var(--shadow-block-lg); background: #ff1a1a; }
+
+  /* Row-button family (kept, shown for reference) */
+  .tsic-cover-rows { width: 360px; border: 3px solid var(--ink-night); background: var(--paper-bright);
+                     box-shadow: var(--shadow-block); }
+  .tsic-row-button {
+    display: flex; align-items: center; gap: 14px; width: 100%; padding: 12px 14px;
+    background: var(--paper-bright); border: 0; border-top: 2px dashed var(--ink-mute);
+    color: var(--ink-night); font-family: var(--font-display); font-size: 24px;
+    letter-spacing: 0.06em; text-transform: uppercase; text-align: left; cursor: pointer;
+    transition: background-color 120ms ease, padding-left 160ms ease; }
+  .tsic-row-button:first-child { border-top: 0; }
+  .tsic-row-button::before { content: '>>'; color: var(--mag-red); font-weight: 900; margin-right: 4px;
+                             transition: transform 160ms ease; }
+  .tsic-row-button:hover { background: var(--paper-muted); padding-left: 22px; }
+  .tsic-row-button .pg { margin-left: auto; font-family: var(--font-terminal); font-size: 16px;
+                         color: var(--ink-mute); letter-spacing: 0.1em; }
+
+  .swatch { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
+  .chip { font-family: var(--font-terminal); font-size: 15px; color: var(--ink-soft);
+          border: 1px solid var(--ink-mute); padding: 2px 8px; }
+</style>
+</head><body>
+<div class="sheet">
+  <div class="head">
+    <h1>Button <em>Specimen.</em></h1>
+    <div class="meta">Vol. 1 — Press Kit<br>Magazine UI System</div>
+  </div>
+  <div class="rule2"></div>
+
+  <section>
+    <h2 class="sec-h"><span class="n">01</span> Primary &amp; roles</h2>
+    <p class="sec-note">One plate shape, four roles. The hard offset shadow is the signature —
+       buttons sit "lifted" off the page, rise on hover, and slam flush when pressed. No neon, no glow.</p>
+    <div class="row">
+      <button class="tsic-button">New Game</button>
+      <button class="tsic-button secondary">Cancel</button>
+      <button class="tsic-button danger">Delete Save</button>
+      <button class="tsic-button ghost">Skip</button>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="sec-h"><span class="n">02</span> States</h2>
+    <p class="sec-note">Hover to lift, press to slam. Focused = ink ring (keyboard / gamepad nav).</p>
+    <div class="label">Primary</div>
+    <div class="row">
+      <button class="tsic-button">Default</button>
+      <button class="tsic-button is-focused">Focused</button>
+      <button class="tsic-button" disabled>Disabled</button>
+    </div>
+    <div class="label">Secondary / outline</div>
+    <div class="row">
+      <button class="tsic-button secondary">Default</button>
+      <button class="tsic-button secondary" disabled>Disabled</button>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="sec-h"><span class="n">03</span> Sizes</h2>
+    <div class="row">
+      <button class="tsic-button sm">Small</button>
+      <button class="tsic-button">Default</button>
+      <button class="tsic-button lg">Large</button>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="sec-h"><span class="n">04</span> Row buttons <span style="font-size:16px;color:var(--ink-mute);letter-spacing:.1em;">(kept — menu nav)</span></h2>
+    <div class="tsic-cover-rows">
+      <button class="tsic-row-button">New Game <span class="pg">PG. 04</span></button>
+      <button class="tsic-row-button">Load Save <span class="pg">PG. 12</span></button>
+      <button class="tsic-row-button">Settings <span class="pg">PG. 88</span></button>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="sec-h"><span class="n">05</span> What changes</h2>
+    <div class="swatch">
+      <span class="chip">secondary/cancel: neon cyan glow → ink-outline invert</span>
+      <span class="chip">pink → danger: neon pink glow → ink plate, red type</span>
+      <span class="chip">ghost: neon cyan → red underline sweep</span>
+      <span class="chip">+ letterpress inner rule, lg shadow on hover, ink focus ring</span>
+    </div>
+  </section>
+</div>
+</body></html>

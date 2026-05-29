@@ -74,111 +74,174 @@
 
 /* Primary: magazine red block. Heavy black border, offset shadow that
    "presses" on click via translate. */
+/* ─────────────────────────────────────────────────────────────────
+   BUTTONS — letterpress / risograph print plates. One shape language,
+   four roles, zero neon. The hard offset block-shadow is the signature:
+   plates sit "lifted" off the page, rise on hover, slam flush on press.
+   Variants restyle the fill/type only — never the shape or the lift.
+   Backward-compatible class names: .secondary / .cancel (outline),
+   .pink (legacy alias → danger), .ghost, .sm / .lg.
+   ───────────────────────────────────────────────────────────────── */
 .tsic-button {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  min-height: 36px;
-  padding: 8px 18px;
+  gap: 9px;
+  min-height: 40px;
+  padding: 10px 22px;
   background: var(--mag-red);
-  color: #ffffff;
+  color: var(--paper-bright);
   border: 3px solid var(--ink-night);
   font-family: var(--font-display);
-  font-size: 16px;
-  font-weight: 700;
+  font-size: 18px;
+  font-weight: 400;
   line-height: 1;
-  letter-spacing: 0.10em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   box-shadow: var(--shadow-block);
   cursor: pointer;
-  transition: transform 80ms ease, box-shadow 80ms ease,
-              background-color 140ms ease, color 140ms ease;
+  transition: transform 90ms ease, box-shadow 90ms ease,
+              background-color 150ms ease, color 150ms ease;
+}
+/* Letterpress inner hairline — the "plate edge". */
+.tsic-button::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 1px solid rgba(255, 253, 243, 0.28);
+  pointer-events: none;
 }
 .tsic-button:hover {
   background: #ff1a1a;
-  transform: translate(-1px, -1px);
-  box-shadow: 5px 5px 0 var(--ink-night);
+  transform: translate(-2px, -2px);
+  box-shadow: var(--shadow-block-lg);
 }
 .tsic-button:active {
-  transform: translate(2px, 2px);
+  transform: translate(3px, 3px);
   box-shadow: 1px 1px 0 var(--ink-night);
 }
 .tsic-button:disabled,
 .tsic-button[disabled] {
-  background: #5a2222;
-  color: rgba(255, 255, 255, 0.55);
+  background: var(--paper-muted);
+  color: var(--ink-mute);
   box-shadow: var(--shadow-block-sm);
   cursor: not-allowed;
   transform: none;
 }
+.tsic-button:disabled::before,
+.tsic-button[disabled]::before { border-color: transparent; }
+/* On-theme keyboard focus ring (gamepad focus mirrored in tsic-ui.css). */
+.tsic-button:focus-visible {
+  outline: 3px solid var(--ink-night);
+  outline-offset: 4px;
+}
 
-/* Secondary: neon-outline button, transparent fill, cyan glow. */
+/* SECONDARY / CANCEL — ink-outline plate on paper; hover inverts to solid ink. */
 .tsic-button.secondary,
 .tsic-button.cancel,
 .tsic-button[data-variant="secondary"] {
-  background: transparent;
-  color: var(--neon-cyan);
-  border: 2px solid var(--neon-cyan);
-  text-shadow: var(--glow-cyan);
-  box-shadow: var(--shadow-neon-cyan), inset 0 0 8px rgba(0, 247, 255, 0.30);
-  letter-spacing: 0.14em;
+  background: var(--paper-bright);
+  color: var(--ink-night);
 }
+.tsic-button.secondary::before,
+.tsic-button.cancel::before,
+.tsic-button[data-variant="secondary"]::before { border-color: rgba(10, 10, 10, 0.14); }
 .tsic-button.secondary:hover,
 .tsic-button.cancel:hover,
 .tsic-button[data-variant="secondary"]:hover {
-  background: var(--neon-cyan);
-  color: var(--bg-deep);
-  text-shadow: none;
-  box-shadow: 0 0 18px var(--neon-cyan), inset 0 0 12px rgba(0, 0, 0, 0.25);
-  transform: none;
-}
-.tsic-button.secondary:active,
-.tsic-button.cancel:active,
-.tsic-button[data-variant="secondary"]:active {
-  transform: translate(1px, 1px);
-  box-shadow: 0 0 6px var(--neon-cyan), inset 0 0 4px rgba(0, 247, 255, 0.30);
+  background: var(--ink-night);
+  color: var(--paper-bright);
 }
 
-/* Pink variant — for "danger highlight" or attractor actions. */
+/* DANGER — ink plate with red type; hover floods red. (.pink kept as alias.) */
+.tsic-button.danger,
 .tsic-button.pink,
+.tsic-button[data-variant="danger"],
 .tsic-button[data-variant="pink"] {
-  background: transparent;
-  color: var(--neon-pink);
-  border-color: var(--neon-pink);
-  text-shadow: var(--glow-pink);
-  box-shadow: var(--shadow-neon-pink), inset 0 0 8px rgba(255, 0, 153, 0.30);
+  background-color: var(--ink-night);
+  /* Halftone dot field that slowly drifts — reads as a "live"/dangerous plate. */
+  background-image: radial-gradient(rgba(255, 90, 77, 0.55) 1.1px, transparent 1.6px);
+  background-size: 9px 9px;
+  color: #ff5a4d;
+  animation: tsic-btn-dots 2.8s linear infinite;
 }
+.tsic-button.danger::before,
+.tsic-button.pink::before,
+.tsic-button[data-variant="danger"]::before,
+.tsic-button[data-variant="pink"]::before { border-color: rgba(230, 0, 0, 0.30); }
+.tsic-button.danger:hover,
 .tsic-button.pink:hover,
+.tsic-button[data-variant="danger"]:hover,
 .tsic-button[data-variant="pink"]:hover {
-  background: var(--neon-pink);
-  color: var(--bg-deep);
-  text-shadow: none;
-  box-shadow: 0 0 18px var(--neon-pink), inset 0 0 12px rgba(0, 0, 0, 0.25);
+  background-color: var(--mag-red);
+  background-image: radial-gradient(rgba(255, 253, 243, 0.40) 1.1px, transparent 1.6px);
+  color: var(--paper-bright);
+}
+/* Drift two tiles across / one down so the loop is seamless. */
+@keyframes tsic-btn-dots {
+  from { background-position: 0 0; }
+  to   { background-position: 18px 9px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tsic-button.danger,
+  .tsic-button.pink,
+  .tsic-button[data-variant="danger"],
+  .tsic-button[data-variant="pink"] { animation: none; }
 }
 
-/* Ghost — text-link button that subtly underlines on hover. */
+/* GHOST — type-only; a red rule sweeps in from the left on hover. */
 .tsic-button.ghost,
 .tsic-button[data-variant="ghost"] {
   background: transparent;
-  border: 0;
-  color: var(--tsic-text);
+  border-color: transparent;
   box-shadow: none;
-  text-shadow: none;
-  letter-spacing: 0.10em;
+  color: var(--ink-night);
+  padding-left: 8px;
+  padding-right: 8px;
+}
+.tsic-button.ghost::before,
+.tsic-button[data-variant="ghost"]::before { border: 0; }
+.tsic-button.ghost::after,
+.tsic-button[data-variant="ghost"]::after {
+  content: '';
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: 4px;
+  height: 3px;
+  background: var(--mag-red);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 180ms ease;
 }
 .tsic-button.ghost:hover,
 .tsic-button[data-variant="ghost"]:hover {
-  color: var(--neon-cyan);
-  text-shadow: var(--glow-cyan);
+  color: var(--mag-red);
   background: transparent;
   transform: none;
   box-shadow: none;
 }
+.tsic-button.ghost:hover::after,
+.tsic-button[data-variant="ghost"]:hover::after { transform: scaleX(1); }
+/* Click: snap the full rule in (no sweep), deepen + nudge the label down. */
+.tsic-button.ghost:active,
+.tsic-button[data-variant="ghost"]:active {
+  color: var(--mag-red-deep);
+  transform: translateY(1px);
+  box-shadow: none;
+}
+.tsic-button.ghost:active::after,
+.tsic-button[data-variant="ghost"]:active::after {
+  transform: scaleX(1);
+  transition: none;
+  height: 4px;
+  background: var(--mag-red-deep);
+}
 
 /* Small + large size modifiers. */
-.tsic-button.sm { min-height: 28px; padding: 4px 12px; font-size: 12px; }
-.tsic-button.lg { min-height: 48px; padding: 12px 28px; font-size: 22px; }
+.tsic-button.sm { min-height: 30px; padding: 5px 13px; font-size: 15px; }
+.tsic-button.lg { min-height: 52px; padding: 14px 32px; font-size: 26px; }
 
 /* ═════════════════════════════════════════════════════════════
    INPUTS

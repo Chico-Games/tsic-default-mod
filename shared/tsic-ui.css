@@ -440,23 +440,32 @@ button.tsic-list-row {
 
 html[data-tsic-input="Gamepad"] [data-tsic-focused],
 html[data-tsic-input="Gamepad"] :focus-visible {
-    outline: 2px solid var(--neon-cyan);
-    outline-offset: 2px;
-    box-shadow: 0 0 0 4px rgba(0, 247, 255, 0.25), 0 0 12px rgba(0, 247, 255, 0.45);
+    outline: 3px solid var(--mag-red);
+    outline-offset: 3px;
+    box-shadow: 0 0 0 5px rgba(230, 0, 0, 0.18);
 }
 
-/* Mirror :hover styles onto [data-tsic-focused]. */
+/* Mirror :hover styles onto [data-tsic-focused] so a focused button reads the
+   same as a hovered one. Matches the letterpress button system in components.css. */
 html[data-tsic-input="Gamepad"] .tsic-button[data-tsic-focused] {
     background: #ff1a1a;
-    transform: translate(-1px, -1px);
-    box-shadow: 5px 5px 0 var(--ink-night);
+    transform: translate(-2px, -2px);
+    box-shadow: var(--shadow-block-lg);
 }
 html[data-tsic-input="Gamepad"] .tsic-button.cancel[data-tsic-focused],
 html[data-tsic-input="Gamepad"] .tsic-button.secondary[data-tsic-focused],
 html[data-tsic-input="Gamepad"] .tsic-button[data-variant="secondary"][data-tsic-focused] {
-    background: var(--neon-cyan);
-    color: var(--bg-deep);
-    text-shadow: none;
+    background: var(--ink-night);
+    color: var(--paper-bright);
+}
+html[data-tsic-input="Gamepad"] .tsic-button.danger[data-tsic-focused],
+html[data-tsic-input="Gamepad"] .tsic-button.pink[data-tsic-focused],
+html[data-tsic-input="Gamepad"] .tsic-button[data-variant="danger"][data-tsic-focused] {
+    background: var(--mag-red);
+    color: var(--paper-bright);
+}
+html[data-tsic-input="Gamepad"] .tsic-button.ghost[data-tsic-focused] {
+    color: var(--mag-red);
 }
 
 html[data-tsic-input="Gamepad"] .tsic-list-row[data-tsic-focused] {
@@ -474,7 +483,7 @@ html[data-tsic-input="Gamepad"] .tsic-tab[data-tsic-focused] {
 }
 
 html[data-tsic-input="Gamepad"] .tsic-dropdown[data-tsic-focused] {
-    background: rgba(0, 247, 255, 0.18);
+    background: var(--paper-muted);
 }
 
 html[data-tsic-input="Gamepad"] .tsic-context-item[data-tsic-focused] {
@@ -484,8 +493,7 @@ html[data-tsic-input="Gamepad"] .tsic-context-item[data-tsic-focused] {
 }
 
 html[data-tsic-input="Gamepad"] .tsic-link[data-tsic-focused] {
-    color: var(--neon-pink);
-    text-shadow: var(--glow-pink);
+    color: var(--mag-red);
 }
 
 html[data-tsic-input="Gamepad"] .tsic-row-button[data-tsic-focused] {
