@@ -310,23 +310,23 @@
         if (this._previewStream) this._previewStream();
         this._previewStream = TSIC.startRuntimeImgStream(img, 'character-preview');
       });
-      ctx.on('tsic.msg.UI.Input.IA_UI_AddToHotbar', (e) => {
-        if (!ctx.isVisible() || e.Phase !== 'Started' || !hoveredItem || !window.TSICInventory) return;
+      // BH_ItemOptions: open the item context menu (drop / split / assign-hotbar / transfer)
+      // for the focused/hovered item. Replaces the per-action IA_UI_AddToHotbar / DropItem
+      // gamepad shortcuts — those verbs now live inside this one options modal.
+      ctx.on('tsic.msg.UI.Behavior.ItemOptions', (e) => {
+        if (!ctx.isVisible() || e.Phase !== 'Started' || !hoveredItem || !window.TSICInventory || !window.TSICContextMenu) return;
         const it = hoveredItem;
-        window.TSICInventory.openHotbarSlotModal(it.ItemId, (slotIndex) => {
-          ctx.publish('UI.Cmd.Hotbar.Assign', { SlotIndex: slotIndex, ItemId: String(it.SlotIndex) });
+        selectedSlot = it.SlotIndex;
+        refresh();
+        const entries = window.TSICInventory.buildItemContextMenu({
+          it, desc: cat[it.ItemId], storageOpen: false, fromOwnerId: 'Player',
         });
-      });
-      ctx.on('tsic.msg.UI.Input.IA_UI_DropItem', (e) => {
-        if (!ctx.isVisible() || e.Phase !== 'Started' || !hoveredItem) return;
-        const it = hoveredItem;
-        if (it.Count > 1 && window.TSICInventory && window.TSICInventory.openQuantityModal) {
-          window.TSICInventory.openQuantityModal(it.Count, (count) => {
-            ctx.publish('UI.Cmd.Inventory.Drop', { OwnerId: 'Player', SlotIndex: it.SlotIndex, Count: count });
-          });
-        } else {
-          ctx.publish('UI.Cmd.Inventory.Drop', { OwnerId: 'Player', SlotIndex: it.SlotIndex, Count: 1 });
-        }
+        // Anchor the menu to the focused row if we can find it, else screen centre.
+        const focused = document.querySelector('[data-tsic-focused]');
+        const r = focused && focused.getBoundingClientRect ? focused.getBoundingClientRect() : null;
+        const x = r ? r.right : (window.innerWidth / 2);
+        const y = r ? r.top : (window.innerHeight / 2);
+        window.TSICContextMenu.open({ x, y, entries });
       });
 
       window.addEventListener('tsic-item-catalog', () => { if (ctx.isVisible()) refresh(); });

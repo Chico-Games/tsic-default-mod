@@ -328,10 +328,37 @@
         panel.querySelector('#ss-close').addEventListener('click', () => {
             tsic.publishMessage('UI.Cmd.Pause.Resume', {});
         });
+        // The currently-selected item + its transfer direction (player<->container).
+        function selectedTransfer() {
+            if (state.playerSelectedSlot >= 0) {
+                const it = state.playerItems.find(i => i.SlotIndex === state.playerSelectedSlot);
+                return it ? { it, from: state.playerOwnerId, to: state.containerOwnerId } : null;
+            }
+            if (state.containerSelectedSlot >= 0) {
+                const it = state.containerItems.find(i => i.SlotIndex === state.containerSelectedSlot);
+                return it ? { it, from: state.containerOwnerId, to: state.playerOwnerId } : null;
+            }
+            return null;
+        }
+
         panel.querySelector('#ss-take-all').addEventListener('click', takeAll);
-        // IA_UI_TakeAll (gamepad shoulder / hotkey) — same effect as the button.
-        tsic.on('tsic.msg.UI.Input.IA_UI_TakeAll', (e) => {
+        // BH_TakeAll — same effect as the button.
+        tsic.on('tsic.msg.UI.Behavior.TakeAll', (e) => {
             if (e && e.Phase === 'Started') takeAll();
+        });
+        // BH_TransferAmount — open the quantity slider for the selected item, then transfer.
+        tsic.on('tsic.msg.UI.Behavior.TransferAmount', (e) => {
+            if (!e || e.Phase !== 'Started') return;
+            const sel = selectedTransfer();
+            if (!sel || !sel.to) return;
+            const max = sel.it.Count || 1;
+            if (max > 1 && window.TSICInventory && window.TSICInventory.openQuantityModal) {
+                window.TSICInventory.openQuantityModal(max,
+                    (count) => transfer(sel.it, sel.from, sel.to, count),
+                    { title: 'Transfer amount', confirmLabel: 'Transfer' });
+            } else {
+                transfer(sel.it, sel.from, sel.to, 1);
+            }
         });
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') panel.querySelector('#ss-close').click();
