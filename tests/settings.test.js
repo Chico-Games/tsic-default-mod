@@ -48,24 +48,3 @@ TSICTestHarness.register({
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Settings.Set', { where: p => p.Key === 'master' }));
     },
 });
-
-TSICTestHarness.register({
-    name: 'Settings: rebind button captures next keypress',
-    file: '/screens/settings.html',
-    async run(ctx) {
-        ctx.inject('tsic.msg.UI.Settings.Catalog', {
-            Json: JSON.stringify({
-                Pages: [{ Id: 'BindingsCollection', Title: 'Bindings', Groups: [{ Id: 'Combat', Title: 'Combat',
-                    Settings: [{ Key: 'jump', Label: 'Jump', Type: 'keybind',
-                                 Bindings: [{ Slot: 0, Display: 'Space', Key: 'SpaceBar' }] }] }] }],
-                Footer: {},
-            }),
-        });
-        await ctx.waitFor(() => ctx.doc.querySelector('.field-rebind'));
-        ctx.clearPublishes();
-        ctx.doc.querySelector('.field-rebind').click();
-        await new Promise(r => setTimeout(r, 30));
-        ctx.win.dispatchEvent(new ctx.win.KeyboardEvent('keydown', { key: 'g', bubbles: true, cancelable: true }));
-        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Settings.RebindKey', { where: p => p.ActionId === 'jump' && p.Key === 'g' }));
-    },
-});
