@@ -149,9 +149,9 @@
 
     buildChrome();
 
-    // HUD toggle (IA_HUDToggle, default H) — orchestrator-level since it
+    // HUD toggle (BH_HUDToggle, default H) — orchestrator-level since it
     // hides ALL chrome at once via body.hud-hidden.
-    tsic.on('tsic.msg.UI.Input.IA_HUDToggle', function (e) {
+    tsic.on('tsic.msg.UI.Behavior.HUDToggle', function (e) {
       if (!e || e.Phase !== 'Started') return;
       document.body.classList.toggle('hud-hidden');
     });

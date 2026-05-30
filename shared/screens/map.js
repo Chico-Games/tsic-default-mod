@@ -823,13 +823,16 @@
         updateHoverChip();
       }
 
-      ctx.on('tsic.msg.UI.Input.IA_UI_MapZoomIn',  (e) => { if (e.Phase === 'Triggered') zoomBy(+1, e.ElapsedSec); });
-      ctx.on('tsic.msg.UI.Input.IA_UI_MapZoomOut', (e) => { if (e.Phase === 'Triggered') zoomBy(-1, e.ElapsedSec); });
-      ctx.on('tsic.msg.UI.Input.IA_UI_MapCenterOnPlayer', (e) => { if (e.Phase === 'Started') centerOnLocalPlayer(); });
-      ctx.on('tsic.msg.UI.Input.IA_UI_MapPlacePing',      (e) => { if (e.Phase === 'Started') placePingAtCursorOrCenter(); });
-      ctx.on('tsic.msg.UI.Input.IA_UI_MapMove', (e) => {
-        if (!ctx.isVisible() || e.Phase !== 'Triggered') return;
-        const dt = e.ElapsedSec || (1 / 60);
+      // Zoom: Started fires for a mouse-wheel tick; Triggered repeats while a gamepad trigger is held.
+      const zoomStep = (e, dir) => { if (e.Phase === 'Started' || e.Phase === 'Triggered') zoomBy(dir, e.ElapsedSec || 0.12); };
+      ctx.on('tsic.msg.UI.Behavior.MapZoomIn',  (e) => zoomStep(e, +1));
+      ctx.on('tsic.msg.UI.Behavior.MapZoomOut', (e) => zoomStep(e, -1));
+      ctx.on('tsic.msg.UI.Behavior.MapCenter',     (e) => { if (e.Phase === 'Started') centerOnLocalPlayer(); });
+      ctx.on('tsic.msg.UI.Behavior.MapPlacePing',  (e) => { if (e.Phase === 'Started') placePingAtCursorOrCenter(); });
+      ctx.on('tsic.msg.UI.Behavior.MapResetView',  (e) => { if (e.Phase === 'Started' && typeof resetView === 'function') resetView(); });
+      ctx.on('tsic.msg.UI.Behavior.MapMove', (e) => {
+        if (!ctx.isVisible() || e.Phase !== 'Axis') return;
+        const dt = (1 / 60);
         panBy(-e.Value.X * GAMEPAD_PAN_PX_PER_SEC * dt,
                e.Value.Y * GAMEPAD_PAN_PX_PER_SEC * dt);
       });
