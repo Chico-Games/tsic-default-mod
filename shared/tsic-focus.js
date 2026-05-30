@@ -408,22 +408,9 @@
             try { el.dispatchEvent(new Event('change', { bubbles: true })); } catch (e) {}
         }
 
-        let lastNavAt = 0;
-        t.on('tsic.msg.UI.Input.IA_UI_Navigate', (payload) => {
-            if (!State.enabled || State.mode !== 'Gamepad') return;
-            const phase = payload && payload.Phase;
-            if (phase !== 'Started' && phase !== 'Triggered') return;
-            const v = (payload && payload.Value) || { X: 0, Y: 0 };
-            const ax = Math.abs(v.X), ay = Math.abs(v.Y);
-            if (ax < 0.4 && ay < 0.4) return;
-            const now = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
-            if (phase === 'Triggered' && (now - lastNavAt) < 180) return;
-            lastNavAt = now;
-            const dir = (ax > ay)
-                ? (v.X > 0 ? 'right' : 'left')
-                : (v.Y > 0 ? 'up' : 'down');
-            // Horizontal nudge for sliders — they're focusable but L/R should
-            // tweak the value, not jump to the next column.
+        // Move focus one step; for sliders, L/R nudges the value instead of jumping columns.
+        function navStep(dir) {
+            if (!State.enabled) return;
             if (dir === 'left' || dir === 'right') {
                 const cur = currentFocused();
                 if (cur && cur.tagName === 'INPUT' && cur.type === 'range' && !cur.disabled) {
@@ -432,9 +419,33 @@
                 }
             }
             api.step(dir);
+        }
+
+        // Analog stick menu navigation (gamepad). BH_Navigate is a 2D axis behaviour.
+        let lastNavAt = 0;
+        t.on('tsic.msg.UI.Behavior.Navigate', (payload) => {
+            if (!State.enabled || State.mode !== 'Gamepad') return;
+            const phase = payload && payload.Phase;
+            if (phase !== 'Started' && phase !== 'Triggered' && phase !== 'Axis') return;
+            const v = (payload && payload.Value) || { X: 0, Y: 0 };
+            const ax = Math.abs(v.X), ay = Math.abs(v.Y);
+            if (ax < 0.4 && ay < 0.4) return;
+            const now = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
+            if ((now - lastNavAt) < 180) return;
+            lastNavAt = now;
+            const dir = (ax > ay)
+                ? (v.X > 0 ? 'right' : 'left')
+                : (v.Y > 0 ? 'up' : 'down');
+            navStep(dir);
         });
 
-        t.on('tsic.msg.UI.Input.IA_UI_ConfirmAccept', (payload) => {
+        // Discrete directional nav: arrow keys (KBM) and D-pad (gamepad), one step per press.
+        t.on('tsic.msg.UI.Behavior.NavUp',    (p) => { if (p && p.Phase === 'Started') navStep('up'); });
+        t.on('tsic.msg.UI.Behavior.NavDown',  (p) => { if (p && p.Phase === 'Started') navStep('down'); });
+        t.on('tsic.msg.UI.Behavior.NavLeft',  (p) => { if (p && p.Phase === 'Started') navStep('left'); });
+        t.on('tsic.msg.UI.Behavior.NavRight', (p) => { if (p && p.Phase === 'Started') navStep('right'); });
+
+        t.on('tsic.msg.UI.Behavior.Accept', (payload) => {
             if (!State.enabled || State.mode !== 'Gamepad') return;
             if (!payload || payload.Phase !== 'Started') return;
             const a = document.activeElement;
@@ -457,7 +468,7 @@
             }
         });
 
-        t.on('tsic.msg.UI.Input.IA_UI_CancelBack', (payload) => {
+        t.on('tsic.msg.UI.Behavior.Back', (payload) => {
             if (!State.enabled || State.mode !== 'Gamepad') return;
             if (!payload || payload.Phase !== 'Started') return;
             if (State.scopeStack.length > 0) api.popScope();
@@ -511,11 +522,11 @@
             }
             return true;
         }
-        t.on('tsic.msg.UI.Input.IA_UI_NextTab', (payload) => {
+        t.on('tsic.msg.UI.Behavior.NextTab', (payload) => {
             if (!payload || payload.Phase !== 'Started') return;
             cycleTab(+1);
         });
-        t.on('tsic.msg.UI.Input.IA_UI_PreviousTab', (payload) => {
+        t.on('tsic.msg.UI.Behavior.PrevTab', (payload) => {
             if (!payload || payload.Phase !== 'Started') return;
             cycleTab(-1);
         });
@@ -539,11 +550,11 @@
             const step = (target.clientHeight || window.innerHeight) * 0.9 * delta;
             target.scrollBy({ top: step, left: 0, behavior: 'auto' });
         }
-        t.on('tsic.msg.UI.Input.IA_UI_NextPage', (payload) => {
+        t.on('tsic.msg.UI.Behavior.NextPage', (payload) => {
             if (!payload || payload.Phase !== 'Started') return;
             pageStep(+1);
         });
-        t.on('tsic.msg.UI.Input.IA_UI_PreviousPage', (payload) => {
+        t.on('tsic.msg.UI.Behavior.PrevPage', (payload) => {
             if (!payload || payload.Phase !== 'Started') return;
             pageStep(-1);
         });

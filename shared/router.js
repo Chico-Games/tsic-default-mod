@@ -228,7 +228,7 @@
       // the command via tsic-cancel-cmd.
       const cmd = cancelCmd();
       if (cmd) {
-        window.tsic.on('tsic.msg.UI.Input.IA_UI_CancelBack', (p) => {
+        window.tsic.on('tsic.msg.UI.Behavior.Back', (p) => {
           if (!p || p.Phase !== 'Started') return;
           window.tsic.publishMessage(cmd, {});
         });

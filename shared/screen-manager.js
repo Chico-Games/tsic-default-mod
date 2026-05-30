@@ -135,15 +135,14 @@
   function ensureCancelWired() {
     if (cancelWired) return;
     cancelWired = true;
-    window.tsic.on('tsic.msg.UI.Input.IA_UI_CancelBack', (p) => {
+    window.tsic.on('tsic.msg.UI.Behavior.Back', (p) => {
       if (!p || p.Phase !== 'Started') return;
       if (activeName === 'InGame') return;
       const entry = MOUNTED.get(activeName);
       if (!entry) return;
       // Modules that handle cancel themselves (e.g. Construction, whose
-      // ability listens to IA_UI_CancelBack via its own IMC) opt out by
-      // setting cancelCmd to null/'' — we then skip the auto-publish so
-      // the action only fires once.
+      // ability listens to the Back behaviour) opt out by setting cancelCmd
+      // to null/'' — we then skip the auto-publish so the action only fires once.
       if (entry.module.cancelCmd === null || entry.module.cancelCmd === '') return;
       const cmd = entry.module.cancelCmd || 'UI.Cmd.Pause.Resume';
       window.tsic.publishMessage(cmd, {});
