@@ -10,6 +10,7 @@
 //   hud-crosshair.js    — crosshair visibility
 //   hud-interaction.js  — interaction prompt label
 //   hud-behavior-bar.js — gameplay behavior bar (System A)
+//   hud-construction-carousel.js — construction build strip (bottom-centre)
 //   hud-minimap.js      — minimap (fixed-zoom, player-tracking)
 //
 // The HUD toggle (body.hud-hidden) stays here — it's orchestrator-level
@@ -171,6 +172,7 @@
     loadScript('/shared/hud-crosshair.js');
     loadScript('/shared/hud-interaction.js');
     loadScript('/shared/hud-behavior-bar.js');
+    loadScript('/shared/hud-construction-carousel.js');
     loadScript('/shared/hud-minimap.js');
     loadScript('/shared/hud-chunk-debug.js');
   });
