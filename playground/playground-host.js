@@ -80,6 +80,83 @@
         } catch (e) { /* sandboxed cross-origin iframe — best-effort */ }
     }
 
+    // Live-refresh: poll the iframe's screen + every shared CSS/JS it imports
+    // and reload the iframe whenever any of those files change on disk.
+    //   - Polls each watched URL at POLL_MS with `cache: 'no-store'`
+    //   - Compares a cheap djb2 hash of the response body
+    //   - On change, fires loadIframe() (which cache-busts the URL)
+    // Toggled by the LIVE checkbox in the toolbar; OFF disables the timer.
+    function setupLiveRefresh() {
+        const POLL_MS = 800;
+        const checkbox = el('pg-live');
+        if (!checkbox) return;
+
+        const hashes = new Map();       // canonical-url -> last hash
+        let pollTimer = null;
+        let pollBusy = false;
+        let suppressUntilLoad = false;  // skip polling between reload trigger and iframe 'load'
+
+        function djb2(s) {
+            let h = 5381;
+            for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
+            return h;
+        }
+        async function fetchHash(url) {
+            try {
+                const r = await fetch(url, { cache: 'no-store' });
+                if (!r.ok) return null;
+                return djb2(await r.text());
+            } catch (e) { return null; }
+        }
+        function collectWatched() {
+            const iframe = el('pg-iframe');
+            if (!iframe || !iframe.contentDocument) return [];
+            const urls = new Set();
+            const base = (iframe.src || '').split('?')[0];
+            if (base && !base.startsWith('about:')) urls.add(base);
+            const doc = iframe.contentDocument;
+            doc.querySelectorAll('link[rel=stylesheet][href]').forEach(l => urls.add(l.href.split('?')[0]));
+            doc.querySelectorAll('script[src]').forEach(s => urls.add(s.src.split('?')[0]));
+            return [...urls];
+        }
+        async function tick() {
+            if (!checkbox.checked || pollBusy || suppressUntilLoad) return;
+            pollBusy = true;
+            try {
+                const urls = collectWatched();
+                for (const url of urls) {
+                    const h = await fetchHash(url);
+                    if (h == null) continue;
+                    const prev = hashes.get(url);
+                    if (prev != null && prev !== h) {
+                        logRow('info', `live-refresh: ${url.split('/').pop()} changed → reloading`);
+                        hashes.clear();
+                        suppressUntilLoad = true;
+                        if (activeFixture) loadIframe();
+                        return;
+                    }
+                    hashes.set(url, h);
+                }
+            } finally { pollBusy = false; }
+        }
+        function start() { if (!pollTimer) pollTimer = setInterval(tick, POLL_MS); }
+        function stop()  { if (pollTimer)  { clearInterval(pollTimer); pollTimer = null; } }
+
+        checkbox.addEventListener('change', () => {
+            hashes.clear();
+            if (checkbox.checked) { logRow('info', 'live-refresh: ON');  start(); }
+            else                  { logRow('info', 'live-refresh: OFF'); stop();  }
+        });
+
+        // Re-baseline whenever the iframe navigates to a new screen / reloads.
+        el('pg-iframe').addEventListener('load', () => {
+            hashes.clear();
+            suppressUntilLoad = false;
+        });
+
+        if (checkbox.checked) start();
+    }
+
     function loadIframe() {
         const iframe = el('pg-iframe');
         const onLoad = () => {
@@ -132,7 +209,11 @@
             }, 80);
         };
         iframe.addEventListener('load', onLoad);
-        iframe.src = activeFixture.screen;
+        // Cache-bust query forces WebCore to fetch the screen fresh — needed
+        // so the LIVE auto-refresh (and the manual Reload button) actually
+        // picks up on-disk edits instead of serving the in-memory copy.
+        const screen = activeFixture.screen;
+        iframe.src = screen + (screen.includes('?') ? '&' : '?') + '_pg=' + Date.now();
     }
 
     function renderScenarios() {
@@ -164,6 +245,52 @@
             });
             host.appendChild(b);
         }
+        // Continuous controls (e.g. cooldown sliders). Each control mutates
+        // state on `input` and re-projects, giving live preview. Optional
+        // `read(state)` syncs the slider UI back to current state on render
+        // and after scenarios run; without it the slider position is purely
+        // the user's drag history.
+        const controls = activeFixture.controls || [];
+        for (const ctrl of controls) {
+            const wrap = document.createElement('div');
+            wrap.style.cssText = 'display:flex;flex-direction:column;gap:3px;padding:8px 4px 2px;margin-top:6px;border-top:1px solid var(--pg-line, rgba(224,204,168,0.08));';
+
+            const labelRow = document.createElement('div');
+            labelRow.style.cssText = 'display:flex;justify-content:space-between;font-family:var(--font-mono,monospace);font-size:11px;letter-spacing:1px;color:var(--pg-dim,#a59b89);text-transform:uppercase;';
+            const labelText = document.createElement('span');
+            labelText.textContent = ctrl.label;
+            const valueText = document.createElement('span');
+            valueText.style.color = 'var(--pg-accent, #e0a86a)';
+            labelRow.appendChild(labelText);
+            labelRow.appendChild(valueText);
+
+            const slider = document.createElement('input');
+            slider.type = 'range';
+            slider.min = ctrl.min != null ? ctrl.min : 0;
+            slider.max = ctrl.max != null ? ctrl.max : 1;
+            slider.step = ctrl.step != null ? ctrl.step : 0.01;
+            const initial = ctrl.read ? ctrl.read(activeState) : (ctrl.value != null ? ctrl.value : 0);
+            slider.value = initial;
+            slider.style.cssText = 'width:100%;cursor:pointer;accent-color:var(--pg-accent, #e0a86a);';
+
+            function fmt(v) { return ctrl.format ? ctrl.format(v) : String(v); }
+            valueText.textContent = fmt(parseFloat(slider.value));
+
+            slider.addEventListener('input', () => {
+                const v = parseFloat(slider.value);
+                valueText.textContent = fmt(v);
+                try { ctrl.apply(activeState, v); }
+                catch (e) {
+                    logRow('fail', `control "${ctrl.label}" threw: ${e.message}`);
+                    return;
+                }
+                projectAndInject();
+            });
+
+            wrap.appendChild(labelRow);
+            wrap.appendChild(slider);
+            host.appendChild(wrap);
+        }
     }
 
     // Fixtures whose target screen has <meta name="tsic-focus" content="enabled">.
@@ -180,35 +307,120 @@
     ]);
     NS.FOCUS_ENGINE_IDS = FOCUS_ENGINE_IDS;
 
+    // Screen-fixture → category. Element fixtures set fixture.category directly
+    // (see elements.fixtures.js); for the ~40 screen fixtures we keep the
+    // mapping here so adding a category never means touching 40 files.
+    // A fixture missing from both falls into "Other" (so new screens still show).
+    const CATEGORY_ORDER = [
+        'Menus & Flow', 'HUD', 'Inventory & Equipment', 'Crafting & Building',
+        'Storage & Transport', 'World & Map', 'Social', 'Enemies', 'Misc',
+        'Elements', 'Other',
+    ];
+    const CATEGORY_MAP = {
+        'main-menu': 'Menus & Flow', 'pause-menu': 'Menus & Flow', 'new-store': 'Menus & Flow',
+        'settings': 'Menus & Flow', 'save-load': 'Menus & Flow', 'mods': 'Menus & Flow',
+        'credits': 'Menus & Flow', 'loading-screen': 'Menus & Flow', 'death-screen': 'Menus & Flow',
+
+        'health-bar': 'HUD', 'stamina-bar': 'HUD', 'crosshair': 'HUD',
+        'hotbar': 'HUD', 'interaction': 'HUD', 'notifications': 'HUD', 'circular-progress': 'HUD',
+        'detection': 'HUD', 'ping': 'HUD', 'ping-markers': 'HUD',
+
+        'inventory': 'Inventory & Equipment', 'equipment': 'Inventory & Equipment',
+        'wardrobe': 'Inventory & Equipment', 'quantity-picker': 'Inventory & Equipment',
+        'stomach': 'Inventory & Equipment',
+
+        'crafting': 'Crafting & Building', 'production': 'Crafting & Building',
+        'construction': 'Crafting & Building', 'construction-carousel': 'Crafting & Building',
+        'repair': 'Crafting & Building', 'upgrade': 'Crafting & Building',
+
+        'storage': 'Storage & Transport', 'universal-storage': 'Storage & Transport',
+        'universal-storage-setup': 'Storage & Transport', 'teleporter': 'Storage & Transport',
+
+        'map': 'World & Map',
+
+        'chat': 'Social', 'voice-chat': 'Social',
+
+        'boss-summoner': 'Enemies', 'cage': 'Enemies',
+
+        'bug-report': 'Misc', 'cheat-menu': 'Misc', 'lore': 'Misc', 'selection': 'Misc',
+    };
+    function categoryOf(fx) { return fx.category || CATEGORY_MAP[fx.id] || 'Other'; }
+
+    function makeScreenRow(fx) {
+        const row = document.createElement('div');
+        row.className = 'pg-scn';
+        const usesFocus = FOCUS_ENGINE_IDS.has(fx.id);
+        const dot = document.createElement('span');
+        dot.className = 'pg-scn-dot' + (usesFocus ? ' on' : '');
+        dot.title = usesFocus ? 'Uses controller focus engine' : 'No focus engine (HUD / passive view)';
+        row.appendChild(dot);
+        const label = document.createElement('span');
+        label.textContent = fx.label;
+        row.appendChild(label);
+        row.title = fx.screen + (usesFocus ? '  ·  tsic-focus enabled' : '');
+        row.dataset.id = fx.id;
+        row.addEventListener('click', () => {
+            document.querySelectorAll('.pg-scn').forEach(n => n.classList.remove('active'));
+            row.classList.add('active');
+            selectFixture(fx.id);
+        });
+        return row;
+    }
+
     function renderScreenList() {
         const list = el('pg-screens');
         list.innerHTML = '';
         const sorted = TSICPlayground.fixtures.slice().sort((a, b) => a.label.localeCompare(b.label));
+
+        const groups = new Map();
         for (const fx of sorted) {
-            const row = document.createElement('div');
-            row.className = 'pg-scn';
-            const usesFocus = FOCUS_ENGINE_IDS.has(fx.id);
-            const dot = document.createElement('span');
-            dot.className = 'pg-scn-dot' + (usesFocus ? ' on' : '');
-            dot.title = usesFocus ? 'Uses controller focus engine' : 'No focus engine (HUD / passive view)';
-            row.appendChild(dot);
-            const label = document.createElement('span');
-            label.textContent = fx.label;
-            row.appendChild(label);
-            row.title = fx.screen + (usesFocus ? '  ·  tsic-focus enabled' : '');
-            row.dataset.id = fx.id;
-            row.addEventListener('click', () => {
-                document.querySelectorAll('.pg-scn').forEach(n => n.classList.remove('active'));
-                row.classList.add('active');
-                selectFixture(fx.id);
-            });
-            list.appendChild(row);
+            const cat = categoryOf(fx);
+            if (!groups.has(cat)) groups.set(cat, []);
+            groups.get(cat).push(fx);
         }
+        const cats = [
+            ...CATEGORY_ORDER.filter(c => groups.has(c)),
+            ...[...groups.keys()].filter(c => !CATEGORY_ORDER.includes(c)),
+        ];
+
+        for (const cat of cats) {
+            const fxs = groups.get(cat);
+            const wrap = document.createElement('div');
+            wrap.className = 'pg-cat';
+
+            const header = document.createElement('div');
+            header.className = 'pg-cat-h';
+            const caret = document.createElement('span');
+            caret.className = 'pg-cat-caret'; caret.textContent = '▾';
+            const name = document.createElement('span'); name.textContent = cat;
+            const count = document.createElement('span');
+            count.className = 'pg-cat-count'; count.textContent = fxs.length;
+            header.appendChild(caret); header.appendChild(name); header.appendChild(count);
+            header.addEventListener('click', () => wrap.classList.toggle('collapsed'));
+            wrap.appendChild(header);
+
+            const rows = document.createElement('div');
+            rows.className = 'pg-cat-rows';
+            for (const fx of fxs) rows.appendChild(makeScreenRow(fx));
+            wrap.appendChild(rows);
+
+            list.appendChild(wrap);
+        }
+
         const filter = el('pg-filter');
         filter.addEventListener('input', () => {
             const q = filter.value.trim().toLowerCase();
-            for (const row of list.children) {
-                row.style.display = !q || row.textContent.toLowerCase().includes(q) ? '' : 'none';
+            for (const wrap of list.children) {
+                const rows = wrap.querySelector('.pg-cat-rows');
+                if (!rows) continue;
+                let visible = 0;
+                for (const row of rows.children) {
+                    const show = !q || row.textContent.toLowerCase().includes(q);
+                    row.style.display = show ? '' : 'none';
+                    if (show) visible++;
+                }
+                wrap.style.display = visible ? '' : 'none';
+                if (q) wrap.classList.remove('collapsed');  // expand so matches show
             }
         });
     }
@@ -250,6 +462,7 @@
             () => ({ win: activeWin, log: logRow })
         );
         el('pg-reload').addEventListener('click', () => { if (activeFixture) loadIframe(); });
+        setupLiveRefresh();
         el('pg-dump').addEventListener('click', () => {
             if (!activeState) return;
             logRow('info', `STATE: ${fmt(activeState)}`);

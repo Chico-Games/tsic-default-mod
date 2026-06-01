@@ -109,15 +109,19 @@ TSICTestHarness.register({
     },
 });
 
-// ---- Loading: label updates re-render -----------------------------------
+// ---- Loading: progress bar tracks Progress ------------------------------
+// The status line cycles funny flavour text on a timer and the headline is
+// static, so only the bar + percentage track the injected Progress value.
 TSICTestHarness.register({
-    name: 'LoadingScreen: label updates re-render',
+    name: 'LoadingScreen: progress bar updates on Progress',
     file: '/screens/loading-screen.html',
     async run(ctx) {
         ctx.inject('tsic.msg.UI.Loading.Progress', { Progress: 0.1, Label: 'Step 1' });
         ctx.inject('tsic.msg.UI.Loading.Progress', { Progress: 0.7, Label: 'Step 7' });
         await new Promise(r => setTimeout(r, 80));
-        ctx.expect(ctx.assert.truthy(/Step 7/.test(ctx.doc.body.textContent || '')));
+        // 0.7 → bar fill 70% and percentage readout "70%".
+        ctx.expect(ctx.assert.truthy(ctx.doc.getElementById('loading-bar-fill').style.width === '70%'));
+        ctx.expect(ctx.assert.truthy(/70%/.test(ctx.doc.getElementById('loading-pct').textContent || '')));
     },
 });
 
@@ -191,16 +195,18 @@ TSICTestHarness.register({
     },
 });
 
-// ---- Detection: ScreenMist applies to body backdrop-filter -----------
+// ---- Detection: ScreenMist drives the edge vignette ------------------
 TSICTestHarness.register({
-    name: 'Detection: ScreenMist drives the mist element',
+    name: 'Detection: ScreenMist drives the edge vignette',
     file: '/screens/detection.html',
     async run(ctx) {
         ctx.inject('tsic.msg.UI.Detection.State', { Enemies: [], ScreenMist: 0.5 });
         await new Promise(r => setTimeout(r, 60));
-        // The page applies a CSS filter/background based on ScreenMist. We just
-        // assert the mist element is in DOM and the page survived.
-        ctx.expect(ctx.assert.domExists(ctx.doc, '#mist'));
+        // The edge vignette opacity ramps with ScreenMist. Assert the element
+        // exists and lit up (opacity > 0) and the page survived.
+        ctx.expect(ctx.assert.domExists(ctx.doc, '#vignette'));
+        const op = parseFloat(ctx.doc.getElementById('vignette').style.opacity || '0');
+        ctx.expect(ctx.assert.truthy(op > 0, `expected vignette to light up, opacity=${op}`));
     },
 });
 

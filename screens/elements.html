@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="tsic-screen" content="Elements">
+  <meta name="tsic-focus" content="enabled">
+  <title>TSIC Element Gallery</title>
+  <link rel="stylesheet" href="/shared/base.css">
+  <link rel="stylesheet" href="/shared/components.css">
+  <script src="/shared/tsic-bridge.js" defer></script>
+  <script src="/shared/tsic-runtime.js" defer></script>
+  <script src="/shared/tsic-focus.js" defer></script>
+  <script src="/shared/tsic-dropdown.js" defer></script>
+  <style>
+    html, body { margin: 0; height: 100%; }
+    body {
+      background: #15110c;
+      color: var(--paper-cream);
+      font-family: var(--font-body);
+      padding: 0 0 64px;
+      overflow-y: auto;
+    }
+    .eg-head {
+      position: sticky; top: 0; z-index: 5;
+      display: flex; align-items: baseline; gap: 12px;
+      padding: 14px 22px;
+      background: linear-gradient(180deg, #15110c 70%, rgba(21,17,12,0));
+      border-bottom: 1px solid #2a2018;
+    }
+    .eg-head h1 {
+      margin: 0; font-family: var(--font-display); font-size: 30px;
+      letter-spacing: 0.06em; text-transform: uppercase; color: var(--mag-yellow);
+    }
+    .eg-head .eg-sub { font-size: 12px; font-style: italic; color: var(--ink-mute); }
+    .eg-stage { padding: 18px 22px; display: flex; flex-direction: column; gap: 26px; max-width: 1100px; }
+
+    .eg-section { display: flex; flex-direction: column; gap: 10px; }
+    .eg-section-h {
+      font-family: var(--font-display); font-size: 16px; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--paper-cream);
+      padding-bottom: 4px; border-bottom: 1px dashed #3a2e22;
+    }
+    .eg-section-note { font-size: 12px; font-style: italic; color: var(--ink-mute); margin-top: -4px; }
+
+    .eg-cards { display: flex; flex-wrap: wrap; gap: 14px; }
+    .eg-card {
+      border: 1px solid #2a2018; border-radius: 4px; overflow: hidden;
+      min-width: 240px; flex: 1 1 320px;
+    }
+    .eg-card-label {
+      font-family: var(--font-terminal); font-size: 14px; letter-spacing: 1px;
+      color: #8a7c66; padding: 4px 10px; background: #1d160f; border-bottom: 1px solid #2a2018;
+    }
+    .eg-card-body { padding: 20px; display: flex; flex-wrap: wrap; gap: 18px 22px; align-items: center; }
+    .eg-card-body.col { flex-direction: column; align-items: stretch; }
+    /* Decorations demo: .tsic-sticker / .tsic-corner-label are position:absolute
+       for real panel use (pinned to a corner). In the gallery that drops them
+       out of flow so they overlap the other specimens — render them in-flow
+       here so each decoration sits on its own with even spacing. */
+    .eg-card-body .tsic-sticker,
+    .eg-card-body .tsic-corner-label { position: static; top: auto; left: auto; }
+    /* The dashed divider is a full-width rule — give it its own row. */
+    .eg-card-body .tsic-divider--dashed { flex: 1 0 100%; margin: 4px 0 0; }
+    .eg-paper { background: var(--paper); }
+    .eg-dark  { background: var(--ink-night); }
+    .eg-gradient { background: radial-gradient(circle at 30% 0%, #241a12, #0d0a07); }
+
+    .eg-rng { width: 220px; cursor: pointer; }
+    .eg-rng.paper { accent-color: var(--mag-red); }
+    .eg-rng.dark  { accent-color: var(--mag-yellow); }
+    .eg-slotgrid { display: grid; grid-template-columns: repeat(4, 56px); gap: 8px; }
+    .eg-tag { font-family: var(--font-terminal); font-size: 12px; color: #8a7c66; width: 100%; }
+  </style>
+</head><body>
+  <div class="eg-head">
+    <h1 id="eg-title">Elements</h1>
+    <span class="eg-sub" id="eg-sub"></span>
+  </div>
+  <div class="eg-stage" id="eg-stage"></div>
+
+  <script>
+  (function () {
+    // Each section renders one component family using the REAL design-system
+    // classes from components.css, so the gallery is an accurate preview.
+    // `?el=<id>` shows a single section; absent / `all` shows everything.
+    const SECTIONS = [
+      {
+        id: 'buttons', title: 'Buttons', note: '.tsic-button — variants, sizes, states',
+        cards: [
+          { theme: 'paper', label: 'variants', html: `
+            <button class="tsic-button">Primary</button>
+            <button class="tsic-button secondary">Secondary</button>
+            <button class="tsic-button pink">Pink</button>
+            <button class="tsic-button ghost">Ghost</button>
+            <button class="tsic-button" disabled>Disabled</button>` },
+          { theme: 'paper', label: 'sizes', html: `
+            <button class="tsic-button sm">Small</button>
+            <button class="tsic-button">Default</button>
+            <button class="tsic-button lg">Large</button>` },
+        ],
+      },
+      {
+        id: 'inputs', title: 'Text Inputs', note: '.tsic-input',
+        cards: [
+          { theme: 'paper', body: 'col', label: 'paper', html: `
+            <input class="tsic-input" placeholder="Placeholder…">
+            <input class="tsic-input" value="Filled value">` },
+        ],
+      },
+      {
+        id: 'dropdown', title: 'Dropdown', note: '.tsic-dropdown — focus-aware select (click to open)',
+        cards: [
+          { theme: 'paper', label: 'select', html: `
+            <button class="tsic-dropdown" id="eg-dd" data-tsic-focusable data-tsic-value="b"
+              data-tsic-options='[{"value":"a","label":"Option A"},{"value":"b","label":"Option B"},{"value":"c","label":"Option C"}]'
+              style="min-width:200px;padding:8px 12px;background:var(--ink-night);color:var(--paper-cream);border:2px solid var(--ink-night);display:flex;align-items:center;justify-content:space-between;gap:12px;font-family:var(--font-display);letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;">
+              <span class="tsic-dropdown-label">Option B</span>
+              <span class="tsic-dropdown-caret">▾</span>
+            </button>` },
+        ],
+      },
+      {
+        id: 'sliders', title: 'Sliders', note: 'range inputs with themed accent-color',
+        cards: [
+          { theme: 'paper', body: 'col', label: 'paper', html: `
+            <input type="range" class="eg-rng paper" min="0" max="100" value="35">
+            <input type="range" class="eg-rng paper" min="0" max="100" value="70">` },
+          { theme: 'dark', body: 'col', label: 'dark', html: `
+            <input type="range" class="eg-rng dark" min="0" max="100" value="50">
+            <input type="range" class="eg-rng dark" min="0" max="100" value="85">` },
+        ],
+      },
+      {
+        id: 'row-buttons', title: 'Row Buttons', note: '.tsic-row-button — menu list rows',
+        cards: [
+          { theme: 'paper', body: 'col', label: 'paper', html: `
+            <button class="tsic-row-button"><span class="tsic-row-dept">Continue</span></button>
+            <button class="tsic-row-button"><span class="tsic-row-dept">New Store</span><span class="tsic-row-pg">p.01</span></button>
+            <button class="tsic-row-button" disabled><span class="tsic-row-dept">Locked</span></button>` },
+        ],
+      },
+      {
+        id: 'slots', title: 'Item Slots', note: '.tsic-slot — inventory cells',
+        cards: [
+          { theme: 'paper', label: 'states', html: `
+            <div class="eg-slotgrid">
+              <div class="tsic-slot"></div>
+              <div class="tsic-slot"><span class="count">12</span></div>
+              <div class="tsic-slot selected"><span class="count">3</span></div>
+              <div class="tsic-slot"><span class="count">99</span></div>
+            </div>` },
+        ],
+      },
+      {
+        id: 'bars', title: 'Progress Bars', note: '.tsic-bar-track / .tsic-bar-fill',
+        cards: [
+          { theme: 'paper', body: 'col', label: 'fills', html: `
+            <div class="tsic-bar-track"><div class="tsic-bar-fill" style="width:72%"></div></div>
+            <div class="tsic-bar-track"><div class="tsic-bar-fill tsic-bar-fill--yellow" style="width:60%"></div></div>
+            <div class="tsic-bar-track"><div class="tsic-bar-fill tsic-bar-fill--ink" style="width:40%"></div></div>` },
+        ],
+      },
+      {
+        id: 'panels', title: 'Panels', note: '.tsic-panel — magazine page',
+        cards: [
+          { theme: 'gradient', label: 'panel', html: `
+            <div class="tsic-panel" style="padding:14px 18px;">Paper panel</div>` },
+        ],
+      },
+      {
+        id: 'masthead', title: 'Masthead', note: '.tsic-masthead — magazine cover header',
+        cards: [
+          { theme: 'paper', body: 'col', label: 'masthead', html: `
+            <div class="tsic-masthead">
+              <div class="tsic-masthead-title"><em>Open a new</em>Store.</div>
+              <div class="tsic-masthead-meta">
+                <span class="tsic-masthead-issue">New Issue</span>
+                <span class="tsic-masthead-price">$5.99</span>
+                <span class="tsic-masthead-date">Vol. 01 — 2026</span>
+              </div>
+            </div>` },
+        ],
+      },
+      {
+        id: 'decorations', title: 'Decorations', note: 'chips, badges, stickers, dividers, links',
+        cards: [
+          { theme: 'paper', label: 'ink-on-paper', html: `
+            <span class="tsic-badge">Badge</span>
+            <span class="tsic-sticker">Sticker</span>
+            <span class="tsic-corner-label">Corner</span>
+            <span class="tsic-arrow-bullet">Bullet</span>
+            <a class="tsic-link tsic-link--ink" href="#">Ink link</a>
+            <span class="tsic-barcode"></span>
+            <div class="tsic-divider--dashed eg-tag"></div>` },
+          { theme: 'dark', label: 'on dark', html: `
+            <span class="tsic-chip--dark">Dark chip</span>
+            <span class="tsic-byline">by · the · staff</span>
+            <a class="tsic-link" href="#">Link</a>` },
+        ],
+      },
+    ];
+
+    const byId = new Map(SECTIONS.map(s => [s.id, s]));
+    const param = new URLSearchParams(location.search).get('el');
+    const showAll = !param || param === 'all';
+    const chosen = showAll ? SECTIONS : SECTIONS.filter(s => byId.has(param) ? s.id === param : false);
+    const list = chosen.length ? chosen : SECTIONS;
+
+    document.getElementById('eg-title').textContent = showAll
+      ? 'All Elements'
+      : (byId.get(param) ? byId.get(param).title : 'Elements');
+    document.getElementById('eg-sub').textContent = showAll
+      ? `${SECTIONS.length} component families`
+      : (byId.get(param) ? byId.get(param).note : '');
+
+    const stage = document.getElementById('eg-stage');
+    for (const sec of list) {
+      const section = document.createElement('div');
+      section.className = 'eg-section';
+      const cards = (sec.cards || []).map(c => `
+        <div class="eg-card eg-${c.theme || 'paper'}">
+          ${c.label ? `<div class="eg-card-label">${c.label}</div>` : ''}
+          <div class="eg-card-body${c.body === 'col' ? ' col' : ''}">${c.html}</div>
+        </div>`).join('');
+      section.innerHTML = `
+        <div class="eg-section-h">${sec.title}</div>
+        ${sec.note ? `<div class="eg-section-note">${sec.note}</div>` : ''}
+        <div class="eg-cards">${cards}</div>`;
+      stage.appendChild(section);
+    }
+
+    // Wire the demo dropdown once the shared component has installed itself.
+    function wireDropdown() {
+      const dd = document.getElementById('eg-dd');
+      if (dd && window.tsic && tsic.dropdown) {
+        try { tsic.dropdown.options(dd, JSON.parse(dd.getAttribute('data-tsic-options'))); } catch (e) {}
+      }
+    }
+    if (document.readyState === 'complete') wireDropdown();
+    else window.addEventListener('load', wireDropdown);
+  })();
+  </script>
+</body></html>

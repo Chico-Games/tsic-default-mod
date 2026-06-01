@@ -327,15 +327,16 @@ TSICTestHarness.register({
 
 // ---- Detection: many enemies + high mist -----------------------------
 TSICTestHarness.register({
-    name: 'Perf/Detection: 30 enemies at varying scores still renders all eyes',
+    name: 'Perf/Detection: 30 enemies at varying scores still renders all threats',
     tags: ['perf', 'detection'],
     file: '/screens/detection.html',
     async run(ctx) {
         const enemies = [];
-        for (let i = 0; i < 30; i++) enemies.push({ EntityId: i, DetectionScore: (i % 10) / 10, BearingDeg: -180 + i * 12 });
+        // All scores > 0 — a zero-detection enemy correctly paints nothing.
+        for (let i = 0; i < 30; i++) enemies.push({ EntityId: i, DetectionScore: 0.05 + (i % 10) / 12, BearingDeg: -180 + i * 12 });
         ctx.inject('tsic.msg.UI.Detection.State', { Enemies: enemies, ScreenMist: 0.8 });
-        await ctx.waitFor(() => ctx.doc.querySelectorAll('#ring .eye').length === 30, { timeout: 1500 });
-        ctx.expect(ctx.assert.domCount(ctx.doc, '#ring .eye', 30));
+        await ctx.waitFor(() => ctx.doc.querySelectorAll('#threats .arc').length === 30, { timeout: 1500 });
+        ctx.expect(ctx.assert.domCount(ctx.doc, '#threats .arc', 30));
     },
 });
 

@@ -57,10 +57,10 @@
           const dur = Number(s.Duration) || 0;
           const rem = Number(s.RemainingTime) || 0;
           const progress = dur > 0 ? Math.max(0, Math.min(1, 1 - rem / dur)) : 0;
-          // CSS opacity < 1 makes the element invisible — skip the
-          // digestion-fade effect. The slot border/background still changes via
-          // the .empty class toggle so the player gets visual feedback.
-          // img.style.opacity = String(lerp(1.0, 0.4, progress));
+          // Digestion fade — the icon dims as the item is digested. Falls
+          // off to 0.4 alpha rather than 0 so it never fully disappears
+          // before the slot is actually empty.
+          img.style.opacity = String(lerp(1.0, 0.4, progress));
           host.appendChild(img);
         }
       }

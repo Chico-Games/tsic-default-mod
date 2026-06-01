@@ -1,166 +1,610 @@
-/* Legacy .tsic-* classes restyled to match the catalogue UI palette so every
-   existing page renders in the unified paper-and-ink look without HTML edits. */
+/* shared/components.css — TSIC reusable component library.
+ *
+ * Class-name surface kept stable so existing screens pick up the new look
+ * without HTML edits. Visuals follow the magazine print language:
+ *   - PANELS look like magazine pages (cream paper, black border, offset shadow)
+ *   - BUTTONS use the letterpress offset-block pattern: red primary, ink-outline
+ *     secondary, ink/red danger, ghost — all on-theme, no glow
+ *   - HUD overlays use translucent dark plates with cream/ink hairlines
+ *
+ * Core reusable components:
+ *   .tsic-button (red block) + .secondary / .danger / .ghost variants
+ *   .tsic-panel  (magazine paper)
+ *   .tsic-sticker, .tsic-badge, .tsic-masthead, .tsic-byline
+ *   .tsic-row-button, .tsic-slot, .tsic-bar-track / .tsic-bar-fill
+ *   .tsic-input (paper)
+ *   .tsic-divider--dashed, .tsic-corner-label, .tsic-arrow-bullet
+ */
 
+/* ═════════════════════════════════════════════════════════════
+   PANELS — the "magazine page" foreground containers
+   ═════════════════════════════════════════════════════════════ */
+
+/* The default panel reads as a magazine page sitting on top of the stage.
+   Heavy black border, cream paper background, offset block shadow. */
 .tsic-panel {
   position: relative;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.36), rgba(255, 255, 255, 0.03)),
-    radial-gradient(circle at 10% 15%, rgba(82, 68, 47, 0.06) 0 1px, transparent 1px),
-    radial-gradient(circle at 70% 80%, rgba(82, 68, 47, 0.045) 0 1px, transparent 1px),
-    var(--cat-paper);
-  background-size: auto, 13px 13px, 19px 19px, auto;
-  border: 1px solid var(--cat-border);
-  box-shadow: inset 0 0 28px rgba(88, 72, 47, 0.08);
-  color: var(--cat-ink);
-  padding: 16px;
+  background: var(--paper-cream);
+  border: 4px solid var(--ink-night);
+  color: var(--ink-night);
+  padding: 18px;
+  box-shadow: var(--shadow-block);
   pointer-events: auto;
 }
 
+/* ═════════════════════════════════════════════════════════════
+   BUTTONS
+   ═════════════════════════════════════════════════════════════ */
+
+/* Primary: magazine red block. Heavy black border, offset shadow that
+   "presses" on click via translate. */
+/* ─────────────────────────────────────────────────────────────────
+   BUTTONS — letterpress / risograph print plates. One shape language,
+   four roles, zero neon. The hard offset block-shadow is the signature:
+   plates sit "lifted" off the page, rise on hover, slam flush on press.
+   Variants restyle the fill/type only — never the shape or the lift.
+   Backward-compatible class names: .secondary / .cancel (outline),
+   .pink (legacy alias → danger), .ghost, .sm / .lg.
+   ───────────────────────────────────────────────────────────────── */
 .tsic-button {
+  position: relative;
   display: inline-flex;
-  min-height: 32px;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  background: var(--cat-green);
-  color: #f7edd9;
-  border: 1px solid #273120;
-  padding: 8px 14px;
-  font-family: Georgia, "Libre Baskerville", serif;
-  font-size: 12px;
-  font-weight: 700;
+  gap: 9px;
+  min-height: 40px;
+  padding: 10px 22px;
+  background: var(--mag-red);
+  color: var(--paper-bright);
+  border: 3px solid var(--ink-night);
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 400;
   line-height: 1;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  box-shadow: var(--cat-shadow-soft);
+  box-shadow: var(--shadow-block);
   cursor: pointer;
-  transition: background-color 160ms ease, color 160ms ease,
-              border-color 160ms ease, transform 120ms ease,
-              box-shadow 160ms ease;
+  transition: transform 90ms ease, box-shadow 90ms ease,
+              background-color 150ms ease, color 150ms ease;
 }
-.tsic-button:hover { background: var(--cat-green-hover); transform: translateY(-1px); }
-.tsic-button:active { transform: translateY(0); }
-
+/* Letterpress inner hairline — the "plate edge". */
+.tsic-button::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 1px solid rgba(255, 253, 243, 0.28);
+  pointer-events: none;
+}
+.tsic-button:hover {
+  background: #ff1a1a;
+  transform: translate(-2px, -2px);
+  box-shadow: var(--shadow-block-lg);
+}
+.tsic-button:active {
+  transform: translate(3px, 3px);
+  box-shadow: 1px 1px 0 var(--ink-night);
+}
 .tsic-button:disabled,
 .tsic-button[disabled] {
-  background: rgba(52, 65, 45, 0.45);
-  color: rgba(247, 237, 217, 0.6);
-  border-color: rgba(39, 49, 32, 0.45);
+  background: var(--paper-muted);
+  color: var(--ink-mute);
+  box-shadow: var(--shadow-block-sm);
   cursor: not-allowed;
   transform: none;
 }
+.tsic-button:disabled::before,
+.tsic-button[disabled]::before { border-color: transparent; }
+/* On-theme keyboard focus ring (gamepad focus mirrored in tsic-ui.css). */
+.tsic-button:focus-visible {
+  outline: 3px solid var(--ink-night);
+  outline-offset: 4px;
+}
 
-/* Secondary look — used by Cancel / Back / Close buttons. */
-.tsic-button.cancel, .tsic-button.secondary,
+/* SECONDARY / CANCEL — ink-outline plate on paper; hover inverts to solid ink. */
+.tsic-button.secondary,
+.tsic-button.cancel,
 .tsic-button[data-variant="secondary"] {
-  background: #f4ebd9;
-  color: var(--cat-ink);
-  border-color: var(--cat-border-strong);
+  background: var(--paper-bright);
+  color: var(--ink-night);
+}
+.tsic-button.secondary::before,
+.tsic-button.cancel::before,
+.tsic-button[data-variant="secondary"]::before { border-color: rgba(10, 10, 10, 0.14); }
+.tsic-button.secondary:hover,
+.tsic-button.cancel:hover,
+.tsic-button[data-variant="secondary"]:hover {
+  background: var(--ink-night);
+  color: var(--paper-bright);
+}
+
+/* DANGER — ink plate with red type; hover floods red. (.pink kept as alias.) */
+.tsic-button.danger,
+.tsic-button.pink,
+.tsic-button[data-variant="danger"],
+.tsic-button[data-variant="pink"] {
+  background-color: var(--ink-night);
+  /* Halftone dot field that slowly drifts — reads as a "live"/dangerous plate. */
+  background-image: radial-gradient(rgba(255, 90, 77, 0.55) 1.1px, transparent 1.6px);
+  background-size: 9px 9px;
+  color: #ff5a4d;
+  animation: tsic-btn-dots 2.8s linear infinite;
+}
+.tsic-button.danger::before,
+.tsic-button.pink::before,
+.tsic-button[data-variant="danger"]::before,
+.tsic-button[data-variant="pink"]::before { border-color: rgba(230, 0, 0, 0.30); }
+.tsic-button.danger:hover,
+.tsic-button.pink:hover,
+.tsic-button[data-variant="danger"]:hover,
+.tsic-button[data-variant="pink"]:hover {
+  background-color: var(--mag-red);
+  background-image: radial-gradient(rgba(255, 253, 243, 0.40) 1.1px, transparent 1.6px);
+  color: var(--paper-bright);
+}
+/* Drift two tiles across / one down so the loop is seamless. */
+@keyframes tsic-btn-dots {
+  from { background-position: 0 0; }
+  to   { background-position: 18px 9px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tsic-button.danger,
+  .tsic-button.pink,
+  .tsic-button[data-variant="danger"],
+  .tsic-button[data-variant="pink"] { animation: none; }
+}
+
+/* GHOST — type-only; a red rule sweeps in from the left on hover. */
+.tsic-button.ghost,
+.tsic-button[data-variant="ghost"] {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+  color: var(--ink-night);
+  padding-left: 8px;
+  padding-right: 8px;
+}
+.tsic-button.ghost::before,
+.tsic-button[data-variant="ghost"]::before { border: 0; }
+.tsic-button.ghost::after,
+.tsic-button[data-variant="ghost"]::after {
+  content: '';
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: 4px;
+  height: 3px;
+  background: var(--mag-red);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 180ms ease;
+}
+.tsic-button.ghost:hover,
+.tsic-button[data-variant="ghost"]:hover {
+  color: var(--mag-red);
+  background: transparent;
+  transform: none;
   box-shadow: none;
 }
-.tsic-button.cancel:hover, .tsic-button.secondary:hover,
-.tsic-button[data-variant="secondary"]:hover { background: #f9f1e3; }
-
-.tsic-input {
-  background: var(--cat-paper-soft);
-  color: var(--cat-ink);
-  border: 1px solid var(--cat-border-strong);
-  padding: 6px 10px;
-  font-family: Georgia, "Libre Baskerville", serif;
-  font-size: 12px;
+.tsic-button.ghost:hover::after,
+.tsic-button[data-variant="ghost"]:hover::after { transform: scaleX(1); }
+/* Click: snap the full rule in (no sweep), deepen + nudge the label down. */
+.tsic-button.ghost:active,
+.tsic-button[data-variant="ghost"]:active {
+  color: var(--mag-red-deep);
+  transform: translateY(1px);
+  box-shadow: none;
 }
-.tsic-input::placeholder { color: var(--cat-ink-soft); }
-.tsic-input:focus { outline: none; border-color: var(--cat-green); }
+.tsic-button.ghost:active::after,
+.tsic-button[data-variant="ghost"]:active::after {
+  transform: scaleX(1);
+  transition: none;
+  height: 4px;
+  background: var(--mag-red-deep);
+}
+
+/* Small + large size modifiers. */
+.tsic-button.sm { min-height: 30px; padding: 5px 13px; font-size: 15px; }
+.tsic-button.lg { min-height: 52px; padding: 14px 32px; font-size: 26px; }
+
+/* ═════════════════════════════════════════════════════════════
+   INPUTS
+   ═════════════════════════════════════════════════════════════ */
+
+/* Paper input — for use inside .tsic-panel (magazine page). */
+.tsic-input {
+  background: var(--paper-bright);
+  color: var(--ink-night);
+  border: 2px solid var(--ink-night);
+  padding: 6px 10px;
+  font-family: var(--font-terminal);
+  font-size: 14px;
+  letter-spacing: 0.04em;
+}
+.tsic-input::placeholder { color: var(--ink-mute); }
+.tsic-input:focus { outline: none; border-color: var(--mag-red); }
+
+/* ═════════════════════════════════════════════════════════════
+   ROW-AS-BUTTON — magazine "article" list rows
+   ═════════════════════════════════════════════════════════════
+   The whole row is a single button. Bold uppercase headline, dashed
+   separator between rows, red `>>` indicator that slides on hover. Used
+   by save/load, repair, upgrade, summoner, universal-storage-setup. */
+
+.tsic-row-button {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 12px 14px;
+  background: var(--paper-bright);
+  border: 0;
+  border-top: 2px dashed var(--ink-mute);
+  color: var(--ink-night);
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 120ms ease, padding-left 160ms ease, color 120ms ease;
+}
+.tsic-row-button:first-child { border-top: 0; }
+.tsic-row-button::before {
+  content: '>>';
+  color: var(--mag-red);
+  font-weight: 900;
+  margin-right: 4px;
+  transition: transform 160ms ease;
+}
+.tsic-row-button:hover {
+  background: var(--paper-muted);
+  padding-left: 22px;
+}
+.tsic-row-button:hover::before { transform: translateX(2px); }
+.tsic-row-button:active { background: var(--paper-soft); }
+.tsic-row-button:disabled,
+.tsic-row-button[disabled] {
+  color: var(--ink-mute);
+  cursor: not-allowed;
+  background: var(--paper-muted);
+}
+.tsic-row-button:disabled::before,
+.tsic-row-button[disabled]::before { color: var(--ink-mute); }
+.tsic-row-button:disabled:hover,
+.tsic-row-button[disabled]:hover { padding-left: 14px; background: var(--paper-muted); }
+
+/* Decorative dept/page tags that frame a row label like a magazine
+   article header. Use as <span>s inside a .tsic-row-button.
+     .tsic-row-dept  flush-left "section number", e.g. "Dept. 04"
+     .tsic-row-pg    flush-right "page number" chip, fades in on hover/focus
+   The hover/focus selectors are scoped to .tsic-row-button so the
+   accessories react when the parent row is interacted with. */
+.tsic-row-dept {
+  font-family: var(--font-terminal);
+  font-size: 13px;
+  color: var(--ink-soft);
+  letter-spacing: 0.10em;
+  margin-right: 12px;
+  flex: 0 0 auto;
+  min-width: 70px;
+  text-align: left;
+  text-transform: uppercase;
+}
+.tsic-row-pg {
+  margin-left: auto;
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  background: var(--ink-night);
+  color: var(--paper-cream);
+  padding: 3px 8px;
+  opacity: 0;
+  transition: opacity 140ms ease;
+}
+.tsic-row-button:hover .tsic-row-pg,
+.tsic-row-button[data-tsic-focused] .tsic-row-pg { opacity: 1; }
+.tsic-row-button:hover .tsic-row-dept,
+.tsic-row-button[data-tsic-focused] .tsic-row-dept { color: var(--mag-red); }
+
+/* ═════════════════════════════════════════════════════════════
+   INVENTORY SLOTS
+   ═════════════════════════════════════════════════════════════ */
 
 .tsic-slot {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 56px; height: 56px;
-  background: #e9dfc8;
-  border: 1px solid #b7aa91;
-  color: var(--cat-ink);
+  background: var(--paper-bright);
+  border: 2px solid var(--ink-night);
+  color: var(--ink-night);
   position: relative;
+  transition: box-shadow 120ms ease, transform 120ms ease;
 }
+.tsic-slot:hover { transform: translate(-1px, -1px); box-shadow: 3px 3px 0 var(--ink-night); }
 .tsic-slot.selected {
-  background: var(--cat-green);
-  color: #f7edd9;
-  border-color: #273120;
-  box-shadow: 0 0 0 2px rgba(35, 31, 24, 0.18);
+  background: var(--mag-red);
+  border-color: var(--ink-night);
+  color: #ffffff;
+  box-shadow: 0 0 0 2px var(--ink-night), 3px 3px 0 var(--ink-night);
 }
 .tsic-slot .count {
   position: absolute; bottom: 2px; right: 4px;
-  font-size: 11px; font-weight: 700;
-  color: var(--cat-ink-dark);
-  text-shadow: 0 1px 2px rgba(247, 237, 217, 0.8);
+  font-family: var(--font-pixel);
+  font-size: 9px;
+  color: var(--ink-night);
+  background: var(--mag-yellow);
+  padding: 1px 3px;
+  border: 1px solid var(--ink-night);
 }
+.tsic-slot.selected .count { background: var(--mag-yellow); }
+
+/* ═════════════════════════════════════════════════════════════
+   PROGRESS BARS — striped magazine charts
+   ═════════════════════════════════════════════════════════════ */
 
 .tsic-bar-track {
-  position: relative; height: 18px;
-  border: 1px solid var(--cat-border-strong);
-  background: #efe2c8;
+  position: relative;
+  height: 18px;
+  border: 2px solid var(--ink-night);
+  background: var(--paper-muted);
   overflow: hidden;
 }
 .tsic-bar-fill {
-  position: absolute; left: 0; top: 0; bottom: 0;
-  background: linear-gradient(180deg, var(--cat-green), var(--cat-green-soft));
-  transition: width 0.1s linear;
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  background: var(--mag-red);
+  background-image: repeating-linear-gradient(
+    45deg,
+    transparent, transparent 5px,
+    rgba(0, 0, 0, 0.18) 5px, rgba(0, 0, 0, 0.18) 10px
+  );
+  transition: width 100ms linear, background-color 100ms linear;
 }
+.tsic-bar-fill--yellow { background-color: var(--mag-yellow); }
+.tsic-bar-fill--ink    { background-color: var(--ink-night); }
 
-/* HUD overlay panels — used by chat / notifications / detection etc.
-   They sit over the 3D scene so the panel is parchment-coloured but slightly
-   translucent so the world reads through. */
-.tsic-hud-panel {
-  background: rgba(241, 229, 207, 0.88);
-  border: 1px solid var(--cat-border);
-  color: var(--cat-ink);
-  padding: 10px;
-}
+/* ═════════════════════════════════════════════════════════════
+   MAGAZINE-SPECIFIC COMPONENTS
+   ═════════════════════════════════════════════════════════════ */
 
-/* Generic text-link styling for inline anchors / back-style buttons. */
-.tsic-link {
-  color: var(--cat-green);
-  text-decoration: underline;
-  cursor: pointer;
-}
-.tsic-link:hover { color: var(--cat-green-hover); }
-
-/* Row-as-button — used by list screens (save/load, repair, upgrade, summoner,
-   universal-storage-setup) where each list entry IS its primary action. The
-   whole row is a real <button>, so gamepad focus + Confirm and mouse click
-   trigger the same action. Resets the default button chrome and reuses the
-   paper-panel look; :hover styling auto-mirrors to gamepad focus via
-   tsic-focus.js's hover-rule mirror. */
-.tsic-row-button {
+/* Masthead — the heavy title block at the top of magazine pages. */
+.tsic-masthead {
   display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  border-bottom: 4px solid var(--ink-night);
+  padding-bottom: 8px;
+  margin-bottom: 16px;
+  gap: 16px;
+}
+.tsic-masthead-title {
+  font-family: var(--font-display);
+  font-size: 56px;
+  line-height: 0.9;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: var(--ink-night);
+}
+.tsic-masthead-title em {
+  font-style: normal;
+  color: var(--mag-red);
+}
+.tsic-masthead-meta {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  font-family: var(--font-terminal);
+}
+.tsic-masthead-issue {
+  display: inline-block;
+  background: var(--ink-night);
+  color: var(--paper-cream);
+  padding: 2px 8px;
+  font-family: var(--font-terminal);
+  font-size: 14px;
+  letter-spacing: 0.08em;
+}
+.tsic-masthead-price {
+  font-family: var(--font-display);
+  font-size: 14px;
+  color: var(--ink-night);
+  letter-spacing: 0.05em;
+}
+.tsic-masthead-date {
+  font-family: var(--font-terminal);
+  font-size: 12px;
+  color: var(--ink-soft);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Magazine COVER — extension of .tsic-panel that sizes the panel and
+   restyles its masthead for the "cover page" treatment used by menu
+   screens (main-menu, pause, settings, credits, save-load, etc.).
+   Pairs with .tsic-stage--magazine-gradient as the centred backdrop.
+   Apply alongside .tsic-panel:
+       <div class="tsic-panel tsic-cover">
+         <div class="tsic-masthead">
+           <div class="tsic-masthead-title">
+             <em>The Store is</em>
+             Closed.
+           </div>
+           <div class="tsic-masthead-meta">
+             <span class="tsic-masthead-issue">Vol.1 — …</span>
+             <span class="tsic-masthead-date">…</span>
+           </div>
+         </div>
+         <div class="tsic-cover-rows">…row buttons…</div>
+       </div>
+   The cover-scoped rules:
+     - turn .tsic-masthead-title em into a small italic block kicker
+       above the focal word (instead of inline red mag-emphasis)
+     - pin .tsic-masthead-meta to the TOP-right corner like an old-school
+       periodical (overrides the masthead's default bottom-align)
+   Tunable: --tsic-cover-width (default 520px). */
+.tsic-cover {
+  width: var(--tsic-cover-width, 520px);
+  max-width: 92vw;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+.tsic-cover .tsic-masthead { padding: 18px 22px 10px; margin: 0; }
+.tsic-cover .tsic-masthead-meta { align-self: flex-start; }
+.tsic-cover .tsic-masthead-title { font-size: 64px; }
+.tsic-cover .tsic-masthead-title em {
+  font-style: italic;
+  font-weight: 400;
+  font-size: 24px;
+  display: block;
+  letter-spacing: 0.02em;
+  color: var(--ink-night);
+  margin-top: -4px;
+}
+.tsic-cover-rows { padding: 6px 4px 10px; }
+
+/* Dark halftone CHIP — small HUD overlay with bright text on a dark
+   dotted backdrop. Inverted version of the magazine paper aesthetic
+   for HUD widgets that need to read against a live game scene.
+   Tunable:
+     --tsic-chip-bg-alpha       backdrop opacity over the game scene
+     --tsic-chip-dot-strength   dot brightness against the dark bg */
+.tsic-chip--dark {
+  --tsic-chip-bg-alpha: 0.68;
+  --tsic-chip-dot-strength: 0.22;
+  color: var(--paper-bright);
+  padding: 4px 10px;
+  background-color: rgba(18, 14, 10, var(--tsic-chip-bg-alpha));
+  background-image:
+    radial-gradient(rgba(241, 229, 207, var(--tsic-chip-dot-strength)) 14%, transparent 15%),
+    radial-gradient(rgba(241, 229, 207, var(--tsic-chip-dot-strength)) 14%, transparent 15%);
+  background-size: 8px 8px;
+  background-position: 0 0, 4px 4px;
+  border: 1px solid rgba(255, 255, 255, 0.20);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+
+/* Byline — small, dim, uppercase, sits under a section title. */
+.tsic-byline {
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+/* Sticker — corner badge with offset shadow. Default sits absolutely so a
+   .tsic-panel can place it via inline top/left etc. */
+.tsic-sticker {
+  position: absolute;
+  display: inline-flex;
   align-items: center;
-  width: 100%;
-  background: var(--cat-paper-panel);
-  border: 1px solid var(--cat-border);
-  color: var(--cat-ink);
-  font: inherit;
-  text-align: left;
+  justify-content: center;
+  text-align: center;
+  background: var(--mag-yellow);
+  color: var(--ink-night);
+  border: 3px solid var(--ink-night);
+  box-shadow: var(--shadow-block-sm);
+  padding: 8px 10px;
+  min-width: 72px;
+  font-family: var(--font-action);
+  font-size: 14px;
+  line-height: 1.05;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  z-index: 5;
+}
+/* Badge — small inline label. "NEW!", "HOT", "PG. 42", etc. */
+.tsic-badge {
+  display: inline-block;
+  background: var(--ink-night);
+  color: var(--paper-cream);
+  padding: 2px 8px;
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Corner label — sits in a panel's top-left, magazine-style. */
+.tsic-corner-label {
+  position: absolute;
+  top: 0; left: 0;
+  background: var(--mag-yellow);
+  color: var(--ink-night);
+  padding: 4px 8px;
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  border-right: 2px solid var(--ink-night);
+  border-bottom: 2px solid var(--ink-night);
+  z-index: 5;
+}
+
+/* Arrow bullet — the `>>` glyph used as menu prefix. Use as <span>. */
+.tsic-arrow-bullet {
+  display: inline-block;
+  color: var(--mag-red);
+  font-family: var(--font-display);
+  font-weight: 900;
+  margin-right: 6px;
+}
+
+/* Divider — dashed mag-style separator (vs the solid .tsic-divider). */
+.tsic-divider--dashed {
+  height: 0;
+  border: 0;
+  border-top: 2px dashed var(--ink-mute);
+  margin: 12px 0;
+}
+
+/* Mock barcode — for masthead corners. Pure CSS, no images. */
+.tsic-barcode {
+  display: inline-flex;
+  align-items: stretch;
+  gap: 1px;
+  height: 24px;
+  width: 64px;
+}
+.tsic-barcode::before,
+.tsic-barcode::after {
+  content: '';
+  display: block;
+  background:
+    linear-gradient(90deg,
+      var(--ink-night) 0%, var(--ink-night) 8%, transparent 8%, transparent 14%,
+      var(--ink-night) 14%, var(--ink-night) 18%, transparent 18%, transparent 24%,
+      var(--ink-night) 24%, var(--ink-night) 32%, transparent 32%, transparent 38%,
+      var(--ink-night) 38%, var(--ink-night) 42%, transparent 42%, transparent 50%,
+      var(--ink-night) 50%, var(--ink-night) 56%, transparent 56%, transparent 64%,
+      var(--ink-night) 64%, var(--ink-night) 68%, transparent 68%, transparent 76%,
+      var(--ink-night) 76%, var(--ink-night) 84%, transparent 84%, transparent 90%,
+      var(--ink-night) 90%, var(--ink-night) 100%);
+  flex: 1;
+}
+
+/* ═════════════════════════════════════════════════════════════
+   LINKS
+   ═════════════════════════════════════════════════════════════ */
+
+.tsic-link {
+  color: var(--mag-red);
+  text-decoration: underline;
+  text-decoration-color: var(--mag-red);
   cursor: pointer;
-  padding: 8px 12px;
-  transition: background-color 160ms ease, border-color 160ms ease,
-              box-shadow 160ms ease, transform 120ms ease;
+  transition: color 120ms ease;
 }
-.tsic-row-button:hover {
-  background: var(--cat-paper);
-  border-color: var(--cat-border-strong);
-  box-shadow: var(--cat-shadow-soft);
-}
-.tsic-row-button:active { transform: translateY(1px); }
-.tsic-row-button:disabled,
-.tsic-row-button[disabled] {
-  color: rgba(47, 43, 34, 0.5);
-  cursor: not-allowed;
-  background: var(--cat-paper-muted);
-}
-.tsic-row-button:disabled:hover,
-.tsic-row-button[disabled]:hover {
-  background: var(--cat-paper-muted);
-  border-color: var(--cat-border);
-  box-shadow: none;
-  transform: none;
-}
+.tsic-link:hover { color: var(--mag-red-dark); }
+/* Legacy alias — kept so existing .tsic-link--ink markup still resolves. */
+.tsic-link--ink { color: var(--mag-red); text-decoration-color: var(--mag-red); }
+.tsic-link--ink:hover { color: var(--mag-red-dark); }

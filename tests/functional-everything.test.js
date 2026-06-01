@@ -333,11 +333,11 @@ TSICTestHarness.register({
     file: '/screens/detection.html',
     async run(ctx) {
         const enemies = [];
-        for (let i = 0; i < 50; i++) enemies.push({ EntityId: i, DetectionScore: Math.random(), BearingDeg: i * 7 - 180 });
+        for (let i = 0; i < 50; i++) enemies.push({ EntityId: i, DetectionScore: 0.05 + Math.random() * 0.95, BearingDeg: i * 7 - 180 });
         ctx.inject('tsic.msg.UI.Detection.State', { Enemies: enemies, ScreenMist: 0.5 });
         await new Promise(r => setTimeout(r, 80));
-        const eyes = ctx.doc.querySelectorAll('#ring .eye');
-        ctx.expect(ctx.assert.truthy(eyes.length >= 10, `expected many eye markers, got ${eyes.length}`));
+        const markers = ctx.doc.querySelectorAll('#threats .arc');
+        ctx.expect(ctx.assert.truthy(markers.length >= 10, `expected many threat markers, got ${markers.length}`));
     },
 });
 

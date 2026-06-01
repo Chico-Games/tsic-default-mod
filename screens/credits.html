@@ -8,64 +8,83 @@
   <link rel="stylesheet" href="/shared/base.css">
   <link rel="stylesheet" href="/shared/components.css">
   <script src="/shared/router.js" defer></script>
-    <script src="/shared/tsic-bridge.js" defer></script>
+  <script src="/shared/tsic-bridge.js" defer></script>
   <script src="/shared/tsic-runtime.js" defer></script>
   <script src="/shared/tsic-focus.js" defer></script>
   <script src="/shared/tsic-dropdown.js" defer></script>
   <style>
-    html, body { background: transparent; color: var(--cat-ink-dark);
-            margin: 0; min-height: 100vh; display: flex;
-            align-items: center; justify-content: center; }
-    .credits { width: min(720px, calc(100% - 48px));
-               padding: 48px 64px; box-sizing: border-box;
-               background: var(--cat-bg);
-               border: 1px solid var(--cat-border);
-               box-shadow: var(--cat-shadow-soft);
-               font-family: var(--cat-font-serif); }
-    h1 { letter-spacing: 8px; font-weight: 200; font-size: 36px; margin: 0 0 16px;
-         text-transform: uppercase; color: var(--cat-ink-dark); }
-    h2 { letter-spacing: 6px; font-weight: 300; font-size: 18px;
-         text-transform: uppercase; color: var(--cat-ink-soft); margin: 32px 0 8px; }
-    ul { list-style: none; padding: 0; margin: 0; }
-    li { padding: 4px 0; letter-spacing: 1px; }
+    .credits-body {
+      padding: 18px 28px 14px;
+      max-height: 60vh;
+      overflow-y: auto;
+    }
+    .credits-body h2 {
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+      margin: 18px 0 6px;
+      padding-bottom: 4px;
+      border-bottom: 2px dashed var(--ink-mute);
+    }
+    .credits-body h2:first-child { margin-top: 0; }
+    .credits-body ul { list-style: none; padding: 0; margin: 0; }
+    .credits-body li {
+      font-family: var(--font-body);
+      font-size: 15px;
+      padding: 3px 0;
+      letter-spacing: 0.04em;
+      color: var(--ink-night);
+    }
+    .credits-body li.muted { color: var(--ink-mute); font-style: italic; }
   </style>
 </head><body>
-  <div class="credits">
-    <h1>The Store is Closed</h1>
+  <div class="tsic-stage--magazine-gradient">
+    <div class="tsic-panel tsic-cover" style="--tsic-cover-width: 560px;">
+      <div class="tsic-masthead">
+        <div class="tsic-masthead-title">
+          <em>About</em>
+          The Brand.
+        </div>
+        <div class="tsic-masthead-meta">
+          <span class="tsic-masthead-issue">Dept. 99</span>
+          <span class="tsic-masthead-date">Treat our staff with mutual respect.</span>
+        </div>
+      </div>
 
-    <h2>Design &amp; Programming</h2>
-    <ul>
-      <li>Chico Games</li>
-    </ul>
+      <div class="credits-body">
+        <h2>Design &amp; Programming</h2>
+        <ul><li>Chico Games</li></ul>
 
-    <h2>Art</h2>
-    <ul>
-      <li>—</li>
-    </ul>
+        <h2>Art</h2>
+        <ul><li class="muted">—</li></ul>
 
-    <h2>Special Thanks</h2>
-    <ul>
-      <li>—</li>
-    </ul>
+        <h2>Special Thanks</h2>
+        <ul><li class="muted">—</li></ul>
 
-    <h2>Built With</h2>
-    <ul>
-      <li>Unreal Engine 5.6</li>
-      <li>Chromium Embedded Framework (CEF)</li>
-      <li>mod.io</li>
-    </ul>
+        <h2>Built With</h2>
+        <ul>
+          <li>Unreal Engine 5.7</li>
+          <li>CEF / Chromium</li>
+          <li>mod.io</li>
+        </ul>
+      </div>
 
-    <div class="tsic-button-row tsic-button-row--start" style="margin-top:40px;" data-tsic-focus-group="actions">
-      <button class="tsic-button" id="btn-back" data-tsic-initial-focus>Back</button>
+      <div class="tsic-cover-rows" data-tsic-focus-group="actions">
+        <button class="tsic-row-button" id="btn-back" data-tsic-initial-focus>
+          <span class="tsic-row-dept">Fire Exit</span>
+          Back to Main
+          <span class="tsic-row-pg">PG. 01</span>
+        </button>
+      </div>
     </div>
   </div>
   <script>
-    (function boot() {
-      if (!window.tsic || typeof tsic.bootMenu !== 'function') { setTimeout(boot, 16); return; }
-      tsic.bootMenu(function (ctx) {
-        document.getElementById('btn-back').onclick = () =>
-          tsic.publishMessage('UI.Cmd.Menu.Navigate', { Screen: 'MainMenu' });
-      });
-    })();
+    tsic.whenReady(() => tsic.bootMenu(function () {
+      tsic.onClick('#btn-back', () =>
+        tsic.publishMessage('UI.Cmd.Menu.Navigate', { Screen: 'MainMenu' }));
+    }));
   </script>
 </body></html>

@@ -8,39 +8,50 @@
   <link rel="stylesheet" href="/shared/components.css">
   <link rel="stylesheet" href="/shared/hud.css">
   <script src="/shared/router.js" defer></script>
-    <script src="/shared/tsic-bridge.js" defer></script>
+  <script src="/shared/tsic-bridge.js" defer></script>
   <script src="/shared/tsic-runtime.js" defer></script>
   <script src="/shared/tsic-focus.js" defer></script>
   <script src="/shared/hud.js" defer></script>
   <style>
-    #death-root { color: var(--cat-ink-dark); }
-    #death-panel { text-align:center; }
-    #death-panel h1 { color:#9f2e25; }   /* warm red from the catalogue palette */
-    #death-panel p  { color:rgba(37,33,25,0.6); margin: 0 0 22px; letter-spacing:2px; }
+    .tsic-death-subtitle {
+      margin: 0;
+      font-family: var(--font-terminal);
+      font-size: 14px;
+      letter-spacing: 0.04em;
+      color: var(--ink-soft);
+      text-align: center;
+      text-transform: uppercase;
+    }
   </style>
 </head><body>
-  <div id="death-root" class="tsic-modal-scrim tsic-modal-scrim--dim">
-    <div id="death-panel">
-      <h1 class="tsic-title tsic-title--lg">You Died</h1>
-      <p>respawn at the nearest spawn point</p>
-      <div class="tsic-button-row tsic-button-row--center">
-        <button class="tsic-button" id="btn-respawn" data-tsic-initial-focus>Respawn</button>
-        <button class="tsic-button" id="btn-menu">Quit to Menu</button>
+  <div class="tsic-stage--magazine-gradient" style="--tsic-stage-paper-alpha: 0.55;">
+    <div class="tsic-panel tsic-cover" style="--tsic-cover-width: 420px;">
+      <div class="tsic-masthead" style="flex-direction: column; align-items: center; gap: 8px;">
+        <div class="tsic-masthead-title" style="text-align: center;">
+          You Died.
+        </div>
+        <p class="tsic-death-subtitle">The Store has taken you. Your loved one remains lost.</p>
+      </div>
+      <div class="tsic-cover-rows" data-tsic-focus-group="nav">
+        <button class="tsic-row-button" id="btn-respawn" data-tsic-initial-focus>
+          <span class="tsic-row-dept">Dept. 01</span>
+          Respawn
+          <span class="tsic-row-pg">PG. 01</span>
+        </button>
+        <button class="tsic-row-button" id="btn-menu">
+          <span class="tsic-row-dept">Fire Exit</span>
+          Quit to Menu
+          <span class="tsic-row-pg">END</span>
+        </button>
       </div>
     </div>
   </div>
   <script>
-    (function boot() {
-      if (!window.tsic || typeof tsic.bootMenu !== 'function') { setTimeout(boot, 16); return; }
-      tsic.bootMenu(function (ctx) {
-        // Server is responsible for actually respawning the player; we just signal intent
-        // via the existing Pause.Resume command. When a dedicated Death.Respawn command
-        // lands on C++, swap this for it.
-        document.getElementById('btn-respawn').onclick = () =>
-          tsic.publishMessage('UI.Cmd.Pause.Resume', {});
-        document.getElementById('btn-menu').onclick = () =>
-          tsic.publishMessage('UI.Cmd.Pause.QuitToMenu', {});
-      });
-    })();
+    tsic.whenReady(() => tsic.bootMenu(function () {
+      // Server respawns the player; we just signal intent via the existing
+      // Pause.Resume command. Swap for a dedicated Death.Respawn when it lands.
+      tsic.onClick('#btn-respawn', () => tsic.publishMessage('UI.Cmd.Pause.Resume', {}));
+      tsic.onClick('#btn-menu',    () => tsic.publishMessage('UI.Cmd.Pause.QuitToMenu', {}));
+    }, { escape: false, closeButton: false }));
   </script>
 </body></html>

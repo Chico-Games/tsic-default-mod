@@ -108,11 +108,10 @@
     #debug-all-tex      { z-index: 4; }
     #fow-tex            { z-index: 5; }
     #overlay            { z-index: 6; }
-    /* Debug overlays (toggled by WebUI.Map.DebugHeight / WebUI.Map.DebugMazeRegions
-       console commands; sticky `tsic.debug.Map.Overlay` event drives display). The
+    /* Debug overlays — toggled by WebUI.Map.DebugHeight / WebUI.Map.DebugMazeRegions
+       console commands; sticky `tsic.debug.Map.Overlay` event drives display. The
        1px-per-tile texture is stretched to world bounds via CSS w/h; `pixelated`
-       keeps the per-tile cells crisp at all zoom levels. Alpha is baked into the
-       texture pixels — `opacity:<1` is on the Ultralight 1.4 broken list. */
+       keeps the per-tile cells crisp at all zoom levels. */
     #debug-height-tex, #debug-maze-tex, #debug-all-tex {
       image-rendering: pixelated;
       display: none;
@@ -146,8 +145,6 @@
       display: flex; gap: 18px; flex-wrap: wrap;
     }
     #legend .swatch { display:inline-block; width:10px; height:10px; vertical-align:middle; margin-right:4px; }
-    /* opacity:<1 promotes to compositing layer → invisible in UL 1.4.
-       Use rgba color to achieve a dimmed look instead. */
     #hint { margin-left: auto; color: rgba(108, 94, 73, 0.6); }
     #empty {
       position: absolute; inset: 0;
@@ -175,17 +172,13 @@
       vector-effect: non-scaling-stroke;
       pointer-events: none;
     }
-    /* opacity:<1 promotes to compositing layer → invisible in UL 1.4.
-       Use fill-opacity (SVG attribute) or a lighter fill color instead. */
     .bound-coord {
       fill: rgba(90, 74, 48, 0.85);
       font-family: 'Consolas', monospace;
       pointer-events: none;
     }
-    /* Ctrl+Click teleport-cheat flash ring. The animation uses fill-opacity
-       (an SVG attribute) rather than CSS `opacity` because the latter would
-       promote the circle to a compositing layer that Ultralight 1.4 fails
-       to paint — see CLAUDE.md → TSICWebUI. */
+    /* Ctrl+Click teleport-cheat flash ring. Animates fill-opacity + r so
+       the circle pulses outward and fades over 600ms. */
     @keyframes tp-flash {
       from { fill-opacity: 1;   r: 4;  }
       to   { fill-opacity: 0;   r: 24; }
@@ -481,9 +474,8 @@
         }
       }
 
-      // Player markers rendered via Canvas 2D in #map-viewport.
-      // Canvas avoids DOM-per-marker overhead and supports rotation
-      // (CSS transform:rotate is broken in Ultralight 1.4).
+      // Player markers rendered via Canvas 2D in #map-viewport so we don't
+      // pay the DOM-per-marker overhead at high player counts.
       let latestPlayers = [];
 
       function worldToScreen(wx, wy) {
@@ -1039,9 +1031,9 @@
         // WebUI.Map.DebugMazeRegions console commands). Sticky channel:
         // a freshly-opened map screen replays the last toggled state.
         // Payload: { Layer: 'height'|'maze'|'all', Visible: bool }.
-        // We re-set the <img> src on show so Ultralight refetches the
-        // ImageSource — the texture is only registered after the first
-        // toggle, so the initial fetch on page-load resolves empty.
+        // We re-set the <img> src on show so the browser refetches the
+        // runtime texture — it's only registered after the first toggle,
+        // so the initial fetch on page-load resolves empty.
         tsic.on('tsic.debug.Map.Overlay', (p) => {
           if (!p || !p.Layer) return;
           const id = p.Layer === 'height' ? 'debug-height-tex'

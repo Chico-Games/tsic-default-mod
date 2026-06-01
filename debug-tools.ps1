@@ -1,11 +1,11 @@
-# Serves the WebUI files on localhost and opens chrome-dev.html in Chrome.
-# Usage: powershell -File chrome-dev.ps1 [-Port 8080]
+# Serves the WebUI files on localhost and opens debug-tools.html in Chrome.
+# Usage: powershell -File debug-tools.ps1 [-Port 8080]
 param([int]$Port = 8080)
 
 $root = $PSScriptRoot
 if (-not $root) { $root = Split-Path -Parent $MyInvocation.MyCommand.Path }
 
-$url = "http://localhost:$Port/chrome-dev.html"
+$url = "http://localhost:$Port/debug-tools.html"
 
 # Try to find Python 3
 $python = Get-Command python -ErrorAction SilentlyContinue

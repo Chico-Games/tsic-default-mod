@@ -4,7 +4,7 @@
   <meta name="tsic-screen" content="CSSTest">
   <meta name="tsic-debug" content="true">
   <meta name="tsic-input-mode" content="InputMode.Menu">
-  <title>CSS Feature Test Grid</title>
+  <title>WebUI CSS Feature Test Grid</title>
     <script src="/shared/tsic-bridge.js" defer></script>
   <script src="/shared/tsic-runtime.js" defer></script>
   <script src="/shared/router.js" defer></script>
@@ -88,7 +88,7 @@
     <button class="tab-btn" data-page="5">6: Working</button>
     <button class="tab-btn" data-page="6">7: Edge Cases</button>
     <span class="spacer"></span>
-    <span class="page-info">WebUI.CSSTest &middot; WebView <span id="ul-version">?</span></span>
+    <span class="page-info">WebUI.CSSTest &middot; <span id="ul-version">CEF</span></span>
     <button class="close-btn" data-action="close">Close</button>
   </div>
 
@@ -595,11 +595,11 @@
     if (e.key === 'Escape') { e.preventDefault(); if (window.tsic) tsic.publishMessage('UI.Cmd.Debug.Close', {}); }
   });
 
-  // Display WebView version from user agent
+  // Display Chrome major version from the user agent (CEF embeds Chromium).
   var ua = navigator.userAgent || '';
   var m = ua.match(/Chrome\/([\d.]+)/);
   var verEl = document.getElementById('ul-version');
-  if (verEl) verEl.textContent = m ? m[1] : 'unknown';
+  if (verEl) verEl.textContent = m ? ('Chrome ' + m[1].split('.')[0]) : 'unknown';
 
   // Test #03 - fixed position translate: enable only when page 1 is active
   var test03 = document.getElementById('test03');
