@@ -32,13 +32,13 @@ TSICTestHarness.register({
 // ---- Action bar: 50 ability rows -----------------------------------------
 TSICTestHarness.register({
     name: 'Stress/ActionBar: 50 visible rows all render',
-    file: '/screens/test-action-bar.html',
+    file: '/screens/test-behavior-bar.html',
     async run(ctx) {
         const slots = [];
-        for (let i = 0; i < 50; i++) slots.push({ InputName: `IA_${i}`, AbilityName: `A${i}`, bVisible: true, StatusInt: i % 4 });
-        ctx.inject('tsic.msg.UI.ActionBar.Abilities', { Slots: slots });
-        await ctx.waitFor(() => ctx.doc.querySelectorAll('#ab-gameplay .ab-row').length === 50, { timeout: 3000 });
-        ctx.expect(ctx.assert.domCount(ctx.doc, '#ab-gameplay .ab-row', 50));
+        for (let i = 0; i < 50; i++) slots.push({ BehaviorTagName: `IA_${i}`, DisplayName: `A${i}`, bVisible: true, StatusInt: i % 4 });
+        ctx.inject('tsic.msg.UI.BehaviorBar.Entries', { Entries: slots });
+        await ctx.waitFor(() => ctx.doc.querySelectorAll('#bb-gameplay .bb-row').length === 50, { timeout: 3000 });
+        ctx.expect(ctx.assert.domCount(ctx.doc, '#bb-gameplay .bb-row', 50));
     },
 });
 
@@ -188,15 +188,15 @@ TSICTestHarness.register({
     // Icon-only bar: gamepad mode with no gamepad icon and no resolvable key text
     // renders the row WITHOUT a key chip — there is no text fallback.
     name: 'Stress/ActionBar: gamepad mode without a resolvable gamepad icon renders no key chip',
-    file: '/screens/test-action-bar.html',
+    file: '/screens/test-behavior-bar.html',
     async run(ctx) {
         ctx.mode('Gamepad');
-        ctx.inject('tsic.msg.UI.ActionBar.Abilities', {
-            Slots: [{ InputName: 'IA_X', AbilityName: 'X', bVisible: true, StatusInt: 0,
+        ctx.inject('tsic.msg.UI.BehaviorBar.Entries', {
+            Entries: [{ BehaviorTagName: 'IA_X', DisplayName: 'X', bVisible: true, StatusInt: 0,
                       KeyboardIconUrl: '/icons/keyboard/e.svg', GamepadIconUrl: '' }],
         });
-        await ctx.waitFor(() => ctx.doc.querySelector('#ab-gameplay .ab-row'));
-        ctx.expect(ctx.assert.domCount(ctx.doc, '#ab-gameplay .ab-key', 0));
+        await ctx.waitFor(() => ctx.doc.querySelector('#bb-gameplay .bb-row'));
+        ctx.expect(ctx.assert.domCount(ctx.doc, '#bb-gameplay .bb-key', 0));
     },
 });
 

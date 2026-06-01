@@ -219,15 +219,15 @@ TSICTestHarness.register({
 TSICTestHarness.register({
     name: 'Perf/ActionBar: 5 identical broadcasts produce stable DOM',
     tags: ['perf', 'action-bar'],
-    file: '/screens/test-action-bar.html',
+    file: '/screens/test-behavior-bar.html',
     async run(ctx) {
-        const payload = { Slots: [
-            { InputName: 'IA_A', AbilityName: 'A', bVisible: true, StatusInt: 0 },
-            { InputName: 'IA_B', AbilityName: 'B', bVisible: true, StatusInt: 0 },
+        const payload = { Entries: [
+            { BehaviorTagName: 'IA_A', DisplayName: 'A', bVisible: true, StatusInt: 0 },
+            { BehaviorTagName: 'IA_B', DisplayName: 'B', bVisible: true, StatusInt: 0 },
         ]};
-        for (let i = 0; i < 5; i++) ctx.inject('tsic.msg.UI.ActionBar.Abilities', payload);
-        await ctx.waitFor(() => ctx.doc.querySelectorAll('#ab-gameplay .ab-row').length === 2);
-        ctx.expect(ctx.assert.domCount(ctx.doc, '#ab-gameplay .ab-row', 2));
+        for (let i = 0; i < 5; i++) ctx.inject('tsic.msg.UI.BehaviorBar.Entries', payload);
+        await ctx.waitFor(() => ctx.doc.querySelectorAll('#bb-gameplay .bb-row').length === 2);
+        ctx.expect(ctx.assert.domCount(ctx.doc, '#bb-gameplay .bb-row', 2));
     },
 });
 
@@ -235,13 +235,13 @@ TSICTestHarness.register({
 TSICTestHarness.register({
     name: 'Perf/ActionBar: 50 rows render in < 250ms',
     tags: ['perf', 'action-bar'],
-    file: '/screens/test-action-bar.html',
+    file: '/screens/test-behavior-bar.html',
     async run(ctx) {
         const slots = [];
-        for (let i = 0; i < 50; i++) slots.push({ InputName: 'IA_' + i, AbilityName: 'A' + i, bVisible: true, StatusInt: i % 4 });
+        for (let i = 0; i < 50; i++) slots.push({ BehaviorTagName: 'IA_' + i, DisplayName: 'A' + i, bVisible: true, StatusInt: i % 4 });
         const t0 = Date.now();
-        ctx.inject('tsic.msg.UI.ActionBar.Abilities', { Slots: slots });
-        await ctx.waitFor(() => ctx.doc.querySelectorAll('#ab-gameplay .ab-row').length === 50, { timeout: 1500 });
+        ctx.inject('tsic.msg.UI.BehaviorBar.Entries', { Entries: slots });
+        await ctx.waitFor(() => ctx.doc.querySelectorAll('#bb-gameplay .bb-row').length === 50, { timeout: 1500 });
         const dt = Date.now() - t0;
         ctx.expect(ctx.assert.truthy(dt < 1500, `expected < 1500ms render, got ${dt}ms`));
     },
@@ -305,7 +305,7 @@ TSICTestHarness.register({
             slot.dispatchEvent(new ctx.win.MouseEvent('mouseenter', { bubbles: true }));
             slot.dispatchEvent(new ctx.win.MouseEvent('mouseleave', { bubbles: true }));
         }
-        const pubs = ctx.publishes().filter(p => p.channel === 'UI.Cmd.ActionBar.SetMenuContext');
+        const pubs = ctx.publishes().filter(p => p.channel === 'UI.Cmd.BehaviorBar.SetMenuContext');
         ctx.expect(ctx.assert.truthy(pubs.length >= 50, `expected at least 50 hover publishes, got ${pubs.length}`));
     },
 });

@@ -1,35 +1,36 @@
-// shared/hud-action-bar.js — Gameplay HUD action bar (System A).
+// shared/hud-behavior-bar.js — Gameplay HUD behavior bar (System A).
 //
-// This is the ONE and ONLY renderer of the in-game gameplay action bar. hud.js
-// loads it on the InGame screen; tests host it via /screens/test-action-bar.html.
-// Do NOT re-implement this rendering inline in an HTML page — a duplicate inline
-// copy used to live in screens/action-bar.html and silently diverged (it was
-// dead at runtime, yet the whole test suite exercised it instead of this file).
-// If a screen needs the action bar, load this module; keep rendering logic in JS.
+// This is the ONE and ONLY renderer of the in-game gameplay behavior bar. hud.js
+// loads it on the InGame screen; tests host it via /screens/test-behavior-bar.html.
+// Do NOT re-implement this rendering inline in an HTML page.
 //
-// (The menu action bar — System B, #ab-menu — is not yet wired into the live
+// Entries are projected from the input manager's active behaviours by
+// UScpBehaviorBarPublisher (C++), with per-entry ability status overlaid, and
+// arrive on UI.BehaviorBar.Entries.
+//
+// (The menu behavior bar — System B, #bb-menu — is not yet wired into the live
 //  shell; the menu context is published but nothing renders it. Separate TODO.)
 //
-// Renders into #ab-shell-gameplay > #ab-gameplay (DOM created by hud.js).
-// Each row: [ability name]  [key icon]
+// Renders into #bb-shell-gameplay > #bb-gameplay (DOM created by hud.js).
+// Each row: [behaviour name]  [key icon]
 // Depends on: window.TSIC.keyIconUrl (from icons.js)
 (function () {
   var STATUS = ['available', 'blocked', 'cooldown', 'single-use-used'];
   var inputMode = 'MouseAndKeyboard';
-  var slots = [];
+  var entries = [];
 
-  // Key icon <img> nodes cached by `InputName|url`. The action bar re-broadcasts on
-  // every status/cooldown change (e.g. spamming crouch toggles StatusInt each poll),
+  // Key icon <img> nodes cached by `BehaviorTagName|url`. The behavior bar re-broadcasts
+  // on every status/cooldown change (e.g. spamming crouch toggles StatusInt each poll),
   // and a full rebuild recreates the <img> — CEF then shows a blank frame while it
   // re-decodes, which reads as a flash. Reusing the already-decoded node across
-  // re-renders removes that gap. Keyed by InputName too so duplicate URLs on different
-  // abilities don't steal each other's node. Pruned to live keys after each render.
+  // re-renders removes that gap. Keyed by BehaviorTagName too so duplicate URLs on
+  // different entries don't steal each other's node. Pruned to live keys after each render.
   var imgCache = {};
 
   function preferGamepad() { return inputMode === 'Gamepad'; }
 
   function removeKeyFor(img) {
-    var key = img.closest ? img.closest('.ab-key') : img.parentNode;
+    var key = img.closest ? img.closest('.bb-key') : img.parentNode;
     if (key && key.remove) key.remove();
   }
 
@@ -56,51 +57,44 @@
     return img;
   }
 
-  function bracketedName(name) {
-    if (!name) return '';
-    if (name.startsWith('IA_UI_')) return name.slice(6);
-    if (name.startsWith('IA_'))    return name.slice(3);
-    return name;
-  }
-
-  function renderRow(slot) {
+  function renderRow(entry) {
     var row = document.createElement('span');
-    row.className = 'ab-row';
-    row.dataset.status = STATUS[slot.StatusInt | 0] || 'available';
+    row.className = 'bb-row';
+    row.dataset.status = STATUS[entry.StatusInt | 0] || 'available';
 
     var txt = document.createElement('span');
-    txt.className = 'ab-text';
+    txt.className = 'bb-text';
     var nm = document.createElement('span');
-    nm.className = 'ab-name';
-    nm.textContent = slot.AbilityName || bracketedName(slot.InputName);
+    nm.className = 'bb-name';
+    nm.textContent = entry.DisplayName || '';
     txt.appendChild(nm);
-    if (slot.SubText) {
+    if (entry.SubText) {
       var sub = document.createElement('span');
-      sub.className = 'ab-sub';
-      sub.textContent = slot.SubText.length > 30 ? slot.SubText.slice(0, 29) + '…' : slot.SubText;
+      sub.className = 'bb-sub';
+      sub.textContent = entry.SubText.length > 30 ? entry.SubText.slice(0, 29) + '…' : entry.SubText;
       txt.appendChild(sub);
     }
     row.appendChild(txt);
 
     var isGP = preferGamepad();
-    var iconUrl = isGP ? slot.GamepadIconUrl : slot.KeyboardIconUrl;
-    var keyText = isGP ? slot.GamepadKeyText : slot.KeyboardKeyText;
+    var iconUrl = isGP ? entry.GamepadIconUrl : entry.KeyboardIconUrl;
+    var keyText = isGP ? entry.GamepadKeyText : entry.KeyboardKeyText;
     var resolve = (window.TSIC && window.TSIC.keyIconUrl) || function () { return ''; };
     var resolvedUrl = iconUrl || resolve(keyText, isGP);
 
     // Icon-only: render no key chip when no thumbnail resolves (no text fallback).
     if (resolvedUrl) {
       var key = document.createElement('span');
-      key.className = 'ab-key';
-      var cacheKey = (slot.InputName || '') + '|' + resolvedUrl;
+      key.className = 'bb-key';
+      var cacheKey = (entry.BehaviorTagName || '') + '|' + resolvedUrl;
       liveKeys[cacheKey] = true;
       var img = keyImg(cacheKey, resolvedUrl, keyText, isGP, resolve);
       key.appendChild(img);
-      if (slot.CooldownPercent > 0 && slot.CooldownPercent < 1) {
+      if (entry.CooldownPercent > 0 && entry.CooldownPercent < 1) {
         var sweep = document.createElement('div');
-        sweep.className = 'ab-cd-sweep';
+        sweep.className = 'bb-cd-sweep';
         key.style.setProperty('--tsic-cd-percent',
-          String(Math.max(0, Math.min(100, Math.round(slot.CooldownPercent * 100)))));
+          String(Math.max(0, Math.min(100, Math.round(entry.CooldownPercent * 100)))));
         key.appendChild(sweep);
       }
       row.appendChild(key);
@@ -108,20 +102,22 @@
     return row;
   }
 
-  // Set of `InputName|url` keys touched in the current render; used to prune imgCache.
+  // Set of `BehaviorTagName|url` keys touched in the current render; used to prune imgCache.
   var liveKeys = {};
 
   function render() {
-    var host = document.getElementById('ab-gameplay');
-    var shell = document.getElementById('ab-shell-gameplay');
+    var host = document.getElementById('bb-gameplay');
+    var shell = document.getElementById('bb-shell-gameplay');
     if (!host || !shell) return;
     liveKeys = {};
     host.innerHTML = '';
     var hasVisible = false;
-    for (var i = 0; i < slots.length; i++) {
-      if (slots[i].bVisible === false) continue;
+    for (var i = 0; i < entries.length; i++) {
+      if (entries[i].bVisible === false) continue;
+      // Blocked actions (can't be used right now) are hidden from the bar entirely.
+      if ((STATUS[entries[i].StatusInt | 0] || 'available') === 'blocked') continue;
       hasVisible = true;
-      host.appendChild(renderRow(slots[i]));
+      host.appendChild(renderRow(entries[i]));
     }
     for (var k in imgCache) {
       if (!liveKeys[k]) delete imgCache[k];
@@ -129,8 +125,8 @@
     shell.classList.toggle('hidden', !hasVisible);
   }
 
-  tsic.on('tsic.msg.UI.ActionBar.Abilities', function (p) {
-    slots = (p && p.Slots) || [];
+  tsic.on('tsic.msg.UI.BehaviorBar.Entries', function (p) {
+    entries = (p && p.Entries) || [];
     render();
   });
   tsic.on('tsic.msg.UI.Input.Mode.Changed', function (p) {

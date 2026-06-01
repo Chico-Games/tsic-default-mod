@@ -1,4 +1,4 @@
-// Helper API for menu pages that publish a dynamic action-bar context.
+// Helper API for menu pages that publish a dynamic behavior-bar context.
 // Static-context pages don't need this file — router.js handles them via the
 // <meta name="tsic-action-bar-context"> tag.
 //
@@ -22,7 +22,7 @@
             ? window.__tsicPublishMenuActionContext
             // Fallback: send raw if router.js hasn't loaded yet.
             : function (entries) {
-                window.tsic.publishMessage('UI.Cmd.ActionBar.SetMenuContext', { Entries: entries });
+                window.tsic.publishMessage('UI.Cmd.BehaviorBar.SetMenuContext', { Entries: entries });
             };
 
         window.tsic.setMenuActionContext = function (entries) {

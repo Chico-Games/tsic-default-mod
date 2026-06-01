@@ -218,7 +218,9 @@
       const PICK_RADIUS_PX = 16;
       let bounds = { minX: 0, minY: 0, maxX: 0, maxY: 0, hasData: false };
       let MIN_SCALE = 0.05;
-      const MAX_SCALE = 16;
+      const MAX_SCALE = 6;
+      // Default open/reset zoom relative to the fit-whole-map scale (1 = fit whole map).
+      const DEFAULT_ZOOM_MULT = 3;
       const state = { panX: 0, panY: 0, scale: 1, isPad: false, mouseX: -1, mouseY: -1 };
       let latestSnapshot = null;
       let latestPings = null;
@@ -263,10 +265,19 @@
         if (widthCm <= 0 || heightCm <= 0) return;
         const sx = vp.clientWidth  / widthCm;
         const sy = vp.clientHeight / heightCm;
-        MIN_SCALE = Math.min(sx, sy) * 0.95;
-        state.scale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, Math.min(sx, sy) * 0.95));
-        state.panX = (vp.clientWidth  - widthCm  * state.scale) / 2;
-        state.panY = (vp.clientHeight - heightCm * state.scale) / 2;
+        const fitScale = Math.min(sx, sy) * 0.95;
+        MIN_SCALE = fitScale;
+        state.scale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, fitScale * DEFAULT_ZOOM_MULT));
+        // Center on the local player when known; otherwise center the whole map.
+        const me = latestSnapshot && (latestSnapshot.Players || [])[0];
+        if (me && me.Position) {
+          const loc = worldToLocal(me.Position.X || 0, me.Position.Y || 0);
+          state.panX = vp.clientWidth  / 2 - loc.x * state.scale;
+          state.panY = vp.clientHeight / 2 - loc.y * state.scale;
+        } else {
+          state.panX = (vp.clientWidth  - widthCm  * state.scale) / 2;
+          state.panY = (vp.clientHeight - heightCm * state.scale) / 2;
+        }
         applyTransform();
         if (latestSnapshot) rerender();
       }
@@ -742,19 +753,10 @@
         rerender();
       }, { passive: false });
 
-      vp.addEventListener('contextmenu', (ev) => {
-        ev.preventDefault();
-        const rect = vp.getBoundingClientRect();
-        const cx = ev.clientX - rect.left;
-        const cy = ev.clientY - rect.top;
-        const lx = (cx - state.panX) / state.scale;
-        const ly = (cy - state.panY) / state.scale;
-        if (!bounds.hasData) return;
-        const { wx, wy } = localToWorld(lx, ly);
-        const X = Math.max(bounds.minX, Math.min(bounds.maxX, wx));
-        const Y = Math.max(bounds.minY, Math.min(bounds.maxY, wy));
-        ctx.publish('UI.Cmd.Ping.Request', { PingType: 'Map', Location: { X, Y, Z: 0 } });
-      });
+      // Suppress the browser context menu on the map; ping placement is driven
+      // by the MapPlacePing hotkey (middle mouse) via the behavior system, not
+      // by raw right-click.
+      vp.addEventListener('contextmenu', (ev) => ev.preventDefault());
 
       // R = reset. Esc closes via screen-manager's cancelCmd (UI.Cmd.GameScreen.Close).
       window.addEventListener('keydown', (ev) => {
@@ -806,8 +808,11 @@
       function placePingAtCursorOrCenter() {
         if (!ctx.isVisible() || !bounds.hasData) return;
         const rect = vp.getBoundingClientRect();
-        const cx = rect.width / 2;
-        const cy = rect.height / 2;
+        // Mouse (middle-click): drop the ping under the cursor. Gamepad has no
+        // cursor (mouseX/Y reset to -1 on leave), so fall back to viewport center.
+        const useCursor = state.mouseX >= 0 && state.mouseY >= 0;
+        const cx = useCursor ? state.mouseX : rect.width / 2;
+        const cy = useCursor ? state.mouseY : rect.height / 2;
         const lx = (cx - state.panX) / state.scale;
         const ly = (cy - state.panY) / state.scale;
         const { wx, wy } = localToWorld(lx, ly);

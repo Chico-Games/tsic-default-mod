@@ -234,15 +234,15 @@ TSICTestHarness.register({
 TSICTestHarness.register({
     name: 'Channels/Screen.Changed: gameplay action bar is not screen-gated',
     tags: ['channel', 'screen'],
-    file: '/screens/test-action-bar.html',
+    file: '/screens/test-behavior-bar.html',
     async run(ctx) {
-        ctx.inject('tsic.msg.UI.ActionBar.Abilities', { Slots: [{ InputName: 'IA_X', AbilityName: 'X', bVisible: true, StatusInt: 0 }] });
-        await ctx.waitFor(() => ctx.doc.querySelector('#ab-gameplay .ab-row'));
+        ctx.inject('tsic.msg.UI.BehaviorBar.Entries', { Entries: [{ BehaviorTagName: 'IA_X', DisplayName: 'X', bVisible: true, StatusInt: 0 }] });
+        await ctx.waitFor(() => ctx.doc.querySelector('#bb-gameplay .bb-row'));
         // The live gameplay bar (hud-action-bar.js) ignores UI.Screen.Changed; a
         // broadcast must leave its rows untouched (no menu-screen hiding).
         ctx.inject('tsic.msg.UI.Screen.Changed', { Name: 'PauseMenu' });
         await new Promise(r => setTimeout(r, 20));
-        ctx.expect(ctx.assert.domCount(ctx.doc, '#ab-gameplay .ab-row', 1));
+        ctx.expect(ctx.assert.domCount(ctx.doc, '#bb-gameplay .bb-row', 1));
     },
 });
 
@@ -250,14 +250,14 @@ TSICTestHarness.register({
 TSICTestHarness.register({
     name: 'Channels/Input.Mode.Changed: explicit broadcast flips device family on action-bar',
     tags: ['channel', 'input-bridge'],
-    file: '/screens/test-action-bar.html',
+    file: '/screens/test-behavior-bar.html',
     async run(ctx) {
-        ctx.inject('tsic.msg.UI.ActionBar.Abilities', {
-            Slots: [{ InputName: 'IA_X', AbilityName: 'X', bVisible: true, StatusInt: 0,
+        ctx.inject('tsic.msg.UI.BehaviorBar.Entries', {
+            Entries: [{ BehaviorTagName: 'IA_X', DisplayName: 'X', bVisible: true, StatusInt: 0,
                       KeyboardIconUrl: '/icons/keyboard/e.svg', GamepadIconUrl: '/icons/gamepad/face-bottom.svg' }],
         });
         ctx.inject('tsic.msg.UI.Input.Mode.Changed', { Mode: 'Gamepad' });
-        await ctx.waitFor(() => /gamepad/.test((ctx.doc.querySelector('.ab-key img') || {}).src || ''));
+        await ctx.waitFor(() => /gamepad/.test((ctx.doc.querySelector('.bb-key img') || {}).src || ''));
         ctx.expect(ctx.assert.truthy(true));
     },
 });

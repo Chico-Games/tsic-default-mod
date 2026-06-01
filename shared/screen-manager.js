@@ -119,14 +119,14 @@
       window.__tsicPublishMenuActionContext(mod.actionBarContext);
     } else {
       // Best-effort direct publish if router helper isn't available yet.
-      window.tsic.publishMessage('UI.Cmd.ActionBar.SetMenuContext', {
+      window.tsic.publishMessage('UI.Cmd.BehaviorBar.SetMenuContext', {
         Entries: mod.actionBarContext,
       });
     }
   }
 
   function clearMenuActionContext() {
-    window.tsic.publishMessage('UI.Cmd.ActionBar.SetMenuContext', { Entries: [] });
+    window.tsic.publishMessage('UI.Cmd.BehaviorBar.SetMenuContext', { Entries: [] });
   }
 
   // --- cancel/back wiring (single shared listener) ----------------------

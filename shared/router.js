@@ -154,7 +154,7 @@
       out.push({ ActionName: 'IA_UI_CancelBack', Label: 'Back', Priority: 1000 });
     }
     if (window.tsic && window.tsic.publishMessage) {
-      window.tsic.publishMessage('UI.Cmd.ActionBar.SetMenuContext', { Entries: out });
+      window.tsic.publishMessage('UI.Cmd.BehaviorBar.SetMenuContext', { Entries: out });
     }
   }
   // Exposed early so shared/action-bar.js can route through us.
@@ -264,7 +264,7 @@
       const clearOnce = () => {
         if (cleared) return;
         cleared = true;
-        window.tsic.publishMessage('UI.Cmd.ActionBar.SetMenuContext', { Entries: [] });
+        window.tsic.publishMessage('UI.Cmd.BehaviorBar.SetMenuContext', { Entries: [] });
       };
       window.addEventListener('beforeunload', clearOnce);
       window.addEventListener('pagehide', clearOnce);

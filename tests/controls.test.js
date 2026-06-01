@@ -3,14 +3,14 @@
 
 const CONTROLS_STATE = {
     Entries: [
-        { BehaviorTagName: 'Input.Behavior.Crouch', DisplayName: 'Crouch', SituationTagName: 'Input.Situation.Gameplay',
-          HotkeyId: 'HK_Crouch', KeyboardKeyText: 'Left Control', GamepadKeyText: 'Gamepad Right Thumbstick',
-          Remappable: true, Toggleable: true, HoldToggle: 0, SharedByCount: 1 },
-        { BehaviorTagName: 'Input.Behavior.Interact', DisplayName: 'Interact', SituationTagName: 'Input.Situation.Gameplay',
-          HotkeyId: 'HK_Interact', KeyboardKeyText: 'E', GamepadKeyText: 'Gamepad Face Button Bottom',
-          Remappable: true, Toggleable: false, HoldToggle: 0, SharedByCount: 2 },
+        { HotkeyId: 'HK_Crouch', DisplayName: 'Crouch', BehaviorsLabel: 'Crouch',
+          KeyboardKeyText: 'Left Control', GamepadKeyText: 'Gamepad Right Thumbstick',
+          bToggleable: true, HoldToggle: 0, ToggleBehaviorTagName: 'Input.Behavior.Crouch' },
+        { HotkeyId: 'HK_Interact', DisplayName: 'Interact', BehaviorsLabel: 'Interact, Open Storage',
+          KeyboardKeyText: 'E', GamepadKeyText: 'Gamepad Face Button Bottom',
+          bToggleable: false, HoldToggle: 0, ToggleBehaviorTagName: '' },
     ],
-    MouseSensitivity: 1, GamepadSensitivity: 0.5, GamepadDeadzone: 0.15, InvertMouseY: false, InvertGamepadY: false,
+    MouseSensitivity: 1, GamepadSensitivity: 0.5, GamepadDeadzone: 0.15, bInvertMouseY: false, bInvertGamepadY: false,
 };
 
 async function openControlsTab(ctx) {
@@ -26,12 +26,12 @@ TSICTestHarness.register({
     async run(ctx) {
         await openControlsTab(ctx);
         ctx.expect(ctx.assert.domCount(ctx.doc, '.binding-row', 2));
-        const crouch = Array.from(ctx.doc.querySelectorAll('.binding-row')).find(r => r.dataset.behavior === 'Input.Behavior.Crouch');
+        const crouch = Array.from(ctx.doc.querySelectorAll('.binding-row')).find(r => r.dataset.hotkeyId === 'HK_Crouch');
         ctx.expect(crouch ? null : 'crouch row missing');
         ctx.expect(crouch && crouch.querySelector('select.holdtoggle') ? null : 'crouch (toggleable) should have a Hold/Toggle select');
-        // The interact row should surface its "shared by 2" hint.
-        const interact = Array.from(ctx.doc.querySelectorAll('.binding-row')).find(r => r.dataset.behavior === 'Input.Behavior.Interact');
-        ctx.expect(interact && interact.querySelector('.shared-note') ? null : 'interact should show shared-by note');
+        // The interact row should list the behaviours that use the hotkey.
+        const interact = Array.from(ctx.doc.querySelectorAll('.binding-row')).find(r => r.dataset.hotkeyId === 'HK_Interact');
+        ctx.expect(interact && interact.querySelector('.shared-note') ? null : 'interact should list its behaviours');
         // Analog controls present.
         ctx.expect(ctx.assert.domExists(ctx.doc, '#page input[type="range"]'));
     },
@@ -43,10 +43,10 @@ TSICTestHarness.register({
     async run(ctx) {
         await openControlsTab(ctx);
         ctx.clearPublishes();
-        const kbBtn = ctx.doc.querySelector('.binding-row[data-behavior="Input.Behavior.Interact"] .bind-btn[data-gamepad="0"]');
+        const kbBtn = ctx.doc.querySelector('.binding-row[data-hotkey-id="HK_Interact"] .bind-btn[data-gamepad="0"]');
         kbBtn.click();
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Settings.BeginRebind',
-            { where: p => p.HotkeyId === 'HK_Interact' && p.Gamepad === false }));
+            { where: p => p.HotkeyId === 'HK_Interact' && p.bGamepad === false }));
         ctx.expect(ctx.doc.getElementById('rebind-modal') && !ctx.doc.getElementById('rebind-modal').hidden
             ? null : 'capture modal should be visible');
     },
@@ -59,7 +59,7 @@ TSICTestHarness.register({
         await openControlsTab(ctx);
         // Simulate the manager capturing a key that conflicts with another behaviour.
         ctx.inject('tsic.msg.UI.Settings.RebindCapture',
-            { Capturing: false, HotkeyId: 'HK_Interact', CapturedKeyText: 'F', Conflict: true, ConflictBehavior: 'Input.Behavior.Crouch' });
+            { bCapturing: false, HotkeyId: 'HK_Interact', CapturedKeyText: 'F', bConflict: true, ConflictHotkeyText: 'Crouch' });
         await ctx.waitFor(() => ctx.doc.getElementById('rebind-replace'));
         ctx.clearPublishes();
         ctx.doc.getElementById('rebind-replace').click();
@@ -73,7 +73,7 @@ TSICTestHarness.register({
     file: '/screens/settings.html',
     async run(ctx) {
         await openControlsTab(ctx);
-        const kbBtn = ctx.doc.querySelector('.binding-row[data-behavior="Input.Behavior.Interact"] .bind-btn[data-gamepad="0"]');
+        const kbBtn = ctx.doc.querySelector('.binding-row[data-hotkey-id="HK_Interact"] .bind-btn[data-gamepad="0"]');
         kbBtn.click();
         await ctx.waitFor(() => ctx.doc.querySelector('#rebind-actions button'));
         ctx.clearPublishes();
@@ -101,7 +101,7 @@ TSICTestHarness.register({
     async run(ctx) {
         await openControlsTab(ctx);
         ctx.clearPublishes();
-        const sel = ctx.doc.querySelector('.binding-row[data-behavior="Input.Behavior.Crouch"] select.holdtoggle');
+        const sel = ctx.doc.querySelector('.binding-row[data-hotkey-id="HK_Crouch"] select.holdtoggle');
         sel.value = 'toggle';
         sel.dispatchEvent(new ctx.win.Event('change', { bubbles: true }));
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Settings.Set', {

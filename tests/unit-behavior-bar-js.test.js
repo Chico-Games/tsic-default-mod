@@ -1,6 +1,6 @@
-// Unit tests for shared/action-bar.js (tsic.setMenuActionContext / clear).
+// Unit tests for shared/behavior-bar.js (tsic.setMenuActionContext / clear).
 TSICTestHarness.register({
-    name: 'Unit/ActionBarJs: setMenuActionContext routes through publishMenuContext',
+    name: 'Unit/BehaviorBarJs: setMenuActionContext routes through publishMenuContext',
     file: '/screens/test-fixtures.html',
     async run(ctx) {
         ctx.expect(ctx.assert.truthy(typeof ctx.win.tsic.setMenuActionContext === 'function'));
@@ -10,7 +10,7 @@ TSICTestHarness.register({
         ]);
         // setMenuActionContext goes through __tsicPublishMenuActionContext which
         // auto-appends the Back entry.
-        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.ActionBar.SetMenuContext', {
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.BehaviorBar.SetMenuContext', {
             where: p => p.Entries.find(e => e.ActionName === 'IA_UI_CancelBack')
                      && p.Entries.find(e => e.Label === 'Use'),
         }));
@@ -18,19 +18,19 @@ TSICTestHarness.register({
 });
 
 TSICTestHarness.register({
-    name: 'Unit/ActionBarJs: clearMenuActionContext sends empty array (just auto-Back)',
+    name: 'Unit/BehaviorBarJs: clearMenuActionContext sends empty array (just auto-Back)',
     file: '/screens/test-fixtures.html',
     async run(ctx) {
         ctx.clearPublishes();
         ctx.win.tsic.clearMenuActionContext();
-        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.ActionBar.SetMenuContext', {
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.BehaviorBar.SetMenuContext', {
             where: p => p.Entries.length === 1 && p.Entries[0].ActionName === 'IA_UI_CancelBack',
         }));
     },
 });
 
 TSICTestHarness.register({
-    name: 'Unit/ActionBarJs: setMenuActionContext sanitises malformed entries',
+    name: 'Unit/BehaviorBarJs: setMenuActionContext sanitises malformed entries',
     file: '/screens/test-fixtures.html',
     async run(ctx) {
         ctx.clearPublishes();
@@ -50,7 +50,7 @@ TSICTestHarness.register({
 });
 
 TSICTestHarness.register({
-    name: 'Unit/ActionBarJs: passing a non-array yields auto-Back only',
+    name: 'Unit/BehaviorBarJs: passing a non-array yields auto-Back only',
     file: '/screens/test-fixtures.html',
     async run(ctx) {
         ctx.clearPublishes();

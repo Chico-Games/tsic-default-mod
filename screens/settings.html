@@ -50,9 +50,13 @@
     #restart-required { color: var(--tsic-warning, #d88); font-size: 13px; letter-spacing: 1px; text-transform: uppercase; }
     /* Controls tab */
     .binding-row .field-control { gap: 12px; }
+    /* Fixed-width left cell holding the optional Hold/Toggle tickbox, so the rebind
+       buttons start at the same x on every row (present or empty). */
+    .binding-row .toggle-cell { flex: 0 0 44px; display:flex; align-items:center; justify-content:flex-start; }
     .bind-btn { display:inline-flex; align-items:center; gap:6px; background: var(--cat-paper-panel); color: var(--cat-ink-dark);
             border:1px solid var(--tsic-border); padding: 2px 10px; cursor:pointer; min-width: 96px; justify-content:center; font-family: inherit; }
     .bind-btn.waiting { background: var(--tsic-accent-dim, rgba(184,170,145,0.5)); }
+    .bind-btn.locked { opacity: 0.4; cursor: default; }
     .bind-btn img { width: 20px; height: 20px; }
     .bind-btn .key-text { font-size: 12px; }
     .bind-locked { color: var(--cat-ink-soft); font-size: 12px; font-style: italic; }

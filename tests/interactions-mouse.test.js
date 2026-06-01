@@ -193,21 +193,21 @@ TSICTestHarness.register({
 
 // ---- Interaction: every target row -----------------------------------
 TSICTestHarness.register({
-    name: 'Mouse/Interaction: each row publishes with its EntityId + bPrimary',
+    name: 'Mouse/Interaction: each row publishes with its EntityId',
     file: '/screens/interaction.html',
     async run(ctx) {
         ctx.inject('tsic.msg.UI.Interaction.Targets', { Targets: [
-            { EntityId: 11, Label: 'Open',     bIsPrimary: true },
-            { EntityId: 12, Label: 'Inspect',  bIsPrimary: false },
+            { EntityId: 11, Label: 'Open' },
+            { EntityId: 12, Label: 'Inspect' },
         ]});
         await ctx.waitFor(() => ctx.doc.querySelectorAll('.row').length === 2);
         ctx.clearPublishes();
-        ctx.doc.querySelector('.row.primary').click();
-        ctx.doc.querySelector('.row.alt').click();
+        const rows = ctx.doc.querySelectorAll('.row');
+        for (const r of rows) r.click();
         const pubs = ctx.publishes().filter(p => p.channel === 'UI.Cmd.Interaction.Activate');
         ctx.expect(ctx.assert.eq(pubs.length, 2));
-        ctx.expect(ctx.assert.truthy(pubs.some(p => p.payload.bPrimary === true  && p.payload.EntityId === 11)));
-        ctx.expect(ctx.assert.truthy(pubs.some(p => p.payload.bPrimary === false && p.payload.EntityId === 12)));
+        ctx.expect(ctx.assert.truthy(pubs.some(p => p.payload.EntityId === 11)));
+        ctx.expect(ctx.assert.truthy(pubs.some(p => p.payload.EntityId === 12)));
     },
 });
 

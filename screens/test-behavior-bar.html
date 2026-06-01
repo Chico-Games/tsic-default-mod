@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="tsic-screen" content="TestBehaviorBar">
+  <meta name="tsic-debug" content="true">
+  <title>Test: gameplay behavior bar</title>
+  <!-- Test-only host for the LIVE gameplay behavior-bar component
+       (shared/hud-behavior-bar.js). In production hud.js creates this DOM shell
+       and injects the styles on the InGame screen; here we provide the minimal
+       shell so the component can be exercised in isolation by the spa-test-runner.
+
+       DO NOT add rendering logic to this file. The behavior bar is rendered by
+       shared/hud-behavior-bar.js — this page only hosts it. -->
+  <style>
+    /* Mirror the visibility rule hud.js injects, so getComputedStyle()-based
+       hidden/visible assertions work. */
+    #bb-shell-gameplay.hidden { display: none; }
+  </style>
+  <!-- No tsic-bridge.js / tsic-runtime.js: in the spa-test-runner the harness
+       stamps a mock window.tsic in beforeParse, and tsic-bridge.js would
+       overwrite it. icons.js + the mock are all hud-behavior-bar.js needs. -->
+  <script src="/shared/dom.js" defer></script>
+  <script src="/shared/icons.js" defer></script>
+  <script src="/shared/hud-behavior-bar.js" defer></script>
+</head><body>
+  <div id="bb-shell-gameplay" class="bb-shell hidden">
+    <div id="bb-gameplay"></div>
+  </div>
+</body></html>

@@ -41,15 +41,10 @@
                 ] },
             ] },
         ],
-        Footer: { AnyDirty: false, RestartRequired: false, ApplyCountdownSeconds: -1 },
+        Footer: { bAnyDirty: false, bRestartRequired: false, ApplyCountdownSeconds: -1 },
     };
 
     const CONTROLS_PAGE_ID = 'ControlsCollection';
-    const SITUATION_TITLES = {
-        'Input.Situation.Combat': 'Gameplay',
-        'Input.Situation.Construction': 'Construction',
-        'Input.Situation.UI.Map': 'Map',
-    };
 
     let activePageId = null;
     let lastCatalog = null;
@@ -70,6 +65,14 @@
 
     function publishAction(key) {
         tsic.publishMessage('UI.Cmd.Settings.Action', { Key: key });
+    }
+
+    // Cap displayed numbers at 2 decimal places, dropping trailing zeros
+    // (e.g. 0.6900000000000001 -> "0.69", 50 -> "50", 1.5 -> "1.5").
+    function fmt2(n) {
+        const num = Number(n);
+        if (Number.isNaN(num)) return String(n);
+        return String(Number(num.toFixed(2)));
     }
 
     // ---- Static field rendering (Audio/Video/Gameplay) ----
@@ -98,14 +101,14 @@
             slider.disabled = isDisabled;
             const valueLabel = document.createElement('span');
             valueLabel.className = 'value-label';
-            valueLabel.textContent = s.Display !== undefined ? s.Display : String(v);
+            valueLabel.textContent = s.Display !== undefined ? s.Display : fmt2(v);
             slider.oninput = () => {
                 let n = Number(slider.value);
                 if (Number.isNaN(n)) return;
                 n = Math.max(min, Math.min(max, n));
                 slider.value = String(n);
                 localState[s.Key] = n;
-                valueLabel.textContent = String(n);
+                valueLabel.textContent = fmt2(n);
                 publishSet(s.Key, n);
             };
             ctl.appendChild(slider);
@@ -195,21 +198,27 @@
         btn.dataset.hotkeyId = entry.HotkeyId;
         btn.dataset.gamepad = isGamepad ? '1' : '0';
         keyCapInto(btn, isGamepad ? entry.GamepadKeyText : entry.KeyboardKeyText, isGamepad);
-        btn.onclick = () => beginRebind(entry.HotkeyId, isGamepad, btn);
+        const remappable = isGamepad ? entry.bGamepadRemappable : entry.bKeyboardRemappable;
+        if (remappable === false) {
+            btn.classList.add('locked');
+            btn.disabled = true;
+        } else {
+            btn.onclick = () => beginRebind(entry.HotkeyId, isGamepad, btn);
+        }
         return btn;
     }
 
     function buildBindingRow(entry) {
         const row = document.createElement('div');
         row.className = 'field binding-row';
-        row.dataset.behavior = entry.BehaviorTagName;
+        row.dataset.hotkeyId = entry.HotkeyId;
 
         const lbl = document.createElement('label');
-        lbl.textContent = entry.DisplayName || entry.BehaviorTagName;
-        if (entry.SharedByCount > 1) {
+        lbl.textContent = entry.DisplayName || entry.HotkeyId;
+        if (entry.BehaviorsLabel) {
             const note = document.createElement('span');
             note.className = 'shared-note';
-            note.textContent = `shared by ${entry.SharedByCount}`;
+            note.textContent = entry.BehaviorsLabel;
             lbl.appendChild(note);
         }
         row.appendChild(lbl);
@@ -217,30 +226,25 @@
         const ctl = document.createElement('div');
         ctl.className = 'field-control';
 
-        if (!entry.Remappable) {
-            const locked = document.createElement('span');
-            locked.className = 'bind-locked';
-            locked.textContent = entry.KeyboardKeyText || 'System';
-            ctl.appendChild(locked);
-        } else {
-            ctl.appendChild(buildRebindButton(entry, false));
-            ctl.appendChild(buildRebindButton(entry, true));
-
-            if (entry.Toggleable) {
-                const sel = document.createElement('select');
-                sel.className = 'holdtoggle';
-                [['hold', 'Hold'], ['toggle', 'Toggle']].forEach(([val, text]) => {
-                    const o = document.createElement('option');
-                    o.value = val; o.textContent = text;
-                    if ((entry.HoldToggle === 1) === (val === 'toggle')) o.selected = true;
-                    sel.appendChild(o);
-                });
-                sel.onchange = () => {
-                    publishSet('hold_toggle', { behavior: entry.BehaviorTagName, toggle: sel.value === 'toggle' });
-                };
-                ctl.appendChild(sel);
-            }
+        // Hold/Toggle preference as a tickbox in a fixed-width left cell, so the two
+        // rebind buttons line up across every row (ticked = toggle, unticked = hold).
+        const toggleCell = document.createElement('div');
+        toggleCell.className = 'toggle-cell';
+        if (entry.bToggleable && entry.ToggleBehaviorTagName) {
+            const tog = document.createElement('div');
+            tog.className = 'field-toggle' + (entry.HoldToggle === 1 ? ' on' : '');
+            tog.title = 'Toggle (ticked) vs Hold (unticked)';
+            tog.onclick = () => {
+                const next = !tog.classList.contains('on');
+                tog.classList.toggle('on', next);
+                publishSet('hold_toggle', { behavior: entry.ToggleBehaviorTagName, toggle: next });
+            };
+            toggleCell.appendChild(tog);
         }
+        ctl.appendChild(toggleCell);
+
+        ctl.appendChild(buildRebindButton(entry, false));
+        ctl.appendChild(buildRebindButton(entry, true));
         row.appendChild(ctl);
         return row;
     }
@@ -254,24 +258,16 @@
 
     function renderControlsPage(host) {
         const cs = controlsState || { Entries: [] };
-        const bySituation = {};
-        const order = [];
-        for (const e of (cs.Entries || [])) {
-            if (!bySituation[e.SituationTagName]) { bySituation[e.SituationTagName] = []; order.push(e.SituationTagName); }
-            bySituation[e.SituationTagName].push(e);
-        }
-        for (const sit of order) {
-            const sec = makeGroup(SITUATION_TITLES[sit] || sit);
-            for (const e of bySituation[sit]) sec.appendChild(buildBindingRow(e));
-            host.appendChild(sec);
-        }
+        const sec = makeGroup('Controls');
+        for (const e of (cs.Entries || [])) sec.appendChild(buildBindingRow(e));
+        host.appendChild(sec);
 
         const inp = makeGroup('Input');
         inp.appendChild(sliderRow('Mouse sensitivity', 'mouse_sensitivity', cs.MouseSensitivity, 0.1, 3, 0.05));
         inp.appendChild(sliderRow('Gamepad sensitivity', 'gamepad_sensitivity', cs.GamepadSensitivity, 0.05, 1, 0.05));
         inp.appendChild(sliderRow('Gamepad stick deadzone', 'gamepad_deadzone', cs.GamepadDeadzone, 0, 0.9, 0.01));
-        inp.appendChild(toggleRow('Invert mouse Y', 'invert_mouse_y', cs.InvertMouseY));
-        inp.appendChild(toggleRow('Invert gamepad Y', 'invert_gamepad_y', cs.InvertGamepadY));
+        inp.appendChild(toggleRow('Invert mouse Y', 'invert_mouse_y', cs.bInvertMouseY));
+        inp.appendChild(toggleRow('Invert gamepad Y', 'invert_gamepad_y', cs.bInvertGamepadY));
         host.appendChild(inp);
 
         const resetRow = document.createElement('div');
@@ -325,7 +321,7 @@
     function showConflictModal(cap) {
         const modal = ensureModal();
         document.getElementById('rebind-msg').textContent =
-            `${cap.CapturedKeyText} is already bound to ${behaviorName(cap.ConflictBehavior)} — replace?`;
+            `${cap.CapturedKeyText} is already bound to ${cap.ConflictHotkeyText} — replace?`;
         const actions = document.getElementById('rebind-actions');
         actions.innerHTML = '';
         const replace = document.createElement('button');
@@ -349,17 +345,11 @@
         activeRebind = null;
     }
 
-    function behaviorName(tag) {
-        if (!controlsState) return tag;
-        const e = (controlsState.Entries || []).find(x => x.BehaviorTagName === tag);
-        return e ? e.DisplayName : tag;
-    }
-
     function beginRebind(hotkeyId, bGamepad, btn) {
         if (activeRebind && activeRebind.btn) activeRebind.btn.classList.remove('waiting');
         activeRebind = { hotkeyId, bGamepad, btn };
         if (btn) btn.classList.add('waiting');
-        tsic.publishMessage('UI.Cmd.Settings.BeginRebind', { HotkeyId: hotkeyId, Gamepad: !!bGamepad });
+        tsic.publishMessage('UI.Cmd.Settings.BeginRebind', { HotkeyId: hotkeyId, bGamepad: !!bGamepad });
         showCaptureModal();
     }
 
@@ -370,8 +360,8 @@
 
     function onRebindCapture(cap) {
         if (!cap) return;
-        if (cap.Capturing) { showCaptureModal(); return; }
-        if (cap.Conflict) { showConflictModal(cap); return; }
+        if (cap.bCapturing) { showCaptureModal(); return; }
+        if (cap.bConflict) { showConflictModal(cap); return; }
         // No conflict (applied) or cancelled — close. ControlsState refresh re-renders.
         hideModal();
     }
@@ -430,7 +420,7 @@
         const restart = document.getElementById('restart-required');
         const toast = document.getElementById('apply-toast');
         const count = document.getElementById('apply-countdown');
-        if (restart) restart.hidden = !(footer && footer.RestartRequired);
+        if (restart) restart.hidden = !(footer && footer.bRestartRequired);
         if (toast) {
             const active = footer && typeof footer.ApplyCountdownSeconds === 'number' && footer.ApplyCountdownSeconds >= 0;
             toast.hidden = !active;

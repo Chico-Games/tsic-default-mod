@@ -25,18 +25,18 @@ TSICTestHarness.register({
         ctx.clearPublishes();
         slot.dispatchEvent(new ctx.win.MouseEvent('mouseenter', { bubbles: true }));
         slot.dispatchEvent(new ctx.win.MouseEvent('mouseleave', { bubbles: true }));
-        const hoverCtx = ctx.publishes().find(p => p.channel === 'UI.Cmd.ActionBar.SetMenuContext'
+        const hoverCtx = ctx.publishes().find(p => p.channel === 'UI.Cmd.BehaviorBar.SetMenuContext'
             && p.payload.Entries.find(e => e.Label === 'Equip'));
         ctx.expect(ctx.assert.truthy(hoverCtx, 'expected an Equip-bearing context on hover'));
         // Inventory keeps the right pane sticky on leave (no clear context fires).
         // So the last publish should still be the hover context, not a separate clear.
-        const setMenuPubs = ctx.publishes().filter(p => p.channel === 'UI.Cmd.ActionBar.SetMenuContext');
+        const setMenuPubs = ctx.publishes().filter(p => p.channel === 'UI.Cmd.BehaviorBar.SetMenuContext');
         ctx.expect(ctx.assert.eq(setMenuPubs.length, 1, 'expected only the hover publish (no leave-clear)'));
     },
 });
 
 // (Removed: 'E2E/ActionBar: rapid screen flips keep the right group visible'.
-//  That tested screen-based gameplay/menu-group toggling and the #ab-menu bar,
+//  That tested screen-based gameplay/menu-group toggling and the #bb-menu bar,
 //  which only existed in the deleted screens/action-bar.html. The live
 //  gameplay bar (hud-action-bar.js) is not screen-gated, and the menu action
 //  bar is not yet wired into the shell — tracked as a separate follow-up.)
@@ -168,13 +168,13 @@ TSICTestHarness.register({
 // ---- ActionBar: hash-quality changes redraw rows -----------------------
 TSICTestHarness.register({
     name: 'E2E/ActionBar: re-broadcast with new status redraws rows',
-    file: '/screens/test-action-bar.html',
+    file: '/screens/test-behavior-bar.html',
     async run(ctx) {
-        ctx.inject('tsic.msg.UI.ActionBar.Abilities', { Slots: [{ InputName: 'IA_X', AbilityName: 'X', bVisible: true, StatusInt: 0 }] });
-        await ctx.waitFor(() => ctx.doc.querySelector('#ab-gameplay .ab-row[data-status="available"]'));
-        ctx.inject('tsic.msg.UI.ActionBar.Abilities', { Slots: [{ InputName: 'IA_X', AbilityName: 'X', bVisible: true, StatusInt: 1 }] });
-        await ctx.waitFor(() => ctx.doc.querySelector('#ab-gameplay .ab-row[data-status="blocked"]'));
-        ctx.expect(ctx.assert.domExists(ctx.doc, '#ab-gameplay .ab-row[data-status="blocked"]'));
+        ctx.inject('tsic.msg.UI.BehaviorBar.Entries', { Entries: [{ BehaviorTagName: 'IA_X', DisplayName: 'X', bVisible: true, StatusInt: 0 }] });
+        await ctx.waitFor(() => ctx.doc.querySelector('#bb-gameplay .bb-row[data-status="available"]'));
+        ctx.inject('tsic.msg.UI.BehaviorBar.Entries', { Entries: [{ BehaviorTagName: 'IA_X', DisplayName: 'X', bVisible: true, StatusInt: 1 }] });
+        await ctx.waitFor(() => ctx.doc.querySelector('#bb-gameplay .bb-row[data-status="blocked"]'));
+        ctx.expect(ctx.assert.domExists(ctx.doc, '#bb-gameplay .bb-row[data-status="blocked"]'));
     },
 });
 

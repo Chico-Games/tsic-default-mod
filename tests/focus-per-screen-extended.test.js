@@ -267,9 +267,8 @@ TSICTestHarness.register(Object.assign({
     file: '/screens/interaction.html',
     async run(ctx) {
         ctx.inject('tsic.msg.UI.Interaction.Targets', { Targets: [
-            { EntityId: 1, Label: 'Open Storage', bIsPrimary: true },
-            { EntityId: 1, Label: 'Inspect',      bIsPrimary: false },
-            { EntityId: 1, Label: 'Break',        bIsPrimary: false },
+            { EntityId: 1, Label: 'Open Storage' },
+            { EntityId: 2, Label: 'Pick up Hammer' },
         ] });
         await TSICTestHarness.fx.runReachability(ctx);
     },

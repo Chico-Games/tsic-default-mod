@@ -1,12 +1,12 @@
 // shared/hud-interaction.js — Interaction target name + divider inside the
-// gameplay action-bar panel (#ab-shell-gameplay > #interaction-prompt + #ab-divider).
+// gameplay behavior-bar panel (#bb-shell-gameplay > #interaction-prompt + #bb-divider).
 // Shows the primary interaction target's label and reveals the divider line.
 (function () {
   tsic.on('tsic.msg.UI.Interaction.Targets', function (p) {
     var label = document.getElementById('interaction-prompt');
-    var divider = document.getElementById('ab-divider');
+    var divider = document.getElementById('bb-divider');
     if (!label || !divider) return;
-    var target = p && p.Targets && p.Targets.find(function (t) { return t.bIsPrimary; });
+    var target = p && p.Targets && p.Targets[0];
     if (target) {
       label.textContent = target.Label || 'Interact';
       label.classList.remove('hidden');

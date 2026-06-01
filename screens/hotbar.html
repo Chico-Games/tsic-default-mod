@@ -16,6 +16,9 @@
   <style>
     #hotbar-row { display:flex; gap:6px; padding: 8px; background: rgba(241,229,207,0.92); border-radius: 4px; }
     #hotbar-row .tsic-slot.selected { box-shadow: 0 0 0 2px var(--tsic-accent); }
+    /* Selected but stowed (item not equipped): muted border + greyed, slightly see-through item. */
+    #hotbar-row .tsic-slot.selected-inactive { box-shadow: 0 0 0 2px rgba(110,110,110,0.85); }
+    #hotbar-row .tsic-slot.selected-inactive img { filter: grayscale(0.65); opacity: 0.6; }
     #hotbar-row .tsic-slot img { width:100%; height:100%; object-fit:contain; pointer-events:none; }
     #hotbar-row .tsic-slot .key { position:absolute; bottom:2px; right:4px; font-size:9px; color:rgba(37,33,25,0.7); pointer-events:none; }
     #hotbar-row .tsic-slot { position:relative; }
@@ -48,9 +51,12 @@
         host.innerHTML = '';
         const slots = lastHotbar.SlotIndices || [];
         const selected = (typeof lastHotbar.SelectedSlot === 'number') ? lastHotbar.SelectedSlot : -1;
+        // Slot the player is on but whose item is stowed (not equipped) — rendered greyed-out.
+        const pending = (typeof lastHotbar.SelectedSlotPending === 'number') ? lastHotbar.SelectedSlotPending : -1;
         for (let i = 0; i < slots.length; i++) {
           const slot = document.createElement('div');
-          slot.className = 'tsic-slot' + (i === selected ? ' selected' : '');
+          const selClass = (i === selected) ? ' selected' : (i === pending ? ' selected-inactive' : '');
+          slot.className = 'tsic-slot' + selClass;
           slot.dataset.slot = String(i);
           const inventorySlot = slots[i];
           const slotHasItem = isAssigned(inventorySlot);

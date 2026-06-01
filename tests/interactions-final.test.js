@@ -168,26 +168,26 @@ TSICTestHarness.register({
 // ---- ActionBar: cooldown 100% draws no sweep --------------------------
 TSICTestHarness.register({
     name: 'ActionBar: cooldown == 1.0 (ready) draws no sweep div',
-    file: '/screens/test-action-bar.html',
+    file: '/screens/test-behavior-bar.html',
     async run(ctx) {
-        ctx.inject('tsic.msg.UI.ActionBar.Abilities', {
-            Slots: [{ InputName: 'IA_X', AbilityName: 'X', bVisible: true, StatusInt: 0, CooldownPercent: 1.0 }],
+        ctx.inject('tsic.msg.UI.BehaviorBar.Entries', {
+            Entries: [{ BehaviorTagName: 'IA_X', DisplayName: 'X', bVisible: true, StatusInt: 0, CooldownPercent: 1.0 }],
         });
-        await ctx.waitFor(() => ctx.doc.querySelector('#ab-gameplay .ab-row'));
-        ctx.expect(ctx.assert.eq(ctx.doc.querySelectorAll('#ab-gameplay .ab-cd-sweep').length, 0));
+        await ctx.waitFor(() => ctx.doc.querySelector('#bb-gameplay .bb-row'));
+        ctx.expect(ctx.assert.eq(ctx.doc.querySelectorAll('#bb-gameplay .bb-cd-sweep').length, 0));
     },
 });
 
-// ---- ActionBar: SubText absent — no .ab-sub div ----------------------
+// ---- ActionBar: SubText absent — no .bb-sub div ----------------------
 TSICTestHarness.register({
-    name: 'ActionBar: omitting SubText omits the .ab-sub div',
-    file: '/screens/test-action-bar.html',
+    name: 'ActionBar: omitting SubText omits the .bb-sub div',
+    file: '/screens/test-behavior-bar.html',
     async run(ctx) {
-        ctx.inject('tsic.msg.UI.ActionBar.Abilities', {
-            Slots: [{ InputName: 'IA_X', AbilityName: 'X', bVisible: true, StatusInt: 0 }],
+        ctx.inject('tsic.msg.UI.BehaviorBar.Entries', {
+            Entries: [{ BehaviorTagName: 'IA_X', DisplayName: 'X', bVisible: true, StatusInt: 0 }],
         });
-        await ctx.waitFor(() => ctx.doc.querySelector('#ab-gameplay .ab-row'));
-        ctx.expect(ctx.assert.eq(ctx.doc.querySelectorAll('#ab-gameplay .ab-sub').length, 0));
+        await ctx.waitFor(() => ctx.doc.querySelector('#bb-gameplay .bb-row'));
+        ctx.expect(ctx.assert.eq(ctx.doc.querySelectorAll('#bb-gameplay .bb-sub').length, 0));
     },
 });
 

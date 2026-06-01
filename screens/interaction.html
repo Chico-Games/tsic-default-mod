@@ -16,17 +16,13 @@
     #wrap { position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); width:420px; }
     .group h3 { letter-spacing: 3px; color:rgba(37,33,25,0.65); font-size: 11px; margin: 12px 0 6px; }
     .row { display:flex; align-items:center; gap:8px; padding:8px 12px; text-align:left; width:100%; }
-    .row.primary { border-color: rgba(127,255,154,0.55); }
-    .row.alt     { border-color: rgba(255,200,80,0.38); color: rgba(37,33,25,0.85); }
     .key  { width:32px; height:24px; display:flex; align-items:center; justify-content:center; background:var(--tsic-border); border-radius:3px; font-weight:bold; font-size:11px; }
     .label{ flex:1; }
-    .badge{ font-size:10px; letter-spacing:2px; color:rgba(37,33,25,0.7); }
   </style>
 </head><body>
   <div id="wrap" class="tsic-panel">
     <h2 class="tsic-title tsic-title--sm">Interact</h2>
-    <div class="group" id="g-primary"><h3>Primary</h3><div id="rows-primary" class="tsic-stack tsic-stack--sm"></div></div>
-    <div class="group" id="g-alt"><h3>Alt</h3><div id="rows-alt" class="tsic-stack tsic-stack--sm"></div></div>
+    <div class="group" id="g-targets"><div id="rows" class="tsic-stack tsic-stack--sm"></div></div>
     <div id="empty" class="tsic-empty" style="display:none;">No targets in focus.</div>
   </div>
   <script>
@@ -35,48 +31,37 @@
 
       function makeRow(t) {
         const row = document.createElement('button');
-        row.className = 'tsic-button row ' + (t.bIsPrimary ? 'primary' : 'alt');
+        row.className = 'tsic-button row';
         const key = document.createElement('span');
         key.className = 'key';
-        key.textContent = t.bIsPrimary ? 'E' : 'F';
+        key.textContent = 'E';
         const label = document.createElement('span');
         label.className = 'label';
         label.textContent = t.Label || ('Entity ' + t.EntityId);
-        const badge = document.createElement('span');
-        badge.className = 'badge';
-        badge.textContent = t.bIsPrimary ? 'PRIMARY' : 'ALT';
         row.appendChild(key);
         row.appendChild(label);
-        row.appendChild(badge);
         row.onclick = () => tsic.publishMessage('UI.Cmd.Interaction.Activate', {
           EntityId: t.EntityId | 0,
           OptionId: '',
-          bPrimary: !!t.bIsPrimary,
         });
         return row;
       }
 
       function render(p) {
-        const pHost = document.getElementById('rows-primary');
-        const aHost = document.getElementById('rows-alt');
-        const gP = document.getElementById('g-primary');
-        const gA = document.getElementById('g-alt');
+        const host = document.getElementById('rows');
+        const g = document.getElementById('g-targets');
         const empty = document.getElementById('empty');
-        pHost.innerHTML = '';
-        aHost.innerHTML = '';
+        host.innerHTML = '';
         const targets = (p && p.Targets) || [];
-        if (targets.length === 0) { empty.style.display = 'block'; gP.style.display = 'none'; gA.style.display = 'none'; return; }
+        if (targets.length === 0) { empty.style.display = 'block'; g.style.display = 'none'; return; }
         empty.style.display = 'none';
-        let primaryCount = 0, altCount = 0;
+        g.style.display = '';
         let firstRow = null;
         for (const t of targets) {
           const row = makeRow(t);
           if (!firstRow) firstRow = row;
-          if (t.bIsPrimary) { pHost.appendChild(row); primaryCount++; }
-          else              { aHost.appendChild(row); altCount++; }
+          host.appendChild(row);
         }
-        gP.style.display = primaryCount ? '' : 'none';
-        gA.style.display = altCount     ? '' : 'none';
         // Anchor initial focus on the first rendered row.
         if (firstRow) firstRow.setAttribute('data-tsic-initial-focus', '');
       }

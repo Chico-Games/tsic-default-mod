@@ -16,7 +16,7 @@ TSICTestHarness.register({
         ctx.win.__tsicPublishMenuActionContext([
             { ActionName: 'IA_UI_ConfirmAccept', Label: 'Craft', Priority: 10 },
         ]);
-        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.ActionBar.SetMenuContext', {
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.BehaviorBar.SetMenuContext', {
             where: p => p.Entries.some(e => e.ActionName === 'IA_UI_CancelBack' && e.Label === 'Back'),
         }));
     },
@@ -30,7 +30,7 @@ TSICTestHarness.register({
         ctx.win.__tsicPublishMenuActionContext([
             { ActionName: 'IA_UI_CancelBack', Label: 'Resume', Priority: 1000 },
         ]);
-        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.ActionBar.SetMenuContext', {
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.BehaviorBar.SetMenuContext', {
             where: p => p.Entries.length === 1 && p.Entries[0].Label === 'Resume',
         }));
     },

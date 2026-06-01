@@ -15,7 +15,7 @@ TSICTestHarness.register({
         const slot = ctx.doc.querySelector('#inv-list .tsic-list-row[data-slot="0"]');
         slot.dispatchEvent(new ctx.win.MouseEvent('mouseenter', { bubbles: true }));
         await new Promise(r => setTimeout(r, 30));
-        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.ActionBar.SetMenuContext',
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.BehaviorBar.SetMenuContext',
             { where: p => p.Entries.find(e => e.Label === 'Drop') }));
         // RMB opens the context menu; click Drop… to open the modal.
         slot.dispatchEvent(new ctx.win.MouseEvent('contextmenu', { bubbles: true, cancelable: true }));
@@ -200,18 +200,18 @@ TSICTestHarness.register({
 // ---- ActionBar: live device-family swap ---------------------------------
 TSICTestHarness.register({
     name: 'E2E/ActionBar: KBM-then-Gamepad swap re-renders icon family',
-    file: '/screens/test-action-bar.html',
+    file: '/screens/test-behavior-bar.html',
     async run(ctx) {
         ctx.mode('MouseAndKeyboard');
-        ctx.inject('tsic.msg.UI.ActionBar.Abilities', {
-            Slots: [{ InputName: 'IA_X', AbilityName: 'X', bVisible: true, StatusInt: 0,
+        ctx.inject('tsic.msg.UI.BehaviorBar.Entries', {
+            Entries: [{ BehaviorTagName: 'IA_X', DisplayName: 'X', bVisible: true, StatusInt: 0,
                       KeyboardIconUrl: '/icons/keyboard/e.svg', GamepadIconUrl: '/icons/gamepad/face-bottom.svg' }],
         });
-        await ctx.waitFor(() => ctx.doc.querySelector('#ab-gameplay .ab-row .ab-key img'));
-        ctx.expect(ctx.assert.truthy(/keyboard/.test(ctx.doc.querySelector('.ab-key img').src)));
+        await ctx.waitFor(() => ctx.doc.querySelector('#bb-gameplay .bb-row .bb-key img'));
+        ctx.expect(ctx.assert.truthy(/keyboard/.test(ctx.doc.querySelector('.bb-key img').src)));
         ctx.mode('Gamepad');
         await new Promise(r => setTimeout(r, 30));
-        ctx.expect(ctx.assert.truthy(/gamepad/.test(ctx.doc.querySelector('.ab-key img').src)));
+        ctx.expect(ctx.assert.truthy(/gamepad/.test(ctx.doc.querySelector('.bb-key img').src)));
     },
 });
 
@@ -226,7 +226,7 @@ TSICTestHarness.register({
         ctx.clearPublishes();
         ctx.doc.querySelector('#inv-list .tsic-list-row[data-slot="0"]').dispatchEvent(new ctx.win.MouseEvent('mouseenter', { bubbles: true }));
         await new Promise(r => setTimeout(r, 30));
-        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.ActionBar.SetMenuContext',
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.BehaviorBar.SetMenuContext',
             { where: p => p.Entries.find(e => e.Label === 'Equip')
                        && p.Entries.find(e => e.Label === 'Assign Hotbar')
                        && p.Entries.find(e => e.Label === 'Drop') }));
@@ -243,7 +243,7 @@ TSICTestHarness.register({
         ctx.clearPublishes();
         ctx.doc.querySelector('#inv-list .tsic-list-row[data-slot="0"]').dispatchEvent(new ctx.win.MouseEvent('mouseenter', { bubbles: true }));
         await new Promise(r => setTimeout(r, 30));
-        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.ActionBar.SetMenuContext',
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.BehaviorBar.SetMenuContext',
             { where: p => p.Entries.find(e => e.Label === 'Use')
                        && p.Entries.find(e => e.Label === 'Drop')
                        && !p.Entries.find(e => e.Label === 'Equip') }));
@@ -260,7 +260,7 @@ TSICTestHarness.register({
         ctx.clearPublishes();
         ctx.doc.querySelector('#inv-list .tsic-list-row[data-slot="0"]').dispatchEvent(new ctx.win.MouseEvent('mouseenter', { bubbles: true }));
         await new Promise(r => setTimeout(r, 30));
-        const last = ctx.publishes().filter(p => p.channel === 'UI.Cmd.ActionBar.SetMenuContext').slice(-1)[0];
+        const last = ctx.publishes().filter(p => p.channel === 'UI.Cmd.BehaviorBar.SetMenuContext').slice(-1)[0];
         const labels = last.payload.Entries.map(e => e.Label).filter(l => l !== 'Back');
         ctx.expect(ctx.assert.eq(labels, ['Drop']));
     },

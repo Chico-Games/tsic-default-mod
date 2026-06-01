@@ -5,15 +5,25 @@
 // TSIC.itemIconUrl('ID_Bread')        → '/tex/item-icon/ID_Bread'
 // TSIC.iconImg('/tex/item-icon/X')    → <img> with standard onerror
 (function () {
+  // Lookups are keyed by every spelling a key can arrive as: UE's long
+  // FKey::GetDisplayName() string (e.g. "Space Bar", "Left Ctrl") AND its
+  // stable FName (e.g. "SpaceBar", "LeftControl"). At load these are folded
+  // through norm() — lowercased, whitespace/hyphen/underscore stripped — so
+  // "Space Bar", "SpaceBar" and "space  bar" all collapse to one entry. This
+  // makes resolution robust to UE display-name quirks (e.g. "D-pad" vs "DPad")
+  // and to whichever form a given C++ path happens to send.
   var KB = {
-    'LMB': 'mouse-left', 'Left Mouse Button': 'mouse-left',
-    'RMB': 'mouse-right', 'Right Mouse Button': 'mouse-right',
-    'MMB': 'mouse-wheel', 'Middle Mouse Button': 'mouse-wheel',
-    'Space': 'space', 'SpaceBar': 'space',
+    'LMB': 'mouse-left', 'Left Mouse Button': 'mouse-left', 'LeftMouseButton': 'mouse-left',
+    'RMB': 'mouse-right', 'Right Mouse Button': 'mouse-right', 'RightMouseButton': 'mouse-right',
+    'MMB': 'mouse-wheel', 'Middle Mouse Button': 'mouse-wheel', 'MiddleMouseButton': 'mouse-wheel',
+    'Space': 'space', 'SpaceBar': 'space', 'Space Bar': 'space',
     'Left Shift': 'shift', 'Right Shift': 'shift', 'Shift': 'shift',
-    'Left Control': 'ctrl', 'Right Control': 'ctrl', 'Ctrl': 'ctrl',
-    'Left Alt': 'alt', 'Right Alt': 'alt', 'Alt': 'alt',
-    'Tab': 'tab', 'Escape': 'esc', 'Esc': 'esc', 'Enter': 'enter',
+    'LeftShift': 'shift', 'RightShift': 'shift',
+    'Left Control': 'ctrl', 'Right Control': 'ctrl', 'Ctrl': 'ctrl', 'Control': 'ctrl',
+    'Left Ctrl': 'ctrl', 'Right Ctrl': 'ctrl', 'LeftControl': 'ctrl', 'RightControl': 'ctrl',
+    'Left Alt': 'alt', 'Right Alt': 'alt', 'Alt': 'alt', 'LeftAlt': 'alt', 'RightAlt': 'alt',
+    'Tab': 'tab', 'Escape': 'esc', 'Esc': 'esc', 'Enter': 'enter', 'Return': 'enter',
+    'Page Up': 'page-up', 'PageUp': 'page-up', 'Page Down': 'page-down', 'PageDown': 'page-down',
     // Mouse wheel rotation (MMB above is the wheel *click*).
     'Mouse Wheel Up': 'scroll-up', 'MouseScrollUp': 'scroll-up', 'Scroll Up': 'scroll-up',
     'Mouse Wheel Down': 'scroll-down', 'MouseScrollDown': 'scroll-down', 'Scroll Down': 'scroll-down',
@@ -26,29 +36,78 @@
   var GP = {
     'Gamepad Face Button Bottom': 'face-bottom', 'Gamepad Face Button Left': 'face-left',
     'Gamepad Face Button Right': 'face-right', 'Gamepad Face Button Top': 'face-top',
+    'Gamepad_FaceButton_Bottom': 'face-bottom', 'Gamepad_FaceButton_Left': 'face-left',
+    'Gamepad_FaceButton_Right': 'face-right', 'Gamepad_FaceButton_Top': 'face-top',
     'Face Bottom': 'face-bottom', 'Face Left': 'face-left',
     'Face Right': 'face-right', 'Face Top': 'face-top',
     'Gamepad Left Shoulder': 'lb', 'Gamepad Right Shoulder': 'rb',
+    'Gamepad_LeftShoulder': 'lb', 'Gamepad_RightShoulder': 'rb',
+    'Left Shoulder': 'lb', 'Right Shoulder': 'rb',
     'LB': 'lb', 'RB': 'rb',
+    // Triggers: the digital button (Gamepad_LeftTrigger), the analog axis form
+    // (Gamepad_LeftTriggerAxis -> "Gamepad Left Trigger Axis", which UE often
+    // reports when a trigger is pressed/captured), and bare spellings all fold to lt/rt.
     'Gamepad Left Trigger': 'lt', 'Gamepad Right Trigger': 'rt',
+    'Gamepad_LeftTrigger': 'lt', 'Gamepad_RightTrigger': 'rt',
+    'Gamepad Left Trigger Axis': 'lt', 'Gamepad Right Trigger Axis': 'rt',
+    'Gamepad_LeftTriggerAxis': 'lt', 'Gamepad_RightTriggerAxis': 'rt',
+    'Left Trigger': 'lt', 'Right Trigger': 'rt',
     'LT': 'lt', 'RT': 'rt',
     'Gamepad DPad Up': 'dpad-up', 'Gamepad DPad Down': 'dpad-down',
     'Gamepad DPad Left': 'dpad-left', 'Gamepad DPad Right': 'dpad-right',
+    'Gamepad_DPad_Up': 'dpad-up', 'Gamepad_DPad_Down': 'dpad-down',
+    'Gamepad_DPad_Left': 'dpad-left', 'Gamepad_DPad_Right': 'dpad-right',
     'Gamepad Left Thumbstick Button': 'lstick-press',
     'Gamepad Right Thumbstick Button': 'rstick-press',
+    'Gamepad_LeftThumbstick': 'lstick-press', 'Gamepad_RightThumbstick': 'rstick-press',
     'Gamepad Special Left': 'special-left', 'Gamepad Special Right': 'special-right',
+    'Gamepad_Special_Left': 'special-left', 'Gamepad_Special_Right': 'special-right',
   };
+
+  // Fold a key string to its canonical lookup form: lowercase, no spaces,
+  // hyphens or underscores. "Left Ctrl", "LeftControl" and "left-ctrl" all map
+  // to the same bucket.
+  function norm(s) {
+    return String(s).toLowerCase().replace(/[\s_\-]+/g, '');
+  }
+  function foldMap(src) {
+    var out = {};
+    for (var k in src) {
+      if (Object.prototype.hasOwnProperty.call(src, k)) out[norm(k)] = src[k];
+    }
+    return out;
+  }
+  var KB_N = foldMap(KB);
+  var GP_N = foldMap(GP);
+
+  // Substring fallbacks for gamepad keys: UE display names vary ("Gamepad Left
+  // Trigger", "Left Trigger", "...Trigger Axis", the digital vs analog forms), so
+  // when the exact table misses, match on the canonical token. Order matters only
+  // in that no token is a prefix of another here.
+  var GP_TOKENS = [
+    ['lefttrigger', 'lt'], ['righttrigger', 'rt'],
+    ['leftshoulder', 'lb'], ['rightshoulder', 'rb'],
+    ['leftbumper', 'lb'], ['rightbumper', 'rb'],
+  ];
+  function gamepadFallback(n) {
+    for (var i = 0; i < GP_TOKENS.length; i++) {
+      if (n.indexOf(GP_TOKENS[i][0]) !== -1) return GP_TOKENS[i][1];
+    }
+    return '';
+  }
 
   function keyIconUrl(keyText, isGamepad) {
     if (!keyText) return '';
+    var n = norm(keyText);
     if (isGamepad) {
-      var gp = GP[keyText];
+      var gp = GP_N[n] || gamepadFallback(n);
       return gp ? '/icons/gamepad/' + gp + '.svg' : '';
     }
-    var kb = KB[keyText];
+    var kb = KB_N[n];
     if (kb) return '/icons/keyboard/' + kb + '.svg';
-    if (/^[A-Za-z]$/.test(keyText)) return '/icons/keyboard/' + keyText.toLowerCase() + '.svg';
-    if (/^[0-9]$/.test(keyText)) return '/icons/keyboard/' + keyText + '.svg';
+    var t = String(keyText).trim();
+    if (/^[A-Za-z]$/.test(t)) return '/icons/keyboard/' + t.toLowerCase() + '.svg';
+    if (/^[0-9]$/.test(t)) return '/icons/keyboard/' + t + '.svg';
     return '';
   }
 

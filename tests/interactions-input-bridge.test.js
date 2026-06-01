@@ -54,24 +54,24 @@ TSICTestHarness.register({
 // ---- ActionBar: device-family swap on UI.Input.Mode.Changed -----------
 TSICTestHarness.register({
     name: 'Input/ActionBar: live mode swap re-renders with the new icon family',
-    file: '/screens/test-action-bar.html',
+    file: '/screens/test-behavior-bar.html',
     async run(ctx) {
-        ctx.inject('tsic.msg.UI.ActionBar.Abilities', {
-            Slots: [{
-                InputName: 'IA_X', AbilityName: 'X', bVisible: true, StatusInt: 0,
+        ctx.inject('tsic.msg.UI.BehaviorBar.Entries', {
+            Entries: [{
+                BehaviorTagName: 'IA_X', DisplayName: 'X', bVisible: true, StatusInt: 0,
                 KeyboardIconUrl: '/icons/keyboard/e.svg', GamepadIconUrl: '/icons/gamepad/face-bottom.svg',
             }],
         });
-        await ctx.waitFor(() => ctx.doc.querySelector('#ab-gameplay .ab-row img'));
-        const kbm = ctx.doc.querySelector('.ab-key img').src;
+        await ctx.waitFor(() => ctx.doc.querySelector('#bb-gameplay .bb-row img'));
+        const kbm = ctx.doc.querySelector('.bb-key img').src;
         ctx.expect(ctx.assert.truthy(/keyboard/.test(kbm)));
         ctx.mode('Gamepad');
         await new Promise(r => setTimeout(r, 30));
-        const pad = ctx.doc.querySelector('.ab-key img').src;
+        const pad = ctx.doc.querySelector('.bb-key img').src;
         ctx.expect(ctx.assert.truthy(/gamepad/.test(pad)));
         ctx.mode('MouseAndKeyboard');
         await new Promise(r => setTimeout(r, 30));
-        const back = ctx.doc.querySelector('.ab-key img').src;
+        const back = ctx.doc.querySelector('.bb-key img').src;
         ctx.expect(ctx.assert.truthy(/keyboard/.test(back)));
     },
 });
