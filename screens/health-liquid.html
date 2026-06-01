@@ -134,16 +134,26 @@
     }
     .readout .max { display: block; font-size: 10px; opacity: 0.8; margin-top: -1px; }
 
-    /* Falling droplets spawned on damage. */
+    /* Droplets spilled on damage — they arc OUT to the side (over the rim) then
+       run down, rather than dropping straight. Spawned on .vial (not clipped) so
+       they can spill past the glass edge. */
     .drip {
       position: absolute; width: 4px; height: 7px; border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
-      background: var(--hp); top: 0; opacity: 0; pointer-events: none;
+      background: var(--hp); top: 0; opacity: 0; pointer-events: none; z-index: 3;
       box-shadow: 0 0 3px rgba(0,0,0,0.4);
     }
+    /* Spill droplet: spills out, then ACCELERATES downward while SHRINKING, and
+       vanishes. Transform (fall+shrink) and opacity run as separate animations
+       so the fall stays a single, smooth accelerating segment. */
     @keyframes drip-fall {
-      0%   { opacity: 0; transform: translateY(0) scaleY(0.8); }
-      15%  { opacity: 0.95; }
-      100% { opacity: 0; transform: translateY(var(--fall, 40px)) scaleY(1.25); }
+      0%   { transform: translate(0, 0) scale(1, 0.9); }
+      100% { transform: translate(var(--drift, 16px), var(--fall, 96px)) scale(0.18, 0.32); }
+    }
+    @keyframes drip-fade {
+      0%   { opacity: 0; }
+      12%  { opacity: 1; }
+      66%  { opacity: 1; }
+      100% { opacity: 0; }
     }
 
     /* Brief blood crest streak on impact. Lives inside .liquid at its top edge
@@ -230,29 +240,30 @@
       let liveFrac = 0.72, trailFrac = 0.72, decayStart = -1e9;
       const TRAIL_DELAY = 0.4, TRAIL_DECAY = 0.7;   // seconds; per-second catch-up
 
-      function spawnDrips(n) {
+      // One small outside splash droplet at the given surface Y — spilled out
+      // the side, accelerating + shrinking as it falls, then gone. These are
+      // emitted continuously while the surface is dropping (see trailLoop), so
+      // the spill traces down the side as the level travels.
+      function spawnDrip(surfaceY) {
         const w = glass.clientWidth;
-        const surfaceTop = (1 - currentLevelFrac()) * glass.clientHeight;
-        for (let i = 0; i < n; i++) {
-          const d = document.createElement('div');
-          d.className = 'drip';
-          d.style.left = (10 + Math.random() * (w - 20)).toFixed(0) + 'px';
-          d.style.top = surfaceTop.toFixed(0) + 'px';
-          d.style.setProperty('--fall', (24 + Math.random() * 26).toFixed(0) + 'px');
-          d.style.animation = `drip-fall ${(420 + Math.random() * 260).toFixed(0)}ms ease-in forwards`;
-          glass.appendChild(d);
-          setTimeout(() => d.remove(), 900);
-        }
+        const d = document.createElement('div');
+        d.className = 'drip';
+        const side = Math.random() < 0.5 ? -1 : 1;          // spill left or right
+        d.style.left = (side < 0 ? (3 + Math.random() * 9) : (w - 3 - Math.random() * 9)).toFixed(0) + 'px';
+        d.style.top = (surfaceY - 1 + Math.random() * 4).toFixed(0) + 'px';
+        d.style.setProperty('--drift', (side * (9 + Math.random() * 14)).toFixed(0) + 'px');
+        d.style.setProperty('--fall', (26 + Math.random() * 44).toFixed(0) + 'px');
+        const dur = Math.round(720 + Math.random() * 260);
+        // ease-in curve → accelerates as it falls (gravity-like), then shrinks/fades.
+        d.style.animation = `drip-fall ${dur}ms cubic-bezier(0.45, 0, 0.85, 0.6) forwards, drip-fade ${dur}ms linear forwards`;
+        vial.appendChild(d);                                // vial isn't clipped → drips spill past the side
+        setTimeout(() => d.remove(), dur + 220);
       }
-
-      let _levelFrac = 0.72;
-      function currentLevelFrac() { return _levelFrac; }
 
       function render(p) {
         const cur = p ? Number(p.Current) || 0 : 0;
         const max = p ? Number(p.Max) || 1 : 1;
         const frac = clamp01(max > 0 ? cur / max : 0);
-        _levelFrac = frac;
 
         vial.style.setProperty('--level', levelPct(frac).toFixed(2) + '%');
         vial.style.setProperty('--hp', hpColor(frac));
@@ -262,12 +273,12 @@
         readout.innerHTML = Math.round(cur) + ' <span class="max">/ ' + Math.round(max) + '</span>';
 
         // Damage feedback: a blood crest streak rides the draining surface
-        // (splash lives inside .liquid at its top), plus a few droplets; and the
-        // dark trail starts its catch-up timer so it lingers at the old level.
+        // (splash lives inside .liquid at its top); the side-spill droplets are
+        // emitted continuously by trailLoop as the surface descends. The dark
+        // trail starts its catch-up timer so it lingers at the old level.
         if (prevFrac !== null && frac < prevFrac - 0.001) {
           decayStart = performance.now() / 1000;
           splash.classList.remove('go'); void splash.offsetWidth; splash.classList.add('go');
-          spawnDrips(2 + Math.round((prevFrac - frac) * 6));
         }
         liveFrac = frac;
         prevFrac = frac;
@@ -280,7 +291,10 @@
 
       // Trail decay: after a short delay the darker trail drains down to meet
       // the current level, leaving a transient dark band that shows the damage.
+      // Also emits side-spill droplets continuously while the surface is falling.
       let lastT = performance.now() / 1000;
+      let lastFg = null, dripAccum = 0;
+      const DRIP_EVERY_PX = 12;   // one splash droplet per this much surface descent
       (function trailLoop() {
         const t = performance.now() / 1000;
         const dt = Math.min(0.05, t - lastT); lastT = t;
@@ -294,6 +308,21 @@
         const fgFrac = clamp01((liquid.getBoundingClientRect().height / glassH - 0.04) / 0.96);
         if (trailFrac < fgFrac) trailFrac = fgFrac;
         vial.style.setProperty('--trail-level', levelPct(trailFrac).toFixed(2) + '%');
+
+        // While the surface is dropping, splash out the sides at its CURRENT
+        // position — so the spill traces all the way down as the level travels,
+        // rather than firing once at the end. Spacing is per-distance so faster
+        // / bigger drops splash more.
+        const surfaceY = (1 - fgFrac) * glassH;
+        if (lastFg !== null && fgFrac < lastFg - 1e-4) {
+          dripAccum += (lastFg - fgFrac) * glassH;
+          let made = 0;
+          while (dripAccum >= DRIP_EVERY_PX && made < 4) { spawnDrip(surfaceY); dripAccum -= DRIP_EVERY_PX; made++; }
+        } else {
+          dripAccum = 0;
+        }
+        lastFg = fgFrac;
+
         requestAnimationFrame(trailLoop);
       })();
     })();
