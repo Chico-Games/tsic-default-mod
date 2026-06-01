@@ -45,6 +45,7 @@
     '#hud-crosshair { position:fixed; left:50%; top:50%; margin-left:-2px; margin-top:-2px; width:4px; height:4px; background:#fff; box-shadow:0 0 0 1px rgba(0,0,0,0.85); border-radius:50%; pointer-events:none; z-index:20; }',
     '#hud-crosshair.hidden { display:none; }',
     'body.hud-hidden #hud-chrome, body.hud-hidden #hud-health, body.hud-hidden #hud-stamina, body.hud-hidden #hud-crosshair, body.hud-hidden #ab-shell-gameplay, body.hud-hidden #hud-minimap { display:none !important; }',
+    'body.hud-hide-health #hud-health, body.hud-hide-stamina #hud-stamina, body.hud-hide-crosshair #hud-crosshair, body.hud-hide-minimap #hud-minimap, body.hud-hide-actionbar #ab-shell-gameplay, body.hud-hide-interaction #interaction-prompt { display:none !important; }',
     '#ab-shell-gameplay { position:fixed; bottom:18px; right:24px; max-width:calc(100vw - 48px); color:var(--cat-ink-dark); pointer-events:none; z-index:20; }',
     '#ab-shell-gameplay.hidden { display:none; }',
     '#ab-gameplay { display:flex; flex-direction:column; align-items:flex-end; gap:6px; text-shadow:0 0 3px rgba(247,237,217,0.85), 0 0 6px rgba(247,237,217,0.55), 0 1px 2px rgba(0,0,0,0.45); }',
@@ -142,6 +143,14 @@
     tsic.on('tsic.msg.UI.Input.IA_HUDToggle', function (e) {
       if (!e || e.Phase !== 'Started') return;
       document.body.classList.toggle('hud-hidden');
+    });
+
+    // Per-element HUD visibility — hide/show a single chrome element without
+    // touching the rest. Element ∈ health|stamina|crosshair|minimap|actionbar|
+    // interaction. Used by settings toggles and the playground's element toggles.
+    tsic.on('tsic.msg.UI.HUD.SetElementVisible', function (e) {
+      if (!e || !e.Element) return;
+      document.body.classList.toggle('hud-hide-' + e.Element, e.Visible === false);
     });
 
     // Load component scripts. Each self-initialises by subscribing to
