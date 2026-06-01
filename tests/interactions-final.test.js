@@ -195,16 +195,18 @@ TSICTestHarness.register({
     },
 });
 
-// ---- Detection: ScreenMist applies to body backdrop-filter -----------
+// ---- Detection: ScreenMist drives the edge vignette ------------------
 TSICTestHarness.register({
-    name: 'Detection: ScreenMist drives the mist element',
+    name: 'Detection: ScreenMist drives the edge vignette',
     file: '/screens/detection.html',
     async run(ctx) {
         ctx.inject('tsic.msg.UI.Detection.State', { Enemies: [], ScreenMist: 0.5 });
         await new Promise(r => setTimeout(r, 60));
-        // The page applies a CSS filter/background based on ScreenMist. We just
-        // assert the mist element is in DOM and the page survived.
-        ctx.expect(ctx.assert.domExists(ctx.doc, '#mist'));
+        // The edge vignette opacity ramps with ScreenMist. Assert the element
+        // exists and lit up (opacity > 0) and the page survived.
+        ctx.expect(ctx.assert.domExists(ctx.doc, '#vignette'));
+        const op = parseFloat(ctx.doc.getElementById('vignette').style.opacity || '0');
+        ctx.expect(ctx.assert.truthy(op > 0, `expected vignette to light up, opacity=${op}`));
     },
 });
 
