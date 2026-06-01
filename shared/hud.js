@@ -31,17 +31,10 @@
   // ---- Inline styles for HUD chrome ----
 
   var STYLE = [
-    '.hud-bar { position:fixed; left:24px; width:240px; border:1px solid rgba(184,170,145,0.45); background:rgba(241,229,207,0.88); border-radius:3px; overflow:hidden; font-family:"Segoe UI",system-ui,sans-serif; pointer-events:none; z-index:20; }',
-    '#hud-health { bottom:60px; height:18px; }',
-    '#hud-stamina { bottom:36px; height:14px; }',
-    '.hud-bar .trail-fill, .hud-bar .live-fill { position:absolute; left:0; top:0; bottom:0; }',
-    '#hud-health .trail-fill { background:#6b1010; width:100%; }',
-    '#hud-health .live-fill { background:#ce2424; width:100%; transition:width 0.05s linear; }',
-    '#hud-stamina .trail-fill { background:#133a73; width:100%; }',
-    '#hud-stamina .live-fill { background:#1f8fff; width:100%; transition:width 0.05s linear; }',
-    '.hud-bar .numbers { position:absolute; left:0; right:0; top:50%; transform:translateY(-50%); text-align:center; font-weight:700; color:#fff; text-shadow:0 1px 2px rgba(0,0,0,0.75); }',
-    '#hud-health .numbers { font-size:12px; }',
-    '#hud-stamina .numbers { font-size:11px; }',
+    // Health + stamina are liquid vials (shared/hud-liquid-bar.js), standing
+    // side by side in the bottom-left. These rules just position/size them.
+    '#hud-health { position:fixed; left:24px; bottom:30px; width:48px; --vial-h:200px; pointer-events:none; z-index:20; }',
+    '#hud-stamina { position:fixed; left:80px; bottom:30px; width:48px; --vial-h:200px; pointer-events:none; z-index:20; }',
     '#hud-crosshair { position:fixed; left:50%; top:50%; margin-left:-2px; margin-top:-2px; width:4px; height:4px; background:#fff; box-shadow:0 0 0 1px rgba(0,0,0,0.85); border-radius:50%; pointer-events:none; z-index:20; }',
     '#hud-crosshair.hidden { display:none; }',
     'body.hud-hidden #hud-chrome, body.hud-hidden #hud-health, body.hud-hidden #hud-stamina, body.hud-hidden #hud-crosshair, body.hud-hidden #ab-shell-gameplay, body.hud-hidden #hud-minimap { display:none !important; }',
@@ -91,11 +84,9 @@
     chrome.appendChild(el('div', { class: 'interaction-prompt', id: 'interaction-prompt', style: 'display:none;' }));
     document.body.appendChild(chrome);
 
-    document.body.appendChild(el('div', { id: 'hud-health', class: 'hud-bar' },
-      el('div', { class: 'trail-fill' }), el('div', { class: 'live-fill' }), el('div', { class: 'numbers' }, '— / —')));
-
-    document.body.appendChild(el('div', { id: 'hud-stamina', class: 'hud-bar' },
-      el('div', { class: 'trail-fill' }), el('div', { class: 'live-fill' }), el('div', { class: 'numbers' }, '— / —')));
+    // Empty containers — the liquid-bar component builds the vial inside each.
+    document.body.appendChild(el('div', { id: 'hud-health' }));
+    document.body.appendChild(el('div', { id: 'hud-stamina' }));
 
     document.body.appendChild(el('div', { id: 'hud-crosshair' }));
 
@@ -155,6 +146,7 @@
 
     // Load component scripts. Each self-initialises by subscribing to
     // tsic channels and operating on the DOM shells created above.
+    loadScript('/shared/hud-liquid-bar.js');   // shared vial component (health + stamina)
     loadScript('/shared/hud-health.js');
     loadScript('/shared/hud-stamina.js');
     loadScript('/shared/hud-crosshair.js');
