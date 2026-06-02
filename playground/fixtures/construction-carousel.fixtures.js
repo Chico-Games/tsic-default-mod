@@ -1,5 +1,5 @@
 // /screens/construction-carousel.html subscribes to:
-//   tsic.msg.UI.Construction.Carousel  { Prev:[{Label,IconUrl}], Current, Next, RotationAxis, BlockedReason }
+//   tsic.msg.UI.Construction.Carousel  { bActive, Prev:[{Label,IconUrl}], Current, Next, RotationAxis, BlockedReason }
 TSICPlayground.register({
     id: 'construction-carousel',
     label: 'Construction Carousel',
@@ -7,6 +7,7 @@ TSICPlayground.register({
     initialState() {
         return {
             carousel: {
+                bActive: true,
                 Prev: [
                     { Label: 'Lamp',  FurnitureId: 'CBD_Lamp' },
                     { Label: 'Stool', FurnitureId: 'CBD_Stool' },
@@ -28,6 +29,8 @@ TSICPlayground.register({
         { label: 'Blocked (overlap)',apply(s) { s.carousel.BlockedReason = 'Overlap'; } },
         { label: 'Blocked (no floor)',apply(s) { s.carousel.BlockedReason = 'NoFloor'; } },
         { label: 'No prev/next',     apply(s) { s.carousel.Prev = []; s.carousel.Next = []; } },
+        { label: 'Nothing to build', apply(s) { s.carousel.Prev = []; s.carousel.Next = []; s.carousel.Current = {}; } },
+        { label: 'Inactive (hidden)',apply(s) { s.carousel.bActive = false; s.carousel.Prev = []; s.carousel.Next = []; s.carousel.Current = {}; } },
         { label: 'No prev only',     apply(s) { s.carousel.Prev = []; } },
         { label: 'No next only',     apply(s) { s.carousel.Next = []; } },
         { label: 'Long lists',       apply(s) {

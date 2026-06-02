@@ -56,6 +56,21 @@
     [data-screen="Inventory"] .equip-slot.is-drop-target { outline: 2px solid var(--cat-green); outline-offset: -2px; }
     [data-screen="Inventory"] #inv-char-preview { flex: 1 1 auto; min-height: 120px; background: rgba(241,229,207,0.92); border:1px solid var(--tsic-border); display:flex; align-items:center; justify-content:center; }
     [data-screen="Inventory"] #inv-char-preview img { width:100%; height:100%; object-fit:contain; }
+    [data-screen="Inventory"] #inv-list .tsic-list-row .icon { position: relative; }
+    [data-screen="Inventory"] #inv-list .tsic-list-row.is-equipped {
+      outline: 1px solid var(--cat-green, #3f7d4f);
+      outline-offset: -1px;
+      background: rgba(63,125,79,0.10);
+    }
+    [data-screen="Inventory"] #inv-list .tsic-list-row.is-equipped.is-selected { background: rgba(63,125,79,0.18); }
+    [data-screen="Inventory"] #inv-list .tsic-list-row.is-equipped .name { font-weight: 600; }
+    [data-screen="Inventory"] #inv-list .tsic-list-row .equip-badge {
+      position: absolute; top: -3px; right: -3px;
+      min-width: 11px; height: 11px; line-height: 11px;
+      padding: 0 1px; font-size: 8px; text-align: center;
+      color: #f6efdf; background: var(--cat-green, #3f7d4f);
+      border-radius: 6px; pointer-events: none;
+    }
   `;
 
   const TEMPLATE = `
@@ -140,6 +155,18 @@
       let selectedSlot = -1;
       this._state = { get hoveredItem() { return hoveredItem; } };
 
+      // Slot tag of the equipment slot currently holding this item instance, or
+      // null if it isn't worn. The equipment snapshot reports InternalInventoryId
+      // (== the row's stable InstanceId) per slot, so we match on that.
+      function equippedSlotTagFor(instanceId) {
+        if (instanceId == null) return null;
+        const target = String(instanceId);
+        for (const s of ((lastEquipment && lastEquipment.Slots) || [])) {
+          if (s && s.ItemId != null && s.ItemId !== '' && String(s.ItemId) === target) return s.SlotTag;
+        }
+        return null;
+      }
+
       function publishHoverContext(it) {
         if (!window.tsic || !window.tsic.setMenuActionContext) return;
         const cat = window.tsic.itemCatalog || {};
@@ -148,7 +175,8 @@
         const category = desc && desc.Category;
         const entries = [];
         if (category === 'Equipment') {
-          entries.push({ ActionName: 'IA_UI_ConfirmAccept', Label: 'Equip',         Priority: 10 });
+          const equipLabel = equippedSlotTagFor(it.InstanceId) ? 'Unequip' : 'Equip';
+          entries.push({ ActionName: 'IA_UI_ConfirmAccept', Label: equipLabel,      Priority: 10 });
           entries.push({ ActionName: 'IA_UI_AddToHotbar',   Label: 'Assign Hotbar', Priority: 20 });
           entries.push({ ActionName: 'IA_UI_DropItem',      Label: 'Drop',          Priority: 30 });
         } else if (category === 'Consumable') {
@@ -182,9 +210,18 @@
           const desc = cat[it.ItemId];
           return desc ? filter(desc) : (activeTab === 'Other' || activeTab === 'All');
         });
+        // Stable instance ids of currently-equipped items, so worn rows render an
+        // outline + badge. The equipment snapshot reports InternalInventoryId per slot.
+        const equippedIds = new Set(
+          ((lastEquipment && lastEquipment.Slots) || [])
+            .map((s) => s && s.ItemId)
+            .filter((id) => id != null && id !== '')
+            .map((id) => String(id))
+        );
         const opts = {
           catalog: cat,
           selectedIdx: selectedSlot,
+          equippedIds,
           emptyLabel: 'No items in this category.',
           onHover: (it) => {
             hoveredItem = it;
@@ -197,7 +234,15 @@
             selectedSlot = it.SlotIndex;
             const desc = cat[it.ItemId];
             if (desc && desc.Category === 'Equipment') {
-              ctx.publish('UI.Cmd.Equipment.Equip', { ItemId: String(it.SlotIndex), SlotTag: '' });
+              // Toggle: clicking a worn item takes it off, an unworn one puts it on.
+              // Equip keys off the stable InstanceId (InternalInventoryId); unequip keys
+              // off the slot tag it occupies, since C++ resolves unequip by SlotTag.
+              const slotTag = equippedSlotTagFor(it.InstanceId);
+              if (slotTag) {
+                ctx.publish('UI.Cmd.Equipment.Unequip', { ItemId: '', SlotTag: slotTag });
+              } else {
+                ctx.publish('UI.Cmd.Equipment.Equip', { ItemId: String(it.InstanceId), SlotTag: '' });
+              }
             } else if (desc && desc.Category === 'Consumable') {
               ctx.publish('UI.Cmd.Inventory.Use', { OwnerId: 'Player', SlotIndex: it.SlotIndex });
             }
@@ -213,6 +258,7 @@
               desc: cat[it.ItemId],
               storageOpen: false,
               fromOwnerId: 'Player',
+              equippedSlotTag: equippedSlotTagFor(it.InstanceId),
             });
             window.TSICContextMenu.open({ x: e.clientX, y: e.clientY, entries });
           },
@@ -250,8 +296,9 @@
           div.className = 'equip-slot' + (isEmpty ? ' is-empty' : '');
           const label = (s.SlotTag || '').split('.').pop();
           if (!isEmpty) {
-            const img = document.createElement('img');
-            img.src = TSIC.itemIconUrl(s.ItemId);
+            // iconImg retries the cold-cache 404 and serves the in-data fallback
+            // on miss, so equipment slots no longer show the broken-image glyph.
+            const img = TSIC.iconImg(TSIC.itemIconUrl(s.ItemId));
             div.appendChild(img);
             div.title = `${label} — click to unequip`;
             div.addEventListener('click', () => {
@@ -270,7 +317,9 @@
             if (!raw) return;
             try {
               const src = JSON.parse(raw);
-              ctx.publish('UI.Cmd.Equipment.Equip', { ItemId: String(src.slot), SlotTag: '' });
+              // Equip by stable InstanceId, not the dragged row's array position.
+              if (src.instanceId == null) return;
+              ctx.publish('UI.Cmd.Equipment.Equip', { ItemId: String(src.instanceId), SlotTag: '' });
             } catch (_) { /* ignore */ }
           });
           host.appendChild(div);
@@ -292,6 +341,15 @@
         renderEquipment();
       })();
 
+      // Exposed for onShow: live inventory/equipment broadcasts are received even while
+      // the overlay is hidden (sticky replay sets lastUpdate/lastEquipment), but their
+      // render is skipped because the screen isn't visible. Re-render from that cached
+      // state every time the screen opens so a pickup made before opening shows at once.
+      this._renderAll = () => {
+        renderEquipment();
+        if (window.TSICInventory) refresh();
+      };
+
       ctx.on('tsic.msg.UI.Inventory.Updated', (p) => {
         if (!p || p.OwnerId !== 'Player') return;
         lastUpdate = p;
@@ -300,7 +358,11 @@
       ctx.on('tsic.msg.UI.Equipment.Updated', (p) => {
         if (!p || p.OwnerId !== 'Player') return;
         lastEquipment = p;
-        if (ctx.isVisible()) renderEquipment();
+        if (ctx.isVisible()) {
+          renderEquipment();
+          // Re-render the list too so equipped badges/outlines track the change live.
+          if (window.TSICInventory) refresh();
+        }
       });
       ctx.on('tsic.msg.UI.CharacterPreview.Ready', (p) => {
         if (!p || !p.bReady) return;
@@ -319,7 +381,8 @@
         selectedSlot = it.SlotIndex;
         refresh();
         const entries = window.TSICInventory.buildItemContextMenu({
-          it, desc: cat[it.ItemId], storageOpen: false, fromOwnerId: 'Player',
+          it, desc: (window.tsic.itemCatalog || {})[it.ItemId], storageOpen: false, fromOwnerId: 'Player',
+          equippedSlotTag: equippedSlotTagFor(it.InstanceId),
         });
         // Anchor the menu to the focused row if we can find it, else screen centre.
         const focused = document.querySelector('[data-tsic-focused]');
@@ -345,13 +408,15 @@
           const slotIndex = e.key === '0' ? 9 : (parseInt(e.key, 10) - 1);
           ctx.publish('UI.Cmd.Hotbar.Assign', {
             SlotIndex: slotIndex,
-            ItemId: String(hoveredItem.SlotIndex),
+            ItemId: String(hoveredItem.InstanceId),
           });
         }
       });
     },
 
     onShow(/* params, ctx */) {
+      // Paint the latest known inventory + equipment immediately (see _renderAll).
+      if (this._renderAll) this._renderAll();
       // Server-side character preview render: tell the renderer to spin
       // up its texture target. CharacterPreview.Ready will arrive once the
       // texture is bound, and the existing listener swaps the img src.

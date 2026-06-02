@@ -2,6 +2,7 @@
 <html lang="en"><head>
   <meta charset="utf-8">
   <meta name="tsic-screen" content="Selection">
+  <meta name="tsic-input-mode" content="InputMode.Menu.Generic">
   <meta name="tsic-focus" content="enabled">
   <title>Selection</title>
   <link rel="stylesheet" href="/shared/base.css">
@@ -55,6 +56,9 @@
           if (opt.bDisabled) row.disabled = true;
           if (opt.IconUrl) {
             const img = document.createElement('img');
+            // Retry the cold-cache /tex/item-icon 404 (serves the in-data fallback
+            // on miss) instead of leaving a broken-image glyph.
+            if (window.TSIC && TSIC.attachIconRetry) TSIC.attachIconRetry(img, opt.IconUrl);
             img.src = opt.IconUrl;
             row.appendChild(img);
           }

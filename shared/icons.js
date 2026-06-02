@@ -119,14 +119,47 @@
     return '/tex/item-icon/' + encodeURIComponent(itemId);
   }
 
+  // Item icons are served by the C++ /tex/item-icon resolver, which 404s the
+  // first (cold) request while it async-loads + PNG-encodes the asset thumbnail
+  // (or the in-data fallback thumbnail on a miss) and caches it for the NEXT
+  // request. Without a retry the cold-cache 404 is terminal — the icon vanishes
+  // or shows the browser's broken-image glyph until something happens to
+  // re-render it. attachIconRetry re-fetches a few times with backoff; each try
+  // appends a cache-buster so CEF re-hits the handler (the resolver strips the
+  // query string, so the item id — and cache key — is unchanged). Once the cache
+  // warms, the retry lands the real (or fallback) icon. Gives up after the last
+  // delay: calls opts.onFail if given, else hides unless opts.keepOnFail.
+  var ICON_RETRY_DELAYS = [120, 280, 600, 1200];
+
+  function bustUrl(src, n) {
+    return src + (src.indexOf('?') < 0 ? '?' : '&') + 'r=' + n;
+  }
+
+  function attachIconRetry(img, src, opts) {
+    var o = opts || {};
+    var retriable = src.indexOf('/tex/') !== -1; // data: URLs and static svgs don't warm
+    var tries = 0;
+    img.onerror = function () {
+      if (retriable && tries < ICON_RETRY_DELAYS.length) {
+        var delay = ICON_RETRY_DELAYS[tries++];
+        setTimeout(function () { img.src = bustUrl(src, tries); }, delay);
+        return;
+      }
+      img.onerror = null;
+      if (typeof o.onFail === 'function') { o.onFail(img); return; }
+      if (o.keepOnFail) return;
+      img.style.display = 'none';
+    };
+  }
+
   function iconImg(src, opts) {
     var o = opts || {};
     var img = document.createElement('img');
-    img.src = src;
     if (o.alt) img.alt = o.alt;
     if (o['class']) img.className = o['class'];
     if (o.width) { img.style.width = o.width + 'px'; img.style.height = (o.height || o.width) + 'px'; }
-    img.onerror = function () { img.style.display = 'none'; };
+    attachIconRetry(img, src, o);
+    img.src = src;
     return img;
   }
 
@@ -204,6 +237,7 @@
   window.TSIC.keyIconUrl = keyIconUrl;
   window.TSIC.itemIconUrl = itemIconUrl;
   window.TSIC.iconImg = iconImg;
+  window.TSIC.attachIconRetry = attachIconRetry;
   window.TSIC.runtimeImgUrl = runtimeImgUrl;
   window.TSIC.runtimeImg = runtimeImg;
   window.TSIC.runtimeImgReload = runtimeImgReload;

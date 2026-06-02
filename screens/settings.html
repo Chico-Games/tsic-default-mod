@@ -17,7 +17,11 @@
   <script src="/shared/tsic-dropdown.js" defer></script>
   <script src="/screens/settings.js" defer></script>
   <style>
-    .settings-body { padding: 4px 22px 14px; max-height: 60vh; overflow-y: auto; }
+    /* Right padding is trimmed (vs the 22px left) and a stable scrollbar gutter is
+       reserved so the rebind controls' right edge lines up with the masthead margin
+       instead of being pushed inward by the scrollbar — and stays put whether or not
+       a tab actually scrolls. */
+    .settings-body { padding: 4px 12px 14px 22px; max-height: 60vh; overflow-y: auto; scrollbar-gutter: stable; }
     /* Magazine tab strip — labels rendered like newsstand section tabs. */
     #tabs {
       display: flex;

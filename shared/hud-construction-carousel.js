@@ -17,11 +17,17 @@
   var STYLE = [
     '#hud-construction-carousel { position:fixed; left:50%; bottom:96px; transform:translateX(-50%); pointer-events:none; z-index:20; }',
     '#hud-construction-carousel.hidden { display:none; }',
-    '#cc-row { display:flex; align-items:center; gap:6px; padding:8px 12px; background:rgba(241,229,207,0.92); border-radius:6px; border:1px solid var(--tsic-border); }',
-    '.cc-slot { width:56px; height:56px; background:rgba(241,229,207,0.48); border:1px solid var(--tsic-border); display:flex; align-items:center; justify-content:center; font-size:9px; color:rgba(108,94,73,0.55); position:relative; }',
+    '#cc-row { display:flex; align-items:center; gap:6px; padding:8px 12px; }',
+    '.cc-slot { width:56px; height:56px; background:rgba(20,18,14,0.55); border:1px solid rgba(184,170,145,0.45); display:flex; align-items:center; justify-content:center; font-size:9px; color:rgba(226,232,240,0.5); position:relative; }',
     '.cc-slot img { max-width:80%; max-height:80%; object-fit:contain; }',
-    '.cc-slot.current { background:rgba(241,229,207,0.88); color:var(--cat-ink-soft); transform:scale(1.12); border-color:var(--tsic-accent); }',
-    '.cc-slot.unafford::after { content:\'\'; position:absolute; inset:0; background:rgba(220,38,38,0.18); pointer-events:none; }',
+    '.cc-slot.current { background:rgba(20,18,14,0.78); transform:scale(1.12); border-color:var(--tsic-accent); }',
+    // Unaffordable: dim the icon instead of washing the slot red — keeps the
+    // strip reading as plain icons like the rest of the HUD.
+    '.cc-slot.unafford img { opacity:0.45; }',
+    // Empty-state hint shown while build mode is active but nothing is buildable.
+    // Styled like the rotation caption below; collapses to nothing when blank.
+    '#cc-empty { color:#cbd5e1; font-size:12px; letter-spacing:2px; padding:8px 14px; text-align:center; text-shadow:0 1px 2px rgba(0,0,0,0.75); }',
+    '#cc-empty:empty { display:none; }',
     '#cc-rotation { color:#cbd5e1; font-size:11px; letter-spacing:2px; margin-top:4px; text-align:center; text-shadow:0 1px 2px rgba(0,0,0,0.75); }',
     '#cc-blocked { color:#fca5a5; font-size:11px; letter-spacing:2px; margin-top:4px; text-align:center; text-shadow:0 1px 2px rgba(0,0,0,0.75); }',
     'body.hud-hidden #hud-construction-carousel { display:none !important; }',
@@ -41,22 +47,14 @@
     root = document.createElement('div');
     root.id = 'hud-construction-carousel';
     root.className = 'hidden';
-    root.innerHTML = '<div id="cc-row"></div><div id="cc-rotation"></div><div id="cc-blocked"></div>';
+    root.innerHTML = '<div id="cc-row"></div><div id="cc-empty"></div><div id="cc-rotation"></div><div id="cc-blocked"></div>';
     document.body.appendChild(root);
     return root;
   }
 
-  // Generic box glyph shown when a slot has no renderable icon. Furniture
-  // definitions don't expose icon assets yet, so /tex/item-icon/<id> 404s for
-  // most — this is the expected, common case.
-  var FALLBACK_ICON =
-    "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' " +
-    "stroke='%236c5e49' stroke-width='1.5' stroke-linejoin='round'%3E" +
-    "%3Cpath d='M3 7l9-4 9 4v10l-9 4-9-4V7z'/%3E%3Cpath d='M3 7l9 4 9-4M12 11v10'/%3E%3C/svg%3E";
-
   function iconUrlFor(s) {
     if (s && s.IconUrl) return s.IconUrl;
-    if (!s || !s.FurnitureId) return FALLBACK_ICON;
+    if (!s || !s.FurnitureId) return '';
     if (window.TSIC && typeof TSIC.itemIconUrl === 'function') return TSIC.itemIconUrl(s.FurnitureId);
     return '/tex/item-icon/' + encodeURIComponent(s.FurnitureId);
   }
@@ -65,14 +63,35 @@
     var div = document.createElement('div');
     div.className = 'cc-slot' + (isCurrent ? ' current' : '') + (s && s.bAffordable === false ? ' unafford' : '');
     if (s) div.title = s.Label || s.FurnitureId || '';
-    // Always render an icon: real thumbnail if the asset endpoint resolves,
-    // otherwise swap to the box fallback so empty slots still read as items.
-    var img = document.createElement('img');
-    img.src = iconUrlFor(s);
-    img.onerror = function () { if (img.src.indexOf(FALLBACK_ICON) !== 0) { img.onerror = null; img.src = FALLBACK_ICON; } };
-    div.appendChild(img);
+    // The C++ /tex/item-icon resolver serves the real thumbnail, or the in-data
+    // fallback thumbnail when a furniture def has no icon — so we just request it
+    // and let iconImg ride out the cold-cache 404 with retries. On terminal
+    // failure iconImg hides the <img>, leaving the empty slot box. No client cube.
+    var url = iconUrlFor(s);
+    if (url) {
+      var img = (window.TSIC && typeof TSIC.iconImg === 'function')
+        ? TSIC.iconImg(url)
+        : (function () { var i = document.createElement('img'); i.src = url; return i; })();
+      div.appendChild(img);
+    }
     return div;
   }
+
+  // Signature of everything the strip renders, so an unchanged re-broadcast does
+  // not rebuild the row (which would re-fetch every icon and flicker). Mirrors the
+  // C++ dedupe in UGameplayAbility_Construct::BroadcastUIConstructionCarousel.
+  function slotSig(s) {
+    return (s && s.FurnitureId || '') + '|' + (s && s.bAffordable === false ? '0' : '1') + ';';
+  }
+  function carouselSignature(p) {
+    var parts = [];
+    (p.Prev || []).slice(0, 4).forEach(function (s) { parts.push(slotSig(s)); });
+    parts.push('>' + slotSig(p.Current));
+    (p.Next || []).slice(0, 4).forEach(function (s) { parts.push(slotSig(s)); });
+    parts.push((p.RotationAxis || '') + '|' + (p.BlockedReason || ''));
+    return parts.join('');
+  }
+  var lastSignature = null;
 
   function boot() {
     if (!window.tsic || typeof tsic.on !== 'function') { setTimeout(boot, 16); return; }
@@ -84,23 +103,45 @@
       var row = document.getElementById('cc-row');
       var rot = document.getElementById('cc-rotation');
       var blk = document.getElementById('cc-blocked');
+      var empty = document.getElementById('cc-empty');
       if (!row) return;
 
-      // Hide when there's no active build (EndAbility clears Current).
-      if (!p || !p.Current || !p.Current.FurnitureId) {
+      // bActive is the single source of truth for visibility. EndAbility
+      // broadcasts an empty payload with bActive=false to hide the strip; an
+      // active build with nothing to place keeps it visible (with a hint), so we
+      // must NOT key visibility off an empty Current the way we used to.
+      if (!p || !p.bActive) {
         row.innerHTML = '';
         rot.textContent = '';
         blk.textContent = '';
+        if (empty) empty.textContent = '';
         root.classList.add('hidden');
+        lastSignature = null;
         return;
       }
 
+      // Skip the rebuild when nothing the strip renders changed. The C++ side
+      // already dedupes per-tick broadcasts, but this also absorbs any duplicate
+      // delivery so the icons never re-fetch (and flash) on an identical payload.
+      var signature = carouselSignature(p);
+      if (signature === lastSignature && !root.classList.contains('hidden')) {
+        return;
+      }
+      lastSignature = signature;
+
       row.innerHTML = '';
-      var prev = (p.Prev || []).slice(0, 4).reverse();   // closest-to-current first
-      var next = (p.Next || []).slice(0, 4);
-      for (var i = 0; i < prev.length; i++) row.appendChild(slotEl(prev[i], false));
-      row.appendChild(slotEl(p.Current, true));
-      for (var j = 0; j < next.length; j++) row.appendChild(slotEl(next[j], false));
+      var hasCurrent = !!(p.Current && p.Current.FurnitureId);
+      if (hasCurrent) {
+        var prev = (p.Prev || []).slice(0, 4).reverse();   // closest-to-current first
+        var next = (p.Next || []).slice(0, 4);
+        for (var i = 0; i < prev.length; i++) row.appendChild(slotEl(prev[i], false));
+        row.appendChild(slotEl(p.Current, true));
+        for (var j = 0; j < next.length; j++) row.appendChild(slotEl(next[j], false));
+        if (empty) empty.textContent = '';
+      } else if (empty) {
+        // Active build mode but nothing constructable — keep the strip on screen.
+        empty.textContent = 'Nothing to build';
+      }
       rot.textContent = p.RotationAxis ? 'ROTATION: ' + p.RotationAxis : '';
       blk.textContent = p.BlockedReason ? p.BlockedReason.toUpperCase() : '';
       root.classList.remove('hidden');

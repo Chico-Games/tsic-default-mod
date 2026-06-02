@@ -2,6 +2,8 @@
 <html lang="en"><head>
   <meta charset="utf-8">
   <meta name="tsic-screen" content="Mods">
+  <meta name="tsic-input-mode" content="InputMode.Menu.MainMenu">
+  <meta name="tsic-cancel-cmd" content="UI.Cmd.Menu.Back">
   <meta name="tsic-focus" content="enabled">
   <meta name="tsic-action-bar-context" content='[]'>
   <title>Mods</title>
@@ -381,7 +383,10 @@
         showAuthError(e.message);
       } finally {
         if (searchAbort === myAbort) searchAbort = null;
-        if (pendingSearch && !myAbort.signal.aborted) {
+        // Fire the deferred search even when THIS request was the one just aborted — that is
+        // exactly the case searchSoon() schedules. Gating on !myAbort.signal.aborted made the
+        // refetch unreachable (the aborted controller is always our own), silently dropping it.
+        if (pendingSearch) {
           pendingSearch = false;
           loadPage(true);
         }

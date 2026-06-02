@@ -217,6 +217,48 @@ TSICTestHarness.register({
     },
 });
 
+// ---- Context menu: Equip vs. Unequip depends on whether the item is worn ----
+// These hit the shared buildItemContextMenu directly (the live runtime code that
+// the in-game overlay uses), hosted by test-fixtures.html — the inventory screen
+// page is a dead duplicate, so its render path isn't the one shipped.
+TSICTestHarness.register({
+    name: 'Inventory/Context: unworn equipment offers Equip (publishes Equip by InstanceId)',
+    file: '/screens/test-fixtures.html',
+    async run(ctx) {
+        ctx.clearPublishes();
+        const entries = ctx.win.TSICInventory.buildItemContextMenu({
+            it: { ItemId: 'ID_Axe', InstanceId: 7, SlotIndex: 0, Count: 1 },
+            desc: { Name: 'Axe', Category: 'Equipment' },
+        });
+        const equip = entries.find(e => e.label === 'Equip');
+        ctx.expect(ctx.assert.truthy(equip, 'expected an Equip entry'));
+        ctx.expect(ctx.assert.eq(!!entries.find(e => e.label === 'Unequip'), false, 'no Unequip entry when unworn'));
+        equip.onClick();
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Equipment.Equip', { where: p => p.ItemId === '7' }));
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Inventory/Context: worn equipment offers Unequip (publishes Unequip by SlotTag)',
+    file: '/screens/test-fixtures.html',
+    async run(ctx) {
+        ctx.clearPublishes();
+        const slotTag = 'Entity.Inventory.Item.Equipment.Slot.Weapon';
+        const entries = ctx.win.TSICInventory.buildItemContextMenu({
+            it: { ItemId: 'ID_Axe', InstanceId: 7, SlotIndex: 0, Count: 1 },
+            desc: { Name: 'Axe', Category: 'Equipment' },
+            equippedSlotTag: slotTag,
+        });
+        const unequip = entries.find(e => e.label === 'Unequip');
+        ctx.expect(ctx.assert.truthy(unequip, 'expected an Unequip entry'));
+        ctx.expect(ctx.assert.eq(!!entries.find(e => e.label === 'Equip'), false, 'no Equip entry when worn'));
+        unequip.onClick();
+        // C++ RequestUnequip resolves by SlotTag, so ItemId is intentionally empty.
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Equipment.Unequip',
+            { where: p => p.SlotTag === slotTag && p.ItemId === '' }));
+    },
+});
+
 // ---- New: drag inventory row → equipment slot publishes Equip ----
 TSICTestHarness.register({
     name: 'Inventory/Drag: drop on equipment slot publishes UI.Cmd.Equipment.Equip',

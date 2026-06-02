@@ -21,15 +21,26 @@
                 host.appendChild(empty);
                 return;
             }
+            // Set of equipped instance ids (as strings), so rows currently worn get a
+            // distinct outline + badge. Correlates the row's stable InstanceId against
+            // the equipment snapshot's per-slot ItemId (both = InternalInventoryId).
+            const equippedIds = (opts && opts.equippedIds) || null;
             for (const it of list) {
                 const desc = cat[it.ItemId] || {};
+                const isEquipped = !!(equippedIds && it.InstanceId != null && equippedIds.has(String(it.InstanceId)));
                 const row = el('button', { class: 'tsic-list-row', type: 'button' });
                 row.dataset.slot = it.SlotIndex;
+                if (it.InstanceId != null) row.dataset.instance = it.InstanceId;
                 if (opts.selectedIdx === it.SlotIndex) row.classList.add('is-selected');
+                if (isEquipped) row.classList.add('is-equipped');
 
                 const iconWrap = el('div', { class: 'icon' });
                 if (it.ItemId) {
                     iconWrap.appendChild(TSIC.iconImg(TSIC.itemIconUrl(it.ItemId)));
+                }
+                if (isEquipped) {
+                    // Corner badge marking the item as worn (✦). The outline comes from .is-equipped.
+                    iconWrap.appendChild(el('span', { class: 'equip-badge', title: 'Equipped' }, '✦'));
                 }
                 row.appendChild(iconWrap);
 
@@ -52,7 +63,7 @@
                 row.addEventListener('contextmenu', (e) => { e.preventDefault(); opts.onRMB && opts.onRMB(it, e); });
                 row.draggable = true;
                 row.addEventListener('dragstart', (e) => {
-                    e.dataTransfer.setData('application/tsic-item', JSON.stringify({ slot: it.SlotIndex, itemId: it.ItemId }));
+                    e.dataTransfer.setData('application/tsic-item', JSON.stringify({ slot: it.SlotIndex, instanceId: it.InstanceId, itemId: it.ItemId }));
                     row.classList.add('is-dragging');
                 });
                 row.addEventListener('dragend', () => row.classList.remove('is-dragging'));
@@ -137,16 +148,23 @@
         // row. Pages pass the item, its descriptor, and (for storage) the owner
         // ids needed for Transfer entries. Callers feed the result into
         // window.TSICContextMenu.open({ x, y, entries }).
-        buildItemContextMenu({ it, desc, storageOpen = false, fromOwnerId = 'Player', toOwnerId = null, onAssignedHotbar }) {
+        buildItemContextMenu({ it, desc, storageOpen = false, fromOwnerId = 'Player', toOwnerId = null, equippedSlotTag = null, onAssignedHotbar }) {
             const publish = (tag, payload) => {
                 if (window.tsic && window.tsic.publishMessage) window.tsic.publishMessage(tag, payload);
             };
             const entries = [];
             const cat = desc && desc.Category;
             if (cat === 'Equipment') {
-                entries.push({ label: 'Equip', onClick: () => {
-                    publish('UI.Cmd.Equipment.Equip', { ItemId: String(it.SlotIndex), SlotTag: '' });
-                }});
+                if (equippedSlotTag) {
+                    // Already worn — unequip by the slot tag it occupies (C++ resolves via SlotTag).
+                    entries.push({ label: 'Unequip', onClick: () => {
+                        publish('UI.Cmd.Equipment.Unequip', { ItemId: '', SlotTag: equippedSlotTag });
+                    }});
+                } else {
+                    entries.push({ label: 'Equip', onClick: () => {
+                        publish('UI.Cmd.Equipment.Equip', { ItemId: String(it.InstanceId), SlotTag: '' });
+                    }});
+                }
             } else if (cat === 'Consumable') {
                 entries.push({ label: 'Use', onClick: () => {
                     publish('UI.Cmd.Inventory.Use', { OwnerId: fromOwnerId, SlotIndex: it.SlotIndex });
@@ -154,7 +172,7 @@
             }
             entries.push({ label: 'Assign to Hotbar…', onClick: () => {
                 window.TSICInventory.openHotbarSlotModal(it.ItemId, (slotIndex) => {
-                    publish('UI.Cmd.Hotbar.Assign', { SlotIndex: slotIndex, ItemId: String(it.SlotIndex) });
+                    publish('UI.Cmd.Hotbar.Assign', { SlotIndex: slotIndex, ItemId: String(it.InstanceId) });
                     if (onAssignedHotbar) onAssignedHotbar(slotIndex);
                 });
             }});

@@ -57,7 +57,12 @@ export function createAuth(client) {
         }));
         state = 'signed-in'; emit();
       } catch (e) {
-        state = 'awaiting-code'; emit();
+        // emailExchange may have succeeded and persisted a token before getMe failed. Roll the
+        // half-written credentials back, otherwise a valid token is left in storage while the UI
+        // reports the user as signed-out — an authenticated-but-signed-out client that can still
+        // subscribe, and that reloads as signed-in with no profile.
+        clearToken();
+        state = 'idle'; emit();
         throw e;
       }
     },

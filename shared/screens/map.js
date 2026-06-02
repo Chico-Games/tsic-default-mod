@@ -225,6 +225,9 @@
       let latestSnapshot = null;
       let latestPings = null;
       let tileGrid = null;
+      // Fog-of-war hover gate. Built from UI.Map.FowGrid (see shared/fow-lookup.js).
+      // null = no fog data yet → fail open (never suppress the hover panel).
+      let fowGrid = null;
       let latestPlayers = [];
 
       function svgEl(tag, attrs) {
@@ -625,6 +628,12 @@
       }
 
       function hideHoverChip() { const chip = qs('#hover-chip'); if (chip) chip.style.display = 'none'; }
+      // The fog overlay is visible unless the SetFogOfWarVisible cheat hid it.
+      // When it's hidden (or fog is disabled), don't suppress hover.
+      function fowOverlayVisible() {
+        const img = qs('#fow-tex');
+        return !!img && img.style.display !== 'none';
+      }
       function updateHoverChip() {
         const chip = qs('#hover-chip');
         const vp = qs('#map-viewport');
@@ -634,8 +643,15 @@
         else { if (state.mouseX < 0) { hideHoverChip(); return; } cx = state.mouseX; cy = state.mouseY; }
         const lx = (cx - state.panX) / state.scale;
         const ly = (cy - state.panY) / state.scale;
+        const { wx, wy } = localToWorld(lx, ly);
+        // Hide everything (tile info + POI/player/ping labels) over unexplored fog.
+        const TF = window.TSICFow;
+        if (fowGrid && TF && fowOverlayVisible() && !TF.exploredAt(fowGrid, wx, wy)) {
+          hideHoverChip();
+          return;
+        }
         let text = describePick(pickAt(lx, ly));
-        if (!text) { const { wx, wy } = localToWorld(lx, ly); text = describeTile(wx, wy); }
+        if (!text) { text = describeTile(wx, wy); }
         if (!text) { hideHoverChip(); return; }
         chip.textContent = text;
         chip.style.display = 'block';
@@ -847,6 +863,10 @@
       ctx.on('tsic.msg.UI.Map.Fow', () => {
         const img = qs('#fow-tex');
         if (img) img.src = TSIC.runtimeImgUrl('fow') + '?t=' + Date.now();
+      });
+      ctx.on('tsic.msg.UI.Map.FowGrid', (p) => {
+        fowGrid = window.TSICFow ? window.TSICFow.build(p) : null;
+        if (ctx.isVisible()) updateHoverChip();
       });
       ctx.on('tsic.msg.Cheats.Map.Fow.Visibility', (p) => {
         const img = qs('#fow-tex');

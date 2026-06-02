@@ -226,21 +226,27 @@
         // Kicker text — randomized on each load via tsic.kicker(). The
         // suffix " · DEC 1983" is appended automatically; entries below
         // are just the rotating prefix. Add, remove, or reorder freely.
-        tsic.whenReady(() => tsic.kicker('kicker-slot', [
-          // — opening day / debut —
-          'PREVIEW ISSUE', 'OPENING DAY', 'GRAND OPENING', 'DEBUT EDITION',
-          'INAUGURAL ISSUE', 'CHARTER ISSUE', 'FIRST PRESSING',
-          'FRESH OFF THE PRESS', 'RIBBON CUTTING', 'SOFT OPENING',
-          // — retail flavor —
-          'NOW HIRING', 'ALL DEPARTMENTS OPEN', 'FREE WITH PURCHASE',
-          'WHILE SUPPLIES LAST', 'AS SEEN ON TV', "COLLECTOR'S EDITION",
-          // — slightly off —
-          'DOORS OPEN SOON', 'STOCK ARRIVING', 'MIND THE FLOORS',
-          'WATCH YOUR STEP', 'FOR DISPLAY ONLY', 'RESTOCK PENDING',
-          // — past closing —
-          'AFTER HOURS', 'NO REFUNDS', 'FINAL SALE', 'CHECK BEHIND YOU',
-          'AISLE 13 SEALED', 'THE STORE REMEMBERS',
-        ], ' · DEC 1983'));
+        //
+        // Boot guard: this inline script runs during HTML parse, BEFORE the
+        // deferred tsic-*.js load, so `tsic` isn't defined yet — wait for it.
+        (function bootKicker() {
+          if (!window.tsic || typeof tsic.whenReady !== 'function') { setTimeout(bootKicker, 16); return; }
+          tsic.whenReady(() => tsic.kicker('kicker-slot', [
+            // — opening day / debut —
+            'PREVIEW ISSUE', 'OPENING DAY', 'GRAND OPENING', 'DEBUT EDITION',
+            'INAUGURAL ISSUE', 'CHARTER ISSUE', 'FIRST PRESSING',
+            'FRESH OFF THE PRESS', 'RIBBON CUTTING', 'SOFT OPENING',
+            // — retail flavor —
+            'NOW HIRING', 'ALL DEPARTMENTS OPEN', 'FREE WITH PURCHASE',
+            'WHILE SUPPLIES LAST', 'AS SEEN ON TV', "COLLECTOR'S EDITION",
+            // — slightly off —
+            'DOORS OPEN SOON', 'STOCK ARRIVING', 'MIND THE FLOORS',
+            'WATCH YOUR STEP', 'FOR DISPLAY ONLY', 'RESTOCK PENDING',
+            // — past closing —
+            'AFTER HOURS', 'NO REFUNDS', 'FINAL SALE', 'CHECK BEHIND YOU',
+            'AISLE 13 SEALED', 'THE STORE REMEMBERS',
+          ], ' · DEC 1983'));
+        })();
       </script>
 
       <!-- FEATURE SPREAD — random showroom cloned into #showroom-slot at boot -->
