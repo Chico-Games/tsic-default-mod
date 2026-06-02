@@ -83,6 +83,11 @@
         bandage: 'bandage-roll', medkit: 'bandage-roll', heal: 'bandage-roll',
         elixir: 'round-bottom-flask', potion: 'round-bottom-flask', flask: 'round-bottom-flask',
         battery: 'battery-pack-alt',
+        // Wearables (equipment paper-doll).
+        helmet: 'crested-helmet', hat: 'crested-helmet', cap: 'crested-helmet', hood: 'crested-helmet',
+        coat: 'leather-vest', jacket: 'leather-vest', armor: 'leather-vest', vest: 'leather-vest', chest: 'leather-vest', shirt: 'leather-vest',
+        boot: 'boots', boots: 'boots', shoe: 'boots',
+        glove: 'gloves', ring: 'ring', amulet: 'gem-pendant', necklace: 'gem-pendant',
     };
     const ICON_FALLBACK = 'cardboard-box';
     function placeholderIconUrl(url) {
