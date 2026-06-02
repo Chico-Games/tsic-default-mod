@@ -37,8 +37,8 @@
     '#hud-stamina { position:fixed; left:80px; bottom:30px; width:48px; --vial-h:200px; pointer-events:none; z-index:20; }',
     '#hud-crosshair { position:fixed; left:50%; top:50%; margin-left:-2px; margin-top:-2px; width:4px; height:4px; background:#fff; box-shadow:0 0 0 1px rgba(0,0,0,0.85); border-radius:50%; pointer-events:none; z-index:20; }',
     '#hud-crosshair.hidden { display:none; }',
-    'body.hud-hidden #hud-chrome, body.hud-hidden #hud-health, body.hud-hidden #hud-stamina, body.hud-hidden #hud-crosshair, body.hud-hidden #ab-shell-gameplay, body.hud-hidden #hud-minimap { display:none !important; }',
-    'body.hud-hide-health #hud-health, body.hud-hide-stamina #hud-stamina, body.hud-hide-crosshair #hud-crosshair, body.hud-hide-minimap #hud-minimap, body.hud-hide-actionbar #ab-shell-gameplay, body.hud-hide-interaction #interaction-prompt { display:none !important; }',
+    'body.hud-hidden #hud-chrome, body.hud-hidden #hud-health, body.hud-hidden #hud-stamina, body.hud-hidden #hud-crosshair, body.hud-hidden #ab-shell-gameplay, body.hud-hidden #hud-minimap, body.hud-hidden #hud-hotbar { display:none !important; }',
+    'body.hud-hide-health #hud-health, body.hud-hide-stamina #hud-stamina, body.hud-hide-crosshair #hud-crosshair, body.hud-hide-minimap #hud-minimap, body.hud-hide-actionbar #ab-shell-gameplay, body.hud-hide-interaction #interaction-prompt, body.hud-hide-hotbar #hud-hotbar { display:none !important; }',
     '#ab-shell-gameplay { position:fixed; bottom:18px; right:24px; max-width:calc(100vw - 48px); color:var(--cat-ink-dark); pointer-events:none; z-index:20; }',
     '#ab-shell-gameplay.hidden { display:none; }',
     '#ab-gameplay { display:flex; flex-direction:column; align-items:flex-end; gap:6px; text-shadow:0 0 3px rgba(247,237,217,0.85), 0 0 6px rgba(247,237,217,0.55), 0 1px 2px rgba(0,0,0,0.45); }',
@@ -56,6 +56,9 @@
     '#hud-minimap { position:fixed; top:24px; right:24px; width:180px; height:180px; border-radius:50%; overflow:hidden; border:2px solid rgba(184,170,145,0.7); box-shadow:0 2px 8px rgba(0,0,0,0.35); background:#d4c19d; pointer-events:none; z-index:20; }',
     '#minimap-tex { position:absolute; left:0; top:0; transform-origin:0 0; image-rendering:pixelated; image-rendering:-webkit-optimize-contrast; image-rendering:crisp-edges; pointer-events:none; }',
     '#minimap-canvas { position:absolute; left:0; top:0; width:100%; height:100%; pointer-events:none; }',
+    // Hotbar — bottom-centre showroom shelf. Interactive (click/drag), so it
+    // opts back into pointer events. Visual styling is owned by hud-hotbar.js.
+    '#hud-hotbar { position:fixed; left:50%; bottom:24px; transform:translateX(-50%); pointer-events:auto; z-index:20; }',
   ].join('\n');
 
   // ---- Screen detection ----
@@ -102,6 +105,11 @@
     var abShell = el('div', { id: 'ab-shell-gameplay', class: 'ab-shell hidden' });
     abShell.appendChild(el('div', { id: 'ab-gameplay' }));
     document.body.appendChild(abShell);
+
+    // Hotbar shell — hud-hotbar.js builds the slots inside #hotbar-row.
+    var hotbar = el('div', { id: 'hud-hotbar' });
+    hotbar.appendChild(el('div', { id: 'hotbar-row' }));
+    document.body.appendChild(hotbar);
   }
 
   // ---- Dynamic script loading ----
@@ -153,5 +161,6 @@
     loadScript('/shared/hud-interaction.js');
     loadScript('/shared/hud-action-bar.js');
     loadScript('/shared/hud-minimap.js');
+    loadScript('/shared/hud-hotbar.js');
   });
 })();

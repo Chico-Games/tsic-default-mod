@@ -103,4 +103,11 @@ TSICPlayground.register({
             if (!Number.isNaN(inventorySlot)) state.hotbar.SlotIndices[payload.SlotIndex] = inventorySlot;
         }
     },
+    // Mouse wheel cycles the selected slot, as it does in game.
+    onWheel(state, deltaY) {
+        const n = (state.hotbar.SlotIndices || []).length || 10;
+        const dir = deltaY > 0 ? 1 : -1;   // wheel down → next slot
+        const cur = (typeof state.hotbar.SelectedSlot === 'number') ? state.hotbar.SelectedSlot : 0;
+        state.hotbar.SelectedSlot = ((cur + dir) % n + n) % n;
+    },
 });

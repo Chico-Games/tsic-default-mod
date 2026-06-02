@@ -6,9 +6,11 @@
 //   Action bar      tsic.msg.UI.ActionBar.Abilities{ Slots:[...] }
 //   Interaction     tsic.msg.UI.Interaction.Targets{ Targets:[{Label, bIsPrimary}] }
 //   Minimap         (runtime texture — shows as an empty ring in the browser)
+//   Hotbar          tsic.msg.UI.Hotbar.Changed { SlotIndices, SelectedSlot }
+//                   + tsic.msg.UI.Inventory.Updated (OwnerId 'Player') for icons
 // Per-element visibility is driven by UI.HUD.SetElementVisible { Element, Visible }
 // so the toggles below can hide/show each piece independently.
-const HUD_ELEMENTS = ['health', 'stamina', 'crosshair', 'minimap', 'actionbar', 'interaction'];
+const HUD_ELEMENTS = ['health', 'stamina', 'crosshair', 'minimap', 'actionbar', 'interaction', 'hotbar'];
 
 function inGameToggle(key, label) {
     return {
@@ -33,7 +35,14 @@ TSICPlayground.register({
                 { InputName: 'IA_Dash',     AbilityName: 'Dash',   SubText: '',       StatusInt: 2, bVisible: true, KeyboardKeyText: 'Shift', CooldownPercent: 0.45 },
             ] },
             targets: [{ EntityId: 1, Label: 'Open Locker', bIsPrimary: true }],
-            show: { health: true, stamina: true, crosshair: true, minimap: true, actionbar: true, interaction: true },
+            // Hotbar: a few assigned slots + the rest empty; slot 0 selected.
+            hotbarItems: [
+                { ItemId: 'ID_Axe',    Count: 1, SlotIndex: 0 },
+                { ItemId: 'ID_Hammer', Count: 1, SlotIndex: 1 },
+                { ItemId: 'ID_Bread',  Count: 5, SlotIndex: 2 },
+            ],
+            hotbar: { SlotIndices: [0, 1, 2, -1, -1, -1, -1, -1, -1, -1], SelectedSlot: 0 },
+            show: { health: true, stamina: true, crosshair: true, minimap: true, actionbar: true, interaction: true, hotbar: true },
         };
     },
     project(s) {
@@ -42,6 +51,8 @@ TSICPlayground.register({
             ['tsic.msg.UI.Player.Attribute', { Channel: 'Stamina', Current: s.stamina, Max: s.staminaMax }],
             ['tsic.msg.UI.ActionBar.Abilities', s.abilities],
             ['tsic.msg.UI.Interaction.Targets', { Targets: s.targets }],
+            ['tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', Items: s.hotbarItems }],
+            ['tsic.msg.UI.Hotbar.Changed', s.hotbar],
             // Gameplay input mode so the crosshair isn't auto-hidden as if in a menu.
             ['tsic.msg.UI.Input.Mode.Changed', { Mode: 'MouseAndKeyboard', Device: 'kbm', Focus: 'game' }],
         ];
@@ -71,6 +82,7 @@ TSICPlayground.register({
         inGameToggle('minimap', 'Minimap'),
         inGameToggle('actionbar', 'Action bar'),
         inGameToggle('interaction', 'Interaction prompt'),
+        inGameToggle('hotbar', 'Hotbar'),
     ],
     scenarios: [
         { label: 'All elements', apply(s) {
@@ -85,6 +97,7 @@ TSICPlayground.register({
             s.show.health = true; s.show.stamina = true;
             s.show.crosshair = false; s.show.minimap = false;
             s.show.actionbar = false; s.show.interaction = false;
+            s.show.hotbar = false;
         } },
         { label: 'Combat', apply(s) {
             HUD_ELEMENTS.forEach((k) => { s.show[k] = true; });
@@ -99,4 +112,11 @@ TSICPlayground.register({
             HUD_ELEMENTS.forEach((k) => { s.show[k] = false; });
         } },
     ],
+    // Mouse wheel cycles the hotbar's selected slot, as it does in game.
+    onWheel(s, deltaY) {
+        const n = (s.hotbar.SlotIndices || []).length || 10;
+        const dir = deltaY > 0 ? 1 : -1;   // wheel down → next slot
+        const cur = (typeof s.hotbar.SelectedSlot === 'number') ? s.hotbar.SelectedSlot : 0;
+        s.hotbar.SelectedSlot = ((cur + dir) % n + n) % n;
+    },
 });
