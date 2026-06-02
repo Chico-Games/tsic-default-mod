@@ -42,7 +42,9 @@ TSICPlayground.register({
                 { ItemId: 'ID_Bread',  Count: 5, SlotIndex: 2 },
             ],
             hotbar: { SlotIndices: [0, 1, 2, -1, -1, -1, -1, -1, -1, -1], SelectedSlot: 0 },
-            show: { health: true, stamina: true, crosshair: true, minimap: true, actionbar: true, interaction: true, hotbar: true },
+            // Ping wheel defaults off — it's a full-screen overlay, so it's an
+            // explicit toggle rather than part of the always-on HUD set.
+            show: { health: true, stamina: true, crosshair: true, minimap: true, actionbar: true, interaction: true, hotbar: true, ping: false },
         };
     },
     project(s) {
@@ -59,6 +61,8 @@ TSICPlayground.register({
         for (const key of HUD_ELEMENTS) {
             out.push(['tsic.msg.UI.HUD.SetElementVisible', { Element: key, Visible: !!s.show[key] }]);
         }
+        // Ping wheel (show-convention element; kept out of the bulk HUD set).
+        out.push(['tsic.msg.UI.HUD.SetElementVisible', { Element: 'ping', Visible: !!s.show.ping }]);
         return out;
     },
     controls: [
@@ -83,6 +87,7 @@ TSICPlayground.register({
         inGameToggle('actionbar', 'Action bar'),
         inGameToggle('interaction', 'Interaction prompt'),
         inGameToggle('hotbar', 'Hotbar'),
+        inGameToggle('ping', 'Ping wheel'),
     ],
     scenarios: [
         { label: 'All elements', apply(s) {

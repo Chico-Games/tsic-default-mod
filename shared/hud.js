@@ -41,7 +41,7 @@
     '#hud-stamina { position:fixed; left:80px; bottom:30px; width:48px; --vial-h:200px; pointer-events:none; z-index:20; }',
     '#hud-crosshair { position:fixed; left:50%; top:50%; margin-left:-2px; margin-top:-2px; width:4px; height:4px; background:#fff; box-shadow:0 0 0 1px rgba(0,0,0,0.85); border-radius:50%; pointer-events:none; z-index:20; }',
     '#hud-crosshair.hidden { display:none; }',
-    'body.hud-hidden #hud-chrome, body.hud-hidden #hud-health, body.hud-hidden #hud-stamina, body.hud-hidden #hud-crosshair, body.hud-hidden #bb-shell-gameplay, body.hud-hidden #hud-minimap, body.hud-hidden #hud-chunk-debug, body.hud-hidden #hud-hotbar { display:none !important; }',
+    'body.hud-hidden #hud-chrome, body.hud-hidden #hud-health, body.hud-hidden #hud-stamina, body.hud-hidden #hud-crosshair, body.hud-hidden #bb-shell-gameplay, body.hud-hidden #hud-minimap, body.hud-hidden #hud-chunk-debug, body.hud-hidden #hud-hotbar, body.hud-hidden #ping-shell { display:none !important; }',
     'body.hud-hide-health #hud-health, body.hud-hide-stamina #hud-stamina, body.hud-hide-crosshair #hud-crosshair, body.hud-hide-minimap #hud-minimap, body.hud-hide-actionbar #bb-shell-gameplay, body.hud-hide-interaction #interaction-prompt, body.hud-hide-hotbar #hud-hotbar { display:none !important; }',
     '#bb-shell-gameplay { position:fixed; bottom:18px; right:24px; min-width:240px; max-width:calc(100vw - 48px); padding:8px 12px; color:#fff; pointer-events:none; z-index:20; font-family:Georgia,"Libre Baskerville",serif; text-shadow:0 1px 2px rgba(0,0,0,0.75); }',
     '#bb-shell-gameplay.hidden { display:none; }',
@@ -69,6 +69,10 @@
     // Hotbar — bottom-centre showroom shelf. Interactive (click/drag), so it
     // opts back into pointer events. Visual styling is owned by hud-hotbar.js.
     '#hud-hotbar { position:fixed; left:50%; bottom:24px; transform:translateX(-50%); pointer-events:auto; z-index:20; }',
+    // Ping composer — full-screen radial overlay, hidden until shown. Styling
+    // is owned by hud-ping.js; hud.js only owns its display gate + z-order.
+    '#ping-shell { display:none; z-index:60; }',
+    'body.hud-show-ping #ping-shell { display:flex; }',
   ].join('\n');
 
   // ---- Screen detection ----
@@ -126,6 +130,9 @@
     var hotbar = el('div', { id: 'hud-hotbar' });
     hotbar.appendChild(el('div', { id: 'hotbar-row' }));
     document.body.appendChild(hotbar);
+
+    // Ping composer overlay — hud-ping.js builds the wheel inside it.
+    document.body.appendChild(el('div', { id: 'ping-shell' }));
   }
 
   // ---- Dynamic script loading ----
@@ -173,6 +180,12 @@
     // interaction. Used by settings toggles and the playground's element toggles.
     tsic.on('tsic.msg.UI.HUD.SetElementVisible', function (e) {
       if (!e || !e.Element) return;
+      // Ping uses show-convention (hidden by default, revealed on demand);
+      // everything else uses hide-convention (visible by default).
+      if (e.Element === 'ping') {
+        document.body.classList.toggle('hud-show-ping', e.Visible !== false);
+        return;
+      }
       document.body.classList.toggle('hud-hide-' + e.Element, e.Visible === false);
     });
 
@@ -188,5 +201,6 @@
     loadScript('/shared/hud-minimap.js');
     loadScript('/shared/hud-chunk-debug.js');
     loadScript('/shared/hud-hotbar.js');
+    loadScript('/shared/hud-ping.js');
   });
 })();
