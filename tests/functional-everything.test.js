@@ -23,8 +23,8 @@ TSICTestHarness.register({
     async run(ctx) {
         ctx.inject('tsic.msg.UI.Player.Attribute', { Channel: 'Health', Current: 80, Max: 100 });
         ctx.inject('tsic.msg.Message.DamageEvent', { Damage: 20 });
-        await ctx.waitFor(() => /80 \/ 100/.test(ctx.doc.getElementById('numbers').textContent), { timeout: 2000 });
-        ctx.expect(ctx.assert.domText(ctx.doc, '#numbers', /80 \/ 100/));
+        await ctx.waitFor(() => /80 \/ 100/.test((ctx.doc.querySelector('.tlb-readout') || {}).textContent || ''), { timeout: 2000 });
+        ctx.expect(ctx.assert.domText(ctx.doc, '.tlb-readout', /80 \/ 100/));
     },
 });
 

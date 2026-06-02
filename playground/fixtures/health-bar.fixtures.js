@@ -11,6 +11,15 @@ TSICPlayground.register({
         if (s.dmgNonce > 0) out.push(['tsic.msg.Message.DamageEvent', { Damage: 10, _nonce: s.dmgNonce }]);
         return out;
     },
+    controls: [
+        {
+            label: 'Health',
+            min: 0, max: 150, step: 1,
+            read(s) { return s.current; },
+            apply(s, v) { s.current = v; },
+            format(v) { return Math.round(v); },
+        },
+    ],
     scenarios: [
         { label: 'Full',           apply(s) { s.current = s.max; } },
         { label: '75%',            apply(s) { s.current = 75; } },

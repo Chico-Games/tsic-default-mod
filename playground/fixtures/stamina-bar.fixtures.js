@@ -6,6 +6,15 @@ TSICPlayground.register({
     screen: '/screens/stamina-bar.html',
     initialState() { return { current: 80, max: 100 }; },
     project(s) { return [['tsic.msg.UI.Player.Attribute', { Channel: 'Stamina', Current: s.current, Max: s.max }]]; },
+    controls: [
+        {
+            label: 'Stamina',
+            min: 0, max: 150, step: 1,
+            read(s) { return s.current; },
+            apply(s, v) { s.current = v; },
+            format(v) { return Math.round(v); },
+        },
+    ],
     scenarios: [
         { label: 'Full',          apply(s) { s.current = s.max; } },
         { label: '90%',           apply(s) { s.current = 90; } },

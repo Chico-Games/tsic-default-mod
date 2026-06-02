@@ -4,86 +4,22 @@
   <meta name="tsic-screen" content="StaminaBar">
   <title>Stamina</title>
   <link rel="stylesheet" href="/shared/base.css">
-    <script src="/shared/tsic-bridge.js" defer></script>
+  <script src="/shared/tsic-bridge.js" defer></script>
   <script src="/shared/tsic-runtime.js" defer></script>
   <script src="/shared/router.js" defer></script>
-  <style>
-    #wrap {
-      position: fixed; left: 24px; bottom: 36px;
-      width: 240px; height: 14px;
-      border: 1px solid rgba(184,170,145,0.45);
-      background: rgba(241,229,207,0.88);
-      border-radius: 3px; overflow: hidden;
-      font-family: 'Segoe UI', system-ui, sans-serif;
-    }
-    #drain-fill, #stamina-fill {
-      position: absolute; left: 0; top: 0; bottom: 0;
-    }
-    #drain-fill { background: #133a73; width: 100%; }
-    #stamina-fill { background: #1f8fff; width: 100%; transition: width 0.05s linear; }
-    #s-numbers {
-      position: absolute; left: 0; right: 0; top: 50%;
-      transform: translateY(-50%);
-      text-align: center; font-size: 11px; font-weight: 700;
-      color: var(--cat-ink-dark); text-shadow: 0 1px 2px rgba(35,31,24,0.55);
-    }
-  </style>
+  <script src="/shared/hud-liquid-bar.js"></script>
+  <style> html, body { background: transparent; margin: 0; pointer-events: none; } </style>
 </head><body>
-  <div id="wrap">
-    <div id="drain-fill"></div>
-    <div id="stamina-fill"></div>
-    <div id="s-numbers">— / —</div>
-  </div>
+  <!-- Liquid vial, blue — no waves, no droplets (keeps the damage trail). -->
+  <div id="vial" style="position:fixed; left:48px; bottom:64px; width:54px; --vial-h:248px;"></div>
   <script>
     (function boot() {
-      if (!window.tsic) { setTimeout(boot, 16); return; }
-
-      const DRAIN_DELAY = 1.0;
-      const DRAIN_INTERP_FRAC = 0.3;
-
-      let current = 1, max = 1;
-      let stamN = 1, drainN = 1;
-      let lastDrainTime = -1e9;
-      let prevTarget = 1;
-
-      function applyAttr(p) {
-        if (!p || p.Channel !== 'Stamina') return;
-        current = Number(p.Current) || 0;
-        max     = Number(p.Max) || 1;
-        const target = max > 0 ? Math.max(0, Math.min(1, current / max)) : 0;
-        if (target < prevTarget - 1e-4) {
-          lastDrainTime = performance.now() / 1000;
-        }
-        prevTarget = target;
-      }
-
-      let last = performance.now() / 1000;
-      function frame() {
-        const now = performance.now() / 1000;
-        const dt = Math.max(0, now - last);
-        last = now;
-
-        const target = max > 0 ? Math.max(0, Math.min(1, current / max)) : 0;
-        if (target > stamN) drainN = Math.max(drainN, target);
-        stamN = target;
-
-        if ((now - lastDrainTime) >= DRAIN_DELAY) {
-          const step = DRAIN_INTERP_FRAC * dt;
-          if (drainN > stamN) drainN = Math.max(stamN, drainN - step);
-        }
-        if (drainN < stamN) drainN = stamN;
-
-        const dEl = document.getElementById('drain-fill');
-        const sEl = document.getElementById('stamina-fill');
-        const nEl = document.getElementById('s-numbers');
-        if (dEl) dEl.style.width = (drainN * 100).toFixed(1) + '%';
-        if (sEl) sEl.style.width = (stamN * 100).toFixed(1) + '%';
-        if (nEl) nEl.textContent = Math.round(current) + ' / ' + Math.round(max);
-        requestAnimationFrame(frame);
-      }
-
-      tsic.on('tsic.msg.UI.Player.Attribute', applyAttr);
-      requestAnimationFrame(frame);
+      if (!window.TSICLiquidBar) { setTimeout(boot, 16); return; }
+      TSICLiquidBar.mount(document.getElementById('vial'), {
+        channel: 'Stamina', label: 'Stamina',
+        waves: false, droplets: false, sheen: true,
+        palette: { lo: [20, 55, 95], hi: [47, 127, 214], trail: '#0d2542', rim: '47,127,214' },
+      });
     })();
   </script>
 </body></html>

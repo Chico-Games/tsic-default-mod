@@ -5,13 +5,16 @@
 // own file:
 //
 //   hud-toast.js        — toast notifications (loaded on ALL screens)
-//   hud-health.js       — health bar with damage trail
-//   hud-stamina.js      — stamina bar with decrease trail
+//   hud-liquid-bar.js   — shared liquid vial component (health + stamina)
+//   hud-health.js       — health vial (mounts hud-liquid-bar)
+//   hud-stamina.js      — stamina vial (mounts hud-liquid-bar)
 //   hud-crosshair.js    — crosshair visibility
 //   hud-interaction.js  — interaction prompt label
 //   hud-behavior-bar.js — gameplay behavior bar (System A)
 //   hud-construction-carousel.js — construction build strip (bottom-centre)
 //   hud-minimap.js      — minimap (fixed-zoom, player-tracking)
+//   hud-chunk-debug.js  — chunk debug overlay (dev)
+//   hud-hotbar.js       — bottom-centre hotbar shelf
 //
 // The HUD toggle (body.hud-hidden) stays here — it's orchestrator-level
 // since it hides ALL chrome elements at once.
@@ -32,20 +35,14 @@
   // ---- Inline styles for HUD chrome ----
 
   var STYLE = [
-    '.hud-bar { position:fixed; left:24px; width:240px; border:1px solid rgba(184,170,145,0.45); background:rgba(241,229,207,0.88); border-radius:3px; overflow:hidden; font-family:"Segoe UI",system-ui,sans-serif; pointer-events:none; z-index:20; }',
-    '#hud-health { bottom:60px; height:18px; }',
-    '#hud-stamina { bottom:36px; height:14px; }',
-    '.hud-bar .trail-fill, .hud-bar .live-fill { position:absolute; left:0; top:0; bottom:0; }',
-    '#hud-health .trail-fill { background:#6b1010; width:100%; }',
-    '#hud-health .live-fill { background:#ce2424; width:100%; transition:width 0.05s linear; }',
-    '#hud-stamina .trail-fill { background:#133a73; width:100%; }',
-    '#hud-stamina .live-fill { background:#1f8fff; width:100%; transition:width 0.05s linear; }',
-    '.hud-bar .numbers { position:absolute; left:0; right:0; top:50%; transform:translateY(-50%); text-align:center; font-weight:700; color:#fff; text-shadow:0 1px 2px rgba(0,0,0,0.75); }',
-    '#hud-health .numbers { font-size:12px; }',
-    '#hud-stamina .numbers { font-size:11px; }',
-    '#hud-crosshair { position:fixed; left:50%; top:50%; margin-left:-2px; margin-top:-2px; width:4px; height:4px; background:#fff; border-radius:50%; pointer-events:none; z-index:20; }',
+    // Health + stamina are liquid vials (shared/hud-liquid-bar.js), standing
+    // side by side in the bottom-left. These rules just position/size them.
+    '#hud-health { position:fixed; left:24px; bottom:30px; width:48px; --vial-h:200px; pointer-events:none; z-index:20; }',
+    '#hud-stamina { position:fixed; left:80px; bottom:30px; width:48px; --vial-h:200px; pointer-events:none; z-index:20; }',
+    '#hud-crosshair { position:fixed; left:50%; top:50%; margin-left:-2px; margin-top:-2px; width:4px; height:4px; background:#fff; box-shadow:0 0 0 1px rgba(0,0,0,0.85); border-radius:50%; pointer-events:none; z-index:20; }',
     '#hud-crosshair.hidden { display:none; }',
-    'body.hud-hidden #hud-chrome, body.hud-hidden #hud-health, body.hud-hidden #hud-stamina, body.hud-hidden #hud-crosshair, body.hud-hidden #bb-shell-gameplay, body.hud-hidden #hud-minimap, body.hud-hidden #hud-chunk-debug { display:none !important; }',
+    'body.hud-hidden #hud-chrome, body.hud-hidden #hud-health, body.hud-hidden #hud-stamina, body.hud-hidden #hud-crosshair, body.hud-hidden #bb-shell-gameplay, body.hud-hidden #hud-minimap, body.hud-hidden #hud-chunk-debug, body.hud-hidden #hud-hotbar { display:none !important; }',
+    'body.hud-hide-health #hud-health, body.hud-hide-stamina #hud-stamina, body.hud-hide-crosshair #hud-crosshair, body.hud-hide-minimap #hud-minimap, body.hud-hide-actionbar #bb-shell-gameplay, body.hud-hide-interaction #interaction-prompt, body.hud-hide-hotbar #hud-hotbar { display:none !important; }',
     '#bb-shell-gameplay { position:fixed; bottom:18px; right:24px; min-width:240px; max-width:calc(100vw - 48px); padding:8px 12px; color:#fff; pointer-events:none; z-index:20; font-family:Georgia,"Libre Baskerville",serif; text-shadow:0 1px 2px rgba(0,0,0,0.75); }',
     '#bb-shell-gameplay.hidden { display:none; }',
     '#bb-gameplay { display:flex; flex-direction:column; align-items:stretch; gap:0; }',
@@ -69,6 +66,9 @@
     '#minimap-canvas { position:absolute; left:0; top:0; width:100%; height:100%; pointer-events:none; }',
     '#hud-chunk-debug { display:none; position:fixed; top:214px; right:24px; width:140px; height:140px; overflow:hidden; border:1px solid rgba(184,170,145,0.55); box-shadow:0 2px 6px rgba(0,0,0,0.3); background:#1a1a1a; pointer-events:none; z-index:20; }',
     '#chunk-debug-tex { position:absolute; left:0; top:0; width:100%; height:100%; image-rendering:pixelated; image-rendering:-webkit-optimize-contrast; image-rendering:crisp-edges; pointer-events:none; }',
+    // Hotbar — bottom-centre showroom shelf. Interactive (click/drag), so it
+    // opts back into pointer events. Visual styling is owned by hud-hotbar.js.
+    '#hud-hotbar { position:fixed; left:50%; bottom:24px; transform:translateX(-50%); pointer-events:auto; z-index:20; }',
   ].join('\n');
 
   // ---- Screen detection ----
@@ -96,11 +96,9 @@
     var chrome = el('div', { id: 'hud-chrome' });
     document.body.appendChild(chrome);
 
-    document.body.appendChild(el('div', { id: 'hud-health', class: 'hud-bar' },
-      el('div', { class: 'trail-fill' }), el('div', { class: 'live-fill' }), el('div', { class: 'numbers' }, '— / —')));
-
-    document.body.appendChild(el('div', { id: 'hud-stamina', class: 'hud-bar' },
-      el('div', { class: 'trail-fill' }), el('div', { class: 'live-fill' }), el('div', { class: 'numbers' }, '— / —')));
+    // Empty containers — the liquid-bar component builds the vial inside each.
+    document.body.appendChild(el('div', { id: 'hud-health' }));
+    document.body.appendChild(el('div', { id: 'hud-stamina' }));
 
     document.body.appendChild(el('div', { id: 'hud-crosshair' }));
 
@@ -123,6 +121,11 @@
     bbShell.appendChild(el('div', { id: 'bb-divider', class: 'hidden' }));
     bbShell.appendChild(el('div', { id: 'interaction-prompt', class: 'hidden' }));
     document.body.appendChild(bbShell);
+
+    // Hotbar shell — hud-hotbar.js builds the slots inside #hotbar-row.
+    var hotbar = el('div', { id: 'hud-hotbar' });
+    hotbar.appendChild(el('div', { id: 'hotbar-row' }));
+    document.body.appendChild(hotbar);
   }
 
   // ---- Dynamic script loading ----
@@ -165,8 +168,17 @@
       img.style.display = (p && p.bVisible === false) ? 'none' : '';
     });
 
+    // Per-element HUD visibility — hide/show a single chrome element without
+    // touching the rest. Element ∈ health|stamina|crosshair|minimap|actionbar|
+    // interaction. Used by settings toggles and the playground's element toggles.
+    tsic.on('tsic.msg.UI.HUD.SetElementVisible', function (e) {
+      if (!e || !e.Element) return;
+      document.body.classList.toggle('hud-hide-' + e.Element, e.Visible === false);
+    });
+
     // Load component scripts. Each self-initialises by subscribing to
     // tsic channels and operating on the DOM shells created above.
+    loadScript('/shared/hud-liquid-bar.js');   // shared vial component (health + stamina)
     loadScript('/shared/hud-health.js');
     loadScript('/shared/hud-stamina.js');
     loadScript('/shared/hud-crosshair.js');
@@ -175,5 +187,6 @@
     loadScript('/shared/hud-construction-carousel.js');
     loadScript('/shared/hud-minimap.js');
     loadScript('/shared/hud-chunk-debug.js');
+    loadScript('/shared/hud-hotbar.js');
   });
 })();

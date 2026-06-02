@@ -61,6 +61,38 @@
     // requests per page load. Swap any matching URL to a 1x1 transparent
     // PNG data URL so no request is ever made.
     const TEX_STUB = 'data:image/gif;base64,R0lGODlhAQABAAAAACw=';
+
+    // …except item icons, where a transparent pixel makes slots look empty.
+    // PREVIEW-ONLY: map the item id (by keyword) to a Game-Icons.net icon via
+    // the Iconify API, tinted cream to match the HUD. In-game the /tex/ scheme
+    // resolves for real via UE and this host code never runs, so the real game
+    // is unaffected. Keys are matched as substrings of the lower-cased id, so
+    // list more-specific terms first (e.g. "pickaxe" before "axe").
+    const ICON_PACK = {
+        pickaxe: 'war-pick', pick: 'war-pick', mining: 'war-pick',
+        axe: 'battle-axe', hammer: 'claw-hammer', knife: 'bowie-knife',
+        sword: 'broadsword', blade: 'broadsword', spear: 'spear-hook',
+        bread: 'bread-slice', apple: 'shiny-apple', fruit: 'shiny-apple',
+        steak: 'steak', meat: 'meat', salmon: 'salmon', fish: 'salmon',
+        water: 'water-drop', drink: 'water-drop', bottle: 'water-drop',
+        plank: 'wood-pile', wood: 'wood-pile', log: 'wood-pile',
+        coal: 'coal-pile', ore: 'stone-block', stone: 'rock', rock: 'rock',
+        steel: 'metal-bar', metal: 'metal-bar', iron: 'metal-bar', gold: 'gold-bar',
+        key: 'key', ammo: 'ammo-box', bullet: 'ammo-box',
+        pistol: 'pistol-gun', rifle: 'pistol-gun', gun: 'pistol-gun',
+        bandage: 'bandage-roll', medkit: 'bandage-roll', heal: 'bandage-roll',
+        elixir: 'round-bottom-flask', potion: 'round-bottom-flask', flask: 'round-bottom-flask',
+        battery: 'battery-pack-alt',
+    };
+    const ICON_FALLBACK = 'cardboard-box';
+    function placeholderIconUrl(url) {
+        const m = /\/tex\/item-icon\/([^/?#]+)/i.exec(url);
+        const id = (m ? decodeURIComponent(m[1]) : '').toLowerCase();
+        let icon = ICON_FALLBACK;
+        for (const k in ICON_PACK) { if (id.includes(k)) { icon = ICON_PACK[k]; break; } }
+        return 'https://api.iconify.design/game-icons:' + icon + '.svg?color=%23f0e7d4&width=64&height=64';
+    }
+
     function stubTexScheme(win) {
         try {
             const ImgProto = win.HTMLImageElement && win.HTMLImageElement.prototype;
@@ -72,7 +104,10 @@
                 enumerable: desc.enumerable,
                 get: desc.get,
                 set(v) {
-                    if (typeof v === 'string' && (/^(tex|pak):/i.test(v) || /^\/tex\//i.test(v) || /^\/runtime\//i.test(v))) v = TEX_STUB;
+                    if (typeof v === 'string') {
+                        if (/^\/tex\/item-icon\//i.test(v)) v = placeholderIconUrl(v);
+                        else if (/^(tex|pak):/i.test(v) || /^\/tex\//i.test(v) || /^\/runtime\//i.test(v)) v = TEX_STUB;
+                    }
                     desc.set.call(this, v);
                 },
             });
@@ -163,6 +198,20 @@
             iframe.removeEventListener('load', onLoad);
             activeWin = iframe.contentWindow;
             stubTexScheme(activeWin);
+            // Mouse-wheel emulation: let a fixture map wheel deltas onto state
+            // (e.g. the hotbar cycling its selected slot, as in game). Bound to
+            // this iframe window — replaced wholesale on the next fixture load.
+            activeWin.addEventListener('wheel', (ev) => {
+                if (!activeFixture || typeof activeFixture.onWheel !== 'function') return;
+                ev.preventDefault();
+                try { activeFixture.onWheel(activeState, ev.deltaY); }
+                catch (e) {
+                    logRow('fail', `onWheel threw: ${e.message}`);
+                    if (global.TSICPlaygroundDebug) global.TSICPlaygroundDebug.error(`onWheel threw: ${e.message}`);
+                    return;
+                }
+                projectAndInject();
+            }, { passive: false });
             const cats = resolveCatalogs(activeFixture, activeState);
             activeHandle = global.TSICTestHarness.installMockTsic(activeWin, {
                 itemCatalog: cats.items || {},
@@ -252,6 +301,27 @@
         // the user's drag history.
         const controls = activeFixture.controls || [];
         for (const ctrl of controls) {
+            // Toggle (checkbox) control — compact row, mutates a boolean.
+            if (ctrl.type === 'toggle') {
+                const row = document.createElement('label');
+                row.style.cssText = 'display:flex;align-items:center;gap:8px;padding:4px 4px;cursor:pointer;font-family:var(--font-mono,monospace);font-size:11px;letter-spacing:0.5px;color:var(--pg-dim,#a59b89);text-transform:uppercase;';
+                const box = document.createElement('input');
+                box.type = 'checkbox';
+                box.checked = ctrl.read ? !!ctrl.read(activeState) : !!ctrl.value;
+                box.style.cssText = 'cursor:pointer;accent-color:var(--pg-accent, #e0a86a);';
+                const txt = document.createElement('span');
+                txt.textContent = ctrl.label;
+                box.addEventListener('change', () => {
+                    try { ctrl.apply(activeState, box.checked); }
+                    catch (e) { logRow('fail', `toggle "${ctrl.label}" threw: ${e.message}`); return; }
+                    projectAndInject();
+                });
+                row.appendChild(box);
+                row.appendChild(txt);
+                host.appendChild(row);
+                continue;
+            }
+
             const wrap = document.createElement('div');
             wrap.style.cssText = 'display:flex;flex-direction:column;gap:3px;padding:8px 4px 2px;margin-top:6px;border-top:1px solid var(--pg-line, rgba(224,204,168,0.08));';
 
@@ -321,6 +391,7 @@
         'settings': 'Menus & Flow', 'save-load': 'Menus & Flow', 'mods': 'Menus & Flow',
         'credits': 'Menus & Flow', 'loading-screen': 'Menus & Flow', 'death-screen': 'Menus & Flow',
 
+        'in-game': 'HUD',
         'health-bar': 'HUD', 'stamina-bar': 'HUD', 'crosshair': 'HUD',
         'hotbar': 'HUD', 'interaction': 'HUD', 'notifications': 'HUD', 'circular-progress': 'HUD',
         'detection': 'HUD', 'ping': 'HUD', 'ping-markers': 'HUD',
