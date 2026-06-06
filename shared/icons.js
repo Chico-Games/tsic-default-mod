@@ -172,7 +172,10 @@
   //   'world-debug-height', 'world-debug-maze', 'world-debug-all'
 
   function runtimeImgUrl(name) {
-    return '/runtime/' + name + '.png';
+    // .imgsrc is the documented runtime-texture extension; the scheme handler
+    // strips it (FPaths::GetBaseFilename) so any extension resolves, but keep
+    // this consistent with the initial-load <img src> sites and CLAUDE.md.
+    return '/runtime/' + name + '.imgsrc';
   }
 
   function runtimeImg(name, opts) {

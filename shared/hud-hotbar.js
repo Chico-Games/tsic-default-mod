@@ -178,7 +178,7 @@
             try {
               var src = JSON.parse(itemData);
               publish('UI.Cmd.Hotbar.Assign', { SlotIndex: i, ItemId: String(src.slot) });
-            } catch (err) {}
+            } catch (err) { console.warn('[hotbar] bad item drag payload', err); }
             return;
           }
           var slotData = e.dataTransfer.getData('application/tsic-slot');
@@ -190,7 +190,7 @@
               var targetInv = isAssigned(slots[i]) ? String(slots[i]) : '';
               publish('UI.Cmd.Hotbar.Assign', { SlotIndex: i,      ItemId: String(s.inventorySlot) });
               publish('UI.Cmd.Hotbar.Assign', { SlotIndex: s.slot, ItemId: targetInv });
-            } catch (err) {}
+            } catch (err) { console.warn('[hotbar] bad slot drag payload', err); }
           }
         });
 
