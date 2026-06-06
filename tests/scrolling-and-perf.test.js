@@ -321,7 +321,7 @@ TSICTestHarness.register({
         for (let i = 0; i < 100; i++) items.push({ EntityDefId: 'FD_' + i, Name: 'x' + i, Category: cats[i % 5], bAffordable: i % 2 === 0 });
         ctx.inject('tsic.msg.UI.Construction.Available', { Items: items });
         await ctx.waitFor(() => ctx.doc.querySelectorAll('#items .c-row').length === 100, { timeout: 2000 });
-        ctx.expect(ctx.assert.eq(ctx.doc.querySelectorAll('#c-tabs .c-tab').length, 6));  // All + 5 categories
+        ctx.expect(ctx.assert.eq(ctx.doc.querySelectorAll('#c-tabs .tsic-tab').length, 6));  // All + 5 categories
     },
 });
 

@@ -99,8 +99,8 @@ TSICTestHarness.register({
         const cats = ['Furniture','Structure','Decoration','Storage'];
         for (let i = 0; i < 30; i++) items.push({ EntityDefId: `FD_${i}`, Name: `i${i}`, Category: cats[i % cats.length], bAffordable: i % 2 === 0 });
         ctx.inject('tsic.msg.UI.Construction.Available', { Items: items });
-        await ctx.waitFor(() => ctx.doc.querySelectorAll('#c-tabs .c-tab').length >= 5, { timeout: 2000 });
-        ctx.expect(ctx.assert.eq(ctx.doc.querySelectorAll('#c-tabs .c-tab').length, 5));
+        await ctx.waitFor(() => ctx.doc.querySelectorAll('#c-tabs .tsic-tab').length >= 5, { timeout: 2000 });
+        ctx.expect(ctx.assert.eq(ctx.doc.querySelectorAll('#c-tabs .tsic-tab').length, 5));
     },
 });
 

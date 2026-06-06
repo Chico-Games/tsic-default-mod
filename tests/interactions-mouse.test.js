@@ -15,13 +15,13 @@ TSICTestHarness.register({
             { ItemId: 'ID_Bread', Count: 2, SlotIndex: 1 },
             { ItemId: 'ID_Wheat', Count: 5, SlotIndex: 2 },
         ]});
-        await ctx.waitFor(() => ctx.doc.querySelectorAll('.inv-tab').length === 5);
+        await ctx.waitFor(() => ctx.doc.querySelectorAll('.tsic-tab').length === 5);
         const labels = ['All','Tools','Cons.','Mats','Other'];
         for (const label of labels) {
-            const tab = Array.from(ctx.doc.querySelectorAll('.inv-tab')).find(e => e.textContent === label);
+            const tab = Array.from(ctx.doc.querySelectorAll('.tsic-tab')).find(e => e.textContent === label);
             tab.click();
             await new Promise(r => setTimeout(r, 15));
-            const active = ctx.doc.querySelector('.inv-tab.active');
+            const active = ctx.doc.querySelector('.tsic-tab.is-active');
             ctx.expect(ctx.assert.eq(active && active.textContent, label, `tab ${label} should be active`));
         }
     },
@@ -74,12 +74,12 @@ TSICTestHarness.register({
             { EntityDefId: 'B', Name: 'B', Category: 'Structure',  bAffordable: true },
             { EntityDefId: 'C', Name: 'C', Category: 'Storage',    bAffordable: true },
         ]});
-        await ctx.waitFor(() => ctx.doc.querySelectorAll('#c-tabs .c-tab').length >= 4);
+        await ctx.waitFor(() => ctx.doc.querySelectorAll('#c-tabs .tsic-tab').length >= 4);
         for (const cat of ['Furniture','Structure','Storage']) {
-            const tab = Array.from(ctx.doc.querySelectorAll('.c-tab')).find(e => e.textContent === cat);
+            const tab = Array.from(ctx.doc.querySelectorAll('.tsic-tab')).find(e => e.textContent === cat);
             tab.click();
             await new Promise(r => setTimeout(r, 15));
-            const active = ctx.doc.querySelector('.c-tab.active');
+            const active = ctx.doc.querySelector('.tsic-tab.is-active');
             ctx.expect(ctx.assert.eq(active && active.textContent, cat));
             const rows = ctx.doc.querySelectorAll('#items .c-row');
             ctx.expect(ctx.assert.eq(rows.length, 1, `filtered to one ${cat} row`));

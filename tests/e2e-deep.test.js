@@ -121,7 +121,7 @@ TSICTestHarness.register({
         ctx.setItemCatalog({ ID_Late: { Name: 'Late', Category: 'Equipment' } });
         await new Promise(r => setTimeout(r, 60));
         // Click the Tools tab; item should still be there.
-        Array.from(ctx.doc.querySelectorAll('.inv-tab')).find(e => e.textContent === 'Tools').click();
+        Array.from(ctx.doc.querySelectorAll('.tsic-tab')).find(e => e.textContent === 'Tools').click();
         await new Promise(r => setTimeout(r, 30));
         ctx.expect(ctx.assert.domExists(ctx.doc, '#inv-list .tsic-list-row[data-slot="0"] img'));
     },

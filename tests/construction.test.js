@@ -9,8 +9,8 @@ TSICTestHarness.register({
                 { EntityDefId: 'FD_Walling', Name: 'Wall',    Category: 'Structure', IconUrl: '', bAffordable: true },
             ],
         });
-        await ctx.waitFor(() => ctx.doc.querySelectorAll('#c-tabs .c-tab').length >= 2);
-        const tabs = ctx.doc.querySelectorAll('#c-tabs .c-tab');
+        await ctx.waitFor(() => ctx.doc.querySelectorAll('#c-tabs .tsic-tab').length >= 2);
+        const tabs = ctx.doc.querySelectorAll('#c-tabs .tsic-tab');
         ctx.expect(ctx.assert.truthy(tabs.length >= 3, `expected ≥3 tabs (All + 2 categories), got ${tabs.length}`));
     },
 });
