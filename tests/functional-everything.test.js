@@ -134,6 +134,7 @@ TSICTestHarness.register({
     file: '/screens/construction-carousel.html',
     async run(ctx) {
         ctx.inject('tsic.msg.UI.Construction.Carousel', {
+            bActive: true,
             Prev: [], Current: { FurnitureId: 'X', Label: 'X', bAffordable: true }, Next: [],
             RotationAxis: '', BlockedReason: '',
         });

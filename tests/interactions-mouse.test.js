@@ -182,7 +182,7 @@ TSICTestHarness.register({
     name: 'Mouse/ConstructionCarousel: no clicks expected (display-only)',
     file: '/screens/construction-carousel.html',
     async run(ctx) {
-        ctx.inject('tsic.msg.UI.Construction.Carousel', { Prev: [], Current: { FurnitureId: 'X', Label: 'X', bAffordable: true }, Next: [] });
+        ctx.inject('tsic.msg.UI.Construction.Carousel', { bActive: true, Prev: [], Current: { FurnitureId: 'X', Label: 'X', bAffordable: true }, Next: [] });
         await ctx.waitFor(() => ctx.doc.querySelector('#cc-row .cc-slot.current'));
         ctx.clearPublishes();
         ctx.doc.querySelector('.cc-slot.current').click();

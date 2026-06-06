@@ -164,7 +164,7 @@ TSICTestHarness.register({
         await new Promise(r => setTimeout(r, 150));
         const img = ctx.doc.getElementById('inv-char-img');
         ctx.expect(ctx.assert.domExists(ctx.doc, '#inv-char-img'));
-        ctx.expect(img.src.includes('character-preview.imgsrc'), 'img src set after Ready');
+        ctx.expect(img.src.includes('character-preview.imgsrc') ? null : 'img src set after Ready');
     },
 });
 

@@ -34,8 +34,8 @@ TSICTestHarness.register({
     name: 'DeathScreen: title text uses red color',
     file: '/screens/death-screen.html',
     async run(ctx) {
-        await ctx.waitFor(() => ctx.doc.querySelector('h1'));
-        ctx.expect(ctx.assert.domText(ctx.doc, 'h1', /YOU DIED/i));
+        await ctx.waitFor(() => ctx.doc.querySelector('.tsic-masthead-title'));
+        ctx.expect(ctx.assert.domText(ctx.doc, '.tsic-masthead-title', /YOU DIED/i));
     },
 });
 

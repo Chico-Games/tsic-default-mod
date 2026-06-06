@@ -82,7 +82,10 @@ TSICTestHarness.register({
         const win = ctx.doc.defaultView;
         const slotEl = ctx.doc.querySelector('#cc-row .cc-slot.unafford');
         const after = win.getComputedStyle(slotEl, '::after');
-        ctx.expect(ctx.assert.eq(after.content, 'none', 'unafford ::after content (no red overlay)'));
+        // No red-overlay ::after. Real browsers report 'none'/'normal' for an
+        // unset content; jsdom reports '' — all mean "no overlay".
+        const noOverlay = !after.content || after.content === 'none' || after.content === 'normal';
+        ctx.expect(ctx.assert.truthy(noOverlay, 'unafford ::after content (no red overlay)'));
         const img = slotEl.querySelector('img');
         ctx.expect(ctx.assert.truthy(img, 'unafford slot has an icon img'));
         if (img) {
