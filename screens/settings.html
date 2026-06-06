@@ -22,35 +22,7 @@
        instead of being pushed inward by the scrollbar — and stays put whether or not
        a tab actually scrolls. */
     .settings-body { padding: 4px 12px 14px 22px; max-height: 60vh; overflow-y: auto; scrollbar-gutter: stable; }
-    /* Magazine tab strip — labels rendered like newsstand section tabs. */
-    #tabs {
-      display: flex;
-      gap: 0;
-      border-bottom: 4px solid var(--ink-night);
-      margin: 8px 0 14px;
-      padding: 0;
-      flex-wrap: wrap;
-    }
-    .tsic-tab {
-      background: transparent;
-      border: 0;
-      color: var(--ink-soft);
-      padding: 8px 16px;
-      cursor: pointer;
-      font-family: var(--font-display);
-      font-size: 14px;
-      font-weight: 800;
-      letter-spacing: 0.10em;
-      text-transform: uppercase;
-      position: relative;
-      bottom: -4px;
-    }
-    .tsic-tab:hover { color: var(--ink-night); }
-    .tsic-tab.active {
-      color: var(--paper-cream);
-      background: var(--ink-night);
-    }
-    .tsic-tab[data-tsic-focused] { outline: 2px solid var(--mag-red); outline-offset: -2px; }
+    /* Tab strip is shared — see .tsic-tab / [data-tsic-tab-bar] in tsic-ui.css. */
 
     .group { margin-bottom: 22px; }
     .group h3 {

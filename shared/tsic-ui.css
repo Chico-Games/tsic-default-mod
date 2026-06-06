@@ -186,24 +186,9 @@ button.tsic-list-row {
     justify-content: space-between;
     gap: 8px;
 }
-.ss-tabs { display: flex; gap: 4px; flex-wrap: wrap; }
-.ss-tabs .tsic-tab {
-    padding: 4px 10px;
-    background: var(--paper-bright);
-    border: 2px solid var(--ink-night);
-    border-bottom-width: 2px;
-    cursor: pointer;
-    font-family: var(--font-display);
-    font-size: 12px;
-    letter-spacing: 0.10em;
-    text-transform: uppercase;
-    color: var(--ink-night);
-}
-.ss-tabs .tsic-tab.is-active {
-    background: var(--mag-red);
-    color: #ffffff;
-    border-bottom-color: var(--ink-night);
-}
+/* Storage tabs share the unified .tsic-tab treatment (see §6); only the size
+   is trimmed for the denser two-pane storage shell. */
+.ss-tabs .tsic-tab { padding: 4px 10px; font-size: 13px; }
 
 .ss-capacity {
     display: flex; flex-direction: column; gap: 2px;
@@ -325,29 +310,36 @@ button.tsic-list-row {
     margin-top: 12px;
 }
 
-/* Magazine tab-bar — heavy black underline + active gets a red block label. */
-.tsic-tab-bar {
+/* Magazine tab-bar — borderless section labels sitting on one heavy ink
+   underline; the active tab is a solid red block whose lower edge meets the
+   underline. No gaps, no vertical dividers. Every tab strip carries
+   data-tsic-tab-bar, so the bar treatment is keyed off that attribute and all
+   screens (settings, inventory, storage, construction…) stay identical. */
+.tsic-tab-bar,
+[data-tsic-tab-bar] {
     display: flex;
     flex-direction: row;
+    flex-wrap: wrap;
     gap: 0;
     border-bottom: 4px solid var(--ink-night);
     margin-bottom: 12px;
 }
 .tsic-tab {
+    position: relative;
+    bottom: -4px;                 /* overlap the 4px underline */
     padding: 8px 16px;
-    background: var(--paper-cream);
+    background: transparent;
     border: 0;
-    border-right: 2px solid var(--ink-night);
-    color: var(--ink-night);
+    color: var(--ink-soft);
     font-family: var(--font-display);
     font-size: 16px;
+    font-weight: 800;
     letter-spacing: 0.08em;
     text-transform: uppercase;
     cursor: pointer;
     transition: background-color 120ms ease, color 120ms ease;
 }
-.tsic-tab:first-child { border-left: 2px solid var(--ink-night); }
-.tsic-tab:hover  { background: var(--paper-muted); }
+.tsic-tab:hover { color: var(--ink-night); }
 .tsic-tab.is-active {
     background: var(--mag-red);
     color: #ffffff;

@@ -403,7 +403,7 @@
         }
         for (const p of pages) {
             const btn = document.createElement('button');
-            btn.className = 'tsic-tab' + (p.Id === activePageId ? ' active' : '');
+            btn.className = 'tsic-tab' + (p.Id === activePageId ? ' is-active' : '');
             btn.type = 'button';
             btn.dataset.pageId = p.Id;
             btn.textContent = p.Title || p.Id;
