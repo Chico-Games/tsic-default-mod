@@ -145,8 +145,8 @@ TSICTestHarness.register({
         ctx.inject('tsic.msg.UI.Settings.Catalog', {
             Json: JSON.stringify({ Pages: [{ Id: 'X', Title: 'X', Groups: [{ Id: 'Controls', Title: 'Controls', Settings: [{ Key: 'jump', Label: 'Jump', Type: 'keybind', Value: 'Space' }] }] }] }),
         });
-        await ctx.waitFor(() => ctx.doc.querySelector('.field-rebind'));
-        ctx.doc.querySelector('.field-rebind').click();
+        await ctx.waitFor(() => ctx.doc.querySelector('.bind-btn'));
+        ctx.doc.querySelector('.bind-btn').click();
         await new Promise(r => setTimeout(r, 20));
         ctx.clearPublishes();
         ctx.win.dispatchEvent(new ctx.win.KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
