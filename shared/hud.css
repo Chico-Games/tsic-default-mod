@@ -60,32 +60,3 @@
   from { transform: translateX(0);     opacity: 1; }
   to   { transform: translateX(-20px); opacity: 0; }
 }
-
-/* Action-bar prompts (key + label pill that surfaces context actions). */
-.tsic-action-prompt {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 4px 10px;
-  background: rgba(13, 12, 10, 0.82);
-  border: 1px solid rgba(240, 232, 208, 0.45);
-  color: var(--paper-bright);
-  font-family: var(--font-display);
-  font-size: 13px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.45);
-}
-.tsic-action-prompt .key {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 22px;
-  height: 22px;
-  padding: 0 6px;
-  background: var(--mag-red);
-  border: 1px solid var(--ink-night);
-  font-family: var(--font-pixel);
-  font-size: 10px;
-  color: #ffffff;
-}
