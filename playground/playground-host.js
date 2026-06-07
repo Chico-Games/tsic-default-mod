@@ -399,11 +399,10 @@
         'in-game': 'HUD',
         'health-bar': 'HUD', 'stamina-bar': 'HUD', 'crosshair': 'HUD',
         'hotbar': 'HUD', 'interaction': 'HUD', 'notifications': 'HUD', 'circular-progress': 'HUD',
-        'detection': 'HUD', 'ping': 'HUD', 'ping-markers': 'HUD',
+        'detection': 'HUD', 'ping': 'HUD', 'ping-markers': 'HUD', 'stomach': 'HUD',
 
         'inventory': 'Inventory & Equipment', 'equipment': 'Inventory & Equipment',
         'wardrobe': 'Inventory & Equipment', 'quantity-picker': 'Inventory & Equipment',
-        'stomach': 'Inventory & Equipment',
 
         'crafting': 'Crafting & Building', 'production': 'Crafting & Building',
         'construction': 'Crafting & Building', 'construction-carousel': 'Crafting & Building',

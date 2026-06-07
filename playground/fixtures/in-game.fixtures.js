@@ -2,6 +2,7 @@
 // It wires up several independent elements, each driven by its own channel:
 //   Health bar      tsic.msg.UI.Player.Attribute   { Channel:'Health',  Current, Max }
 //   Stamina bar     tsic.msg.UI.Player.Attribute   { Channel:'Stamina', Current, Max }
+//   Stomach         tsic.msg.UI.Stomach.State      { Slots:[{ItemId, IconUrl, Duration, RemainingTime}] }
 //   Crosshair       tsic.msg.UI.Input.Mode.Changed { Mode, Device, Focus } (hides in menu)
 //   Action bar      tsic.msg.UI.ActionBar.Abilities{ Slots:[...] }
 //   Interaction     tsic.msg.UI.Interaction.Targets{ Targets:[{Label, bIsPrimary}] }
@@ -10,7 +11,7 @@
 //                   + tsic.msg.UI.Inventory.Updated (OwnerId 'Player') for icons
 // Per-element visibility is driven by UI.HUD.SetElementVisible { Element, Visible }
 // so the toggles below can hide/show each piece independently.
-const HUD_ELEMENTS = ['health', 'stamina', 'crosshair', 'minimap', 'actionbar', 'interaction', 'hotbar'];
+const HUD_ELEMENTS = ['health', 'stamina', 'stomach', 'crosshair', 'minimap', 'actionbar', 'interaction', 'hotbar'];
 
 function inGameToggle(key, label) {
     return {
@@ -29,6 +30,11 @@ TSICPlayground.register({
         return {
             health: 75, healthMax: 100,
             stamina: 60, staminaMax: 100,
+            stomach: [
+                { ItemId: 'ID_Bread', IconUrl: '/tex/item-icon/ID_Bread', Duration: 60, RemainingTime: 45 },
+                { ItemId: 'ID_Apple', IconUrl: '/tex/item-icon/ID_Apple', Duration: 60, RemainingTime: 18 },
+                {}, {},
+            ],
             abilities: { Slots: [
                 { InputName: 'IA_Interact', AbilityName: 'Open',   SubText: 'Locker', StatusInt: 0, bVisible: true, KeyboardKeyText: 'E' },
                 { InputName: 'IA_Attack',   AbilityName: 'Attack', SubText: '',       StatusInt: 0, bVisible: true, KeyboardKeyText: 'LMB' },
@@ -44,13 +50,14 @@ TSICPlayground.register({
             hotbar: { SlotIndices: [0, 1, 2, -1, -1, -1, -1, -1, -1, -1], SelectedSlot: 0 },
             // Ping wheel defaults off — it's a full-screen overlay, so it's an
             // explicit toggle rather than part of the always-on HUD set.
-            show: { health: true, stamina: true, crosshair: true, minimap: true, actionbar: true, interaction: true, hotbar: true, ping: false },
+            show: { health: true, stamina: true, stomach: true, crosshair: true, minimap: true, actionbar: true, interaction: true, hotbar: true, ping: false },
         };
     },
     project(s) {
         const out = [
             ['tsic.msg.UI.Player.Attribute', { Channel: 'Health',  Current: s.health,  Max: s.healthMax }],
             ['tsic.msg.UI.Player.Attribute', { Channel: 'Stamina', Current: s.stamina, Max: s.staminaMax }],
+            ['tsic.msg.UI.Stomach.State', { Slots: s.stomach }],
             ['tsic.msg.UI.ActionBar.Abilities', s.abilities],
             ['tsic.msg.UI.Interaction.Targets', { Targets: s.targets }],
             ['tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', Items: s.hotbarItems }],
@@ -82,6 +89,7 @@ TSICPlayground.register({
         },
         inGameToggle('health', 'Health bar'),
         inGameToggle('stamina', 'Stamina bar'),
+        inGameToggle('stomach', 'Stomach'),
         inGameToggle('crosshair', 'Crosshair'),
         inGameToggle('minimap', 'Minimap'),
         inGameToggle('actionbar', 'Action bar'),
@@ -100,7 +108,7 @@ TSICPlayground.register({
         { label: 'Exhausted',apply(s) { s.stamina = 4; } },
         { label: 'Bars only', apply(s) {
             s.show.health = true; s.show.stamina = true;
-            s.show.crosshair = false; s.show.minimap = false;
+            s.show.stomach = false; s.show.crosshair = false; s.show.minimap = false;
             s.show.actionbar = false; s.show.interaction = false;
             s.show.hotbar = false;
         } },
