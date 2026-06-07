@@ -18,8 +18,35 @@
 
     function clamp(i) { return Math.max(0, Math.min((texts.length || 1) - 1, i)); }
 
+    // ── Per-series handwriting (Paper only) ──────────────────────────────────
+    // Each note series (keyed by GroupTitle) always reads in the same hand;
+    // different series vary across the set. Pin a specific series to a specific
+    // hand in SERIES_FONTS; anything unlisted is assigned deterministically by
+    // hashing its key, so the same series is always consistent across pages.
+    const HAND_FONTS = [
+        "'Shadows Into Light', cursive",
+        "'Gloria Hallelujah', cursive",
+        "'Reenie Beanie', cursive",
+    ];
+    const SERIES_FONTS = {
+        // "Journal": "'Reenie Beanie', cursive",
+    };
+    function hashIdx(s, n) { let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0; return n ? h % n : 0; }
+    function handFor(t) {
+        // Key off the series (GroupTitle); fall back to the note's first heading
+        // so an untitled note still gets one stable hand across its pages.
+        const key = (t && t.GroupTitle) || (texts[0] && texts[0].Heading) || 'note';
+        return SERIES_FONTS[key] || HAND_FONTS[hashIdx(key, HAND_FONTS.length)];
+    }
+    function applyHand(t) {
+        if (kind !== 'Paper') return;
+        const sheet = $('paper-sheet');
+        if (sheet) sheet.style.setProperty('--note-hand', handFor(t));
+    }
+
     function render() {
         const t = texts[index] || {};
+        applyHand(t);
         if ($('lore-group'))   $('lore-group').textContent   = t.GroupTitle || '';
         if ($('lore-heading')) $('lore-heading').textContent = t.Heading    || '';
         if ($('lore-body'))    $('lore-body').textContent    = t.Body       || '';

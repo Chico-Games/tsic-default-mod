@@ -13,6 +13,14 @@
 
 @import url("/shared/tsic-ui.css");
 
+/* ───── Bundled fonts (served from /fonts/, no runtime CDN) ─────
+ * Three hand-written faces for the paper / note lore. lore.js assigns one per
+ * note series (by GroupTitle) so a given series always reads in the same hand
+ * while different series vary. All OFL — see /fonts/NOTICE.txt. */
+@font-face { font-family: "Shadows Into Light"; font-weight: 400; font-style: normal; font-display: swap; src: url("/fonts/shadows-into-light-400.woff2") format("woff2"); }
+@font-face { font-family: "Gloria Hallelujah"; font-weight: 400; font-style: normal; font-display: swap; src: url("/fonts/gloria-hallelujah-400.woff2") format("woff2"); }
+@font-face { font-family: "Reenie Beanie"; font-weight: 400; font-style: normal; font-display: swap; src: url("/fonts/reenie-beanie-400.woff2") format("woff2"); }
+
 :root {
   /* ───── Raw palette: synthwave deep night ───── */
   --bg-deep:        #0d0e15;
@@ -58,6 +66,7 @@
   --font-terminal: "VT323", Consolas, "Cascadia Code", "Courier New", monospace;
   --font-pixel:    "Press Start 2P", "VT323", Consolas, monospace;
   --font-body:     "Inter", "Segoe UI", system-ui, sans-serif;
+  --font-hand:     "Shadows Into Light", "Bradley Hand", "Segoe Script", cursive;  /* handwriting (notes) */
   --cat-font-serif: var(--font-mag); /* legacy alias */
 
   /* ───── Semantic tokens (new code uses these) ───── */
