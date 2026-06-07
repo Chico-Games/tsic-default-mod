@@ -61,8 +61,13 @@
     '#bb-divider.hidden { display:none; }',
     '#interaction-prompt { text-align:right; font-size:13px; font-weight:700; color:#fff; letter-spacing:0.06em; text-transform:uppercase; }',
     '#interaction-prompt.hidden { display:none; }',
-    '#hud-minimap { position:fixed; top:24px; right:24px; width:180px; height:180px; border-radius:50%; overflow:hidden; border:2px solid rgba(184,170,145,0.7); box-shadow:0 2px 8px rgba(0,0,0,0.35); background:#d4c19d; pointer-events:none; z-index:20; }',
-    '#minimap-tex, #minimap-fow { position:absolute; left:0; top:0; transform-origin:0 0; image-rendering:pixelated; image-rendering:-webkit-optimize-contrast; image-rendering:crisp-edges; pointer-events:none; }',
+    // Minimap — circular HUD badge. Frame matches the ping wheel: heavy ink ring
+    // + soft drop shadow. The ink ring is an INSET shadow (not a real border) so
+    // the content box stays a full 180px = the canvas buffer, keeping the player
+    // marker dead-centre. will-change promotes the map/FOW to their own layer so
+    // the per-frame pan transform composites on the GPU instead of repainting.
+    '#hud-minimap { position:fixed; top:24px; right:24px; width:180px; height:180px; border-radius:50%; overflow:hidden; box-shadow: inset 0 0 0 3px var(--ink-night), 0 4px 16px rgba(0,0,0,0.5); background:#d4c19d; pointer-events:none; z-index:20; }',
+    '#minimap-tex, #minimap-fow { position:absolute; left:0; top:0; transform-origin:0 0; will-change:transform; image-rendering:pixelated; image-rendering:-webkit-optimize-contrast; image-rendering:crisp-edges; pointer-events:none; }',
     '#minimap-canvas { position:absolute; left:0; top:0; width:100%; height:100%; pointer-events:none; }',
     '#hud-chunk-debug { display:none; position:fixed; top:214px; right:24px; width:140px; height:140px; overflow:hidden; border:1px solid rgba(184,170,145,0.55); box-shadow:0 2px 6px rgba(0,0,0,0.3); background:#1a1a1a; pointer-events:none; z-index:20; }',
     '#chunk-debug-tex { position:absolute; left:0; top:0; width:100%; height:100%; image-rendering:pixelated; image-rendering:-webkit-optimize-contrast; image-rendering:crisp-edges; pointer-events:none; }',

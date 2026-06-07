@@ -162,6 +162,7 @@
         }
       }
       liveFrac = frac; prevFrac = frac;
+      ensureLoop();   // wake the render loop to animate toward the new value
     }
 
     (function subscribe() {
@@ -173,11 +174,14 @@
     })();
 
     // Trail catch-up + (optional) continuous side-spill while the surface drops.
-    let lastT = performance.now() / 1000, lastFg = null, dripAccum = 0;
+    // The loop idles itself once the bar is fully at rest and render() restarts
+    // it on the next change — so a static bar costs zero per-frame layout.
+    let lastT = 0, lastFg = null, dripAccum = 0, looping = false;
     const DRIP_EVERY_PX = 12;
-    (function trailLoop() {
+    function ensureLoop() { if (!looping) { looping = true; lastT = 0; requestAnimationFrame(trailLoop); } }
+    function trailLoop() {
       const t = performance.now() / 1000;
-      const dt = Math.min(0.05, t - lastT); lastT = t;
+      const dt = lastT ? Math.min(0.05, t - lastT) : 0.016; lastT = t;
 
       // Foreground follows the live value with a critically-damped SmoothDamp
       // (Unity-style): it carries velocity, so attribute updates arriving batched/
@@ -220,7 +224,11 @@
         } else { dripAccum = 0; }
         lastFg = fgFrac;
       }
+      // Idle once at rest (foreground settled + trail caught up). render()
+      // restarts the loop via ensureLoop() on the next change.
+      if (dispVel === 0 && Math.abs(liveFrac - dispFrac) < 5e-4 && (trailFrac - liveFrac) < 1e-3) { looping = false; return; }
       requestAnimationFrame(trailLoop);
-    })();
+    }
+    ensureLoop();
   };
 })(window);
