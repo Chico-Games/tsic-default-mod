@@ -19,9 +19,9 @@
 
   const CSS = [
     '.tlb-vial { font-family: Georgia, "Libre Baskerville", serif; --hp:#cf2233; --trail:#4f0a0f; --rim:207,34,51; --level:72%; --trail-level:72%; }',
-    '.tlb-glass { position:relative; width:100%; height:var(--vial-h,248px); border-radius:13px; overflow:hidden; background:linear-gradient(180deg, rgba(58,40,34,0.55), rgba(14,9,8,0.62)); border:1px solid rgba(184,170,145,0.55); box-shadow: inset 0 1px 0 rgba(255,250,240,0.18), inset 0 0 18px rgba(0,0,0,0.55), 0 3px 10px rgba(0,0,0,0.45); }',
+    '.tlb-glass { position:relative; width:100%; height:var(--vial-h,248px); border-radius:13px; overflow:hidden; background:linear-gradient(180deg, rgba(58,40,34,0.55), rgba(14,9,8,0.62)); border:3px solid var(--ink-night); box-shadow: inset 0 1px 0 rgba(255,250,240,0.18), inset 0 0 18px rgba(0,0,0,0.55), var(--shadow-block); }',
     '.tlb-trail { position:absolute; left:0; right:0; bottom:0; height:var(--trail-level); background:linear-gradient(180deg, var(--trail), color-mix(in srgb, var(--trail) 65%, #000)); }',
-    '.tlb-liquid { position:absolute; left:0; right:0; bottom:0; height:var(--level); background:linear-gradient(180deg, var(--hp), color-mix(in srgb, var(--hp) 55%, #1a0606)); transition: height 480ms cubic-bezier(0.34,1.42,0.5,1), background 400ms linear; box-shadow: inset 0 8px 14px rgba(0,0,0,0.22); }',
+    '.tlb-liquid { position:absolute; left:0; right:0; bottom:0; height:var(--level); background:linear-gradient(180deg, var(--hp), color-mix(in srgb, var(--hp) 55%, #1a0606)); transition: background 400ms linear; box-shadow: inset 0 8px 14px rgba(0,0,0,0.22); }',
     '.tlb-surface { position:absolute; left:-20px; right:-20px; height:16px; -webkit-mask-repeat:repeat-x; mask-repeat:repeat-x; -webkit-mask-size:120px 16px; mask-size:120px 16px; will-change:-webkit-mask-position,mask-position; }',
     '.tlb-surface.tlb-front { top:-9px; background:var(--hp); animation: tlb-wave 2.6s linear infinite; }',
     '.tlb-surface.tlb-back { top:-12px; background:var(--hp); opacity:0.45; animation: tlb-wave 4.3s linear infinite reverse; }',
@@ -45,9 +45,19 @@
     '.tlb-splash { position:absolute; left:0; right:0; top:-3px; height:5px; background:linear-gradient(90deg, transparent, color-mix(in srgb, var(--hp), #ff9a8a 55%), transparent); opacity:0; pointer-events:none; }',
     '.tlb-splash.tlb-go { animation: tlb-splash 420ms ease-out; }',
     '@keyframes tlb-splash { 0% {opacity:0;} 25% {opacity:0.9;} 100% {opacity:0;} }',
-    '.tlb-vial.tlb-danger .tlb-glass { border-color: rgba(var(--rim),0.6); animation: tlb-danger 1.1s ease-in-out infinite; }',
-    '@keyframes tlb-danger { 0%,100% { box-shadow: inset 0 1px 0 rgba(255,250,240,0.18), inset 0 0 18px rgba(0,0,0,0.55), 0 0 6px rgba(var(--rim),0.25); } 50% { box-shadow: inset 0 1px 0 rgba(255,250,240,0.18), inset 0 0 18px rgba(0,0,0,0.55), 0 0 20px rgba(var(--rim),0.55); } }',
-    '@media (prefers-reduced-motion: reduce) { .tlb-surface, .tlb-sheen, .tlb-vial.tlb-danger .tlb-glass { animation:none; } .tlb-liquid { transition: height 200ms linear, background 200ms linear; } }',
+    // Low-level "danger" cue: an animated diagonal barber-pole runs around the
+    // frame (a ring masked to just the 3px border) instead of recolouring it.
+    // Stripe colour follows the bar's own rim, so health reads red, stamina blue.
+    '.tlb-vial { position: relative; }',
+    '.tlb-vial.tlb-danger::after { content:""; position:absolute; inset:0; border-radius:13px; padding:3px; pointer-events:none; z-index:4; opacity:var(--warn,1);',
+    '  background-color: var(--ink-night);',
+    '  background-image: linear-gradient(45deg, rgb(var(--rim)) 25%, transparent 25%, transparent 50%, rgb(var(--rim)) 50%, rgb(var(--rim)) 75%, transparent 75%, transparent);',
+    '  background-size: 18px 18px;',
+    '  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;',
+    '          mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);         mask-composite: exclude;',
+    '  animation: tlb-stripe 0.8s linear infinite; }',
+    '@keyframes tlb-stripe { from { background-position: 18px 0; } to { background-position: 0 0; } }',
+    '@media (prefers-reduced-motion: reduce) { .tlb-surface, .tlb-sheen, .tlb-vial.tlb-danger::after { animation:none; } .tlb-liquid { transition: background 200ms linear; } }',
   ].join('\n');
 
   let stylesInjected = false;
@@ -115,8 +125,9 @@
     const levelPct = (f) => 4 + clamp01(f) * 96;          // 4% sliver at 0 .. 100% brim
     root.style.setProperty('--hp', colorFn(0.72));
 
-    let prevFrac = null, liveFrac = 0.72, trailFrac = 0.72, decayStart = -1e9;
+    let prevFrac = null, liveFrac = 0.72, trailFrac = 0.72, decayStart = -1e9, dispFrac = 0.72, dispVel = 0;
     const TRAIL_DELAY = 0.4, TRAIL_DECAY = 0.7;
+    const FG_SMOOTH_TIME = 0.12;   // foreground SmoothDamp time (s) — even, lurch-free descent
 
     function spawnDrip(surfaceY) {
       const w = glass.clientWidth;
@@ -134,15 +145,21 @@
 
     function render(cur, max) {
       const frac = clamp01(max > 0 ? cur / max : 0);
-      root.style.setProperty('--level', levelPct(frac).toFixed(2) + '%');
+      // NOTE: --level is driven every frame by trailLoop() from dispFrac, not set
+      // here — a per-frame target change must not restart a CSS transition (that
+      // freezes the bar during a fast drain). render() only updates the target.
       root.style.setProperty('--hp', colorFn(frac));
-      root.classList.toggle('tlb-danger', frac > 0 && frac < 0.25);
       root.classList.toggle('tlb-full', frac >= 0.995);
       curText.nodeValue = Math.round(cur) + ' ';
       maxSpan.textContent = '/ ' + Math.round(max);
       if (prevFrac !== null && frac < prevFrac - 0.001) {
         decayStart = performance.now() / 1000;
-        splash.classList.remove('tlb-go'); void splash.offsetWidth; splash.classList.add('tlb-go');
+        // Splash only on a FRESH hit (trail caught up). Re-flashing it every
+        // frame of a continuous drain forces a per-frame sync reflow (the
+        // offsetWidth read) and just strobes — both fed the jitter.
+        if (trailFrac <= dispFrac + 1e-3) {
+          splash.classList.remove('tlb-go'); void splash.offsetWidth; splash.classList.add('tlb-go');
+        }
       }
       liveFrac = frac; prevFrac = frac;
     }
@@ -161,12 +178,37 @@
     (function trailLoop() {
       const t = performance.now() / 1000;
       const dt = Math.min(0.05, t - lastT); lastT = t;
+
+      // Foreground follows the live value with a critically-damped SmoothDamp
+      // (Unity-style): it carries velocity, so attribute updates arriving batched/
+      // irregularly (async bridge) can't cause an instant lurch — velocity ramps
+      // gradually and the descent stays even. Analytic + unconditionally stable
+      // across variable frame times. No overshoot (so no flicker at the surface).
+      {
+        const omega = 2 / FG_SMOOTH_TIME;
+        const x = omega * dt;
+        const expf = 1 / (1 + x + 0.48 * x * x + 0.235 * x * x * x);
+        const change = dispFrac - liveFrac;
+        const temp = (dispVel + omega * change) * dt;
+        dispVel = (dispVel - omega * temp) * expf;
+        dispFrac = liveFrac + (change + temp) * expf;
+        if (Math.abs(liveFrac - dispFrac) < 5e-4) { dispFrac = liveFrac; dispVel = 0; }
+      }
+      root.style.setProperty('--level', levelPct(dispFrac).toFixed(2) + '%');
+
+      // Warning stripes fade in from the black border as the VISIBLE level drops:
+      // 0 (invisible) at 30%, ramping to full intensity by ~10%. Synced to the
+      // smoothed bar so the warning grows exactly as the liquid passes the mark.
+      const warn = clamp01((0.30 - dispFrac) / 0.20);
+      root.style.setProperty('--warn', warn.toFixed(3));
+      root.classList.toggle('tlb-danger', warn > 0);
+
       if (t - decayStart >= TRAIL_DELAY && trailFrac > liveFrac) {
         trailFrac = Math.max(liveFrac, trailFrac - TRAIL_DECAY * dt);
       }
       const glassH = glass.clientHeight || 1;
-      const fgFrac = clamp01((liquid.getBoundingClientRect().height / glassH - 0.04) / 0.96);
-      if (trailFrac < fgFrac) trailFrac = fgFrac;          // never below the rendered foreground
+      const fgFrac = dispFrac;
+      if (trailFrac < fgFrac) trailFrac = fgFrac;          // never below the foreground
       root.style.setProperty('--trail-level', levelPct(trailFrac).toFixed(2) + '%');
 
       if (droplets) {
