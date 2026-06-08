@@ -397,7 +397,7 @@
         'credits': 'Menus & Flow', 'loading-screen': 'Menus & Flow', 'death-screen': 'Menus & Flow',
 
         'in-game': 'HUD',
-        'health-bar': 'HUD', 'stamina-bar': 'HUD', 'crosshair': 'HUD',
+        'health-bar': 'HUD', 'stamina-bar': 'HUD', 'crosshair': 'HUD', 'behavior-bar': 'HUD',
         'hotbar': 'HUD', 'interaction': 'HUD', 'notifications': 'HUD', 'circular-progress': 'HUD',
         'detection': 'HUD', 'ping': 'HUD', 'ping-markers': 'HUD', 'stomach': 'HUD',
 
