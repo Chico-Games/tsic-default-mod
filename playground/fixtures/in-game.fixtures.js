@@ -4,7 +4,7 @@
 //   Stamina bar     tsic.msg.UI.Player.Attribute   { Channel:'Stamina', Current, Max }
 //   Stomach         tsic.msg.UI.Stomach.State      { Slots:[{ItemId, IconUrl, Duration, RemainingTime}] }
 //   Crosshair       tsic.msg.UI.Input.Mode.Changed { Mode, Device, Focus } (hides in menu)
-//   Action bar      tsic.msg.UI.ActionBar.Abilities{ Slots:[...] }
+//   Behavior bar    tsic.msg.UI.BehaviorBar.Entries{ Entries:[...] }
 //   Interaction     tsic.msg.UI.Interaction.Targets{ Targets:[{Label, bIsPrimary}] }
 //   Minimap         (runtime texture — shows as an empty ring in the browser)
 //   Hotbar          tsic.msg.UI.Hotbar.Changed { SlotIndices, SelectedSlot }
@@ -43,10 +43,10 @@ TSICPlayground.register({
                 { ItemId: 'ID_Apple', IconUrl: '/tex/item-icon/ID_Apple', Duration: 60, RemainingTime: 18 },
                 {}, {},
             ],
-            abilities: { Slots: [
-                { InputName: 'IA_Interact', AbilityName: 'Open',   SubText: 'Locker', StatusInt: 0, bVisible: true, KeyboardKeyText: 'E' },
-                { InputName: 'IA_Attack',   AbilityName: 'Attack', SubText: '',       StatusInt: 0, bVisible: true, KeyboardKeyText: 'LMB' },
-                { InputName: 'IA_Dash',     AbilityName: 'Dash',   SubText: '',       StatusInt: 2, bVisible: true, KeyboardKeyText: 'Shift', CooldownPercent: 0.45 },
+            behaviors: { Entries: [
+                { DisplayName: 'Open',   SubText: 'Locker', StatusInt: 0, bVisible: true, KeyboardKeyText: 'E',     BehaviorTagName: 'IA_Interact' },
+                { DisplayName: 'Attack', SubText: '',       StatusInt: 0, bVisible: true, KeyboardKeyText: 'LMB',   BehaviorTagName: 'IA_Attack' },
+                { DisplayName: 'Dash',   SubText: '',       StatusInt: 2, bVisible: true, KeyboardKeyText: 'Shift', BehaviorTagName: 'IA_Dash', CooldownPercent: 0.45 },
             ] },
             targets: [{ EntityId: 1, Label: 'Open Locker', bIsPrimary: true }],
             // Hotbar: a few assigned slots + the rest empty; slot 0 selected.
@@ -69,7 +69,7 @@ TSICPlayground.register({
             ['tsic.msg.UI.Player.Attribute', { Channel: 'Health',  Current: s.health,  Max: s.healthMax }],
             ['tsic.msg.UI.Player.Attribute', { Channel: 'Stamina', Current: s.stamina, Max: s.staminaMax }],
             ['tsic.msg.UI.Stomach.State', { Slots: s.stomach }],
-            ['tsic.msg.UI.ActionBar.Abilities', s.abilities],
+            ['tsic.msg.UI.BehaviorBar.Entries', s.behaviors],
             ['tsic.msg.UI.Interaction.Targets', { Targets: s.targets }],
             ['tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', Items: s.hotbarItems }],
             ['tsic.msg.UI.Hotbar.Changed', s.hotbar],
