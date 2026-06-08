@@ -27,7 +27,7 @@
     '@property --lift { syntax: "<length>"; inherits: false; initial-value: 0px; }',
     '#hotbar-row { position:relative; display:flex; align-items:flex-end; gap:8px; padding:18px 4px 4px; background:transparent; }',
     '#hotbar-row .tsic-slot { position:relative; width:56px; height:56px; font-family:Georgia,"Libre Baskerville",serif; color:#f0e7d4;',
-    '  background: linear-gradient(180deg, rgba(58,40,34,0.62), rgba(14,9,8,0.70)); border:2px solid var(--ink-night); border-radius:11px;',
+    '  background: linear-gradient(180deg, rgba(58,40,34,0.30), rgba(14,9,8,0.40)); border:2px solid var(--ink-night); border-radius:11px;',
     '  --mag:1; --lift:0px; transform-origin:bottom center; transform: translateY(var(--lift)) scale(var(--mag));',
     '  box-shadow: inset 0 1px 0 rgba(255,250,240,0.16), inset 0 0 12px rgba(0,0,0,0.50), var(--shadow-block-sm),',
     '    0 calc((var(--mag) - 1) * 22px) calc((var(--mag) - 1) * 28px) rgba(0,0,0,0.45),',
