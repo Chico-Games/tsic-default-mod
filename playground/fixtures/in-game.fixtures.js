@@ -13,6 +13,14 @@
 // so the toggles below can hide/show each piece independently.
 const HUD_ELEMENTS = ['health', 'stamina', 'stomach', 'crosshair', 'minimap', 'actionbar', 'interaction', 'hotbar'];
 
+// Fire a transient hit-reaction splat. hitSeq is the monotonic _id the
+// component de-dupes on, so re-projection on other control changes doesn't
+// re-spawn — only a fresh fireHit() does.
+function fireHit(s, dir, amt) {
+    s.hitSeq = (s.hitSeq || 0) + 1;
+    s.hit = { BearingDeg: dir, Amount: amt };
+}
+
 function inGameToggle(key, label) {
     return {
         type: 'toggle',
@@ -51,6 +59,9 @@ TSICPlayground.register({
             // Ping wheel defaults off — it's a full-screen overlay, so it's an
             // explicit toggle rather than part of the always-on HUD set.
             show: { health: true, stamina: true, stomach: true, crosshair: true, minimap: true, actionbar: true, interaction: true, hotbar: true, ping: false },
+            // Hit-reaction: aim knobs + the last-fired transient (null until a
+            // hit scenario fires).
+            hitDir: 0, hitAmt: 0.6, hit: null, hitSeq: 0,
         };
     },
     project(s) {
@@ -65,6 +76,12 @@ TSICPlayground.register({
             // Gameplay input mode so the crosshair isn't auto-hidden as if in a menu.
             ['tsic.msg.UI.Input.Mode.Changed', { Mode: 'MouseAndKeyboard', Device: 'kbm', Focus: 'game' }],
         ];
+        // Hit-reaction is transient: only emit once a hit has been fired, tagged
+        // with the monotonic _id the component de-dupes on (re-projection on a
+        // slider drag re-sends the same _id → no re-spawn).
+        if (s.hit) {
+            out.push(['tsic.msg.UI.Player.Hit', { BearingDeg: s.hit.BearingDeg, Amount: s.hit.Amount, _id: s.hitSeq }]);
+        }
         for (const key of HUD_ELEMENTS) {
             out.push(['tsic.msg.UI.HUD.SetElementVisible', { Element: key, Visible: !!s.show[key] }]);
         }
@@ -96,6 +113,23 @@ TSICPlayground.register({
         inGameToggle('interaction', 'Interaction prompt'),
         inGameToggle('hotbar', 'Hotbar'),
         inGameToggle('ping', 'Ping wheel'),
+        {
+            // Bearing of the incoming hit: 0 = front, 90 = right, 180 = behind,
+            // 270 = left (conic 0° = up, +clockwise). Set it, then press the
+            // "HIT (use sliders)" button to fire a splat at this bearing.
+            label: 'Hit direction',
+            min: 0, max: 360, step: 2,
+            read(s) { return s.hitDir || 0; },
+            apply(s, v) { s.hitDir = v; },
+            format(v) { return Math.round(v) + '°'; },
+        },
+        {
+            label: 'Hit amount',
+            min: 0, max: 1, step: 0.02,
+            read(s) { return s.hitAmt == null ? 0.6 : s.hitAmt; },
+            apply(s, v) { s.hitAmt = v; },
+            format(v) { return Math.round(v * 100) + '%'; },
+        },
     ],
     scenarios: [
         { label: 'All elements', apply(s) {
@@ -106,6 +140,14 @@ TSICPlayground.register({
         { label: 'Hurt',     apply(s) { s.health = 38;  s.stamina = 55; } },
         { label: 'Critical', apply(s) { s.health = 7;   s.stamina = 22; } },
         { label: 'Exhausted',apply(s) { s.stamina = 4; } },
+        // Hit-reaction — fire a transient splat. The first button fires at the
+        // Hit direction/amount sliders above; the rest are quick presets.
+        { label: '💥 HIT (use sliders)', apply(s) { fireHit(s, s.hitDir || 0, s.hitAmt == null ? 0.6 : s.hitAmt); } },
+        { label: 'Hit: front',      apply(s) { fireHit(s, 0,   0.5); } },
+        { label: 'Hit: right',      apply(s) { fireHit(s, 90,  0.5); } },
+        { label: 'Hit: behind',     apply(s) { fireHit(s, 180, 0.7); } },
+        { label: 'Hit: left',       apply(s) { fireHit(s, 270, 0.5); } },
+        { label: 'Hit: heavy back', apply(s) { fireHit(s, 180, 1.0); } },
         { label: 'Bars only', apply(s) {
             s.show.health = true; s.show.stamina = true;
             s.show.stomach = false; s.show.crosshair = false; s.show.minimap = false;
