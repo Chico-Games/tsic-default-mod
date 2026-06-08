@@ -29,7 +29,7 @@
   // (e.g. action-bar swaps between gameplay/menu group, hotbar follows the
   // selected slot). A redirect here breaks the overlay entirely.
   const OVERLAY_SCREENS = new Set([
-    'Hotbar', 'HealthBar', 'StaminaBar', 'Stomach',
+    'Hotbar', 'HealthBar', 'StaminaBar', 'Stomach', 'BehaviorBar',
     'Crosshair', 'Detection', 'CircularProgress', 'Notifications',
     'Ping', 'PingMarkers',
   ]);
@@ -81,6 +81,7 @@
     HealthBar: 'health-bar',
     StaminaBar: 'stamina-bar',
     Stomach: 'stomach',
+    BehaviorBar: 'behavior-bar',
   };
 
   function myScreen() {

@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="tsic-screen" content="BehaviorBar">
+  <title>Behavior Bar</title>
+  <link rel="stylesheet" href="/shared/base.css">
+  <script src="/shared/tsic-bridge.js" defer></script>
+  <script src="/shared/tsic-runtime.js" defer></script>
+  <script src="/shared/router.js" defer></script>
+  <script src="/shared/dom.js" defer></script>
+  <script src="/shared/icons.js" defer></script>
+  <!-- The LIVE gameplay behavior-bar component renders into the shell below.
+       Do NOT re-implement rendering here — this page only hosts it. -->
+  <script src="/shared/hud-behavior-bar.js" defer></script>
+  <style>
+    html, body { background: transparent; margin: 0; pointer-events: none; }
+    /* Behavior-bar component styles — MIRRORED from shared/hud.js (the
+       orchestrator injects these on the live InGame screen). Kept in sync here
+       only so the bar renders styled on its own preview screen. If you change
+       the .bb-* / #bb-shell-gameplay styling, update both places. */
+    #bb-shell-gameplay { position:fixed; bottom:18px; right:24px; min-width:240px; max-width:calc(100vw - 48px); padding:8px 12px; color:#fff; pointer-events:none; z-index:20; font-family:Georgia,"Libre Baskerville",serif; text-shadow:0 1px 2px rgba(0,0,0,0.75); }
+    #bb-shell-gameplay.hidden { display:none; }
+    #bb-gameplay { display:flex; flex-direction:column; align-items:stretch; gap:0; }
+    .bb-row { display:flex; justify-content:flex-end; align-items:center; gap:6px; font-size:11px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color:#fff; }
+    .bb-row[data-status="cooldown"] { color:#f5d34a; }
+    .bb-row[data-status="blocked"] { color:#e8a0a0; }
+    .bb-row[data-status="single-use-used"] { color:#cfc8bb; text-decoration:line-through; }
+    .bb-key { position:relative; display:inline-flex; align-items:center; justify-content:center; min-width:29px; height:29px; padding:0; background:transparent; border:0; color:inherit; font-size:11px; font-weight:700; overflow:hidden; }
+    .bb-key img { max-width:27px; max-height:27px; object-fit:contain; }
+    .bb-key-fallback { padding:0 2px; }
+    .bb-cd-sweep { position:absolute; inset:0; pointer-events:none; background:conic-gradient(rgba(0,0,0,0.55) calc(var(--tsic-cd-percent,0) * 1%), transparent 0); }
+    .bb-text { display:inline-flex; align-items:baseline; gap:6px; text-align:left; }
+    .bb-name { font-weight:700; }
+    .bb-sub { font-size:9px; font-weight:400; letter-spacing:0.04em; text-transform:none; }
+  </style>
+</head><body>
+  <!-- Shell the component renders into (created by hud.js in production). -->
+  <div id="bb-shell-gameplay" class="bb-shell hidden"><div id="bb-gameplay"></div></div>
+</body></html>
