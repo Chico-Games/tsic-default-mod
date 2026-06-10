@@ -395,6 +395,7 @@
         'main-menu': 'Menus & Flow', 'pause-menu': 'Menus & Flow', 'new-store': 'Menus & Flow',
         'settings': 'Menus & Flow', 'save-load': 'Menus & Flow', 'mods': 'Menus & Flow',
         'credits': 'Menus & Flow', 'loading-screen': 'Menus & Flow', 'death-screen': 'Menus & Flow',
+        'store-maze': 'Menus & Flow',
 
         'in-game': 'HUD',
         'health-bar': 'HUD', 'stamina-bar': 'HUD', 'crosshair': 'HUD', 'behavior-bar': 'HUD',
