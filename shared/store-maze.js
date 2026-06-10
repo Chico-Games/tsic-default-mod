@@ -1,19 +1,26 @@
 // shared/store-maze.js — shifting furniture-store maze background motif.
 //
 // Procedural store floor plan (BSP rooms + doorways) drawn as a thin-line
-// blueprint, with dashed "shopper routes" wandering edge-to-edge plus one
-// central loop through the middle of the plan. Every cycle a sweep front
-// crosses the screen and morphs the plan into a freshly generated layout:
-// walls shrink/grow as the front passes, routes swap behind it. The
-// perimeter stays open so the plan reads as an endless store.
+// blueprint, with dashed "shopper routes" wandering edge-to-edge plus loops
+// filling the interior. Every cycle a sweep front crosses the screen and
+// morphs the plan into a freshly generated layout: walls shrink/grow as the
+// front passes, routes swap behind it. The perimeter stays open so the plan
+// reads as an endless store, and the camera drifts slowly along a diagonal
+// so the whole plan feels like an aerial pan.
+//
+// Camera model: layouts are anchored in WORLD cell coordinates (orgX/orgY).
+// The camera's path is deterministic (cam = panSpeed * elapsed), so each
+// layout is generated to cover exactly the window the camera will see over
+// that layout's on-screen lifetime — no tiling, no wrap seams, the plan is
+// simply always big enough.
 //
 // Intended as an ambient backdrop for menu screens. Styled to the magazine
-// look (see shared/base.css tokens): ink-printed walls and mag-red shopper
+// look (see shared/base.css tokens): ink-printed walls and ink shopper
 // routes, drawn over a TRANSPARENT canvas by default so the motif sits on
 // whatever paper stage the host page provides (tsic-stage--magazine et al).
 // Pass opts.bg to paint an opaque backdrop instead. Self-contained canvas —
 // no message channels, no external assets. Honors prefers-reduced-motion
-// (static plan, no sweep).
+// (static plan, no sweep, no pan).
 //
 // API:
 //   var handle = TSICStoreMaze.mount(container, opts);  // opts optional, see DEFAULTS
@@ -32,16 +39,18 @@
     arrow: 3.2,
     routeMax: 40,          // max rooms per route
     loopMin: 6,            // min rooms per loop — smaller cycles are rejected
-    loopMax: 14,           // max rooms per loop
-    loopSpan: 180,         // min px between a loop's two furthest rooms —
-                           // rejects rings that are technically 6+ rooms but
-                           // geometrically tiny
+    loopMax: 44,           // max rooms per loop (both halves of the ring)
+    loopSpan: 540,         // min px between a loop's two furthest rooms —
+                           // loops are built by ringing two disjoint paths to
+                           // a room at least this far away
     candidates: 14,        // attempts per route, best new-coverage wins
     minNewCoverage: 6,     // a route must claim at least this many fresh
                            // coverage cells or it's rejected (avoids doubling
                            // up on already-busy areas)
     sweepMs: 8000,         // sweep-front travel time
     restMs: 10000,         // hold time between sweeps
+    panSpeed: 9,           // camera drift, px/s (0 = static camera)
+    panAngle: 0.46,        // camera drift direction, radians (down-right)
   };
 
   function ease(t) { return t < 0 ? 0 : t > 1 ? 1 : t * t * (3 - 2 * t); }
@@ -72,6 +81,9 @@
     for (var k in DEFAULTS) o[k] = DEFAULTS[k];
     for (var ok in (opts || {})) if (ok in DEFAULTS) o[ok] = opts[ok];
     var CS = o.cellSize;
+    // Camera velocity in px/ms.
+    var pvx = (o.panSpeed / 1000) * Math.cos(o.panAngle);
+    var pvy = (o.panSpeed / 1000) * Math.sin(o.panAngle);
 
     var cv = document.createElement('canvas');
     cv.className = 'store-maze-canvas';
@@ -82,11 +94,28 @@
     var ctx = cv.getContext('2d');
     var reduced = global.matchMedia('(prefers-reduced-motion: reduce)');
 
-    var W, H, COLS, ROWS, OX, OY, ROUTES, A, B, start, cyclePrev;
+    var W, H, A, B, start, cyclePrev;
     var nextL = null;   // pre-generated layout for the next cycle (see frame)
     var alive = true, rafId = 0, rsTimer = 0;
 
-    function genLayout() {
+    // World-cell window covering everything the camera sees between t0 and
+    // t1 (ms since start), plus overscan. Layouts are generated per-window
+    // and anchored at (orgX, orgY) world cells.
+    function windowFor(t0, t1) {
+      var minX = Math.min(pvx * t0, pvx * t1) - o.pad * CS;
+      var maxX = Math.max(pvx * t0, pvx * t1) + W + o.pad * CS;
+      var minY = Math.min(pvy * t0, pvy * t1) - o.pad * CS;
+      var maxY = Math.max(pvy * t0, pvy * t1) + H + o.pad * CS;
+      var orgX = Math.floor(minX / CS), orgY = Math.floor(minY / CS);
+      return {
+        orgX: orgX, orgY: orgY,
+        cols: Math.max(12, Math.ceil(maxX / CS) - orgX),
+        rows: Math.max(10, Math.ceil(maxY / CS) - orgY),
+      };
+    }
+
+    function genLayout(win) {
+      var cols = win.cols, rows = win.rows;
       var rooms = [];
       (function split(x, y, w, h) {
         var canV = w >= 6, canH = h >= 6;
@@ -102,21 +131,21 @@
           var cutY = y + 3 + Math.floor(Math.random() * (h - 5));
           split(x, y, w, cutY - y); split(x, cutY, w, y + h - cutY);
         }
-      })(0, 0, COLS, ROWS);
+      })(0, 0, cols, rows);
 
       // Interior walls only — the perimeter stays open so the plan reads as endless.
       var V = [], Hw = [];
-      for (var vy = 0; vy < ROWS; vy++) V.push(new Array(COLS + 1).fill(0));
-      for (var hy = 0; hy <= ROWS; hy++) Hw.push(new Array(COLS).fill(0));
+      for (var vy = 0; vy < rows; vy++) V.push(new Array(cols + 1).fill(0));
+      for (var hy = 0; hy <= rows; hy++) Hw.push(new Array(cols).fill(0));
       for (var ri = 0; ri < rooms.length; ri++) {
         var r = rooms[ri];
         for (var y0 = r.y; y0 < r.y + r.h; y0++) {
           if (r.x > 0) V[y0][r.x] = 1;
-          if (r.x + r.w < COLS) V[y0][r.x + r.w] = 1;
+          if (r.x + r.w < cols) V[y0][r.x + r.w] = 1;
         }
         for (var x0 = r.x; x0 < r.x + r.w; x0++) {
           if (r.y > 0) Hw[r.y][x0] = 1;
-          if (r.y + r.h < ROWS) Hw[r.y + r.h][x0] = 1;
+          if (r.y + r.h < rows) Hw[r.y + r.h][x0] = 1;
         }
       }
 
@@ -175,7 +204,7 @@
         adj[d.i].push({ v: d.j, d: d }); adj[d.j].push({ v: d.i, d: d });
       }
 
-      function touches(rm) { return rm.x === 0 || rm.y === 0 || rm.x + rm.w === COLS || rm.y + rm.h === ROWS; }
+      function touches(rm) { return rm.x === 0 || rm.y === 0 || rm.x + rm.w === cols || rm.y + rm.h === rows; }
       var perim = rooms.map(function (_, i) { return i; }).filter(function (i) { return touches(rooms[i]); });
       var usedRooms = new Set();   // rooms claimed by a route; routes never share rooms
 
@@ -186,9 +215,9 @@
       function sideDoor(i) {
         var rm = rooms[i], sides = [];
         if (rm.x === 0) sides.push({ vert: true, x: 0, y: (rm.y + rm.h / 2) * CS, out: -1 });
-        if (rm.x + rm.w === COLS) sides.push({ vert: true, x: COLS * CS, y: (rm.y + rm.h / 2) * CS, out: 1 });
+        if (rm.x + rm.w === cols) sides.push({ vert: true, x: cols * CS, y: (rm.y + rm.h / 2) * CS, out: 1 });
         if (rm.y === 0) sides.push({ vert: false, x: (rm.x + rm.w / 2) * CS, y: 0, out: -1 });
-        if (rm.y + rm.h === ROWS) sides.push({ vert: false, x: (rm.x + rm.w / 2) * CS, y: ROWS * CS, out: 1 });
+        if (rm.y + rm.h === rows) sides.push({ vert: false, x: (rm.x + rm.w / 2) * CS, y: rows * CS, out: 1 });
         return sides[Math.floor(Math.random() * sides.length)];
       }
       function outward(d) {
@@ -249,42 +278,82 @@
         return { pts: pts, dots: dots };
       }
 
-      // Cycle through unclaimed rooms back to S; the WIDEST cycle (largest
-      // distance between its two furthest rooms) within loopMax wins — room
-      // count alone lets tiny-roomed rings through.
-      function findLoop(S) {
-        var best = null, steps = 0;
-        var seen = new Array(rooms.length).fill(false);
-        function spanOf(cycleRooms) {
-          var max = 0;
-          for (var a2 = 0; a2 < cycleRooms.length; a2++) {
-            var ra2 = rooms[cycleRooms[a2]];
-            var ax = (ra2.x + ra2.w / 2) * CS, ay = (ra2.y + ra2.h / 2) * CS;
-            for (var b2 = a2 + 1; b2 < cycleRooms.length; b2++) {
-              var rb2 = rooms[cycleRooms[b2]];
-              var dd = Math.hypot((rb2.x + rb2.w / 2) * CS - ax, (rb2.y + rb2.h / 2) * CS - ay);
-              if (dd > max) max = dd;
-            }
-          }
-          return max;
+      function roomCenter(i) {
+        var rc = rooms[i];
+        return { x: (rc.x + rc.w / 2) * CS, y: (rc.y + rc.h / 2) * CS };
+      }
+
+      // Greedy randomized path S→T through unclaimed rooms. biasSign bows
+      // the path to one side of the S→T line so the ring's two halves take
+      // different streets and the loop reads round, not ladder-like. Rooms
+      // are marked seen permanently (no re-expansion), keeping a search
+      // near-linear in rooms visited.
+      function findPath(S, T, blocked, maxLen, biasSign) {
+        var sc = roomCenter(S), tc = roomCenter(T);
+        var lx = tc.x - sc.x, ly = tc.y - sc.y;
+        var ll = Math.hypot(lx, ly) || 1; lx /= ll; ly /= ll;
+        function score(v) {
+          var c = roomCenter(v);
+          var dT = Math.hypot(c.x - tc.x, c.y - tc.y);
+          var lat = (c.x - sc.x) * (-ly) + (c.y - sc.y) * lx;   // signed perp offset
+          return dT - biasSign * lat * 0.35 + (Math.random() - 0.5) * CS * 6;
         }
+        var seen = new Array(rooms.length).fill(false);
         seen[S] = true;
+        var result = null;
         (function dfs(u, trail) {
-          if (++steps > 2500) return;
-          var nbs = adj[u].slice().sort(function () { return Math.random() - 0.5; });
-          for (var n = 0; n < nbs.length; n++) {
-            var eN = nbs[n];
-            if (eN.v === S && trail.length >= 3 && eN.d !== trail[0].d) {
-              var cycleRooms = [S];
-              for (var t2 = 0; t2 < trail.length; t2++) cycleRooms.push(trail[t2].v);
-              var sp = spanOf(cycleRooms);
-              if (!best || sp > best.span) best = { trail: trail.concat([eN]), span: sp };
-            } else if (!seen[eN.v] && !usedRooms.has(eN.v) && trail.length < o.loopMax - 1) {
-              seen[eN.v] = true; trail.push(eN); dfs(eN.v, trail); trail.pop(); seen[eN.v] = false;
-            }
+          if (result || trail.length > maxLen) return;
+          if (u === T) { result = trail.slice(); return; }
+          // Score once per neighbour, then sort — scoring inside the
+          // comparator re-evaluates (and re-randomizes) per comparison.
+          var nbs = [];
+          for (var n0 = 0; n0 < adj[u].length; n0++) {
+            var cand = adj[u][n0];
+            if (seen[cand.v] || blocked.has(cand.v) || usedRooms.has(cand.v)) continue;
+            nbs.push({ e: cand, s: score(cand.v) });
+          }
+          nbs.sort(function (p, q) { return p.s - q.s; });
+          for (var n = 0; n < nbs.length && !result; n++) {
+            var eN = nbs[n].e;
+            if (seen[eN.v]) continue;
+            seen[eN.v] = true; trail.push(eN); dfs(eN.v, trail); trail.pop();
           }
         })(S, []);
-        return best;
+        return result;
+      }
+
+      // Big rings on demand: random cycle-hunting rarely closes a large
+      // ring, so instead pick a target room at least loopSpan away and join
+      // two room-disjoint paths (one bowed each way) into a cycle. Returns
+      // { trail, span } like a cycle search would.
+      function findLoop(S) {
+        var sc = roomCenter(S);
+        var targets = [];
+        for (var ti = 0; ti < rooms.length; ti++) {
+          if (ti === S || usedRooms.has(ti)) continue;
+          var tdd = Math.hypot(roomCenter(ti).x - sc.x, roomCenter(ti).y - sc.y);
+          if (tdd >= o.loopSpan) targets.push({ i: ti, d: tdd });
+        }
+        // Nearest target past the span floor = shortest legs = easiest ring.
+        targets.sort(function (p, q) { return p.d - q.d; });
+        var maxLeg = Math.ceil(o.loopMax / 2) + 2;
+        for (var tt = 0; tt < Math.min(6, targets.length); tt++) {
+          var T = targets[tt].i;
+          var p1 = findPath(S, T, new Set(), maxLeg, 1);
+          if (!p1) continue;
+          var blocked = new Set();
+          for (var b1 = 0; b1 < p1.length - 1; b1++) blocked.add(p1[b1].v);   // interior only
+          var p2 = findPath(S, T, blocked, maxLeg, -1);
+          if (!p2) continue;
+          // trail = S→T via p1, then T→S via p2 reversed (same doors,
+          // destination rooms shifted one step back toward S).
+          var seq = [S];
+          for (var s2 = 0; s2 < p2.length; s2++) seq.push(p2[s2].v);
+          var trail = p1.slice();
+          for (var k2 = p2.length - 1; k2 >= 0; k2--) trail.push({ v: seq[k2], d: p2[k2].d });
+          return { trail: trail, span: targets[tt].d };
+        }
+        return null;
       }
 
       function buildLoop(S, trail) {
@@ -300,10 +369,10 @@
         return { pts: pts, dots: dots, loop: true };
       }
 
-      // Coverage grid: routes are picked to spread over the screen. Fine
+      // Coverage grid: routes are picked to spread over the window. Fine
       // enough (18×12) that "fresh ground" discriminates real gaps, coarse
       // enough that nearby strokes still count as covering the same area.
-      var gx = Math.max(1, (COLS * CS) / 18), gy = Math.max(1, (ROWS * CS) / 12);
+      var gx = Math.max(1, (cols * CS) / 18), gy = Math.max(1, (rows * CS) / 12);
       function cells(pts) {
         var set = new Set();
         for (var p = 1; p < pts.length; p++) {
@@ -345,9 +414,9 @@
         return false;
       }
 
-      // Central loop first so it gets the middle of the map — prefer a big
-      // ring, settle for the floor.
-      var mx0 = COLS * CS / 2, my0 = ROWS * CS / 2;
+      // Central loop first so it gets the middle of the window — prefer a
+      // big ring, settle for the floor.
+      var mx0 = cols * CS / 2, my0 = rows * CS / 2;
       if (!addLoopAt(mx0, my0, Math.max(o.loopMin, 8))) addLoopAt(mx0, my0, o.loopMin);
 
       // Edge-to-edge routes, never reusing a claimed room. Starts are spread
@@ -355,6 +424,7 @@
       // coverage cells — otherwise we burn the start and try elsewhere. A few
       // consecutive rejections means the plan is saturated, so stop instead
       // of piling routes onto already-busy areas.
+      var ROUTES = Math.max(4, Math.min(16, Math.round((cols * CS) * (rows * CS) / 150000) + 2));
       var usedStarts = new Set(), starts = [], misses = 0;
       while (routes.length < ROUTES && misses < 6) {
         var sI = -1, bd = -1;
@@ -396,9 +466,9 @@
       // so the middle of the plan can stay empty. Seed extra loops at the
       // middle of the largest remaining coverage gaps until the grid reads
       // evenly filled (or the door graph runs out of cycles to give).
-      var NX = Math.ceil((COLS * CS) / gx), NY = Math.ceil((ROWS * CS) / gy);
-      var triedCells = new Set();
-      for (var fill = 0; fill < 24; fill++) {
+      var NX = Math.ceil((cols * CS) / gx), NY = Math.ceil((rows * CS) / gy);
+      var triedCells = new Set(), loopFails = 0;
+      for (var fill = 0; fill < 24 && loopFails < 5; fill++) {
         var gap = null;
         for (var iy = 0; iy < NY; iy++) {
           for (var ix = 0; ix < NX; ix++) {
@@ -417,9 +487,10 @@
         }
         if (!gap) break;
         triedCells.add(gap.key);
-        addLoopAt((gap.ix + 0.5) * gx, (gap.iy + 0.5) * gy, o.loopMin);
+        if (addLoopAt((gap.ix + 0.5) * gx, (gap.iy + 0.5) * gy, o.loopMin)) loopFails = 0;
+        else loopFails++;
       }
-      return { V: V, Hw: Hw, routes: routes };
+      return { orgX: win.orgX, orgY: win.orgY, cols: cols, rows: rows, V: V, Hw: Hw, routes: routes };
     }
 
     function drawRoutes(L) {
@@ -457,27 +528,55 @@
       }
     }
 
+    // Wall lookups in WORLD cell coords — out of a layout's window means
+    // "no wall there" (the perimeter is open by design).
+    function vWall(L, wx, wy) {
+      var ix = wx - L.orgX, iy = wy - L.orgY;
+      return (ix >= 0 && ix <= L.cols && iy >= 0 && iy < L.rows) ? L.V[iy][ix] : 0;
+    }
+    function hWall(L, wx, wy) {
+      var ix = wx - L.orgX, iy = wy - L.orgY;
+      return (ix >= 0 && ix < L.cols && iy >= 0 && iy <= L.rows) ? L.Hw[iy][ix] : 0;
+    }
+
     function frame(now) {
       if (!alive) return;
       var el = now - start;
       var CYCLE = o.sweepMs + o.restMs;
       var cn = Math.floor(el / CYCLE);
-      if (cn > cyclePrev) { A = B; B = nextL || genLayout(); nextL = null; cyclePrev = cn; }
+      if (cn > cyclePrev) {
+        // Normal rollover: old B becomes the base. After a long rAF
+        // suspension (hidden tab) the stale windows no longer cover the
+        // camera, so regenerate the base too.
+        var skipped = cn - cyclePrev > 1;
+        A = skipped ? genLayout(windowFor(cn * CYCLE, cn * CYCLE + o.sweepMs)) : B;
+        B = (!skipped && nextL) ? nextL : genLayout(windowFor(cn * CYCLE, (cn + 1) * CYCLE + o.sweepMs));
+        nextL = null;
+        cyclePrev = cn;
+      }
       var local = el % CYCLE;
       var animate = !reduced.matches;
-      // Layout gen costs a frame (~100ms at 1080p). During REST the scene is
-      // completely static, so pre-generate the next cycle's layout there —
-      // the stall is invisible. Generating lazily at rollover instead would
-      // stutter the sweep right as it starts moving.
-      if (animate && !nextL && local >= o.sweepMs + 500) nextL = genLayout();
+      // Layout gen costs a frame (~100ms+ at 1080p). During REST the scene
+      // is static apart from the slow pan, so pre-generate the next cycle's
+      // layout there — the stall is near-invisible. Generating lazily at
+      // rollover instead would stutter the sweep right as it starts moving.
+      if (animate && !nextL && local >= o.sweepMs + 500) {
+        nextL = genLayout(windowFor((cn + 1) * CYCLE, (cn + 2) * CYCLE + o.sweepMs));
+      }
+
+      // Camera: slow deterministic diagonal drift. The maze lives in world
+      // coordinates; the camera's top-left is at (camX, camY).
+      var camX = animate ? pvx * el : 0;
+      var camY = animate ? pvy * el : 0;
 
       // Sweep geometry: positions project onto the cycle's leaned direction
       // (s = along travel, t = along the front line); the front is a wavy
-      // line s = frontU - wob(t) rather than a straight vertical.
+      // line s = frontU - wob(t) rather than a straight vertical. Projected
+      // ranges come from the current VIEWPORT corners (world coords), so the
+      // ripple always crosses what's on screen.
       var P = cycleParams(cn);
-      var MW = COLS * CS, MH = ROWS * CS;
       var smin = Infinity, smax = -Infinity, tmin = Infinity, tmax = -Infinity;
-      var corners = [[0, 0], [MW, 0], [0, MH], [MW, MH]];
+      var corners = [[camX, camY], [camX + W, camY], [camX, camY + H], [camX + W, camY + H]];
       for (var cc = 0; cc < 4; cc++) {
         var sC = corners[cc][0] * P.dx + corners[cc][1] * P.dy;
         var tC = -corners[cc][0] * P.dy + corners[cc][1] * P.dx;
@@ -498,9 +597,10 @@
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       if (o.bg) { ctx.fillStyle = o.bg; ctx.fillRect(0, 0, W, H); }
       else { ctx.clearRect(0, 0, W, H); }
-      ctx.translate(OX, OY);
+      ctx.translate(-camX, -camY);
 
-      // Walls morph through the sweep front: each segment blends layout A → B.
+      // Walls morph through the sweep front: each visible world cell blends
+      // layout A → B (either layout may simply have no wall there).
       var path = new Path2D();
       function seg(mx, my, vert, av, bv) {
         var p = ease((frontU - (mx * P.dx + my * P.dy + wob(-mx * P.dy + my * P.dx))) / 110);
@@ -510,10 +610,16 @@
         if (vert) { path.moveTo(mx, my - half); path.lineTo(mx, my + half); }
         else { path.moveTo(mx - half, my); path.lineTo(mx + half, my); }
       }
-      for (var y = 0; y < ROWS; y++) for (var x = 0; x <= COLS; x++)
-        if (A.V[y][x] || B.V[y][x]) seg(x * CS, y * CS + CS / 2, true, A.V[y][x], B.V[y][x]);
-      for (var y2 = 0; y2 <= ROWS; y2++) for (var x2 = 0; x2 < COLS; x2++)
-        if (A.Hw[y2][x2] || B.Hw[y2][x2]) seg(x2 * CS + CS / 2, y2 * CS, false, A.Hw[y2][x2], B.Hw[y2][x2]);
+      var cx0 = Math.floor(camX / CS) - 1, cx1 = Math.ceil((camX + W) / CS) + 1;
+      var cy0 = Math.floor(camY / CS) - 1, cy1 = Math.ceil((camY + H) / CS) + 1;
+      for (var wy = cy0; wy < cy1; wy++) for (var wx = cx0; wx <= cx1; wx++) {
+        var av = vWall(A, wx, wy), bv = vWall(B, wx, wy);
+        if (av || bv) seg(wx * CS, wy * CS + CS / 2, true, av, bv);
+      }
+      for (var wy2 = cy0; wy2 <= cy1; wy2++) for (var wx2 = cx0; wx2 < cx1; wx2++) {
+        var ah = hWall(A, wx2, wy2), bh = hWall(B, wx2, wy2);
+        if (ah || bh) seg(wx2 * CS + CS / 2, wy2 * CS, false, ah, bh);
+      }
       ctx.strokeStyle = o.wall;
       ctx.lineWidth = o.wallWidth;
       ctx.lineCap = 'square';
@@ -522,7 +628,9 @@
       // Routes swap at the front: old layout's ahead of it, new behind it.
       // The clip region follows the wavy front line — a polyline sampled
       // along the front, closed off far behind (new side) or far ahead
-      // (old side).
+      // (old side). Route points are layout-local, so each layout draws
+      // under its own world-origin translate (clip is set in world space
+      // first, unaffected).
       function clipFront(behind) {
         var N = 28, BIG = (smax - smin) + 600;
         var lo = tmin - 120, hi = tmax + 120;
@@ -543,10 +651,12 @@
       }
       ctx.save();
       clipFront(false);
+      ctx.translate(A.orgX * CS, A.orgY * CS);
       drawRoutes(A);
       ctx.restore();
       ctx.save();
       clipFront(true);
+      ctx.translate(B.orgX * CS, B.orgY * CS);
       drawRoutes(B);
       ctx.restore();
 
@@ -562,14 +672,11 @@
       cv.height = H * dpr;
       cv.style.width = W + 'px';
       cv.style.height = H + 'px';
-      COLS = Math.max(12, Math.ceil(W / CS)) + o.pad * 2;
-      ROWS = Math.max(10, Math.ceil(H / CS)) + o.pad * 2;
-      OX = Math.round((W - COLS * CS) / 2);
-      OY = Math.round((H - ROWS * CS) / 2);
-      // Route budget scales with area; the coverage gate in genLayout stops
-      // early when the plan saturates, so this is a ceiling, not a target.
-      ROUTES = Math.max(4, Math.min(14, Math.round(W * H / 150000) + 2));
-      A = genLayout(); B = genLayout();
+      // Restart the clock (camera returns to the world origin) and build the
+      // first two layouts around the camera's opening path.
+      var CYCLE = o.sweepMs + o.restMs;
+      A = genLayout(windowFor(0, o.sweepMs));
+      B = genLayout(windowFor(0, CYCLE + o.sweepMs));
       nextL = null;
       start = performance.now();
       cyclePrev = 0;
