@@ -11,7 +11,8 @@
 // as HP drops; they recede as the player heals. Above the threshold the layer is
 // transparent with no running animation.
 //
-// Fully owned — no external assets. Honors prefers-reduced-motion.
+// The edge vignette is painted art (/img/blood-vignette.png) masked per edge;
+// the splats are procedural SVG. Honors prefers-reduced-motion.
 //
 // Channel: tsic.msg.UI.Player.Attribute (Channel === 'Health')
 (function () {
@@ -43,26 +44,17 @@
     '  opacity:0; transition: opacity 500ms ease; }',
     '#hud-low-health.lh-on { opacity:1; }',
 
-    // Red vignette — one fade per edge so the soft transition reaches every edge
-    // AND every corner (where two edge fades overlap and deepen). Each edge is red
-    // at the screen border, fading fully to transparent --depth into the screen.
-    // --depth scales with damage (see apply()).
+    // Blood vignette — painted border art (T_Blood, alpha-faded centre) stretched
+    // over the full screen, with one mask fade per edge so the soft transition
+    // reaches every edge AND every corner (where two edge fades overlap and
+    // deepen). The art is fully visible at the screen border, masked to
+    // transparent --depth into the screen. --depth scales with damage (see
+    // apply()).
     '#hud-low-health .lh-vignette { position:absolute; inset:0;',
-    '  background:',
-    '    linear-gradient(to bottom, rgba(' + BLOOD + ',0.5), transparent var(--depth,8%)),',
-    '    linear-gradient(to top,    rgba(' + BLOOD + ',0.5), transparent var(--depth,8%)),',
-    '    linear-gradient(to right,  rgba(' + BLOOD + ',0.5), transparent var(--depth,8%)),',
-    '    linear-gradient(to left,   rgba(' + BLOOD + ',0.5), transparent var(--depth,8%));',
-    '  transition: --depth 500ms ease; }',
-
-    // Subtle grain over the red only — fine dark-red noise masked to the same red
-    // ring and blended in, so the blood area reads textured rather than a flat
-    // wash. Kept faint.',
-    '#hud-low-health .lh-grain { position:absolute; inset:0; opacity:0.45; mix-blend-mode:overlay;',
+    '  background: url(/img/blood-vignette.png) center / 100% 100% no-repeat;',
     '  -webkit-mask-image: linear-gradient(to bottom,#000,transparent var(--depth,8%)), linear-gradient(to top,#000,transparent var(--depth,8%)), linear-gradient(to right,#000,transparent var(--depth,8%)), linear-gradient(to left,#000,transparent var(--depth,8%));',
     '          mask-image: linear-gradient(to bottom,#000,transparent var(--depth,8%)), linear-gradient(to top,#000,transparent var(--depth,8%)), linear-gradient(to right,#000,transparent var(--depth,8%)), linear-gradient(to left,#000,transparent var(--depth,8%));',
     '  transition: --depth 500ms ease; }',
-    '#hud-low-health .lh-grain svg { width:100%; height:100%; display:block; }',
 
     // Each splat: an absolutely-placed square holding one rough SVG cluster. The
     // splatter-in pop plays once when the layer turns on; --st staggers them.
@@ -140,19 +132,7 @@
     return '<svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet" aria-hidden="true">' + parts + '</svg>';
   }
 
-  // Fine grain (data-URI SVG turbulence) — dark-red mottled noise; alpha varies
-  // with the noise so it reads as subtle texture, not a flat tint.
-  var GRAIN_SVG =
-    '<svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">' +
-    '<filter id="lh-grain-fx" x="0" y="0" width="100%" height="100%">' +
-      '<feTurbulence type="fractalNoise" baseFrequency="0.7 0.7" numOctaves="2" seed="7" stitchTiles="stitch" result="n"/>' +
-      // Out: dark red, alpha driven by the noise (sparse speckle).
-      '<feColorMatrix in="n" type="matrix" values="0 0 0 0 0.32  0 0 0 0 0  0 0 0 0 0.02  0 0 0 0.7 -0.18"/>' +
-    '</filter>' +
-    '<rect width="100" height="100" filter="url(#lh-grain-fx)"/>' +
-    '</svg>';
-
-  var root, vignette, grain, stage, splats = [];
+  var root, vignette, stage, splats = [];
 
   function build() {
     root = document.getElementById('hud-low-health');
@@ -161,11 +141,6 @@
     vignette = document.createElement('div');
     vignette.className = 'lh-vignette lh-stage';
     root.appendChild(vignette);
-
-    grain = document.createElement('div');
-    grain.className = 'lh-grain lh-stage';
-    grain.innerHTML = GRAIN_SVG;
-    root.appendChild(grain);
 
     stage = document.createElement('div');
     stage.className = 'lh-stage';
@@ -211,10 +186,12 @@
     var hi = lerp(0.78, 1.0, intensity);
     var lo = hi * lerp(0.78, 0.5, intensity);
     var pulse = lerp(1.9, 0.7, intensity).toFixed(2) + 's';
-    // How far the red band reaches in from each edge: ~1% when mild → ~8% at
-    // death. (% of the relevant screen dimension per edge: height for top/bottom,
-    // width for left/right — so the band is naturally a touch deeper on the sides.)
-    var depth = lerp(1, 8, intensity).toFixed(2) + '%';
+    // How far the blood art reaches in from each edge: ~6% when mild (just the
+    // outer grunge rim) → ~35% at death (the full painted border, handprint and
+    // veins included). (% of the relevant screen dimension per edge: height for
+    // top/bottom, width for left/right — so the band is naturally a touch deeper
+    // on the sides.)
+    var depth = lerp(6, 35, intensity).toFixed(2) + '%';
 
     root.style.setProperty('--lo', lo.toFixed(3));
     root.style.setProperty('--hi', hi.toFixed(3));
