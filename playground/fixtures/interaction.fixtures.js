@@ -1,9 +1,9 @@
-// /screens/interaction.html subscribes to:
+// /screens/test-interaction.html subscribes to:
 //   tsic.msg.UI.Interaction.Targets  { Targets:[{EntityId, Label}] }
 TSICPlayground.register({
     id: 'interaction',
     label: 'Interaction',
-    screen: '/screens/interaction.html',
+    screen: '/screens/test-interaction.html',
     initialState() { return { targets: [
         { EntityId: 1, Label: 'Open Storage' },
     ] }; },

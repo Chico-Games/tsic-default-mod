@@ -5,7 +5,7 @@
 // ---- Crosshair ----------------------------------------------------------
 TSICTestHarness.register({
     name: 'Crosshair: page loads with a visible dot element',
-    file: '/screens/crosshair.html',
+    file: '/screens/test-crosshair.html',
     async run(ctx) {
         await ctx.waitFor(() => ctx.doc.body.children.length >= 1, { timeout: 1000 });
         // The dot has no fixed id across builds; assert at least one absolutely-
@@ -19,7 +19,7 @@ TSICTestHarness.register({
 // ---- HealthBar damage-reveal --------------------------------------------
 TSICTestHarness.register({
     name: 'HealthBar: damage event subscriber doesn\'t throw',
-    file: '/screens/health-bar.html',
+    file: '/screens/test-health-bar.html',
     async run(ctx) {
         ctx.inject('tsic.msg.UI.Player.Attribute', { Channel: 'Health', Current: 80, Max: 100 });
         ctx.inject('tsic.msg.Message.DamageEvent', { Damage: 20 });
@@ -31,7 +31,7 @@ TSICTestHarness.register({
 // ---- StaminaBar drain --------------------------------------------------
 TSICTestHarness.register({
     name: 'StaminaBar: rapid drop still surfaces final value',
-    file: '/screens/stamina-bar.html',
+    file: '/screens/test-stamina-bar.html',
     async run(ctx) {
         ctx.inject('tsic.msg.UI.Player.Attribute', { Channel: 'Stamina', Current: 100, Max: 100 });
         ctx.inject('tsic.msg.UI.Player.Attribute', { Channel: 'Stamina', Current: 25, Max: 100 });
@@ -60,7 +60,7 @@ TSICTestHarness.register({
 // ---- Notifications stack cap --------------------------------------------
 TSICTestHarness.register({
     name: 'Notifications: stack caps at 5 (oldest dropped)',
-    file: '/screens/notifications.html',
+    file: '/screens/test-notifications.html',
     async run(ctx) {
         for (let i = 0; i < 9; i++) {
             ctx.inject('tsic.msg.UI.Notification.Show', { Title: `n${i}`, Text: '', Type: 'Tip' });
@@ -169,7 +169,7 @@ TSICTestHarness.register({
 // ---- Notifications: missing icon falls back gracefully -----------------
 TSICTestHarness.register({
     name: 'Notifications: missing IconUrl still renders',
-    file: '/screens/notifications.html',
+    file: '/screens/test-notifications.html',
     async run(ctx) {
         ctx.inject('tsic.msg.UI.Notification.Show', { Title: 'No icon', Text: 'no problem', Type: 'Tip' });
         await ctx.waitFor(() => ctx.doc.querySelector('.notif'));
@@ -390,7 +390,7 @@ TSICTestHarness.register({
 // ---- Notifications: warning border colour --------------------------
 TSICTestHarness.register({
     name: 'Notifications: warning class set on Warning type',
-    file: '/screens/notifications.html',
+    file: '/screens/test-notifications.html',
     async run(ctx) {
         ctx.inject('tsic.msg.UI.Notification.Show', { Title: 'careful', Text: 'wow', Type: 'Warning' });
         await ctx.waitFor(() => ctx.doc.querySelector('.notif--Warning'));

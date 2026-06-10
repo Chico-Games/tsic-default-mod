@@ -191,23 +191,21 @@ TSICTestHarness.register({
     },
 });
 
-// ---- Interaction: every target row -----------------------------------
+// ---- Interaction prompt is display-only --------------------------------
 TSICTestHarness.register({
-    name: 'Mouse/Interaction: each row publishes with its EntityId',
-    file: '/screens/interaction.html',
+    name: 'Mouse/Interaction: prompt is display-only — clicks do not publish',
+    file: '/screens/test-interaction.html',
     async run(ctx) {
         ctx.inject('tsic.msg.UI.Interaction.Targets', { Targets: [
             { EntityId: 11, Label: 'Open' },
             { EntityId: 12, Label: 'Inspect' },
         ]});
-        await ctx.waitFor(() => ctx.doc.querySelectorAll('.row').length === 2);
+        await ctx.waitFor(() => /Open/.test(ctx.doc.getElementById('interaction-prompt').textContent));
         ctx.clearPublishes();
-        const rows = ctx.doc.querySelectorAll('.row');
-        for (const r of rows) r.click();
-        const pubs = ctx.publishes().filter(p => p.channel === 'UI.Cmd.Interaction.Activate');
-        ctx.expect(ctx.assert.eq(pubs.length, 2));
-        ctx.expect(ctx.assert.truthy(pubs.some(p => p.payload.EntityId === 11)));
-        ctx.expect(ctx.assert.truthy(pubs.some(p => p.payload.EntityId === 12)));
+        ctx.doc.getElementById('interaction-prompt').click();
+        // Activation goes through Enhanced Input (the interact ability), not UI.
+        const pubs = ctx.publishes().filter(p => p.channel.indexOf('UI.Cmd.Interaction.') === 0);
+        ctx.expect(ctx.assert.eq(pubs.length, 0, 'prompt is display-only — clicks should not publish'));
     },
 });
 

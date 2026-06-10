@@ -129,7 +129,7 @@ TSICTestHarness.register({
 // ---- Mode switch on every overlay page (sanity)  ---------------------
 TSICTestHarness.register({
     name: 'Input/Mode: switching to Gamepad while crosshair page is up doesn\'t throw',
-    file: '/screens/crosshair.html',
+    file: '/screens/test-crosshair.html',
     async run(ctx) {
         ctx.mode('Gamepad');
         await new Promise(r => setTimeout(r, 30));

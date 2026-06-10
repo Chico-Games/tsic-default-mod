@@ -89,9 +89,14 @@
 
   // ---- DOM construction ----
 
-  function ensureToastContainer() {
-    if (document.getElementById('toast-container')) return;
-    document.body.appendChild(el('div', { id: 'toast-container' }));
+  // Toasts + notification cards share a top-left column (#corner-stack in
+  // hud.css) so the two stacks never overlap when both fire.
+  function ensureCornerStack() {
+    if (document.getElementById('corner-stack')) return;
+    var stack = el('div', { id: 'corner-stack' });
+    stack.appendChild(el('div', { id: 'toast-container' }));
+    stack.appendChild(el('div', { id: 'notif-stack' }));
+    document.body.appendChild(stack);
   }
 
   function buildChrome() {
@@ -156,9 +161,10 @@
   }
 
   whenReady(function () {
-    // Toast container works on every screen.
-    ensureToastContainer();
+    // Toasts + notification cards work on every screen.
+    ensureCornerStack();
     loadScript('/shared/hud-toast.js');
+    loadScript('/shared/hud-notifications.js');
 
     // The rest of the HUD chrome is InGame only.
     if (!isInGameScreen()) return;

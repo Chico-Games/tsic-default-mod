@@ -29,8 +29,7 @@
   // (e.g. action-bar swaps between gameplay/menu group, hotbar follows the
   // selected slot). A redirect here breaks the overlay entirely.
   const OVERLAY_SCREENS = new Set([
-    'Hotbar', 'HealthBar', 'StaminaBar', 'Stomach',
-    'Crosshair', 'Detection', 'CircularProgress', 'Notifications',
+    'Hotbar', 'Stomach', 'Detection', 'CircularProgress',
     'Ping', 'PingMarkers',
   ]);
   const SCREEN_TO_FILE = {
@@ -50,10 +49,8 @@
     Upgrade: 'upgrade',
     BossSummoner: 'boss-summoner',
     Construction: 'construction',
-    Interaction: 'interaction',
     Selection: 'selection',
     Cage: 'cage',
-    Notifications: 'notifications',
     Map: 'map',
     Chat: 'chat',
     Teleporter: 'teleporter',
@@ -76,10 +73,7 @@
     Hotbar: 'hotbar',
     QuantityPicker: 'quantity-picker',
     Ping: 'ping',
-    Crosshair: 'crosshair',
     Detection: 'detection',
-    HealthBar: 'health-bar',
-    StaminaBar: 'stamina-bar',
     Stomach: 'stomach',
   };
 

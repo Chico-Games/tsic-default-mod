@@ -184,7 +184,7 @@ TSICTestHarness.register({
 // ---- Notifications: subsequent pushes append to the stack -------------
 TSICTestHarness.register({
     name: 'E2E/Notifications: rapid pushes shown in column-reverse order (newest on top)',
-    file: '/screens/notifications.html',
+    file: '/screens/test-notifications.html',
     async run(ctx) {
         ctx.inject('tsic.msg.UI.Notification.Show', { Title: 'first',  Text: '', Type: 'Tip' });
         ctx.inject('tsic.msg.UI.Notification.Show', { Title: 'second', Text: '', Type: 'Tip' });

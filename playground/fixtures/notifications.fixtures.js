@@ -1,9 +1,9 @@
-// /screens/notifications.html subscribes to:
+// /screens/test-notifications.html subscribes to:
 //   tsic.msg.UI.Notification.Show  { Type, Title, Text, IconUrl }
 TSICPlayground.register({
     id: 'notifications',
     label: 'Notifications',
-    screen: '/screens/notifications.html',
+    screen: '/screens/test-notifications.html',
     initialState() { return { nextId: 0, lastToast: null }; },
     project(state) {
         // Sticky channel — when a scenario sets lastToast, re-inject re-fires

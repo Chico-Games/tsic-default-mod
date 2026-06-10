@@ -96,7 +96,7 @@ TSICTestHarness.register({
 TSICTestHarness.register({
     name: 'Channels/Interaction.SetFocusedRects: covered',
     tags: ['channel', 'interaction'],
-    file: '/screens/interaction.html',
+    file: '/screens/test-interaction.html',
     async run(ctx) {
         ctx.win.tsic.publishMessage('UI.Cmd.Interaction.SetFocusedRects', { RectsJson: '[]' });
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Interaction.SetFocusedRects'));
