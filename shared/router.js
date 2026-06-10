@@ -29,7 +29,7 @@
   // (e.g. action-bar swaps between gameplay/menu group, hotbar follows the
   // selected slot). A redirect here breaks the overlay entirely.
   const OVERLAY_SCREENS = new Set([
-    'Hotbar', 'Stomach', 'Detection', 'CircularProgress',
+    'Hotbar', 'Stomach', 'BehaviorBar', 'Detection', 'CircularProgress',
     'Ping', 'PingMarkers',
   ]);
   const SCREEN_TO_FILE = {
@@ -75,6 +75,7 @@
     Ping: 'ping',
     Detection: 'detection',
     Stomach: 'stomach',
+    BehaviorBar: 'behavior-bar',
   };
 
   function myScreen() {

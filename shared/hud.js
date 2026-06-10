@@ -39,10 +39,14 @@
     // side by side in the bottom-left. These rules just position/size them.
     '#hud-health { position:fixed; left:24px; bottom:30px; width:48px; --vial-h:200px; pointer-events:none; z-index:20; }',
     '#hud-stamina { position:fixed; left:80px; bottom:30px; width:48px; --vial-h:200px; pointer-events:none; z-index:20; }',
+    // Stomach — digesting-food slots, right of the stamina vial, bottom-aligned
+    // with the bars. Left = stamina body end (128) + the 8px inter-bar gap + the
+    // 4px the vial's block shadow overhangs to the right = 140. Slot styling: hud-stomach.js.
+    '#hud-stomach { position:fixed; left:140px; bottom:30px; pointer-events:none; z-index:20; }',
     '#hud-crosshair { position:fixed; left:50%; top:50%; margin-left:-2px; margin-top:-2px; width:4px; height:4px; background:#fff; border-radius:50%; pointer-events:none; z-index:20; }',
     '#hud-crosshair.hidden { display:none; }',
-    'body.hud-hidden #hud-chrome, body.hud-hidden #hud-health, body.hud-hidden #hud-stamina, body.hud-hidden #hud-crosshair, body.hud-hidden #bb-shell-gameplay, body.hud-hidden #hud-minimap, body.hud-hidden #hud-chunk-debug, body.hud-hidden #hud-hotbar, body.hud-hidden #ping-shell { display:none !important; }',
-    'body.hud-hide-health #hud-health, body.hud-hide-stamina #hud-stamina, body.hud-hide-crosshair #hud-crosshair, body.hud-hide-minimap #hud-minimap, body.hud-hide-actionbar #bb-shell-gameplay, body.hud-hide-interaction #interaction-prompt, body.hud-hide-hotbar #hud-hotbar { display:none !important; }',
+    'body.hud-hidden #hud-chrome, body.hud-hidden #hud-health, body.hud-hidden #hud-stamina, body.hud-hidden #hud-stomach, body.hud-hidden #hud-crosshair, body.hud-hidden #bb-shell-gameplay, body.hud-hidden #hud-minimap, body.hud-hidden #hud-chunk-debug, body.hud-hidden #hud-hotbar, body.hud-hidden #ping-shell, body.hud-hidden #hud-low-health, body.hud-hidden #hud-hit-reaction { display:none !important; }',
+    'body.hud-hide-health #hud-health, body.hud-hide-stamina #hud-stamina, body.hud-hide-stomach #hud-stomach, body.hud-hide-crosshair #hud-crosshair, body.hud-hide-minimap #hud-minimap, body.hud-hide-actionbar #bb-shell-gameplay, body.hud-hide-interaction #interaction-prompt, body.hud-hide-hotbar #hud-hotbar, body.hud-hide-lowhealth #hud-low-health, body.hud-hide-hitreaction #hud-hit-reaction { display:none !important; }',
     '#bb-shell-gameplay { position:fixed; bottom:18px; right:24px; min-width:240px; max-width:calc(100vw - 48px); padding:8px 12px; color:#fff; pointer-events:none; z-index:20; font-family:Georgia,"Libre Baskerville",serif; text-shadow:0 1px 2px rgba(0,0,0,0.75); }',
     '#bb-shell-gameplay.hidden { display:none; }',
     '#bb-gameplay { display:flex; flex-direction:column; align-items:stretch; gap:0; }',
@@ -113,6 +117,7 @@
     // Empty containers — the liquid-bar component builds the vial inside each.
     document.body.appendChild(el('div', { id: 'hud-health' }));
     document.body.appendChild(el('div', { id: 'hud-stamina' }));
+    document.body.appendChild(el('div', { id: 'hud-stomach' }));
 
     document.body.appendChild(el('div', { id: 'hud-crosshair' }));
 
@@ -140,6 +145,11 @@
     var hotbar = el('div', { id: 'hud-hotbar' });
     hotbar.appendChild(el('div', { id: 'hotbar-row' }));
     document.body.appendChild(hotbar);
+
+    // Full-screen blood overlays — components build their own contents inside.
+    // Low-health surround sits under the bars (z18); hit-reaction above it (z19).
+    document.body.appendChild(el('div', { id: 'hud-low-health' }));
+    document.body.appendChild(el('div', { id: 'hud-hit-reaction' }));
 
     // Ping composer overlay — hud-ping.js builds the wheel inside it.
     document.body.appendChild(el('div', { id: 'ping-shell' }));
@@ -205,6 +215,7 @@
     loadScript('/shared/hud-liquid-bar.js');   // shared vial component (health + stamina)
     loadScript('/shared/hud-health.js');
     loadScript('/shared/hud-stamina.js');
+    loadScript('/shared/hud-stomach.js');
     loadScript('/shared/hud-crosshair.js');
     loadScript('/shared/hud-interaction.js');
     loadScript('/shared/hud-behavior-bar.js');
@@ -212,6 +223,8 @@
     loadScript('/shared/hud-minimap.js');
     loadScript('/shared/hud-chunk-debug.js');
     loadScript('/shared/hud-hotbar.js');
+    loadScript('/shared/hud-low-health.js');
+    loadScript('/shared/hud-hit-reaction.js');
     loadScript('/shared/hud-ping.js');
   });
 })();
