@@ -87,7 +87,7 @@ TSICTestHarness.register({
 // ---- Notifications ----------------------------------------------------
 TSICTestHarness.register({
     name: 'Notifications: title + text both rendered',
-    file: '/screens/notifications.html',
+    file: '/screens/test-notifications.html',
     async run(ctx) {
         ctx.inject('tsic.msg.UI.Notification.Show', { Title: 'Picked up', Text: 'Bread x 1', Type: 'Inventory' });
         await ctx.waitFor(() => ctx.doc.querySelector('.notif-title'));

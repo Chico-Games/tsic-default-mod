@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="tsic-screen" content="TestCrosshair">
+  <meta name="tsic-debug" content="true">
+  <title>Test: crosshair</title>
+  <!-- Test-only host for the LIVE crosshair component
+       (shared/hud-crosshair.js). In production hud.js creates the
+       #hud-crosshair dot and injects its styles; here we provide the minimal
+       shell so the component can be exercised in isolation.
+
+       DO NOT add rendering logic to this file. Crosshair visibility is driven
+       by shared/hud-crosshair.js — this page only hosts it. -->
+  <style>
+    /* Mirror the rules hud.js injects, so getComputedStyle()-based
+       hidden/visible assertions work. */
+    #hud-crosshair { position:fixed; left:50%; top:50%; margin-left:-2px; margin-top:-2px; width:4px; height:4px; background:#fff; border-radius:50%; pointer-events:none; z-index:20; }
+    #hud-crosshair.hidden { display:none; }
+  </style>
+  <!-- No tsic-bridge.js / tsic-runtime.js: in the spa-test-runner the harness
+       stamps a mock window.tsic in beforeParse, and tsic-bridge.js would
+       overwrite it. -->
+  <script src="/shared/hud-crosshair.js" defer></script>
+</head><body>
+  <div id="hud-crosshair"></div>
+</body></html>

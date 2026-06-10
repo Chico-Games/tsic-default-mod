@@ -45,7 +45,7 @@ TSICTestHarness.register({
 // ---- Notifications burst -------------------------------------------------
 TSICTestHarness.register({
     name: 'Stress/Notifications: 30 rapid pushes still survives + caps at 5',
-    file: '/screens/notifications.html',
+    file: '/screens/test-notifications.html',
     async run(ctx) {
         for (let i = 0; i < 30; i++) ctx.inject('tsic.msg.UI.Notification.Show', { Title: `n${i}`, Text: '', Type: 'Tip' });
         await new Promise(r => setTimeout(r, 120));

@@ -251,7 +251,7 @@ TSICTestHarness.register({
 TSICTestHarness.register({
     name: 'Perf/Notifications: 100 rapid pushes still cap at 5 visible',
     tags: ['perf', 'notifications'],
-    file: '/screens/notifications.html',
+    file: '/screens/test-notifications.html',
     async run(ctx) {
         for (let i = 0; i < 100; i++) ctx.inject('tsic.msg.UI.Notification.Show', { Title: 'n' + i, Text: '', Type: 'Tip' });
         await new Promise(r => setTimeout(r, 200));
@@ -344,7 +344,7 @@ TSICTestHarness.register({
 TSICTestHarness.register({
     name: 'Perf/Notifications: every type yields its severity class',
     tags: ['perf', 'notifications'],
-    file: '/screens/notifications.html',
+    file: '/screens/test-notifications.html',
     async run(ctx) {
         const types = ['Tip','Warning','Error','Inventory','Event','Alarm','PlayerJoined','PlayerDied','Progression'];
         for (const t of types) ctx.inject('tsic.msg.UI.Notification.Show', { Title: t, Text: '', Type: t });
