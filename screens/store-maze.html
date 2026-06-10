@@ -16,16 +16,8 @@
   <script src="/shared/store-maze.js" defer></script>
   <style>
     html, body { margin: 0; height: 100%; overflow: hidden; }
-    /* Mostly see-through take on tsic-stage--magazine: a faint cream wash +
-       faded halftone so whatever sits behind the view shows through. */
-    body {
-      background-color: rgba(240, 232, 208, 0.60);
-      background-image:
-        radial-gradient(rgba(10, 10, 10, 0.07) 14%, transparent 15%),
-        radial-gradient(rgba(10, 10, 10, 0.055) 14%, transparent 15%);
-      background-size: 10px 10px, 10px 10px;
-      background-position: 0 0, 5px 5px;
-    }
+    /* See-through cream wash — no halftone; the maze is the texture. */
+    body { background-color: rgba(240, 232, 208, 0.60); }
     #maze-host { position: fixed; inset: 0; }
   </style>
 </head><body>

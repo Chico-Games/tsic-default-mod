@@ -48,7 +48,7 @@
                            // coverage cells or it's rejected (avoids doubling
                            // up on already-busy areas)
     sweepMs: 8000,         // sweep-front travel time
-    restMs: 10000,         // hold time between sweeps
+    restMs: 6500,          // hold time between sweeps
     panSpeed: 9,           // camera drift, px/s (0 = static camera)
     panAngle: 0.46,        // camera drift direction, radians (down-right)
   };
