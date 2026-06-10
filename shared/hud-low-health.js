@@ -16,7 +16,7 @@
 //
 // Channel: tsic.msg.UI.Player.Attribute (Channel === 'Health')
 (function () {
-  var THRESHOLD = 0.35;
+  var THRESHOLD = 0.20;
   var COUNT = 16;                 // splats scattered around the screen
   var BLOOD = '120,8,12';
   var BLOOD_DARK = '40,0,3';
@@ -187,11 +187,10 @@
     var lo = hi * lerp(0.78, 0.5, intensity);
     var pulse = lerp(1.9, 0.7, intensity).toFixed(2) + 's';
     // How far the blood art reaches in from each edge: ~6% when mild (just the
-    // outer grunge rim) → ~35% at death (the full painted border, handprint and
-    // veins included). (% of the relevant screen dimension per edge: height for
-    // top/bottom, width for left/right — so the band is naturally a touch deeper
-    // on the sides.)
-    var depth = lerp(6, 35, intensity).toFixed(2) + '%';
+    // outer grunge rim) → ~19% at death. (% of the relevant screen dimension per
+    // edge: height for top/bottom, width for left/right — so the band is
+    // naturally a touch deeper on the sides.)
+    var depth = lerp(6, 19, intensity).toFixed(2) + '%';
 
     root.style.setProperty('--lo', lo.toFixed(3));
     root.style.setProperty('--hi', hi.toFixed(3));
