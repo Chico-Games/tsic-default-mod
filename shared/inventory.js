@@ -70,6 +70,41 @@
                 host.appendChild(row);
             }
         },
+        // Partial-update path for the selection marker: walks the existing
+        // rows and toggles .is-selected based on `row.dataset.slot` against
+        // selectedIdx. Avoids the full renderList rebuild that the click/RMB
+        // paths used to fire just to move the selection ring.
+        updateSelectedSlot(host, selectedIdx) {
+            if (!host) return;
+            const target = (selectedIdx == null) ? '' : String(selectedIdx);
+            for (const row of host.querySelectorAll('.tsic-list-row')) {
+                row.classList.toggle('is-selected', row.dataset.slot === target);
+            }
+        },
+        // Partial-update path for the equipped outline + corner badge: walks
+        // the existing rows already rendered by renderList() and toggles the
+        // .is-equipped class + ✦ badge based on the equippedIds set. Avoids
+        // a full list rebuild (icons, drag handlers, click listeners) on every
+        // UI.Equipment.Updated, which fires whenever the player equips,
+        // unequips, or swaps a worn item.
+        updateEquippedClasses(host, equippedIds) {
+            if (!host) return;
+            const eq = equippedIds || new Set();
+            const rows = host.querySelectorAll('.tsic-list-row');
+            for (const row of rows) {
+                const id = row.dataset.instance;
+                const isEq = !!(id != null && id !== '' && eq.has(String(id)));
+                row.classList.toggle('is-equipped', isEq);
+                const iconWrap = row.querySelector('.icon');
+                if (!iconWrap) continue;
+                const badge = iconWrap.querySelector('.equip-badge');
+                if (isEq && !badge) {
+                    iconWrap.appendChild(el('span', { class: 'equip-badge', title: 'Equipped' }, '✦'));
+                } else if (!isEq && badge) {
+                    badge.remove();
+                }
+            }
+        },
         renderGrid(host, items, opts) {
             const totalSlots = opts.maxSlots > 0 ? opts.maxSlots : 32;
             host.innerHTML = '';

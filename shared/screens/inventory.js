@@ -246,12 +246,14 @@
             } else if (desc && desc.Category === 'Consumable') {
               ctx.publish('UI.Cmd.Inventory.Use', { OwnerId: 'Player', SlotIndex: it.SlotIndex });
             }
-            refresh();
+            // Selection-only update — equip/use roundtrips back through
+            // Inventory.Updated / Equipment.Updated which refresh whatever changed.
+            window.TSICInventory.updateSelectedSlot(root.querySelector('#inv-list'), selectedSlot);
           },
           onRMB: (it, e) => {
             if (!it) return;
             selectedSlot = it.SlotIndex;
-            refresh();
+            window.TSICInventory.updateSelectedSlot(root.querySelector('#inv-list'), selectedSlot);
             if (!window.TSICContextMenu) return;
             const entries = window.TSICInventory.buildItemContextMenu({
               it,
@@ -358,10 +360,22 @@
       ctx.on('tsic.msg.UI.Equipment.Updated', (p) => {
         if (!p || p.OwnerId !== 'Player') return;
         lastEquipment = p;
-        if (ctx.isVisible()) {
-          renderEquipment();
-          // Re-render the list too so equipped badges/outlines track the change live.
-          if (window.TSICInventory) refresh();
+        if (!ctx.isVisible()) return;
+        renderEquipment();
+        // Equipped badges/outlines on inventory rows: partial update only,
+        // toggling the .is-equipped class on the affected rows. The full refresh
+        // path (rebuilds every row + refetches every icon) only kicks in if the
+        // helper isn't available.
+        const eqIds = new Set(
+          (p.Slots || []).map((s) => s && s.ItemId)
+            .filter((id) => id != null && id !== '')
+            .map((id) => String(id))
+        );
+        const listHost = root.querySelector('#inv-list');
+        if (window.TSICInventory && typeof window.TSICInventory.updateEquippedClasses === 'function') {
+          window.TSICInventory.updateEquippedClasses(listHost, eqIds);
+        } else if (window.TSICInventory) {
+          refresh();
         }
       });
       ctx.on('tsic.msg.UI.CharacterPreview.Ready', (p) => {
@@ -379,7 +393,7 @@
         if (!ctx.isVisible() || e.Phase !== 'Started' || !hoveredItem || !window.TSICInventory || !window.TSICContextMenu) return;
         const it = hoveredItem;
         selectedSlot = it.SlotIndex;
-        refresh();
+        window.TSICInventory.updateSelectedSlot(root.querySelector('#inv-list'), selectedSlot);
         const entries = window.TSICInventory.buildItemContextMenu({
           it, desc: (window.tsic.itemCatalog || {})[it.ItemId], storageOpen: false, fromOwnerId: 'Player',
           equippedSlotTag: equippedSlotTagFor(it.InstanceId),

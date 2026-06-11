@@ -230,6 +230,18 @@
             host.appendChild(head);
         }
 
+        // Selection-only update: writes the selected/deselected marker to both
+        // lists without re-rendering either side. Used by click/RMB; the full
+        // rebuild only fires when item data, tab filter, or weight changes.
+        function syncSelectionClasses() {
+            const playerHost    = panel.querySelector('#ss-player-list');
+            const containerHost = panel.querySelector('#ss-container-list');
+            const updater = window.TSICInventory && window.TSICInventory.updateSelectedSlot;
+            if (!updater) { renderAll(); return; }
+            updater(playerHost,    state.playerSelectedSlot);
+            updater(containerHost, state.containerSelectedSlot);
+        }
+
         function renderAll() {
             syncTabs();
             renderCapacity('player');
@@ -247,7 +259,7 @@
                     if (!it) return;
                     state.playerSelectedSlot = it.SlotIndex;
                     state.containerSelectedSlot = -1;
-                    renderAll();
+                    syncSelectionClasses();
                 },
                 onDblClick: (it) => {
                     if (!it) return;
@@ -257,7 +269,7 @@
                     if (!it) return;
                     state.playerSelectedSlot = it.SlotIndex;
                     state.containerSelectedSlot = -1;
-                    renderAll();
+                    syncSelectionClasses();
                     openContextMenuFor('player', it, e);
                 },
             });
@@ -270,7 +282,7 @@
                     if (!it) return;
                     state.containerSelectedSlot = it.SlotIndex;
                     state.playerSelectedSlot = -1;
-                    renderAll();
+                    syncSelectionClasses();
                 },
                 onDblClick: (it) => {
                     if (!it) return;
@@ -280,7 +292,7 @@
                     if (!it) return;
                     state.containerSelectedSlot = it.SlotIndex;
                     state.playerSelectedSlot = -1;
-                    renderAll();
+                    syncSelectionClasses();
                     openContextMenuFor('container', it, e);
                 },
             });

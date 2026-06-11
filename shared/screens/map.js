@@ -665,6 +665,36 @@
         chip.style.top  = py + 'px';
       }
 
+      // rAF-coalesced rerender for high-frequency triggers (wheel ticks, held
+      // gamepad triggers, repeated centerOnLocalPlayer). Each call queues at most
+      // one rerender per frame instead of tearing down + rebuilding every SVG
+      // icon, ping, and coord label on each event. applyTransform() still runs
+      // synchronously so the visual pan/zoom is immediate; only the SVG redraw
+      // is deferred. Callers that need the redraw observed in the same tick
+      // (snapshot arrival, fitToBounds) continue to call rerender() directly.
+      let rerenderQueued = false;
+      function rerenderSoon() {
+        if (rerenderQueued) return;
+        rerenderQueued = true;
+        requestAnimationFrame(() => {
+          rerenderQueued = false;
+          if (ctx.isVisible()) rerender();
+        });
+      }
+
+      // Mousemove fires per pixel during pan/hover and each call hit pickAt
+      // (linear scan over players + pings + icons) + offsetWidth/Height reads
+      // (forced layout). Coalesce to one update per frame.
+      let hoverChipQueued = false;
+      function updateHoverChipSoon() {
+        if (hoverChipQueued) return;
+        hoverChipQueued = true;
+        requestAnimationFrame(() => {
+          hoverChipQueued = false;
+          if (ctx.isVisible()) updateHoverChip();
+        });
+      }
+
       function rerender() {
         const p = latestSnapshot;
         const empty = qs('#empty');
@@ -746,7 +776,7 @@
         dragLastY = ev.clientY;
         applyTransform();
         repositionPlayers();
-        updateHoverChip();
+        updateHoverChipSoon();
       });
       window.addEventListener('mouseup', () => {
         if (!dragging) return;
@@ -766,7 +796,7 @@
         state.panX = cx - lx * state.scale;
         state.panY = cy - ly * state.scale;
         applyTransform();
-        rerender();
+        rerenderSoon();
       }, { passive: false });
 
       // Suppress the browser context menu on the map; ping placement is driven
@@ -787,7 +817,7 @@
         const rect = vp.getBoundingClientRect();
         state.mouseX = ev.clientX - rect.left;
         state.mouseY = ev.clientY - rect.top;
-        updateHoverChip();
+        updateHoverChipSoon();
       });
       vp.addEventListener('mouseleave', () => {
         state.mouseX = -1;
@@ -809,7 +839,7 @@
         state.panX = cx - lx * state.scale;
         state.panY = cy - ly * state.scale;
         applyTransform();
-        rerender();
+        rerenderSoon();
       }
       function centerOnLocalPlayer() {
         if (!ctx.isVisible() || !latestSnapshot || !bounds.hasData) return;
@@ -819,7 +849,7 @@
         state.panX = vp.clientWidth  / 2 - loc.x * state.scale;
         state.panY = vp.clientHeight / 2 - loc.y * state.scale;
         applyTransform();
-        rerender();
+        rerenderSoon();
       }
       function placePingAtCursorOrCenter() {
         if (!ctx.isVisible() || !bounds.hasData) return;
@@ -841,7 +871,7 @@
         state.panY += dy;
         applyTransform();
         repositionPlayers();
-        updateHoverChip();
+        updateHoverChipSoon();
       }
 
       // Zoom: Started fires for a mouse-wheel tick; Triggered repeats while a gamepad trigger is held.

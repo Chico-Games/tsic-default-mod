@@ -38,6 +38,12 @@
     var materialCounts = {};
     var selectedRecipeId = null;
     var actionPendingAt = 0;
+    // Row refs populated by renderList so selection changes (a very common
+    // event — click, hover-confirm, focus/keyboard nav) can toggle one class
+    // instead of rebuilding the entire list. Rebuilding tears every row down,
+    // re-fetches every icon, and (because focusin re-runs selectRecipe) was
+    // also fighting the focus engine on each keystroke.
+    var rowByRecipeId = new Map();
 
     // --- DOM scaffold ---
     var listPane = el('div', { class: 'tsic-list-pane', 'data-tsic-focus-group': 'rs-list' });
@@ -100,6 +106,7 @@
 
     function renderList() {
       listPane.innerHTML = '';
+      rowByRecipeId = new Map();
       if (!lastStation) return;
       var recipes = lastStation.Recipes || [];
       if (recipes.length === 0) {
@@ -129,7 +136,7 @@
             row.appendChild(el('div', { class: 'right' }, rightText));
           }
 
-          var selectRecipe = function () { selectedRecipeId = r.RecipeId; renderAll(); };
+          var selectRecipe = function () { selectRecipeOnly(r.RecipeId); };
           var commitRecipe = function () {
             selectRecipe();
             if (!actionBtn.disabled) actionBtn.click();
@@ -139,7 +146,39 @@
           row.addEventListener('dblclick', commitRecipe);
           row.addEventListener('tsic:confirm', function (e) { e.preventDefault(); commitRecipe(); });
           listPane.appendChild(row);
+          rowByRecipeId.set(r.RecipeId, row);
         })(recipes[i]);
+      }
+    }
+
+    // Partial-update path for selection changes. Toggles the is-selected class
+    // on the two affected rows, re-renders the info pane + extras + action-button
+    // enable state. Skips the full renderList rebuild (icons, drag handlers,
+    // focus-engine re-entry on every focusin). Falls back to renderAll if a row
+    // ref isn't in the map (e.g. selection set before the list has rendered).
+    function selectRecipeOnly(recipeId) {
+      if (selectedRecipeId === recipeId) return;
+      var prev = rowByRecipeId.get(selectedRecipeId);
+      var next = rowByRecipeId.get(recipeId);
+      selectedRecipeId = recipeId;
+      if (!next) { renderAll(); return; }
+      if (prev) prev.classList.remove('is-selected');
+      next.classList.add('is-selected');
+      renderDetailFromState();
+    }
+
+    function renderDetailFromState() {
+      var recipe = lastStation
+        ? (lastStation.Recipes || []).find(function (r) { return r.RecipeId === selectedRecipeId; })
+        : null;
+      renderInfoPane(recipe);
+      if (extraHost && typeof opts.renderExtra === 'function') {
+        opts.renderExtra(extraHost, {
+          stationId: stationId,
+          lastStation: lastStation,
+          materialCounts: materialCounts,
+          selectedRecipeId: selectedRecipeId
+        });
       }
     }
 
@@ -154,18 +193,7 @@
 
     function renderAll() {
       renderList();
-      var recipe = lastStation
-        ? (lastStation.Recipes || []).find(function (r) { return r.RecipeId === selectedRecipeId; })
-        : null;
-      renderInfoPane(recipe);
-      if (extraHost && typeof opts.renderExtra === 'function') {
-        opts.renderExtra(extraHost, {
-          stationId: stationId,
-          lastStation: lastStation,
-          materialCounts: materialCounts,
-          selectedRecipeId: selectedRecipeId
-        });
-      }
+      renderDetailFromState();
     }
 
     // --- Events ---

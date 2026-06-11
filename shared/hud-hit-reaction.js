@@ -115,6 +115,44 @@
   // always fire.
   var lastHitId = null;
 
+  // Pre-rasterized blob PNG used by every drop. Each hit creates 6–12 drops,
+  // and each one as inline <svg filter="url(#hr-rough)"> made Chromium build a
+  // new feTurbulence/feDisplacementMap graph per element — fully wasted work,
+  // because the underlying path + filter inputs are identical. We bake the
+  // filtered+gradient-filled blob into a PNG data URL once at module load,
+  // then drops become <img src=…> with no SVG filter dependency at all.
+  // Bake failure (rare CEF policy edge cases) falls back to the inline SVG.
+  var BLOB_PNG = null;
+  function bakeBlobPng() {
+    var px = 220;   // generous enough that the filter's region grows aren't clipped
+    var blobSvg =
+      '<svg xmlns="http://www.w3.org/2000/svg" width="' + px + '" height="' + px + '" viewBox="0 0 100 100">' +
+      '<defs>' +
+      '<filter id="hr-rough" x="-40%" y="-40%" width="180%" height="180%">' +
+        '<feTurbulence type="fractalNoise" baseFrequency="0.045 0.05" numOctaves="2" seed="4" result="n"/>' +
+        '<feDisplacementMap in="SourceGraphic" in2="n" scale="22" xChannelSelector="R" yChannelSelector="G"/>' +
+      '</filter>' +
+      '<radialGradient id="hr-fill" cx="42%" cy="38%" r="68%">' +
+        '<stop offset="0%" stop-color="rgb(' + BLOOD + ')"/>' +
+        '<stop offset="70%" stop-color="rgb(' + BLOOD + ')"/>' +
+        '<stop offset="100%" stop-color="rgb(' + BLOOD_DARK + ')"/>' +
+      '</radialGradient>' +
+      '</defs>' +
+      '<path d="' + BLOB + '" fill="url(#hr-fill)" filter="url(#hr-rough)"/>' +
+      '</svg>';
+    var img = new Image();
+    img.onload = function () {
+      try {
+        var cvs = document.createElement('canvas');
+        cvs.width = px; cvs.height = px;
+        cvs.getContext('2d').drawImage(img, 0, 0);
+        BLOB_PNG = cvs.toDataURL('image/png');
+      } catch (e) { /* tainted-canvas / OOM — fall back to inline SVG */ }
+    };
+    img.onerror = function () { /* leave BLOB_PNG null; fallback path stays in use */ };
+    img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(blobSvg);
+  }
+
   // One rough blood blob as an HTML box, centred on (xPct,yPct), `vmax` across.
   function makeDrop(xPct, yPct, vmax, pop, delay) {
     var d = document.createElement('div');
@@ -125,8 +163,17 @@
     d.style.top = 'calc(' + yPct.toFixed(2) + '% - ' + (vmax / 2).toFixed(2) + 'vmax)';
     d.style.setProperty('--pop', pop.toFixed(0) + 'ms');
     if (delay) d.style.animationDelay = delay.toFixed(0) + 'ms';
-    d.innerHTML = '<svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet" aria-hidden="true">' +
-      '<path d="' + BLOB + '" fill="url(#hr-fill)" filter="url(#hr-rough)"/></svg>';
+    if (BLOB_PNG) {
+      var img = document.createElement('img');
+      img.src = BLOB_PNG;
+      img.alt = '';
+      img.setAttribute('aria-hidden', 'true');
+      d.appendChild(img);
+    } else {
+      // First-hit fallback (or bake failure): the original live-filter SVG.
+      d.innerHTML = '<svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet" aria-hidden="true">' +
+        '<path d="' + BLOB + '" fill="url(#hr-fill)" filter="url(#hr-rough)"/></svg>';
+    }
     return d;
   }
 
@@ -190,6 +237,7 @@
   (function boot() {
     if (!window.tsic || typeof tsic.whenReady !== 'function') { setTimeout(boot, 16); return; }
     injectStyles();
+    bakeBlobPng();
     root = document.getElementById('hud-hit-reaction');
     if (!root) { setTimeout(boot, 16); return; }
     tsic.whenReady(function () {

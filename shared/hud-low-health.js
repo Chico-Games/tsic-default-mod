@@ -79,19 +79,18 @@
     '@media (prefers-reduced-motion: reduce) {',
     '  #hud-low-health.lh-on .lh-splat { animation:none; opacity:var(--sa,0.5); scale:1; }',
     '  #hud-low-health.lh-on .lh-stage { animation:none; opacity:var(--hi,1); }',
-    '  #hud-low-health .lh-stage svg animate { display:none; }',
     '}',
   ].join('\n');
 
-  // Shared turbulence filter — baseFrequency slowly animates so every splat\'s
-  // edge writhes subtly (wet/alive). Plus the blood radial fill.
+  // Shared turbulence filter — gives every splat a ragged, organic edge via a
+  // one-shot displacement map. (The baseFrequency previously animated to make
+  // the edge writhe, but that re-rasterized the filter region every frame for
+  // each of 16 splats. The reduced-motion media query already disabled it, and
+  // the effect is subtle enough that doing the same for everyone is invisible.)
   var DEFS =
     '<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>' +
     '<filter id="lh-rough" x="-40%" y="-40%" width="180%" height="180%">' +
-      '<feTurbulence type="fractalNoise" baseFrequency="0.05 0.06" numOctaves="2" seed="21" result="n">' +
-        '<animate attributeName="baseFrequency" dur="9s" repeatCount="indefinite"' +
-        ' values="0.050 0.060; 0.058 0.069; 0.047 0.057; 0.050 0.060"/>' +
-      '</feTurbulence>' +
+      '<feTurbulence type="fractalNoise" baseFrequency="0.05 0.06" numOctaves="2" seed="21" result="n"/>' +
       '<feDisplacementMap in="SourceGraphic" in2="n" scale="14" xChannelSelector="R" yChannelSelector="G"/>' +
     '</filter>' +
     '<radialGradient id="lh-fill" cx="42%" cy="38%" r="68%">' +
