@@ -9,7 +9,7 @@ TSICTestHarness.register({
             ],
         });
         await new Promise(r => setTimeout(r, 80));
-        const rows = ctx.doc.querySelectorAll('#slots button.slot-row');
+        const rows = ctx.doc.querySelectorAll('#slots button.save-slot');
         ctx.expect(ctx.assert.truthy(rows.length === 2));
         ctx.clearPublishes();
         rows[0].click();

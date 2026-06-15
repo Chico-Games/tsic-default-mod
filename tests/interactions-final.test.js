@@ -131,11 +131,18 @@ TSICTestHarness.register({
     file: '/screens/repair.html',
     async run(ctx) {
         ctx.setItemCatalog({ ID_X: { Name: 'X' }, ID_Y: { Name: 'Y' } });
-        ctx.inject('tsic.msg.UI.Recipe.StationOpened', { Kind: 'Repair', Items: [{ ItemId: 'ID_X' }, { ItemId: 'ID_Y' }] });
-        await ctx.waitFor(() => ctx.doc.querySelectorAll('.repair-row').length === 2);
-        ctx.expect(ctx.assert.domCount(ctx.doc, '.repair-row', 2));
+        // Repair mounts the shared RecipeStation (rows = .tsic-list-row in
+        // #repair-station, one .rs-action button). Repairables arrive as Recipes
+        // with Durability/MaxDurability; a non-pristine item is actionable.
+        ctx.inject('tsic.msg.UI.Recipe.StationOpened', { Kind: 'Repair', Recipes: [
+            { RecipeId: 'ID_X', Durability: 50, MaxDurability: 100 },
+            { RecipeId: 'ID_Y', Durability: 30, MaxDurability: 100 },
+        ]});
+        await ctx.waitFor(() => ctx.doc.querySelectorAll('#repair-station .tsic-list-row').length === 2);
+        ctx.expect(ctx.assert.domCount(ctx.doc, '#repair-station .tsic-list-row', 2));
         ctx.clearPublishes();
-        ctx.doc.querySelector('.repair-row button.tsic-button').click();
+        ctx.doc.querySelector('#repair-station .tsic-list-row').click();
+        ctx.doc.querySelector('#repair-station .rs-action').click();
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Recipe.Start', { where: p => p.Kind === 'Repair' }));
     },
 });
@@ -146,6 +153,7 @@ TSICTestHarness.register({
     file: '/screens/construction-carousel.html',
     async run(ctx) {
         ctx.inject('tsic.msg.UI.Construction.Carousel', {
+            bActive: true,
             Prev: [{ FurnitureId: 'A', Label: 'A', bAffordable: true }],
             Current: { FurnitureId: 'C', Label: 'C', bAffordable: true },
             Next: [{ FurnitureId: 'N', Label: 'N', bAffordable: true }],

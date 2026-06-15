@@ -45,7 +45,7 @@ TSICTestHarness.register({
 // ---- Notifications burst -------------------------------------------------
 TSICTestHarness.register({
     name: 'Stress/Notifications: 30 rapid pushes still survives + caps at 5',
-    file: '/screens/notifications.html',
+    file: '/screens/test-notifications.html',
     async run(ctx) {
         for (let i = 0; i < 30; i++) ctx.inject('tsic.msg.UI.Notification.Show', { Title: `n${i}`, Text: '', Type: 'Tip' });
         await new Promise(r => setTimeout(r, 120));
@@ -99,8 +99,8 @@ TSICTestHarness.register({
         const cats = ['Furniture','Structure','Decoration','Storage'];
         for (let i = 0; i < 30; i++) items.push({ EntityDefId: `FD_${i}`, Name: `i${i}`, Category: cats[i % cats.length], bAffordable: i % 2 === 0 });
         ctx.inject('tsic.msg.UI.Construction.Available', { Items: items });
-        await ctx.waitFor(() => ctx.doc.querySelectorAll('#c-tabs .c-tab').length >= 5, { timeout: 2000 });
-        ctx.expect(ctx.assert.eq(ctx.doc.querySelectorAll('#c-tabs .c-tab').length, 5));
+        await ctx.waitFor(() => ctx.doc.querySelectorAll('#c-tabs .tsic-tab').length >= 5, { timeout: 2000 });
+        ctx.expect(ctx.assert.eq(ctx.doc.querySelectorAll('#c-tabs .tsic-tab').length, 5));
     },
 });
 

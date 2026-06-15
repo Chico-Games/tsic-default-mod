@@ -1,10 +1,10 @@
-// /screens/health-bar.html subscribes to:
+// /screens/test-health-bar.html subscribes to:
 //   tsic.msg.UI.Player.Attribute  { Channel, Current, Max }
 //   tsic.msg.Message.DamageEvent  { ... }
 TSICPlayground.register({
     id: 'health-bar',
     label: 'Health Bar',
-    screen: '/screens/health-bar.html',
+    screen: '/screens/test-health-bar.html',
     initialState() { return { current: 65, max: 100, dmgNonce: 0 }; },
     project(s) {
         const out = [['tsic.msg.UI.Player.Attribute', { Channel: 'Health', Current: s.current, Max: s.max }]];

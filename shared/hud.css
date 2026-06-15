@@ -12,13 +12,19 @@
   z-index: 10;
 }
 
-/* Toasts — corner notifications. Translucent dark plate with a coloured
-   left accent bar that carries the toast's severity. */
-#toast-container {
+/* Top-left corner column — toasts on top, notification cards below, so the
+   two stacks never overlap when both fire. */
+#corner-stack {
   position: fixed; left: 24px; top: 24px;
   display: flex; flex-direction: column; gap: 8px;
   z-index: 100;
   pointer-events: none;
+}
+
+/* Toasts — corner notifications. Translucent dark plate with a coloured
+   left accent bar that carries the toast's severity. */
+#toast-container {
+  display: flex; flex-direction: column; gap: 8px;
 }
 
 .toast {
@@ -61,31 +67,38 @@
   to   { transform: translateX(-20px); opacity: 0; }
 }
 
-/* Action-bar prompts (key + label pill that surfaces context actions). */
-.tsic-action-prompt {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 4px 10px;
-  background: rgba(13, 12, 10, 0.82);
-  border: 1px solid rgba(240, 232, 208, 0.45);
-  color: var(--paper-bright);
-  font-family: var(--font-display);
-  font-size: 13px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.45);
+/* Notification cards (UI.Notification.Show) — typed paper cards with a
+   coloured left accent per type. Rendered by shared/hud-notifications.js. */
+#notif-stack {
+  display: flex; flex-direction: column; gap: 6px;
+  max-width: 380px;
 }
-.tsic-action-prompt .key {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 22px;
-  height: 22px;
-  padding: 0 6px;
-  background: var(--mag-red);
-  border: 1px solid var(--ink-night);
-  font-family: var(--font-pixel);
-  font-size: 10px;
-  color: #ffffff;
+
+.notif {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 8px 12px;
+  background: rgba(241, 229, 207, 0.92);
+  border-left: 4px solid var(--cat-border-strong);
+  color: rgb(37, 33, 25);
+  box-shadow: var(--cat-shadow-soft);
+  opacity: 0;
+  transform: translateX(-110%);
+  transition: transform 250ms ease-out, opacity 250ms ease-out;
 }
+.notif.visible { opacity: 1; transform: translateX(0); }
+.notif.exiting { transition-duration: 1000ms; opacity: 0; transform: translateX(-110%); }
+
+.notif--Tip          { border-left-color: #3399ff; }
+.notif--Warning      { border-left-color: #ffcc33; }
+.notif--Error        { border-left-color: #ff3333; }
+.notif--Inventory    { border-left-color: #cc9933; }
+.notif--Event        { border-left-color: #9933ff; }
+.notif--Alarm        { border-left-color: #ff0000; }
+.notif--PlayerJoined { border-left-color: #33ff33; }
+.notif--PlayerDied   { border-left-color: #666666; }
+.notif--Progression  { border-left-color: #00ffcc; }
+
+.notif-icon { width: 32px; height: 32px; flex-shrink: 0; image-rendering: pixelated; }
+.notif-body { flex: 1; min-width: 0; }
+.notif-title { font-size: 13px; font-weight: 700; letter-spacing: 0.4px; }
+.notif-text  { font-size: 12px; color: rgba(37, 33, 25, 0.82); margin-top: 2px; }

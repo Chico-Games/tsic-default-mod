@@ -395,15 +395,15 @@
         'main-menu': 'Menus & Flow', 'pause-menu': 'Menus & Flow', 'new-store': 'Menus & Flow',
         'settings': 'Menus & Flow', 'save-load': 'Menus & Flow', 'mods': 'Menus & Flow',
         'credits': 'Menus & Flow', 'loading-screen': 'Menus & Flow', 'death-screen': 'Menus & Flow',
+        'store-maze': 'Menus & Flow',
 
         'in-game': 'HUD',
-        'health-bar': 'HUD', 'stamina-bar': 'HUD', 'crosshair': 'HUD',
+        'health-bar': 'HUD', 'stamina-bar': 'HUD', 'crosshair': 'HUD', 'behavior-bar': 'HUD',
         'hotbar': 'HUD', 'interaction': 'HUD', 'notifications': 'HUD', 'circular-progress': 'HUD',
-        'detection': 'HUD', 'ping': 'HUD', 'ping-markers': 'HUD',
+        'detection': 'HUD', 'ping': 'HUD', 'ping-markers': 'HUD', 'stomach': 'HUD',
 
         'inventory': 'Inventory & Equipment', 'equipment': 'Inventory & Equipment',
         'wardrobe': 'Inventory & Equipment', 'quantity-picker': 'Inventory & Equipment',
-        'stomach': 'Inventory & Equipment',
 
         'crafting': 'Crafting & Building', 'production': 'Crafting & Building',
         'construction': 'Crafting & Building', 'construction-carousel': 'Crafting & Building',

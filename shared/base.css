@@ -13,6 +13,14 @@
 
 @import url("/shared/tsic-ui.css");
 
+/* ───── Bundled fonts (served from /fonts/, no runtime CDN) ─────
+ * Three hand-written faces for the paper / note lore. lore.js assigns one per
+ * note series (by GroupTitle) so a given series always reads in the same hand
+ * while different series vary. All OFL — see /fonts/NOTICE.txt. */
+@font-face { font-family: "Shadows Into Light"; font-weight: 400; font-style: normal; font-display: swap; src: url("/fonts/shadows-into-light-400.woff2") format("woff2"); }
+@font-face { font-family: "Gloria Hallelujah"; font-weight: 400; font-style: normal; font-display: swap; src: url("/fonts/gloria-hallelujah-400.woff2") format("woff2"); }
+@font-face { font-family: "Reenie Beanie"; font-weight: 400; font-style: normal; font-display: swap; src: url("/fonts/reenie-beanie-400.woff2") format("woff2"); }
+
 :root {
   /* ───── Raw palette: synthwave deep night ───── */
   --bg-deep:        #0d0e15;
@@ -58,6 +66,7 @@
   --font-terminal: "VT323", Consolas, "Cascadia Code", "Courier New", monospace;
   --font-pixel:    "Press Start 2P", "VT323", Consolas, monospace;
   --font-body:     "Inter", "Segoe UI", system-ui, sans-serif;
+  --font-hand:     "Shadows Into Light", "Bradley Hand", "Segoe Script", cursive;  /* handwriting (notes) */
   --cat-font-serif: var(--font-mag); /* legacy alias */
 
   /* ───── Semantic tokens (new code uses these) ───── */
@@ -151,8 +160,8 @@ input[type=range]:active::-webkit-slider-thumb { cursor: grabbing; }
  * A "stage" is the screen-level body backdrop. Body stays transparent by
  * default (HUD pages overlay the game). Menu screens opt into a stage:
  *
- *   <body class="tsic-stage--magazine">    ← off-white halftone paper
- *   <body class="tsic-stage--dim">         ← solid dark
+ *   <body class="tsic-stage--magazine">           ← off-white halftone paper
+ *   <body class="tsic-stage--magazine-gradient">  ← centred-cover halftone
  */
 
 /* Magazine stage — bright halftone paper. For "browsing the catalogue"
@@ -166,8 +175,6 @@ input[type=range]:active::-webkit-slider-thumb { cursor: grabbing; }
   background-position: 0 0, 5px 5px;
   color: var(--ink-night);
 }
-
-.tsic-stage--dim { background-color: var(--bg-deep); }
 
 /* Magazine stage with a SIZE-GRADIENT halftone — big dots haloed around
    the centred cover, tiny dots at the outer edges. Two pseudo-layers
@@ -221,78 +228,8 @@ input[type=range]:active::-webkit-slider-thumb { cursor: grabbing; }
           mask-image: radial-gradient(ellipse at center, transparent 50%, #000 100%);
 }
 
-/* ───────────── PATTERN UTILITIES ───────────── */
-
-.tsic-halftone {
-  background-image:
-    radial-gradient(rgba(10, 10, 10, 0.55) 14%, transparent 15%),
-    radial-gradient(rgba(10, 10, 10, 0.55) 14%, transparent 15%);
-  background-size: 10px 10px, 10px 10px;
-  background-position: 0 0, 5px 5px;
-}
-
-.tsic-halftone--light {
-  background-image:
-    radial-gradient(rgba(255, 255, 255, 0.35) 14%, transparent 15%),
-    radial-gradient(rgba(255, 255, 255, 0.35) 14%, transparent 15%);
-  background-size: 10px 10px, 10px 10px;
-  background-position: 0 0, 5px 5px;
-}
-
-.tsic-stripes {
-  background: repeating-linear-gradient(
-    45deg,
-    var(--mag-yellow), var(--mag-yellow) 10px,
-    var(--ink-night) 10px,  var(--ink-night) 20px
-  );
-}
-.tsic-stripes--red {
-  background: repeating-linear-gradient(
-    45deg,
-    var(--mag-red),  var(--mag-red) 10px,
-    var(--ink-night) 10px, var(--ink-night) 20px
-  );
-}
-
-/* ───────────── TEXT UTILITIES ───────────── */
-
-/* Chrome text — silvered gradient via background-clip with a drop shadow
-   for depth. */
-.tsic-chrome-text {
-  background-image: linear-gradient(180deg,
-    #ffffff 0%, #c2c8d4 26%, #6e7689 50%,
-    #ffffff 51%, #ffffff 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  color: transparent;
-  font-weight: 900;
-  text-transform: uppercase;
-  filter: drop-shadow(0 2px 0 rgba(0, 0, 0, 0.45));
-}
-
-
-/* Magazine headline — uppercase condensed display. */
-.tsic-headline {
-  font-family: var(--font-display);
-  font-weight: 400;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  line-height: 0.95;
-  color: var(--ink-night);
-  margin: 0;
-}
-
-/* Font-family helpers — apply to any element. */
-.tsic-font-pixel    { font-family: var(--font-pixel); }
-.tsic-font-terminal { font-family: var(--font-terminal); }
-.tsic-font-action   { font-family: var(--font-action); }
-.tsic-font-display  { font-family: var(--font-display); }
-.tsic-font-mag      { font-family: var(--font-mag); }
-
 /* ───────────── GLOBAL SCROLLBAR ─────────────
- * Default: ink thumb on a muted-paper track (magazine). The .tsic-scroll--paper
- * variant below is now an explicit alias of the default. */
+ * Ink thumb on a muted-paper track (magazine). */
 
 * { scrollbar-width: thin; scrollbar-color: var(--ink-night) var(--paper-muted); }
 ::-webkit-scrollbar { width: 12px; height: 12px; }
@@ -307,24 +244,3 @@ input[type=range]:active::-webkit-slider-thumb { cursor: grabbing; }
 }
 ::-webkit-scrollbar-thumb:hover { background: var(--ink-soft); }
 ::-webkit-scrollbar-corner { background: var(--paper-muted); }
-
-/* Paper-track variant — apply class to a scrollable element OR to a parent
-   to retheme any descendant scrollbars. */
-.tsic-scroll--paper,
-.tsic-scroll--paper * { scrollbar-color: var(--mag-red) #d9cfb8; }
-.tsic-scroll--paper::-webkit-scrollbar-track,
-.tsic-scroll--paper *::-webkit-scrollbar-track {
-  background: #d9cfb8;
-  border-left: 1px solid var(--ink-soft);
-}
-.tsic-scroll--paper::-webkit-scrollbar-thumb,
-.tsic-scroll--paper *::-webkit-scrollbar-thumb {
-  background: var(--mag-red);
-  border: 2px solid #d9cfb8;
-  border-radius: 4px;
-  box-shadow: none;
-}
-.tsic-scroll--paper::-webkit-scrollbar-thumb:hover,
-.tsic-scroll--paper *::-webkit-scrollbar-thumb:hover { background: var(--mag-red-dark); }
-.tsic-scroll--paper::-webkit-scrollbar-corner,
-.tsic-scroll--paper *::-webkit-scrollbar-corner { background: #d9cfb8; }

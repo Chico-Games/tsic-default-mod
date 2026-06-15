@@ -71,7 +71,7 @@ TSICTestHarness.register({
             { ItemId: 'ID_Wheat', Count: 5, SlotIndex: 1 },
         ], MaxSlots: 32 });
         await ctx.waitFor(() => ctx.doc.querySelector('#inv-list .tsic-list-row[data-slot="0"]'));
-        const tools = Array.from(ctx.doc.querySelectorAll('.inv-tab')).find(t => t.textContent === 'Tools');
+        const tools = Array.from(ctx.doc.querySelectorAll('.tsic-tab')).find(t => t.textContent === 'Tools');
         tools.click();
         await new Promise(r => setTimeout(r, 30));
         // Axe stays at slot 0; Wheat is filtered out of slot 1.

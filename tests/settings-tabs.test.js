@@ -16,7 +16,7 @@ TSICTestHarness.register({
         await ctx.waitFor(() => ctx.doc.querySelectorAll('.tsic-tab').length >= 2);
         const tabs = Array.from(ctx.doc.querySelectorAll('.tsic-tab'));
         ctx.expect(tabs.length === 2 ? null : `expected 2 tabs, got ${tabs.length}`);
-        ctx.expect(tabs[0].classList.contains('active') ? null : 'first tab should be active by default');
+        ctx.expect(tabs[0].classList.contains('is-active') ? null : 'first tab should be active by default');
     },
 });
 
@@ -55,7 +55,7 @@ TSICTestHarness.register({
             Json: JSON.stringify({
                 Pages: [{ Id: 'V', Title: 'V', Groups: [{ Id: 'V', Title: 'V',
                     Settings: [{ Key: 'k', Label: 'K', Type: 'bool', Value: false }] }] }],
-                Footer: { AnyDirty: true, RestartRequired: true, ApplyCountdownSeconds: -1 },
+                Footer: { bAnyDirty: true, bRestartRequired: true, ApplyCountdownSeconds: -1 },
             }),
         });
         await ctx.waitFor(() => {

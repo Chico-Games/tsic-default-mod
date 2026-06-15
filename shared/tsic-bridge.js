@@ -11,6 +11,14 @@
 (function () {
     'use strict';
 
+    // Don't clobber an existing window.tsic. In production this file is the
+    // first deferred script and window.tsic is undefined, so the real bridge
+    // installs normally. Under the test harness, installMockTsic() stamps a
+    // mock window.tsic in beforeParse — bailing here preserves it (matching
+    // tsic-runtime.js, which is already mock-aware) so the page's publishes
+    // and subscriptions stay wired to the mock the runner observes.
+    if (window.tsic) return;
+
     // ue.tsicbridge is bound by C++ via WebUI's Bind("tsicbridge", BridgeObj).
     // bJSBindingToLoweringEnabled lowercases both the binding name and all
     // UFUNCTION names. All calls return Promises (CEF multi-process IPC).

@@ -121,7 +121,7 @@ TSICTestHarness.register({
         ctx.setItemCatalog({ ID_Late: { Name: 'Late', Category: 'Equipment' } });
         await new Promise(r => setTimeout(r, 60));
         // Click the Tools tab; item should still be there.
-        Array.from(ctx.doc.querySelectorAll('.inv-tab')).find(e => e.textContent === 'Tools').click();
+        Array.from(ctx.doc.querySelectorAll('.tsic-tab')).find(e => e.textContent === 'Tools').click();
         await new Promise(r => setTimeout(r, 30));
         ctx.expect(ctx.assert.domExists(ctx.doc, '#inv-list .tsic-list-row[data-slot="0"] img'));
     },
@@ -139,11 +139,14 @@ TSICTestHarness.register({
                         Ingredients: [{ ItemId: 'ID_W', Count: 2 }], Outputs: [{ ItemId: 'ID_B', Count: 1 }] }],
             MaterialCounts: { ID_W: 5 },
         });
-        await ctx.waitFor(() => ctx.doc.querySelector('#c-list .tsic-list-row'));
-        ctx.doc.querySelector('#c-list .tsic-list-row').click();
+        await ctx.waitFor(() => ctx.doc.querySelector('#c-station .tsic-list-row'));
+        ctx.doc.querySelector('#c-station .tsic-list-row').click();
         await new Promise(r => setTimeout(r, 20));
         ctx.clearPublishes();
-        ctx.events.key(ctx.doc, 'Enter');
+        // RecipeStation commits the selected recipe on a tsic:confirm event
+        // (dispatched by the focus engine on confirm); raw Enter is not wired.
+        ctx.doc.querySelector('#c-station .tsic-list-row.is-selected')
+            .dispatchEvent(new ctx.win.CustomEvent('tsic:confirm', { bubbles: true }));
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Recipe.Start'));
     },
 });
@@ -156,7 +159,7 @@ TSICTestHarness.register({
         const slots = Array.from({ length: 4 }, (_, i) => ({ SlotId: 'slot' + i, Label: 'S' + i, TimestampIso: '2026-05-18T00:00:00Z' }));
         ctx.inject('tsic.msg.UI.Save.Slots', { Slots: slots });
         await new Promise(r => setTimeout(r, 60));
-        const buttons = Array.from(ctx.doc.querySelectorAll('button')).filter(b => /load/i.test(b.textContent || ''));
+        const buttons = Array.from(ctx.doc.querySelectorAll('button.save-slot'));
         ctx.expect(ctx.assert.truthy(buttons.length >= 4));
         ctx.clearPublishes();
         for (const b of buttons.slice(0, 4)) b.click();
@@ -181,7 +184,7 @@ TSICTestHarness.register({
 // ---- Notifications: subsequent pushes append to the stack -------------
 TSICTestHarness.register({
     name: 'E2E/Notifications: rapid pushes shown in column-reverse order (newest on top)',
-    file: '/screens/notifications.html',
+    file: '/screens/test-notifications.html',
     async run(ctx) {
         ctx.inject('tsic.msg.UI.Notification.Show', { Title: 'first',  Text: '', Type: 'Tip' });
         ctx.inject('tsic.msg.UI.Notification.Show', { Title: 'second', Text: '', Type: 'Tip' });

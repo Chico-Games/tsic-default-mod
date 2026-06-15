@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="tsic-screen" content="TestNotifications">
+  <meta name="tsic-debug" content="true">
+  <title>Test: notification cards</title>
+  <!-- Test-only host for the LIVE notification-card component
+       (shared/hud-notifications.js). In production hud.js creates the
+       #corner-stack / #notif-stack shell on every screen; here we provide the
+       minimal shell so the component can be exercised in isolation.
+
+       DO NOT add rendering logic to this file. Notification cards are rendered
+       by shared/hud-notifications.js — this page only hosts it. -->
+  <link rel="stylesheet" href="/shared/base.css">
+  <link rel="stylesheet" href="/shared/hud.css">
+  <!-- No tsic-bridge.js / tsic-runtime.js: in the spa-test-runner the harness
+       stamps a mock window.tsic in beforeParse, and tsic-bridge.js would
+       overwrite it. -->
+  <script src="/shared/hud-notifications.js" defer></script>
+</head><body>
+  <div id="corner-stack">
+    <div id="toast-container"></div>
+    <div id="notif-stack"></div>
+  </div>
+</body></html>

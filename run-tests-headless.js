@@ -38,9 +38,10 @@ const { chromium } = require('playwright');
                 const deadline = Date.now() + 15000;
                 while (Date.now() < deadline) {
                     await new Promise(r => setTimeout(r, 50));
-                    if (scn._el && (scn._el.classList.contains('pass') || scn._el.classList.contains('fail'))) break;
+                    if (scn._el && (scn._el.classList.contains('pass') || scn._el.classList.contains('fail') || scn._el.classList.contains('skip'))) break;
                 }
-                const status = scn._el && scn._el.classList.contains('pass') ? 'PASS' : 'FAIL';
+                const status = scn._el && scn._el.classList.contains('pass') ? 'PASS'
+                    : scn._el && scn._el.classList.contains('skip') ? 'SKIP' : 'FAIL';
                 log(status + '  ' + scn.name);
             }
         }, filter);
@@ -48,20 +49,21 @@ const { chromium } = require('playwright');
         await page.click('#btn-run-all');
         await page.waitForFunction(() => {
             const total = window.TSICTestHarness.scenarios.length;
-            const done = document.querySelectorAll('.scn.pass, .scn.fail').length;
+            const done = document.querySelectorAll('.scn.pass, .scn.fail, .scn.skip').length;
             return done >= total;
         }, { timeout: 120000 });
         await page.evaluate(() => {
             window.__results = [];
             const scns = window.TSICTestHarness.scenarios;
             const log = (...a) => window.__results.push(a.join(' '));
-            let pass = 0, fail = 0;
+            let pass = 0, fail = 0, skipped = 0;
             for (const s of scns) {
                 if (s._el && s._el.classList.contains('pass')) { pass++; log('PASS  ' + s.name); }
+                else if (s._el && s._el.classList.contains('skip')) { skipped++; log('SKIP  ' + s.name); }
                 else { fail++; log('FAIL  ' + s.name); }
             }
             log('---');
-            log(`SUMMARY: ${pass}/${scns.length} passing, ${fail} failing`);
+            log(`SUMMARY: ${pass}/${scns.length} passing, ${fail} failing, ${skipped} skipped`);
         });
     }
 

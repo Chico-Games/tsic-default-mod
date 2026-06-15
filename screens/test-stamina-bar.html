@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="tsic-screen" content="TestStaminaBar">
+  <meta name="tsic-debug" content="true">
+  <title>Test: stamina vial</title>
+  <!-- Test-only host for the LIVE stamina vial (shared/hud-stamina.js +
+       shared/hud-liquid-bar.js). In production hud.js creates the #hud-stamina
+       shell and positions it; here we provide the minimal shell so the
+       component can be exercised in isolation.
+
+       DO NOT add rendering logic to this file. The vial is rendered by
+       shared/hud-liquid-bar.js (mounted by shared/hud-stamina.js) — this page
+       only hosts it. -->
+  <link rel="stylesheet" href="/shared/base.css">
+  <!-- No tsic-bridge.js / tsic-runtime.js: in the spa-test-runner the harness
+       stamps a mock window.tsic in beforeParse, and tsic-bridge.js would
+       overwrite it. -->
+  <script src="/shared/hud-liquid-bar.js" defer></script>
+  <script src="/shared/hud-stamina.js" defer></script>
+</head><body>
+  <!-- Mirror the positioning hud.js gives #hud-stamina. -->
+  <div id="hud-stamina" style="position:fixed; left:80px; bottom:30px; width:48px; --vial-h:200px;"></div>
+</body></html>
