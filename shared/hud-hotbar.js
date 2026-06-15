@@ -41,6 +41,12 @@
     '#hotbar-row .tsic-slot img { position:relative; width:100%; height:100%; object-fit:contain; padding:8px; pointer-events:none;',
     '  filter: drop-shadow(0 2px 3px rgba(0,0,0,0.6)); }',
     '#hotbar-row .tsic-slot.selected { --mag:1.16; --lift:-5px; border-color:rgba(224,208,170,0.95); }',
+    /* Deselected: the current slot with its weapon stowed (fists out) — same
+       lift/scale so it still reads as the current slot, but a muted rim and a
+       greyed, see-through item to show the weapon isn't out. Empty slots are
+       always shown this way. */
+    '#hotbar-row .tsic-slot.selected-inactive { --mag:1.16; --lift:-5px; border-color:rgba(150,145,135,0.85); }',
+    '#hotbar-row .tsic-slot.selected-inactive img { filter:grayscale(0.65) drop-shadow(0 2px 3px rgba(0,0,0,0.6)); opacity:0.6; }',
     '#hotbar-row .tsic-slot .key { position:absolute; top:3px; left:4px; min-width:15px; padding:0 4px; pointer-events:none;',
     '  font-family:var(--font-display); font-size:14px; font-weight:700; line-height:1.35; letter-spacing:0.02em; text-align:center; color:#f3ecda; text-shadow:0 1px 2px rgba(0,0,0,0.95);',
     '  background:rgba(14,9,8,0.62); border:1px solid rgba(184,170,145,0.55); border-radius:5px; }',
@@ -93,14 +99,20 @@
     return parts.join('|');
   }
 
-  // Selection-only update: toggle .selected on the existing slots so the CSS
-  // transition animates the grow/shrink instead of snapping after a rebuild.
+  // Selection-only update: toggle .selected / .selected-inactive on the existing
+  // slots so the CSS transition animates the grow/shrink instead of snapping after
+  // a rebuild. SelectedSlot = active (weapon out); SelectedSlotPending = deselected
+  // (weapon stowed / fists out, incl. every empty slot).
   function applySelection() {
     var host = document.getElementById('hotbar-row');
     if (!host || !lastHotbar) return;
     var sel = (typeof lastHotbar.SelectedSlot === 'number') ? lastHotbar.SelectedSlot : -1;
+    var pending = (typeof lastHotbar.SelectedSlotPending === 'number') ? lastHotbar.SelectedSlotPending : -1;
     var kids = host.children;
-    for (var i = 0; i < kids.length; i++) kids[i].classList.toggle('selected', i === sel);
+    for (var i = 0; i < kids.length; i++) {
+      kids[i].classList.toggle('selected', i === sel);
+      kids[i].classList.toggle('selected-inactive', i === pending);
+    }
   }
 
   // Animate the selection if only it changed; rebuild if the contents differ.
@@ -117,10 +129,14 @@
     host.innerHTML = '';
     var slots = lastHotbar.SlotIndices || [];
     var selected = (typeof lastHotbar.SelectedSlot === 'number') ? lastHotbar.SelectedSlot : -1;
+    // Deselected: the current slot with its weapon stowed (fists out) — greyed.
+    // Every empty slot, when current, lands here since it has nothing to equip.
+    var pending = (typeof lastHotbar.SelectedSlotPending === 'number') ? lastHotbar.SelectedSlotPending : -1;
     for (var i = 0; i < slots.length; i++) {
       (function (i) {
         var slot = document.createElement('div');
-        slot.className = 'tsic-slot' + (i === selected ? ' selected' : '');
+        var selClass = (i === selected) ? ' selected' : (i === pending ? ' selected-inactive' : '');
+        slot.className = 'tsic-slot' + selClass;
         slot.dataset.slot = String(i);
         var inventorySlot = slots[i];
         var slotHasItem = isAssigned(inventorySlot);

@@ -13,7 +13,8 @@
     [data-screen="PauseMenu"] #pause-overlay { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:auto; }
     [data-screen="PauseMenu"] #pause-panel { width:360px; text-align:center; background: var(--cat-bg); }
     [data-screen="PauseMenu"] .pl { text-align:left; margin: 16px 0; max-height: 140px; overflow:auto; }
-    [data-screen="PauseMenu"] .pl-row { padding: 4px 6px; }
+    [data-screen="PauseMenu"] .pl-row { padding: 4px 6px; display:flex; align-items:center; gap:8px; }
+    [data-screen="PauseMenu"] .pl-dot { width:10px; height:10px; border-radius:50%; flex:0 0 auto; border:1px solid rgba(255,255,255,0.5); }
     [data-screen="PauseMenu"] .pause-btn-row > button { flex: 1; }
   `;
 
@@ -59,12 +60,24 @@
         if (!host) return;
         host.innerHTML = '';
         if (!p || !p.Players) return;
-        for (const pl of p.Players) {
+        p.Players.forEach((pl, i) => {
           const row = document.createElement('div');
           row.className = 'pl-row';
-          row.textContent = pl.Name + (pl.bIsHost ? ' (host)' : '');
+
+          const dot = document.createElement('span');
+          dot.className = 'pl-dot';
+          dot.style.background = pl.Color || '#888888';
+          row.appendChild(dot);
+
+          // Name can come through empty / "0" before PlayerState resolves —
+          // call the first player "Host" so the row is never blank.
+          const name = pl.Name || (pl.bIsHost || i === 0 ? 'Host' : 'Player');
+          const label = document.createElement('span');
+          label.textContent = name + (pl.bIsHost ? ' (host)' : '');
+          row.appendChild(label);
+
           host.appendChild(row);
-        }
+        });
       });
 
       root.querySelector('#btn-resume').onclick   = () => ctx.publish('UI.Cmd.Pause.Resume');
