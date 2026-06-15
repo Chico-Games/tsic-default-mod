@@ -16,9 +16,10 @@
 // Depends on: window.TSIC.itemIconUrl (icons.js)
 (function () {
   // ── Styling (scoped to #hotbar-row; kept in sync with screens/hotbar.html) ──
-  // Matches the liquid health/stamina vials: dark translucent glass, bone rim
-  // (184,170,145), cream serif text, soft inset highlight + glare + drop shadow.
-  // The SELECTED slot scales up off the row with a warm glow + brightened rim.
+  // Matches the liquid health/stamina vials: dark translucent glass, heavy ink
+  // outline + hard offset block shadow (magazine "bold outline" look), cream
+  // serif text, soft inset highlight + glare. The SELECTED slot scales up off
+  // the row with a warm gold glow + brightened rim.
   var CSS = [
     // Register --mag/--lift as typed custom props so transitions interpolate
     // them — an unregistered var() would just snap the transform/box-shadow.
@@ -26,10 +27,10 @@
     '@property --lift { syntax: "<length>"; inherits: false; initial-value: 0px; }',
     '#hotbar-row { position:relative; display:flex; align-items:flex-end; gap:8px; padding:18px 4px 4px; background:transparent; }',
     '#hotbar-row .tsic-slot { position:relative; width:56px; height:56px; font-family:Georgia,"Libre Baskerville",serif; color:#f0e7d4;',
-    '  background: linear-gradient(180deg, rgba(58,40,34,0.62), rgba(14,9,8,0.70)); border:1px solid rgba(184,170,145,0.50); border-radius:11px;',
+    '  background: linear-gradient(180deg, rgba(58,40,34,0.30), rgba(14,9,8,0.40)); border:2px solid var(--ink-night); border-radius:11px;',
     '  --mag:1; --lift:0px; transform-origin:bottom center; transform: translateY(var(--lift)) scale(var(--mag));',
-    '  box-shadow: inset 0 1px 0 rgba(255,250,240,0.16), inset 0 0 12px rgba(0,0,0,0.50),',
-    '    0 calc(3px + (var(--mag) - 1) * 22px) calc(6px + (var(--mag) - 1) * 28px) rgba(0,0,0,0.45),',
+    '  box-shadow: inset 0 1px 0 rgba(255,250,240,0.16), inset 0 0 12px rgba(0,0,0,0.50), var(--shadow-block-sm),',
+    '    0 calc((var(--mag) - 1) * 22px) calc((var(--mag) - 1) * 28px) rgba(0,0,0,0.45),',
     '    0 0 calc((var(--mag) - 1) * 40px) rgba(240,220,170, calc((var(--mag) - 1) * 1.4));',
     /* Springy grow/shrink as selection moves — animate the registered vars so
        the transform + box-shadow that read them recompute every frame. */
@@ -49,11 +50,11 @@
     '#hotbar-row .tsic-slot.selected-inactive img { filter:grayscale(0.65) drop-shadow(0 2px 3px rgba(0,0,0,0.6)); opacity:0.6; }',
     '#hotbar-row .tsic-slot .key { position:absolute; top:3px; left:4px; min-width:15px; padding:0 4px; pointer-events:none;',
     '  font-family:var(--font-display); font-size:14px; font-weight:700; line-height:1.35; letter-spacing:0.02em; text-align:center; color:#f3ecda; text-shadow:0 1px 2px rgba(0,0,0,0.95);',
-    '  background:rgba(14,9,8,0.62); border:1px solid rgba(184,170,145,0.55); border-radius:5px; }',
+    '  background:rgba(14,9,8,0.62); border:1px solid var(--ink-night); border-radius:5px; }',
     '#hotbar-row .tsic-slot.selected .key { color:#fff; border-color:rgba(224,208,170,0.90); }',
     '#hotbar-row .tsic-slot .count { position:absolute; bottom:3px; right:4px; top:auto; left:auto; pointer-events:none;',
     '  font-family:var(--font-display); font-size:12px; font-weight:700; line-height:1; letter-spacing:0.02em; padding:2px 4px; color:#fff; text-shadow:0 1px 2px rgba(0,0,0,0.95);',
-    '  background:rgba(14,9,8,0.70); border:1px solid rgba(184,170,145,0.55); border-radius:5px; }',
+    '  background:rgba(14,9,8,0.70); border:1px solid var(--ink-night); border-radius:5px; }',
     '#hotbar-row .tsic-slot.is-dragging { opacity:0.45; }',
     '#hotbar-row .tsic-slot.is-drop-target { border-color:rgba(224,208,170,0.95); box-shadow:0 0 0 2px rgba(224,208,170,0.55), inset 0 0 12px rgba(0,0,0,0.50); }',
   ].join('\n');
@@ -194,7 +195,7 @@
             try {
               var src = JSON.parse(itemData);
               publish('UI.Cmd.Hotbar.Assign', { SlotIndex: i, ItemId: String(src.slot) });
-            } catch (err) {}
+            } catch (err) { console.warn('[hotbar] bad item drag payload', err); }
             return;
           }
           var slotData = e.dataTransfer.getData('application/tsic-slot');
@@ -206,7 +207,7 @@
               var targetInv = isAssigned(slots[i]) ? String(slots[i]) : '';
               publish('UI.Cmd.Hotbar.Assign', { SlotIndex: i,      ItemId: String(s.inventorySlot) });
               publish('UI.Cmd.Hotbar.Assign', { SlotIndex: s.slot, ItemId: targetInv });
-            } catch (err) {}
+            } catch (err) { console.warn('[hotbar] bad slot drag payload', err); }
           }
         });
 

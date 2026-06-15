@@ -11,8 +11,8 @@ TSICTestHarness.register({
             Recipes: [{ RecipeId: 'R_Bread', Name: 'Bread', bDiscovered: true, bLevelLocked: false, Inputs: [{ItemId:'ID_Wood',Count:2}], Outputs: [{ItemId:'ID_Bread',Count:1}] }],
             MaterialCounts: { ID_Wood: 3 },
         });
-        await ctx.waitFor(() => ctx.doc.querySelectorAll('#c-list .tsic-list-row').length >= 1, { timeout: 2000 });
-        ctx.expect(ctx.assert.domCount(ctx.doc, '#c-list .tsic-list-row', 1));
+        await ctx.waitFor(() => ctx.doc.querySelectorAll('#c-station .tsic-list-row').length >= 1, { timeout: 2000 });
+        ctx.expect(ctx.assert.domCount(ctx.doc, '#c-station .tsic-list-row', 1));
     },
 });
 
@@ -50,11 +50,11 @@ TSICTestHarness.register({
                         Ingredients: [{ ItemId: 'ID_Wheat', Count: 2 }], Outputs: [{ ItemId: 'ID_Bread', Count: 1 }], Duration: 3 }],
             MaterialCounts: { ID_Wheat: 5 },
         });
-        await ctx.waitFor(() => ctx.doc.querySelector('#c-list .tsic-list-row'));
+        await ctx.waitFor(() => ctx.doc.querySelector('#c-station .tsic-list-row'));
         // Button should be enabled (5 wheat >= 2 required).
-        ctx.expect(ctx.assert.eq(ctx.doc.getElementById('c-craft').disabled, false, 'Craft button enabled with sufficient materials'));
+        ctx.expect(ctx.assert.eq(ctx.doc.querySelector('.rs-action').disabled, false, 'Craft button enabled with sufficient materials'));
         ctx.clearPublishes();
-        ctx.doc.getElementById('c-craft').click();
+        ctx.doc.querySelector('.rs-action').click();
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Recipe.Start',
             { where: p => p.Kind === 'Crafting' && p.StationId === 'S_Oven' && p.RecipeId === 'R_Bread' && p.Count === 1 }));
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Sound.Play',
@@ -74,10 +74,10 @@ TSICTestHarness.register({
                         Ingredients: [{ ItemId: 'ID_Wheat', Count: 5 }], Outputs: [{ ItemId: 'ID_Bread', Count: 1 }] }],
             MaterialCounts: { ID_Wheat: 1 },  // not enough
         });
-        await ctx.waitFor(() => ctx.doc.querySelector('#c-list .tsic-list-row'));
-        ctx.expect(ctx.assert.eq(ctx.doc.getElementById('c-craft').disabled, true, 'Craft button disabled with insufficient materials'));
+        await ctx.waitFor(() => ctx.doc.querySelector('#c-station .tsic-list-row'));
+        ctx.expect(ctx.assert.eq(ctx.doc.querySelector('.rs-action').disabled, true, 'Craft button disabled with insufficient materials'));
         // The missing ingredient row carries inline color (#e88 → rgb(238, 136, 136) after jsdom normalisation).
-        const info = ctx.doc.getElementById('c-info');
+        const info = ctx.doc.querySelector('.rs-info');
         const missingRow = Array.from(info.querySelectorAll('div')).find(d => {
             const s = d.getAttribute('style') || '';
             return /#e88/i.test(s) || /rgb\(\s*238\s*,\s*136\s*,\s*136\s*\)/i.test(s);
@@ -99,10 +99,10 @@ TSICTestHarness.register({
                         Duration: 2.5 }],
             MaterialCounts: { ID_Wheat: 5 },
         });
-        await ctx.waitFor(() => ctx.doc.querySelector('#c-list .tsic-list-row'));
-        ctx.expect(ctx.assert.truthy(/TIME/.test(ctx.doc.getElementById('c-info').textContent),
+        await ctx.waitFor(() => ctx.doc.querySelector('#c-station .tsic-list-row'));
+        ctx.expect(ctx.assert.truthy(/TIME/.test(ctx.doc.querySelector('.rs-info').textContent),
             'expected TIME label in info panel'));
-        ctx.expect(ctx.assert.truthy(/2\.5s/.test(ctx.doc.getElementById('c-info').textContent),
+        ctx.expect(ctx.assert.truthy(/2\.5s/.test(ctx.doc.querySelector('.rs-info').textContent),
             'expected "2.5s" duration in info panel'));
     },
 });
@@ -117,8 +117,8 @@ TSICTestHarness.register({
             Recipes: [{ RecipeId: 'R', Name: 'R', bDiscovered: true, bStationLevelSufficient: true, Ingredients: [], Outputs: [] }],
             MaterialCounts: {},
         });
-        await ctx.waitFor(() => ctx.doc.querySelector('#c-list .tsic-list-row'));
-        ctx.expect(ctx.assert.eq(/TIME/.test(ctx.doc.getElementById('c-info').textContent), false));
+        await ctx.waitFor(() => ctx.doc.querySelector('#c-station .tsic-list-row'));
+        ctx.expect(ctx.assert.eq(/TIME/.test(ctx.doc.querySelector('.rs-info').textContent), false));
     },
 });
 
@@ -132,8 +132,8 @@ TSICTestHarness.register({
             Recipes: [{ RecipeId: 'R', Name: 'R', bDiscovered: true, bStationLevelSufficient: true, Ingredients: [], Outputs: [] }],
             MaterialCounts: {},
         });
-        await ctx.waitFor(() => ctx.doc.querySelector('#c-list .tsic-list-row'));
-        ctx.doc.getElementById('c-craft').click();  // sets craftPendingAt
+        await ctx.waitFor(() => ctx.doc.querySelector('#c-station .tsic-list-row'));
+        ctx.doc.querySelector('.rs-action').click();  // sets craftPendingAt
         ctx.clearPublishes();
         // Server toast — server rejected the craft.
         ctx.inject('tsic.msg.UI.Toast.Show', { Text: 'Out of stock', Severity: { TagName: 'UI.Toast.Severity.Warning' } });

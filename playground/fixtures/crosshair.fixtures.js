@@ -1,10 +1,10 @@
-// /screens/crosshair.html subscribes to:
+// /screens/test-crosshair.html subscribes to:
 //   tsic.msg.UI.Input.Mode.Changed  { Mode, Device, Focus }
 // Hides dot when Device==='mouse' && Focus==='ui'.
 TSICPlayground.register({
     id: 'crosshair',
     label: 'Crosshair',
-    screen: '/screens/crosshair.html',
+    screen: '/screens/test-crosshair.html',
     initialState() { return { mode: 'MouseAndKeyboard', device: 'mouse', focus: 'game' }; },
     project(s) { return [['tsic.msg.UI.Input.Mode.Changed', { Mode: s.mode, Device: s.device, Focus: s.focus }]]; },
     // Crosshair page only visually changes on the (mouse,ui) combo — all other

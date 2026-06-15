@@ -126,6 +126,14 @@
     currentYaw = lerpAngle(currentYaw, targetYaw, t);
 
     render();
+
+    // Idle when fully caught up — no point burning 60fps (canvas redraw + a
+    // layout-affecting transform) while the player stands still. The next
+    // snapshot calls startAnimation() and resumes interpolation.
+    var dxy = Math.abs(targetLocal.x - currentLocal.x) + Math.abs(targetLocal.y - currentLocal.y);
+    var dyaw = Math.abs(((targetYaw - currentYaw + 540) % 360) - 180);
+    if (dxy < 0.05 && dyaw < 0.1) { animating = false; return; }
+
     requestAnimationFrame(tick);
   }
 

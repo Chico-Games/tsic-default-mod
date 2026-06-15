@@ -192,7 +192,7 @@
         modeRow2.appendChild(modeSel);
         root.appendChild(modeRow2);
 
-        // ---- Focus dropdown (crosshair.html reads Focus) ----
+        // ---- Focus dropdown (hud-crosshair.js reads Focus) ----
         const focusRow = document.createElement('div');
         focusRow.className = 'pg-input-custom';
         const focusLbl = document.createElement('span');

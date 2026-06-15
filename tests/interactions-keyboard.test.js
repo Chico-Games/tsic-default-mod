@@ -93,9 +93,9 @@ TSICTestHarness.register({
         ctx.inject('tsic.msg.UI.Settings.Catalog', {
             Json: JSON.stringify({ Pages: [{ Id: 'X', Title: 'X', Groups: [{ Id: 'Ctrls', Title: 'Ctrls', Settings: [{ Key: 'attack', Label: 'Attack', Type: 'keybind', Value: 'LMB' }] }] }] }),
         });
-        await ctx.waitFor(() => ctx.doc.querySelector('.field-rebind'));
+        await ctx.waitFor(() => ctx.doc.querySelector('.bind-btn'));
         for (const key of ['q', 'a', 'F1']) {
-            ctx.doc.querySelector('.field-rebind').click();
+            ctx.doc.querySelector('.bind-btn').click();
             await new Promise(r => setTimeout(r, 15));
             ctx.clearPublishes();
             ctx.win.dispatchEvent(new ctx.win.KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));

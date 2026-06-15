@@ -251,7 +251,7 @@ TSICTestHarness.register({
 TSICTestHarness.register({
     name: 'Perf/Notifications: 100 rapid pushes still cap at 5 visible',
     tags: ['perf', 'notifications'],
-    file: '/screens/notifications.html',
+    file: '/screens/test-notifications.html',
     async run(ctx) {
         for (let i = 0; i < 100; i++) ctx.inject('tsic.msg.UI.Notification.Show', { Title: 'n' + i, Text: '', Type: 'Tip' });
         await new Promise(r => setTimeout(r, 200));
@@ -321,7 +321,7 @@ TSICTestHarness.register({
         for (let i = 0; i < 100; i++) items.push({ EntityDefId: 'FD_' + i, Name: 'x' + i, Category: cats[i % 5], bAffordable: i % 2 === 0 });
         ctx.inject('tsic.msg.UI.Construction.Available', { Items: items });
         await ctx.waitFor(() => ctx.doc.querySelectorAll('#items .c-row').length === 100, { timeout: 2000 });
-        ctx.expect(ctx.assert.eq(ctx.doc.querySelectorAll('#c-tabs .c-tab').length, 6));  // All + 5 categories
+        ctx.expect(ctx.assert.eq(ctx.doc.querySelectorAll('#c-tabs .tsic-tab').length, 6));  // All + 5 categories
     },
 });
 
@@ -344,7 +344,7 @@ TSICTestHarness.register({
 TSICTestHarness.register({
     name: 'Perf/Notifications: every type yields its severity class',
     tags: ['perf', 'notifications'],
-    file: '/screens/notifications.html',
+    file: '/screens/test-notifications.html',
     async run(ctx) {
         const types = ['Tip','Warning','Error','Inventory','Event','Alarm','PlayerJoined','PlayerDied','Progression'];
         for (const t of types) ctx.inject('tsic.msg.UI.Notification.Show', { Title: t, Text: '', Type: t });

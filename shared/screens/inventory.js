@@ -15,7 +15,7 @@
     [data-screen="Inventory"] #inv-root { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:auto; }
     [data-screen="Inventory"] #inv-header { display:flex; align-items:baseline; gap:18px; margin-bottom:8px; }
     [data-screen="Inventory"] #inv-header .spacer { flex:1; }
-    [data-screen="Inventory"] #inv-tabs { display:flex; gap:4px; }
+    [data-screen="Inventory"] #inv-tabs { display:flex; gap:0; }
     [data-screen="Inventory"] #inv-capacity { display:flex; flex-direction:column; gap:2px; font-size:11px; min-width:200px; }
     [data-screen="Inventory"] #inv-capacity-line { display:flex; justify-content:space-between; color:rgba(37,33,25,0.75); }
     [data-screen="Inventory"] #inv-capacity-bar { height:5px; background:rgba(241,229,207,0.55); border-radius:3px; overflow:hidden; }

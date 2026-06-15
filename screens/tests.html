@@ -57,6 +57,7 @@
     .scn.pass .dot { background: #22c55e; }
     .scn.fail .dot { background: #ef4444; }
     .scn.run .dot  { background: #facc15; }
+    .scn.skip .dot { background: #6b7280; }
     .scn-name { flex: 1; }
     .scn-page { color: rgba(226,232,240,0.55); font-size: 9px; }
     #toolbar { padding: 6px 12px; border-bottom: 1px solid #222; font-size: 11px; display: flex; align-items: center; gap: 8px; }
@@ -152,6 +153,8 @@
 
       async function runScenario(scn) {
         log('info', `--- ${scn.name} ---`);
+        // Quarantined (register({ skip })) — see test-harness.js QUARANTINE.
+        if (scn.skip) { log('info', `SKIP — ${scn.skip}`); setStatus(scn, 'skip'); return; }
         setStatus(scn, 'run');
         try {
           const handle = await loadIframe(scn.file);

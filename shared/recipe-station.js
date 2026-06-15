@@ -45,9 +45,9 @@
     var listEyebrow = el('div', { class: 'tsic-eyebrow' }, 'Recipes');
     var listCol = el('div', { class: 'tsic-split-col' }, listEyebrow, listPane);
 
-    var infoPane = el('div', { style: 'padding:10px; background:rgba(241,229,207,0.88); border:1px solid var(--tsic-border); flex:1 1 auto; overflow:auto; min-height:0;' });
+    var infoPane = el('div', { class: 'rs-info', style: 'padding:10px; background:rgba(241,229,207,0.88); border:1px solid var(--tsic-border); flex:1 1 auto; overflow:auto; min-height:0;' });
 
-    var actionBtn = el('button', { class: 'tsic-button', style: 'width:100%; padding:8px; flex:0 0 auto;' }, actionLabel);
+    var actionBtn = el('button', { class: 'tsic-button rs-action', style: 'width:100%; padding:8px; flex:0 0 auto;' }, actionLabel);
     actionBtn.disabled = true;
 
     var detailEyebrow = el('div', { class: 'tsic-eyebrow' }, 'Details');

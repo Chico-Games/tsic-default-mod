@@ -71,11 +71,14 @@ TSICTestHarness.register({
                         Ingredients: [{ ItemId: 'ID_Wheat', Count: 2 }], Outputs: [{ ItemId: 'ID_Bread', Count: 1 }] }],
             MaterialCounts: { ID_Wheat: 5 },
         });
-        await ctx.waitFor(() => ctx.doc.querySelectorAll('#c-list .tsic-list-row').length >= 1, { timeout: 2000 });
-        ctx.doc.querySelector('#c-list .tsic-list-row').click();
+        await ctx.waitFor(() => ctx.doc.querySelectorAll('#c-station .tsic-list-row').length >= 1, { timeout: 2000 });
+        ctx.doc.querySelector('#c-station .tsic-list-row').click();
         await new Promise(r => setTimeout(r, 30));
         ctx.clearPublishes();
-        ctx.events.key(ctx.doc, 'Enter');
+        // RecipeStation commits the selected recipe on a tsic:confirm event
+        // (dispatched by the focus engine on confirm); raw Enter is not wired.
+        ctx.doc.querySelector('#c-station .tsic-list-row.is-selected')
+            .dispatchEvent(new ctx.win.CustomEvent('tsic:confirm', { bubbles: true }));
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Recipe.Start',
             { where: p => p.Kind === 'Crafting' && p.RecipeId === 'R_Bread' }));
     },

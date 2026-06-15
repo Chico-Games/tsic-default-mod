@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="tsic-screen" content="TestInteraction">
+  <meta name="tsic-debug" content="true">
+  <title>Test: interaction prompt</title>
+  <!-- Test-only host for the LIVE interaction prompt
+       (shared/hud-interaction.js). In production hud.js creates the
+       #bb-shell-gameplay shell (shared with the behavior bar) and injects its
+       styles; here we provide the minimal shell so the component can be
+       exercised in isolation.
+
+       DO NOT add rendering logic to this file. The prompt is rendered by
+       shared/hud-interaction.js — this page only hosts it. -->
+  <style>
+    /* Mirror the visibility rules hud.js injects, so getComputedStyle()-based
+       hidden/visible assertions work. */
+    #bb-divider.hidden { display:none; }
+    #interaction-prompt.hidden { display:none; }
+  </style>
+  <!-- No tsic-bridge.js / tsic-runtime.js: in the spa-test-runner the harness
+       stamps a mock window.tsic in beforeParse, and tsic-bridge.js would
+       overwrite it. -->
+  <script src="/shared/hud-interaction.js" defer></script>
+</head><body>
+  <div id="bb-shell-gameplay" class="bb-shell">
+    <div id="bb-gameplay"></div>
+    <div id="bb-divider" class="hidden"></div>
+    <div id="interaction-prompt" class="hidden"></div>
+  </div>
+</body></html>

@@ -15,13 +15,13 @@ TSICTestHarness.register({
             { ItemId: 'ID_Bread', Count: 2, SlotIndex: 1 },
             { ItemId: 'ID_Wheat', Count: 5, SlotIndex: 2 },
         ]});
-        await ctx.waitFor(() => ctx.doc.querySelectorAll('.inv-tab').length === 5);
+        await ctx.waitFor(() => ctx.doc.querySelectorAll('.tsic-tab').length === 5);
         const labels = ['All','Tools','Cons.','Mats','Other'];
         for (const label of labels) {
-            const tab = Array.from(ctx.doc.querySelectorAll('.inv-tab')).find(e => e.textContent === label);
+            const tab = Array.from(ctx.doc.querySelectorAll('.tsic-tab')).find(e => e.textContent === label);
             tab.click();
             await new Promise(r => setTimeout(r, 15));
-            const active = ctx.doc.querySelector('.inv-tab.active');
+            const active = ctx.doc.querySelector('.tsic-tab.is-active');
             ctx.expect(ctx.assert.eq(active && active.textContent, label, `tab ${label} should be active`));
         }
     },
@@ -74,12 +74,12 @@ TSICTestHarness.register({
             { EntityDefId: 'B', Name: 'B', Category: 'Structure',  bAffordable: true },
             { EntityDefId: 'C', Name: 'C', Category: 'Storage',    bAffordable: true },
         ]});
-        await ctx.waitFor(() => ctx.doc.querySelectorAll('#c-tabs .c-tab').length >= 4);
+        await ctx.waitFor(() => ctx.doc.querySelectorAll('#c-tabs .tsic-tab').length >= 4);
         for (const cat of ['Furniture','Structure','Storage']) {
-            const tab = Array.from(ctx.doc.querySelectorAll('.c-tab')).find(e => e.textContent === cat);
+            const tab = Array.from(ctx.doc.querySelectorAll('.tsic-tab')).find(e => e.textContent === cat);
             tab.click();
             await new Promise(r => setTimeout(r, 15));
-            const active = ctx.doc.querySelector('.c-tab.active');
+            const active = ctx.doc.querySelector('.tsic-tab.is-active');
             ctx.expect(ctx.assert.eq(active && active.textContent, cat));
             const rows = ctx.doc.querySelectorAll('#items .c-row');
             ctx.expect(ctx.assert.eq(rows.length, 1, `filtered to one ${cat} row`));
@@ -182,7 +182,7 @@ TSICTestHarness.register({
     name: 'Mouse/ConstructionCarousel: no clicks expected (display-only)',
     file: '/screens/construction-carousel.html',
     async run(ctx) {
-        ctx.inject('tsic.msg.UI.Construction.Carousel', { Prev: [], Current: { FurnitureId: 'X', Label: 'X', bAffordable: true }, Next: [] });
+        ctx.inject('tsic.msg.UI.Construction.Carousel', { bActive: true, Prev: [], Current: { FurnitureId: 'X', Label: 'X', bAffordable: true }, Next: [] });
         await ctx.waitFor(() => ctx.doc.querySelector('#cc-row .cc-slot.current'));
         ctx.clearPublishes();
         ctx.doc.querySelector('.cc-slot.current').click();
@@ -191,23 +191,21 @@ TSICTestHarness.register({
     },
 });
 
-// ---- Interaction: every target row -----------------------------------
+// ---- Interaction prompt is display-only --------------------------------
 TSICTestHarness.register({
-    name: 'Mouse/Interaction: each row publishes with its EntityId',
-    file: '/screens/interaction.html',
+    name: 'Mouse/Interaction: prompt is display-only — clicks do not publish',
+    file: '/screens/test-interaction.html',
     async run(ctx) {
         ctx.inject('tsic.msg.UI.Interaction.Targets', { Targets: [
             { EntityId: 11, Label: 'Open' },
             { EntityId: 12, Label: 'Inspect' },
         ]});
-        await ctx.waitFor(() => ctx.doc.querySelectorAll('.row').length === 2);
+        await ctx.waitFor(() => /Open/.test(ctx.doc.getElementById('interaction-prompt').textContent));
         ctx.clearPublishes();
-        const rows = ctx.doc.querySelectorAll('.row');
-        for (const r of rows) r.click();
-        const pubs = ctx.publishes().filter(p => p.channel === 'UI.Cmd.Interaction.Activate');
-        ctx.expect(ctx.assert.eq(pubs.length, 2));
-        ctx.expect(ctx.assert.truthy(pubs.some(p => p.payload.EntityId === 11)));
-        ctx.expect(ctx.assert.truthy(pubs.some(p => p.payload.EntityId === 12)));
+        ctx.doc.getElementById('interaction-prompt').click();
+        // Activation goes through Enhanced Input (the interact ability), not UI.
+        const pubs = ctx.publishes().filter(p => p.channel.indexOf('UI.Cmd.Interaction.') === 0);
+        ctx.expect(ctx.assert.eq(pubs.length, 0, 'prompt is display-only — clicks should not publish'));
     },
 });
 
@@ -241,7 +239,7 @@ TSICTestHarness.register({
             { SlotId: 's2', Label: 'B', TimestampIso: '2026-05-17T00:00:00Z' },
         ]});
         await new Promise(r => setTimeout(r, 80));
-        const buttons = Array.from(ctx.doc.querySelectorAll('button')).filter(b => /load/i.test(b.textContent || ''));
+        const buttons = Array.from(ctx.doc.querySelectorAll('button.save-slot'));
         ctx.expect(ctx.assert.truthy(buttons.length >= 2));
         ctx.clearPublishes();
         for (const b of buttons) b.click();

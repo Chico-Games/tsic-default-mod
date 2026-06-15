@@ -13,7 +13,7 @@
   }
 
   const STYLE = `
-    [data-screen="Construction"] #c-tabs { display:flex; gap:4px; margin-bottom:8px; }
+    [data-screen="Construction"] #c-tabs { display:flex; gap:0; margin-bottom:8px; }
     [data-screen="Construction"] .c-row { display:flex; align-items:center; gap:8px; padding:6px 10px; }
     [data-screen="Construction"] .c-row.disabled { color: rgba(47,43,34,0.45); pointer-events: none; }
     [data-screen="Construction"] #c-cost { padding: 8px; font-size:11px; background:rgba(241,229,207,0.88); border-top:1px solid var(--tsic-border); }

@@ -261,18 +261,8 @@ TSICTestHarness.register(Object.assign({
     },
 }, focusOpts()));
 
-// -- interaction -----------------------------------------------------------
-TSICTestHarness.register(Object.assign({
-    name: 'Focus/Interaction: reachable + groups mutually reachable',
-    file: '/screens/interaction.html',
-    async run(ctx) {
-        ctx.inject('tsic.msg.UI.Interaction.Targets', { Targets: [
-            { EntityId: 1, Label: 'Open Storage' },
-            { EntityId: 2, Label: 'Pick up Hammer' },
-        ] });
-        await TSICTestHarness.fx.runReachability(ctx);
-    },
-}, focusOpts()));
+// (No interaction entry: the live interaction prompt (hud-interaction.js) is
+// a display-only label inside the behavior-bar panel — nothing focusable.)
 
 // -- paper (uses lore.js, label "Lore / Paper" in the playground) ---------
 TSICTestHarness.register(Object.assign({

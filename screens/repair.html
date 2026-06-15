@@ -50,7 +50,7 @@
       }
 
       (function boot() {
-        if (!window.tsic || !window.TSIC.RecipeStation) { setTimeout(boot, 16); return; }
+        if (!window.tsic || !window.TSIC || !window.TSIC.RecipeStation) { setTimeout(boot, 16); return; }
         tsic.whenReady(function () {
           TSIC.RecipeStation.mount(document.getElementById('repair-station'), {
             kind: 'Repair',

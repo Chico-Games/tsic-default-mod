@@ -55,8 +55,7 @@
   function iconUrlFor(s) {
     if (s && s.IconUrl) return s.IconUrl;
     if (!s || !s.FurnitureId) return '';
-    if (window.TSIC && typeof TSIC.itemIconUrl === 'function') return TSIC.itemIconUrl(s.FurnitureId);
-    return '/tex/item-icon/' + encodeURIComponent(s.FurnitureId);
+    return TSIC.itemIconUrl(s.FurnitureId);
   }
 
   function slotEl(s, isCurrent) {

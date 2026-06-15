@@ -34,8 +34,8 @@ TSICTestHarness.register({
     name: 'DeathScreen: title text uses red color',
     file: '/screens/death-screen.html',
     async run(ctx) {
-        await ctx.waitFor(() => ctx.doc.querySelector('h1'));
-        ctx.expect(ctx.assert.domText(ctx.doc, 'h1', /YOU DIED/i));
+        await ctx.waitFor(() => ctx.doc.querySelector('.tsic-masthead-title'));
+        ctx.expect(ctx.assert.domText(ctx.doc, '.tsic-masthead-title', /YOU DIED/i));
     },
 });
 
@@ -87,7 +87,7 @@ TSICTestHarness.register({
 // ---- Notifications ----------------------------------------------------
 TSICTestHarness.register({
     name: 'Notifications: title + text both rendered',
-    file: '/screens/notifications.html',
+    file: '/screens/test-notifications.html',
     async run(ctx) {
         ctx.inject('tsic.msg.UI.Notification.Show', { Title: 'Picked up', Text: 'Bread x 1', Type: 'Inventory' });
         await ctx.waitFor(() => ctx.doc.querySelector('.notif-title'));
@@ -145,8 +145,8 @@ TSICTestHarness.register({
         ctx.inject('tsic.msg.UI.Settings.Catalog', {
             Json: JSON.stringify({ Pages: [{ Id: 'X', Title: 'X', Groups: [{ Id: 'Controls', Title: 'Controls', Settings: [{ Key: 'jump', Label: 'Jump', Type: 'keybind', Value: 'Space' }] }] }] }),
         });
-        await ctx.waitFor(() => ctx.doc.querySelector('.field-rebind'));
-        ctx.doc.querySelector('.field-rebind').click();
+        await ctx.waitFor(() => ctx.doc.querySelector('.bind-btn'));
+        ctx.doc.querySelector('.bind-btn').click();
         await new Promise(r => setTimeout(r, 20));
         ctx.clearPublishes();
         ctx.win.dispatchEvent(new ctx.win.KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }));

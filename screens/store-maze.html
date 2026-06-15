@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="tsic-screen" content="StoreMaze">
+  <!-- Out-of-band preview page (reached via playground / direct LoadURL), not
+       part of the screen-director flow yet — tsic-debug stops the sticky
+       UI.Screen.Changed broadcast from redirecting it away on mount. Drop this
+       once the motif is mounted inside real menu screens instead. -->
+  <meta name="tsic-debug" content="true">
+  <title>Store Maze</title>
+  <link rel="stylesheet" href="/shared/base.css">
+  <script src="/shared/tsic-bridge.js" defer></script>
+  <script src="/shared/tsic-runtime.js" defer></script>
+  <script src="/shared/router.js" defer></script>
+  <!-- The maze renderer lives in the shared module — this page only hosts it. -->
+  <script src="/shared/store-maze.js" defer></script>
+  <style>
+    html, body { margin: 0; height: 100%; overflow: hidden; }
+    /* See-through cream wash — no halftone; the maze is the texture. */
+    body { background-color: rgba(240, 232, 208, 0.60); }
+    #maze-host { position: fixed; inset: 0; }
+  </style>
+</head><body>
+  <div id="maze-host"></div>
+  <script>
+    (function boot() {
+      if (!window.TSICStoreMaze) { setTimeout(boot, 16); return; }
+      TSICStoreMaze.mount(document.getElementById('maze-host'));
+    })();
+  </script>
+</body></html>
