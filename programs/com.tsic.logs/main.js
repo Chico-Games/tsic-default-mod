@@ -12,7 +12,7 @@
     {
       title: "DURHAM OS v1.0.0 - SYSTEM INITIALIZATION LOG 001",
       body: [
-        "DATE: 12/14/1983    TIME: 08:30 AM",
+        "DATE: 14/12/1983    TIME: 08:30 AM",
         "SYSADMIN: KATIE",
         "",
         "Welcome everyone! This is the very first log of the very",
@@ -32,7 +32,7 @@
       title: "DURHAM OS // UNTITLED LOG ENTRY 002",
       body: [
         "USER: GARY",
-        "TIMESTAMP: 12/18/1983 - 10:14 AM",
+        "TIMESTAMP: 18/12/1983 - 10:14 AM",
         "",
         "SEARCH INVENTORY",
         "WHERE ARE THE PINE DROP LEAF TABLES",
@@ -49,7 +49,7 @@
       title: "DURHAM OS // SYSADMIN DIARY // LOG 01",
       body: [
         "USER: KATIE_IT",
-        "DATE: 01/08/1984    TIME: 05:30 PM",
+        "DATE: 08/01/1984    TIME: 05:30 PM",
         "",
         "I am officially set up in my own tech room and settled in!",
         "",
