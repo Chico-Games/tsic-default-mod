@@ -32,6 +32,15 @@
     function syncMirror() { mirror.textContent = input.value.toUpperCase(); }
     input.addEventListener('input', syncMirror);
 
+    // The real input is off the visible flow, so clicking the green screen
+    // can't focus it natively. Re-focus on any press, and once on mount, so the
+    // user can actually type. preventDefault stops the browser's default
+    // mousedown focus from moving focus to the (non-focusable) screen div and
+    // overriding ours.
+    function focusInput() { try { input.focus({ preventScroll: true }); } catch (e) {} }
+    function onPointerDown(ev) { ev.preventDefault(); focusInput(); }
+    container.addEventListener('mousedown', onPointerDown);
+
     function write(text, cls) {
       const div = document.createElement('div');
       div.className = 'tsic-term-row' + (cls ? ' ' + cls : '');
@@ -97,6 +106,7 @@
       doCommand(value);
     }
     input.addEventListener('keydown', onKey);
+    focusInput();
 
     return {
       onPrograms: function (entries) { programList = entries || []; },
@@ -107,7 +117,12 @@
         return new Promise(function (res) { inputResolver = res; });
       },
       endProgram: function () { inputResolver = null; promptEl.style.visibility = ''; input.focus(); },
-      destroy: function () { input.removeEventListener('keydown', onKey); input.removeEventListener('input', syncMirror); container.innerHTML = ''; },
+      destroy: function () {
+        input.removeEventListener('keydown', onKey);
+        input.removeEventListener('input', syncMirror);
+        container.removeEventListener('mousedown', onPointerDown);
+        container.innerHTML = '';
+      },
     };
   }
 
