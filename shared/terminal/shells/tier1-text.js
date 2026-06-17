@@ -116,7 +116,7 @@
       // same to the operator: the app isn't on this unit.
       if (res.code === NS.ERR.NOT_UNLOCKED || res.code === NS.ERR.NOT_FOUND) {
         write('ERROR 0x03: UNKNOWN APPLICATION', 'tsic-term-err');
-        write('  ' + programId.toUpperCase() + ' NOT FOUND ON THIS UNIT.', 'tsic-term-err');
+        write('  PROGRAM ' + programId.toUpperCase() + ' NOT FOUND ON THIS UNIT.', 'tsic-term-err');
         write('  DID YOU INSERT THE FLOPPY DISK?', 'tsic-term-err');
         return;
       }

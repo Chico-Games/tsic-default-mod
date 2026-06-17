@@ -80,7 +80,7 @@ TSICTestHarness.register({
         TSICTestHarness.events.keyOn(inp, 'Enter', { code: 'Enter' });
         await TSICTestHarness.waitFor(() => /UNKNOWN APPLICATION/.test(ctx.doc.querySelector('#term-out').textContent));
         const out = ctx.doc.querySelector('#term-out').textContent;
-        ctx.expect(ctx.assert.truthy(/NOT FOUND ON THIS UNIT/.test(out), 'states the app is not on this unit'));
+        ctx.expect(ctx.assert.truthy(/PROGRAM HELLO NOT FOUND ON THIS UNIT/.test(out), 'states the program is not on this unit'));
         ctx.expect(ctx.assert.truthy(/DID YOU INSERT THE FLOPPY DISK\?/.test(out), 'prompts to insert the floppy'));
     },
 });
