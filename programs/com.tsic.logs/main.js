@@ -38,6 +38,7 @@
         'WHERE ARE THE PINE DROP-LEAF TABLES',
         'LOCATE PINE TABLE SHOWROOM C',
         'HELLO COMPUTER PLEASE FIND PINE TABLE',
+        'katie if you see this i am trying to find the PINE DROP-LEAF TABLES from showroom c',
         'ENTER',
         'SEARCH',
         'PINE TALE',
