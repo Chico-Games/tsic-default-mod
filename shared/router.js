@@ -56,6 +56,7 @@
     Teleporter: 'teleporter',
     BugReport: 'bug-report',
     Storage: 'storage',
+    Terminal: 'terminal',
     Repair: 'repair',
     UniversalStorage: 'universal-storage',
     UniversalStorageSetup: 'universal-storage-setup',
