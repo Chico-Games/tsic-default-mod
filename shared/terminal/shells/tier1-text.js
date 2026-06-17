@@ -35,6 +35,7 @@
     let draining = false;
     let drainWaiters = [];
     let programActive = false; // a program owns the screen (suppress shell commands)
+    let pendingAutoRun = host.autoRun || null; // consumed on first boot, not on reboot
 
     // The real <input> is invisible; the visible input is an uppercased mirror
     // of its value followed by the block cursor. Keep them in sync.
@@ -65,19 +66,20 @@
       out.scrollTop = out.scrollHeight;
     }
 
-    // Typewriter: append `text` one character at a time at charDelayMs. Used by
-    // the boot intro AND all terminal output, so everything types at one pace.
-    // A set `skipped` flag (or charDelayMs <= 0) flushes the line instantly.
-    function type(text, cls) {
+    // Typewriter: append `text` one tick at a time. Used by the boot intro AND
+    // all terminal output, so everything types at one pace by default. A program
+    // can pass per-line opts {charDelay, jitter, charsPerTick} for a custom (e.g.
+    // slow, uneven) cadence. A set `skipped` flag (or charDelay <= 0) flushes it.
+    function type(text, cls, opts) {
       if (!alive()) return Promise.resolve();
+      const o = opts || {};
+      const delay = (o.charDelay != null) ? o.charDelay : NS.shells.tier1.charDelayMs;
+      const step = (o.charsPerTick > 0) ? o.charsPerTick : (NS.shells.tier1.charsPerTick > 0 ? NS.shells.tier1.charsPerTick : 1);
+      const jitter = o.jitter || 0;
       const div = doc.createElement('div');
       div.className = 'tsic-term-row' + (cls ? ' ' + cls : '');
       out.appendChild(div);
       return new Promise(function (resolve) {
-        const delay = NS.shells.tier1.charDelayMs;
-        // Reveal several chars per tick: the ~4ms setTimeout floor means a fast
-        // pace is reached by chars-per-tick, not by an ever-smaller delay.
-        const step = NS.shells.tier1.charsPerTick > 0 ? NS.shells.tier1.charsPerTick : 1;
         if (skipped || !(delay > 0)) { div.textContent = text; out.scrollTop = out.scrollHeight; resolve(); return; }
         let i = 0;
         (function tick() {
@@ -86,7 +88,7 @@
           div.textContent = text.slice(0, i);
           out.scrollTop = out.scrollHeight;
           if (i >= text.length) { resolve(); return; }
-          setTimeout(tick, delay);
+          setTimeout(tick, delay + (jitter ? Math.random() * jitter : 0));
         })();
       });
     }
@@ -95,7 +97,8 @@
     // one queue, so everything types out in order at the same pace. Items type
     // one at a time; readLine/exit wait for the queue to drain (whenDrained) so
     // prompts and theme resets don't race the text still typing.
-    function enqueue(text, cls) { printQueue.push({ text: String(text), cls: cls || null }); pumpQueue(); }
+    function enqueue(text, cls, opts) { printQueue.push({ kind: 'line', text: String(text), cls: cls || null, opts: opts || null }); pumpQueue(); }
+    function enqueueClear() { printQueue.push({ kind: 'clear' }); pumpQueue(); }
     function pumpQueue() {
       if (draining) return;
       draining = true;
@@ -107,7 +110,8 @@
           return;
         }
         const item = printQueue.shift();
-        type(item.text, item.cls).then(next);
+        if (item.kind === 'clear') { if (alive()) out.innerHTML = ''; next(); return; }
+        type(item.text, item.cls, item.opts).then(next);
       })();
     }
     function whenDrained() {
@@ -125,32 +129,38 @@
       rootEl.classList.remove('is-booting');
       rootEl.setAttribute('data-term-ready', '1');
       focusInput();
-      // Optionally boot straight into a program (host.autoRun is a program id);
+      // Boot straight into a program on the FIRST boot only (consumed here so a
+      // reboot returns to the normal terminal instead of re-launching it);
       // otherwise show the HELP screen so the operator sees what they can do.
-      if (host.autoRun) {
-        write('> run ' + host.autoRun, 'tsic-term-echo');
-        host.run(host.autoRun).then(function (res) { if (!res.ok) renderError(res, host.autoRun); });
+      if (pendingAutoRun) {
+        const id = pendingAutoRun; pendingAutoRun = null;
+        write('> run ' + id, 'tsic-term-echo');
+        host.run(id).then(function (res) { if (!res.ok) renderError(res, id); });
       } else {
         printHelp();
       }
     }
 
     // BIOS-style boot animation, then hand off to the prompt. The prompt is
-    // hidden (via .is-booting) until the sequence finishes.
-    if (NS.boot && typeof NS.boot.runBoot === 'function') {
-      booting = true;
-      rootEl.classList.add('is-booting');
-      NS.boot.runBoot(
-        { type: function (t, o) { return type(t, o && o.className); },
-          print: function (t, o) { writeInstant(t, o && o.className); } },
-        { logo: NS.boot.DURHAM_LOGO }
-      ).then(finishBoot, finishBoot);
-    } else {
-      // Defensive fallback if the boot module didn't load.
-      writeInstant(hw.toUpperCase(), 'tsic-term-banner');
-      writeInstant('READY', 'tsic-term-banner');
-      finishBoot();
+    // hidden (via .is-booting) until the sequence finishes. Re-runnable (reboot).
+    function bootSequence() {
+      skipped = false;
+      if (NS.boot && typeof NS.boot.runBoot === 'function') {
+        booting = true;
+        rootEl.classList.add('is-booting');
+        NS.boot.runBoot(
+          { type: function (t, o) { return type(t, o && o.className); },
+            print: function (t, o) { writeInstant(t, o && o.className); } },
+          { logo: NS.boot.DURHAM_LOGO }
+        ).then(finishBoot, finishBoot);
+      } else {
+        // Defensive fallback if the boot module didn't load.
+        writeInstant(hw.toUpperCase(), 'tsic-term-banner');
+        writeInstant('READY', 'tsic-term-banner');
+        finishBoot();
+      }
     }
+    bootSequence();
 
     function renderError(res, programId) {
       if (res.code === NS.ERR.TIER_TOO_LOW) {
@@ -225,7 +235,8 @@
 
     return {
       onPrograms: function (entries) { programList = entries || []; },
-      printToProgram: function (text) { programActive = true; enqueue(text); },
+      printToProgram: function (text, opts) { programActive = true; enqueue(text, null, opts); },
+      clearScreen: function () { programActive = true; enqueueClear(); },
       beginProgramInput: function (prompt) {
         programActive = true;
         input.value = ''; syncMirror();  // discard anything typed while text was still printing
@@ -238,6 +249,18 @@
         });
       },
       setTheme: applyTheme,
+      // A program asked to reboot the terminal: wipe everything and replay boot.
+      reboot: function () {
+        printQueue.length = 0;
+        draining = false;
+        inputResolver = null;
+        programActive = false;
+        promptEl.style.visibility = '';
+        applyTheme(null);
+        if (alive()) out.innerHTML = '';
+        rootEl.removeAttribute('data-term-ready');
+        bootSequence();
+      },
       endProgram: function () {
         inputResolver = null;
         whenDrained().then(function () {

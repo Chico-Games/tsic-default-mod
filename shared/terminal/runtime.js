@@ -17,7 +17,9 @@
     '  function send(type, payload){ var id = ++seq; return new Promise(function(res){ pending.set(id, res); parent.postMessage({__tsicProgram:true, id:id, type:type, payload:payload}, "*"); }); }',
     '  function makeApi(caps){ return {',
     '    caps: caps,',
-    '    print: function(t){ parent.postMessage({__tsicProgram:true, type:"print", payload:String(t)}, "*"); },',
+    '    print: function(t, opts){ parent.postMessage({__tsicProgram:true, type:"print", payload:{text:String(t), opts:opts||null}}, "*"); },',
+    '    clear: function(){ parent.postMessage({__tsicProgram:true, type:"clear"}, "*"); },',
+    '    reboot: function(){ parent.postMessage({__tsicProgram:true, type:"reboot"}, "*"); },',
     '    readLine: function(prompt){ return send("readLine", {prompt: prompt||""}).then(function(r){ return (r && r.line) || ""; }); },',
     '    storage: { get: function(k){ return send("storage.get", {key:k}); }, set: function(k,v){ return send("storage.set", {key:k, value:v}); } },',
     '    catalog: { list: function(){ return send("catalog.list", {}); } },',
@@ -57,6 +59,8 @@
     const onPrint = opts.onPrint || function () {};
     const onExit = opts.onExit || function () {};
     const onTheme = opts.onTheme || function () {};
+    const onClear = opts.onClear || function () {};
+    const onReboot = opts.onReboot || function () {};
     const requestInput = opts.requestInput || function () { return Promise.resolve(''); };
 
     const iframe = document.createElement('iframe');
@@ -77,10 +81,12 @@
         iframe.contentWindow.postMessage({ __tsicHost: true, type: 'handshake', caps: granted }, '*');
         return;
       }
-      // print/theme/exit reach nothing outside this iframe (print -> shell scrollback,
-      // theme -> the terminal's own colour, exit -> teardown); intentionally ungated.
-      if (m.type === 'print') { onPrint(String(m.payload)); return; }
+      // print/theme/clear/reboot/exit reach nothing outside this iframe (they
+      // drive the terminal's own scrollback, colour, and lifecycle); ungated.
+      if (m.type === 'print') { onPrint(String((m.payload && m.payload.text) || ''), m.payload && m.payload.opts); return; }
       if (m.type === 'theme') { onTheme(m.payload && m.payload.name); return; }
+      if (m.type === 'clear') { onClear(); return; }
+      if (m.type === 'reboot') { kill(); onReboot(); return; }
       if (m.type === 'exit') { kill(); onExit(); return; }
       if (m.type === 'readLine') {
         if (granted.indexOf('term.input') === -1) { reply(m.id, { error: NS.ERR.CAP_DENIED }); return; }

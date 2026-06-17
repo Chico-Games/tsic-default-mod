@@ -44,8 +44,10 @@
               entrySrc: entrySrc,
               granted: granted,
               handlers: handlers,
-              onPrint: function (txt) { if (state.shell) state.shell.printToProgram(txt); },
+              onPrint: function (txt, opts) { if (state.shell) state.shell.printToProgram(txt, opts); },
               onTheme: function (name) { if (state.shell && state.shell.setTheme) state.shell.setTheme(name); },
+              onClear: function () { if (state.shell && state.shell.clearScreen) state.shell.clearScreen(); },
+              onReboot: function () { state.program = null; if (state.shell && state.shell.reboot) state.shell.reboot(); },
               requestInput: function (prompt) { return state.shell ? state.shell.beginProgramInput(prompt) : Promise.resolve(''); },
               onExit: function () { if (state.shell) state.shell.endProgram(); },
             });
