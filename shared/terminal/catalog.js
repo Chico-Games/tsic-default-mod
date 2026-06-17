@@ -5,7 +5,6 @@
 // program or a structured error. No DOM, no bridge — testable in isolation.
 (function (global) {
   const NS = global.TSICTerminal = global.TSICTerminal || {};
-  const ERR = NS.ERR;
 
   function parseManifest(raw) {
     if (!raw || !raw.id || !raw.entry) return null;
@@ -41,10 +40,10 @@
     const unlocked = new Set(opts.unlockedIds || []);
     const tier = opts.tier;
     const program = programs.find(function (p) { return p && p.id === programId; });
-    if (!program) return { ok: false, code: ERR.NOT_FOUND, info: { id: programId } };
-    if (!unlocked.has(program.id)) return { ok: false, code: ERR.NOT_UNLOCKED, info: { id: programId } };
+    if (!program) return { ok: false, code: NS.ERR.NOT_FOUND, info: { id: programId } };
+    if (!unlocked.has(program.id)) return { ok: false, code: NS.ERR.NOT_UNLOCKED, info: { id: programId } };
     if (!runnable(program, tier)) {
-      return { ok: false, code: ERR.TIER_TOO_LOW, info: { required: program.minTier, current: tier } };
+      return { ok: false, code: NS.ERR.TIER_TOO_LOW, info: { required: program.minTier, current: tier } };
     }
     return { ok: true, program: program };
   }
