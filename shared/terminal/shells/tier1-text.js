@@ -20,11 +20,13 @@
       '  </div>' +
       '</div>';
 
+    const doc = container.ownerDocument;
     const out = container.querySelector('#term-out');
     const promptEl = container.querySelector('.tsic-term-prompt');
     const mirror = container.querySelector('#term-mirror');
     const input = container.querySelector('#term-input');
     const rootEl = container.querySelector('.tsic-term--t1');
+    let destroyed = false;    // set on teardown; halts the async output queue
     let programList = [];
     let inputResolver = null; // set while a running program awaits readLine
     let booting = false;      // true while the BIOS boot animation plays
@@ -50,22 +52,25 @@
     function onPointerDown(ev) { ev.preventDefault(); focusInput(); }
     container.addEventListener('mousedown', onPointerDown);
 
-    function write(text, cls) {
-      const div = document.createElement('div');
+    // True while this shell's document is still live (false after teardown).
+    function alive() { return !destroyed && doc && doc.defaultView; }
+
+    // Instant append (no typewriter). Used only for the boot logo block.
+    function writeInstant(text, cls) {
+      if (!alive()) return;
+      const div = doc.createElement('div');
       div.className = 'tsic-term-row' + (cls ? ' ' + cls : '');
       div.textContent = text;
       out.appendChild(div);
       out.scrollTop = out.scrollHeight;
     }
 
-    // Typewriter: append `text` one character at a time into its own row, then
-    // resolve. A set `skipped` flag (or a non-positive charDelayMs) flushes the
-    // whole line instantly so the boot animation can be fast-forwarded.
     // Typewriter: append `text` one character at a time at charDelayMs. Used by
-    // both the boot intro and program output, so they type at the same pace.
+    // the boot intro AND all terminal output, so everything types at one pace.
     // A set `skipped` flag (or charDelayMs <= 0) flushes the line instantly.
     function type(text, cls) {
-      const div = document.createElement('div');
+      if (!alive()) return Promise.resolve();
+      const div = doc.createElement('div');
       div.className = 'tsic-term-row' + (cls ? ' ' + cls : '');
       out.appendChild(div);
       return new Promise(function (resolve) {
@@ -83,26 +88,31 @@
       });
     }
 
-    // Program output (term.print) types out fast, queued so the rapid-fire
-    // prints a program emits stay in order. readLine/exit wait for the queue to
-    // drain (see whenDrained) so prompts and theme resets don't race the text.
+    // ALL terminal output — shell text AND program output — flows through this
+    // one queue, so everything types out in order at the same pace. Items type
+    // one at a time; readLine/exit wait for the queue to drain (whenDrained) so
+    // prompts and theme resets don't race the text still typing.
+    function enqueue(text, cls) { printQueue.push({ text: String(text), cls: cls || null }); pumpQueue(); }
     function pumpQueue() {
       if (draining) return;
       draining = true;
       (function next() {
-        if (!printQueue.length) {
+        if (destroyed || !printQueue.length) {
           draining = false;
           const waiters = drainWaiters; drainWaiters = [];
           waiters.forEach(function (w) { w(); });
           return;
         }
-        type(printQueue.shift(), null).then(next);
+        const item = printQueue.shift();
+        type(item.text, item.cls).then(next);
       })();
     }
     function whenDrained() {
       if (!draining && !printQueue.length) return Promise.resolve();
       return new Promise(function (res) { drainWaiters.push(res); });
     }
+    // Shell output uses the same typewriter queue as program output.
+    function write(text, cls) { enqueue(text, cls); }
 
     // Mark the terminal ready: reveal the prompt and accept commands. Called
     // once the boot animation completes (or is skipped / unavailable).
@@ -129,13 +139,13 @@
       rootEl.classList.add('is-booting');
       NS.boot.runBoot(
         { type: function (t, o) { return type(t, o && o.className); },
-          print: function (t, o) { write(t, o && o.className); } },
+          print: function (t, o) { writeInstant(t, o && o.className); } },
         { logo: NS.boot.DURHAM_LOGO }
       ).then(finishBoot, finishBoot);
     } else {
       // Defensive fallback if the boot module didn't load.
-      write(hw.toUpperCase(), 'tsic-term-banner');
-      write('READY', 'tsic-term-banner');
+      writeInstant(hw.toUpperCase(), 'tsic-term-banner');
+      writeInstant('READY', 'tsic-term-banner');
       finishBoot();
     }
 
@@ -183,7 +193,7 @@
       const parts = text.split(/\s+/);
       const cmd = parts[0].toLowerCase();
       if (cmd === 'help') { printHelp(); return; }
-      if (cmd === 'clear') { out.innerHTML = ''; return; }
+      if (cmd === 'clear') { printQueue.length = 0; out.innerHTML = ''; return; }
       if (cmd === 'exit') { host.close(); return; }
       const id = (cmd === 'run') ? parts[1] : parts[0];
       if (!id) { write('Usage: RUN <name>', 'tsic-term-err'); return; }
@@ -212,7 +222,7 @@
 
     return {
       onPrograms: function (entries) { programList = entries || []; },
-      printToProgram: function (text) { programActive = true; printQueue.push(String(text)); pumpQueue(); },
+      printToProgram: function (text) { programActive = true; enqueue(text); },
       beginProgramInput: function (prompt) {
         programActive = true;
         input.value = ''; syncMirror();  // discard anything typed while text was still printing
@@ -235,6 +245,8 @@
         });
       },
       destroy: function () {
+        destroyed = true;
+        printQueue.length = 0;
         input.removeEventListener('keydown', onKey);
         input.removeEventListener('input', syncMirror);
         container.removeEventListener('mousedown', onPointerDown);
