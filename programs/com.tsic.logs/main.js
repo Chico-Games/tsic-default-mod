@@ -67,6 +67,26 @@
         "- Katie",
       ],
     },
+    {
+      title: "DURHAM OS // SYSADMIN DIARY // LOG 02",
+      body: [
+        "USER: KATIE_IT",
+        "DATE: 16/01/1984    TIME: 09:48 PM",
+        "",
+        "I've decided to start keeping backup floppy disks for all",
+        "programs and logs. For some reason, the main server data",
+        "keeps getting corrupted overnight.",
+        "",
+        "It's like we're getting massive power surges? Half of my",
+        "plugged in testing devices are totally fried in the mornings.",
+        "What could be causing such a huge surge at night of all times?",
+        "",
+        "I'm going to ask management if I can be put on the night",
+        "shift this week to investigate.",
+        "",
+        "- Katie",
+      ],
+    },
   ];
 
   const LIST_PER_PAGE = 5;
