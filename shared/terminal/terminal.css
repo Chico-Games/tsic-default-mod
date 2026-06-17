@@ -1,22 +1,80 @@
-/* Minimal tier-1 terminal styling — deliberately plain (amber-on-black). */
+/* Tier-1 "Durham Internal Terminal" — 1980s green-phosphor CRT.
+   Reskin per the store-terminal style guide: phosphor green, glow,
+   scanlines + RGB mask, vignette + flicker, VT323 bitmap font, blinking
+   block cursor. Tiers 2/3 keep their own (placeholder) chrome below. */
 .tsic-term-host, .tsic-term { width: 100%; height: 100%; }
+
 .tsic-term--t1 {
-  background: #0a0a06; color: #e0a86a; font-family: "JetBrains Mono", Consolas, monospace;
-  font-size: 14px; line-height: 1.4; padding: 12px; height: 100%;
-  display: flex; flex-direction: column; box-sizing: border-box;
+  --term-color: #33ff00;            /* phosphor green */
+  --term-bg: #051405;               /* near-black green screen */
+  --term-glow: 0 0 5px rgba(51,255,0,0.5), 0 0 10px rgba(51,255,0,0.3);
+  position: relative; isolation: isolate; overflow: hidden;
+  height: 100%; box-sizing: border-box; padding: 20px;
+  display: flex; flex-direction: column;
+  background: var(--term-bg); color: var(--term-color);
+  font-family: "VT323", "Courier New", monospace;
+  font-size: 24px; line-height: 1.15;
+  text-shadow: var(--term-glow);
 }
-.tsic-term-out { flex: 1; overflow-y: auto; white-space: pre-wrap; }
-.tsic-term-row { min-height: 1.4em; }
-.tsic-term-banner { color: #6fc193; }
-.tsic-term-err { color: #d2615b; }
-.tsic-term-echo { color: #a59b89; }
-.tsic-term-line { display: flex; align-items: center; gap: 6px; }
-.tsic-term-prompt { color: #e0a86a; }
-.tsic-term-input {
-  flex: 1; background: transparent; border: none; outline: none;
-  color: #e0a86a; font: inherit; caret-color: #e0a86a;
+
+/* Scrolling output + the prompt line sit BELOW the CRT overlays (z-index 1). */
+.tsic-term--t1 .tsic-term-out {
+  position: relative; z-index: 1;
+  flex: 1; min-height: 0; overflow-y: auto; white-space: pre-wrap;
+  scrollbar-width: none;
 }
-.tsic-term-program { display: none; } /* programs render via the shell's text out, not visibly */
+.tsic-term--t1 .tsic-term-out::-webkit-scrollbar { display: none; }
+.tsic-term--t1 .tsic-term-line {
+  position: relative; z-index: 1;
+  display: flex; align-items: baseline; gap: 0;
+}
+.tsic-term-row { min-height: 1.15em; }
+.tsic-term--t1 .tsic-term-banner { color: #88ff88; }
+.tsic-term--t1 .tsic-term-err {
+  color: #ff3333;
+  text-shadow: 0 0 5px rgba(255,51,51,0.6), 0 0 10px rgba(255,51,51,0.35);
+}
+.tsic-term--t1 .tsic-term-echo { color: var(--term-color); opacity: 0.7; }
+.tsic-term--t1 .tsic-term-prompt { margin-right: .4ch; }
+
+/* The visible input is an uppercased text mirror followed by a blinking
+   block cursor. The real <input> is kept off the visible flow but focusable
+   so it captures keystrokes (see tier1-text.js). */
+.tsic-term--t1 .tsic-term-mirror { white-space: pre; }
+.tsic-term--t1 .tsic-term-cursor {
+  display: inline-block; width: .55em; height: 1em;
+  background: var(--term-color); box-shadow: var(--term-glow);
+  vertical-align: text-bottom;
+}
+.tsic-term--t1 .tsic-term-input {
+  position: absolute; left: 0; top: 0; width: 1px; height: 1px;
+  padding: 0; border: 0; opacity: 0; outline: none;
+  color: transparent; background: transparent; caret-color: transparent;
+  font: inherit;
+}
+.tsic-term--t1 .tsic-term-program { display: none; } /* tier-1 programs render via the text out */
+
+/* CRT overlays — both non-interactive, stacked above the content. */
+.tsic-term--t1::before {                /* scanlines + RGB mask */
+  content: ''; position: absolute; inset: 0; z-index: 2; pointer-events: none;
+  background:
+    linear-gradient(rgba(0,0,0,0.28) 50%, transparent 50%),
+    linear-gradient(90deg, rgba(255,0,0,0.06), rgba(0,255,0,0.02), rgba(0,0,255,0.06));
+  background-size: 100% 4px, 3px 100%;
+}
+.tsic-term--t1::after {                 /* vignette (+ flicker, below) */
+  content: ''; position: absolute; inset: 0; z-index: 3; pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.55) 100%);
+}
+
+/* Motion is opt-in for users who haven't asked to reduce it. */
+@media (prefers-reduced-motion: no-preference) {
+  .tsic-term--t1::after { animation: tsic-crt-flicker 0.15s infinite; }
+  .tsic-term--t1 .tsic-term-cursor { animation: tsic-term-blink 1s step-end infinite; }
+}
+@keyframes tsic-crt-flicker { 0% { opacity: 0.95; } 50% { opacity: 1; } 100% { opacity: 0.98; } }
+@keyframes tsic-term-blink { 0% { opacity: 1; } 50% { opacity: 0; } 100% { opacity: 1; } }
+
 /* tier-2/3 stubs: just enough to see the chrome swapped */
 .tsic-term--t2, .tsic-term--t3 { background: #0c0c12; color: #cfd6e6; font-family: sans-serif; padding: 16px; height: 100%; box-sizing: border-box; }
 .tsic-term--t3 .tsic-term-clearance { color: #d2615b; font-weight: 700; letter-spacing: .1em; }

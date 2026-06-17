@@ -14,15 +14,23 @@
       '  <div class="tsic-term-out" id="term-out"></div>' +
       '  <div class="tsic-term-line" id="term-line">' +
       '    <span class="tsic-term-prompt">&gt;</span>' +
+      '    <span class="tsic-term-mirror" id="term-mirror"></span>' +
+      '    <span class="tsic-term-cursor" id="term-cursor"></span>' +
       '    <input class="tsic-term-input" id="term-input" autocomplete="off" spellcheck="false" data-tsic-initial-focus>' +
       '  </div>' +
       '</div>';
 
     const out = container.querySelector('#term-out');
     const promptEl = container.querySelector('.tsic-term-prompt');
+    const mirror = container.querySelector('#term-mirror');
     const input = container.querySelector('#term-input');
     let programList = [];
     let inputResolver = null; // set while a running program awaits readLine
+
+    // The real <input> is invisible; the visible input is an uppercased mirror
+    // of its value followed by the block cursor. Keep them in sync.
+    function syncMirror() { mirror.textContent = input.value.toUpperCase(); }
+    input.addEventListener('input', syncMirror);
 
     function write(text, cls) {
       const div = document.createElement('div');
@@ -79,6 +87,7 @@
       if (ev.key !== 'Enter') return;
       const value = input.value;
       input.value = '';
+      syncMirror();
       if (inputResolver) { // program is awaiting input
         const r = inputResolver; inputResolver = null;
         write('> ' + value, 'tsic-term-echo');
@@ -98,7 +107,7 @@
         return new Promise(function (res) { inputResolver = res; });
       },
       endProgram: function () { inputResolver = null; promptEl.style.visibility = ''; input.focus(); },
-      destroy: function () { input.removeEventListener('keydown', onKey); container.innerHTML = ''; },
+      destroy: function () { input.removeEventListener('keydown', onKey); input.removeEventListener('input', syncMirror); container.innerHTML = ''; },
     };
   }
 
