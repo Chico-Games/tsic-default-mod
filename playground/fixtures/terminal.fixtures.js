@@ -10,9 +10,10 @@ TSICPlayground.register({
             tier: 1,
             programs: [
                 { id: 'com.tsic.hello',   name: 'HELLO',    minTier: 1, entry: 'main.js', capabilities: ['term.print','term.input','storage.local'] },
+                { id: 'com.tsic.logs',    name: 'LOGS',     minTier: 1, entry: 'main.js', capabilities: ['term.print','term.input'] },
                 { id: 'com.tsic.scphint', name: 'SCP-HINT',  minTier: 3, entry: 'main.js', capabilities: ['term.print','world.read','world.mutate'] },
             ],
-            unlocked: ['com.tsic.hello'],
+            unlocked: ['com.tsic.hello', 'com.tsic.logs'],
             autoRun: null,   // program id the terminal boots straight into, if any
         };
     },
@@ -26,6 +27,7 @@ TSICPlayground.register({
     scenarios: [
         { label: 'Tier 1 — HELLO unlocked', apply(s) { s.autoRun = null; } },
         { label: 'Tier 1 — HELLO running', apply(s) { s.tier = 1; s.unlocked = ['com.tsic.hello']; s.autoRun = 'com.tsic.hello'; } },
+        { label: 'Tier 1 — LOGS running', apply(s) { s.tier = 1; s.unlocked = ['com.tsic.logs']; s.autoRun = 'com.tsic.logs'; } },
         { label: 'Tier 1 — nothing unlocked', apply(s) { s.unlocked = []; s.autoRun = null; } },
         { label: 'Tier 1 — all unlocked (SCP locked)', apply(s) { s.unlocked = ['com.tsic.hello','com.tsic.scphint']; s.autoRun = null; } },
         { label: 'Tier 2 — windowed stub', apply(s) { s.tier = 2; s.autoRun = null; } },
