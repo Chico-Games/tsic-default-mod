@@ -81,10 +81,13 @@
       rootEl.classList.remove('is-booting');
       rootEl.setAttribute('data-term-ready', '1');
       focusInput();
-      // Optionally boot straight into a program (host.autoRun is a program id).
+      // Optionally boot straight into a program (host.autoRun is a program id);
+      // otherwise show the HELP screen so the operator sees what they can do.
       if (host.autoRun) {
         write('> run ' + host.autoRun, 'tsic-term-echo');
         host.run(host.autoRun).then(function (res) { if (!res.ok) renderError(res, host.autoRun); });
+      } else {
+        printHelp();
       }
     }
 
@@ -123,7 +126,7 @@
       write('ERROR: ' + res.code, 'tsic-term-err');
     }
 
-    // Shared by LS and HELP so the two can never disagree about what's installed.
+    // Renders the installed-program list for HELP.
     function printProgramList() {
       if (!programList.length) { write('  No programs installed. Find a floppy disk.'); return; }
       programList.forEach(function (e) {
@@ -132,23 +135,25 @@
       });
     }
 
+    // The HELP screen: command list + installed programs. Shown on boot and on
+    // the HELP command so it always reflects what's actually installed.
+    function printHelp() {
+      write('Commands: HELP  RUN <name>  CLEAR  EXIT');
+      write('  (or just type a program name to run it)');
+      write('');
+      write('Installed programs:');
+      printProgramList();
+    }
+
     function doCommand(raw) {
       const text = raw.trim();
       write('> ' + text, 'tsic-term-echo');
       if (!text) return;
       const parts = text.split(/\s+/);
       const cmd = parts[0].toLowerCase();
-      if (cmd === 'help') {
-        write('Commands: HELP  LS  RUN <name>  CLEAR  EXIT');
-        write('  (or just type a program name to run it)');
-        write('');
-        write('Installed programs:');
-        printProgramList();
-        return;
-      }
+      if (cmd === 'help') { printHelp(); return; }
       if (cmd === 'clear') { out.innerHTML = ''; return; }
       if (cmd === 'exit') { host.close(); return; }
-      if (cmd === 'ls' || cmd === 'dir') { printProgramList(); return; }
       const id = (cmd === 'run') ? parts[1] : parts[0];
       if (!id) { write('Usage: RUN <name>', 'tsic-term-err'); return; }
       host.run(id).then(function (res) {

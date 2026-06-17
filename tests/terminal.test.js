@@ -23,49 +23,31 @@ TSICTestHarness.register({
         ctx.expect(ctx.assert.truthy(/DURHAM SYSTEMS BIOS/.test(out), 'types the first BIOS line'));
         ctx.expect(ctx.assert.truthy(/CONNECTION ESTABLISHED/.test(out), 'reaches CONNECTION ESTABLISHED'));
         ctx.expect(ctx.assert.truthy(/INTERNAL TERMINAL/.test(out), 'prints the logo'));
+        ctx.expect(ctx.assert.truthy(/Commands: HELP/.test(out), 'shows the HELP screen on load'));
     },
 });
 
 TSICTestHarness.register({
-    name: 'Terminal: LS lists unlocked programs and marks tier-locked ones',
+    name: 'Terminal: HELP lists installed programs and marks tier-locked ones',
     file: termScreenFile(),
     async run(ctx) {
         await openTier1Ready(ctx, {
             programs: [
-                { id: 'com.tsic.hello',  name: 'HELLO',    minTier: 1, entry: 'main.js' },
+                { id: 'com.tsic.hello',  name: 'HELLO',     minTier: 1, entry: 'main.js' },
+                { id: 'com.tsic.logs',   name: 'LOGS',      minTier: 1, entry: 'main.js' },
                 { id: 'com.tsic.scphint', name: 'SCP-HINT', minTier: 3, entry: 'main.js' },
             ],
-            unlocked: ['com.tsic.hello', 'com.tsic.scphint'],
-        });
-        const inp = ctx.doc.querySelector('#term-input');
-        inp.value = 'ls';
-        TSICTestHarness.events.keyOn(inp, 'Enter', { code: 'Enter' });
-        await TSICTestHarness.waitFor(() => /SCP-HINT/.test(ctx.doc.querySelector('#term-out').textContent));
-        const outText = ctx.doc.querySelector('#term-out').textContent;
-        ctx.expect(ctx.assert.truthy(/HELLO/.test(outText), 'lists HELLO'));
-        ctx.expect(ctx.assert.truthy(/LOCKED/.test(outText) && /SCP Restricted-Access Terminal/.test(outText),
-            'marks SCP-HINT locked with the required hardware name'));
-    },
-});
-
-TSICTestHarness.register({
-    name: 'Terminal: HELP lists the installed programs',
-    file: termScreenFile(),
-    async run(ctx) {
-        await openTier1Ready(ctx, {
-            programs: [
-                { id: 'com.tsic.hello', name: 'HELLO', minTier: 1, entry: 'main.js' },
-                { id: 'com.tsic.logs',  name: 'LOGS',  minTier: 1, entry: 'main.js' },
-            ],
-            unlocked: ['com.tsic.hello', 'com.tsic.logs'],
+            unlocked: ['com.tsic.hello', 'com.tsic.logs', 'com.tsic.scphint'],
         });
         const inp = ctx.doc.querySelector('#term-input');
         inp.value = 'help';
         TSICTestHarness.events.keyOn(inp, 'Enter', { code: 'Enter' });
         await TSICTestHarness.waitFor(() => /Installed programs:/.test(ctx.doc.querySelector('#term-out').textContent));
         const out = ctx.doc.querySelector('#term-out').textContent;
-        ctx.expect(ctx.assert.truthy(/Commands: HELP/.test(out), 'still shows the command list'));
+        ctx.expect(ctx.assert.truthy(/Commands: HELP/.test(out) && !/\bLS\b/.test(out), 'shows the command list without LS'));
         ctx.expect(ctx.assert.truthy(/HELLO/.test(out) && /LOGS/.test(out), 'lists every installed program'));
+        ctx.expect(ctx.assert.truthy(/LOCKED/.test(out) && /SCP Restricted-Access Terminal/.test(out),
+            'marks tier-locked programs with the required hardware'));
     },
 });
 
