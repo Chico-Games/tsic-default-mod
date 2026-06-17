@@ -8,77 +8,9 @@
   const term = await TSICProgram.connect();
 
   // Each log: a title + body as an array of lines (paginated by line).
-  const LOGS = [
-    {
-      title: 'STARTUP DIAGNOSTIC — 03:00',
-      body: [
-        'POWER-ON SELF TEST .......... OK',
-        'REGISTER LINK (x6) .......... OK',
-        'COLD STORAGE SENSORS ........ OK',
-        'BACK ROOM CAMERA 4 .......... NO SIGNAL',
-        'NIGHT LIGHTING .............. OK',
-        'ALL CRITICAL SYSTEMS NOMINAL.',
-      ],
-    },
-    {
-      title: 'INVENTORY RECONCILIATION',
-      body: [
-        'EXPECTED SKUS: 4,118',
-        'COUNTED SKUS:  4,121',
-        'DELTA: +3 (UNLISTED)',
-        'FLAG: 3 ITEMS PRESENT WITH NO CATALOG ENTRY.',
-        'AISLE 7, SHELF C. SUPERVISOR REVIEW ADVISED.',
-      ],
-    },
-    {
-      title: 'INCIDENT 0473 — NIGHT SHIFT',
-      body: [
-        '23:14  STOCKER REPORTS "HUMMING" FROM AISLE 7.',
-        '23:31  AISLE 7 CAMERA RESTORED. FEED UNSTABLE.',
-        '23:32  MOTION DETECTED. NO STAFF ON FLOOR.',
-        '23:40  PRODUCT FOUND REARRANGED INTO A SPIRAL.',
-        '23:41  REARRANGEMENT NOT ON CAMERA. TIMESTAMP GAP.',
-        '23:55  HUMMING CEASES.',
-        '00:02  STOCKER DOES NOT RESPOND TO PAGE.',
-        '00:03  STOCKER BADGE LAST READ: AISLE 7.',
-        '00:18  BADGE READS AISLE 7 AGAIN. AND AGAIN.',
-        '00:18  BADGE READS AISLE 7 x214 IN ONE SECOND.',
-        '00:19  FEED CUTS.',
-        '06:00  DAY SHIFT ARRIVES. AISLE 7 IS CLEAN.',
-        '06:00  STOCKER PRESENT. NO MEMORY OF NIGHT.',
-        '06:01  SPIRAL DRAWN ON THE BREAK ROOM WHITEBOARD.',
-        'STATUS: UNRESOLVED. ESCALATED TO SITE CONTROL.',
-        'DO NOT RESTOCK AISLE 7 ALONE.',
-      ],
-    },
-    {
-      title: 'MAINTENANCE: AISLE 7 LIGHTING',
-      body: [
-        'TICKET #8841 — LIGHTS FLICKER AT 23:00 NIGHTLY.',
-        'ELECTRICIAN: WIRING NOMINAL. NO FAULT FOUND.',
-        'RECOMMENDATION: REPLACE FIXTURE ANYWAY.',
-        'NOTE: NEW FIXTURE ALSO FLICKERS AT 23:00.',
-      ],
-    },
-    {
-      title: 'CUSTOMER FEEDBACK LOG',
-      body: [
-        '"GREAT PRICES, ODD MUSIC." — 4 STARS',
-        '"THE GUY IN AISLE 7 NEVER BLINKS." — 2 STARS',
-        '"I WAS ONLY GONE A MINUTE. IT WAS DARK OUT." — 1 STAR',
-        '"CLEAN STORE. CLEAN STORE. CLEAN STORE." — 5 STARS',
-      ],
-    },
-    {
-      title: 'SECURITY OVERRIDE — UNAUTHORIZED',
-      body: [
-        'CLEARANCE LEVEL REQUESTED: SITE.',
-        'CREDENTIALS: NOT ON FILE.',
-        'OVERRIDE GRANTED ANYWAY. SOURCE UNKNOWN.',
-        'A DIFFERENT TERMINAL IS LISTENING.',
-      ],
-    },
-  ];
+  // TODO: add the real log(s) here, e.g.:
+  //   { title: 'LOG TITLE', body: ['line one', 'line two', ...] },
+  const LOGS = [];
 
   const LIST_PER_PAGE = 5;
   const BODY_PER_PAGE = 14;
@@ -88,6 +20,15 @@
 
   // List view. Returns when the user quits.
   async function viewList() {
+    if (!LOGS.length) {
+      term.print('');
+      term.print(RULE);
+      term.print('  DURHAM SYSTEM LOGS');
+      term.print(RULE);
+      term.print('  NO LOGS ON FILE.');
+      await term.readLine('LOGS>  (any key to quit)');
+      return;
+    }
     let page = 0;
     const pages = Math.max(1, Math.ceil(LOGS.length / LIST_PER_PAGE));
     for (;;) {
