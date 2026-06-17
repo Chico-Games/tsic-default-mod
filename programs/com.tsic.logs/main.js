@@ -10,7 +10,7 @@
   // Each log: a title + body as an array of lines (paginated by line).
   const LOGS = [
     {
-      title: 'DURHAM OS v1.0.0 — INIT LOG 001',
+      title: 'DURHAM OS v1.0.0 - SYSTEM INITIALIZATION LOG 001',
       body: [
         'DATE: 12/14/1983    TIME: 08:30 AM',
         'SYSADMIN: KATIE',
@@ -81,10 +81,12 @@
     const pages = Math.max(1, Math.ceil(log.body.length / BODY_PER_PAGE));
     for (;;) {
       page = clamp(page, 0, pages - 1);
+      // Standard log header: title framed by '=' rules, sized to the title.
+      const bar = '='.repeat(log.title.length + 4);
       term.print('');
-      term.print(RULE);
-      term.print('  ' + log.title);
-      term.print(RULE);
+      term.print(bar);
+      term.print('* ' + log.title + ' *');
+      term.print(bar);
       const start = page * BODY_PER_PAGE;
       log.body.slice(start, start + BODY_PER_PAGE).forEach(function (line) { term.print('  ' + line); });
       term.print('');
