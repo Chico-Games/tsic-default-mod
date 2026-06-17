@@ -75,11 +75,14 @@
       out.appendChild(div);
       return new Promise(function (resolve) {
         const delay = NS.shells.tier1.charDelayMs;
+        // Reveal several chars per tick: the ~4ms setTimeout floor means a fast
+        // pace is reached by chars-per-tick, not by an ever-smaller delay.
+        const step = NS.shells.tier1.charsPerTick > 0 ? NS.shells.tier1.charsPerTick : 1;
         if (skipped || !(delay > 0)) { div.textContent = text; out.scrollTop = out.scrollHeight; resolve(); return; }
         let i = 0;
         (function tick() {
           if (skipped) { div.textContent = text; out.scrollTop = out.scrollHeight; resolve(); return; }
-          i += 1;
+          i += step;
           div.textContent = text.slice(0, i);
           out.scrollTop = out.scrollHeight;
           if (i >= text.length) { resolve(); return; }
@@ -255,7 +258,9 @@
     };
   }
 
-  // charDelayMs — per-character typewriter speed for BOTH the boot intro and
-  // program output, so they type at the same pace. Tests set it to 0 (instant).
-  NS.shells.tier1 = { create: create, charDelayMs: 14 };
+  // Typewriter speed for ALL terminal output (boot intro + shell + programs).
+  // charDelayMs = tick interval; charsPerTick = chars revealed per tick. Here
+  // 3 chars / 7ms ≈ 2.3ms/char — 6x faster than the original 14ms/char, while
+  // staying above the ~4ms setTimeout floor. Tests set charDelayMs 0 (instant).
+  NS.shells.tier1 = { create: create, charDelayMs: 7, charsPerTick: 3 };
 })(window);
