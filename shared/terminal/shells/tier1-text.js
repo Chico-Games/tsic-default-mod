@@ -123,6 +123,15 @@
       write('ERROR: ' + res.code, 'tsic-term-err');
     }
 
+    // Shared by LS and HELP so the two can never disagree about what's installed.
+    function printProgramList() {
+      if (!programList.length) { write('  No programs installed. Find a floppy disk.'); return; }
+      programList.forEach(function (e) {
+        const tag = e.locked ? '  [LOCKED — req. ' + NS.hardwareName(e.program.minTier) + ']' : '';
+        write('  ' + e.program.name + '  (' + e.program.id + ')' + tag);
+      });
+    }
+
     function doCommand(raw) {
       const text = raw.trim();
       write('> ' + text, 'tsic-term-echo');
@@ -132,18 +141,14 @@
       if (cmd === 'help') {
         write('Commands: HELP  LS  RUN <name>  CLEAR  EXIT');
         write('  (or just type a program name to run it)');
+        write('');
+        write('Installed programs:');
+        printProgramList();
         return;
       }
       if (cmd === 'clear') { out.innerHTML = ''; return; }
       if (cmd === 'exit') { host.close(); return; }
-      if (cmd === 'ls' || cmd === 'dir') {
-        if (!programList.length) { write('No programs installed. Find a floppy disk.'); return; }
-        programList.forEach(function (e) {
-          const tag = e.locked ? '  [LOCKED — req. ' + NS.hardwareName(e.program.minTier) + ']' : '';
-          write(e.program.name + '  (' + e.program.id + ')' + tag);
-        });
-        return;
-      }
+      if (cmd === 'ls' || cmd === 'dir') { printProgramList(); return; }
       const id = (cmd === 'run') ? parts[1] : parts[0];
       if (!id) { write('Usage: RUN <name>', 'tsic-term-err'); return; }
       host.run(id).then(function (res) {
