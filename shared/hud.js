@@ -15,6 +15,7 @@
 //   hud-minimap.js      — minimap (fixed-zoom, player-tracking)
 //   hud-chunk-debug.js  — chunk debug overlay (dev)
 //   hud-hotbar.js       — bottom-centre hotbar shelf
+//   hud-screen-fade.js  — full-screen black fade (death sequence)
 //
 // The HUD toggle (body.hud-hidden) stays here — it's orchestrator-level
 // since it hides ALL chrome elements at once.
@@ -226,5 +227,6 @@
     loadScript('/shared/hud-low-health.js');
     loadScript('/shared/hud-hit-reaction.js');
     loadScript('/shared/hud-ping.js');
+    loadScript('/shared/hud-screen-fade.js');
   });
 })();
