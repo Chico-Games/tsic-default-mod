@@ -42,6 +42,25 @@ TSICTestHarness.register({
 });
 
 TSICTestHarness.register({
+    name: 'Unit/Terminal/Catalog: resolveLaunch matches by name and is case-insensitive',
+    file: '/screens/test-fixtures.html',
+    async run(ctx) {
+        const { C, programs } = mkState(ctx.win);
+        const base = { programs, unlockedIds: ['com.tsic.hello'], tier: 1 };
+        // Exact id still resolves.
+        ctx.expect(ctx.assert.eq(C.resolveLaunch('com.tsic.hello', base).program.id, 'com.tsic.hello'));
+        // Lowercased display name resolves (what a user types after seeing "HELLO").
+        const byName = C.resolveLaunch('hello', base);
+        ctx.expect(ctx.assert.eq(byName.ok, true));
+        ctx.expect(ctx.assert.eq(byName.program.id, 'com.tsic.hello'));
+        // Exact display name resolves.
+        ctx.expect(ctx.assert.eq(C.resolveLaunch('HELLO', base).program.id, 'com.tsic.hello'));
+        // Case-insensitive id resolves.
+        ctx.expect(ctx.assert.eq(C.resolveLaunch('COM.TSIC.HELLO', base).program.id, 'com.tsic.hello'));
+    },
+});
+
+TSICTestHarness.register({
     name: 'Unit/Terminal/Catalog: resolveLaunch returns structured errors',
     file: '/screens/test-fixtures.html',
     async run(ctx) {

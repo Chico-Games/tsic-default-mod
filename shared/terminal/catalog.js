@@ -35,13 +35,21 @@
       });
   }
 
-  function resolveLaunch(programId, opts) {
+  // Resolve a typed token to a program. Match priority: exact id, then
+  // case-insensitive id, then case-insensitive name — so a user who sees
+  // "HELLO  (com.tsic.hello)" in the listing can run it by typing "hello",
+  // "HELLO", or the full id.
+  function resolveLaunch(token, opts) {
     const programs = opts.programs || [];
     const unlocked = new Set(opts.unlockedIds || []);
     const tier = opts.tier;
-    const program = programs.find(function (p) { return p && p.id === programId; });
-    if (!program) return { ok: false, code: NS.ERR.NOT_FOUND, info: { id: programId } };
-    if (!unlocked.has(program.id)) return { ok: false, code: NS.ERR.NOT_UNLOCKED, info: { id: programId } };
+    const needle = String(token == null ? '' : token).toLowerCase();
+    const program =
+      programs.find(function (p) { return p && p.id === token; }) ||
+      programs.find(function (p) { return p && p.id.toLowerCase() === needle; }) ||
+      programs.find(function (p) { return p && p.name.toLowerCase() === needle; });
+    if (!program) return { ok: false, code: NS.ERR.NOT_FOUND, info: { id: token } };
+    if (!unlocked.has(program.id)) return { ok: false, code: NS.ERR.NOT_UNLOCKED, info: { id: program.id } };
     if (!runnable(program, tier)) {
       return { ok: false, code: NS.ERR.TIER_TOO_LOW, info: { required: program.minTier, current: tier } };
     }

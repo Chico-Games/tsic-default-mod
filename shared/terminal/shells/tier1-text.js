@@ -54,8 +54,8 @@
       const parts = text.split(/\s+/);
       const cmd = parts[0].toLowerCase();
       if (cmd === 'help') {
-        write('Commands: HELP  LS  RUN <id>  CLEAR  EXIT');
-        write('  (or just type a program id to run it)');
+        write('Commands: HELP  LS  RUN <name>  CLEAR  EXIT');
+        write('  (or just type a program name to run it)');
         return;
       }
       if (cmd === 'clear') { out.innerHTML = ''; return; }
@@ -69,7 +69,7 @@
         return;
       }
       const id = (cmd === 'run') ? parts[1] : parts[0];
-      if (!id) { write('Usage: RUN <id>', 'tsic-term-err'); return; }
+      if (!id) { write('Usage: RUN <name>', 'tsic-term-err'); return; }
       host.run(id).then(function (res) {
         if (!res.ok) renderError(res, id);
       });
