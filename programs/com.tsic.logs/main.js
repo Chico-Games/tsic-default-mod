@@ -12,7 +12,7 @@
     {
       title: 'DURHAM OS v1.0.0 — INIT LOG 001',
       body: [
-        'DATE: 10/14/1986    TIME: 08:30 AM',
+        'DATE: 12/14/1983    TIME: 08:30 AM',
         'SYSADMIN: KATIE',
         '',
         'Welcome everyone! This is the very first log of the very',
