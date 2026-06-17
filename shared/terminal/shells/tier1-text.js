@@ -61,20 +61,20 @@
     // Typewriter: append `text` one character at a time into its own row, then
     // resolve. A set `skipped` flag (or a non-positive charDelayMs) flushes the
     // whole line instantly so the boot animation can be fast-forwarded.
-    function type(text, cls, delayMs, charsPerStep) {
+    // Typewriter: append `text` one character at a time at charDelayMs. Used by
+    // both the boot intro and program output, so they type at the same pace.
+    // A set `skipped` flag (or charDelayMs <= 0) flushes the line instantly.
+    function type(text, cls) {
       const div = document.createElement('div');
       div.className = 'tsic-term-row' + (cls ? ' ' + cls : '');
       out.appendChild(div);
       return new Promise(function (resolve) {
-        const delay = (delayMs != null) ? delayMs : NS.shells.tier1.charDelayMs;
-        // Reveal multiple chars per tick when asked — the ~4ms setTimeout floor
-        // means per-char stepping can't go faster than ~4ms/char otherwise.
-        const step = (charsPerStep > 0) ? charsPerStep : 1;
+        const delay = NS.shells.tier1.charDelayMs;
         if (skipped || !(delay > 0)) { div.textContent = text; out.scrollTop = out.scrollHeight; resolve(); return; }
         let i = 0;
         (function tick() {
           if (skipped) { div.textContent = text; out.scrollTop = out.scrollHeight; resolve(); return; }
-          i += step;
+          i += 1;
           div.textContent = text.slice(0, i);
           out.scrollTop = out.scrollHeight;
           if (i >= text.length) { resolve(); return; }
@@ -96,7 +96,7 @@
           waiters.forEach(function (w) { w(); });
           return;
         }
-        type(printQueue.shift(), null, NS.shells.tier1.progCharDelayMs, NS.shells.tier1.progCharsPerTick).then(next);
+        type(printQueue.shift(), null).then(next);
       })();
     }
     function whenDrained() {
@@ -217,7 +217,7 @@
         programActive = true;
         input.value = ''; syncMirror();  // discard anything typed while text was still printing
         return whenDrained().then(function () {
-          const typedPrompt = prompt ? type(String(prompt), null, NS.shells.tier1.progCharDelayMs, NS.shells.tier1.progCharsPerTick) : Promise.resolve();
+          const typedPrompt = prompt ? type(String(prompt), null) : Promise.resolve();
           return typedPrompt.then(function () {
             promptEl.style.visibility = 'hidden';
             return new Promise(function (res) { inputResolver = res; });
@@ -243,9 +243,7 @@
     };
   }
 
-  // charDelayMs      — tick interval of the BIOS boot animation (tests set 0).
-  // progCharDelayMs  — tick interval for program output (term.print).
-  // progCharsPerTick — chars revealed per tick for program output. The two
-  //   together make program text type out near-instantly while still revealing.
-  NS.shells.tier1 = { create: create, charDelayMs: 14, progCharDelayMs: 4, progCharsPerTick: 16 };
+  // charDelayMs — per-character typewriter speed for BOTH the boot intro and
+  // program output, so they type at the same pace. Tests set it to 0 (instant).
+  NS.shells.tier1 = { create: create, charDelayMs: 14 };
 })(window);
