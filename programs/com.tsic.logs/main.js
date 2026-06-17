@@ -49,6 +49,7 @@
       title: "DURHAM OS // SYSADMIN DIARY // LOG 01",
       body: [
         "USER: KATIE_IT",
+        "DATE: 01/08/1984    TIME: 05:30 PM",
         "",
         "I am officially set up in my own tech room and settled in!",
         "",
@@ -69,7 +70,7 @@
   ];
 
   const LIST_PER_PAGE = 5;
-  const BODY_PER_PAGE = 14;
+  const BODY_PER_PAGE = 18;
   const RULE = "========================================";
 
   function clamp(n, lo, hi) {
