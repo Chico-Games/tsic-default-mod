@@ -29,6 +29,10 @@
     let inputResolver = null; // set while a running program awaits readLine
     let booting = false;      // true while the BIOS boot animation plays
     let skipped = false;      // set by a keypress to fast-forward the boot
+    let printQueue = [];      // program output, typed one line at a time, in order
+    let draining = false;
+    let drainWaiters = [];
+    let programActive = false; // a program owns the screen (suppress shell commands)
 
     // The real <input> is invisible; the visible input is an uppercased mirror
     // of its value followed by the block cursor. Keep them in sync.
@@ -57,12 +61,12 @@
     // Typewriter: append `text` one character at a time into its own row, then
     // resolve. A set `skipped` flag (or a non-positive charDelayMs) flushes the
     // whole line instantly so the boot animation can be fast-forwarded.
-    function type(text, cls) {
+    function type(text, cls, delayMs) {
       const div = document.createElement('div');
       div.className = 'tsic-term-row' + (cls ? ' ' + cls : '');
       out.appendChild(div);
       return new Promise(function (resolve) {
-        const delay = NS.shells.tier1.charDelayMs;
+        const delay = (delayMs != null) ? delayMs : NS.shells.tier1.charDelayMs;
         if (skipped || !(delay > 0)) { div.textContent = text; out.scrollTop = out.scrollHeight; resolve(); return; }
         let i = 0;
         (function tick() {
@@ -76,10 +80,32 @@
       });
     }
 
+    // Program output (term.print) types out fast, queued so the rapid-fire
+    // prints a program emits stay in order. readLine/exit wait for the queue to
+    // drain (see whenDrained) so prompts and theme resets don't race the text.
+    function pumpQueue() {
+      if (draining) return;
+      draining = true;
+      (function next() {
+        if (!printQueue.length) {
+          draining = false;
+          const waiters = drainWaiters; drainWaiters = [];
+          waiters.forEach(function (w) { w(); });
+          return;
+        }
+        type(printQueue.shift(), null, NS.shells.tier1.progCharDelayMs).then(next);
+      })();
+    }
+    function whenDrained() {
+      if (!draining && !printQueue.length) return Promise.resolve();
+      return new Promise(function (res) { drainWaiters.push(res); });
+    }
+
     // Mark the terminal ready: reveal the prompt and accept commands. Called
     // once the boot animation completes (or is skipped / unavailable).
     function finishBoot() {
       booting = false;
+      skipped = false; // boot-only flag; clear it so program output still types
       rootEl.classList.remove('is-booting');
       rootEl.setAttribute('data-term-ready', '1');
       focusInput();
@@ -175,6 +201,7 @@
         r(value);
         return;
       }
+      if (programActive) return; // a program owns the screen but isn't at a prompt
       doCommand(value);
     }
     input.addEventListener('keydown', onKey);
@@ -182,14 +209,28 @@
 
     return {
       onPrograms: function (entries) { programList = entries || []; },
-      printToProgram: function (text) { write(text); },
+      printToProgram: function (text) { programActive = true; printQueue.push(String(text)); pumpQueue(); },
       beginProgramInput: function (prompt) {
-        if (prompt) write(prompt);
-        promptEl.style.visibility = 'hidden';
-        return new Promise(function (res) { inputResolver = res; });
+        programActive = true;
+        input.value = ''; syncMirror();  // discard anything typed while text was still printing
+        return whenDrained().then(function () {
+          const typedPrompt = prompt ? type(String(prompt), null, NS.shells.tier1.progCharDelayMs) : Promise.resolve();
+          return typedPrompt.then(function () {
+            promptEl.style.visibility = 'hidden';
+            return new Promise(function (res) { inputResolver = res; });
+          });
+        });
       },
       setTheme: applyTheme,
-      endProgram: function () { inputResolver = null; promptEl.style.visibility = ''; applyTheme(null); input.focus(); },
+      endProgram: function () {
+        inputResolver = null;
+        whenDrained().then(function () {
+          programActive = false;
+          promptEl.style.visibility = '';
+          applyTheme(null);
+          focusInput();
+        });
+      },
       destroy: function () {
         input.removeEventListener('keydown', onKey);
         input.removeEventListener('input', syncMirror);
@@ -199,7 +240,7 @@
     };
   }
 
-  // charDelayMs is the per-character typewriter speed for the boot animation;
-  // tests set it to 0 to make boot instant.
-  NS.shells.tier1 = { create: create, charDelayMs: 14 };
+  // charDelayMs   — per-character speed of the BIOS boot animation (tests set 0).
+  // progCharDelayMs — per-character speed of program output (term.print); fast.
+  NS.shells.tier1 = { create: create, charDelayMs: 14, progCharDelayMs: 3 };
 })(window);
