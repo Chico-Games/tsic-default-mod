@@ -17,7 +17,7 @@
   term.print('HELLO', creepy);
   await term.readLine('');            // wait for any response
 
-  term.print('DO YOU FEEL THAT?', creepy);
+  term.print('DO YOU FEEL SAFE?', creepy);
   await term.readLine('');            // wait for any other input
 
   term.print('GOODBYE', creepy);
