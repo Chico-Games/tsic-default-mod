@@ -75,6 +75,7 @@
         iframe.contentWindow.postMessage({ __tsicHost: true, type: 'handshake', caps: granted }, '*');
         return;
       }
+      // print/exit reach nothing outside this iframe (print -> shell scrollback, exit -> teardown); intentionally ungated.
       if (m.type === 'print') { onPrint(String(m.payload)); return; }
       if (m.type === 'exit') { kill(); onExit(); return; }
       if (m.type === 'readLine') {
@@ -85,7 +86,11 @@
       // Host-handled ops: gate then dispatch.
       const v = validateRequest(m.type, granted);
       if (!v.ok) { reply(m.id, { error: v.code }); return; }
-      handlers.dispatch(m.type, m.payload).then(function (result) { reply(m.id, result); });
+      // A rejecting host handler (e.g. a future C++-backed op) surfaces as an error rather than hanging the program.
+      handlers.dispatch(m.type, m.payload).then(
+        function (result) { reply(m.id, result); },
+        function () { reply(m.id, { error: NS.ERR.NOT_IMPLEMENTED }); }
+      );
     }
 
     window.addEventListener('message', onMessage);

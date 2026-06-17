@@ -14,7 +14,7 @@
   TSIC.registerScreen('Terminal', {
     inputModeTag: 'InputMode.Menu.Terminal',
     cancelCmd: 'UI.Cmd.Pause.Resume',
-    template: '<div id="terminal-root" class="tsic-term-host"></div>',
+    template: '',
 
     mount(root, ctx) {
       const state = { tier: 1, programs: [], unlockedIds: [], storage: new Map(), shell: null, program: null };
