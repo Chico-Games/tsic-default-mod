@@ -52,6 +52,27 @@ TSICTestHarness.register({
 });
 
 TSICTestHarness.register({
+    name: 'Terminal: HELP omits hidden (secret) programs',
+    file: termScreenFile(),
+    async run(ctx) {
+        await openTier1Ready(ctx, {
+            programs: [
+                { id: 'com.tsic.hello',   name: 'HELLO',   minTier: 1, entry: 'main.js' },
+                { id: 'com.tsic.scp3008', name: 'SCP3008',  minTier: 1, entry: 'main.js', hidden: true },
+            ],
+            unlocked: ['com.tsic.hello', 'com.tsic.scp3008'],
+        });
+        const inp = ctx.doc.querySelector('#term-input');
+        inp.value = 'help';
+        TSICTestHarness.events.keyOn(inp, 'Enter', { code: 'Enter' });
+        await TSICTestHarness.waitFor(() => /Installed programs:/.test(ctx.doc.querySelector('#term-out').textContent));
+        const out = ctx.doc.querySelector('#term-out').textContent;
+        ctx.expect(ctx.assert.truthy(/HELLO/.test(out), 'lists visible programs'));
+        ctx.expect(ctx.assert.truthy(!/SCP3008/.test(out), 'never reveals the hidden program'));
+    },
+});
+
+TSICTestHarness.register({
     name: 'Terminal: running a tier-locked program shows INCOMPATIBLE HARDWARE',
     file: termScreenFile(),
     async run(ctx) {

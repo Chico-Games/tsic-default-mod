@@ -63,6 +63,14 @@
 /* ASCII logo block printed at the end of boot. */
 .tsic-term--t1 .tsic-term-logo { white-space: pre; margin: 6px 0 14px; }
 
+/* Program-driven theme (term.theme('red')) — emergency red phosphor. Overrides
+   the tier-1 tokens, so text, cursor, glow and background all re-tint. */
+.tsic-term--t1.tsic-term--theme-red {
+  --term-color: #ff2b2b;
+  --term-bg: #160303;
+  --term-glow: 0 0 5px rgba(255,40,40,0.55), 0 0 12px rgba(255,25,25,0.35);
+}
+
 /* CRT overlays — both non-interactive, stacked above the content. */
 .tsic-term--t1::before {                /* scanlines + RGB mask */
   content: ''; position: absolute; inset: 0; z-index: 2; pointer-events: none;

@@ -61,6 +61,26 @@ TSICTestHarness.register({
 });
 
 TSICTestHarness.register({
+    name: 'Unit/Terminal/Catalog: hidden programs are omitted from the list but still launch',
+    file: '/screens/test-fixtures.html',
+    async run(ctx) {
+        const C = ctx.win.TSICTerminal.catalog;
+        const programs = [
+            C.parseManifest({ id: 'com.tsic.hello',  name: 'HELLO',  minTier: 1, entry: 'main.js' }),
+            C.parseManifest({ id: 'com.tsic.secret', name: 'SECRET', minTier: 1, entry: 'main.js', hidden: true }),
+        ];
+        const base = { programs, unlockedIds: ['com.tsic.hello', 'com.tsic.secret'], tier: 1 };
+        const list = C.listForTerminal(base);
+        ctx.expect(ctx.assert.eq(list.length, 1));
+        ctx.expect(ctx.assert.eq(list[0].program.id, 'com.tsic.hello'));
+        // ...but a hidden program still resolves when you know its name.
+        const r = C.resolveLaunch('secret', base);
+        ctx.expect(ctx.assert.eq(r.ok, true));
+        ctx.expect(ctx.assert.eq(r.program.id, 'com.tsic.secret'));
+    },
+});
+
+TSICTestHarness.register({
     name: 'Unit/Terminal/Catalog: resolveLaunch returns structured errors',
     file: '/screens/test-fixtures.html',
     async run(ctx) {

@@ -41,6 +41,8 @@
     // mousedown focus from moving focus to the (non-focusable) screen div and
     // overriding ours.
     function focusInput() { try { input.focus({ preventScroll: true }); } catch (e) {} }
+    // Programs can recolour the terminal via term.theme(name); reset on exit.
+    function applyTheme(name) { rootEl.classList.toggle('tsic-term--theme-red', name === 'red'); }
     function onPointerDown(ev) { ev.preventDefault(); focusInput(); }
     container.addEventListener('mousedown', onPointerDown);
 
@@ -186,7 +188,8 @@
         promptEl.style.visibility = 'hidden';
         return new Promise(function (res) { inputResolver = res; });
       },
-      endProgram: function () { inputResolver = null; promptEl.style.visibility = ''; input.focus(); },
+      setTheme: applyTheme,
+      endProgram: function () { inputResolver = null; promptEl.style.visibility = ''; applyTheme(null); input.focus(); },
       destroy: function () {
         input.removeEventListener('keydown', onKey);
         input.removeEventListener('input', syncMirror);

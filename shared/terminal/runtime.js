@@ -22,6 +22,7 @@
     '    storage: { get: function(k){ return send("storage.get", {key:k}); }, set: function(k,v){ return send("storage.set", {key:k, value:v}); } },',
     '    catalog: { list: function(){ return send("catalog.list", {}); } },',
     '    world: { read: function(k){ return send("world.read", {key:k}); }, mutate: function(op,args){ return send("world.mutate", {op:op, args:args}); } },',
+    '    theme: function(name){ parent.postMessage({__tsicProgram:true, type:"theme", payload:{name:name}}, "*"); },',
     '    exit: function(){ parent.postMessage({__tsicProgram:true, type:"exit"}, "*"); },',
     '  }; }',
     '  window.addEventListener("message", function(e){',
@@ -55,6 +56,7 @@
     const handlers = opts.handlers;
     const onPrint = opts.onPrint || function () {};
     const onExit = opts.onExit || function () {};
+    const onTheme = opts.onTheme || function () {};
     const requestInput = opts.requestInput || function () { return Promise.resolve(''); };
 
     const iframe = document.createElement('iframe');
@@ -75,8 +77,10 @@
         iframe.contentWindow.postMessage({ __tsicHost: true, type: 'handshake', caps: granted }, '*');
         return;
       }
-      // print/exit reach nothing outside this iframe (print -> shell scrollback, exit -> teardown); intentionally ungated.
+      // print/theme/exit reach nothing outside this iframe (print -> shell scrollback,
+      // theme -> the terminal's own colour, exit -> teardown); intentionally ungated.
       if (m.type === 'print') { onPrint(String(m.payload)); return; }
+      if (m.type === 'theme') { onTheme(m.payload && m.payload.name); return; }
       if (m.type === 'exit') { kill(); onExit(); return; }
       if (m.type === 'readLine') {
         if (granted.indexOf('term.input') === -1) { reply(m.id, { error: NS.ERR.CAP_DENIED }); return; }

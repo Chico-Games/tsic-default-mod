@@ -1,0 +1,9 @@
+{
+  "id": "com.tsic.scp3008",
+  "name": "SCP3008",
+  "version": "0.1",
+  "minTier": 1,
+  "entry": "main.js",
+  "hidden": true,
+  "capabilities": ["term.print", "term.input"]
+}

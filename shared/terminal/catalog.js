@@ -16,6 +16,7 @@
       entry: String(raw.entry),
       icon: raw.icon ? String(raw.icon) : null,
       capabilities: Array.isArray(raw.capabilities) ? raw.capabilities.slice() : [],
+      hidden: !!raw.hidden,   // secret programs: runnable by name, omitted from listings
     };
   }
 
@@ -28,7 +29,7 @@
     const unlocked = new Set(opts.unlockedIds || []);
     const tier = opts.tier;
     return programs
-      .filter(function (p) { return p && unlocked.has(p.id); })
+      .filter(function (p) { return p && unlocked.has(p.id) && !p.hidden; })
       .map(function (p) { return { program: p, locked: !runnable(p, tier) }; })
       .sort(function (a, b) {
         return a.program.name.toLowerCase().localeCompare(b.program.name.toLowerCase());

@@ -45,6 +45,7 @@
               granted: granted,
               handlers: handlers,
               onPrint: function (txt) { if (state.shell) state.shell.printToProgram(txt); },
+              onTheme: function (name) { if (state.shell && state.shell.setTheme) state.shell.setTheme(name); },
               requestInput: function (prompt) { return state.shell ? state.shell.beginProgramInput(prompt) : Promise.resolve(''); },
               onExit: function () { if (state.shell) state.shell.endProgram(); },
             });
