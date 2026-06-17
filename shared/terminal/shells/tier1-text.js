@@ -19,7 +19,7 @@
       '</div>';
 
     const out = container.querySelector('#term-out');
-    const line = container.querySelector('#term-line');
+    const promptEl = container.querySelector('.tsic-term-prompt');
     const input = container.querySelector('#term-input');
     let programList = [];
     let inputResolver = null; // set while a running program awaits readLine
@@ -94,10 +94,10 @@
       printToProgram: function (text) { write(text); },
       beginProgramInput: function (prompt) {
         if (prompt) write(prompt);
-        line.style.display = 'none';
+        promptEl.style.visibility = 'hidden';
         return new Promise(function (res) { inputResolver = res; });
       },
-      endProgram: function () { inputResolver = null; line.style.display = ''; input.focus(); },
+      endProgram: function () { inputResolver = null; promptEl.style.visibility = ''; input.focus(); },
       destroy: function () { input.removeEventListener('keydown', onKey); container.innerHTML = ''; },
     };
   }
