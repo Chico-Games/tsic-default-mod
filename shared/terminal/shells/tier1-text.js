@@ -180,12 +180,13 @@
       write('ERROR: ' + res.code, 'tsic-term-err');
     }
 
-    // Renders the installed-program list for HELP.
+    // Renders the installed-program list for HELP. Shows only the program name
+    // (the internal id — e.g. com.tsic.logs — stays hidden; programs run by name).
     function printProgramList() {
       if (!programList.length) { write('  No programs installed. Find a floppy disk.'); return; }
       programList.forEach(function (e) {
         const tag = e.locked ? '  [LOCKED — req. ' + NS.hardwareName(e.program.minTier) + ']' : '';
-        write('  ' + e.program.name + '  (' + e.program.id + ')' + tag);
+        write('  ' + e.program.name + tag);
       });
     }
 
