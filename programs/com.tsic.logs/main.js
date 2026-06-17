@@ -28,6 +28,22 @@
         '- Katie (Head of IT)',
       ],
     },
+    {
+      title: 'DURHAM OS // UNTITLED LOG ENTRY 002',
+      body: [
+        'USER: GARY',
+        'TIMESTAMP: 12/18/1983 - 10:14 AM',
+        '',
+        'SEARCH INVENTORY',
+        'WHERE ARE THE PINE DROP-LEAF TABLES',
+        'LOCATE PINE TABLE SHOWROOM C',
+        'HELLO COMPUTER PLEASE FIND PINE TABLE',
+        'ENTER',
+        'SEARCH',
+        'PINE TALE',
+        'DELETEBACKSPACE',
+      ],
+    },
   ];
 
   const LIST_PER_PAGE = 5;
