@@ -65,9 +65,10 @@
     term.print(DASH);
     term.print('  N            NEXT PAGE');
     term.print('  P            PREV PAGE');
-    term.print('  FIND <SKU>   SEARCH BY SKU OR DESCRIPTION');
+    term.print('  F <SKU>      FIND BY SKU OR DESCRIPTION');
     term.print('  ALL          CLEAR SEARCH / SHOW ALL ITEMS');
     term.print('  R            REFRESH QUANTITIES');
+    term.print('  H            THIS HELP');
     term.print('  Q            QUIT');
     term.print(DASH);
     await term.readLine('> PRESS ENTER TO RETURN ');
@@ -100,18 +101,18 @@
       visible.slice(start, start + PER_PAGE).forEach(function (it) { term.print(rowOf(it, secs)); });
     }
     term.print(DASH);
-    term.print('PAGE ' + (page + 1) + '/' + pages + '   N)EXT  P)REV  FIND <SKU>  Q)UIT');
+    term.print('PAGE ' + (page + 1) + '/' + pages + '   N)EXT  P)REV  F)IND <SKU>  H)ELP  Q)UIT');
 
-    const ans = (await term.readLine('> ENTER COMMAND (F1 FOR HELP): ')).trim();
+    const ans = (await term.readLine('')).trim();
     const lc = ans.toLowerCase();
     if (lc === '') continue;
     if (lc === 'q' || lc === 'quit' || lc === 'exit') break;
-    if (lc === 'f1' || lc === 'help' || lc === '?') { await showHelp(); continue; }
+    if (lc === 'h' || lc === 'help' || lc === '?') { await showHelp(); continue; }
     if (lc === 'n' || lc === 'next') { page += 1; continue; }
     if (lc === 'p' || lc === 'prev') { page -= 1; continue; }
     if (lc === 'r' || lc === 'refresh') { continue; }
     if (lc === 'all' || lc === 'clear' || lc === 'b' || lc === 'back') { filter = null; page = 0; continue; }
-    const m = ans.match(/^(?:find|search|s)\s+(.+)$/i);
+    const m = ans.match(/^(?:f|find|search)\s+(.+)$/i);
     filter = (m ? m[1] : ans).trim();
     page = 0;
   }
