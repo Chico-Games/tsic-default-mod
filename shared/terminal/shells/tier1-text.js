@@ -9,19 +9,25 @@
 
   function create(container, host) {
     const hw = NS.hardwareName(host.tier);
+    // The input line lives INSIDE the scroll region as its last child, so the
+    // prompt/cursor flows directly under the current output (like a real
+    // terminal) instead of being pinned to the screen bottom. Output rows are
+    // inserted before it.
     container.innerHTML =
       '<div class="tsic-term tsic-term--t1">' +
-      '  <div class="tsic-term-out" id="term-out"></div>' +
-      '  <div class="tsic-term-line" id="term-line">' +
-      '    <span class="tsic-term-prompt">&gt;</span>' +
-      '    <span class="tsic-term-mirror" id="term-mirror"></span>' +
-      '    <span class="tsic-term-cursor" id="term-cursor"></span>' +
-      '    <input class="tsic-term-input" id="term-input" autocomplete="off" spellcheck="false" data-tsic-initial-focus>' +
+      '  <div class="tsic-term-out" id="term-out">' +
+      '    <div class="tsic-term-line" id="term-line">' +
+      '      <span class="tsic-term-prompt">&gt;</span>' +
+      '      <span class="tsic-term-mirror" id="term-mirror"></span>' +
+      '      <span class="tsic-term-cursor" id="term-cursor"></span>' +
+      '      <input class="tsic-term-input" id="term-input" autocomplete="off" spellcheck="false" data-tsic-initial-focus>' +
+      '    </div>' +
       '  </div>' +
       '</div>';
 
     const doc = container.ownerDocument;
     const out = container.querySelector('#term-out');
+    const line = container.querySelector('#term-line');
     const promptEl = container.querySelector('.tsic-term-prompt');
     const mirror = container.querySelector('#term-mirror');
     const input = container.querySelector('#term-input');
@@ -56,13 +62,19 @@
     // True while this shell's document is still live (false after teardown).
     function alive() { return !destroyed && doc && doc.defaultView; }
 
+    // Remove printed rows but keep the input line (its last child).
+    function clearRows() {
+      const rows = out.querySelectorAll('.tsic-term-row');
+      for (let i = 0; i < rows.length; i++) rows[i].remove();
+    }
+
     // Instant append (no typewriter). Used only for the boot logo block.
     function writeInstant(text, cls) {
       if (!alive()) return;
       const div = doc.createElement('div');
       div.className = 'tsic-term-row' + (cls ? ' ' + cls : '');
       div.textContent = text;
-      out.appendChild(div);
+      out.insertBefore(div, line);
       out.scrollTop = out.scrollHeight;
     }
 
@@ -78,7 +90,7 @@
       const jitter = o.jitter || 0;
       const div = doc.createElement('div');
       div.className = 'tsic-term-row' + (cls ? ' ' + cls : '');
-      out.appendChild(div);
+      out.insertBefore(div, line);
       return new Promise(function (resolve) {
         if (skipped || !(delay > 0)) { div.textContent = text; out.scrollTop = out.scrollHeight; resolve(); return; }
         let i = 0;
@@ -110,7 +122,7 @@
           return;
         }
         const item = printQueue.shift();
-        if (item.kind === 'clear') { if (alive()) out.innerHTML = ''; next(); return; }
+        if (item.kind === 'clear') { if (alive()) clearRows(); next(); return; }
         type(item.text, item.cls, item.opts).then(next);
       })();
     }
@@ -207,7 +219,7 @@
       const parts = text.split(/\s+/);
       const cmd = parts[0].toLowerCase();
       if (cmd === 'help') { printHelp(); return; }
-      if (cmd === 'clear') { printQueue.length = 0; out.innerHTML = ''; return; }
+      if (cmd === 'clear') { printQueue.length = 0; clearRows(); return; }
       if (cmd === 'exit') { host.close(); return; }
       const id = (cmd === 'run') ? parts[1] : parts[0];
       if (!id) { write('Usage: RUN <name>', 'tsic-term-err'); return; }
@@ -258,7 +270,7 @@
         programActive = false;
         promptEl.style.visibility = '';
         applyTheme(null);
-        if (alive()) out.innerHTML = '';
+        if (alive()) clearRows();
         rootEl.removeAttribute('data-term-ready');
         bootSequence();
       },
