@@ -2,13 +2,27 @@
 // Loads the SPA shell page and drives it through the screen manager.
 function termScreenFile() { return '/screens/terminal.html'; }
 
+// Open a tier-1 terminal and wait until the BIOS boot animation has handed off
+// to the prompt (data-term-ready). Boot is forced instant via charDelayMs = 0.
+async function openTier1Ready(ctx, opts) {
+    opts = opts || {};
+    await TSICTestHarness.waitFor(() => ctx.win.TSICTerminal && ctx.win.TSICTerminal.shells && ctx.win.TSICTerminal.shells.tier1);
+    ctx.win.TSICTerminal.shells.tier1.charDelayMs = 0;
+    if (opts.programs) ctx.inject('tsic.msg.UI.Terminal.Catalog', { Programs: opts.programs });
+    if (opts.unlocked) ctx.inject('tsic.msg.UI.Terminal.UnlockedList', { ProgramIds: opts.unlocked });
+    ctx.inject('tsic.msg.UI.Terminal.Open', { TerminalId: opts.id || 't1', Tier: 1 });
+    await TSICTestHarness.waitFor(() => ctx.doc.querySelector('.tsic-term--t1[data-term-ready]'));
+}
+
 TSICTestHarness.register({
-    name: 'Terminal: boots the Durham banner for a tier-1 terminal',
+    name: 'Terminal: boots the Durham BIOS sequence for a tier-1 terminal',
     file: termScreenFile(),
     async run(ctx) {
-        ctx.inject('tsic.msg.UI.Terminal.Open', { TerminalId: 't1', Tier: 1 });
-        await TSICTestHarness.waitFor(() => ctx.doc.querySelector('.tsic-term-banner'));
-        ctx.expect(ctx.assert.domText(ctx.doc, '.tsic-term-banner', /DURHAM INTERNAL TERMINAL/));
+        await openTier1Ready(ctx);
+        const out = ctx.doc.querySelector('#term-out').textContent;
+        ctx.expect(ctx.assert.truthy(/DURHAM SYSTEMS BIOS/.test(out), 'types the first BIOS line'));
+        ctx.expect(ctx.assert.truthy(/CONNECTION ESTABLISHED/.test(out), 'reaches CONNECTION ESTABLISHED'));
+        ctx.expect(ctx.assert.truthy(/INTERNAL TERMINAL/.test(out), 'prints the logo'));
     },
 });
 
@@ -16,14 +30,13 @@ TSICTestHarness.register({
     name: 'Terminal: LS lists unlocked programs and marks tier-locked ones',
     file: termScreenFile(),
     async run(ctx) {
-        ctx.inject('tsic.msg.UI.Terminal.Open', { TerminalId: 't1', Tier: 1 });
-        ctx.inject('tsic.msg.UI.Terminal.Catalog', { Programs: [
-            { id: 'com.tsic.hello',  name: 'HELLO',   minTier: 1, entry: 'main.js' },
-            { id: 'com.tsic.scphint',name: 'SCP-HINT', minTier: 3, entry: 'main.js' },
-        ]});
-        ctx.inject('tsic.msg.UI.Terminal.UnlockedList', { ProgramIds: ['com.tsic.hello', 'com.tsic.scphint'] });
-        await TSICTestHarness.waitFor(() => ctx.doc.querySelector('#term-input'));
-        TSICTestHarness.events.keyOn(ctx.doc.querySelector('#term-input'), 'l'); // ensure focus path
+        await openTier1Ready(ctx, {
+            programs: [
+                { id: 'com.tsic.hello',  name: 'HELLO',    minTier: 1, entry: 'main.js' },
+                { id: 'com.tsic.scphint', name: 'SCP-HINT', minTier: 3, entry: 'main.js' },
+            ],
+            unlocked: ['com.tsic.hello', 'com.tsic.scphint'],
+        });
         const inp = ctx.doc.querySelector('#term-input');
         inp.value = 'ls';
         TSICTestHarness.events.keyOn(inp, 'Enter', { code: 'Enter' });
@@ -39,12 +52,10 @@ TSICTestHarness.register({
     name: 'Terminal: running a tier-locked program shows INCOMPATIBLE HARDWARE',
     file: termScreenFile(),
     async run(ctx) {
-        ctx.inject('tsic.msg.UI.Terminal.Open', { TerminalId: 't1', Tier: 1 });
-        ctx.inject('tsic.msg.UI.Terminal.Catalog', { Programs: [
-            { id: 'com.tsic.scphint', name: 'SCP-HINT', minTier: 3, entry: 'main.js' },
-        ]});
-        ctx.inject('tsic.msg.UI.Terminal.UnlockedList', { ProgramIds: ['com.tsic.scphint'] });
-        await TSICTestHarness.waitFor(() => ctx.doc.querySelector('#term-input'));
+        await openTier1Ready(ctx, {
+            programs: [{ id: 'com.tsic.scphint', name: 'SCP-HINT', minTier: 3, entry: 'main.js' }],
+            unlocked: ['com.tsic.scphint'],
+        });
         const inp = ctx.doc.querySelector('#term-input');
         inp.value = 'run com.tsic.scphint';
         TSICTestHarness.events.keyOn(inp, 'Enter', { code: 'Enter' });
@@ -69,13 +80,28 @@ TSICTestHarness.register({
     name: 'Terminal: EXIT publishes UI.Cmd.Terminal.Close',
     file: termScreenFile(),
     async run(ctx) {
-        ctx.inject('tsic.msg.UI.Terminal.Open', { TerminalId: 't1', Tier: 1 });
-        await TSICTestHarness.waitFor(() => ctx.doc.querySelector('#term-input'));
+        await openTier1Ready(ctx);
         ctx.clearPublishes();
         const inp = ctx.doc.querySelector('#term-input');
         inp.value = 'exit';
         TSICTestHarness.events.keyOn(inp, 'Enter', { code: 'Enter' });
         await new Promise(r => setTimeout(r, 30));
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Terminal.Close'));
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Terminal: a keypress fast-forwards the boot animation',
+    file: termScreenFile(),
+    async run(ctx) {
+        await TSICTestHarness.waitFor(() => ctx.win.TSICTerminal && ctx.win.TSICTerminal.shells && ctx.win.TSICTerminal.shells.tier1);
+        ctx.win.TSICTerminal.shells.tier1.charDelayMs = 50; // slow boot so we can interrupt it
+        ctx.inject('tsic.msg.UI.Terminal.Open', { TerminalId: 't1', Tier: 1 });
+        await TSICTestHarness.waitFor(() => ctx.doc.querySelector('.tsic-term--t1.is-booting'));
+        const inp = ctx.doc.querySelector('#term-input');
+        TSICTestHarness.events.keyOn(inp, 'Enter', { code: 'Enter' }); // any key skips
+        await TSICTestHarness.waitFor(() => ctx.doc.querySelector('.tsic-term--t1[data-term-ready]'));
+        ctx.expect(ctx.assert.truthy(/INTERNAL TERMINAL/.test(ctx.doc.querySelector('#term-out').textContent),
+            'skipping flushes the full boot including the logo'));
     },
 });

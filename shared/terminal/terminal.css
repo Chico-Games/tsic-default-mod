@@ -54,6 +54,15 @@
 }
 .tsic-term--t1 .tsic-term-program { display: none; } /* tier-1 programs render via the text out */
 
+/* During the BIOS boot the prompt is hidden, but the (invisible) input stays
+   in the DOM and focusable so a keypress can fast-forward the animation. */
+.tsic-term--t1.is-booting .tsic-term-prompt,
+.tsic-term--t1.is-booting .tsic-term-mirror,
+.tsic-term--t1.is-booting .tsic-term-cursor { visibility: hidden; }
+
+/* ASCII logo block printed at the end of boot. */
+.tsic-term--t1 .tsic-term-logo { white-space: pre; margin: 6px 0 14px; }
+
 /* CRT overlays — both non-interactive, stacked above the content. */
 .tsic-term--t1::before {                /* scanlines + RGB mask */
   content: ''; position: absolute; inset: 0; z-index: 2; pointer-events: none;

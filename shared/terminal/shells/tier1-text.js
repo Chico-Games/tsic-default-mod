@@ -24,8 +24,11 @@
     const promptEl = container.querySelector('.tsic-term-prompt');
     const mirror = container.querySelector('#term-mirror');
     const input = container.querySelector('#term-input');
+    const rootEl = container.querySelector('.tsic-term--t1');
     let programList = [];
     let inputResolver = null; // set while a running program awaits readLine
+    let booting = false;      // true while the BIOS boot animation plays
+    let skipped = false;      // set by a keypress to fast-forward the boot
 
     // The real <input> is invisible; the visible input is an uppercased mirror
     // of its value followed by the block cursor. Keep them in sync.
@@ -49,10 +52,53 @@
       out.scrollTop = out.scrollHeight;
     }
 
-    // Boot banner.
-    write(hw.toUpperCase(), 'tsic-term-banner');
-    write('TSIC-DOS v1.0  —  type HELP', 'tsic-term-banner');
-    write('READY', 'tsic-term-banner');
+    // Typewriter: append `text` one character at a time into its own row, then
+    // resolve. A set `skipped` flag (or a non-positive charDelayMs) flushes the
+    // whole line instantly so the boot animation can be fast-forwarded.
+    function type(text, cls) {
+      const div = document.createElement('div');
+      div.className = 'tsic-term-row' + (cls ? ' ' + cls : '');
+      out.appendChild(div);
+      return new Promise(function (resolve) {
+        const delay = NS.shells.tier1.charDelayMs;
+        if (skipped || !(delay > 0)) { div.textContent = text; out.scrollTop = out.scrollHeight; resolve(); return; }
+        let i = 0;
+        (function tick() {
+          if (skipped) { div.textContent = text; out.scrollTop = out.scrollHeight; resolve(); return; }
+          i += 1;
+          div.textContent = text.slice(0, i);
+          out.scrollTop = out.scrollHeight;
+          if (i >= text.length) { resolve(); return; }
+          setTimeout(tick, delay);
+        })();
+      });
+    }
+
+    // Mark the terminal ready: reveal the prompt and accept commands. Called
+    // once the boot animation completes (or is skipped / unavailable).
+    function finishBoot() {
+      booting = false;
+      rootEl.classList.remove('is-booting');
+      rootEl.setAttribute('data-term-ready', '1');
+      focusInput();
+    }
+
+    // BIOS-style boot animation, then hand off to the prompt. The prompt is
+    // hidden (via .is-booting) until the sequence finishes.
+    if (NS.boot && typeof NS.boot.runBoot === 'function') {
+      booting = true;
+      rootEl.classList.add('is-booting');
+      NS.boot.runBoot(
+        { type: function (t, o) { return type(t, o && o.className); },
+          print: function (t, o) { write(t, o && o.className); } },
+        { logo: NS.boot.DURHAM_LOGO }
+      ).then(finishBoot, finishBoot);
+    } else {
+      // Defensive fallback if the boot module didn't load.
+      write(hw.toUpperCase(), 'tsic-term-banner');
+      write('READY', 'tsic-term-banner');
+      finishBoot();
+    }
 
     function renderError(res, programId) {
       if (res.code === NS.ERR.TIER_TOO_LOW) {
@@ -93,6 +139,7 @@
     }
 
     function onKey(ev) {
+      if (booting) { ev.preventDefault(); skipped = true; return; } // any key fast-forwards the boot
       if (ev.key !== 'Enter') return;
       const value = input.value;
       input.value = '';
@@ -126,5 +173,7 @@
     };
   }
 
-  NS.shells.tier1 = { create: create };
+  // charDelayMs is the per-character typewriter speed for the boot animation;
+  // tests set it to 0 to make boot instant.
+  NS.shells.tier1 = { create: create, charDelayMs: 14 };
 })(window);
