@@ -1,0 +1,446 @@
+{
+  "id": "LYD_Restaurant_Nook_Medium",
+  "asset_path": "/Game/WorldGeneration/Layouts/Restaurant/Shared/Nooks/LYD_Restaurant_Nook_Medium",
+  "class": "ULayoutDefinition",
+  "schema_version": 2,
+  "properties": {
+    "layout_objects": [
+      {
+        "layout_actor_type": {
+          "name": "PROXY_ACTOR",
+          "value": 0
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "furniture_definition": "FD_StoreWall_DF",
+        "transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 1.0
+          },
+          "translation": {
+            "x": 150.0,
+            "y": -300.0,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "PROXY_ACTOR",
+          "value": 0
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "furniture_definition": "FD_StoreWall_DF",
+        "transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 1.0
+          },
+          "translation": {
+            "x": 150.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "PROXY_ACTOR",
+          "value": 0
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "furniture_definition": "FD_StoreWall_DF",
+        "transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 0.7071067750158768,
+            "w": 0.7071067873572183
+          },
+          "translation": {
+            "x": 175.0,
+            "y": -300.0,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "PROXY_ACTOR",
+          "value": 0
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "furniture_definition": "FD_StoreWall_DF",
+        "transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 0.7071067750158768,
+            "w": 0.7071067873572183
+          },
+          "translation": {
+            "x": 175.923175,
+            "y": 275.0,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "PROXY_ACTOR",
+          "value": 0
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "furniture_definition": "FD_ServingCounter_6_DF",
+        "transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 0.7071067750158768,
+            "w": 0.7071067873572183
+          },
+          "translation": {
+            "x": -111.97694597444453,
+            "y": -195.50973149840482,
+            "z": -6.195932655828074e-12
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "PROXY_ACTOR",
+          "value": 0
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "furniture_definition": "FD_ServingCounter_6_DF",
+        "transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 0.7071067750158768,
+            "w": 0.7071067873572183
+          },
+          "translation": {
+            "x": -111.97694599999997,
+            "y": -41.70688426414149,
+            "z": 5.614353824512364e-06
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "PROXY_ACTOR",
+          "value": 0
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "furniture_definition": "FD_Decal_3",
+        "transform": {
+          "rotation": {
+            "x": -0.0,
+            "y": 0.0,
+            "z": -2.64266513713418e-09,
+            "w": 1.0
+          },
+          "translation": {
+            "x": -111.97694628256679,
+            "y": 99.6050488632238,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "PROXY_ACTOR",
+          "value": 0
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "furniture_definition": "FD_ServingCounter_7_DF",
+        "transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 0.7071067750158768,
+            "w": 0.7071067873572183
+          },
+          "translation": {
+            "x": 102.28691989193386,
+            "y": -238.8002921298621,
+            "z": -2.324881279719827e-12
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "PROXY_ACTOR",
+          "value": 0
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "furniture_definition": "FD_ServingCounter_7_DF",
+        "transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 0.7071067750158768,
+            "w": 0.7071067873572183
+          },
+          "translation": {
+            "x": 102.28691984998291,
+            "y": -175.77950204481814,
+            "z": -1.648313630091226e-13
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "PROXY_ACTOR",
+          "value": 0
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "furniture_definition": "FD_ServingCounter_7_DF",
+        "transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 0.7071067750158768,
+            "w": 0.7071067873572183
+          },
+          "translation": {
+            "x": 102.28692000961327,
+            "y": -111.19131918317872,
+            "z": 4.0360282559895756e-13
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "PROXY_ACTOR",
+          "value": 0
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "furniture_definition": "FD_ServingCounter_4_DF",
+        "transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 0.7071067750158768,
+            "w": 0.7071067873572183
+          },
+          "translation": {
+            "x": 104.28444060959106,
+            "y": -24.22078264171782,
+            "z": -2.785182007307386e-13
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "PROXY_ACTOR",
+          "value": 0
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "furniture_definition": "FD_ServingCounter_4_DF",
+        "transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 0.7071067750158768,
+            "w": 0.7071067873572183
+          },
+          "translation": {
+            "x": 104.28443727601228,
+            "y": 88.4394141459451,
+            "z": -7.956623471791057e-14
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "PROXY_ACTOR",
+          "value": 0
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "furniture_definition": "FD_ServingCounter_4_DF",
+        "transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 0.7071067750158768,
+            "w": 0.7071067873572183
+          },
+          "translation": {
+            "x": 104.28443440863441,
+            "y": 201.60656502196136,
+            "z": 1.1938573129491748e-13
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      }
+    ],
+    "weighted_chance": 1000,
+    "world_gen_priority": 1000,
+    "gameplay_tags": [
+      "Entity.RandomGeneration.Size.Medium",
+      "Layout.Type.Nook",
+      "Tile.Biome.Restaurant"
+    ]
+  }
+}

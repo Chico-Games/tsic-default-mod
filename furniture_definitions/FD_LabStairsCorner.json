@@ -1,0 +1,23 @@
+{
+  "id": "FD_LabStairsCorner",
+  "asset_path": "/Game/Furniture/SCPBase/Furniture/FD_LabStairsCorner",
+  "class": "UFurnitureDefinition",
+  "schema_version": 2,
+  "properties": {
+    "display_name": "Lab Stairs",
+    "level": 1,
+    "default_world_gen_gameplay_tags": [],
+    "meta_tags": [],
+    "is_pingable": false,
+    "static_mesh": "/Game/Furniture/SCPBase/Meshes/SM_MergedLabsStairCorner.SM_MergedLabsStairCorner",
+    "casts_shadow": true,
+    "collision_profile_name": {
+      "name": "Furniture"
+    },
+    "random_material_overrides": [],
+    "loot_positions": [],
+    "weighted_chance": 1000,
+    "world_gen_priority": 10000,
+    "gameplay_tags": []
+  }
+}

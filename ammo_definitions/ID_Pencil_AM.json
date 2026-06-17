@@ -1,0 +1,14 @@
+{
+  "id": "ID_Pencil_AM",
+  "asset_path": "/Game/Items/Ammo/Pencil/ID_Pencil_AM",
+  "class": "UAmmoDefinition",
+  "schema_version": 2,
+  "properties": {
+    "display_name": "Pencils",
+    "description": "An item from the store.",
+    "stackable": true,
+    "weight": 0.0,
+    "static_item_definition": "FD_Pencil_SI",
+    "item_category_tag": "Entity.Inventory.Item.Category.Ammo"
+  }
+}

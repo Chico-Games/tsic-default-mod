@@ -1,0 +1,264 @@
+{
+  "id": "LYD_ShowFloor_UpDown_2",
+  "asset_path": "/Game/WorldGeneration/Layouts/ShowFloor/UpDown/LYD_ShowFloor_UpDown_2",
+  "class": "ULayoutDefinition",
+  "schema_version": 2,
+  "properties": {
+    "layout_objects": [
+      {
+        "layout_actor_type": {
+          "name": "LAYOUT",
+          "value": 1
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [
+            {
+              "search_query": {
+                "name": "HAS_ALL_EXACT",
+                "value": 4
+              },
+              "tags": [
+                "Layout.Type.Quarter",
+                "Tile.Biome.ShowFloor"
+              ],
+              "b_not": false
+            }
+          ],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "furniture_definition": "FD_FloorWood",
+        "transform": {
+          "rotation": {
+            "x": -0.0,
+            "y": 0.0,
+            "z": -0.9999999999999999,
+            "w": 8.726646355709176e-09
+          },
+          "translation": {
+            "x": -419.074011,
+            "y": -421.165264,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "LAYOUT",
+          "value": 1
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [
+            {
+              "search_query": {
+                "name": "HAS_ALL_EXACT",
+                "value": 4
+              },
+              "tags": [
+                "Layout.Type.Quarter",
+                "Tile.Biome.ShowFloor"
+              ],
+              "b_not": false
+            }
+          ],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "furniture_definition": "FD_FloorWood",
+        "transform": {
+          "rotation": {
+            "x": -0.0,
+            "y": 0.0,
+            "z": -0.7071067793179008,
+            "w": 0.7071067830551945
+          },
+          "translation": {
+            "x": 420.32448443717277,
+            "y": -421.16526100571843,
+            "z": -2.2737367544323206e-13
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "LAYOUT",
+          "value": 1
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [
+            {
+              "search_query": {
+                "name": "HAS_ALL_EXACT",
+                "value": 4
+              },
+              "tags": [
+                "Layout.Type.Quarter",
+                "Tile.Biome.ShowFloor"
+              ],
+              "b_not": false
+            }
+          ],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "furniture_definition": "FD_FloorWood",
+        "transform": {
+          "rotation": {
+            "x": -0.0,
+            "y": 0.0,
+            "z": -0.9999999999999999,
+            "w": 8.726646355709176e-09
+          },
+          "translation": {
+            "x": 420.32448454082856,
+            "y": 430.8661097644667,
+            "z": -1.1368683772161603e-12
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "LAYOUT",
+          "value": 1
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [
+            {
+              "search_query": {
+                "name": "HAS_ALL_EXACT",
+                "value": 4
+              },
+              "tags": [
+                "Layout.Type.Quarter",
+                "Tile.Biome.ShowFloor"
+              ],
+              "b_not": false
+            }
+          ],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "furniture_definition": "FD_FloorWood",
+        "transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 0.7071067916592433,
+            "w": 0.7071067707138518
+          },
+          "translation": {
+            "x": -427.54475798614965,
+            "y": 430.8661140868004,
+            "z": 2.2737367544323206e-13
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "ENEMY_SPAWN_POINT",
+          "value": 2
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "enemy_spawn_point_definition": "ESP_ShowFloor",
+        "transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 1.0
+          },
+          "translation": {
+            "x": 51.381054,
+            "y": 1e-06,
+            "z": 9.9e-05
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "LAYOUT",
+          "value": 1
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "layout_definition": "LYD_TileBase",
+        "transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 1.0
+          },
+          "translation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      }
+    ],
+    "weighted_chance": 1000,
+    "world_gen_priority": 1000,
+    "gameplay_tags": [
+      "Layout.Type.Tile",
+      "Tile.Biome.ShowFloor",
+      "Tile.Layer.Floor",
+      "Tile.MazeDirection.UpDown"
+    ]
+  }
+}

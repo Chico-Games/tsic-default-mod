@@ -1,0 +1,24 @@
+{
+  "id": "FD_MazePathShortOneSide",
+  "asset_path": "/Game/Furniture/Floors/Furniture/FD_MazePathShortOneSide",
+  "class": "UFurnitureDefinition",
+  "schema_version": 2,
+  "properties": {
+    "level": 1,
+    "default_world_gen_gameplay_tags": [],
+    "meta_tags": [
+      "Entity.Construction.Grounded"
+    ],
+    "is_pingable": false,
+    "static_mesh": "/Game/Furniture/Floors/Meshes/SM_FloorShort1Side.SM_FloorShort1Side",
+    "casts_shadow": true,
+    "collision_profile_name": {
+      "name": "NoCollision"
+    },
+    "random_material_overrides": [],
+    "loot_positions": [],
+    "weighted_chance": 1000,
+    "world_gen_priority": 10000,
+    "gameplay_tags": []
+  }
+}

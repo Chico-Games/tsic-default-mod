@@ -1,0 +1,27 @@
+{
+  "id": "FD_Door",
+  "asset_path": "/Game/Furniture/Doors/Furniture/FD_Door",
+  "class": "UFurnitureDefinition",
+  "schema_version": 2,
+  "properties": {
+    "display_name": "Bunker Door",
+    "level": 1,
+    "default_world_gen_gameplay_tags": [],
+    "meta_tags": [],
+    "is_pingable": false,
+    "casts_shadow": true,
+    "collision_profile_name": {
+      "name": "Furniture"
+    },
+    "random_material_overrides": [],
+    "loot_positions": [],
+    "weighted_chance": 1000,
+    "world_gen_priority": 9000,
+    "gameplay_tags": [
+      "Entity.RandomGeneration.FurnitureType.Door",
+      "Entity.RandomGeneration.Materials.Metal",
+      "Entity.RandomGeneration.Size.Medium",
+      "Tile.Biome.SCPBaseEntrance"
+    ]
+  }
+}

@@ -1,0 +1,215 @@
+{
+  "id": "LYD_Kids_Display_2",
+  "asset_path": "/Game/WorldGeneration/Layouts/Kids/Shared/Displays/LYD_Kids_Display_2",
+  "class": "ULayoutDefinition",
+  "schema_version": 2,
+  "properties": {
+    "layout_objects": [
+      {
+        "layout_actor_type": {
+          "name": "PROXY_ACTOR",
+          "value": 0
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "furniture_definition": "FD_KidsPicnic_DF",
+        "transform": {
+          "rotation": {
+            "x": -0.0,
+            "y": 0.0,
+            "z": -0.7071067811865476,
+            "w": 0.7071067811865477
+          },
+          "translation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "PROXY_ACTOR",
+          "value": 0
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 0.10000000149011612
+        },
+        "furniture_definition": "FD_KidsToyTruck_DF",
+        "transform": {
+          "rotation": {
+            "x": -0.0,
+            "y": 0.0,
+            "z": -0.7071067811865476,
+            "w": 0.7071067811865477
+          },
+          "translation": {
+            "x": -6.848337790188452e-07,
+            "y": 0.0,
+            "z": 68.64410167730449
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "PROXY_ACTOR",
+          "value": 0
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 0.10000000149011612
+        },
+        "furniture_definition": "FD_KidsToyCubes_DF",
+        "transform": {
+          "rotation": {
+            "x": -0.0,
+            "y": 0.0,
+            "z": -0.9396926196298836,
+            "w": 0.342020146501821
+          },
+          "translation": {
+            "x": -21.48822252944237,
+            "y": 52.12651312998807,
+            "z": 68.64410115166993
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "PROXY_ACTOR",
+          "value": 0
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 0.10000000149011612
+        },
+        "furniture_definition": "FD_KidsToyCubes_DF",
+        "transform": {
+          "rotation": {
+            "x": -0.0,
+            "y": 0.0,
+            "z": -0.9999999999999999,
+            "w": 2.703992646627894e-09
+          },
+          "translation": {
+            "x": 17.72914515946203,
+            "y": 34.9504573995179,
+            "z": 68.644101
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "PROXY_ACTOR",
+          "value": 0
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 0.10000000149011612
+        },
+        "furniture_definition": "FD_KidsToyCubes_DF",
+        "transform": {
+          "rotation": {
+            "x": -0.0,
+            "y": 0.0,
+            "z": -0.9848077532469797,
+            "w": 0.17364817633547444
+          },
+          "translation": {
+            "x": -23.978878645040346,
+            "y": -49.67041284302097,
+            "z": 68.644101
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "PROXY_ACTOR",
+          "value": 0
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 0.10000000149011612
+        },
+        "furniture_definition": "FD_KidsToyTruck_DF",
+        "transform": {
+          "rotation": {
+            "x": -0.0,
+            "y": 0.0,
+            "z": -0.9063077858938934,
+            "w": 0.42261826419134857
+          },
+          "translation": {
+            "x": 20.89489026816085,
+            "y": -51.97733551424362,
+            "z": 68.644102
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      }
+    ],
+    "weighted_chance": 1000,
+    "world_gen_priority": 1000,
+    "gameplay_tags": [
+      "Entity.RandomGeneration.Size.Small",
+      "Layout.Type.Display",
+      "Tile.Biome.Kids"
+    ]
+  }
+}

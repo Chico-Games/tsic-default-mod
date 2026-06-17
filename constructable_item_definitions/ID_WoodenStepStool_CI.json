@@ -1,0 +1,13 @@
+{
+  "id": "ID_WoodenStepStool_CI",
+  "asset_path": "/Game/Furniture/Stairs/Item/ID_WoodenStepStool_CI",
+  "class": "UConstructableItemDefinition",
+  "schema_version": 2,
+  "properties": {
+    "furniture_to_construct": "FD_WoodenStepStool_DF",
+    "display_name": "Wooden Step Stool",
+    "description": "A small wooden step stool with a platform.",
+    "stackable": true,
+    "weight": 0.10000000149011612
+  }
+}

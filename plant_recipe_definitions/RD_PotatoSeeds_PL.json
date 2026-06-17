@@ -1,0 +1,67 @@
+{
+  "id": "RD_PotatoSeeds_PL",
+  "asset_path": "/Game/Items/Seeds/PotatoSeeds/Recipes/RD_PotatoSeeds_PL",
+  "class": "UPlantRecipeDefinition",
+  "schema_version": 2,
+  "properties": {
+    "grow_stages": [
+      {
+        "mesh": "/Game/Items/Seeds/PotatoSeeds/Meshes/SM_Potato_Starter.SM_Potato_Starter",
+        "ratio": 2.0,
+        "start_scale": {
+          "x": 0.3,
+          "y": 0.3,
+          "z": 0.3
+        },
+        "end_scale": {
+          "x": 0.6,
+          "y": 0.6,
+          "z": 0.6
+        }
+      },
+      {
+        "mesh": "/Game/Items/Seeds/PotatoSeeds/Meshes/SM_Potato_Starter.SM_Potato_Starter",
+        "ratio": 2.0,
+        "start_scale": {
+          "x": 0.6,
+          "y": 0.6,
+          "z": 0.6
+        },
+        "end_scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      {
+        "mesh": "/Game/Items/Seeds/PotatoSeeds/Meshes/SM_Potato_A.SM_Potato_A",
+        "ratio": 1.0,
+        "start_scale": {
+          "x": 0.8,
+          "y": 0.8,
+          "z": 0.8
+        },
+        "end_scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      }
+    ],
+    "recipe_tags": [],
+    "input": [
+      {
+        "key": "ID_PotatoSeeds_SD",
+        "value": 1
+      }
+    ],
+    "output": [
+      {
+        "key": "ID_Potato_CN",
+        "value": 3
+      }
+    ],
+    "duration": 120.0,
+    "level": 1
+  }
+}

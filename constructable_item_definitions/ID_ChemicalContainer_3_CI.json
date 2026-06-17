@@ -1,0 +1,14 @@
+{
+  "id": "ID_ChemicalContainer_3_CI",
+  "asset_path": "/Game/Furniture/ScientificDevices/Item/ID_ChemicalContainer_3_CI",
+  "class": "UConstructableItemDefinition",
+  "schema_version": 2,
+  "properties": {
+    "furniture_to_construct": "FD_ChemicalContainer_3_DF",
+    "display_name": "Chemical Container",
+    "description": "Store furniture.",
+    "stackable": true,
+    "weight": 0.10000000149011612,
+    "static_item_definition": "FD_ChemicalContainer_3_SI"
+  }
+}

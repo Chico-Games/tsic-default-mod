@@ -1,0 +1,13 @@
+{
+  "id": "ID_FirstAidStation_CI",
+  "asset_path": "/Game/Furniture/Medical/FirstAidStation/Item/ID_FirstAidStation_CI",
+  "class": "UConstructableItemDefinition",
+  "schema_version": 2,
+  "properties": {
+    "display_name": "First Aid Station",
+    "description": "A medical crafting station for creating healing items, bandages, and medicine.",
+    "stackable": true,
+    "weight": 0.10000000149011612,
+    "static_item_definition": "FD_FirstAidStation_SI"
+  }
+}

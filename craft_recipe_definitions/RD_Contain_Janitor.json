@@ -1,0 +1,24 @@
+{
+  "id": "RD_Contain_Janitor",
+  "asset_path": "/Game/Furniture/ContainmentCages/BasicCage/Recipes/RD_Contain_Janitor",
+  "class": "UCraftRecipeDefinition",
+  "schema_version": 2,
+  "properties": {
+    "recipe_tags": [],
+    "input": [
+      {
+        "key": "ID_CapturedJanitor_CE",
+        "value": 1
+      }
+    ],
+    "output": [
+      {
+        "key": "ID_ResearchCredit_T1_CM",
+        "value": 2
+      }
+    ],
+    "duration": 300.0,
+    "level": 1,
+    "crafting_bench_tags": []
+  }
+}

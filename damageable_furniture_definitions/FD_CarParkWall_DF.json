@@ -1,0 +1,63 @@
+{
+  "id": "FD_CarParkWall_DF",
+  "asset_path": "/Game/Furniture/Walls/Furniture/FD_CarParkWall_DF",
+  "class": "UDamageableFurnitureDefinition",
+  "schema_version": 2,
+  "properties": {
+    "starting_health": 107.0,
+    "destructible_collection": "/Game/Furniture/Walls/GeometryCollections/GCS_CarParkWall.GCS_CarParkWall",
+    "loot_dropped_on_death": [
+      "LD_ConcreteWallLoot"
+    ],
+    "constructable_item_to_grant": "ID_CarParkWall_CI",
+    "deconstruction_tier": 0,
+    "collision_box_data": "/Game/Furniture/Walls/Construction/CBD_CarParkWall_Constructed.CBD_CarParkWall_Constructed",
+    "building_base": {
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0,
+        "w": 1.0
+      },
+      "translation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "scale3_d": {
+        "x": 1.0,
+        "y": 1.0,
+        "z": 1.0
+      }
+    },
+    "upgrade_recipe": "RD_ConcreteWall_CN",
+    "is_draggable": false,
+    "display_name": "Bathroom Wall",
+    "description": "Store furniture.",
+    "level": 1,
+    "default_world_gen_gameplay_tags": [],
+    "meta_tags": [],
+    "is_pingable": false,
+    "static_mesh": "/Game/Furniture/Walls/Meshes/SM_CarParkWall.SM_CarParkWall",
+    "casts_shadow": true,
+    "collision_profile_name": {
+      "name": "Furniture"
+    },
+    "random_material_overrides": [],
+    "loot_positions": [],
+    "weighted_chance": 1000,
+    "world_gen_priority": 9000,
+    "destruction_impulse_strength": 0.0,
+    "drag_angular_damping": 5.0,
+    "drag_linear_damping": 5.0,
+    "drag_mass": 1.0,
+    "drag_max_angular_velocity": 90.0,
+    "drag_tier": 0,
+    "friction": 0.699999988079071,
+    "furniture_armour": 3,
+    "gameplay_tags": [],
+    "release_angular_damping": 0.05000000074505806,
+    "release_linear_damping": 0.009999999776482582,
+    "restitution": 0.30000001192092896
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "id": "FD_Decal_3",
+  "asset_path": "/Game/Furniture/Decals/Furniture/FD_Decal_3",
+  "class": "UFurnitureDefinition",
+  "schema_version": 2,
+  "properties": {
+    "level": 1,
+    "default_world_gen_gameplay_tags": [],
+    "meta_tags": [],
+    "is_pingable": false,
+    "static_mesh": "/Game/Furniture/Decals/Meshes/SM_StorageDecal19.SM_StorageDecal19",
+    "casts_shadow": true,
+    "collision_profile_name": {
+      "name": "Furniture"
+    },
+    "random_material_overrides": [],
+    "loot_positions": [],
+    "weighted_chance": 1000,
+    "world_gen_priority": 2000,
+    "gameplay_tags": []
+  }
+}

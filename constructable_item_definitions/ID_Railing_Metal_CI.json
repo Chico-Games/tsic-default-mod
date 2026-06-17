@@ -1,0 +1,14 @@
+{
+  "id": "ID_Railing_Metal_CI",
+  "asset_path": "/Game/Furniture/Checkout/Item/ID_Railing_Metal_CI",
+  "class": "UConstructableItemDefinition",
+  "schema_version": 2,
+  "properties": {
+    "furniture_to_construct": "FD_Railing_Metal_DF",
+    "display_name": "Railing",
+    "description": "Store furniture.",
+    "stackable": true,
+    "weight": 0.10000000149011612,
+    "static_item_definition": "FD_Railing_Metal_SI"
+  }
+}

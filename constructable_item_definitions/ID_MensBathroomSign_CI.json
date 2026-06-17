@@ -1,0 +1,14 @@
+{
+  "id": "ID_MensBathroomSign_CI",
+  "asset_path": "/Game/Furniture/Bathroom/Item/ID_MensBathroomSign_CI",
+  "class": "UConstructableItemDefinition",
+  "schema_version": 2,
+  "properties": {
+    "furniture_to_construct": "FD_MensBathroomSign_DF",
+    "display_name": "Bathroom Sign",
+    "description": "Store furniture.",
+    "stackable": true,
+    "weight": 0.10000000149011612,
+    "static_item_definition": "FD_MensBathroomSign_SI"
+  }
+}

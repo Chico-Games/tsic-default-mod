@@ -1,0 +1,35 @@
+{
+  "id": "FD_EyeScan",
+  "asset_path": "/Game/Furniture/ScientificDevices/Furniture/FD_EyeScan",
+  "class": "UFurnitureDefinition",
+  "schema_version": 2,
+  "properties": {
+    "display_name": "Palm Scanner",
+    "level": 1,
+    "default_world_gen_gameplay_tags": [],
+    "meta_tags": [],
+    "is_pingable": false,
+    "static_mesh": "/Game/Furniture/ScientificDevices/Meshes/SM_EyeScan.SM_EyeScan",
+    "casts_shadow": true,
+    "collision_profile_name": {
+      "name": "Furniture"
+    },
+    "random_material_overrides": [],
+    "loot_positions": [],
+    "weighted_chance": 1000,
+    "world_gen_priority": 5000,
+    "gameplay_tags": [
+      "Entity.RandomGeneration.CanBeRandom",
+      "Entity.RandomGeneration.FurnitureCategory.Office",
+      "Entity.RandomGeneration.FurnitureCategory.ScienceLab",
+      "Entity.RandomGeneration.FurnitureType.Scp.ScienceDevice",
+      "Entity.RandomGeneration.Materials.Electronic",
+      "Entity.RandomGeneration.Materials.Metal",
+      "Entity.RandomGeneration.Size.Small",
+      "Tile.Biome.SCPBase",
+      "Tile.Biome.SCPBaseEntrance",
+      "Tile.Biome.SCPBaseExit",
+      "Tile.Biome.SCPBasePower"
+    ]
+  }
+}

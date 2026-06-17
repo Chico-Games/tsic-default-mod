@@ -1,0 +1,36 @@
+{
+  "id": "RD_MetalArmorChestplate_CR",
+  "asset_path": "/Game/Items/Equipment/Armor/MetalArmor/Chestplate/Recipes/RD_MetalArmorChestplate_CR",
+  "class": "UCraftRecipeDefinition",
+  "schema_version": 2,
+  "properties": {
+    "recipe_tags": [],
+    "input": [
+      {
+        "key": "ID_ScrapMetal_CM",
+        "value": 15
+      },
+      {
+        "key": "ID_UpholsteryFabric_CM",
+        "value": 8
+      },
+      {
+        "key": "ID_PlasticScrap_CM",
+        "value": 5
+      },
+      {
+        "key": "ID_MetalScrews_CM",
+        "value": 12
+      }
+    ],
+    "output": [
+      {
+        "key": "ID_MetalArmorChestplate_EQ",
+        "value": 1
+      }
+    ],
+    "duration": 10.0,
+    "level": 1,
+    "crafting_bench_tags": []
+  }
+}

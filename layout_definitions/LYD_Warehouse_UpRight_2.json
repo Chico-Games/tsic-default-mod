@@ -1,0 +1,260 @@
+{
+  "id": "LYD_Warehouse_UpRight_2",
+  "asset_path": "/Game/WorldGeneration/Layouts/Warehouse/UpRight/LYD_Warehouse_UpRight_2",
+  "class": "ULayoutDefinition",
+  "schema_version": 2,
+  "properties": {
+    "layout_objects": [
+      {
+        "layout_actor_type": {
+          "name": "LAYOUT",
+          "value": 1
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [
+            {
+              "search_query": {
+                "name": "HAS_ALL_EXACT",
+                "value": 4
+              },
+              "tags": [
+                "Layout.Type.Display",
+                "Tile.Biome.Warehouse"
+              ],
+              "b_not": false
+            }
+          ],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "transform": {
+          "rotation": {
+            "x": -0.0,
+            "y": 0.0,
+            "z": -0.7071067935278889,
+            "w": 0.7071067688452061
+          },
+          "translation": {
+            "x": -503.2252189918457,
+            "y": 353.52431121937025,
+            "z": 4.547473508864641e-13
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "LAYOUT",
+          "value": 1
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [
+            {
+              "search_query": {
+                "name": "HAS_ALL_EXACT",
+                "value": 4
+              },
+              "tags": [
+                "Layout.Type.Display",
+                "Tile.Biome.Warehouse"
+              ],
+              "b_not": false
+            }
+          ],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "transform": {
+          "rotation": {
+            "x": -0.0,
+            "y": 0.0,
+            "z": -2.353727357668277e-08,
+            "w": 0.9999999999999998
+          },
+          "translation": {
+            "x": 496.89484558344867,
+            "y": 528.5243113021851,
+            "z": -9.094947017729282e-13
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "LAYOUT",
+          "value": 1
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [
+            {
+              "search_query": {
+                "name": "HAS_ALL_EXACT",
+                "value": 4
+              },
+              "tags": [
+                "Layout.Type.Display",
+                "Tile.Biome.Warehouse"
+              ],
+              "b_not": false
+            }
+          ],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "transform": {
+          "rotation": {
+            "x": -0.0,
+            "y": 0.0,
+            "z": -0.7071067935278889,
+            "w": 0.7071067688452061
+          },
+          "translation": {
+            "x": 284.3948317021655,
+            "y": -509.7083126204146,
+            "z": -4.547473508864641e-13
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "LAYOUT",
+          "value": 1
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [
+            {
+              "search_query": {
+                "name": "HAS_ALL_EXACT",
+                "value": 4
+              },
+              "tags": [
+                "Layout.Type.Display",
+                "Tile.Biome.Warehouse"
+              ],
+              "b_not": false
+            }
+          ],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 0.9999999999999998,
+            "w": 1.1369309111001411e-08
+          },
+          "translation": {
+            "x": -492.7463148270826,
+            "y": -509.7083058471556,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "ENEMY_SPAWN_POINT",
+          "value": 2
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "enemy_spawn_point_definition": "ESP_Warehouse",
+        "transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 1.0
+          },
+          "translation": {
+            "x": 29.212537,
+            "y": 61.269126,
+            "z": 9.9e-05
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "LAYOUT",
+          "value": 1
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "layout_definition": "LYD_TileBase",
+        "transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 1.0
+          },
+          "translation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      }
+    ],
+    "weighted_chance": 1000,
+    "world_gen_priority": 1000,
+    "gameplay_tags": [
+      "Layout.Type.Tile",
+      "Tile.Biome.Warehouse",
+      "Tile.Layer.Floor",
+      "Tile.MazeDirection.UpRight"
+    ]
+  }
+}

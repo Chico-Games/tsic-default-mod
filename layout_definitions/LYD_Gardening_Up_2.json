@@ -1,0 +1,473 @@
+{
+  "id": "LYD_Gardening_Up_2",
+  "asset_path": "/Game/WorldGeneration/Layouts/Gardening/Up/LYD_Gardening_Up_2",
+  "class": "ULayoutDefinition",
+  "schema_version": 2,
+  "properties": {
+    "layout_objects": [
+      {
+        "layout_actor_type": {
+          "name": "PROXY_ACTOR",
+          "value": 0
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [
+            {
+              "search_query": {
+                "name": "HAS_ALL_EXACT",
+                "value": 4
+              },
+              "tags": [
+                "Entity.RandomGeneration.FurnitureType.Sign.Floor"
+              ],
+              "b_not": false
+            },
+            {
+              "search_query": {
+                "name": "HAS_ANY_EXACT",
+                "value": 2
+              },
+              "tags": [
+                "Entity.RandomGeneration.FurnitureCategory.Bedroom",
+                "Entity.RandomGeneration.FurnitureCategory.LivingRoom"
+              ],
+              "b_not": false
+            }
+          ],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "transform": {
+          "rotation": {
+            "x": -0.0,
+            "y": 0.0,
+            "z": -0.7071067633915394,
+            "w": 0.7071067989815554
+          },
+          "translation": {
+            "x": 113.49860799999999,
+            "y": 474.00138100000004,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "PROXY_ACTOR",
+          "value": 0
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [
+            {
+              "search_query": {
+                "name": "HAS_ALL_EXACT",
+                "value": 4
+              },
+              "tags": [
+                "Entity.RandomGeneration.FurnitureType.Light.Floor"
+              ],
+              "b_not": false
+            },
+            {
+              "search_query": {
+                "name": "HAS_ANY_EXACT",
+                "value": 2
+              },
+              "tags": [
+                "Entity.RandomGeneration.FurnitureCategory.Bedroom",
+                "Entity.RandomGeneration.FurnitureCategory.DiningRoom",
+                "Entity.RandomGeneration.FurnitureCategory.LivingRoom"
+              ],
+              "b_not": false
+            }
+          ],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 0.7933533683311204,
+            "w": 0.6087613924664291
+          },
+          "translation": {
+            "x": 275.0,
+            "y": -687.5,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "LAYOUT",
+          "value": 1
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [
+            {
+              "search_query": {
+                "name": "HAS_ALL_EXACT",
+                "value": 4
+              },
+              "tags": [
+                "Entity.RandomGeneration.Size.Medium",
+                "Layout.Type.Nook",
+                "Tile.Biome.Gardening"
+              ],
+              "b_not": false
+            }
+          ],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 0.7071067540704848,
+            "w": 0.7071068083026093
+          },
+          "translation": {
+            "x": 750.0,
+            "y": 150.0,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "ENEMY_SPAWN_POINT",
+          "value": 2
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "enemy_spawn_point_definition": "ESP_Gardening",
+        "transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 1.0
+          },
+          "translation": {
+            "x": 51.381054,
+            "y": 1e-06,
+            "z": 9.9e-05
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "LAYOUT",
+          "value": 1
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [
+            {
+              "search_query": {
+                "name": "HAS_ALL_EXACT",
+                "value": 4
+              },
+              "tags": [
+                "Entity.RandomGeneration.Size.Medium",
+                "Layout.Type.Nook",
+                "Tile.Biome.Gardening"
+              ],
+              "b_not": false
+            }
+          ],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 0.70710673929576,
+            "w": 0.7071068230773327
+          },
+          "translation": {
+            "x": -162.5,
+            "y": -737.5,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "LAYOUT",
+          "value": 1
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [
+            {
+              "search_query": {
+                "name": "HAS_ALL_EXACT",
+                "value": 4
+              },
+              "tags": [
+                "Entity.RandomGeneration.Size.Medium",
+                "Layout.Type.Nook",
+                "Tile.Biome.Gardening"
+              ],
+              "b_not": false
+            }
+          ],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "transform": {
+          "rotation": {
+            "x": -0.0,
+            "y": 0.0,
+            "z": -0.707106814473281,
+            "w": 0.7071067478998125
+          },
+          "translation": {
+            "x": 150.0,
+            "y": -150.0,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "LAYOUT",
+          "value": 1
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [
+            {
+              "search_query": {
+                "name": "HAS_ALL_EXACT",
+                "value": 4
+              },
+              "tags": [
+                "Entity.RandomGeneration.Size.Medium",
+                "Layout.Type.Nook",
+                "Tile.Biome.Gardening"
+              ],
+              "b_not": false
+            }
+          ],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "transform": {
+          "rotation": {
+            "x": -0.0,
+            "y": 0.0,
+            "z": -2.882260385095113e-08,
+            "w": 0.9999999999999996
+          },
+          "translation": {
+            "x": -737.5,
+            "y": 137.5,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "LAYOUT",
+          "value": 1
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [
+            {
+              "search_query": {
+                "name": "HAS_ALL_EXACT",
+                "value": 4
+              },
+              "tags": [
+                "Entity.RandomGeneration.Size.Medium",
+                "Layout.Type.Nook",
+                "Tile.Biome.Gardening"
+              ],
+              "b_not": false
+            }
+          ],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "transform": {
+          "rotation": {
+            "x": -0.0,
+            "y": 0.0,
+            "z": -2.617993871381695e-08,
+            "w": 0.9999999999999996
+          },
+          "translation": {
+            "x": -737.5,
+            "y": -462.5,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "PROXY_ACTOR",
+          "value": 0
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [
+            {
+              "search_query": {
+                "name": "HAS_ALL_EXACT",
+                "value": 4
+              },
+              "tags": [
+                "Entity.RandomGeneration.FurnitureType.Light.Floor"
+              ],
+              "b_not": false
+            },
+            {
+              "search_query": {
+                "name": "HAS_ANY_EXACT",
+                "value": 2
+              },
+              "tags": [
+                "Entity.RandomGeneration.FurnitureCategory.Bedroom",
+                "Entity.RandomGeneration.FurnitureCategory.DiningRoom",
+                "Entity.RandomGeneration.FurnitureCategory.LivingRoom"
+              ],
+              "b_not": false
+            }
+          ],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 0.7933533668534627,
+            "w": 0.6087613943921504
+          },
+          "translation": {
+            "x": 437.5,
+            "y": 662.5,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "LAYOUT",
+          "value": 1
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "layout_definition": "LYD_TileBase",
+        "transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 1.0
+          },
+          "translation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      }
+    ],
+    "weighted_chance": 1000,
+    "world_gen_priority": 1000,
+    "gameplay_tags": [
+      "Layout.Type.Tile",
+      "Tile.Biome.Gardening",
+      "Tile.Layer.Floor",
+      "Tile.MazeDirection.Up"
+    ]
+  }
+}

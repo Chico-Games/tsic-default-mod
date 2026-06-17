@@ -1,0 +1,36 @@
+{
+  "id": "RD_WoodenArmorChestplate_CR",
+  "asset_path": "/Game/Items/Equipment/Armor/WoodenArmor/Chestplate/Recipes/RD_WoodenArmorChestplate_CR",
+  "class": "UCraftRecipeDefinition",
+  "schema_version": 2,
+  "properties": {
+    "recipe_tags": [],
+    "input": [
+      {
+        "key": "ID_WoodenDowel_CM",
+        "value": 12
+      },
+      {
+        "key": "ID_UpholsteryFabric_CM",
+        "value": 10
+      },
+      {
+        "key": "ID_Tape_CM",
+        "value": 3
+      },
+      {
+        "key": "ID_MetalScrews_CM",
+        "value": 5
+      }
+    ],
+    "output": [
+      {
+        "key": "ID_WoodenArmorChestplate_EQ",
+        "value": 1
+      }
+    ],
+    "duration": 6.0,
+    "level": 1,
+    "crafting_bench_tags": []
+  }
+}

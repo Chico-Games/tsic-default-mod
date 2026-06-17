@@ -1,0 +1,277 @@
+{
+  "id": "LYD_BrokenEmptyEdgeSide1",
+  "asset_path": "/Game/WorldGeneration/Layouts/BrokenEmpty/LYD_BrokenEmptyEdgeSide1",
+  "class": "ULayoutDefinition",
+  "schema_version": 2,
+  "properties": {
+    "layout_objects": [
+      {
+        "layout_actor_type": {
+          "name": "LAYOUT",
+          "value": 1
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "layout_definition": "LYD_Floor_MixedBiome",
+        "transform": {
+          "rotation": {
+            "x": -0.14341679782948172,
+            "y": 0.5187238850799705,
+            "z": -0.7258476228471242,
+            "w": 0.4283717795969495
+          },
+          "translation": {
+            "x": 730.7227895522016,
+            "y": 103.52478149745335,
+            "z": -14.0
+          },
+          "scale3_d": {
+            "x": 0.07499999832361937,
+            "y": -0.09375,
+            "z": 0.8125
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "PROXY_ACTOR",
+          "value": 0
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "furniture_definition": "FD_UnderFloor",
+        "transform": {
+          "rotation": {
+            "x": -0.015134435785294595,
+            "y": -0.08583165119789299,
+            "z": -0.17298739259870005,
+            "w": 0.9810602624242848
+          },
+          "translation": {
+            "x": 772.0,
+            "y": -500.0,
+            "z": -458.0
+          },
+          "scale3_d": {
+            "x": 0.075,
+            "y": 0.195,
+            "z": 0.0125
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "PROXY_ACTOR",
+          "value": 0
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "furniture_definition": "FD_Debris4",
+        "transform": {
+          "rotation": {
+            "x": 0.7071067750158768,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 0.7071067873572183
+          },
+          "translation": {
+            "x": 754.0,
+            "y": -33.0,
+            "z": -26.0
+          },
+          "scale3_d": {
+            "x": 0.5,
+            "y": 0.5,
+            "z": 0.5
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "PROXY_ACTOR",
+          "value": 0
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "furniture_definition": "FD_Debris5",
+        "transform": {
+          "rotation": {
+            "x": 0.7071067750158768,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 0.7071067873572183
+          },
+          "translation": {
+            "x": 739.0,
+            "y": -398.0,
+            "z": -520.0
+          },
+          "scale3_d": {
+            "x": 0.5,
+            "y": 0.5,
+            "z": 0.5
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "LAYOUT",
+          "value": 1
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "layout_definition": "LYD_Floor_MixedBiome",
+        "transform": {
+          "rotation": {
+            "x": -0.08189960807727917,
+            "y": -0.029809020290577064,
+            "z": -0.9361168038989562,
+            "w": 0.3407186610153701
+          },
+          "translation": {
+            "x": 783.72279,
+            "y": 575.5247810000001,
+            "z": -342.0
+          },
+          "scale3_d": {
+            "x": 0.075,
+            "y": -0.09375,
+            "z": 0.8125
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "LAYOUT",
+          "value": 1
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "layout_definition": "LYD_Floor_MixedBiome",
+        "transform": {
+          "rotation": {
+            "x": -0.49809734549102735,
+            "y": -0.05602262348290599,
+            "z": 0.8627299189336085,
+            "w": 0.06676516344392061
+          },
+          "translation": {
+            "x": 730.72279,
+            "y": -237.47521899999998,
+            "z": -641.0
+          },
+          "scale3_d": {
+            "x": 0.075,
+            "y": -0.09375,
+            "z": 0.8125
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "PROXY_ACTOR",
+          "value": 0
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "furniture_definition": "FD_Debris4",
+        "transform": {
+          "rotation": {
+            "x": -0.707106778753168,
+            "y": -0.0,
+            "z": 0.0,
+            "w": 0.7071067836199272
+          },
+          "translation": {
+            "x": 747.0,
+            "y": -517.0,
+            "z": -15.0
+          },
+          "scale3_d": {
+            "x": 0.5,
+            "y": 0.5,
+            "z": 0.5
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "PROXY_ACTOR",
+          "value": 0
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "furniture_definition": "FD_Debris4",
+        "transform": {
+          "rotation": {
+            "x": -8.604050727918294e-09,
+            "y": -0.7071067811865465,
+            "z": 0.7071067811865486,
+            "w": 8.604050915268429e-09
+          },
+          "translation": {
+            "x": 754.0,
+            "y": 508.0,
+            "z": -106.0
+          },
+          "scale3_d": {
+            "x": 0.5,
+            "y": 0.5,
+            "z": 0.5
+          }
+        }
+      }
+    ],
+    "weighted_chance": 1000,
+    "world_gen_priority": 1000,
+    "gameplay_tags": []
+  }
+}

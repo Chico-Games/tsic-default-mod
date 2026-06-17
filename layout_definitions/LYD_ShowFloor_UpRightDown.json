@@ -1,0 +1,792 @@
+{
+  "id": "LYD_ShowFloor_UpRightDown",
+  "asset_path": "/Game/WorldGeneration/Layouts/ShowFloor/UpRightDown/LYD_ShowFloor_UpRightDown",
+  "class": "ULayoutDefinition",
+  "schema_version": 2,
+  "properties": {
+    "layout_objects": [
+      {
+        "layout_actor_type": {
+          "name": "LAYOUT",
+          "value": 1
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [
+            {
+              "search_query": {
+                "name": "HAS_ALL_EXACT",
+                "value": 4
+              },
+              "tags": [
+                "Entity.RandomGeneration.Size.Medium",
+                "Layout.Type.Nook",
+                "Tile.Biome.ShowFloor"
+              ],
+              "b_not": false
+            }
+          ],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 1.0
+          },
+          "translation": {
+            "x": 575.0,
+            "y": 450.0,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "LAYOUT",
+          "value": 1
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [
+            {
+              "search_query": {
+                "name": "HAS_ALL_EXACT",
+                "value": 4
+              },
+              "tags": [
+                "Entity.RandomGeneration.Size.Medium",
+                "Layout.Type.Nook",
+                "Tile.Biome.ShowFloor"
+              ],
+              "b_not": false
+            }
+          ],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "transform": {
+          "rotation": {
+            "x": -0.0,
+            "y": 0.0,
+            "z": -0.7071067811865476,
+            "w": 0.7071067811865477
+          },
+          "translation": {
+            "x": 450.0,
+            "y": -575.0,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "PROXY_ACTOR",
+          "value": 0
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [
+            {
+              "search_query": {
+                "name": "HAS_ANY_INCL_PARENTS",
+                "value": 1
+              },
+              "tags": [
+                "Entity.RandomGeneration.FurnitureType.Sign.Floor"
+              ],
+              "b_not": false
+            }
+          ],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 1.0
+          },
+          "translation": {
+            "x": 162.5,
+            "y": 350.0,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "PROXY_ACTOR",
+          "value": 0
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [
+            {
+              "search_query": {
+                "name": "HAS_ANY_INCL_PARENTS",
+                "value": 1
+              },
+              "tags": [
+                "Entity.RandomGeneration.FurnitureType.Sign.Floor"
+              ],
+              "b_not": false
+            }
+          ],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 1.0
+          },
+          "translation": {
+            "x": -150.0,
+            "y": -150.0,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "PROXY_ACTOR",
+          "value": 0
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": 1,
+          "search_queries": [
+            {
+              "search_query": {
+                "name": "HAS_ALL_EXACT",
+                "value": 4
+              },
+              "tags": [
+                "Entity.RandomGeneration.FurnitureCategory.LivingRoom",
+                "Entity.RandomGeneration.FurnitureType.Mat"
+              ],
+              "b_not": false
+            }
+          ],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 1.0
+          },
+          "translation": {
+            "x": -275.0,
+            "y": -262.5,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "PROXY_ACTOR",
+          "value": 0
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": 1,
+          "search_queries": [
+            {
+              "search_query": {
+                "name": "HAS_ALL_EXACT",
+                "value": 4
+              },
+              "tags": [
+                "Entity.RandomGeneration.FurnitureCategory.LivingRoom",
+                "Entity.RandomGeneration.FurnitureType.Mat"
+              ],
+              "b_not": false
+            }
+          ],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "transform": {
+          "rotation": {
+            "x": -0.0,
+            "y": 0.0,
+            "z": -0.9999999999999998,
+            "w": 1.7453292428141407e-08
+          },
+          "translation": {
+            "x": 425.0,
+            "y": -262.5,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "PROXY_ACTOR",
+          "value": 0
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": 1,
+          "search_queries": [
+            {
+              "search_query": {
+                "name": "HAS_ALL_EXACT",
+                "value": 4
+              },
+              "tags": [
+                "Entity.RandomGeneration.FurnitureCategory.LivingRoom",
+                "Entity.RandomGeneration.FurnitureType.Light.Floor"
+              ],
+              "b_not": false
+            }
+          ],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "transform": {
+          "rotation": {
+            "x": -0.0,
+            "y": 0.0,
+            "z": -0.9999999999999998,
+            "w": 1.7453292428141407e-08
+          },
+          "translation": {
+            "x": 687.5,
+            "y": -337.5,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "PROXY_ACTOR",
+          "value": 0
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": 1,
+          "search_queries": [
+            {
+              "search_query": {
+                "name": "HAS_ALL_EXACT",
+                "value": 4
+              },
+              "tags": [
+                "Entity.RandomGeneration.FurnitureCategory.LivingRoom",
+                "Entity.RandomGeneration.FurnitureType.Light.Floor"
+              ],
+              "b_not": false
+            }
+          ],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "transform": {
+          "rotation": {
+            "x": -0.0,
+            "y": 0.0,
+            "z": -0.9999999999999998,
+            "w": 1.7453292428141407e-08
+          },
+          "translation": {
+            "x": -325.0,
+            "y": -700.0,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "LAYOUT",
+          "value": 1
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [
+            {
+              "search_query": {
+                "name": "HAS_ALL_EXACT",
+                "value": 4
+              },
+              "tags": [
+                "Entity.RandomGeneration.Size.Medium",
+                "Layout.Type.Nook",
+                "Tile.Biome.ShowFloor"
+              ],
+              "b_not": false
+            }
+          ],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "transform": {
+          "rotation": {
+            "x": -0.0,
+            "y": 0.0,
+            "z": -0.9999999999999999,
+            "w": 8.726646355709176e-09
+          },
+          "translation": {
+            "x": -575.0,
+            "y": 450.0,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "LAYOUT",
+          "value": 1
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [
+            {
+              "search_query": {
+                "name": "HAS_ALL_EXACT",
+                "value": 4
+              },
+              "tags": [
+                "Entity.RandomGeneration.Size.Medium",
+                "Layout.Type.Nook",
+                "Tile.Biome.ShowFloor"
+              ],
+              "b_not": false
+            }
+          ],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "transform": {
+          "rotation": {
+            "x": -0.0,
+            "y": 0.0,
+            "z": -0.7071067811865476,
+            "w": 0.7071067811865477
+          },
+          "translation": {
+            "x": -150.0,
+            "y": -575.0,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "PROXY_ACTOR",
+          "value": 0
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [
+            {
+              "search_query": {
+                "name": "HAS_ANY_INCL_PARENTS",
+                "value": 1
+              },
+              "tags": [
+                "Entity.RandomGeneration.FurnitureType.Sign.Floor"
+              ],
+              "b_not": false
+            }
+          ],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 1.0
+          },
+          "translation": {
+            "x": -162.5,
+            "y": 412.5,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "PROXY_ACTOR",
+          "value": 0
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": 1,
+          "search_queries": [
+            {
+              "search_query": {
+                "name": "HAS_ALL_EXACT",
+                "value": 4
+              },
+              "tags": [
+                "Entity.RandomGeneration.FurnitureCategory.LivingRoom",
+                "Entity.RandomGeneration.FurnitureType.Light.Floor"
+              ],
+              "b_not": false
+            }
+          ],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 0.7071067996985595,
+            "w": 0.7071067626745351
+          },
+          "translation": {
+            "x": 140.0,
+            "y": -377.5,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "PROXY_ACTOR",
+          "value": 0
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": 1,
+          "search_queries": [
+            {
+              "search_query": {
+                "name": "HAS_ALL_EXACT",
+                "value": 4
+              },
+              "tags": [
+                "Entity.RandomGeneration.FurnitureCategory.LivingRoom",
+                "Entity.RandomGeneration.FurnitureType.Light.Floor"
+              ],
+              "b_not": false
+            }
+          ],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "transform": {
+          "rotation": {
+            "x": -0.0,
+            "y": 0.0,
+            "z": -0.7660444319002179,
+            "w": 0.6427876230565369
+          },
+          "translation": {
+            "x": -425.0,
+            "y": 400.0,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "LAYOUT",
+          "value": 1
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [
+            {
+              "search_query": {
+                "name": "HAS_ALL_EXACT",
+                "value": 4
+              },
+              "tags": [
+                "Entity.RandomGeneration.Size.Small",
+                "Layout.Type.Nook",
+                "Tile.Biome.ShowFloor"
+              ],
+              "b_not": false
+            }
+          ],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 0.7071067750158768,
+            "w": 0.7071067873572183
+          },
+          "translation": {
+            "x": -450.0,
+            "y": 575.0,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "LAYOUT",
+          "value": 1
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [
+            {
+              "search_query": {
+                "name": "HAS_ALL_EXACT",
+                "value": 4
+              },
+              "tags": [
+                "Entity.RandomGeneration.Size.Small",
+                "Layout.Type.Nook",
+                "Tile.Biome.ShowFloor"
+              ],
+              "b_not": false
+            }
+          ],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 0.7071067750158768,
+            "w": 0.7071067873572183
+          },
+          "translation": {
+            "x": 150.0,
+            "y": 575.0,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "LAYOUT",
+          "value": 1
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [
+            {
+              "search_query": {
+                "name": "HAS_ALL_EXACT",
+                "value": 4
+              },
+              "tags": [
+                "Entity.RandomGeneration.Size.Medium",
+                "Layout.Type.Nook",
+                "Tile.Biome.ShowFloor"
+              ],
+              "b_not": false
+            }
+          ],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "transform": {
+          "rotation": {
+            "x": -0.0,
+            "y": 0.0,
+            "z": -0.9999999999999999,
+            "w": 8.726646355709176e-09
+          },
+          "translation": {
+            "x": -575.0,
+            "y": -450.0,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "ENEMY_SPAWN_POINT",
+          "value": 2
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "enemy_spawn_point_definition": "ESP_ShowFloor",
+        "transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 1.0
+          },
+          "translation": {
+            "x": 51.381054,
+            "y": 1e-06,
+            "z": 9.9e-05
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "LAYOUT",
+          "value": 1
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "layout_definition": "LYD_TileBase",
+        "transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 1.0
+          },
+          "translation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      }
+    ],
+    "weighted_chance": 1000,
+    "world_gen_priority": 1000,
+    "gameplay_tags": [
+      "Layout.Type.Tile",
+      "Tile.Biome.ShowFloor",
+      "Tile.Layer.Floor",
+      "Tile.MazeDirection.UpRightDown"
+    ]
+  }
+}

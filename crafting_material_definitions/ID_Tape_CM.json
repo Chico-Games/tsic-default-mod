@@ -1,0 +1,14 @@
+{
+  "id": "ID_Tape_CM",
+  "asset_path": "/Game/Items/CraftingMaterials/Tape/ID_Tape_CM",
+  "class": "UCraftingMaterialDefinition",
+  "schema_version": 2,
+  "properties": {
+    "display_name": "Duct Tape",
+    "description": "Duct tape. Essential for repairs and crafting.",
+    "stackable": true,
+    "weight": 1.0,
+    "static_item_definition": "FD_Tape_SI",
+    "item_category_tag": "Entity.Inventory.Item.Category.CraftingMaterial"
+  }
+}

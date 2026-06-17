@@ -1,0 +1,23 @@
+{
+  "id": "FD_Rack_2",
+  "asset_path": "/Game/Furniture/Racks/Furniture/FD_Rack_2",
+  "class": "UFurnitureDefinition",
+  "schema_version": 2,
+  "properties": {
+    "display_name": "Rack",
+    "level": 1,
+    "default_world_gen_gameplay_tags": [],
+    "meta_tags": [],
+    "is_pingable": false,
+    "static_mesh": "/Game/Furniture/Racks/Meshes/SM_MERGED_Rack185.SM_MERGED_Rack185",
+    "casts_shadow": true,
+    "collision_profile_name": {
+      "name": "Furniture"
+    },
+    "random_material_overrides": [],
+    "loot_positions": [],
+    "weighted_chance": 1000,
+    "world_gen_priority": 7000,
+    "gameplay_tags": []
+  }
+}

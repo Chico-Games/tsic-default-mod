@@ -1,0 +1,411 @@
+{
+  "id": "LYD_SCPBase_All",
+  "asset_path": "/Game/WorldGeneration/Layouts/SCPBase/All/LYD_SCPBase_All",
+  "class": "ULayoutDefinition",
+  "schema_version": 2,
+  "properties": {
+    "layout_objects": [
+      {
+        "layout_actor_type": {
+          "name": "LAYOUT",
+          "value": 1
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [
+            {
+              "search_query": {
+                "name": "HAS_ALL_EXACT",
+                "value": 4
+              },
+              "tags": [
+                "Entity.RandomGeneration.Size.Small",
+                "Layout.Type.Quarter",
+                "Tile.Biome.SCPBase"
+              ],
+              "b_not": false
+            }
+          ],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 0.7071067768845225,
+            "w": 0.7071067854885726
+          },
+          "translation": {
+            "x": -450.0,
+            "y": 450.0,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "LAYOUT",
+          "value": 1
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [
+            {
+              "search_query": {
+                "name": "HAS_ALL_EXACT",
+                "value": 4
+              },
+              "tags": [
+                "Entity.RandomGeneration.Size.Small",
+                "Layout.Type.Quarter",
+                "Tile.Biome.SCPBase"
+              ],
+              "b_not": false
+            }
+          ],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 1.0
+          },
+          "translation": {
+            "x": 450.0,
+            "y": 450.0,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "LAYOUT",
+          "value": 1
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [
+            {
+              "search_query": {
+                "name": "HAS_ALL_EXACT",
+                "value": 4
+              },
+              "tags": [
+                "Entity.RandomGeneration.Size.Small",
+                "Layout.Type.Quarter",
+                "Tile.Biome.SCPBase"
+              ],
+              "b_not": false
+            }
+          ],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "transform": {
+          "rotation": {
+            "x": -0.0,
+            "y": 0.0,
+            "z": -0.7071067768845225,
+            "w": 0.7071067854885726
+          },
+          "translation": {
+            "x": -450.0,
+            "y": -450.0,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "LAYOUT",
+          "value": 1
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [
+            {
+              "search_query": {
+                "name": "HAS_ALL_EXACT",
+                "value": 4
+              },
+              "tags": [
+                "Entity.RandomGeneration.Size.Small",
+                "Layout.Type.Quarter",
+                "Tile.Biome.SCPBase"
+              ],
+              "b_not": false
+            }
+          ],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 1.0
+          },
+          "translation": {
+            "x": 450.0,
+            "y": -450.0,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "LAYOUT",
+          "value": 1
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [
+            {
+              "search_query": {
+                "name": "HAS_ALL_EXACT",
+                "value": 4
+              },
+              "tags": [
+                "Entity.RandomGeneration.Size.Small",
+                "Layout.Type.Display",
+                "Tile.Biome.SCPBase"
+              ],
+              "b_not": false
+            }
+          ],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 0.5
+        },
+        "transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 2.6426643620522914e-09,
+            "w": 1.0
+          },
+          "translation": {
+            "x": -100.0,
+            "y": -450.0,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "LAYOUT",
+          "value": 1
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [
+            {
+              "search_query": {
+                "name": "HAS_ALL_EXACT",
+                "value": 4
+              },
+              "tags": [
+                "Entity.RandomGeneration.Size.Small",
+                "Layout.Type.Display",
+                "Tile.Biome.SCPBase"
+              ],
+              "b_not": false
+            }
+          ],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 0.5
+        },
+        "transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 0.7071067768845225,
+            "w": 0.7071067854885726
+          },
+          "translation": {
+            "x": 437.5,
+            "y": -112.5,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "LAYOUT",
+          "value": 1
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [
+            {
+              "search_query": {
+                "name": "HAS_ALL_EXACT",
+                "value": 4
+              },
+              "tags": [
+                "Entity.RandomGeneration.Size.Small",
+                "Layout.Type.Display",
+                "Tile.Biome.SCPBase"
+              ],
+              "b_not": false
+            }
+          ],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 0.5
+        },
+        "transform": {
+          "rotation": {
+            "x": -0.0,
+            "y": 0.0,
+            "z": -0.7071067959612678,
+            "w": 0.7071067664118271
+          },
+          "translation": {
+            "x": 425.0,
+            "y": 112.5,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "LAYOUT",
+          "value": 1
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [
+            {
+              "search_query": {
+                "name": "HAS_ALL_EXACT",
+                "value": 4
+              },
+              "tags": [
+                "Entity.RandomGeneration.Size.Small",
+                "Layout.Type.Display",
+                "Tile.Biome.SCPBase"
+              ],
+              "b_not": false
+            }
+          ],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 0.5
+        },
+        "transform": {
+          "rotation": {
+            "x": -0.0,
+            "y": 0.0,
+            "z": -2.3537274072735178e-08,
+            "w": 0.9999999999999997
+          },
+          "translation": {
+            "x": -100.0,
+            "y": 437.5,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "LAYOUT",
+          "value": 1
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "layout_definition": "LYD_TileBase",
+        "transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 1.0
+          },
+          "translation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      }
+    ],
+    "weighted_chance": 1000,
+    "world_gen_priority": 1000,
+    "gameplay_tags": [
+      "Layout.Type.Tile",
+      "Tile.Biome.SCPBase",
+      "Tile.Layer.Underground",
+      "Tile.MazeDirection.All"
+    ]
+  }
+}

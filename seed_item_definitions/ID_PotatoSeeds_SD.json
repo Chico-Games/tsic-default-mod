@@ -1,0 +1,14 @@
+{
+  "id": "ID_PotatoSeeds_SD",
+  "asset_path": "/Game/Items/Seeds/PotatoSeeds/ID_PotatoSeeds_SD",
+  "class": "USeedItemDefinition",
+  "schema_version": 2,
+  "properties": {
+    "display_name": "Potato Seeds",
+    "description": "Plant these to grow potatoes.",
+    "stackable": true,
+    "weight": 0.10000000149011612,
+    "static_item_definition": "FD_PotatoSeeds_SI",
+    "item_category_tag": "Entity.Inventory.Item.Category.Misc"
+  }
+}

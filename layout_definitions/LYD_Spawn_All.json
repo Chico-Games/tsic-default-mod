@@ -1,0 +1,598 @@
+{
+  "id": "LYD_Spawn_All",
+  "asset_path": "/Game/WorldGeneration/Layouts/Spawn/All/LYD_Spawn_All",
+  "class": "ULayoutDefinition",
+  "schema_version": 2,
+  "properties": {
+    "layout_objects": [
+      {
+        "layout_actor_type": {
+          "name": "LAYOUT",
+          "value": 1
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "layout_definition": "LYD_TileBase",
+        "transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 1.0
+          },
+          "translation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "PROXY_ACTOR",
+          "value": 0
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "furniture_definition": "FD_ShoppingTrolley_SC",
+        "transform": {
+          "rotation": {
+            "x": 0.7014235617942864,
+            "y": -0.030796519023746,
+            "z": 0.030363298809540265,
+            "w": 0.7114313961734046
+          },
+          "translation": {
+            "x": -224.618946,
+            "y": -85.999999,
+            "z": 25.000098999999977
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "LOOT_SPAWN_POINT",
+          "value": 3
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "furniture_definition": "FD_ShoppingTrolley_SC",
+        "loot_spawn_point_definition": "LSP_ShowFloor_Furniture",
+        "transform": {
+          "rotation": {
+            "x": -0.0,
+            "y": 0.0,
+            "z": -0.7086995218250347,
+            "w": 0.7055104448305265
+          },
+          "translation": {
+            "x": -339.618946,
+            "y": -213.999999,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "LOOT_SPAWN_POINT",
+          "value": 3
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "furniture_definition": "FD_ShoppingTrolley_SC",
+        "loot_spawn_point_definition": "LSP_ShowFloor_Furniture",
+        "transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 0.9624958325658882,
+            "w": 0.2712964656852313
+          },
+          "translation": {
+            "x": -177.618946,
+            "y": -360.999999,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "LOOT_SPAWN_POINT",
+          "value": 3
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "furniture_definition": "FD_ShoppingTrolley_SC",
+        "loot_spawn_point_definition": "LSP_ShowFloor_Furniture",
+        "transform": {
+          "rotation": {
+            "x": -0.0,
+            "y": 0.0,
+            "z": -0.7697156166560845,
+            "w": 0.6383869277137054
+          },
+          "translation": {
+            "x": -330.618946,
+            "y": -418.999999,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "LOOT_SPAWN_POINT",
+          "value": 3
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "furniture_definition": "FD_ShoppingTrolley_SC",
+        "loot_spawn_point_definition": "LSP_ShowFloor_Furniture",
+        "transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 0.7414322684378993,
+            "w": 0.6710277127802032
+          },
+          "translation": {
+            "x": -280.618946,
+            "y": -296.999999,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "LOOT_SPAWN_POINT",
+          "value": 3
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "furniture_definition": "FD_ShoppingTrolley_SC",
+        "loot_spawn_point_definition": "LSP_ShowFloor_Furniture",
+        "transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 0.5447012519327766,
+            "w": 0.8386301605254045
+          },
+          "translation": {
+            "x": -165.618946,
+            "y": -252.999999,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "LOOT_SPAWN_POINT",
+          "value": 3
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "furniture_definition": "FD_ShoppingTrolley_SC",
+        "loot_spawn_point_definition": "LSP_ShowFloor_Furniture",
+        "transform": {
+          "rotation": {
+            "x": -0.0,
+            "y": 0.0,
+            "z": -0.29182860173534075,
+            "w": 0.9564706306046182
+          },
+          "translation": {
+            "x": -248.618946,
+            "y": -449.999999,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "LOOT_SPAWN_POINT",
+          "value": 3
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "furniture_definition": "FD_ShoppingTrolley_SC",
+        "loot_spawn_point_definition": "LSP_ShowFloor_Furniture",
+        "transform": {
+          "rotation": {
+            "x": -0.0,
+            "y": 0.0,
+            "z": -0.9388503559343044,
+            "w": 0.3443254407708348
+          },
+          "translation": {
+            "x": -435.618946,
+            "y": -334.999999,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "LOOT_SPAWN_POINT",
+          "value": 3
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "furniture_definition": "FD_ShoppingTrolley_SC",
+        "loot_spawn_point_definition": "LSP_ShowFloor_Furniture",
+        "transform": {
+          "rotation": {
+            "x": -0.0,
+            "y": 0.0,
+            "z": -0.769715618409937,
+            "w": 0.6383869255990512
+          },
+          "translation": {
+            "x": -416.618946,
+            "y": -530.999999,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "LAYOUT",
+          "value": 1
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [],
+          "tile_requirements": [
+            {
+              "search_query": {
+                "name": "HAS_ALL_EXACT",
+                "value": 4
+              },
+              "tags": [
+                "Tile.Offset.Height.-1.Up",
+                "Tile.Offset.MazeOpening.Up"
+              ],
+              "b_not": true
+            },
+            {
+              "search_query": {
+                "name": "HAS_ALL_EXACT",
+                "value": 4
+              },
+              "tags": [
+                "Tile.Offset.Height.-1.Left",
+                "Tile.Offset.MazeOpening.Left"
+              ],
+              "b_not": true
+            }
+          ],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "furniture_definition": "FD_FloorWood",
+        "layout_definition": "LYD_Quarter_MixedBiome",
+        "transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 0.9999999999999999,
+            "w": 1.2167965141200097e-08
+          },
+          "translation": {
+            "x": 415.0,
+            "y": -415.0,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "LAYOUT",
+          "value": 1
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [],
+          "tile_requirements": [
+            {
+              "search_query": {
+                "name": "HAS_ALL_EXACT",
+                "value": 4
+              },
+              "tags": [
+                "Tile.Offset.Height.-1.Up",
+                "Tile.Offset.MazeOpening.Up"
+              ],
+              "b_not": true
+            },
+            {
+              "search_query": {
+                "name": "HAS_ALL_EXACT",
+                "value": 4
+              },
+              "tags": [
+                "Tile.Offset.Height.-1.Left",
+                "Tile.Offset.MazeOpening.Left"
+              ],
+              "b_not": true
+            }
+          ],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "furniture_definition": "FD_FloorWood",
+        "layout_definition": "LYD_Quarter_MixedBiome",
+        "transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 0.9999999999999999,
+            "w": 8.726646355709176e-09
+          },
+          "translation": {
+            "x": 415.0,
+            "y": 415.0,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "LAYOUT",
+          "value": 1
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [],
+          "tile_requirements": [
+            {
+              "search_query": {
+                "name": "HAS_ALL_EXACT",
+                "value": 4
+              },
+              "tags": [
+                "Tile.Offset.Height.-1.Up",
+                "Tile.Offset.MazeOpening.Up"
+              ],
+              "b_not": true
+            },
+            {
+              "search_query": {
+                "name": "HAS_ALL_EXACT",
+                "value": 4
+              },
+              "tags": [
+                "Tile.Offset.Height.-1.Left",
+                "Tile.Offset.MazeOpening.Left"
+              ],
+              "b_not": true
+            }
+          ],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "furniture_definition": "FD_FloorWood",
+        "layout_definition": "LYD_Quarter_ShowFloor",
+        "transform": {
+          "rotation": {
+            "x": -0.0,
+            "y": 0.0,
+            "z": -2.089460943165341e-08,
+            "w": 0.9999999999999998
+          },
+          "translation": {
+            "x": -415.0,
+            "y": 415.0,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "LOOT_SPAWN_POINT",
+          "value": 3
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "furniture_definition": "FD_ShoppingTrolley_SC",
+        "loot_spawn_point_definition": "LSP_ShowFloor_Furniture",
+        "transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 0.9964056078201776,
+            "w": 0.0847104757659997
+          },
+          "translation": {
+            "x": -602.618946,
+            "y": -461.999999,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "LOOT_SPAWN_POINT",
+          "value": 3
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "furniture_definition": "FD_ShoppingTrolley_SC",
+        "loot_spawn_point_definition": "LSP_ShowFloor_Furniture",
+        "transform": {
+          "rotation": {
+            "x": -0.0,
+            "y": 0.0,
+            "z": -0.2564475617650551,
+            "w": 0.9665581452063599
+          },
+          "translation": {
+            "x": -594.618946,
+            "y": -280.999999,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      }
+    ],
+    "weighted_chance": 1000,
+    "world_gen_priority": 1000,
+    "gameplay_tags": [
+      "Layout.Type.Tile",
+      "Tile.Biome.Spawn",
+      "Tile.MazeDirection.All",
+      "Tile.MazeDirection.Up",
+      "Tile.MazeDirection.UpDown",
+      "Tile.MazeDirection.UpRight",
+      "Tile.MazeDirection.UpRightDown"
+    ]
+  }
+}

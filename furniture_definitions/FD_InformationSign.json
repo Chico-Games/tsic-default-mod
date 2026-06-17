@@ -1,0 +1,23 @@
+{
+  "id": "FD_InformationSign",
+  "asset_path": "/Game/Furniture/Help/Furniture/FD_InformationSign",
+  "class": "UFurnitureDefinition",
+  "schema_version": 2,
+  "properties": {
+    "display_name": "InformationSign",
+    "level": 1,
+    "default_world_gen_gameplay_tags": [],
+    "meta_tags": [],
+    "is_pingable": false,
+    "static_mesh": "/Game/Furniture/Help/Meshes/SM_InformationSign2.SM_InformationSign2",
+    "casts_shadow": true,
+    "collision_profile_name": {
+      "name": "Furniture"
+    },
+    "random_material_overrides": [],
+    "loot_positions": [],
+    "weighted_chance": 1000,
+    "world_gen_priority": 3000,
+    "gameplay_tags": []
+  }
+}

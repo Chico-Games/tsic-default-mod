@@ -1,0 +1,28 @@
+{
+  "id": "FD_ChairBase",
+  "asset_path": "/Game/Furniture/Chairs/Furniture/FD_ChairBase",
+  "class": "UFurnitureDefinition",
+  "schema_version": 2,
+  "properties": {
+    "display_name": "Chair",
+    "level": 1,
+    "default_world_gen_gameplay_tags": [],
+    "meta_tags": [],
+    "is_pingable": false,
+    "static_mesh": "/Game/Furniture/Chairs/Meshes/SM_Aline_Chair.SM_Aline_Chair",
+    "casts_shadow": true,
+    "collision_profile_name": {
+      "name": "Furniture"
+    },
+    "random_material_overrides": [],
+    "loot_positions": [],
+    "weighted_chance": 1000,
+    "world_gen_priority": 5000,
+    "gameplay_tags": [
+      "Entity.RandomGeneration.FurnitureType.Chair",
+      "Entity.RandomGeneration.Materials.Fabric",
+      "Entity.RandomGeneration.Materials.Wood",
+      "Tile.Biome.ShowFloor"
+    ]
+  }
+}

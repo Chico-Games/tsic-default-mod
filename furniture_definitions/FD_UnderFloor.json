@@ -1,0 +1,22 @@
+{
+  "id": "FD_UnderFloor",
+  "asset_path": "/Game/Furniture/Floors/Furniture/FD_UnderFloor",
+  "class": "UFurnitureDefinition",
+  "schema_version": 2,
+  "properties": {
+    "level": 1,
+    "default_world_gen_gameplay_tags": [],
+    "meta_tags": [],
+    "is_pingable": false,
+    "static_mesh": "/Game/Furniture/Floors/Meshes/SM_UnderFloor.SM_UnderFloor",
+    "casts_shadow": false,
+    "collision_profile_name": {
+      "name": "Furniture"
+    },
+    "random_material_overrides": [],
+    "loot_positions": [],
+    "weighted_chance": 1000,
+    "world_gen_priority": 10000,
+    "gameplay_tags": []
+  }
+}
