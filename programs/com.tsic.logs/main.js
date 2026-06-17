@@ -8,9 +8,27 @@
   const term = await TSICProgram.connect();
 
   // Each log: a title + body as an array of lines (paginated by line).
-  // TODO: add the real log(s) here, e.g.:
-  //   { title: 'LOG TITLE', body: ['line one', 'line two', ...] },
-  const LOGS = [];
+  const LOGS = [
+    {
+      title: 'DURHAM OS v1.0.0 — INIT LOG 001',
+      body: [
+        'DATE: 10/14/1986    TIME: 08:30 AM',
+        'SYSADMIN: KATIE',
+        '',
+        'Welcome everyone! This is the very first log of the very',
+        'first version of DURHAM OS. I just finished wiring the',
+        'back office, and we are officially online!',
+        '',
+        "I'm so excited to get everything running smoothly for the",
+        'store. If you see any bugs, glitches, or a blinking cursor',
+        "that won't go away, please remember to come speak to me!",
+        "(I'm usually at the desk surrounded by cables).",
+        '',
+        'Happy typing!',
+        '- Katie (Head of IT)',
+      ],
+    },
+  ];
 
   const LIST_PER_PAGE = 5;
   const BODY_PER_PAGE = 14;
