@@ -87,10 +87,37 @@
         "- Katie",
       ],
     },
+    {
+      title: "DURHAM OS // SYSADMIN DIARY // LOG 03",
+      body: [
+        "USER: KATIE_IT",
+        "DATE: 19/01/1984    TIME: 03:14 AM",
+        "",
+        "Who knew the store could be such a maze in the dark? I went",
+        "to get a snack from the vending machines and got completely",
+        "turned around. It felt like I was wandering around forever",
+        "before I found my way back.",
+        "",
+        "It's like, do you ever get that feeling that someone is",
+        "watching you? Spooooooky.",
+        "",
+        "Oh and guess what? I must have missed whatever corrupted the",
+        "data. The night wasn't all a waste though. I had a look",
+        "through some of the raw data of the corrupted files, and",
+        "here's the weird thing:",
+        "",
+        "The total stock data grew from roughly 48kb to over 300kb.",
+        "It's like some of the data was repeating and duplicated. It",
+        "was a mess and completely unrecoverable. I've never seen",
+        "anything like that.",
+        "",
+        "- Katie",
+      ],
+    },
   ];
 
   const LIST_PER_PAGE = 5;
-  const BODY_PER_PAGE = 18;
+  const BODY_PER_PAGE = 30;
   const RULE = "========================================";
 
   function clamp(n, lo, hi) {
