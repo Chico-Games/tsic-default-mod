@@ -94,9 +94,10 @@
       printToProgram: function (text) { write(text); },
       beginProgramInput: function (prompt) {
         if (prompt) write(prompt);
+        line.style.display = 'none';
         return new Promise(function (res) { inputResolver = res; });
       },
-      endProgram: function () { inputResolver = null; input.focus(); },
+      endProgram: function () { inputResolver = null; line.style.display = ''; input.focus(); },
       destroy: function () { input.removeEventListener('keydown', onKey); container.innerHTML = ''; },
     };
   }
