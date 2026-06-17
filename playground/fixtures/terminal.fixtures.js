@@ -13,21 +13,23 @@ TSICPlayground.register({
                 { id: 'com.tsic.scphint', name: 'SCP-HINT',  minTier: 3, entry: 'main.js', capabilities: ['term.print','world.read','world.mutate'] },
             ],
             unlocked: ['com.tsic.hello'],
+            autoRun: null,   // program id the terminal boots straight into, if any
         };
     },
     project(state) {
         return [
-            ['tsic.msg.UI.Terminal.Open',         { TerminalId: 'pg', Tier: state.tier }],
+            ['tsic.msg.UI.Terminal.Open',         { TerminalId: 'pg', Tier: state.tier, AutoRun: state.autoRun || null }],
             ['tsic.msg.UI.Terminal.Catalog',      { Programs: state.programs }],
             ['tsic.msg.UI.Terminal.UnlockedList', { ProgramIds: state.unlocked }],
         ];
     },
     scenarios: [
-        { label: 'Tier 1 — HELLO unlocked', apply() {} },
-        { label: 'Tier 1 — nothing unlocked', apply(s) { s.unlocked = []; } },
-        { label: 'Tier 1 — all unlocked (SCP locked)', apply(s) { s.unlocked = ['com.tsic.hello','com.tsic.scphint']; } },
-        { label: 'Tier 2 — windowed stub', apply(s) { s.tier = 2; } },
-        { label: 'Tier 3 — SCP stub (SCP runnable)', apply(s) { s.tier = 3; s.unlocked = ['com.tsic.hello','com.tsic.scphint']; } },
+        { label: 'Tier 1 — HELLO unlocked', apply(s) { s.autoRun = null; } },
+        { label: 'Tier 1 — HELLO running', apply(s) { s.tier = 1; s.unlocked = ['com.tsic.hello']; s.autoRun = 'com.tsic.hello'; } },
+        { label: 'Tier 1 — nothing unlocked', apply(s) { s.unlocked = []; s.autoRun = null; } },
+        { label: 'Tier 1 — all unlocked (SCP locked)', apply(s) { s.unlocked = ['com.tsic.hello','com.tsic.scphint']; s.autoRun = null; } },
+        { label: 'Tier 2 — windowed stub', apply(s) { s.tier = 2; s.autoRun = null; } },
+        { label: 'Tier 3 — SCP stub (SCP runnable)', apply(s) { s.tier = 3; s.unlocked = ['com.tsic.hello','com.tsic.scphint']; s.autoRun = null; } },
         { label: 'Insert SCP-HINT floppy', apply(s) { if (s.unlocked.indexOf('com.tsic.scphint') === -1) s.unlocked.push('com.tsic.scphint'); } },
     ],
     onPublish(state, channel, payload) {

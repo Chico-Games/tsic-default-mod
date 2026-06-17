@@ -53,12 +53,17 @@
           .catch(function () { return { ok: false, code: T.ERR.ENTRY_FAILED, info: { id: program.id } }; });
       }
 
-      function buildShell(tier) {
+      function buildShell(tier, autoRun) {
         killProgram();
         if (state.shell) { state.shell.destroy(); state.shell = null; }
         state.tier = tier;
         const factory = T.shells['tier' + tier] || T.shells.tier1;
-        state.shell = factory.create(root, { tier: tier, run: run, close: function () { ctx.publish(T.CHANNELS.Close); } });
+        state.shell = factory.create(root, {
+          tier: tier,
+          run: run,
+          close: function () { ctx.publish(T.CHANNELS.Close); },
+          autoRun: autoRun || null,   // program id to launch automatically once booted
+        });
         refreshShellList();
       }
 
@@ -71,7 +76,7 @@
         refreshShellList();
       });
       ctx.on('tsic.msg.' + T.CHANNELS.Open, function (p) {
-        buildShell((p && p.Tier) || 1);
+        buildShell((p && p.Tier) || 1, p && p.AutoRun);
       });
     },
   });

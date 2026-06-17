@@ -81,6 +81,11 @@
       rootEl.classList.remove('is-booting');
       rootEl.setAttribute('data-term-ready', '1');
       focusInput();
+      // Optionally boot straight into a program (host.autoRun is a program id).
+      if (host.autoRun) {
+        write('> run ' + host.autoRun, 'tsic-term-echo');
+        host.run(host.autoRun).then(function (res) { if (!res.ok) renderError(res, host.autoRun); });
+      }
     }
 
     // BIOS-style boot animation, then hand off to the prompt. The prompt is

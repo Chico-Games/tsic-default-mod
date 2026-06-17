@@ -10,7 +10,7 @@ async function openTier1Ready(ctx, opts) {
     ctx.win.TSICTerminal.shells.tier1.charDelayMs = 0;
     if (opts.programs) ctx.inject('tsic.msg.UI.Terminal.Catalog', { Programs: opts.programs });
     if (opts.unlocked) ctx.inject('tsic.msg.UI.Terminal.UnlockedList', { ProgramIds: opts.unlocked });
-    ctx.inject('tsic.msg.UI.Terminal.Open', { TerminalId: opts.id || 't1', Tier: 1 });
+    ctx.inject('tsic.msg.UI.Terminal.Open', { TerminalId: opts.id || 't1', Tier: 1, AutoRun: opts.autoRun || null });
     await TSICTestHarness.waitFor(() => ctx.doc.querySelector('.tsic-term--t1[data-term-ready]'));
 }
 
@@ -87,6 +87,24 @@ TSICTestHarness.register({
         TSICTestHarness.events.keyOn(inp, 'Enter', { code: 'Enter' });
         await new Promise(r => setTimeout(r, 30));
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Terminal.Close'));
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Terminal: AutoRun launches a program once booted',
+    file: termScreenFile(),
+    async run(ctx) {
+        // A tier-locked auto-run exercises the wiring (Open.AutoRun -> launch)
+        // without needing the live sandbox: it resolves to the tier error.
+        await openTier1Ready(ctx, {
+            programs: [{ id: 'com.tsic.scphint', name: 'SCP-HINT', minTier: 3, entry: 'main.js' }],
+            unlocked: ['com.tsic.scphint'],
+            autoRun: 'com.tsic.scphint',
+        });
+        await TSICTestHarness.waitFor(() => /INCOMPATIBLE HARDWARE/.test(ctx.doc.querySelector('#term-out').textContent));
+        const out = ctx.doc.querySelector('#term-out').textContent;
+        ctx.expect(ctx.assert.truthy(/> run com\.tsic\.scphint/.test(out), 'auto-run echoes the launch'));
+        ctx.expect(ctx.assert.truthy(/requires SCP Restricted-Access Terminal/.test(out), 'auto-run attempted and rendered the tier error'));
     },
 });
 
