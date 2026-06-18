@@ -79,6 +79,11 @@
   // "drop outside" clears the assignment.
   var activeHotbarDrag = null;
 
+  // Ammo badge clamps each side to two digits — "99/99" is the widest it draws.
+  function cap2(n) { n = (typeof n === 'number' && n > 0) ? n : 0; return n > 99 ? 99 : n; }
+  // True when this item is ammo-using equipment (C++ sends -1 for everything else).
+  function usesAmmo(item) { return item && typeof item.LoadedAmmo === 'number' && item.LoadedAmmo >= 0; }
+
   function publish(tag, payload) {
     if (window.tsic && window.tsic.publishMessage) window.tsic.publishMessage(tag, payload);
   }
@@ -95,7 +100,13 @@
     for (var i = 0; i < slots.length; i++) {
       var inv = slots[i];
       var item = isAssigned(inv) ? playerItemsBySlot.get(inv) : null;
-      parts.push(inv + (item && item.ItemId ? (':' + item.ItemId + 'x' + (item.Count || 1)) : ''));
+      var key = String(inv);
+      if (item && item.ItemId) {
+        key += ':' + item.ItemId + 'x' + (item.Count || 1);
+        // Fold ammo into the signature so loading/firing/picking-up ammo forces a rebuild.
+        if (usesAmmo(item)) key += 'a' + item.LoadedAmmo + '/' + (item.SpareAmmo || 0);
+      }
+      parts.push(key);
     }
     return parts.join('|');
   }
@@ -147,7 +158,14 @@
           img.src = TSIC.itemIconUrl(item.ItemId);
           img.onerror = function () { img.style.visibility = 'hidden'; };
           slot.appendChild(img);
-          if (item.Count > 1) {
+          // Ammo-using equipment always shows loaded/spare (incl. "0/0"); other items
+          // fall back to the stack count, and only when stacked.
+          if (usesAmmo(item)) {
+            var ammo = document.createElement('span');
+            ammo.className = 'count ammo';
+            ammo.textContent = cap2(item.LoadedAmmo) + '/' + cap2(item.SpareAmmo);
+            slot.appendChild(ammo);
+          } else if (item.Count > 1) {
             var count = document.createElement('span');
             count.className = 'count';
             count.textContent = String(item.Count);
