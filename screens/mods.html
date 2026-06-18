@@ -16,6 +16,7 @@
   <script src="/shared/router.js" defer></script>
   <script src="/shared/tsic-focus.js" defer></script>
   <script src="/shared/tsic-dropdown.js" defer></script>
+  <script src="/shared/tab-filter.js" defer></script>
   <style>
     .mods-body { padding: 8px 22px 14px; }
     .mods-body .panel {
@@ -121,6 +122,9 @@
       </div>
 
       <div class="mods-body">
+
+    <div id="mods-tabs" class="tsic-tab-bar" data-tsic-tab-bar></div>
+    <div class="error" id="tab-launch-msg" style="display:none; margin-bottom:10px;"></div>
 
     <div class="panel" id="panel-auth">
       <div id="auth-signed-out" style="display:none;">
@@ -703,6 +707,44 @@
       });
       document.getElementById('btn-back').onclick = () =>
         tsic.publishMessage('UI.Cmd.Menu.Navigate', { Screen: 'MainMenu' });
+
+      // --- Modding tool tabs -----------------------------------------------
+      // The editor tabs are external static web apps (GitHub Pages). They are
+      // opened as a full-screen top-level navigation so the Definition Editor's
+      // File System Access API works (it is blocked inside cross-origin iframes).
+      // Each tool shows its own "Back to game" button (it is launched with
+      // ?host=tsic) that navigates back to this screen via http://tsic.local/.
+      const TOOL_URLS = {
+        defeditor: 'https://chico-games.github.io/TSIC-Mod-Maker/?host=tsic',
+        mapeditor: 'https://chico-games.github.io/TSICLevelEditor/?host=tsic',
+      };
+      function launchTool(url) {
+        const msg = document.getElementById('tab-launch-msg');
+        if (!navigator.onLine) {
+          msg.textContent = 'These modding tools require an internet connection.';
+          msg.style.display = '';
+          return;
+        }
+        msg.style.display = 'none';
+        window.location.href = url;
+      }
+      if (window.TSIC && TSIC.TabFilter) {
+        const toolTabs = TSIC.TabFilter.create(
+          document.getElementById('mods-tabs'),
+          [
+            { id: 'browse',    label: 'Browse & Install' },
+            { id: 'defeditor', label: 'Definition Editor' },
+            { id: 'mapeditor', label: 'Map Editor' },
+          ],
+          function (active) {
+            if (active === 'browse') return;
+            launchTool(TOOL_URLS[active]);
+            // Revert highlight so returning to this screen lands on Browse and
+            // the offline message (if shown) sits under the Browse tab.
+            toolTabs.setActive('browse');
+          }
+        );
+      }
     });
     })();
   </script>
