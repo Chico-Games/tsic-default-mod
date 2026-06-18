@@ -12,7 +12,7 @@
 //   tsic.msg.UI.Inventory.Updated (OwnerId === 'Player') → item icons/counts
 // Commands published:
 //   UI.Cmd.Hotbar.Select { SlotIndex }
-//   UI.Cmd.Hotbar.Assign { SlotIndex, ItemId }   (ItemId carries a slot index)
+//   UI.Cmd.Hotbar.Assign { SlotIndex, ItemId }   (ItemId carries the item's InstanceId)
 // Depends on: window.TSIC.itemIconUrl (icons.js)
 (function () {
   // ── Styling (scoped to #hotbar-row; kept in sync with screens/hotbar.html) ──
@@ -74,7 +74,7 @@
   // (e.g. just moving the selection) reuses the existing DOM so the CSS
   // transition animates the grow/shrink; a real content change rebuilds.
   var lastContentKey = null;
-  var playerItemsBySlot = new Map();
+  var playerItemsByInstance = new Map();
   // The slot currently being dragged — used by the dragend fallback so a
   // "drop outside" clears the assignment.
   var activeHotbarDrag = null;
@@ -99,7 +99,7 @@
     var parts = [];
     for (var i = 0; i < slots.length; i++) {
       var inv = slots[i];
-      var item = isAssigned(inv) ? playerItemsBySlot.get(inv) : null;
+      var item = isAssigned(inv) ? playerItemsByInstance.get(inv) : null;
       var key = String(inv);
       if (item && item.ItemId) {
         key += ':' + item.ItemId + 'x' + (item.Count || 1);
@@ -152,7 +152,7 @@
         slot.dataset.slot = String(i);
         var inventorySlot = slots[i];
         var slotHasItem = isAssigned(inventorySlot);
-        var item = slotHasItem ? playerItemsBySlot.get(inventorySlot) : null;
+        var item = slotHasItem ? playerItemsByInstance.get(inventorySlot) : null;
         if (item && item.ItemId) {
           var img = document.createElement('img');
           img.src = TSIC.itemIconUrl(item.ItemId);
@@ -212,7 +212,11 @@
           if (itemData) {
             try {
               var src = JSON.parse(itemData);
-              publish('UI.Cmd.Hotbar.Assign', { SlotIndex: i, ItemId: String(src.slot) });
+              // Assign by the stable instance id, not the array position — hotbar slots are keyed by
+              // InstanceId (see the inventory listener), and src.slot would point at the wrong item
+              // the moment the inventory reorders.
+              var assignId = (src.instanceId != null) ? src.instanceId : src.slot;
+              publish('UI.Cmd.Hotbar.Assign', { SlotIndex: i, ItemId: String(assignId) });
             } catch (err) { console.warn('[hotbar] bad item drag payload', err); }
             return;
           }
@@ -245,11 +249,15 @@
       });
       tsic.on('tsic.msg.UI.Inventory.Updated', function (p) {
         if (!p || p.OwnerId !== 'Player') return;
-        playerItemsBySlot = new Map();
+        playerItemsByInstance = new Map();
         var items = (p.Items || []);
         for (var k = 0; k < items.length; k++) {
           var it = items[k];
-          if (it && typeof it.SlotIndex === 'number') playerItemsBySlot.set(it.SlotIndex, it);
+          // Key by InstanceId (the stable InternalInventoryId), NOT SlotIndex. Hotbar slots store
+          // the InstanceId, and SlotIndex is just the volatile array position — it shifts whenever a
+          // stack is removed (e.g. ammo consumed on reload), which would orphan the lookup and make
+          // the icon + ammo vanish even though the item is still in the inventory.
+          if (it && typeof it.InstanceId === 'number') playerItemsByInstance.set(it.InstanceId, it);
         }
         update();
       });
