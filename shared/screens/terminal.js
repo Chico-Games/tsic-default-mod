@@ -17,52 +17,79 @@
     template: '',
 
     mount(root, ctx) {
-      const state = { tier: 1, programs: [], unlockedIds: [], storage: new Map(), shell: null, program: null };
+      const state = { tier: 1, programs: [], unlockedIds: [], storage: new Map(), shell: null, running: new Set() };
 
       function snapshot() {
         return T.catalog.listForTerminal({ programs: state.programs, unlockedIds: state.unlockedIds, tier: state.tier });
       }
       function refreshShellList() { if (state.shell) state.shell.onPrograms(snapshot()); }
 
-      function killProgram() { if (state.program) { state.program.kill(); state.program = null; } }
+      function killAll() {
+        state.running.forEach(function (h) { try { h.kill(); } catch (e) {} });
+        state.running.clear();
+      }
 
-      function run(programId) {
+      // Single-surface shells (tier-1 CRT, tier-3 stub) route a program's I/O to
+      // their one screen. The windowed tier-2 shell instead hands run() a
+      // per-window sink (opts.sink), so closing a window kills only its program.
+      function shellSink() {
+        const s = state.shell || {};
+        return {
+          container: null,
+          print: function (t, o) { if (s.printToProgram) s.printToProgram(t, o); },
+          clear: function () { if (s.clearScreen) s.clearScreen(); },
+          requestInput: function (p) { return s.beginProgramInput ? s.beginProgramInput(p) : Promise.resolve(''); },
+          setTheme: function (n) { if (s.setTheme) s.setTheme(n); },
+          reboot: function () { if (s.reboot) s.reboot(); },
+          endProgram: function () { if (s.endProgram) s.endProgram(); },
+        };
+      }
+
+      function run(programId, opts) {
+        opts = opts || {};
         const res = T.catalog.resolveLaunch(programId, { programs: state.programs, unlockedIds: state.unlockedIds, tier: state.tier });
         if (!res.ok) return Promise.resolve(res);
         const program = res.program;
         return fetch('/programs/' + program.id + '/' + program.entry)
           .then(function (r) { if (!r.ok) throw new Error('fetch'); return r.text(); })
           .then(function (entrySrc) {
-            killProgram();
             const granted = T.grantedCaps(state.tier, program.capabilities);
             const handlers = T.capabilities.createHostHandlers({
               publish: ctx.publish, storage: state.storage, catalogSnapshot: snapshot,
             });
-            // GUI programs (granted gfx.canvas) render their own UI inside a window
-            // the shell hands back; text programs mount off-screen and stream via onPrint.
-            const gui = granted.indexOf('gfx.canvas') !== -1
-              && state.shell && typeof state.shell.beginGuiProgram === 'function';
-            const container = gui ? state.shell.beginGuiProgram(program) : root;
-            state.program = T.runtime.launch({
+            // A windowed shell supplies the sink (one per window); single-surface
+            // shells don't, so fall back to their one screen and — since they host
+            // one program at a time — replace whatever was running.
+            const sink = opts.sink || shellSink();
+            if (!opts.sink) killAll();
+            // GUI programs (granted gfx.canvas) render their own UI into the sink's
+            // container; text programs mount off-screen and stream via onPrint.
+            const gui = granted.indexOf('gfx.canvas') !== -1 && !!sink.container;
+            const container = gui ? sink.container : root;
+            let handle = null;
+            function drop() { if (handle) state.running.delete(handle); }
+            handle = T.runtime.launch({
               container: container,
               program: program,
               entrySrc: entrySrc,
               granted: granted,
               handlers: handlers,
-              onPrint: function (txt, opts) { if (state.shell) state.shell.printToProgram(txt, opts); },
-              onTheme: function (name) { if (state.shell && state.shell.setTheme) state.shell.setTheme(name); },
-              onClear: function () { if (state.shell && state.shell.clearScreen) state.shell.clearScreen(); },
-              onReboot: function () { state.program = null; if (state.shell && state.shell.reboot) state.shell.reboot(); },
-              requestInput: function (prompt) { return state.shell ? state.shell.beginProgramInput(prompt) : Promise.resolve(''); },
-              onExit: function () { if (state.shell) state.shell.endProgram(); },
+              onPrint: function (txt, o) { sink.print(txt, o); },
+              onTheme: function (name) { if (sink.setTheme) sink.setTheme(name); },
+              onClear: function () { if (sink.clear) sink.clear(); },
+              onReboot: function () { drop(); if (sink.reboot) sink.reboot(); },
+              requestInput: function (prompt) { return sink.requestInput ? sink.requestInput(prompt) : Promise.resolve(''); },
+              onExit: function () { drop(); if (sink.endProgram) sink.endProgram(); },
             });
+            state.running.add(handle);
+            if (sink.onClose) sink.onClose(function () { handle.kill(); drop(); });   // close box kills its program
             return { ok: true };
           })
           .catch(function () { return { ok: false, code: T.ERR.ENTRY_FAILED, info: { id: program.id } }; });
       }
 
       function buildShell(tier, autoRun) {
-        killProgram();
+        killAll();
         if (state.shell) { state.shell.destroy(); state.shell = null; }
         state.tier = tier;
         const factory = T.shells['tier' + tier] || T.shells.tier1;
@@ -70,7 +97,6 @@
           tier: tier,
           run: run,
           close: function () { ctx.publish(T.CHANNELS.Close); },
-          stop: killProgram,          // terminate the running program (e.g. a window close box)
           autoRun: autoRun || null,   // program id to launch automatically once booted
         });
         refreshShellList();

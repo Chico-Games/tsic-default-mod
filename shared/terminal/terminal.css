@@ -223,6 +223,13 @@
   cursor: grab; user-select: none;
 }
 .tsic-term--t2 .t2-window.is-dragging .t2-titlebar { cursor: grabbing; }
+/* Multiple windows: the focused one keeps the red title stripes and the lifted
+   block shadow; the rest sit flat with muted stripes so the active one reads. */
+.tsic-term--t2 .t2-window:not(.is-focused) { box-shadow: var(--t2-shadow-sm); }
+.tsic-term--t2 .t2-window:not(.is-focused) .t2-titlebar {
+  background: repeating-linear-gradient(to bottom, var(--t2-dim) 0 2px, var(--t2-win) 2px 4px);
+}
+.tsic-term--t2 .t2-window:not(.is-focused) .t2-title { color: var(--t2-dim); }
 .tsic-term--t2 .t2-title {
   font-size: 18px; letter-spacing: 1px; line-height: 16px;
   color: var(--t2-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;

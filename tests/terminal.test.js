@@ -178,6 +178,44 @@ TSICTestHarness.register({
 });
 
 TSICTestHarness.register({
+    name: 'Terminal: tier-2 desktop keeps several windows open and closes them independently',
+    file: termScreenFile(),
+    async run(ctx) {
+        await TSICTestHarness.waitFor(() => ctx.win.TSICTerminal && ctx.win.TSICTerminal.shells && ctx.win.TSICTerminal.shells.tier2);
+        ctx.win.TSICTerminal.shells.tier2.charDelayMs = 0; // instant console boot
+        ctx.inject('tsic.msg.UI.Terminal.Catalog', { Programs: [
+            { id: 'com.tsic.logs2', name: 'LOGS_V2', minTier: 2, entry: 'main.js', capabilities: ['gfx.canvas'] },
+            { id: 'com.tsic.logs',  name: 'LOGS',    minTier: 1, entry: 'main.js', folder: 'V1', capabilities: ['term.print', 'term.input'] },
+        ]});
+        ctx.inject('tsic.msg.UI.Terminal.UnlockedList', { ProgramIds: ['com.tsic.logs2', 'com.tsic.logs'] });
+        ctx.inject('tsic.msg.UI.Terminal.Open', { TerminalId: 't2', Tier: 2 });
+        await TSICTestHarness.waitFor(() => ctx.doc.querySelector('.t2-icon-system') && ctx.doc.querySelector('.t2-icon-folder'));
+
+        const count = () => ctx.doc.querySelectorAll('.tsic-term--t2 .t2-window').length;
+        ctx.doc.querySelector('.t2-icon-system').click();   // console window
+        await TSICTestHarness.waitFor(() => count() === 1);
+        ctx.doc.querySelector('.t2-icon-folder').click();   // V1 folder window
+        await TSICTestHarness.waitFor(() => count() === 2);
+        ctx.doc.querySelector('#t2-about-btn').click();     // About window
+        await TSICTestHarness.waitFor(() => count() === 3);
+        ctx.expect(ctx.assert.truthy(count() === 3, 'three windows coexist on the desktop'));
+
+        // Single instance: re-clicking the Terminal icon raises, never duplicates.
+        ctx.doc.querySelector('.t2-icon-system').click();
+        await new Promise(r => setTimeout(r, 20));
+        ctx.expect(ctx.assert.truthy(count() === 3, 'a second click on an open program raises it, not a duplicate'));
+
+        // Closing one window leaves the others standing.
+        const folder = ctx.doc.querySelector('.tsic-term--t2 .t2-window .t2-folder-view');
+        folder.closest('.t2-window').querySelector('.t2-close').click();
+        await TSICTestHarness.waitFor(() => count() === 2);
+        ctx.expect(ctx.assert.truthy(!ctx.doc.querySelector('.t2-folder-view'), 'the folder window is gone'));
+        ctx.expect(ctx.assert.truthy(/DURHAM-OS COMMAND CONSOLE/.test(ctx.doc.querySelector('.t2-console').textContent),
+            'the console window survives closing another window'));
+    },
+});
+
+TSICTestHarness.register({
     name: 'Terminal: EXIT publishes UI.Cmd.Terminal.Close',
     file: termScreenFile(),
     async run(ctx) {

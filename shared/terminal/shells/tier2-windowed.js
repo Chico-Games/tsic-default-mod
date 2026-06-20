@@ -1,13 +1,20 @@
 // shared/terminal/shells/tier2-windowed.js
 //
 // Tier-2 "Durham GUI Terminal (Experimental)" shell: an early-1980s graphical
-// desktop (GEM / Amiga Workbench era) skinned in the store's magazine-catalogue
-// livery — cream paper, heavy black borders, hard offset block shadows, a
-// mag-red title bar, mag-yellow selection. Unlocked programs render as desktop
-// icons; launching one opens a draggable beveled window that hosts the
-// program's text I/O (the same print / readLine / clear contract tier-1 uses).
-// A subtle CRT overlay is retained from tier-1 (see terminal.css) for
-// continuity. Chrome lives here; wiring lives in shared/screens/terminal.js.
+// desktop (GEM / Amiga Workbench era) re-skinned as RetroOS '84 with the store's
+// Durham red as accent. Unlocked programs render as desktop icons; launching one
+// opens a draggable, resizable window.
+//
+// MULTI-WINDOW: several windows live on the desktop at once — the command
+// console, GUI programs (LOGS_V2 / STOCK_V2), text apps, folders and the About
+// box can all be open together. pointerdown raises a window to the front
+// (click-to-focus); each window owns its own drag / resize / maximise / close.
+// A window is keyed (app:<id> / console / folder:<name> / about) so re-opening an
+// already-open thing just raises its existing window instead of duplicating it.
+//
+// Each launched program gets a per-window "sink" (its container + print / input /
+// theme / lifecycle), so closing one window kills only that program. Chrome lives
+// here; wiring lives in shared/screens/terminal.js.
 (function (global) {
   const NS = global.TSICTerminal = global.TSICTerminal || {};
   NS.shells = NS.shells || {};
@@ -63,12 +70,12 @@
     const aboutBtn = container.querySelector('#t2-about-btn');
 
     let programList = [];
-    let win = null;            // current window element (single-window model)
-    let content = null;        // window's scrollable content well
-    let dragState = null;
     let destroyed = false;
-    let consoleCore = null;    // shared console engine while the Terminal is open
-    let activeSink = null;     // where a running program's I/O goes: 'console' | 'window'
+    const windows = [];        // open window records: { el, content, key, onCloseFns }
+    let zTop = 10;             // running z-index handed out on focus
+    let openCount = 0;         // cascade slot counter for placing new windows
+    let dragState = null;      // one pointer drag at a time across all windows
+    let consoleRef = null;     // the open console's engine (single instance)
 
     // ── Menu-bar clock ─────────────────────────────────────────────
     function tickClock() {
@@ -88,6 +95,18 @@
         if (programList[i].program.id === id) return programList[i].program.name;
       }
       return id;
+    }
+    function entryFor(id) {
+      for (let i = 0; i < programList.length; i++) {
+        if (programList[i].program.id === id) return programList[i];
+      }
+      return null;
+    }
+    // A program renders its own UI (in-window) when its granted caps include
+    // gfx.canvas; otherwise it's a text app streaming into the window scrollback.
+    function isGui(program) {
+      const granted = NS.grantedCaps ? NS.grantedCaps(host.tier, (program && program.capabilities) || []) : [];
+      return granted.indexOf('gfx.canvas') !== -1;
     }
 
     function makeTerminalIcon() {
@@ -150,12 +169,13 @@
     }
 
     function openFolder(name, entries) {
-      openWindow(name);
-      content.classList.add('t2-folder-view');
+      if (raiseIfOpen('folder:' + name)) return;
+      const rec = makeWindow(name, { key: 'folder:' + name });
+      rec.content.classList.add('t2-folder-view');
       const grid = doc.createElement('div');
       grid.className = 't2-icons';
       entries.forEach(function (e) { grid.appendChild(makeProgramIcon(e)); });
-      content.appendChild(grid);
+      rec.content.appendChild(grid);
     }
 
     function renderIcons() {
@@ -184,50 +204,91 @@
       });
     }
 
-    // ── Window lifecycle ───────────────────────────────────────────
-    function closeWindow() {
-      if (consoleCore) { consoleCore.destroy(); consoleCore = null; }
-      activeSink = null;
-      if (win && win.parentNode) win.parentNode.removeChild(win);
-      win = null;
-      content = null;
+    // ── Window manager ─────────────────────────────────────────────
+    function bringToFront(rec) {
+      zTop += 1;
+      rec.el.style.zIndex = String(zTop);
+      windows.forEach(function (w) { w.el.classList.toggle('is-focused', w === rec); });
+    }
+    function focusTopmost() {
+      let top = null, max = -1;
+      windows.forEach(function (w) {
+        const z = parseInt(w.el.style.zIndex || '0', 10);
+        if (z > max) { max = z; top = w; }
+      });
+      if (top) bringToFront(top);
+    }
+    function findByKey(key) {
+      if (!key) return null;
+      for (let i = 0; i < windows.length; i++) if (windows[i].key === key) return windows[i];
+      return null;
+    }
+    function raiseIfOpen(key) {
+      const rec = findByKey(key);
+      if (!rec) return false;
+      bringToFront(rec);
+      return true;
     }
 
-    function centerWindow(w) {
+    // Cascade new windows down-right from the top-left so they don't stack
+    // exactly on top of each other; clamp to keep them on the desktop.
+    function positionWindow(w) {
       const dr = desktop.getBoundingClientRect();
-      let left = Math.round((dr.width - w.offsetWidth) / 2);
-      let top = Math.round((dr.height - w.offsetHeight) / 2.6);
-      if (left < 8) left = 8;
-      if (top < 8) top = 8;
+      const step = 24, slot = openCount % 6;
+      openCount += 1;
+      let left = 24 + slot * step;
+      let top = 16 + slot * step;
+      const maxL = Math.max(8, dr.width - w.offsetWidth - 8);
+      const maxT = Math.max(8, dr.height - w.offsetHeight - 8);
+      if (left > maxL) left = maxL;
+      if (top > maxT) top = maxT;
       w.style.left = left + 'px';
       w.style.top = top + 'px';
     }
 
-    function openWindow(title) {
-      closeWindow();
-      win = doc.createElement('div');
-      win.className = 't2-window';
-      win.innerHTML =
+    function makeWindow(title, opts) {
+      opts = opts || {};
+      const w = doc.createElement('div');
+      w.className = 't2-window';
+      w.innerHTML =
         '<div class="t2-titlebar">' +
-        '  <button class="t2-close" type="button" title="Close">×</button>' +
         '  <span class="t2-title"></span>' +
         '  <button class="t2-zoom" type="button" title="Full size"></button>' +
+        '  <button class="t2-close" type="button" title="Close">×</button>' +
         '</div>' +
         '<div class="t2-window-body"><div class="t2-content"></div></div>' +
         '<span class="t2-resize" title="Resize"></span>';
-      win.querySelector('.t2-title').textContent = (title || 'PROGRAM');
-      content = win.querySelector('.t2-content');
+      w.querySelector('.t2-title').textContent = (title || 'PROGRAM');
+      const rec = { el: w, content: w.querySelector('.t2-content'), key: opts.key || null, onCloseFns: [] };
+      if (opts.gui) rec.content.classList.add('t2-content--gui');
+      if (opts.width && opts.height) {
+        w.style.width = opts.width + 'px';
+        w.style.height = opts.height + 'px';
+        w.classList.add('is-sized');
+      }
 
-      win.querySelector('.t2-close').addEventListener('click', function () {
-        if (host.stop) host.stop();   // terminate the running program
-        closeWindow();
-      });
-      win.querySelector('.t2-zoom').addEventListener('click', function () { toggleMax(win); });
-      enableDrag(win.querySelector('.t2-titlebar'), win);
-      enableResize(win.querySelector('.t2-resize'), win);
-      desktop.appendChild(win);
-      centerWindow(win);
+      w.querySelector('.t2-close').addEventListener('click', function () { closeWindowRec(rec); });
+      w.querySelector('.t2-zoom').addEventListener('click', function () { toggleMax(w); });
+      w.addEventListener('pointerdown', function () { bringToFront(rec); }, true);   // click-to-focus
+      enableDrag(w.querySelector('.t2-titlebar'), w);
+      enableResize(w.querySelector('.t2-resize'), w);
+
+      desktop.appendChild(w);
+      windows.push(rec);
+      positionWindow(w);
+      bringToFront(rec);
+      return rec;
     }
+
+    function closeWindowRec(rec) {
+      if (!rec) return;
+      const fns = rec.onCloseFns; rec.onCloseFns = [];
+      fns.forEach(function (fn) { try { fn(); } catch (e) {} });   // kill the program / tear down the console
+      if (rec.el && rec.el.parentNode) rec.el.parentNode.removeChild(rec.el);
+      const i = windows.indexOf(rec); if (i >= 0) windows.splice(i, 1);
+      focusTopmost();
+    }
+    function closeAllWindows() { windows.slice().forEach(closeWindowRec); }
 
     // Drag the window by its title bar, clamped inside the desktop.
     function enableDrag(handle, w) {
@@ -314,8 +375,8 @@
       grip.addEventListener('pointercancel', rend);
     }
 
-    // ── Program text I/O (GUIs render instantly — no typewriter queue) ──
-    function appendRow(text, cls) {
+    // ── Per-window program I/O ─────────────────────────────────────
+    function appendRowTo(content, text, cls) {
       if (!content) return;
       const row = doc.createElement('div');
       row.className = 't2-row' + (cls ? ' ' + cls : '');
@@ -325,60 +386,99 @@
       return row;
     }
 
-    function showError(res, name) {
-      if (!content) openWindow(name);
-      if (res.code === NS.ERR.TIER_TOO_LOW) {
-        appendRow('CANNOT OPEN ' + String(name || '').toUpperCase(), 't2-err');
-        appendRow('Requires ' + NS.hardwareName(res.info.required) + ' (tier ' + res.info.required + ').', 't2-err');
-        appendRow('This unit is ' + NS.hardwareName(res.info.current) + ' (tier ' + res.info.current + ').', 't2-err');
-        return;
-      }
-      if (res.code === NS.ERR.NOT_UNLOCKED || res.code === NS.ERR.NOT_FOUND) {
-        appendRow('PROGRAM NOT FOUND ON THIS UNIT.', 't2-err');
-        appendRow('Did you insert the floppy disk?', 't2-err');
-        return;
-      }
-      appendRow('ERROR: ' + res.code, 't2-err');
-    }
-
-    function launch(id) {
-      openWindow(nameFor(id));
-      activeSink = 'window';
-      host.run(id).then(function (res) {
-        if (!res || res.ok) return;
-        showError(res, nameFor(id));
+    function windowReadLine(content, prompt) {
+      if (!content) return Promise.resolve('');
+      return new Promise(function (resolve) {
+        const row = doc.createElement('div');
+        row.className = 't2-inputline';
+        const pr = doc.createElement('span');
+        pr.className = 't2-input-prompt';
+        pr.textContent = prompt || '';
+        const inp = doc.createElement('input');
+        inp.className = 't2-input';
+        inp.setAttribute('autocomplete', 'off');
+        inp.setAttribute('spellcheck', 'false');
+        row.appendChild(pr);
+        row.appendChild(inp);
+        content.appendChild(row);
+        content.scrollTop = content.scrollHeight;
+        try { inp.focus({ preventScroll: true }); } catch (e) {}
+        inp.addEventListener('keydown', function (ev) {
+          if (ev.key !== 'Enter') return;
+          const v = inp.value;
+          row.removeChild(inp);                          // freeze the answered line as echoed text
+          pr.textContent = (prompt ? prompt + ' ' : '') + v;
+          row.className = 't2-row t2-echo';
+          resolve(v);
+        });
       });
     }
 
-    // Open a window and hand its content node to the screen so a GUI program
-    // (granted gfx.canvas) can mount its own iframe UI into it (see terminal.js).
-    function beginGuiProgram(program) {
-      openWindow(program && program.name ? program.name : 'PROGRAM');
-      content.classList.add('t2-content--gui');
-      win.style.width = '620px';        // GUI windows have no natural size — give a default
-      win.style.height = '430px';
-      win.classList.add('is-sized');
-      centerWindow(win);                // re-centre now it has a real size
-      activeSink = 'window';
-      return content;
+    function showWindowError(rec, res, name) {
+      const content = rec.content;
+      content.classList.remove('t2-content--gui');   // read the error on a normal scrollback
+      if (res.code === NS.ERR.TIER_TOO_LOW) {
+        appendRowTo(content, 'CANNOT OPEN ' + String(name || '').toUpperCase(), 't2-err');
+        appendRowTo(content, 'Requires ' + NS.hardwareName(res.info.required) + ' (tier ' + res.info.required + ').', 't2-err');
+        appendRowTo(content, 'This unit is ' + NS.hardwareName(res.info.current) + ' (tier ' + res.info.current + ').', 't2-err');
+        return;
+      }
+      if (res.code === NS.ERR.NOT_UNLOCKED || res.code === NS.ERR.NOT_FOUND) {
+        appendRowTo(content, 'PROGRAM NOT FOUND ON THIS UNIT.', 't2-err');
+        appendRowTo(content, 'Did you insert the floppy disk?', 't2-err');
+        return;
+      }
+      appendRowTo(content, 'ERROR: ' + res.code, 't2-err');
+    }
+
+    // A program window's sink: where its I/O and lifecycle land. The screen binds
+    // the runtime's callbacks to this, and onClose lets the close box kill it.
+    function makeWindowSink(rec) {
+      return {
+        container: rec.content,
+        print: function (text) { appendRowTo(rec.content, String(text)); },
+        clear: function () { rec.content.innerHTML = ''; },
+        requestInput: function (prompt) { return windowReadLine(rec.content, prompt); },
+        setTheme: function (name) { rootEl.classList.toggle('tsic-term--theme-red', name === 'red'); },
+        reboot: function () { closeWindowRec(rec); },
+        endProgram: function () { closeWindowRec(rec); },
+        onClose: function (fn) { rec.onCloseFns.push(fn); },
+      };
+    }
+
+    // ── Launch a program into its own window ───────────────────────
+    function launch(id) {
+      const entry = entryFor(id);
+      const program = entry ? entry.program : { id: id, name: nameFor(id), capabilities: [] };
+      if (raiseIfOpen('app:' + id)) return;   // single instance — raise the open one
+      const gui = isGui(program);
+      const rec = makeWindow(program.name || nameFor(id),
+        gui ? { key: 'app:' + id, gui: true, width: 620, height: 430 } : { key: 'app:' + id });
+      const sink = makeWindowSink(rec);
+      host.run(id, { sink: sink }).then(function (res) {
+        if (res && !res.ok) showWindowError(rec, res, program.name || nameFor(id));
+      });
     }
 
     function showAbout() {
-      openWindow('About Durham OS');
-      appendRow('DURHAM-OS  GRAPHICAL ENVIRONMENT');
-      appendRow('VERSION 2.0  (EXPERIMENTAL BUILD)');
-      appendRow('');
-      appendRow('© 1986 DURHAM HOME FURNISHINGS');
-      appendRow('ALL FLOORS. ALL HOURS. ALWAYS OPEN.');
-      appendRow('');
-      appendRow('Report faults to KATIE (IT) in the back office.');
+      if (raiseIfOpen('about')) return;
+      const rec = makeWindow('About Durham OS', { key: 'about' });
+      const c = rec.content;
+      appendRowTo(c, 'DURHAM-OS  GRAPHICAL ENVIRONMENT');
+      appendRowTo(c, 'VERSION 2.0  (EXPERIMENTAL BUILD)');
+      appendRowTo(c, '');
+      appendRowTo(c, '© 1986 DURHAM HOME FURNISHINGS');
+      appendRowTo(c, 'ALL FLOORS. ALL HOURS. ALWAYS OPEN.');
+      appendRowTo(c, '');
+      appendRowTo(c, 'Report faults to KATIE (IT) in the back office.');
     }
     aboutBtn.addEventListener('click', showAbout);
 
     // ── Terminal console (the shared command-line engine, in a window) ──
     function openConsole() {
-      openWindow('Terminal');
-      const cContent = content;             // stable ref for the engine's view
+      if (raiseIfOpen('console')) return;   // single console window
+      const rec = makeWindow('Terminal', { key: 'console' });
+      const cContent = rec.content;
       cContent.classList.add('t2-console');
       const line = doc.createElement('div');
       line.className = 't2-console-line';
@@ -417,27 +517,45 @@
         getCharsPerTick: function () { return NS.shells.tier2.charsPerTick; },
       };
 
-      // The console can launch the other apps: its host.run is the real one, but
-      // it marks the console as the sink so program I/O routes back here (inline).
+      // Text programs RUN from the console stream inline (this sink wraps the
+      // engine's program-I/O); GUI programs get their own window (see run below).
+      const consoleKillFns = [];
+      const consoleSink = {
+        print: function (t, o) { if (consoleCore) consoleCore.printToProgram(t, o); },
+        clear: function () { if (consoleCore) consoleCore.clearScreen(); },
+        requestInput: function (p) { return consoleCore ? consoleCore.beginProgramInput(p) : Promise.resolve(''); },
+        setTheme: function (n) { if (consoleCore) consoleCore.setTheme(n); },
+        reboot: function () { if (consoleCore) consoleCore.reboot(); },
+        endProgram: function () { if (consoleCore) consoleCore.endProgram(); },
+        onClose: function (fn) { consoleKillFns.push(fn); },
+      };
+
       const consoleHost = {
         tier: host.tier,
         run: function (id) {
-          activeSink = 'console';
-          return host.run(id).then(function (res) { if (!res || !res.ok) activeSink = null; return res; });
+          const e = entryFor(id);
+          if (e && isGui(e.program)) { launch(id); return Promise.resolve({ ok: true }); }   // GUI → its own window
+          return host.run(id, { sink: consoleSink });                                          // text → inline
         },
-        close: function () { closeWindow(); },   // EXIT closes the console, back to the desktop
+        close: function () { closeWindowRec(rec); },   // EXIT closes the console, back to the desktop
         autoRun: null,
       };
 
-      consoleCore = NS.createConsole(view, consoleHost, { prompt: 'A>', bootLines: CONSOLE_BANNER, bootLogo: null });
+      const consoleCore = NS.createConsole(view, consoleHost, { prompt: 'A>', bootLines: CONSOLE_BANNER, bootLogo: null });
+      consoleRef = consoleCore;
       consoleCore.onPrograms(programList);   // so HELP / DIR lists the installed programs
+      rec.onCloseFns.push(function () {
+        consoleCore.destroy();
+        consoleKillFns.forEach(function (f) { try { f(); } catch (e) {} });   // kill a program running inline
+        if (consoleRef === consoleCore) consoleRef = null;
+      });
 
       cInput.addEventListener('keydown', function (ev) {
-        if (consoleCore && consoleCore.isBooting()) { ev.preventDefault(); consoleCore.skipBoot(); return; }
+        if (consoleCore.isBooting()) { ev.preventDefault(); consoleCore.skipBoot(); return; }
         if (ev.key !== 'Enter') return;
         const v = cInput.value;
         cInput.value = ''; syncMirror();
-        if (consoleCore) consoleCore.submitLine(v);
+        consoleCore.submitLine(v);
       });
       try { cInput.focus({ preventScroll: true }); } catch (e) {}
     }
@@ -449,61 +567,15 @@
 
     // ── Shell contract consumed by shared/screens/terminal.js ──────
     return {
-      onPrograms: function (entries) { programList = entries || []; renderIcons(); if (consoleCore) consoleCore.onPrograms(programList); },
-      beginGuiProgram: beginGuiProgram,
-      printToProgram: function (text, opts) {
-        if (activeSink === 'console' && consoleCore) { consoleCore.printToProgram(text, opts); return; }
-        appendRow(String(text));
-      },
-      clearScreen: function () {
-        if (activeSink === 'console' && consoleCore) { consoleCore.clearScreen(); return; }
-        if (content) content.innerHTML = '';
-      },
-      beginProgramInput: function (prompt) {
-        if (activeSink === 'console' && consoleCore) return consoleCore.beginProgramInput(prompt);
-        if (!content) return Promise.resolve('');
-        return new Promise(function (resolve) {
-          const row = doc.createElement('div');
-          row.className = 't2-inputline';
-          const pr = doc.createElement('span');
-          pr.className = 't2-input-prompt';
-          pr.textContent = prompt || '';
-          const inp = doc.createElement('input');
-          inp.className = 't2-input';
-          inp.setAttribute('autocomplete', 'off');
-          inp.setAttribute('spellcheck', 'false');
-          row.appendChild(pr);
-          row.appendChild(inp);
-          content.appendChild(row);
-          content.scrollTop = content.scrollHeight;
-          try { inp.focus({ preventScroll: true }); } catch (e) {}
-          inp.addEventListener('keydown', function (ev) {
-            if (ev.key !== 'Enter') return;
-            const v = inp.value;
-            // Freeze the answered line as echoed text.
-            row.removeChild(inp);
-            pr.textContent = (prompt ? prompt + ' ' : '') + v;
-            row.className = 't2-row t2-echo';
-            resolve(v);
-          });
-        });
-      },
-      setTheme: function (name) {
-        if (activeSink === 'console' && consoleCore) { consoleCore.setTheme(name); return; }
-        rootEl.classList.toggle('tsic-term--theme-red', name === 'red');
-      },
-      reboot: function () {
-        if (activeSink === 'console' && consoleCore) { activeSink = null; consoleCore.reboot(); return; }
-        closeWindow();
-      },
-      endProgram: function () {
-        if (activeSink === 'console' && consoleCore) { activeSink = null; consoleCore.endProgram(); return; }
-        closeWindow();
+      onPrograms: function (entries) {
+        programList = entries || [];
+        renderIcons();
+        if (consoleRef) consoleRef.onPrograms(programList);
       },
       destroy: function () {
         destroyed = true;
         clearInterval(clockTimer);
-        closeWindow();
+        closeAllWindows();
         container.innerHTML = '';
       },
     };
