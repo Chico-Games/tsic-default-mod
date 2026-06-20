@@ -34,7 +34,7 @@ TSICPlayground.register({
         { label: 'Tier 1 — SCP3008 (secret)', apply(s) { s.tier = 1; s.unlocked = ['com.tsic.scp3008']; s.autoRun = 'com.tsic.scp3008'; } },
         { label: 'Tier 1 — nothing unlocked', apply(s) { s.unlocked = []; s.autoRun = null; } },
         { label: 'Tier 1 — all unlocked (SCP locked)', apply(s) { s.unlocked = ['com.tsic.hello','com.tsic.scphint']; s.autoRun = null; } },
-        { label: 'Tier 2 — windowed stub', apply(s) { s.tier = 2; s.autoRun = null; } },
+        { label: 'Tier 2 — GUI desktop', apply(s) { s.tier = 2; s.autoRun = null; } },
         { label: 'Tier 3 — SCP stub (SCP runnable)', apply(s) { s.tier = 3; s.unlocked = ['com.tsic.hello','com.tsic.scphint']; s.autoRun = null; } },
         { label: 'Insert SCP-HINT floppy', apply(s) { if (s.unlocked.indexOf('com.tsic.scphint') === -1) s.unlocked.push('com.tsic.scphint'); } },
     ],

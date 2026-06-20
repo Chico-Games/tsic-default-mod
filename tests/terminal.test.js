@@ -110,12 +110,45 @@ TSICTestHarness.register({
 });
 
 TSICTestHarness.register({
-    name: 'Terminal: a tier-2 terminal mounts the windowed stub shell',
+    name: 'Terminal: a tier-2 terminal mounts the windowed GUI shell',
     file: termScreenFile(),
     async run(ctx) {
         ctx.inject('tsic.msg.UI.Terminal.Open', { TerminalId: 't2', Tier: 2 });
         await TSICTestHarness.waitFor(() => ctx.doc.querySelector('.tsic-term--t2'));
         ctx.expect(ctx.assert.domExists(ctx.doc, '.tsic-term--t2'));
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Terminal: the tier-2 desktop opens a working command console',
+    file: termScreenFile(),
+    async run(ctx) {
+        await TSICTestHarness.waitFor(() => ctx.win.TSICTerminal && ctx.win.TSICTerminal.shells && ctx.win.TSICTerminal.shells.tier2);
+        ctx.win.TSICTerminal.shells.tier2.charDelayMs = 0; // instant output
+        ctx.inject('tsic.msg.UI.Terminal.Catalog', { Programs: [
+            { id: 'com.tsic.hello',   name: 'HELLO',    minTier: 1, entry: 'main.js' },
+            { id: 'com.tsic.scphint', name: 'SCP-HINT', minTier: 3, entry: 'main.js' },
+        ]});
+        ctx.inject('tsic.msg.UI.Terminal.UnlockedList', { ProgramIds: ['com.tsic.hello', 'com.tsic.scphint'] });
+        ctx.inject('tsic.msg.UI.Terminal.Open', { TerminalId: 't2', Tier: 2 });
+        await TSICTestHarness.waitFor(() => ctx.doc.querySelector('.t2-icon-system'));
+        ctx.doc.querySelector('.t2-icon-system').click(); // open the Terminal console
+        await TSICTestHarness.waitFor(() => {
+            const c = ctx.doc.querySelector('.tsic-term--t2 .t2-content');
+            return c && /Installed programs:/.test(c.textContent) && /HELLO/.test(c.textContent);
+        });
+        const banner = ctx.doc.querySelector('.tsic-term--t2 .t2-content').textContent;
+        ctx.expect(ctx.assert.truthy(/DURHAM-OS COMMAND CONSOLE/.test(banner), 'console boots with its banner'));
+        ctx.expect(ctx.assert.truthy(/Commands: HELP/.test(banner), 'shows the command list'));
+
+        // Commands route through the same engine as tier 1 — a tier-locked launch
+        // renders the INCOMPATIBLE HARDWARE error inline (no sandbox needed).
+        const cin = ctx.doc.querySelector('.t2-console-input');
+        cin.value = 'run com.tsic.scphint';
+        TSICTestHarness.events.keyOn(cin, 'Enter', { code: 'Enter' });
+        await TSICTestHarness.waitFor(() => /INCOMPATIBLE HARDWARE/.test(ctx.doc.querySelector('.tsic-term--t2 .t2-content').textContent));
+        const out = ctx.doc.querySelector('.tsic-term--t2 .t2-content').textContent;
+        ctx.expect(ctx.assert.truthy(/requires SCP Restricted-Access Terminal \(tier 3\)/.test(out), 'runs commands and renders the tier error inline'));
     },
 });
 

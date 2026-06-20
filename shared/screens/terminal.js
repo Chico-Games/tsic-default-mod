@@ -65,6 +65,7 @@
           tier: tier,
           run: run,
           close: function () { ctx.publish(T.CHANNELS.Close); },
+          stop: killProgram,          // terminate the running program (e.g. a window close box)
           autoRun: autoRun || null,   // program id to launch automatically once booted
         });
         refreshShellList();

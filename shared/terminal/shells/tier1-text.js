@@ -1,18 +1,15 @@
 // shared/terminal/shells/tier1-text.js
 //
-// Tier-1 "Durham Internal Terminal" shell: an 80s text command line that
-// doubles as the program launcher. Owns chrome + the prompt; delegates
-// program execution to host.run (the screen wires that to the runtime).
+// Tier-1 "Durham Internal Terminal" shell: an 80s green-phosphor CRT command
+// line. It owns ONLY the chrome — the command interpreter, typewriter output
+// queue, boot sequence and program-I/O all live in the shared console engine
+// (shared/terminal/console-core.js). This file builds the CRT DOM, exposes it
+// to the engine as a `view` adapter, and wires the keyboard.
 (function (global) {
   const NS = global.TSICTerminal = global.TSICTerminal || {};
   NS.shells = NS.shells || {};
 
   function create(container, host) {
-    const hw = NS.hardwareName(host.tier);
-    // The input line lives INSIDE the scroll region as its last child, so the
-    // prompt/cursor flows directly under the current output (like a real
-    // terminal) instead of being pinned to the screen bottom. Output rows are
-    // inserted before it.
     container.innerHTML =
       '<div class="tsic-term tsic-term--t1">' +
       '  <div class="tsic-term-out" id="term-out">' +
@@ -32,260 +29,63 @@
     const mirror = container.querySelector('#term-mirror');
     const input = container.querySelector('#term-input');
     const rootEl = container.querySelector('.tsic-term--t1');
-    let destroyed = false;    // set on teardown; halts the async output queue
-    let programList = [];
-    let inputResolver = null; // set while a running program awaits readLine
-    let booting = false;      // true while the BIOS boot animation plays
-    let skipped = false;      // set by a keypress to fast-forward the boot
-    let printQueue = [];      // program output, typed one line at a time, in order
-    let draining = false;
-    let drainWaiters = [];
-    let programActive = false; // a program owns the screen (suppress shell commands)
-    let pendingAutoRun = host.autoRun || null; // consumed on first boot, not on reboot
+    let destroyed = false;
 
-    // The real <input> is invisible; the visible input is an uppercased mirror
-    // of its value followed by the block cursor. Keep them in sync.
+    function alive() { return !destroyed && doc && doc.defaultView; }
+    // The visible input is an uppercased mirror of the (invisible) real input.
     function syncMirror() { mirror.textContent = input.value.toUpperCase(); }
-    input.addEventListener('input', syncMirror);
-
-    // The real input is off the visible flow, so clicking the green screen
-    // can't focus it natively. Re-focus on any press, and once on mount, so the
-    // user can actually type. preventDefault stops the browser's default
-    // mousedown focus from moving focus to the (non-focusable) screen div and
-    // overriding ours.
     function focusInput() { try { input.focus({ preventScroll: true }); } catch (e) {} }
-    // Programs can recolour the terminal via term.theme(name); reset on exit.
-    function applyTheme(name) { rootEl.classList.toggle('tsic-term--theme-red', name === 'red'); }
+
+    // CRT chrome exposed to the shared console engine.
+    const view = {
+      appendRow: function (cls) {
+        const div = doc.createElement('div');
+        div.className = 'tsic-term-row' + (cls ? ' ' + cls : '');
+        out.insertBefore(div, line);   // output rows flow above the prompt line
+        return { setText: function (s) { div.textContent = s; } };
+      },
+      clearRows: function () {
+        const rows = out.querySelectorAll('.tsic-term-row');
+        for (let i = 0; i < rows.length; i++) rows[i].remove();
+      },
+      scrollToEnd: function () { out.scrollTop = out.scrollHeight; },
+      setBooting: function (b) { rootEl.classList.toggle('is-booting', !!b); },
+      setReady: function (b) { if (b) rootEl.setAttribute('data-term-ready', '1'); else rootEl.removeAttribute('data-term-ready'); },
+      setPromptVisible: function (b) { promptEl.style.visibility = b ? '' : 'hidden'; },
+      clearInput: function () { input.value = ''; syncMirror(); },
+      focusInput: focusInput,
+      applyTheme: function (name) { rootEl.classList.toggle('tsic-term--theme-red', name === 'red'); },
+      alive: alive,
+      getCharDelay: function () { return NS.shells.tier1.charDelayMs; },
+      getCharsPerTick: function () { return NS.shells.tier1.charsPerTick; },
+    };
+
+    const core = NS.createConsole(view, host);
+
+    input.addEventListener('input', syncMirror);
     function onPointerDown(ev) { ev.preventDefault(); focusInput(); }
     container.addEventListener('mousedown', onPointerDown);
-
-    // True while this shell's document is still live (false after teardown).
-    function alive() { return !destroyed && doc && doc.defaultView; }
-
-    // Remove printed rows but keep the input line (its last child).
-    function clearRows() {
-      const rows = out.querySelectorAll('.tsic-term-row');
-      for (let i = 0; i < rows.length; i++) rows[i].remove();
-    }
-
-    // Instant append (no typewriter). Used only for the boot logo block.
-    function writeInstant(text, cls) {
-      if (!alive()) return;
-      const div = doc.createElement('div');
-      div.className = 'tsic-term-row' + (cls ? ' ' + cls : '');
-      div.textContent = text;
-      out.insertBefore(div, line);
-      out.scrollTop = out.scrollHeight;
-    }
-
-    // Typewriter: append `text` one tick at a time. Used by the boot intro AND
-    // all terminal output, so everything types at one pace by default. A program
-    // can pass per-line opts {charDelay, jitter, charsPerTick} for a custom (e.g.
-    // slow, uneven) cadence. A set `skipped` flag (or charDelay <= 0) flushes it.
-    function type(text, cls, opts) {
-      if (!alive()) return Promise.resolve();
-      const o = opts || {};
-      const delay = (o.charDelay != null) ? o.charDelay : NS.shells.tier1.charDelayMs;
-      const step = (o.charsPerTick > 0) ? o.charsPerTick : (NS.shells.tier1.charsPerTick > 0 ? NS.shells.tier1.charsPerTick : 1);
-      const jitter = o.jitter || 0;
-      const div = doc.createElement('div');
-      div.className = 'tsic-term-row' + (cls ? ' ' + cls : '');
-      out.insertBefore(div, line);
-      return new Promise(function (resolve) {
-        if (skipped || !(delay > 0)) { div.textContent = text; out.scrollTop = out.scrollHeight; resolve(); return; }
-        let i = 0;
-        (function tick() {
-          if (skipped) { div.textContent = text; out.scrollTop = out.scrollHeight; resolve(); return; }
-          i += step;
-          div.textContent = text.slice(0, i);
-          out.scrollTop = out.scrollHeight;
-          if (i >= text.length) { resolve(); return; }
-          setTimeout(tick, delay + (jitter ? Math.random() * jitter : 0));
-        })();
-      });
-    }
-
-    // ALL terminal output — shell text AND program output — flows through this
-    // one queue, so everything types out in order at the same pace. Items type
-    // one at a time; readLine/exit wait for the queue to drain (whenDrained) so
-    // prompts and theme resets don't race the text still typing.
-    function enqueue(text, cls, opts) { printQueue.push({ kind: 'line', text: String(text), cls: cls || null, opts: opts || null }); pumpQueue(); }
-    function enqueueClear() { printQueue.push({ kind: 'clear' }); pumpQueue(); }
-    function pumpQueue() {
-      if (draining) return;
-      draining = true;
-      (function next() {
-        if (destroyed || !printQueue.length) {
-          draining = false;
-          const waiters = drainWaiters; drainWaiters = [];
-          waiters.forEach(function (w) { w(); });
-          return;
-        }
-        const item = printQueue.shift();
-        if (item.kind === 'clear') { if (alive()) clearRows(); next(); return; }
-        type(item.text, item.cls, item.opts).then(next);
-      })();
-    }
-    function whenDrained() {
-      if (!draining && !printQueue.length) return Promise.resolve();
-      return new Promise(function (res) { drainWaiters.push(res); });
-    }
-    // Shell output uses the same typewriter queue as program output.
-    function write(text, cls) { enqueue(text, cls); }
-
-    // Mark the terminal ready: reveal the prompt and accept commands. Called
-    // once the boot animation completes (or is skipped / unavailable).
-    function finishBoot() {
-      booting = false;
-      skipped = false; // boot-only flag; clear it so program output still types
-      rootEl.classList.remove('is-booting');
-      rootEl.setAttribute('data-term-ready', '1');
-      focusInput();
-      // Boot straight into a program on the FIRST boot only (consumed here so a
-      // reboot returns to the normal terminal instead of re-launching it);
-      // otherwise show the HELP screen so the operator sees what they can do.
-      if (pendingAutoRun) {
-        const id = pendingAutoRun; pendingAutoRun = null;
-        write('> run ' + id, 'tsic-term-echo');
-        host.run(id).then(function (res) { if (!res.ok) renderError(res, id); });
-      } else {
-        printHelp();
-      }
-    }
-
-    // BIOS-style boot animation, then hand off to the prompt. The prompt is
-    // hidden (via .is-booting) until the sequence finishes. Re-runnable (reboot).
-    function bootSequence() {
-      skipped = false;
-      if (NS.boot && typeof NS.boot.runBoot === 'function') {
-        booting = true;
-        rootEl.classList.add('is-booting');
-        NS.boot.runBoot(
-          { type: function (t, o) { return type(t, o && o.className); },
-            print: function (t, o) { writeInstant(t, o && o.className); } },
-          { logo: NS.boot.DURHAM_LOGO }
-        ).then(finishBoot, finishBoot);
-      } else {
-        // Defensive fallback if the boot module didn't load.
-        writeInstant(hw.toUpperCase(), 'tsic-term-banner');
-        writeInstant('READY', 'tsic-term-banner');
-        finishBoot();
-      }
-    }
-    bootSequence();
-
-    function renderError(res, programId) {
-      if (res.code === NS.ERR.TIER_TOO_LOW) {
-        write('ERROR 0x02: INCOMPATIBLE HARDWARE', 'tsic-term-err');
-        write('  ' + programId.toUpperCase() + ' requires ' + NS.hardwareName(res.info.required) + ' (tier ' + res.info.required + ').', 'tsic-term-err');
-        write('  This unit is ' + NS.hardwareName(res.info.current) + ' (tier ' + res.info.current + '). Upgrade hardware to run.', 'tsic-term-err');
-        return;
-      }
-      // No floppy inserted (NOT_UNLOCKED) or no such program (NOT_FOUND) read the
-      // same to the operator: the app isn't on this unit.
-      if (res.code === NS.ERR.NOT_UNLOCKED || res.code === NS.ERR.NOT_FOUND) {
-        write('ERROR 0x03: UNKNOWN APPLICATION', 'tsic-term-err');
-        write('  PROGRAM ' + programId.toUpperCase() + ' NOT FOUND ON THIS UNIT.', 'tsic-term-err');
-        write('  DID YOU INSERT THE FLOPPY DISK?', 'tsic-term-err');
-        return;
-      }
-      write('ERROR: ' + res.code, 'tsic-term-err');
-    }
-
-    // Renders the installed-program list for HELP. Shows only the program name
-    // (the internal id — e.g. com.tsic.logs — stays hidden; programs run by name).
-    function printProgramList() {
-      if (!programList.length) { write('  No programs installed. Find a floppy disk.'); return; }
-      programList.forEach(function (e) {
-        const tag = e.locked ? '  [LOCKED — req. ' + NS.hardwareName(e.program.minTier) + ']' : '';
-        write('  ' + e.program.name + tag);
-      });
-    }
-
-    // The HELP screen: command list + installed programs. Shown on boot and on
-    // the HELP command so it always reflects what's actually installed.
-    function printHelp() {
-      write('Commands: HELP  RUN <name>  CLEAR  EXIT');
-      write('  (or just type a program name to run it)');
-      write('');
-      write('Installed programs:');
-      printProgramList();
-    }
-
-    function doCommand(raw) {
-      const text = raw.trim();
-      write('> ' + text, 'tsic-term-echo');
-      if (!text) return;
-      const parts = text.split(/\s+/);
-      const cmd = parts[0].toLowerCase();
-      if (cmd === 'help') { printHelp(); return; }
-      if (cmd === 'clear') { printQueue.length = 0; clearRows(); return; }
-      if (cmd === 'exit') { host.close(); return; }
-      const id = (cmd === 'run') ? parts[1] : parts[0];
-      if (!id) { write('Usage: RUN <name>', 'tsic-term-err'); return; }
-      host.run(id).then(function (res) {
-        if (!res.ok) renderError(res, id);
-      });
-    }
-
     function onKey(ev) {
-      if (booting) { ev.preventDefault(); skipped = true; return; } // any key fast-forwards the boot
+      if (core.isBooting()) { ev.preventDefault(); core.skipBoot(); return; } // any key fast-forwards boot
       if (ev.key !== 'Enter') return;
       const value = input.value;
-      input.value = '';
-      syncMirror();
-      if (inputResolver) { // program is awaiting input
-        const r = inputResolver; inputResolver = null;
-        write('> ' + value, 'tsic-term-echo');
-        r(value);
-        return;
-      }
-      if (programActive) return; // a program owns the screen but isn't at a prompt
-      doCommand(value);
+      input.value = ''; syncMirror();
+      core.submitLine(value);
     }
     input.addEventListener('keydown', onKey);
     focusInput();
 
     return {
-      onPrograms: function (entries) { programList = entries || []; },
-      printToProgram: function (text, opts) { programActive = true; enqueue(text, null, opts); },
-      clearScreen: function () { programActive = true; enqueueClear(); },
-      beginProgramInput: function (prompt) {
-        programActive = true;
-        input.value = ''; syncMirror();  // discard anything typed while text was still printing
-        return whenDrained().then(function () {
-          const typedPrompt = prompt ? type(String(prompt), null) : Promise.resolve();
-          return typedPrompt.then(function () {
-            promptEl.style.visibility = 'hidden';
-            return new Promise(function (res) { inputResolver = res; });
-          });
-        });
-      },
-      setTheme: applyTheme,
-      // A program asked to reboot the terminal: wipe everything and replay boot.
-      reboot: function () {
-        printQueue.length = 0;
-        draining = false;
-        inputResolver = null;
-        programActive = false;
-        promptEl.style.visibility = '';
-        applyTheme(null);
-        if (alive()) clearRows();
-        rootEl.removeAttribute('data-term-ready');
-        bootSequence();
-      },
-      endProgram: function () {
-        inputResolver = null;
-        whenDrained().then(function () {
-          programActive = false;
-          promptEl.style.visibility = '';
-          applyTheme(null);
-          focusInput();
-        });
-      },
+      onPrograms: core.onPrograms,
+      printToProgram: core.printToProgram,
+      clearScreen: core.clearScreen,
+      beginProgramInput: core.beginProgramInput,
+      setTheme: core.setTheme,
+      reboot: core.reboot,
+      endProgram: core.endProgram,
       destroy: function () {
         destroyed = true;
-        printQueue.length = 0;
+        core.destroy();
         input.removeEventListener('keydown', onKey);
         input.removeEventListener('input', syncMirror);
         container.removeEventListener('mousedown', onPointerDown);
@@ -295,8 +95,6 @@
   }
 
   // Typewriter speed for ALL terminal output (boot intro + shell + programs).
-  // charDelayMs = tick interval; charsPerTick = chars revealed per tick. Here
-  // 3 chars / 7ms ≈ 2.3ms/char — 6x faster than the original 14ms/char, while
-  // staying above the ~4ms setTimeout floor. Tests set charDelayMs 0 (instant).
+  // Read live by the engine, so tests can set charDelayMs = 0 for instant output.
   NS.shells.tier1 = { create: create, charDelayMs: 7, charsPerTick: 3 };
 })(window);

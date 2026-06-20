@@ -388,7 +388,7 @@
     // A fixture missing from both falls into "Other" (so new screens still show).
     const CATEGORY_ORDER = [
         'Menus & Flow', 'HUD', 'Inventory & Equipment', 'Crafting & Building',
-        'Storage & Transport', 'World & Map', 'Social', 'Enemies', 'Misc',
+        'Storage & Transport', 'World & Map', 'Terminal', 'Social', 'Enemies', 'Misc',
         'Elements', 'Other',
     ];
     const CATEGORY_MAP = {
@@ -413,6 +413,8 @@
         'universal-storage-setup': 'Storage & Transport', 'teleporter': 'Storage & Transport',
 
         'map': 'World & Map',
+
+        'terminal': 'Terminal',
 
         'chat': 'Social', 'voice-chat': 'Social',
 
