@@ -38,8 +38,13 @@
             const handlers = T.capabilities.createHostHandlers({
               publish: ctx.publish, storage: state.storage, catalogSnapshot: snapshot,
             });
+            // GUI programs (granted gfx.canvas) render their own UI inside a window
+            // the shell hands back; text programs mount off-screen and stream via onPrint.
+            const gui = granted.indexOf('gfx.canvas') !== -1
+              && state.shell && typeof state.shell.beginGuiProgram === 'function';
+            const container = gui ? state.shell.beginGuiProgram(program) : root;
             state.program = T.runtime.launch({
-              container: root,
+              container: container,
               program: program,
               entrySrc: entrySrc,
               granted: granted,

@@ -107,6 +107,57 @@
       return btn;
     }
 
+    function makeProgramIcon(entry) {
+      const p = entry.program;
+      const btn = doc.createElement('button');
+      btn.type = 'button';
+      btn.className = 't2-icon' + (entry.locked ? ' is-locked' : '');
+      btn.title = entry.locked ? (p.name + ' — requires ' + NS.hardwareName(p.minTier)) : p.name;
+      const tile = doc.createElement('span');
+      tile.className = 't2-icon-tile';
+      tile.textContent = glyphFor(p.name);
+      btn.appendChild(tile);
+      const label = doc.createElement('span');
+      label.className = 't2-icon-label';
+      label.textContent = p.name;
+      btn.appendChild(label);
+      if (entry.locked) {
+        const lock = doc.createElement('span');
+        lock.className = 't2-icon-lock';
+        lock.textContent = 'LOCKED';
+        btn.appendChild(lock);
+      }
+      btn.addEventListener('click', function () { launch(p.id); });
+      return btn;
+    }
+
+    // A folder groups programs whose manifest declares folder:"<name>" (e.g. the
+    // legacy "V1" text apps). Opening it shows those programs as icons in a window.
+    function makeFolderIcon(name, entries) {
+      const btn = doc.createElement('button');
+      btn.type = 'button';
+      btn.className = 't2-icon t2-icon-folder';
+      btn.title = name + ' (' + entries.length + ' item' + (entries.length === 1 ? '' : 's') + ')';
+      const tile = doc.createElement('span');
+      tile.className = 't2-icon-tile';
+      btn.appendChild(tile);
+      const label = doc.createElement('span');
+      label.className = 't2-icon-label';
+      label.textContent = name;
+      btn.appendChild(label);
+      btn.addEventListener('click', function () { openFolder(name, entries); });
+      return btn;
+    }
+
+    function openFolder(name, entries) {
+      openWindow(name);
+      content.classList.add('t2-folder-view');
+      const grid = doc.createElement('div');
+      grid.className = 't2-icons';
+      entries.forEach(function (e) { grid.appendChild(makeProgramIcon(e)); });
+      content.appendChild(grid);
+    }
+
     function renderIcons() {
       iconsEl.innerHTML = '';
       iconsEl.appendChild(makeTerminalIcon());   // built-in system console — always present
@@ -117,34 +168,19 @@
         iconsEl.appendChild(empty);
         return;
       }
+      // Root programs render on the desktop; foldered ones collect into folders.
+      const folders = new Map();
       programList.forEach(function (entry) {
-        const p = entry.program;
-        const btn = doc.createElement('button');
-        btn.type = 'button';
-        btn.className = 't2-icon' + (entry.locked ? ' is-locked' : '');
-        btn.title = entry.locked
-          ? (p.name + ' — requires ' + NS.hardwareName(p.minTier))
-          : p.name;
-
-        const tile = doc.createElement('span');
-        tile.className = 't2-icon-tile';
-        tile.textContent = glyphFor(p.name);
-        btn.appendChild(tile);
-
-        const label = doc.createElement('span');
-        label.className = 't2-icon-label';
-        label.textContent = p.name;
-        btn.appendChild(label);
-
-        if (entry.locked) {
-          const lock = doc.createElement('span');
-          lock.className = 't2-icon-lock';
-          lock.textContent = 'LOCKED';
-          btn.appendChild(lock);
+        const folder = entry.program.folder;
+        if (folder) {
+          if (!folders.has(folder)) folders.set(folder, []);
+          folders.get(folder).push(entry);
+          return;
         }
-
-        btn.addEventListener('click', function () { launch(p.id); });
-        iconsEl.appendChild(btn);
+        iconsEl.appendChild(makeProgramIcon(entry));
+      });
+      folders.forEach(function (entries, folderName) {
+        iconsEl.appendChild(makeFolderIcon(folderName, entries));
       });
     }
 
@@ -175,9 +211,10 @@
         '<div class="t2-titlebar">' +
         '  <button class="t2-close" type="button" title="Close">×</button>' +
         '  <span class="t2-title"></span>' +
-        '  <span class="t2-titlebar-grip"></span>' +
+        '  <button class="t2-zoom" type="button" title="Full size"></button>' +
         '</div>' +
-        '<div class="t2-window-body"><div class="t2-content"></div></div>';
+        '<div class="t2-window-body"><div class="t2-content"></div></div>' +
+        '<span class="t2-resize" title="Resize"></span>';
       win.querySelector('.t2-title').textContent = (title || 'PROGRAM');
       content = win.querySelector('.t2-content');
 
@@ -185,7 +222,9 @@
         if (host.stop) host.stop();   // terminate the running program
         closeWindow();
       });
+      win.querySelector('.t2-zoom').addEventListener('click', function () { toggleMax(win); });
       enableDrag(win.querySelector('.t2-titlebar'), win);
+      enableResize(win.querySelector('.t2-resize'), win);
       desktop.appendChild(win);
       centerWindow(win);
     }
@@ -193,7 +232,8 @@
     // Drag the window by its title bar, clamped inside the desktop.
     function enableDrag(handle, w) {
       handle.addEventListener('pointerdown', function (ev) {
-        if (ev.target.closest('.t2-close')) return;
+        if (ev.target.closest('.t2-close') || ev.target.closest('.t2-zoom')) return;
+        if (w.classList.contains('is-max')) return;   // don't drag a maximised window
         const wr = w.getBoundingClientRect();
         dragState = { dx: ev.clientX - wr.left, dy: ev.clientY - wr.top };
         w.classList.add('is-dragging');
@@ -219,6 +259,59 @@
       }
       handle.addEventListener('pointerup', end);
       handle.addEventListener('pointercancel', end);
+    }
+
+    // Lock the window to an explicit size so resize/maximize have a base to work
+    // from (windows otherwise hug their content).
+    function ensureSized(w) {
+      if (w.classList.contains('is-sized')) return;
+      w.style.width = w.offsetWidth + 'px';
+      w.style.height = w.offsetHeight + 'px';
+      w.classList.add('is-sized');
+    }
+
+    // Zoom box: toggle between the window's size and filling the desktop work area.
+    function toggleMax(w) {
+      if (w.classList.contains('is-max')) {
+        const r = w.__restore || {};
+        w.style.left = r.left || ''; w.style.top = r.top || '';
+        w.style.width = r.width || ''; w.style.height = r.height || '';
+        w.classList.remove('is-max');
+        return;
+      }
+      ensureSized(w);
+      w.__restore = { left: w.style.left, top: w.style.top, width: w.style.width, height: w.style.height };
+      w.style.left = '0px';
+      w.style.top = '0px';
+      w.style.width = desktop.clientWidth + 'px';
+      w.style.height = desktop.clientHeight + 'px';
+      w.classList.add('is-max');
+    }
+
+    // Bottom-right grow box (GEM / Amiga style): drag to resize, clamped to the desktop.
+    function enableResize(grip, w) {
+      let rs = null;
+      grip.addEventListener('pointerdown', function (ev) {
+        if (w.classList.contains('is-max')) return;
+        ev.preventDefault();
+        ensureSized(w);
+        rs = { x: ev.clientX, y: ev.clientY, w: w.offsetWidth, h: w.offsetHeight, left: w.offsetLeft, top: w.offsetTop };
+        try { grip.setPointerCapture(ev.pointerId); } catch (e) {}
+      });
+      grip.addEventListener('pointermove', function (ev) {
+        if (!rs) return;
+        let width = rs.w + (ev.clientX - rs.x);
+        let height = rs.h + (ev.clientY - rs.y);
+        const maxW = desktop.clientWidth - rs.left - 2;
+        const maxH = desktop.clientHeight - rs.top - 2;
+        width = width < 240 ? 240 : (width > maxW ? maxW : width);
+        height = height < 130 ? 130 : (height > maxH ? maxH : height);
+        w.style.width = width + 'px';
+        w.style.height = height + 'px';
+      });
+      function rend(ev) { if (!rs) return; rs = null; try { grip.releasePointerCapture(ev.pointerId); } catch (e) {} }
+      grip.addEventListener('pointerup', rend);
+      grip.addEventListener('pointercancel', rend);
     }
 
     // ── Program text I/O (GUIs render instantly — no typewriter queue) ──
@@ -255,6 +348,19 @@
         if (!res || res.ok) return;
         showError(res, nameFor(id));
       });
+    }
+
+    // Open a window and hand its content node to the screen so a GUI program
+    // (granted gfx.canvas) can mount its own iframe UI into it (see terminal.js).
+    function beginGuiProgram(program) {
+      openWindow(program && program.name ? program.name : 'PROGRAM');
+      content.classList.add('t2-content--gui');
+      win.style.width = '620px';        // GUI windows have no natural size — give a default
+      win.style.height = '430px';
+      win.classList.add('is-sized');
+      centerWindow(win);                // re-centre now it has a real size
+      activeSink = 'window';
+      return content;
     }
 
     function showAbout() {
@@ -344,6 +450,7 @@
     // ── Shell contract consumed by shared/screens/terminal.js ──────
     return {
       onPrograms: function (entries) { programList = entries || []; renderIcons(); if (consoleCore) consoleCore.onPrograms(programList); },
+      beginGuiProgram: beginGuiProgram,
       printToProgram: function (text, opts) {
         if (activeSink === 'console' && consoleCore) { consoleCore.printToProgram(text, opts); return; }
         appendRow(String(text));

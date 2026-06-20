@@ -414,7 +414,7 @@
 
         'map': 'World & Map',
 
-        'terminal': 'Terminal',
+        'terminal-tier1': 'Terminal', 'terminal-tier2': 'Terminal', 'terminal-tier3': 'Terminal',
 
         'chat': 'Social', 'voice-chat': 'Social',
 

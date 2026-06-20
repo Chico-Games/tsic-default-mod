@@ -1,0 +1,9 @@
+{
+  "id": "com.tsic.stock2",
+  "name": "STOCK_V2",
+  "version": "2.0",
+  "minTier": 2,
+  "entry": "main.js",
+  "folder": null,
+  "capabilities": ["gfx.canvas"]
+}

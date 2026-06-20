@@ -93,32 +93,33 @@
 @keyframes tsic-term-blink { 0% { opacity: 1; } 50% { opacity: 0; } 100% { opacity: 1; } }
 
 /* ════════════════════════════════════════════════════════════════════
-   Tier-2 "Durham GUI Terminal (Experimental)" — a generic mid-80s system
-   GUI (GEM / early-Windows era) for the in-world 640K DOS PC. Deliberately
-   NOT the game's catalogue UI brand: neutral system greys, white sunken
-   content wells, black borders, chunky 2-tone bevels, a hatched active
-   title bar. A subtle CRT overlay is retained from tier-1 (same monitor,
-   upgraded software).
+   Tier-2 "Durham GUI Terminal (Experimental)" — "RetroOS '84": a CGA/EGA-era
+   desktop for the in-world 640K DOS PC. Cyan dithered desktop, white windows,
+   high-contrast black borders + rigid offset block shadows, striped title
+   bars, scanlines + flicker. The store red (#e60000) is the one accent —
+   title-bar stripes, the DURHAM mark, the drive light, errors — for a little
+   Durham styling over the otherwise CGA palette.
    ════════════════════════════════════════════════════════════════════ */
 .tsic-term--t2 {
-  /* Generic system palette — greys / black / white only (no brand colour). */
-  --t2-face:      #c0c0c0;   /* silver chrome: bars, buttons, frame */
-  --t2-face-hi:   #d6d6d6;   /* chrome hover */
-  --t2-window:    #ffffff;   /* window + content well fill */
-  --t2-desktop:   #8c8c8c;   /* desktop backdrop */
-  --t2-ink:       #000000;   /* text + hard borders */
-  --t2-dim:       #4f4f4f;   /* muted text */
-  --t2-bevel-hi:  #ffffff;   /* bevel highlight edge */
-  --t2-bevel-sh:  #808080;   /* bevel shadow edge */
-  --t2-chrome:    "Microsoft Sans Serif", Tahoma, Geneva, "Segoe UI", sans-serif;
+  --t2-bg:        #00aaaa;                 /* CGA cyan desktop */
+  --t2-bg-dither: #008888;                 /* dither blend colour */
+  --t2-win:       #ffffff;                 /* windows / wells */
+  --t2-border:    #000000;                 /* high-contrast borders + text */
+  --t2-text:      #000000;
+  --t2-hi:        #000000;                 /* selected background */
+  --t2-hi-text:   #ffffff;                 /* selected text */
+  --t2-dim:       #555555;                 /* muted text on white */
+  --t2-accent:    var(--mag-red, #e60000); /* Durham red accent */
+  --t2-shadow:    4px 4px 0 var(--t2-border);
+  --t2-shadow-sm: 2px 2px 0 var(--t2-border);
 
   position: relative; isolation: isolate; overflow: hidden;
   height: 100%; box-sizing: border-box;
   display: flex; flex-direction: column;
-  background: var(--t2-desktop);
-  color: var(--t2-ink);
+  background: var(--t2-bg);
+  color: var(--t2-text);
   font-family: var(--font-terminal, "VT323", monospace);
-  font-size: 19px; line-height: 1.2;
+  font-size: 20px; line-height: 1.15;
 }
 
 /* The off-screen text-program iframe (a sibling) never shows on tier 2. */
@@ -126,54 +127,45 @@
 
 /* ── Menu bar ─────────────────────────────────────────── */
 .tsic-term--t2 .t2-menubar {
-  flex: 0 0 auto; display: flex; align-items: center; gap: 2px;
-  height: 28px; padding: 0 8px;
-  background: var(--t2-face);
-  border-bottom: 1px solid var(--t2-ink);
-  box-shadow: inset 0 1px 0 var(--t2-bevel-hi), inset 0 -2px 0 var(--t2-bevel-sh);
-  font-family: var(--t2-chrome);
+  flex: 0 0 auto; display: flex; align-items: center; gap: 4px;
+  height: 26px; padding: 0 8px;
+  background: var(--t2-win);
+  border-bottom: 2px solid var(--t2-border);
 }
 .tsic-term--t2 .t2-brand {
   display: inline-flex; align-items: center; gap: 7px; padding-right: 14px;
-  font-family: var(--t2-chrome); font-weight: 700;
-  font-size: 14px; letter-spacing: 0.02em; color: var(--t2-ink);
+  font-size: 20px; letter-spacing: 1px; color: var(--t2-text);
 }
 .tsic-term--t2 .t2-brand-mark {
-  display: inline-grid; place-items: center; width: 18px; height: 16px;
-  background: var(--t2-window); color: var(--t2-ink);
-  border: 1px solid var(--t2-ink);
-  box-shadow: inset 1px 1px 0 var(--t2-bevel-hi), inset -1px -1px 0 var(--t2-bevel-sh);
-  font-size: 11px; line-height: 1;
+  display: inline-grid; place-items: center; width: 18px; height: 18px;
+  background: var(--t2-accent); color: #fff;
+  border: 2px solid var(--t2-border); font-size: 12px; line-height: 1;
 }
 .tsic-term--t2 .t2-menu-item {
-  font-family: var(--t2-chrome); font-size: 13px;
-  background: transparent; border: 0; color: var(--t2-ink);
-  padding: 3px 9px; cursor: pointer;
+  font: inherit; background: transparent; border: 0; color: var(--t2-text);
+  padding: 2px 8px; cursor: pointer;
 }
-.tsic-term--t2 .t2-menu-item:hover { background: var(--t2-ink); color: var(--t2-window); } /* classic invert */
-.tsic-term--t2 .t2-clock {
-  margin-left: auto; font-family: var(--t2-chrome); font-size: 12px; color: var(--t2-dim);
-}
+.tsic-term--t2 .t2-menu-item:hover { background: var(--t2-hi); color: var(--t2-hi-text); } /* invert */
+.tsic-term--t2 .t2-clock { margin-left: auto; color: var(--t2-text); }
 
 /* ── Desktop ──────────────────────────────────────────── */
 .tsic-term--t2 .t2-desktop {
   position: relative; flex: 1 1 auto; min-height: 0; overflow: hidden;
   padding: 16px;
-  background-color: var(--t2-desktop);
-  /* fine ordered-dither stipple — the period "grey desktop" texture */
+  background-color: var(--t2-bg);
+  /* pure-CSS checkerboard dither — blends two cyans into a third (CGA trick) */
   background-image:
-    linear-gradient(45deg, rgba(0,0,0,0.10) 25%, transparent 25%, transparent 75%, rgba(0,0,0,0.10) 75%),
-    linear-gradient(45deg, rgba(255,255,255,0.10) 25%, transparent 25%, transparent 75%, rgba(255,255,255,0.10) 75%);
-  background-size: 3px 3px;
-  background-position: 0 0, 1.5px 1.5px;
+    linear-gradient(45deg, var(--t2-bg-dither) 25%, transparent 25%, transparent 75%, var(--t2-bg-dither) 75%, var(--t2-bg-dither)),
+    linear-gradient(45deg, var(--t2-bg-dither) 25%, transparent 25%, transparent 75%, var(--t2-bg-dither) 75%, var(--t2-bg-dither));
+  background-size: 4px 4px;
+  background-position: 0 0, 2px 2px;
 }
 .tsic-term--t2 .t2-icons {
   display: flex; flex-wrap: wrap; align-content: flex-start; gap: 14px 18px;
 }
 .tsic-term--t2 .t2-empty {
-  font-family: var(--t2-chrome); font-size: 13px; color: var(--t2-ink);
-  background: var(--t2-face); border: 1px solid var(--t2-ink);
-  box-shadow: inset 1px 1px 0 var(--t2-bevel-hi), inset -1px -1px 0 var(--t2-bevel-sh);
+  font-size: 20px; color: var(--t2-text);
+  background: var(--t2-win); border: 2px solid var(--t2-border); box-shadow: var(--t2-shadow);
   padding: 8px 12px;
 }
 
@@ -182,34 +174,34 @@
   position: relative; width: 84px;
   display: flex; flex-direction: column; align-items: center; gap: 6px;
   background: transparent; border: 0; padding: 4px; cursor: pointer;
-  font-family: var(--t2-chrome); color: var(--t2-ink);
+  color: var(--t2-text); font: inherit;
 }
 .tsic-term--t2 .t2-icon-tile {
-  width: 46px; height: 42px; display: grid; place-items: center;
-  font-family: var(--t2-chrome); font-weight: 700; font-size: 22px; line-height: 1; color: var(--t2-ink);
-  background: var(--t2-window);
-  border: 1px solid var(--t2-ink);
-  box-shadow: inset 1px 1px 0 var(--t2-bevel-hi), inset -2px -2px 0 var(--t2-bevel-sh);
+  width: 46px; height: 46px; display: grid; place-items: center;
+  font-size: 24px; line-height: 1; color: var(--t2-text);
+  background: var(--t2-win);
+  border: 2px solid var(--t2-border);
+  box-shadow: var(--t2-shadow-sm);                 /* rigid offset block */
+  image-rendering: pixelated;
 }
 .tsic-term--t2 .t2-icon-label {
-  font-size: 12px; line-height: 1.1; text-align: center; padding: 1px 4px;
+  font-size: 18px; line-height: 1; text-align: center; padding: 1px 4px;
 }
 .tsic-term--t2 .t2-icon:focus-visible { outline: none; }
-/* selection = classic invert */
+/* selection inverts the label (classic icon highlight) */
 .tsic-term--t2 .t2-icon:hover .t2-icon-label,
-.tsic-term--t2 .t2-icon:focus-visible .t2-icon-label { background: var(--t2-ink); color: var(--t2-window); }
-.tsic-term--t2 .t2-icon:focus-visible .t2-icon-tile { box-shadow: inset 1px 1px 0 var(--t2-bevel-hi), inset -2px -2px 0 var(--t2-bevel-sh), 0 0 0 1px var(--t2-ink); }
-.tsic-term--t2 .t2-icon:active .t2-icon-tile { box-shadow: inset -1px -1px 0 var(--t2-bevel-hi), inset 2px 2px 0 var(--t2-bevel-sh); } /* press = sunken */
+.tsic-term--t2 .t2-icon:focus-visible .t2-icon-label { background: var(--t2-hi); color: var(--t2-hi-text); }
+.tsic-term--t2 .t2-icon:focus-visible .t2-icon-tile { box-shadow: var(--t2-shadow-sm), 0 0 0 2px var(--t2-accent); }
+.tsic-term--t2 .t2-icon:active .t2-icon-tile { box-shadow: none; transform: translate(2px, 2px); } /* press */
 
 .tsic-term--t2 .t2-icon.is-locked .t2-icon-tile {
-  background: var(--t2-face); color: var(--t2-bevel-sh);
-  border-style: dashed; box-shadow: none;
+  border-style: dashed; box-shadow: none; color: #8a8a8a;
 }
 .tsic-term--t2 .t2-icon.is-locked:hover .t2-icon-label { background: transparent; color: var(--t2-dim); }
 .tsic-term--t2 .t2-icon-lock {
-  position: absolute; top: 30px; left: 50%; transform: translateX(-50%);
-  font-family: var(--t2-chrome); font-size: 9px; letter-spacing: 0.06em;
-  color: var(--t2-window); background: var(--t2-ink); padding: 0 3px;
+  position: absolute; top: 32px; left: 50%; transform: translateX(-50%);
+  font-size: 12px; letter-spacing: 0.04em;
+  color: var(--t2-hi-text); background: var(--t2-hi); padding: 0 3px;
 }
 
 /* ── Window ───────────────────────────────────────────── */
@@ -217,77 +209,86 @@
   position: absolute; z-index: 5;
   min-width: 360px; max-width: calc(100% - 24px); max-height: calc(100% - 24px);
   display: flex; flex-direction: column;
-  background: var(--t2-face);
-  border: 1px solid var(--t2-ink);
-  box-shadow:
-    inset 1px 1px 0 var(--t2-bevel-hi), inset -1px -1px 0 var(--t2-bevel-sh),
-    2px 2px 0 rgba(0,0,0,0.30);   /* thin system drop (not the brand block) */
-  padding: 2px;
+  background: var(--t2-win);
+  border: 2px solid var(--t2-border);
+  box-shadow: var(--t2-shadow);                    /* rigid 4px offset block */
 }
 .tsic-term--t2 .t2-titlebar {
   flex: 0 0 auto; display: flex; align-items: center; gap: 6px;
-  height: 22px; padding: 0 3px;
-  color: var(--t2-ink);
-  /* hatched active-window fill (classic Mac / GEM) */
-  background: repeating-linear-gradient(to bottom, var(--t2-bevel-sh) 0 1px, var(--t2-face) 1px 3px);
-  border-bottom: 1px solid var(--t2-bevel-sh);
+  height: 24px; padding: 0 4px;
+  color: var(--t2-text);
+  /* classic 80s horizontal stripes — in Durham red */
+  background: repeating-linear-gradient(to bottom, var(--t2-accent) 0 2px, var(--t2-win) 2px 4px);
+  border-bottom: 2px solid var(--t2-border);
   cursor: grab; user-select: none;
 }
 .tsic-term--t2 .t2-window.is-dragging .t2-titlebar { cursor: grabbing; }
 .tsic-term--t2 .t2-title {
-  font-family: var(--t2-chrome); font-weight: 700; font-size: 13px; letter-spacing: 0.02em;
-  color: var(--t2-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  /* solid plate so the title reads over the hatch */
-  background: var(--t2-face); padding: 1px 8px;
-  box-shadow: inset 1px 1px 0 var(--t2-bevel-hi), inset -1px -1px 0 var(--t2-bevel-sh);
+  font-size: 18px; letter-spacing: 1px; line-height: 16px;
+  color: var(--t2-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  /* solid plate so the title reads over the stripes */
+  background: var(--t2-win); padding: 1px 8px; border: 2px solid var(--t2-border);
 }
-.tsic-term--t2 .t2-titlebar-grip { display: none; } /* hatch fills the bar instead */
-.tsic-term--t2 .t2-close {
-  order: -1; flex: 0 0 auto; width: 16px; height: 16px; padding: 0;
+.tsic-term--t2 .t2-close,
+.tsic-term--t2 .t2-zoom {
+  flex: 0 0 auto; width: 16px; height: 16px; padding: 0;
   display: grid; place-items: center;
-  background: var(--t2-face); color: var(--t2-ink);
-  border: 1px solid var(--t2-ink);
-  box-shadow: inset 1px 1px 0 var(--t2-bevel-hi), inset -1px -1px 0 var(--t2-bevel-sh); /* raised button */
-  font-family: var(--t2-chrome); font-size: 12px; line-height: 1; cursor: pointer;
+  background: var(--t2-win); color: var(--t2-text);
+  border: 2px solid var(--t2-border);
+  box-shadow: var(--t2-shadow-sm);
+  font-size: 13px; line-height: 1; cursor: pointer;
 }
-.tsic-term--t2 .t2-close:hover { background: var(--t2-face-hi); }
-.tsic-term--t2 .t2-close:active { box-shadow: inset -1px -1px 0 var(--t2-bevel-hi), inset 1px 1px 0 var(--t2-bevel-sh); } /* pressed = sunken */
+.tsic-term--t2 .t2-zoom { order: 99; margin-left: auto; }            /* maximise box, pushed right */
+.tsic-term--t2 .t2-close { order: 100; }                            /* close, far right (right of maximise) */
+.tsic-term--t2 .t2-zoom::before { content: ''; width: 9px; height: 7px; border: 2px solid currentColor; box-sizing: border-box; }
+.tsic-term--t2 .t2-close:hover,
+.tsic-term--t2 .t2-zoom:hover { background: var(--t2-accent); color: #fff; }
+.tsic-term--t2 .t2-close:active,
+.tsic-term--t2 .t2-zoom:active { box-shadow: none; transform: translate(2px, 2px); } /* press down */
 
-.tsic-term--t2 .t2-window-body { flex: 1 1 auto; min-height: 0; display: flex; padding: 3px; }
+/* Bottom-right grow box — diagonal hatch, drag to resize. */
+.tsic-term--t2 .t2-resize {
+  position: absolute; right: 0; bottom: 0; width: 16px; height: 16px; z-index: 2;
+  cursor: nwse-resize;
+  background: repeating-linear-gradient(135deg, var(--t2-border) 0 1.5px, transparent 1.5px 3px);
+}
+.tsic-term--t2 .t2-window.is-max .t2-resize { display: none; }
+/* An explicitly-sized window: content well fills it (resize/maximize). */
+.tsic-term--t2 .t2-window.is-sized .t2-content { max-height: none; }
+
+.tsic-term--t2 .t2-window-body { flex: 1 1 auto; min-height: 0; display: flex; padding: 4px; }
 .tsic-term--t2 .t2-content {
   flex: 1 1 auto; min-height: 120px; min-width: 0;
   max-height: min(60vh, 460px);
   overflow: auto; white-space: pre;
   padding: 6px 9px;
-  background: var(--t2-window); color: var(--t2-ink);
-  border: 1px solid var(--t2-ink);
-  box-shadow: inset 1px 1px 0 var(--t2-bevel-sh), inset -1px -1px 0 var(--t2-bevel-hi); /* sunken well */
-  font-family: var(--font-terminal, "VT323", monospace); font-size: 19px; line-height: 1.18;
-  scrollbar-width: thin; scrollbar-color: var(--t2-bevel-sh) var(--t2-face);
+  background: var(--t2-win); color: var(--t2-text);
+  border: 2px solid var(--t2-border);
+  font-family: var(--font-terminal, "VT323", monospace); font-size: 20px; line-height: 1.15;
+  scrollbar-width: thin; scrollbar-color: var(--t2-border) var(--t2-win);
 }
-.tsic-term--t2 .t2-row { min-height: 1.18em; }
-.tsic-term--t2 .t2-row.t2-err { color: var(--t2-ink); font-weight: 700; }
+.tsic-term--t2 .t2-row { min-height: 1.15em; }
+.tsic-term--t2 .t2-row.t2-err { color: var(--t2-accent); }   /* errors in Durham red */
 .tsic-term--t2 .t2-echo { color: var(--t2-dim); }
-.tsic-term--t2 .t2-inputline { display: flex; align-items: center; gap: 6px; min-height: 1.18em; }
+.tsic-term--t2 .t2-inputline { display: flex; align-items: center; gap: 6px; min-height: 1.15em; }
 .tsic-term--t2 .t2-input-prompt { white-space: pre; }
 .tsic-term--t2 .t2-input {
   flex: 1 1 auto; min-width: 60px; padding: 0 4px;
-  background: var(--t2-window); color: var(--t2-ink); caret-color: var(--t2-ink);
-  border: 1px solid var(--t2-ink);
-  box-shadow: inset 1px 1px 0 var(--t2-bevel-sh);
+  background: var(--t2-win); color: var(--t2-text); caret-color: var(--t2-text);
+  border: 2px solid var(--t2-border);
   font: inherit; outline: none;
 }
 
 /* ── Terminal console (the command line inside a window) ── */
-.tsic-term--t2 .t2-icon-system .t2-icon-tile { font-size: 18px; letter-spacing: -2px; }
+.tsic-term--t2 .t2-icon-system .t2-icon-tile { font-size: 20px; letter-spacing: -2px; }
 .tsic-term--t2 .t2-console-line {
-  display: flex; align-items: baseline; min-height: 1.18em; position: relative;
+  display: flex; align-items: baseline; min-height: 1.15em; position: relative;
 }
 .tsic-term--t2 .t2-console-prompt { margin-right: 0.5ch; }
 .tsic-term--t2 .t2-console-mirror { white-space: pre; }
 .tsic-term--t2 .t2-console-cursor {
   display: inline-block; width: 0.55em; height: 1em;
-  background: var(--t2-ink); vertical-align: text-bottom;
+  background: var(--t2-text); vertical-align: text-bottom;
 }
 /* The real input is invisible but focusable; the mirror + cursor are what show. */
 .tsic-term--t2 .t2-console-input {
@@ -299,44 +300,56 @@
   .tsic-term--t2 .t2-console-cursor { animation: tsic-term-blink 1s step-end infinite; }
 }
 
+/* ── GUI programs (the program renders its own UI in the window) ── */
+.tsic-term--t2 .t2-content--gui {
+  padding: 0; border: 0; overflow: hidden;
+  flex: 1 1 auto; min-height: 0; max-height: none; background: var(--t2-win);
+}
+.tsic-term--t2 .t2-content--gui .tsic-term-program {
+  display: block; width: 100%; height: 100%; border: 0; background: var(--t2-win);
+}
+
+/* ── Folder window + folder icon ──────────────────────── */
+.tsic-term--t2 .t2-folder-view { white-space: normal; }
+.tsic-term--t2 .t2-folder-view .t2-icons { display: flex; flex-wrap: wrap; gap: 14px 18px; }
+.tsic-term--t2 .t2-icon-folder .t2-icon-tile { position: relative; background: var(--t2-win); }
+.tsic-term--t2 .t2-icon-folder .t2-icon-tile::before {   /* the folder's little tab */
+  content: ''; position: absolute; top: -7px; left: 5px; width: 18px; height: 7px;
+  background: var(--t2-win); border: 2px solid var(--t2-border); border-bottom: 0;
+}
+
 /* ── Status bar ───────────────────────────────────────── */
 .tsic-term--t2 .t2-statusbar {
   flex: 0 0 auto; display: flex; align-items: center; gap: 10px;
   height: 24px; padding: 0 9px;
-  background: var(--t2-face);
-  border-top: 1px solid var(--t2-ink);
-  box-shadow: inset 0 1px 0 var(--t2-bevel-hi);
-  font-family: var(--t2-chrome); font-size: 12px; color: var(--t2-dim);
+  background: var(--t2-win);
+  border-top: 2px solid var(--t2-border);
+  font-size: 18px; color: var(--t2-text);
 }
 .tsic-term--t2 .t2-status-hw { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .tsic-term--t2 .t2-status-right { margin-left: auto; display: flex; align-items: center; gap: 9px; flex: 0 0 auto; }
 .tsic-term--t2 .t2-disk-led {
-  width: 8px; height: 8px;
-  background: var(--t2-dim); border: 1px solid var(--t2-ink);
-  box-shadow: inset 1px 1px 0 var(--t2-bevel-sh);
+  width: 9px; height: 9px;
+  background: var(--t2-accent); border: 2px solid var(--t2-border);
 }
-.tsic-term--t2 .t2-tier { font-family: var(--t2-chrome); color: var(--t2-ink); }
+.tsic-term--t2 .t2-tier { color: var(--t2-text); }
 
-/* ── Subtle retained CRT (greyscale) ──────────────────── */
-.tsic-term--t2::before {   /* faint scanlines */
+/* ── CRT effects (scanlines + flicker) ────────────────── */
+.tsic-term--t2::before {   /* scanlines — faint horizontal dark lines */
   content: ''; position: absolute; inset: 0; z-index: 20; pointer-events: none;
-  background: linear-gradient(rgba(0,0,0,0.07) 50%, transparent 50%);
-  background-size: 100% 3px; mix-blend-mode: multiply;
+  background: repeating-linear-gradient(to bottom, rgba(0,0,0,0.16) 0 1px, transparent 1px 3px);
 }
-.tsic-term--t2::after {    /* soft vignette */
+.tsic-term--t2::after {    /* flicker — a faint dark overlay whose opacity wobbles */
   content: ''; position: absolute; inset: 0; z-index: 21; pointer-events: none;
-  background: radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.22) 100%);
+  background: rgba(0,0,0,0.05);
 }
 
-/* Program-driven emergency theme (term.theme('red')) — a red alarm wash only,
-   the system chrome stays grey. */
-.tsic-term--t2.tsic-term--theme-red { --t2-desktop: #4a4a4a; }
-.tsic-term--t2.tsic-term--theme-red::after { background: radial-gradient(ellipse at center, rgba(170,0,0,0.08) 38%, rgba(40,0,0,0.50) 100%); }
-.tsic-term--t2.tsic-term--theme-red .t2-disk-led { background: #e00000; box-shadow: 0 0 6px #e00000; }
+/* Program-driven emergency theme (term.theme('red')) — the cyan desktop goes red. */
+.tsic-term--t2.tsic-term--theme-red { --t2-bg: #aa0000; --t2-bg-dither: #880000; }
+.tsic-term--t2.tsic-term--theme-red::after { background: rgba(170,0,0,0.12); }
 
 @media (prefers-reduced-motion: no-preference) {
-  .tsic-term--t2::after { animation: tsic-crt-flicker 0.18s infinite; }
-  .tsic-term--t2 .t2-disk-led { animation: tsic-term-blink 2.4s step-end infinite; }
+  .tsic-term--t2::after { animation: tsic-crt-flicker 0.12s infinite; }
 }
 
 /* tier-3 stub: just enough to see the chrome swapped (designed in a later pass) */

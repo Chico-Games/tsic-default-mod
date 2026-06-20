@@ -17,6 +17,7 @@
       icon: raw.icon ? String(raw.icon) : null,
       capabilities: Array.isArray(raw.capabilities) ? raw.capabilities.slice() : [],
       hidden: !!raw.hidden,   // secret programs: runnable by name, omitted from listings
+      folder: raw.folder ? String(raw.folder) : null,   // desktop grouping (e.g. legacy "V1"); ignored by the text shell
     };
   }
 

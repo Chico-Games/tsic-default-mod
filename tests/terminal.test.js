@@ -153,6 +153,31 @@ TSICTestHarness.register({
 });
 
 TSICTestHarness.register({
+    name: 'Terminal: tier-2 desktop hides foldered programs and groups them in a folder',
+    file: termScreenFile(),
+    async run(ctx) {
+        await TSICTestHarness.waitFor(() => ctx.win.TSICTerminal && ctx.win.TSICTerminal.shells && ctx.win.TSICTerminal.shells.tier2);
+        ctx.inject('tsic.msg.UI.Terminal.Catalog', { Programs: [
+            { id: 'com.tsic.logs2', name: 'LOGS_V2', minTier: 2, entry: 'main.js', capabilities: ['gfx.canvas'] },
+            { id: 'com.tsic.logs',  name: 'LOGS',    minTier: 1, entry: 'main.js', folder: 'V1', capabilities: ['term.print', 'term.input'] },
+        ]});
+        ctx.inject('tsic.msg.UI.Terminal.UnlockedList', { ProgramIds: ['com.tsic.logs2', 'com.tsic.logs'] });
+        ctx.inject('tsic.msg.UI.Terminal.Open', { TerminalId: 't2', Tier: 2 });
+        await TSICTestHarness.waitFor(() => ctx.doc.querySelector('.t2-icon-folder'));
+        const rootLabels = Array.from(ctx.doc.querySelectorAll('#t2-icons > .t2-icon > .t2-icon-label')).map(function (n) { return n.textContent; });
+        ctx.expect(ctx.assert.truthy(rootLabels.indexOf('LOGS_V2') !== -1, 'a root (v2) program shows on the desktop'));
+        ctx.expect(ctx.assert.truthy(rootLabels.indexOf('LOGS') === -1, 'a foldered (v1) program is hidden from the desktop root'));
+        ctx.expect(ctx.assert.truthy(rootLabels.indexOf('V1') !== -1, 'the V1 folder appears on the desktop'));
+        ctx.doc.querySelector('.t2-icon-folder').click();   // open the folder
+        await TSICTestHarness.waitFor(() => {
+            const c = ctx.doc.querySelector('.tsic-term--t2 .t2-folder-view');
+            return c && /LOGS/.test(c.textContent);
+        });
+        ctx.expect(ctx.assert.truthy(/LOGS/.test(ctx.doc.querySelector('.t2-folder-view').textContent), 'the V1 folder window contains the v1 program'));
+    },
+});
+
+TSICTestHarness.register({
     name: 'Terminal: EXIT publishes UI.Cmd.Terminal.Close',
     file: termScreenFile(),
     async run(ctx) {
