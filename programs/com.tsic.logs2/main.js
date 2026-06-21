@@ -6,10 +6,24 @@
 // Self-contained: the sandboxed iframe can't fetch shared CSS, so styles are
 // inlined; the title bar + close box are the shell's window chrome.
 (async function () {
-  await TSICProgram.connect();   // handshake; the UI is self-rendered
+  const api = await TSICProgram.connect();   // handshake; the UI is self-rendered
+
+  // Per-log "NEW" tracking. A log stays flagged NEW until it's been read; the
+  // read set persists via storage.local, so re-opening LOGS_V2 only flags logs
+  // the operator hasn't seen yet. (This is a v2-only browser — v1 LOGS has none.)
+  let readSet = new Set();
+  try {
+    const r = await api.storage.get('readLogs');
+    if (r && Array.isArray(r.value)) readSet = new Set(r.value);
+  } catch (e) {}
+  function markRead(log) {
+    if (readSet.has(log.id)) return;
+    readSet.add(log.id);
+    try { api.storage.set('readLogs', Array.from(readSet)); } catch (e) {}
+  }
 
   const LOGS = [
-    { title: 'SYSTEM INITIALIZATION — LOG 001', meta: 'KATIE (HEAD OF IT) · 14/12/1983 08:30', body: [
+    { id: 'init-001', title: 'SYSTEM INITIALIZATION — LOG 001', meta: 'KATIE (HEAD OF IT) · 14/12/1983 08:30', body: [
       'Welcome everyone! This is the very first log of the very',
       'first version of DURHAM OS. I just finished wiring the back',
       'office, and we are officially online!',
@@ -20,7 +34,7 @@
       '',
       'Happy typing!   - Katie',
     ] },
-    { title: 'UNTITLED LOG ENTRY 002', meta: 'GARY · 18/12/1983 10:14', body: [
+    { id: 'gary-002', title: 'UNTITLED LOG ENTRY 002', meta: 'GARY · 18/12/1983 10:14', body: [
       'SEARCH INVENTORY',
       'WHERE ARE THE PINE DROP LEAF TABLES',
       'LOCATE PINE TABLE SHOWROOM C',
@@ -32,7 +46,7 @@
       'KATIE IF YOU SEE THIS I AM TRYING TO FIND THE PINE DROP',
       'LEAF TABLES FROM SHOWROOM C',
     ] },
-    { title: 'SYSADMIN DIARY — LOG 01', meta: 'KATIE · 08/01/1984 17:30', body: [
+    { id: 'diary-01', title: 'SYSADMIN DIARY — LOG 01', meta: 'KATIE · 08/01/1984 17:30', body: [
       'I am officially set up in my own tech room and settled in!',
       '',
       'Still trying to get everyone up to speed on the new systems',
@@ -46,7 +60,7 @@
       '',
       'Computers only know what we tell them, guys!   - Katie',
     ] },
-    { title: 'SYSADMIN DIARY — LOG 02', meta: 'KATIE · 16/01/1984 21:48', body: [
+    { id: 'diary-02', title: 'SYSADMIN DIARY — LOG 02', meta: 'KATIE · 16/01/1984 21:48', body: [
       "I've decided to start keeping backup floppy disks for all",
       'programs and logs. For some reason, the main server data',
       'keeps getting corrupted overnight.',
@@ -58,7 +72,7 @@
       "I'm going to ask management if I can be put on the night shift",
       'this week to investigate.   - Katie',
     ] },
-    { title: 'SYSADMIN DIARY — LOG 03', meta: 'KATIE · 19/01/1984 03:14', body: [
+    { id: 'diary-03', title: 'SYSADMIN DIARY — LOG 03', meta: 'KATIE · 19/01/1984 03:14', body: [
       'Who knew the store could be such a maze in the dark? I went',
       'to get a snack from the vending machines and got completely',
       'turned around. It felt like I was wandering around forever',
@@ -84,7 +98,9 @@
     'body{font-family:"VT323","Cascadia Mono","Courier New",monospace;font-size:18px;color:#000;background:#fff}' +
     '.app{display:flex;height:100vh}' +
     '.list{width:42%;min-width:150px;border-right:2px solid #000;overflow:auto}' +
-    '.list .item{padding:5px 9px;cursor:pointer;border-bottom:1px solid #000;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}' +
+    '.list .item{display:flex;align-items:center;gap:6px;padding:5px 9px;cursor:pointer;border-bottom:1px solid #000}' +
+    '.list .item .t{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}' +
+    '.list .item .new{flex:0 0 auto;font-size:12px;font-weight:bold;letter-spacing:.02em;color:#fff;background:#e60000;padding:0 4px}' +
     '.list .item:hover{background:#eee}' +
     '.list .item.active{background:#000;color:#fff}' +
     '.reader{flex:1;overflow:auto;padding:10px 12px}' +
@@ -107,7 +123,16 @@
     LOGS.forEach(function (log, i) {
       const d = document.createElement('div');
       d.className = 'item' + (i === sel ? ' active' : '');
-      d.textContent = (i + 1) + '. ' + log.title;
+      const t = document.createElement('span');
+      t.className = 't';
+      t.textContent = (i + 1) + '. ' + log.title;
+      d.appendChild(t);
+      if (!readSet.has(log.id)) {                 // unread → show a NEW tag
+        const n = document.createElement('span');
+        n.className = 'new';
+        n.textContent = 'NEW';
+        d.appendChild(n);
+      }
       d.addEventListener('click', function () { select(i); });
       listEl.appendChild(d);
     });
@@ -119,6 +144,6 @@
     readerEl.innerHTML = html;
     readerEl.scrollTop = 0;
   }
-  function select(i) { renderList(i); renderReader(i); }
+  function select(i) { markRead(LOGS[i]); renderList(i); renderReader(i); }
   select(0);
 })();

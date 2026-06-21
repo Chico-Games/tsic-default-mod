@@ -50,8 +50,10 @@
     Open:        'UI.Terminal.Open',
     UnlockedList:'UI.Terminal.UnlockedList',
     Catalog:     'UI.Terminal.Catalog',
+    Badges:      'UI.Terminal.Badges',          // { Badges: { <programId>: "NEW" } } — new-arrival flags
     InsertDisk:  'UI.Cmd.Terminal.InsertDisk',
     WorldMutate: 'UI.Cmd.Terminal.WorldMutate',
+    MarkSeen:    'UI.Cmd.Terminal.MarkSeen',     // { ProgramId } — operator opened it; clear its badge
     Close:       'UI.Cmd.Terminal.Close',
   };
 })(window);

@@ -204,6 +204,27 @@
   color: var(--t2-hi-text); background: var(--t2-hi); padding: 0 3px;
 }
 
+/* New-arrival "NEW!" sticker — a catalogue-style red starburst perched on the
+   top-right of a flagged icon tile. Stays until the program is opened. */
+.tsic-term--t2 .t2-icon-tile { position: relative; }
+.tsic-term--t2 .t2-icon-badge {
+  position: absolute; top: -14px; right: -14px; z-index: 1;
+  width: 40px; height: 40px; display: grid; place-items: center;
+  font-size: 13px; font-weight: bold; letter-spacing: 0.03em;
+  color: #fff; background: var(--t2-accent);
+  /* Wide-toothed seal: short spikes, big readable centre so "NEW" stays legible. */
+  clip-path: polygon(50% 0%, 60% 10%, 71% 6%, 73% 18%, 86% 14%, 84% 27%, 96% 29%,
+    89% 39%, 100% 50%, 89% 61%, 96% 71%, 84% 73%, 86% 86%, 73% 82%, 71% 94%,
+    60% 90%, 50% 100%, 40% 90%, 29% 94%, 27% 82%, 14% 86%, 16% 73%, 4% 71%,
+    11% 61%, 0% 50%, 11% 39%, 4% 29%, 16% 27%, 14% 14%, 27% 18%, 29% 6%, 40% 10%);
+  pointer-events: none;
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.35);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .tsic-term--t2 .t2-icon-badge { animation: t2-badge-blink 1.1s steps(1, end) infinite; }
+}
+@keyframes t2-badge-blink { 50% { opacity: 0.35; } }
+
 /* ── Window ───────────────────────────────────────────── */
 .tsic-term--t2 .t2-window {
   position: absolute; z-index: 5;

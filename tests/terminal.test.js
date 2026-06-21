@@ -216,6 +216,74 @@ TSICTestHarness.register({
 });
 
 TSICTestHarness.register({
+    name: 'Terminal: tier-2 flags new programs with a NEW badge that clears on open',
+    file: termScreenFile(),
+    async run(ctx) {
+        await TSICTestHarness.waitFor(() => ctx.win.TSICTerminal && ctx.win.TSICTerminal.shells && ctx.win.TSICTerminal.shells.tier2);
+        ctx.win.TSICTerminal.shells.tier2.charDelayMs = 0;
+        ctx.inject('tsic.msg.UI.Terminal.Catalog', { Programs: [
+            { id: 'com.tsic.logs2', name: 'LOGS_V2', minTier: 2, entry: 'main.js', capabilities: ['gfx.canvas'] },
+            { id: 'com.tsic.logs',  name: 'LOGS',    minTier: 1, entry: 'main.js', folder: 'V1', capabilities: ['term.print', 'term.input'] },
+        ]});
+        ctx.inject('tsic.msg.UI.Terminal.UnlockedList', { ProgramIds: ['com.tsic.logs2', 'com.tsic.logs'] });
+        ctx.inject('tsic.msg.UI.Terminal.Badges', { Badges: { 'com.tsic.logs2': 'NEW', 'com.tsic.logs': 'NEW' } });
+        ctx.inject('tsic.msg.UI.Terminal.Open', { TerminalId: 't2', Tier: 2 });
+        await TSICTestHarness.waitFor(() => ctx.doc.querySelector('.t2-icon-folder'));
+
+        function iconByLabel(label) {
+            return Array.from(ctx.doc.querySelectorAll('.t2-icon')).find(function (i) {
+                const l = i.querySelector('.t2-icon-label');
+                return l && l.textContent === label;
+            });
+        }
+        const logs2 = iconByLabel('LOGS_V2');
+        ctx.expect(ctx.assert.truthy(logs2 && logs2.querySelector('.t2-icon-badge'), 'a newly-arrived root program shows a NEW badge'));
+        ctx.expect(ctx.assert.truthy(ctx.doc.querySelector('.t2-icon-folder .t2-icon-badge'),
+            'the V1 folder aggregates the NEW badge of a program inside it'));
+
+        // Opening it publishes MarkSeen and the badge clears immediately.
+        ctx.clearPublishes();
+        logs2.click();
+        await TSICTestHarness.waitFor(function () {
+            const i = iconByLabel('LOGS_V2');
+            return i && !i.querySelector('.t2-icon-badge');
+        });
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Terminal.MarkSeen',
+            { where: function (p) { return p && p.ProgramId === 'com.tsic.logs2'; } }));
+        ctx.expect(ctx.assert.truthy(ctx.doc.querySelector('.t2-icon-folder .t2-icon-badge'),
+            'the folder badge persists while its V1 program is still unopened'));
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Terminal: re-receiving Open for the same tier keeps open windows (idempotent)',
+    file: termScreenFile(),
+    async run(ctx) {
+        await TSICTestHarness.waitFor(() => ctx.win.TSICTerminal && ctx.win.TSICTerminal.shells && ctx.win.TSICTerminal.shells.tier2);
+        ctx.win.TSICTerminal.shells.tier2.charDelayMs = 0;
+        ctx.inject('tsic.msg.UI.Terminal.Catalog', { Programs: [{ id: 'com.tsic.hello', name: 'HELLO', minTier: 1, entry: 'main.js' }] });
+        ctx.inject('tsic.msg.UI.Terminal.UnlockedList', { ProgramIds: ['com.tsic.hello'] });
+        ctx.inject('tsic.msg.UI.Terminal.Open', { TerminalId: 't2', Tier: 2 });
+        await TSICTestHarness.waitFor(() => ctx.doc.querySelector('.t2-icon-system'));
+        const count = () => ctx.doc.querySelectorAll('.tsic-term--t2 .t2-window').length;
+        ctx.doc.querySelector('.t2-icon-system').click();   // open the console window
+        await TSICTestHarness.waitFor(() => count() === 1);
+
+        // The playground re-projects (re-sends Open) after every publish. A repeated
+        // same-tier Open must NOT tear the desktop down and close the window.
+        ctx.inject('tsic.msg.UI.Terminal.Open', { TerminalId: 't2', Tier: 2 });
+        await new Promise(r => setTimeout(r, 40));
+        ctx.expect(ctx.assert.truthy(count() === 1, 'a repeated same-tier Open leaves the open window standing'));
+
+        // A genuine tier change still rebuilds the shell.
+        ctx.win.TSICTerminal.shells.tier1.charDelayMs = 0;
+        ctx.inject('tsic.msg.UI.Terminal.Open', { TerminalId: 't2', Tier: 1 });
+        await TSICTestHarness.waitFor(() => ctx.doc.querySelector('.tsic-term--t1'));
+        ctx.expect(ctx.assert.truthy(!ctx.doc.querySelector('.tsic-term--t2'), 'switching tier rebuilds into the new shell'));
+    },
+});
+
+TSICTestHarness.register({
     name: 'Terminal: EXIT publishes UI.Cmd.Terminal.Close',
     file: termScreenFile(),
     async run(ctx) {

@@ -5,5 +5,5 @@
   "minTier": 2,
   "entry": "main.js",
   "folder": null,
-  "capabilities": ["gfx.canvas"]
+  "capabilities": ["gfx.canvas", "storage.local"]
 }

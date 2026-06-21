@@ -17,12 +17,22 @@
     template: '',
 
     mount(root, ctx) {
-      const state = { tier: 1, programs: [], unlockedIds: [], storage: new Map(), shell: null, running: new Set() };
+      const state = { tier: 1, programs: [], unlockedIds: [], badges: {}, storage: new Map(), shell: null, running: new Set() };
 
       function snapshot() {
-        return T.catalog.listForTerminal({ programs: state.programs, unlockedIds: state.unlockedIds, tier: state.tier });
+        return T.catalog.listForTerminal({ programs: state.programs, unlockedIds: state.unlockedIds, tier: state.tier, badges: state.badges });
       }
       function refreshShellList() { if (state.shell) state.shell.onPrograms(snapshot()); }
+
+      // Opening a flagged program clears its "NEW" badge: tell the source (which
+      // owns cross-session persistence) and drop it locally so the sticker goes
+      // immediately, without waiting on the rebroadcast.
+      function markSeen(programId) {
+        if (!state.badges[programId]) return;
+        delete state.badges[programId];
+        ctx.publish(T.CHANNELS.MarkSeen, { ProgramId: programId });
+        refreshShellList();
+      }
 
       function killAll() {
         state.running.forEach(function (h) { try { h.kill(); } catch (e) {} });
@@ -50,6 +60,7 @@
         const res = T.catalog.resolveLaunch(programId, { programs: state.programs, unlockedIds: state.unlockedIds, tier: state.tier });
         if (!res.ok) return Promise.resolve(res);
         const program = res.program;
+        markSeen(program.id);   // opening it (icon or RUN) clears the new-arrival flag
         return fetch('/programs/' + program.id + '/' + program.entry)
           .then(function (r) { if (!r.ok) throw new Error('fetch'); return r.text(); })
           .then(function (entrySrc) {
@@ -110,8 +121,21 @@
         state.unlockedIds = (p && p.ProgramIds) || [];
         refreshShellList();
       });
+      ctx.on('tsic.msg.' + T.CHANNELS.Badges, function (p) {
+        state.badges = (p && p.Badges) || {};
+        refreshShellList();
+      });
+      let lastAutoRun = null;
       ctx.on('tsic.msg.' + T.CHANNELS.Open, function (p) {
-        buildShell((p && p.Tier) || 1, p && p.AutoRun);
+        const tier = (p && p.Tier) || 1;
+        const autoRun = (p && p.AutoRun) || null;
+        // Re-receiving the same Open must NOT tear down the live desktop and its
+        // open windows. (The playground re-projects every channel — including
+        // Open — after any publish, e.g. MarkSeen when you open a flagged
+        // program.) Rebuild only when the tier or the requested auto-run changes.
+        if (state.shell && state.tier === tier && lastAutoRun === autoRun) return;
+        lastAutoRun = autoRun;
+        buildShell(tier, autoRun);
       });
     },
   });

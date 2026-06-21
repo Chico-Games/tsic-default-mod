@@ -156,7 +156,8 @@
     function printProgramList() {
       if (!programList.length) { write('  No programs installed. Find a floppy disk.'); return; }
       programList.forEach(function (e) {
-        const tag = e.locked ? '  [LOCKED — req. ' + NS.hardwareName(e.program.minTier) + ']' : '';
+        const tag = e.locked ? '  [LOCKED — req. ' + NS.hardwareName(e.program.minTier) + ']'
+          : (e.badge ? '  * ' + String(e.badge) : '');
         write('  ' + e.program.name + tag);
       });
     }

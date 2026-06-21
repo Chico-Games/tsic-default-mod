@@ -28,10 +28,11 @@
   function listForTerminal(opts) {
     const programs = opts.programs || [];
     const unlocked = new Set(opts.unlockedIds || []);
+    const badges = opts.badges || {};
     const tier = opts.tier;
     return programs
       .filter(function (p) { return p && unlocked.has(p.id) && !p.hidden; })
-      .map(function (p) { return { program: p, locked: !runnable(p, tier) }; })
+      .map(function (p) { return { program: p, locked: !runnable(p, tier), badge: badges[p.id] || null }; })
       .sort(function (a, b) {
         return a.program.name.toLowerCase().localeCompare(b.program.name.toLowerCase());
       });

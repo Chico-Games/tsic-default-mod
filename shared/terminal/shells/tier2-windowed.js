@@ -126,6 +126,14 @@
       return btn;
     }
 
+    // A catalogue-style "NEW!" starburst sticker, perched on a flagged icon tile.
+    function makeBadge(label) {
+      const b = doc.createElement('span');
+      b.className = 't2-icon-badge';
+      b.textContent = String(label || 'NEW');
+      return b;
+    }
+
     function makeProgramIcon(entry) {
       const p = entry.program;
       const btn = doc.createElement('button');
@@ -135,6 +143,7 @@
       const tile = doc.createElement('span');
       tile.className = 't2-icon-tile';
       tile.textContent = glyphFor(p.name);
+      if (entry.badge) tile.appendChild(makeBadge(entry.badge));
       btn.appendChild(tile);
       const label = doc.createElement('span');
       label.className = 't2-icon-label';
@@ -159,6 +168,7 @@
       btn.title = name + ' (' + entries.length + ' item' + (entries.length === 1 ? '' : 's') + ')';
       const tile = doc.createElement('span');
       tile.className = 't2-icon-tile';
+      if (entries.some(function (e) { return e.badge; })) tile.appendChild(makeBadge('NEW'));   // folder flags if any item inside is new
       btn.appendChild(tile);
       const label = doc.createElement('span');
       label.className = 't2-icon-label';
