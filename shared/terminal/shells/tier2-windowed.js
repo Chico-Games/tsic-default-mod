@@ -68,7 +68,7 @@
     container.innerHTML =
       '<div class="tsic-term tsic-term--t2">' +
       '  <div class="t2-menubar">' +
-      '    <span class="t2-brand"><span class="t2-brand-mark">▤</span>DURHAM</span>' +
+      '    <span class="t2-brand"><span class="t2-brand-mark">▤</span>Durham OS</span>' +
       '    <button class="t2-menu-item" id="t2-about-btn" type="button">About</button>' +
       '    <span class="t2-clock" id="t2-clock"></span>' +
       '  </div>' +
