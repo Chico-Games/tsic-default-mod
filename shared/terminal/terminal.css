@@ -184,6 +184,7 @@
   box-shadow: var(--t2-shadow-sm);                 /* rigid offset block */
   image-rendering: pixelated;
 }
+.tsic-term--t2 .t2-icon-tile svg { width: 30px; height: 30px; display: block; }
 .tsic-term--t2 .t2-icon-label {
   font-size: 18px; line-height: 1; text-align: center; padding: 1px 4px;
 }
@@ -308,7 +309,6 @@
 }
 
 /* ── Terminal console (the command line inside a window) ── */
-.tsic-term--t2 .t2-icon-system .t2-icon-tile { font-size: 20px; letter-spacing: -2px; }
 .tsic-term--t2 .t2-console-line {
   display: flex; align-items: baseline; min-height: 1.15em; position: relative;
 }

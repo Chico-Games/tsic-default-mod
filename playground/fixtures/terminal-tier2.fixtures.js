@@ -3,8 +3,8 @@
 // command console. Projects Open(Tier 2) + Catalog + UnlockedList.
 (function () {
   const PROGRAMS = [
-    { id: 'com.tsic.logs2',   name: 'LOGS_V2',  minTier: 2, entry: 'main.js', capabilities: ['gfx.canvas','storage.local'] },
-    { id: 'com.tsic.stock2',  name: 'STOCK_V2', minTier: 2, entry: 'main.js', capabilities: ['gfx.canvas'] },
+    { id: 'com.tsic.logs2',   name: 'LOGS_V2',  minTier: 2, entry: 'main.js', icon: 'logs',  capabilities: ['gfx.canvas','storage.local'] },
+    { id: 'com.tsic.stock2',  name: 'STOCK_V2', minTier: 2, entry: 'main.js', icon: 'stock', capabilities: ['gfx.canvas'] },
     { id: 'com.tsic.hello',   name: 'HELLO',    minTier: 1, entry: 'main.js', folder: 'V1', capabilities: ['term.print','term.input','storage.local'] },
     { id: 'com.tsic.logs',    name: 'LOGS',     minTier: 1, entry: 'main.js', folder: 'V1', capabilities: ['term.print','term.input'] },
     { id: 'com.tsic.stock',   name: 'STOCK',    minTier: 1, entry: 'main.js', folder: 'V1', capabilities: ['term.print','term.input'] },

@@ -40,6 +40,27 @@
     return cls || '';
   }
 
+  // Monochrome RetroOS line-icons (stroke=currentColor so they dim when locked).
+  // GUI programs pick one via their manifest `icon`; text/v1 apps + the console
+  // all use `terminal`. Static literals — no user data in the markup.
+  const ICONS = {
+    terminal:
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter">' +
+      '<rect x="2" y="3" width="20" height="14"/>' +
+      '<path d="M6 7.5 l3 2.5 -3 2.5"/>' +
+      '<line x1="12" y1="12.5" x2="16" y2="12.5"/>' +
+      '<line x1="12" y1="17" x2="12" y2="20"/><line x1="8" y1="20" x2="16" y2="20"/></svg>',
+    logs:
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter">' +
+      '<path d="M5 2 h9 l5 5 v15 H5 Z"/><path d="M14 2 v5 h5"/>' +
+      '<line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="15" x2="16" y2="15"/><line x1="8" y1="18" x2="13" y2="18"/></svg>',
+    stock:
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter">' +
+      '<rect x="3" y="4" width="18" height="16"/>' +
+      '<line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="14.5" x2="21" y2="14.5"/>' +
+      '<line x1="11" y1="9" x2="11" y2="20"/></svg>',
+  };
+
   function create(container, host) {
     const doc = container.ownerDocument;
     const hw = NS.hardwareName(host.tier);
@@ -116,7 +137,7 @@
       btn.title = 'Terminal — command console';
       const tile = doc.createElement('span');
       tile.className = 't2-icon-tile';
-      tile.textContent = '>_';
+      tile.innerHTML = ICONS.terminal;
       const label = doc.createElement('span');
       label.className = 't2-icon-label';
       label.textContent = 'Terminal';
@@ -142,7 +163,9 @@
       btn.title = entry.locked ? (p.name + ' — requires ' + NS.hardwareName(p.minTier)) : p.name;
       const tile = doc.createElement('span');
       tile.className = 't2-icon-tile';
-      tile.textContent = glyphFor(p.name);
+      if (!isGui(p)) tile.innerHTML = ICONS.terminal;            // text / v1 apps look like the terminal
+      else if (p.icon && ICONS[p.icon]) tile.innerHTML = ICONS[p.icon];
+      else tile.textContent = glyphFor(p.name);                  // fallback: lettered tile
       if (entry.badge) tile.appendChild(makeBadge(entry.badge));
       btn.appendChild(tile);
       const label = doc.createElement('span');
