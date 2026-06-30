@@ -3,6 +3,7 @@
   "generated_at": "2026-05-15T17:05:39.079540+00:00",
   "assets": {
     "ammo_definitions": {
+      "ID_Fuel_AM": "/Game/Items/Ammo/Fuel/ID_Fuel_AM",
       "ID_Pencil_AM": "/Game/Items/Ammo/Pencil/ID_Pencil_AM"
     },
     "available_recipe_rules_definitions": {
