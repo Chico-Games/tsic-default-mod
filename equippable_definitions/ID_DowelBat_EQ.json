@@ -7,18 +7,18 @@
     "equipment_actors_and_meshes": [
       {
         "mesh": "/Game/Items/Equipment/Weapons/DowelBat/Meshes/bat_updated.bat_updated",
-        "attach_socket": "hand_r",
+        "attach_socket": "hand_r_weapon",
         "attach_transform": {
           "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0,
-            "w": 1.0
+            "x": -0.11194633,
+            "y": -0.7036336,
+            "z": -0.18733895,
+            "w": 0.67621882
           },
           "translation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
+            "x": -8.086703,
+            "y": -1.100083,
+            "z": 27.385651
           },
           "scale3_d": {
             "x": 1.0,
@@ -28,9 +28,9 @@
         }
       }
     ],
-    "equipped_layer_class": "/Game/Items/Equipment/Weapons/SledgeHammer/Blueprints/ABP_SledgeHammer.ABP_SledgeHammer_C",
+    "equipped_layer_class": "/Game/Items/Equipment/Weapons/Hammer/Blueprints/ABP_Hammer.ABP_Hammer_C",
     "ability_sets_to_grant": [
-      "AS_DowelBat"
+      "/Game/Items/Equipment/Weapons/DowelBat/Abilities/AS_DowelBat.AS_DowelBat"
     ],
     "effects_to_apply": {
       "b_apply_heal_per_second": false,
