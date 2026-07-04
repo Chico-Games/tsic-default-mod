@@ -239,7 +239,7 @@ TSICTestHarness.register({
             { SlotId: 's2', Label: 'B', TimestampIso: '2026-05-17T00:00:00Z' },
         ]});
         await new Promise(r => setTimeout(r, 80));
-        const buttons = Array.from(ctx.doc.querySelectorAll('button.save-slot'));
+        const buttons = Array.from(ctx.doc.querySelectorAll('#slots .save-slot'));
         ctx.expect(ctx.assert.truthy(buttons.length >= 2));
         ctx.clearPublishes();
         for (const b of buttons) b.click();

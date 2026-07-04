@@ -316,11 +316,13 @@
       }
 
       function move(modId, delta) {
+        // Adopt a not-yet-ordered mod at the front, then re-resolve its index
+        // so the remove-and-reinsert below never duplicates it.
+        if (order.indexOf(modId) < 0) { order = [modId, ...order]; }
         const i = order.indexOf(modId);
-        if (i < 0) { order = [modId, ...order]; }
         const j = Math.max(0, Math.min(order.length - 1, i + delta));
-        if (i === j && i >= 0) return;
-        if (i >= 0) order.splice(i, 1);
+        if (i === j) return;
+        order.splice(i, 1);
         order.splice(j, 0, modId);
         tsic.publishMessage('UI.Cmd.Mod.SetLoadOrder', { Order: order });
       }

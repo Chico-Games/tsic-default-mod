@@ -86,9 +86,14 @@
     </div>
   </div>
   <script>
-    tsic.whenReady(() => tsic.bootMenu(function () {
-      tsic.onClick('#btn-back', () =>
-        tsic.publishMessage('UI.Cmd.Menu.Navigate', { Screen: 'MainMenu' }));
-    }));
+    // Inline scripts run during HTML parse, BEFORE the deferred tsic-*.js
+    // load — poll until the runtime exists (see main-menu.html).
+    (function boot() {
+      if (!window.tsic || typeof tsic.bootMenu !== 'function') { setTimeout(boot, 16); return; }
+      tsic.whenReady(() => tsic.bootMenu(function () {
+        tsic.onClick('#btn-back', () =>
+          tsic.publishMessage('UI.Cmd.Menu.Navigate', { Screen: 'MainMenu' }));
+      }));
+    })();
   </script>
 </body></html>

@@ -5,9 +5,11 @@
 //
 // Lives in two halves:
 //   1. The HOST page (screens/tests.html) loads this file, then for each
-//      scenario creates an <iframe> for the target screen. Before the
-//      iframe's own scripts run it injects a mock tsic via
-//      installMockTsic(iframeWindow). The mock matches the production
+//      scenario creates an <iframe> for the target screen and injects a mock
+//      tsic via installMockTsic(iframeWindow) on the iframe's LOAD event —
+//      i.e. AFTER the page's parse and deferred scripts have run. Pages must
+//      therefore poll for window.tsic (the standard boot guard) rather than
+//      reference tsic at the top level. The mock matches the production
 //      window.tsic API surface used by all SPA pages.
 //   2. Each scenario file under /tests/<name>.js registers itself with
 //      TSICTestHarness.scenarios.push({name, file, run}). run(ctx) gets a

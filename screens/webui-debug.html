@@ -299,7 +299,7 @@
 
     /* ── Event Rate Graph ──────────────────────── */
     #rate-panel { flex: 0 0 auto; border-top: 1px solid var(--border); }
-    #rate-canvas { width: 100%; height: 40px; display: block; }
+    #rate-canvas { width: 100%; height: 150px; display: block; }
 
     /* ── Scrollbar ──────────────────────────────── */
     ::-webkit-scrollbar { width: 5px; }
@@ -774,6 +774,13 @@
   function renderRateGraph() {
     const canvas = $('rate-canvas');
     if (!canvas) return;
+    // Keep the backing store at the CSS box size so bars/labels draw 1:1
+    // instead of being scaled by the browser.
+    const cssW = canvas.clientWidth, cssH = canvas.clientHeight;
+    if (cssW && cssH && (canvas.width !== cssW || canvas.height !== cssH)) {
+      canvas.width = cssW;
+      canvas.height = cssH;
+    }
     const ctx = canvas.getContext('2d');
     const W = canvas.width, H = canvas.height;
     ctx.clearRect(0, 0, W, H);
@@ -947,7 +954,7 @@
     const entries = [...activeActions.entries()].sort((a,b) => a[0].localeCompare(b[0]));
     $('badge-active').textContent = entries.filter(e => e[1]).length;
     grid.innerHTML = entries.map(([name, pressed]) =>
-      `<div class="btn-cell${pressed ? ' pressed' : ''}">${shortChannel(name)}</div>`
+      `<div class="btn-cell${pressed ? ' pressed' : ''}">${escHtml(shortChannel(name))}</div>`
     ).join('');
   }
 
@@ -971,9 +978,9 @@
     body.innerHTML = headerHTML + items.slice(0, 200).map((e, i) =>
       `<div class="hist-row${i === selectedHistoryIdx ? ' selected-row' : ''}" data-idx="${i}">` +
         `<span class="ts">${e.ts.slice(9)}</span>` +
-        `<span class="ch">${shortChannel(e.channel)}</span>` +
+        `<span class="ch">${escHtml(shortChannel(e.channel))}</span>` +
         `<span class="phase ${e.phase || ''}">${e.phase || '---'}</span>` +
-        `<span class="val">${fmtValue(e.value)}</span>` +
+        `<span class="val">${escHtml(fmtValue(e.value))}</span>` +
       `</div>`
     ).join('');
   }

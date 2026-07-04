@@ -85,9 +85,21 @@
           if (previewStream) previewStream();
           previewStream = TSIC.startRuntimeImgStream(img, 'character-preview');
         });
-        document.getElementById('btn-close').onclick = () => {
+        // Hide must fire on EVERY exit path, not just the Close button —
+        // Escape/gamepad-Back goes through the router's Pause.Resume wiring
+        // and navigates the page away, and C++ never auto-stops the capture
+        // (a SceneCapture renders every frame while it's left enabled).
+        let previewHidden = false;
+        const hidePreviewOnce = () => {
+          if (previewHidden) return;
+          previewHidden = true;
           if (previewStream) { previewStream(); previewStream = null; }
           tsic.publishMessage('UI.Cmd.CharacterPreview.Hide', {});
+        };
+        window.addEventListener('pagehide', hidePreviewOnce);
+        window.addEventListener('beforeunload', hidePreviewOnce);
+        document.getElementById('btn-close').onclick = () => {
+          hidePreviewOnce();
           tsic.publishMessage('UI.Cmd.Pause.Resume', {});
         };
       tsic.publishMessage('UI.Cmd.CharacterPreview.Show', {});

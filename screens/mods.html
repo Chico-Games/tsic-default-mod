@@ -573,7 +573,7 @@
           updateBtn.textContent = 'Update';
           updateBtn.style.cssText = 'background:rgba(30,120,180,0.45); border:1px solid rgba(255,255,255,0.35); color:var(--ink-night); padding:2px 8px; cursor:pointer; font:inherit; margin-right:4px;';
           updateBtn.onclick = () =>
-            tsic.publishMessage('UI.Cmd.Mod.CheckUpdates', {});
+            tsic.publishMessage('UI.Cmd.Mod.CheckUpdates', { NameId: m.ModId });
           row.appendChild(updateBtn);
         }
 

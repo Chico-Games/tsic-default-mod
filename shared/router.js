@@ -43,7 +43,7 @@
     PauseMenu: 'pause-menu',
     Inventory: 'inventory',
     Settings: 'settings',
-    SaveLoad: 'save-load',
+    LoadSave: 'save-load',
     Crafting: 'crafting',
     Production: 'production',
     Upgrade: 'upgrade',

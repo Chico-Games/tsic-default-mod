@@ -159,7 +159,7 @@ TSICTestHarness.register({
         const slots = Array.from({ length: 4 }, (_, i) => ({ SlotId: 'slot' + i, Label: 'S' + i, TimestampIso: '2026-05-18T00:00:00Z' }));
         ctx.inject('tsic.msg.UI.Save.Slots', { Slots: slots });
         await new Promise(r => setTimeout(r, 60));
-        const buttons = Array.from(ctx.doc.querySelectorAll('button.save-slot'));
+        const buttons = Array.from(ctx.doc.querySelectorAll('#slots .save-slot'));
         ctx.expect(ctx.assert.truthy(buttons.length >= 4));
         ctx.clearPublishes();
         for (const b of buttons.slice(0, 4)) b.click();

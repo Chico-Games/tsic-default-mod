@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en"><head>
   <meta charset="utf-8">
-  <meta name="tsic-screen" content="SaveLoad">
+  <meta name="tsic-screen" content="LoadSave">
   <meta name="tsic-input-mode" content="InputMode.Menu.MainMenu">
   <meta name="tsic-cancel-cmd" content="UI.Cmd.Menu.Back">
   <meta name="tsic-focus" content="enabled">
@@ -87,7 +87,9 @@
       border: 1px solid var(--ink-night);
       cursor: pointer;
     }
-    .slot-delete:hover { background: var(--mag-red-dark); }
+    .slot-delete:hover,
+    .slot-delete[data-tsic-focused] { background: var(--mag-red-dark); }
+    .slot-delete.armed { background: var(--ink-night); }
     .slot-empty {
       padding: 28px 16px;
       text-align: center;
@@ -160,9 +162,12 @@
           return;
         }
         for (const s of slots) {
-          const row = document.createElement('button');
-          row.type = 'button';
+          // A div, not a <button>: the Delete chip inside must itself be a
+          // real <button> for gamepad focus, and buttons can't nest.
+          const row = document.createElement('div');
           row.className = 'save-slot';
+          row.setAttribute('role', 'button');
+          row.setAttribute('data-tsic-focusable', '');
           row.setAttribute('aria-label', `Load save from ${formatOpened(s.TimestampIso)}`);
 
           const thumb = document.createElement('div');
@@ -187,14 +192,26 @@
           playtime.textContent = `Playtime ${formatPlaytime(s.PlaytimeSeconds)}`;
           meta.append(opened, playtime);
 
-          const del = document.createElement('span');
+          // Two-step in-page confirm: native confirm() escapes the CEF
+          // texture (no JS-dialog handler is bound up the WebUI chain).
+          const del = document.createElement('button');
+          del.type = 'button';
           del.className = 'slot-delete';
           del.textContent = 'Delete';
-          del.setAttribute('role', 'button');
           del.setAttribute('aria-label', `Delete save ${s.SlotId}`);
+          let disarmTimer = 0;
           del.onclick = (ev) => {
             ev.stopPropagation();
-            if (!confirm('Delete this save? This cannot be undone.')) return;
+            if (!del.classList.contains('armed')) {
+              del.classList.add('armed');
+              del.textContent = 'Sure?';
+              disarmTimer = setTimeout(() => {
+                del.classList.remove('armed');
+                del.textContent = 'Delete';
+              }, 3000);
+              return;
+            }
+            clearTimeout(disarmTimer);
             tsic.publishMessage('UI.Cmd.Save.DeleteSlot', { SlotId: s.SlotId });
           };
 
@@ -203,11 +220,16 @@
           host.appendChild(row);
         }
       }
-      tsic.whenReady(() => tsic.bootMenu(function (ctx) {
-        ctx.on('tsic.msg.UI.Save.Slots', renderSlots);
-        tsic.onClick('#btn-back', () =>
-          tsic.publishMessage('UI.Cmd.Menu.Navigate', { Screen: 'MainMenu' }));
-      }));
+      // Inline scripts run during HTML parse, BEFORE the deferred tsic-*.js
+      // load — poll until the runtime exists (see main-menu.html).
+      (function boot() {
+        if (!window.tsic || typeof tsic.bootMenu !== 'function') { setTimeout(boot, 16); return; }
+        tsic.whenReady(() => tsic.bootMenu(function (ctx) {
+          ctx.on('tsic.msg.UI.Save.Slots', renderSlots);
+          tsic.onClick('#btn-back', () =>
+            tsic.publishMessage('UI.Cmd.Menu.Navigate', { Screen: 'MainMenu' }));
+        }));
+      })();
     })();
   </script>
 </body></html>
