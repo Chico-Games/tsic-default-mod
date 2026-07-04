@@ -154,8 +154,8 @@
       "package_guid": ""
     },
     {
-      "path": "/Game/Dev/Maps/L_WorldGeneration.L_WorldGeneration",
-      "name": "L_WorldGeneration",
+      "path": "/Game/Dev/Maps/L_InGame.L_InGame",
+      "name": "L_InGame",
       "folder": "/Game/Dev/Maps",
       "package_guid": ""
     },
