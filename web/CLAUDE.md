@@ -1,10 +1,11 @@
-# TSIC-WebUI — CEF/Chromium front-end
+# web/ — CEF/Chromium front-end
 
-This repo is the HTML/CSS/JS front-end for **The Store Is Closed (TSIC)**. It is
-consumed as a **git submodule** of [`Chico-Games/TSIC`](https://github.com/Chico-Games/TSIC)
-at `Plugins/TSICWebUI/Content/UI/Web/`, and served at runtime by the TSICWebUI
-plugin's CEF scheme handler (`http://tsic.local/...`, refreshed with the
-`WebUI.Reload` console command in-game).
+This folder is the HTML/CSS/JS front-end for **The Store Is Closed (TSIC)**. It ships
+inside the default mod (`com.chicogames.default`), which the game checkout consumes as a
+git submodule at `Mods/com.chicogames.default/`. It is served at runtime by the TSICWebUI
+plugin's CEF scheme handler (`http://tsic.local/...`, refreshed with the `WebUI.Reload`
+console command in-game). Other mods override individual files via their own `web/`
+folder (overlay roots are searched before this base content).
 
 ## Editing standalone (no game / engine needed)
 
@@ -14,8 +15,6 @@ These are plain web assets — clone this repo on its own and iterate:
 - `tests/` + `run-tests-headless.js` — headless test harness
 - `debug-tools.html` / `debug-tools.ps1` — local debug utilities
 - `api.md` — C++ ↔ JS message-bridge reference
-
-Requires [Git LFS](https://git-lfs.com) — a few PNG assets are LFS-tracked.
 
 ## Architecture (where rendering actually lives)
 
@@ -32,8 +31,8 @@ Core utilities (use these, don't hand-roll): `shared/dom.js` (`TSIC.el()`/`TSIC.
 
 ## Committing from inside the game checkout
 
-When working in a full TSIC checkout, this folder is a submodule, so a UI change is **two
-commits**: commit + push here, then bump the submodule pointer in the parent TSIC repo.
-`Scripts/commit-webui.ps1 "<message>"` (in the TSIC repo) does both. Note a freshly
-`git submodule update`-d checkout lands in **detached HEAD** — `git checkout main` here
-before committing.
+When working in a full TSIC checkout, `Mods/com.chicogames.default/` is a submodule, so a
+UI change is **two commits**: commit + push here (branch `beta`), then bump the submodule
+pointer in the parent TSIC repo. `Scripts/commit-defs.ps1 "<message>"` (in the TSIC repo)
+does both. Note a freshly `git submodule update`-d checkout lands in **detached HEAD** —
+the helper script handles the `beta` checkout automatically.
