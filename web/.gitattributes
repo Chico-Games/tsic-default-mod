@@ -1,2 +1,0 @@
-# Image assets tracked via Git LFS (consistent with the parent Chico-Games/TSIC repo)
-*.png filter=lfs diff=lfs merge=lfs -text
