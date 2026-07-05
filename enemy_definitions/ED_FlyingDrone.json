@@ -8,6 +8,7 @@
     "display_name": "Flying Drone",
     "death_drop_table": [
       {
+        "world_item": "FD_DroneMotor_SI",
         "count": 1,
         "weight": 1
       }

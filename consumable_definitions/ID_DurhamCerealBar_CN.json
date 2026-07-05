@@ -59,11 +59,11 @@
     "has_durability": false,
     "has_ammo": false,
     "max_ammo": 0,
-    "display_name": "Coffee",
-    "description": "Hot cafeteria coffee. Increases movement speed and stamina regeneration. The caffeine kick lasts 45 seconds.",
+    "display_name": "Durham Cereal Bar",
+    "description": "A chewy own-brand cereal bar.",
     "stackable": true,
     "weight": 0.10000000149011612,
-    "static_item_definition": "FD_Coffee_SI",
+    "static_item_definition": "FD_DurhamCerealBar_SI",
     "equipment_slot": "Entity.Inventory.Item.Equipment.Slot.Weapon",
     "item_category_tag": "Entity.Inventory.Item.Category.Consumable"
   }

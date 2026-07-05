@@ -37,7 +37,7 @@
         "value": "UI.GameScreen.Crafting"
       }
     ],
-    "consume_ability_set": "AS_Consume",
+    "consume_ability_set": "/Game/Characters/Customer/Abilities/AS_Consume.AS_Consume",
     "default_screen_widget_map": [
       {
         "key": "/Script/TSIC.CraftingStationDefinition",
@@ -104,6 +104,7 @@
     ],
     "research_credit_tier1": "ID_ResearchCredit_T1_CM",
     "research_credit_tier2": "ID_ResearchCredit_T2_CM",
-    "research_credit_tier3": "ID_ResearchCredit_T3_CM"
+    "research_credit_tier3": "ID_ResearchCredit_T3_CM",
+    "default_customer_recipe_rules": "ARR_DefaultCustomerRecipes"
   }
 }

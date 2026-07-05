@@ -9,10 +9,12 @@
     "enemy_class": "/Game/Characters/Enemies/MaleStaff/Blueprints/CH_MaleStaff.CH_MaleStaff_C",
     "death_drop_table": [
       {
+        "world_item": "FD_StaffFlesh_SI",
         "count": 1,
         "weight": 1
       },
       {
+        "world_item": "FD_StaffShirtFragment_SI",
         "count": 1,
         "weight": 1
       }

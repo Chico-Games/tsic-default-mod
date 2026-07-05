@@ -63,7 +63,7 @@
     "description": "A scientifically-modified potato.",
     "stackable": false,
     "weight": 1.25,
-    "static_item_definition": "FD_Banana_SI",
+    "static_item_definition": "FD_BakedPotato_SI",
     "equipment_slot": "Entity.Inventory.Item.Equipment.Slot.Body",
     "item_category_tag": "Entity.Inventory.Item.Category.Consumable"
   }

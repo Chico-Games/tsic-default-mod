@@ -9,6 +9,7 @@
     "enemy_class": "/Game/Characters/Enemies/BoneHead/Blueprints/CH_BoneHead.CH_BoneHead_C",
     "death_drop_table": [
       {
+        "world_item": "FD_BoneChunk_SI",
         "count": 1,
         "weight": 1
       }

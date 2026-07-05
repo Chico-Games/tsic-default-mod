@@ -1,20 +1,19 @@
 {
-  "id": "FD_FrenchFries_SI",
-  "asset_path": "/Game/Items/Consumables/CookedFood/FrenchFries/Static/FD_FrenchFries_SI",
+  "id": "FD_Fuel_SI",
+  "asset_path": "/Game/Items/Ammo/Fuel/Static/FD_Fuel_SI",
   "class": "UStaticItemDefinition",
   "schema_version": 2,
   "properties": {
-    "item_definition": "ID_FrenchFries_CN",
+    "item_definition": "ID_Fuel_AM",
     "loot_mesh_size": {
       "name": "SMALL",
       "value": 0
     },
-    "display_name": "French Fries",
+    "display_name": "Fuel",
     "level": 1,
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,
-    "static_mesh": "/Game/Items/Consumables/UncookedFood/BottleWater/Meshes/SM_Bottle_SmallWater.SM_Bottle_SmallWater",
     "casts_shadow": false,
     "collision_profile_name": {
       "name": "Furniture"

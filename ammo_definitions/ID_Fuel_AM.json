@@ -8,6 +8,7 @@
     "description": "A pressurised canister of fuel. Feeds the flamethrower.",
     "stackable": true,
     "weight": 0.0,
+    "static_item_definition": "FD_Fuel_SI",
     "item_category_tag": "Entity.Inventory.Item.Category.Ammo"
   }
 }

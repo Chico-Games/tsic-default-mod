@@ -9,6 +9,7 @@
     "enemy_class": "/Game/Characters/Enemies/Janitor/Blueprints/CH_Janitor.CH_Janitor_C",
     "death_drop_table": [
       {
+        "world_item": "FD_MopHead_SI",
         "count": 1,
         "weight": 1
       }

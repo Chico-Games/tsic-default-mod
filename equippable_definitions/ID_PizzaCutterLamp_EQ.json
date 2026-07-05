@@ -6,7 +6,7 @@
   "properties": {
     "equipment_actors_and_meshes": [],
     "ability_sets_to_grant": [
-      "AS_PizzaCutterLamp"
+      "/Game/Items/Equipment/Weapons/PizzaCutterLamp/Abilities/AS_PizzaCutterLamp.AS_PizzaCutterLamp"
     ],
     "effects_to_apply": {
       "b_apply_heal_per_second": false,

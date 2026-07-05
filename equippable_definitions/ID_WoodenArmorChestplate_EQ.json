@@ -116,9 +116,7 @@
         }
       }
     ],
-    "ability_sets_to_grant": [
-      null
-    ],
+    "ability_sets_to_grant": [],
     "effects_to_apply": {
       "b_apply_heal_per_second": false,
       "heal_per_second": 0.0,

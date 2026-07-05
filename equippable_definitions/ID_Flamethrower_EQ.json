@@ -7,9 +7,28 @@
     "equipment_actors_and_meshes": [
       {
         "mesh": "/Game/Items/Equipment/Weapons/Flamethrower/Meshes/SM_Flamethrower.SM_Flamethrower",
-        "attach_socket": "hand_r"
+        "attach_socket": "hand_r_weapon",
+        "attach_transform": {
+          "rotation": {
+            "x": -0.486773,
+            "y": 0.388422,
+            "z": -0.755137,
+            "w": -0.204816
+          },
+          "translation": {
+            "x": -0.1863,
+            "y": 6.9763,
+            "z": -10.7376
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
       }
     ],
+    "equipped_layer_class": "/Game/Items/Equipment/Weapons/Flamethrower/Blueprints/ABP_Flamethrower.ABP_Flamethrower_C",
     "ability_sets_to_grant": [
       "/Game/Items/Equipment/Weapons/Flamethrower/Abilities/AS_Flamethrower.AS_Flamethrower"
     ],

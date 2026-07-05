@@ -8,6 +8,7 @@
     "display_name": "Sun Pillow",
     "death_drop_table": [
       {
+        "world_item": "FD_Pillowcase_SI",
         "count": 1,
         "weight": 1
       }

@@ -9,6 +9,7 @@
     "enemy_class": "/Game/Characters/Enemies/Gardener/Blueprints/CH_Gardener.CH_Gardener_C",
     "death_drop_table": [
       {
+        "world_item": "FD_IvyVines_SI",
         "count": 1,
         "weight": 1
       }

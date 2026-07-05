@@ -9,6 +9,7 @@
     "enemy_class": "/Game/Characters/Enemies/LivingMannequin/Blueprints/CH_LivingMannequin.CH_LivingMannequin_C",
     "death_drop_table": [
       {
+        "world_item": "FD_MannequinArm_SI",
         "count": 1,
         "weight": 1
       }

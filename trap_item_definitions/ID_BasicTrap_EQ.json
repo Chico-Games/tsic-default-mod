@@ -13,7 +13,7 @@
     "capturable_enemy_classes": [],
     "equipment_actors_and_meshes": [],
     "ability_sets_to_grant": [
-      "AS_ThrowTrap"
+      "/Game/Items/Equipment/Traps/BasicTrap/AS_ThrowTrap.AS_ThrowTrap"
     ],
     "effects_to_apply": {
       "b_apply_heal_per_second": false,

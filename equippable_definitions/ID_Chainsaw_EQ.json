@@ -6,7 +6,7 @@
   "properties": {
     "equipment_actors_and_meshes": [],
     "ability_sets_to_grant": [
-      "AS_Chainsaw"
+      "/Game/Items/Equipment/Weapons/Chainsaw/Abilities/AS_Chainsaw.AS_Chainsaw"
     ],
     "effects_to_apply": {
       "b_apply_heal_per_second": false,

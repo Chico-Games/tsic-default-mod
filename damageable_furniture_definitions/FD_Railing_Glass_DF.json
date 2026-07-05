@@ -23,7 +23,7 @@
         "rotation": {
           "pitch": 0,
           "yaw": 0,
-          "roll": -0
+          "roll": 0
         },
         "box_size": {
           "x": 54.984990974742885,
@@ -42,7 +42,7 @@
         "rotation": {
           "pitch": 0,
           "yaw": 0,
-          "roll": -0
+          "roll": 0
         },
         "box_size": {
           "x": 77.77269372346115,
@@ -71,7 +71,7 @@
       }
     },
     "construction_category_tag": "",
-    "upgrade_recipe": "RD_MetalRailing_CN",
+    "upgrade_recipe": "RD_GlassRailing_CN",
     "is_draggable": true,
     "drag_tier": 0,
     "drag_mass": 1,

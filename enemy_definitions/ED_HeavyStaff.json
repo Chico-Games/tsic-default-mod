@@ -9,6 +9,7 @@
     "enemy_class": "/Game/Characters/Enemies/HeavyStaff/Blueprints/CH_HeavyStaff.CH_HeavyStaff_C",
     "death_drop_table": [
       {
+        "world_item": "FD_BoneSpikes_SI",
         "count": 1,
         "weight": 1
       }

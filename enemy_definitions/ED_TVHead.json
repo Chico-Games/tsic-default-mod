@@ -9,6 +9,7 @@
     "enemy_class": "/Game/Characters/Enemies/TVHead/Blueprints/CH_TVHead.CH_TVHead_C",
     "death_drop_table": [
       {
+        "world_item": "FD_TVGuide_SI",
         "count": 1,
         "weight": 1
       }

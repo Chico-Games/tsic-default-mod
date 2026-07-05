@@ -7,7 +7,25 @@
     "equipment_actors_and_meshes": [
       {
         "skeletal_mesh": "/Game/Items/Equipment/Weapons/Crossbow/Meshes/SKM_Crossbow.SKM_Crossbow",
-        "attach_socket": "hand_l"
+        "attach_socket": "hand_l_weapon",
+        "attach_transform": {
+          "rotation": {
+            "x": -0.668721,
+            "y": -0.406194,
+            "z": 0.053857,
+            "w": 0.620418
+          },
+          "translation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
       }
     ],
     "equipped_layer_class": "/Game/Items/Equipment/Weapons/Crossbow/Animations/Blueprints/ABP_Crossbow_Locomotion.ABP_Crossbow_Locomotion_C",
