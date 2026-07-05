@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="tsic-screen" content="Teleporter">
+  <meta name="tsic-focus" content="enabled">
+  <meta name="tsic-input-mode" content="InputMode.Menu.Teleporter">
+  <meta name="tsic-action-bar-context" content='[{"ActionName":"IA_UI_ConfirmAccept","Label":"Travel","Priority":10}]'>
+  <title>Teleporter</title>
+  <link rel="stylesheet" href="/shared/base.css">
+  <link rel="stylesheet" href="/shared/components.css">
+  <link rel="stylesheet" href="/shared/hud.css">
+  <script src="/shared/router.js" defer></script>
+    <script src="/shared/tsic-bridge.js" defer></script>
+  <script src="/shared/tsic-runtime.js" defer></script>
+  <script src="/shared/tsic-focus.js" defer></script>
+  <script src="/shared/tsic-dropdown.js" defer></script>
+  <script src="/shared/hud.js" defer></script>
+  <style>
+    .row { display:flex; align-items:center; gap:10px; justify-content:space-between; padding:8px 12px; text-align:left; width:100%; }
+    .row.disabled { color:rgba(47,43,34,0.4); pointer-events:none; }
+    .tp-name { flex:1 1 auto; }
+    .tp-cd { flex:0 0 auto; color:rgba(47,43,34,0.7); font-size:11px; letter-spacing:1px; }
+  </style>
+</head><body>
+  <div id="modal" class="tsic-modal-scrim">
+    <div class="tsic-panel" style="width:420px;max-height:80vh;display:flex;flex-direction:column;">
+      <h2 class="tsic-title tsic-title--sm">Teleporter</h2>
+      <div id="rename-row" class="tsic-row tsic-row--sm" style="margin-bottom:12px;" data-tsic-focus-group="rename">
+        <input id="rename-input" type="text" class="tsic-input" placeholder="Rename this teleporter…" style="flex:1;background:transparent;color: var(--cat-ink-dark);border:1px solid var(--tsic-border);padding:4px 6px;" maxlength="48">
+        <button class="tsic-button" id="btn-rename">Rename</button>
+      </div>
+      <div id="rows" class="tsic-stack tsic-stack--sm" style="overflow-y:auto;" data-tsic-focus-group="target-list"></div>
+      <div id="empty" class="tsic-empty" style="display:none;">No destinations available.</div>
+      <div class="tsic-button-row tsic-button-row--start" data-tsic-focus-group="actions">
+        <button class="tsic-button" id="btn-cancel" data-tsic-initial-focus>Cancel</button>
+      </div>
+    </div>
+  </div>
+  <script>
+    (function () {
+      // FromId is the source teleporter (the one the player is standing at).
+      // Passed via URL query param `?fromId=N` when the gameplay layer opens this
+      // page from a teleporter interaction. Defaults to 0 if not provided — the
+      // C++ handler can fall back to "nearest teleporter" lookups.
+      const params = new URLSearchParams(window.location.search);
+      const fromId = parseInt(params.get('fromId') || '0', 10) || 0;
+
+      function render(p) {
+        const host = document.getElementById('rows');
+        const empty = document.getElementById('empty');
+        host.innerHTML = '';
+        const destinations = (p && p.Destinations) || [];
+        if (destinations.length === 0) {
+          empty.style.display = 'block';
+          return;
+        }
+        empty.style.display = 'none';
+        for (const dest of destinations) {
+          const cooldown = Number(dest.Cooldown) || 0;
+          const disabled = cooldown > 0;
+          const row = document.createElement('button');
+          row.className = 'tsic-button row' + (disabled ? ' disabled' : '');
+          if (disabled) row.disabled = true;
+          const name = document.createElement('span');
+          name.className = 'tp-name';
+          name.textContent = dest.Label || ('Teleporter ' + dest.EntityId);
+          row.appendChild(name);
+          if (cooldown > 0) {
+            const cd = document.createElement('span');
+            cd.className = 'tp-cd';
+            cd.textContent = Math.ceil(cooldown) + 's';
+            row.appendChild(cd);
+          }
+          row.onclick = () => {
+            tsic.publishMessage('UI.Cmd.Teleporter.Travel', {
+              FromId: fromId,
+              ToId: Number(dest.EntityId) || 0,
+            });
+            tsic.publishMessage('UI.Cmd.Pause.Resume', {});
+          };
+          host.appendChild(row);
+        }
+        if (window.tsic && window.tsic.focus) window.tsic.focus.refresh();
+      }
+
+      (function boot() {
+        if (!window.tsic || typeof tsic.bootMenu !== 'function') { setTimeout(boot, 16); return; }
+        tsic.bootMenu(function (ctx) {
+          ctx.on('tsic.msg.UI.Teleporter.Destinations', (p) => render(p));
+          document.getElementById('btn-cancel').onclick = () =>
+            tsic.publishMessage('UI.Cmd.Pause.Resume', {});
+          // Rename the *source* teleporter (the one the player is standing at).
+          const renameInput  = document.getElementById('rename-input');
+          const renameButton = document.getElementById('btn-rename');
+          const doRename = () => {
+            const name = (renameInput.value || '').trim();
+            if (!name || !fromId) return;
+            tsic.publishMessage('UI.Cmd.Teleporter.Rename', { EntityId: fromId, NewName: name });
+            renameInput.value = '';
+          };
+          renameButton.onclick = doRename;
+          renameInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') doRename(); });
+        });
+      })();
+    })();
+  </script>
+</body></html>

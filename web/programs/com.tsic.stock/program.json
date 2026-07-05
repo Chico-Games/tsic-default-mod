@@ -1,0 +1,9 @@
+{
+  "id": "com.tsic.stock",
+  "name": "STOCK",
+  "version": "1.0",
+  "minTier": 1,
+  "entry": "main.js",
+  "folder": "V1",
+  "capabilities": ["term.print", "term.input"]
+}

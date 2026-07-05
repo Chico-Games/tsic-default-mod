@@ -1,0 +1,246 @@
+/* shared/base.css — TSIC WebUI foundation
+ *
+ * Design language: magazine print — cream-paper pages, heavy black borders,
+ * hard offset block shadows, mag-red / mag-yellow accents. Inspired by
+ * late-80s gaming-magazine aesthetics.
+ *
+ * Token philosophy:
+ *   1. Raw palette vars  (--paper-cream, --ink-night, --mag-red, ...)
+ *   2. Semantic tokens   (--tsic-accent, --tsic-bg, --tsic-text, ...)
+ *   3. Legacy --cat-*    remapped onto the new palette so existing screens
+ *                        keep working with no HTML edits.
+ */
+
+@import url("/shared/tsic-ui.css");
+
+/* ───── Bundled fonts (served from /fonts/, no runtime CDN) ─────
+ * Three hand-written faces for the paper / note lore. lore.js assigns one per
+ * note series (by GroupTitle) so a given series always reads in the same hand
+ * while different series vary. All OFL — see /fonts/NOTICE.txt. */
+@font-face { font-family: "Shadows Into Light"; font-weight: 400; font-style: normal; font-display: swap; src: url("/fonts/shadows-into-light-400.woff2") format("woff2"); }
+@font-face { font-family: "Gloria Hallelujah"; font-weight: 400; font-style: normal; font-display: swap; src: url("/fonts/gloria-hallelujah-400.woff2") format("woff2"); }
+@font-face { font-family: "Reenie Beanie"; font-weight: 400; font-style: normal; font-display: swap; src: url("/fonts/reenie-beanie-400.woff2") format("woff2"); }
+
+:root {
+  /* ───── Raw palette: synthwave deep night ───── */
+  --bg-deep:        #0d0e15;
+  --bg-panel:       #1a0f2e;
+  --bg-overlay:     rgba(13, 14, 21, 0.78);
+
+  /* Raw palette: magazine paper */
+  --paper:          #f4ecd8;
+  --paper-cream:    #f0e8d0;
+  --paper-bright:   #fffdf3;
+  --paper-soft:     #ede4cb;
+  --paper-muted:    #e3d8b8;
+
+  /* Raw palette: ink (text on paper) */
+  --ink-night:      #0a0a0a;
+  --ink:            #1a1612;
+  --ink-soft:       #4a4239;
+  --ink-mute:       #6c6357;
+
+  /* Raw palette: magazine accents */
+  --mag-red:        #e60000;
+  --mag-red-dark:   #c70000;
+  --mag-red-deep:   #a80000;
+  --mag-yellow:     #ffcc00;
+
+  /* Borders */
+  --border-black:   #0a0a0a;
+
+  /* Shadows — the magazine "offset-block" look. */
+  --shadow-block-sm:    2px 2px 0 var(--ink-night);
+  --shadow-block:       4px 4px 0 var(--ink-night);
+  --shadow-block-lg:    6px 6px 0 var(--ink-night);
+  --shadow-block-red:   4px 4px 0 var(--mag-red);
+
+  /* ───── Fonts ─────
+   * Stack relies on Windows system fonts (Bahnschrift, Impact, Consolas)
+   * that approximate the retro vibe. Drop TTFs into
+   * /Plugins/TSICWebUI/Content/UI/Web/fonts/ and add @font-face entries
+   * below if you want true retro typefaces. */
+  --font-display:  "Bebas Neue", "Bahnschrift Condensed", Impact, "Arial Black", sans-serif;
+  --font-action:   "Russo One", Bahnschrift, "Bahnschrift Condensed", Impact, "Arial Black", sans-serif;
+  --font-mag:      var(--font-display);
+  --font-terminal: "VT323", Consolas, "Cascadia Code", "Courier New", monospace;
+  --font-pixel:    "Press Start 2P", "VT323", Consolas, monospace;
+  --font-body:     "Inter", "Segoe UI", system-ui, sans-serif;
+  --font-hand:     "Shadows Into Light", "Bradley Hand", "Segoe Script", cursive;  /* handwriting (notes) */
+  --cat-font-serif: var(--font-mag); /* legacy alias */
+
+  /* ───── Semantic tokens (new code uses these) ───── */
+  --tsic-bg:           var(--bg-deep);
+  --tsic-bg-panel:     var(--bg-panel);
+  --tsic-bg-paper:     var(--paper-cream);
+  --tsic-bg-overlay:   var(--bg-overlay);
+  --tsic-text:         #ffffff;
+  --tsic-text-dim:     #b9b1c8;
+  --tsic-text-ink:     var(--ink);
+  --tsic-text-ink-dim: var(--ink-soft);
+  --tsic-accent:       var(--mag-red);
+  --tsic-accent-warm:  var(--mag-yellow);
+  --tsic-accent-dim:   rgba(230, 0, 0, 0.30);
+  --tsic-border:       var(--border-black);
+  --tsic-danger:       var(--mag-red);
+
+  /* ───── Legacy --cat-* remap ─────
+   * Screens still reference --cat-paper, --cat-ink, --cat-green, etc. Map
+   * them onto the synthwave palette so old markup picks up the new look.
+   * Loose mapping: paper → paper, ink → ink, green (the old primary) →
+   * magazine red (the new primary). */
+  --cat-paper:         var(--paper);
+  --cat-paper-panel:   var(--paper-cream);
+  --cat-paper-soft:    var(--paper-soft);
+  --cat-paper-muted:   var(--paper-muted);
+
+  --cat-ink:           var(--ink);
+  --cat-ink-dark:      var(--ink-night);
+  --cat-ink-muted:     var(--ink-soft);
+  --cat-ink-soft:      var(--ink-mute);
+
+  --cat-green:         var(--mag-red);
+  --cat-green-hover:   var(--mag-red-dark);
+
+  --cat-red:           var(--mag-red-dark);
+  --cat-red-hover:     var(--mag-red-deep);
+
+  --cat-border:        var(--border-black);
+  --cat-border-strong: var(--border-black);
+
+  --cat-shadow-soft:   var(--shadow-block-sm);
+  --cat-shadow:        var(--shadow-block);
+
+  --cat-bg:            var(--paper-cream);
+  --tsic-bg-strong:    var(--paper-bright);
+}
+
+/* ───── Reset + base layout ───── */
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0; padding: 0; width: 100%; height: 100%;
+  font-family: var(--font-body);
+  color: var(--tsic-text);
+  /* WebUI overlays the game world — default transparent so HUD pages don't
+     paint a full-screen fill. Menu screens opt into a stage by adding a
+     .tsic-stage--* class to <body>. */
+  background: transparent;
+  overflow: hidden;
+}
+
+button { cursor: pointer; font-family: inherit; }
+input, textarea, select { font-family: inherit; }
+
+/* Game UIs aren't documents — treat labels/panels as glyphs, not text. No
+   accidental drag-selection, no I-beam cursor over headings/buttons/labels.
+   Editable inputs override this back to text/text-cursor below. */
+html, body, * {
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: default;
+}
+input:not([type=button]):not([type=submit]):not([type=reset]):not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]):not([type=file]):not([type=image]):not([type=hidden]),
+textarea,
+[contenteditable="true"],
+[contenteditable=""] {
+  user-select: text;
+  -webkit-user-select: text;
+  cursor: text;
+}
+input[type=range] {
+  cursor: pointer;
+  pointer-events: auto;
+  touch-action: manipulation;
+}
+input[type=range]::-webkit-slider-thumb { cursor: grab; }
+input[type=range]:active::-webkit-slider-thumb { cursor: grabbing; }
+
+/* ───────────── STAGES ─────────────
+ * A "stage" is the screen-level body backdrop. Body stays transparent by
+ * default (HUD pages overlay the game). Menu screens opt into a stage:
+ *
+ *   <body class="tsic-stage--magazine">           ← off-white halftone paper
+ *   <body class="tsic-stage--magazine-gradient">  ← centred-cover halftone
+ */
+
+/* Magazine stage — bright halftone paper. For "browsing the catalogue"
+   pages where a flat dark stage would be too plain. */
+.tsic-stage--magazine {
+  background-color: var(--paper-cream);
+  background-image:
+    radial-gradient(rgba(10, 10, 10, 0.10) 14%, transparent 15%),
+    radial-gradient(rgba(10, 10, 10, 0.08) 14%, transparent 15%);
+  background-size: 10px 10px, 10px 10px;
+  background-position: 0 0, 5px 5px;
+  color: var(--ink-night);
+}
+
+/* Magazine stage with a SIZE-GRADIENT halftone — big dots haloed around
+   the centred cover, tiny dots at the outer edges. Two pseudo-layers
+   each masked to a radial band; the overlap blends into a mid-size band.
+   Bundles centred-cover flex layout, so a screen just needs:
+       <div class="tsic-stage--magazine-gradient"><div class="tsic-panel tsic-cover">…</div></div>
+   Independent tuning knobs (set per-screen if you need to override):
+     --tsic-stage-paper-alpha   cream-paper opacity   (0 see-through … 1 solid)
+     --tsic-stage-dot-strength  halftone ink darkness (0 invisible    … 1 solid) */
+.tsic-stage--magazine-gradient {
+  --tsic-stage-paper-alpha: 0.35;
+  --tsic-stage-dot-strength: 0.45;
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+  background-color: rgba(240, 232, 208, var(--tsic-stage-paper-alpha));
+  color: var(--ink-night);
+  isolation: isolate;
+}
+.tsic-stage--magazine-gradient::before,
+.tsic-stage--magazine-gradient::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+.tsic-stage--magazine-gradient::before {
+  /* Inner halo — large dots hugging the cover. */
+  background-image:
+    radial-gradient(rgba(10, 10, 10, var(--tsic-stage-dot-strength)) 14%, transparent 15%),
+    radial-gradient(rgba(10, 10, 10, var(--tsic-stage-dot-strength)) 14%, transparent 15%);
+  background-size: 18px 18px;
+  background-position: 0 0, 9px 9px;
+  -webkit-mask-image: radial-gradient(ellipse at center, transparent 18%, #000 36%, transparent 78%);
+          mask-image: radial-gradient(ellipse at center, transparent 18%, #000 36%, transparent 78%);
+}
+.tsic-stage--magazine-gradient::after {
+  /* Outer field — tiny dots fading out toward the corners. Outer dots
+     ride at ~78% of dot-strength so the size gradient also reads as a
+     subtle density gradient. */
+  background-image:
+    radial-gradient(rgba(10, 10, 10, calc(var(--tsic-stage-dot-strength) * 0.78)) 14%, transparent 15%),
+    radial-gradient(rgba(10, 10, 10, calc(var(--tsic-stage-dot-strength) * 0.78)) 14%, transparent 15%);
+  background-size: 6px 6px;
+  background-position: 0 0, 3px 3px;
+  -webkit-mask-image: radial-gradient(ellipse at center, transparent 50%, #000 100%);
+          mask-image: radial-gradient(ellipse at center, transparent 50%, #000 100%);
+}
+
+/* ───────────── GLOBAL SCROLLBAR ─────────────
+ * Ink thumb on a muted-paper track (magazine). */
+
+* { scrollbar-width: thin; scrollbar-color: var(--ink-night) var(--paper-muted); }
+::-webkit-scrollbar { width: 12px; height: 12px; }
+::-webkit-scrollbar-track {
+  background: var(--paper-muted);
+  border-left: 1px solid var(--ink-mute);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--ink-night);
+  border: 2px solid var(--paper-muted);
+  border-radius: 0;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--ink-soft); }
+::-webkit-scrollbar-corner { background: var(--paper-muted); }

@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="tsic-screen" content="Repair">
+  <meta name="tsic-input-mode" content="InputMode.Menu.Repair">
+  <meta name="tsic-focus" content="enabled">
+  <meta name="tsic-action-bar-context" content='[{"ActionName":"IA_UI_ConfirmAccept","Label":"Repair","Priority":10}]'>
+  <title>Repair</title>
+  <link rel="stylesheet" href="/shared/base.css">
+  <link rel="stylesheet" href="/shared/components.css">
+  <link rel="stylesheet" href="/shared/hud.css">
+    <script src="/shared/tsic-bridge.js" defer></script>
+  <script src="/shared/tsic-runtime.js" defer></script>
+  <script src="/shared/router.js" defer></script>
+  <script src="/shared/tsic-focus.js" defer></script>
+  <script src="/shared/tsic-dropdown.js" defer></script>
+  <script src="/shared/hud.js" defer></script>
+  <script src="/shared/catalog.js" defer></script>
+  <script src="/shared/dom.js" defer></script>
+  <script src="/shared/icons.js" defer></script>
+  <script src="/shared/recipe-info.js" defer></script>
+  <script src="/shared/recipe-station.js" defer></script>
+  <style>
+    .repair-bar { height:8px; background:rgba(184,170,145,0.45); margin-top:8px; }
+    .repair-bar > div { height:100%; transition: width 0.15s; }
+  </style>
+</head><body>
+  <div id="repair-root" class="tsic-modal-scrim">
+    <div id="repair-panel" class="tsic-panel tsic-panel--screen">
+      <h2 class="tsic-title" style="margin:0 0 8px;">Repair</h2>
+      <div id="repair-station"></div>
+      <div class="tsic-close-row">
+        <button class="tsic-button" id="btn-close" data-tsic-initial-focus>Close</button>
+      </div>
+    </div>
+  </div>
+  <script>
+    (function(){
+      function durPct(r) {
+        var dur = (typeof r.Durability === 'number') ? r.Durability : 1;
+        var max = (typeof r.MaxDurability === 'number' && r.MaxDurability > 0) ? r.MaxDurability : 1;
+        return Math.max(0, Math.min(1, dur / max));
+      }
+      function isPristine(r) { return durPct(r) >= 0.999; }
+
+      function barColor(pct) {
+        if (pct >= 0.7) return '#7fffae';
+        if (pct >= 0.35) return '#f5c542';
+        return '#e88';
+      }
+
+      (function boot() {
+        if (!window.tsic || !window.TSIC || !window.TSIC.RecipeStation) { setTimeout(boot, 16); return; }
+        tsic.whenReady(function () {
+          TSIC.RecipeStation.mount(document.getElementById('repair-station'), {
+            kind: 'Repair',
+            actionLabel: 'Repair',
+            emptyText: 'No items here need repair.',
+            rowIcon: function(r) { return r.RecipeId; },
+            rowName: function(r) {
+              var name = (window.tsic && window.tsic.itemName) ? window.tsic.itemName(r.RecipeId) : (r.Name || r.RecipeId);
+              return name + ' — ' + Math.round(durPct(r) * 100) + '%';
+            },
+            rowRight: function(r) { return isPristine(r) ? 'Pristine' : ''; },
+            isLocked: function(r) { return isPristine(r); },
+            canAction: function(r) { return r && !isPristine(r); },
+            renderInfo: function(host, recipe) {
+              host.innerHTML = '';
+              if (!recipe) return;
+              var pct = durPct(recipe);
+              var name = (window.tsic && window.tsic.itemName) ? window.tsic.itemName(recipe.RecipeId) : (recipe.Name || recipe.RecipeId);
+              host.appendChild(TSIC.el('h3', { style: 'margin:0 0 6px;' }, name));
+              host.appendChild(TSIC.el('div', { style: 'font-size:10px;letter-spacing:2px;color:rgba(37,33,25,0.55);margin-top:8px;' }, 'DURABILITY'));
+              host.appendChild(TSIC.el('div', { style: 'font-size:14px;font-weight:700;' },
+                Math.round(pct * 100) + '% (' + Math.round(recipe.Durability || 0) + ' / ' + Math.round(recipe.MaxDurability || 0) + ')'));
+              var bar = document.createElement('div');
+              bar.className = 'repair-bar';
+              var inner = document.createElement('div');
+              inner.style.width = (pct * 100).toFixed(1) + '%';
+              inner.style.background = barColor(pct);
+              bar.appendChild(inner);
+              host.appendChild(bar);
+              if (isPristine(recipe)) {
+                host.appendChild(TSIC.el('div', { style: 'margin-top:12px;font-size:11px;color:rgba(37,33,25,0.55);font-style:italic;' }, 'This item is in pristine condition.'));
+              }
+            }
+          });
+
+          document.getElementById('btn-close').onclick = () =>
+            tsic.publishMessage('UI.Cmd.Pause.Resume', {});
+        });
+      })();
+    })();
+  </script>
+</body></html>

@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="tsic-screen" content="Ping">
+  <title>Ping</title>
+  <link rel="stylesheet" href="/shared/base.css">
+  <link rel="stylesheet" href="/shared/components.css">
+  <link rel="stylesheet" href="/shared/hud.css">
+  <script src="/shared/router.js" defer></script>
+    <script src="/shared/tsic-bridge.js" defer></script>
+  <script src="/shared/tsic-runtime.js" defer></script>
+  <script src="/shared/hud.js" defer></script>
+  <style>
+    /* ─────────────────────────────────────────────────────────────
+       PING COMPOSER — Apex-style radial wheel.
+       Frosted-glass disc, segmented wedges, angle-selected (mouse moves
+       toward a direction). The hovered wedge fills with its colour and
+       glows; the centre hub names the choice. Everything stays mostly
+       transparent so the world reads through it.
+       ───────────────────────────────────────────────────────────── */
+    html, body { background: transparent; }
+
+    #backdrop {
+      position: fixed; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      /* Subtle vignette only — keep the scene sharp and visible behind the wheel. */
+      background: radial-gradient(circle at 50% 50%, rgba(6,7,10,0) 18%, rgba(6,7,10,0.42) 78%);
+      animation: ping-scrim-in 160ms ease both;
+    }
+    @keyframes ping-scrim-in { from { opacity: 0; } to { opacity: 1; } }
+
+    #wheel {
+      position: relative;
+      width: 360px; height: 360px;
+      transform-origin: center;
+      animation: ping-wheel-in 280ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    }
+    @keyframes ping-wheel-in {
+      from { opacity: 0; transform: scale(0.72) rotate(-6deg); }
+      to   { opacity: 1; transform: scale(1) rotate(0); }
+    }
+
+    /* Frosted disc sitting behind the wedges. Frame matches the minimap badge:
+       heavy ink ring + soft drop shadow; stays translucent so the world reads
+       through it. */
+    .wheel-glass {
+      position: absolute; left: 50%; top: 50%;
+      width: 340px; height: 340px; margin: -170px 0 0 -170px;
+      border-radius: 50%;
+      background: rgba(14,14,18,0.34);
+      border: 3px solid var(--ink-night);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.10),
+        inset 0 0 46px rgba(0,0,0,0.45),
+        0 4px 16px rgba(0,0,0,0.5);
+    }
+
+    #wheel-svg { position: absolute; inset: 0; overflow: visible; }
+
+    .wedge {
+      fill: rgba(236,236,240,0.05);
+      stroke: rgba(255,255,255,0.14);
+      stroke-width: 1.5;
+      transform-origin: 180px 180px;
+      transition: fill 150ms ease, stroke 150ms ease, filter 150ms ease;
+      opacity: 0;
+      animation: ping-piece-in 300ms cubic-bezier(0.22,0.85,0.28,1) forwards;
+    }
+    @keyframes ping-piece-in { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+    @keyframes ping-item-in { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes ping-pop-in { from { transform: scale(0.55); } to { transform: scale(1); } }
+    .wedge.is-active {
+      fill: var(--c-soft);
+      stroke: var(--c);
+      filter: drop-shadow(0 0 12px var(--c));
+    }
+
+    /* Icon + label overlay, one per wedge (non-interactive; the wheel reads
+       the cursor angle). */
+    /* Box is exactly the icon, centred on the wedge centroid — so the icon is
+       dead-centre in every wedge. The label hangs below it (absolutely
+       positioned) without pulling the icon off-centre. */
+    .item {
+      position: absolute;
+      width: 32px; height: 32px;
+      transform: translate(-50%, -50%) scale(1);
+      pointer-events: none;
+      color: #e7e2d4;
+      transition: transform 150ms cubic-bezier(0.34,1.56,0.64,1), color 150ms ease;
+      opacity: 0;
+      /* Opacity-only entrance — a transform here would clobber the centring
+         translate above (and the .is-active pop). The scale-in lives on the
+         <svg> instead. */
+      animation: ping-item-in 300ms ease forwards;
+    }
+    .item svg {
+      width: 32px; height: 32px; display: block;
+      filter: drop-shadow(0 1px 2px rgba(0,0,0,0.65));
+      animation: ping-pop-in 320ms cubic-bezier(0.34,1.56,0.64,1) both;
+    }
+    .item .lbl {
+      position: absolute; top: calc(100% + 5px); left: 50%;
+      transform: translateX(-50%);
+      white-space: nowrap;
+      font-family: var(--font-display);
+      font-size: 12px; font-weight: 700; letter-spacing: 0.16em;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.85);
+    }
+    .item.is-active { transform: translate(-50%, -50%) scale(1.18); color: #fff; }
+    .item.is-active svg { filter: drop-shadow(0 0 8px var(--c)) drop-shadow(0 1px 2px rgba(0,0,0,0.7)); }
+
+    /* Centre hub — names the current choice. */
+    #hub {
+      position: absolute; left: 50%; top: 50%;
+      width: 132px; height: 132px; margin: -66px 0 0 -66px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center; text-align: center;
+      background: rgba(11,11,15,0.62);
+      border: 2px solid var(--ink-night);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.12), 0 6px 22px rgba(0,0,0,0.5);
+      color: #cfcabb;
+      font-family: var(--font-display); font-size: 15px; font-weight: 700; letter-spacing: 0.24em;
+      transition: color 150ms ease, box-shadow 150ms ease, border-color 150ms ease;
+      pointer-events: none;
+    }
+    #hub.is-active {
+      color: var(--c);
+      border-color: var(--c);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.12), 0 0 24px var(--c), 0 6px 22px rgba(0,0,0,0.5);
+    }
+  </style>
+</head><body>
+  <div id="backdrop">
+    <div id="wheel">
+      <div class="wheel-glass"></div>
+      <svg id="wheel-svg" viewBox="0 0 360 360" aria-hidden="true"></svg>
+      <div id="hub">PING</div>
+    </div>
+  </div>
+  <script>
+    (function () {
+      const SVGNS = 'http://www.w3.org/2000/svg';
+      const SIZE = 360, C = 180, R_OUT = 168, R_IN = 78, GAP = 2.6;
+      const R_LABEL = (R_OUT + R_IN) / 2;
+
+      // Mirror EScpPingType. Surface the four the player reaches for; "Player"
+      // is resolved engine-side when looking at a teammate.
+      const TYPES = [
+        { id: 'Enemy',  label: 'ENEMY',  color: '#ff5a5a', icon: 'enemy'  },
+        { id: 'Entity', label: 'LOOT',   color: '#3ddc97', icon: 'loot'   },
+        { id: 'Ground', label: 'MOVE',   color: '#4ea1ff', icon: 'move'   },
+        { id: 'Map',    label: 'DANGER', color: '#ffc63f', icon: 'danger' },
+      ];
+
+      // Inline SVG icon markup (24×24, currentColor stroke). Kept simple and
+      // crisp — no network, scales cleanly.
+      const ICONS = {
+        enemy:  '<circle cx="12" cy="12" r="7"/><path d="M12 1.5v3.5M12 19v3.5M1.5 12h3.5M19 12h3.5"/><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/>',
+        loot:   '<path d="M12 2.4 21.6 12 12 21.6 2.4 12Z"/><path d="M7.6 12 12 7.6 16.4 12 12 16.4Z"/>',
+        move:   '<path d="M5 13.5 12 6.5 19 13.5"/><path d="M5 18.5 12 11.5 19 18.5"/>',
+        danger: '<path d="M12 3 22 20 2 20Z"/><path d="M12 9v5"/><circle cx="12" cy="17.4" r="1.05" fill="currentColor" stroke="none"/>',
+      };
+
+      function iconSvg(name) {
+        const s = document.createElementNS(SVGNS, 'svg');
+        s.setAttribute('viewBox', '0 0 24 24');
+        s.setAttribute('fill', 'none');
+        s.setAttribute('stroke', 'currentColor');
+        s.setAttribute('stroke-width', '2');
+        s.setAttribute('stroke-linecap', 'round');
+        s.setAttribute('stroke-linejoin', 'round');
+        s.innerHTML = ICONS[name] || '';
+        return s;
+      }
+
+      const rad = (deg) => deg * Math.PI / 180;
+      function pol(r, deg) { return [C + r * Math.cos(rad(deg)), C + r * Math.sin(rad(deg))]; }
+      function sectorPath(a0, a1) {
+        const [x0o, y0o] = pol(R_OUT, a0), [x1o, y1o] = pol(R_OUT, a1);
+        const [x1i, y1i] = pol(R_IN, a1),  [x0i, y0i] = pol(R_IN, a0);
+        const large = (a1 - a0) > 180 ? 1 : 0;
+        return `M ${x0o} ${y0o} A ${R_OUT} ${R_OUT} 0 ${large} 1 ${x1o} ${y1o}`
+             + ` L ${x1i} ${y1i} A ${R_IN} ${R_IN} 0 ${large} 0 ${x0i} ${y0i} Z`;
+      }
+
+      // Mix a colour with black to get the soft translucent wedge fill.
+      function softFill(hex) {
+        const n = parseInt(hex.slice(1), 16);
+        const r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
+        return `rgba(${r}, ${g}, ${b}, 0.30)`;
+      }
+
+      const wedges = [];   // { path, item, type }
+      let active = -1;
+      const N = TYPES.length;
+      const SPAN = 360 / N;
+
+      function publish(type) {
+        // Location is a placeholder; gameplay overrides with the look-at hit.
+        tsic.publishMessage('UI.Cmd.Ping.Request', { PingType: type, Location: { X: 0, Y: 0, Z: 0 } });
+      }
+
+      function centreDeg(i) { return -90 + i * SPAN; }
+
+      function build() {
+        const svg = document.getElementById('wheel-svg');
+        const wheel = document.getElementById('wheel');
+        for (let i = 0; i < N; i++) {
+          const t = TYPES[i];
+          const cd = centreDeg(i);
+          const path = document.createElementNS(SVGNS, 'path');
+          path.setAttribute('class', 'wedge');
+          path.setAttribute('d', sectorPath(cd - SPAN / 2 + GAP / 2, cd + SPAN / 2 - GAP / 2));
+          path.style.setProperty('--c', t.color);
+          path.style.setProperty('--c-soft', softFill(t.color));
+          path.style.animationDelay = (40 + i * 45) + 'ms';
+          svg.appendChild(path);
+
+          const [lx, ly] = pol(R_LABEL, cd);
+          const item = document.createElement('div');
+          item.className = 'item';
+          item.style.left = lx + 'px';
+          item.style.top = ly + 'px';
+          item.style.setProperty('--c', t.color);
+          item.style.animationDelay = (90 + i * 45) + 'ms';
+          item.appendChild(iconSvg(t.icon));
+          const lbl = document.createElement('div');
+          lbl.className = 'lbl';
+          lbl.textContent = t.label;
+          item.appendChild(lbl);
+          wheel.appendChild(item);
+
+          wedges.push({ path, item, type: t });
+        }
+      }
+
+      function setActive(idx) {
+        if (idx === active) return;
+        active = idx;
+        const hub = document.getElementById('hub');
+        wedges.forEach((w, i) => {
+          w.path.classList.toggle('is-active', i === idx);
+          w.item.classList.toggle('is-active', i === idx);
+        });
+        if (idx >= 0) {
+          const t = TYPES[idx];
+          hub.textContent = t.label;
+          hub.style.setProperty('--c', t.color);
+          hub.classList.add('is-active');
+        } else {
+          hub.textContent = 'PING';
+          hub.classList.remove('is-active');
+        }
+      }
+
+      // Map a cursor position (relative to the wheel centre) to a wedge index,
+      // or -1 inside the dead-zone. Angle space matches the layout (0°=right,
+      // clockwise, top wedge centred at -90°).
+      function pickAt(clientX, clientY) {
+        const wheel = document.getElementById('wheel');
+        const r = wheel.getBoundingClientRect();
+        const scale = r.width / SIZE || 1;
+        const dx = clientX - (r.left + r.width / 2);
+        const dy = clientY - (r.top + r.height / 2);
+        if (Math.hypot(dx, dy) < R_IN * 0.55 * scale) return -1;
+        const ang = Math.atan2(dy, dx) * 180 / Math.PI;
+        for (let i = 0; i < N; i++) {
+          let diff = ang - centreDeg(i);
+          diff = ((diff + 180) % 360 + 360) % 360 - 180;   // → [-180,180)
+          if (Math.abs(diff) <= SPAN / 2) return i;
+        }
+        return -1;
+      }
+
+      function bindInput() {
+        const backdrop = document.getElementById('backdrop');
+        backdrop.addEventListener('pointermove', (e) => setActive(pickAt(e.clientX, e.clientY)));
+        backdrop.addEventListener('pointerdown', (e) => {
+          const idx = pickAt(e.clientX, e.clientY);
+          if (idx >= 0) publish(TYPES[idx].id);
+        });
+      }
+
+      (function boot() {
+        if (!window.tsic || typeof tsic.bootMenu !== 'function') { setTimeout(boot, 16); return; }
+        tsic.bootMenu(function (ctx) {
+          build();
+          bindInput();
+          // Keep the sticky ping-set replay alive (rendered by the 3D world).
+          ctx.on('tsic.msg.UI.Ping.Set', () => { /* no-op here */ });
+        }, { escape: false, closeButton: false });
+      })();
+    })();
+  </script>
+</body></html>

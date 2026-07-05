@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="tsic-screen" content="Hotbar">
+  <title>Hotbar</title>
+  <link rel="stylesheet" href="/shared/base.css">
+  <link rel="stylesheet" href="/shared/components.css">
+  <link rel="stylesheet" href="/shared/hud.css">
+    <script src="/shared/tsic-bridge.js" defer></script>
+  <script src="/shared/tsic-runtime.js" defer></script>
+  <script src="/shared/router.js" defer></script>
+  <script src="/shared/hud.js" defer></script>
+  <script src="/shared/catalog.js" defer></script>
+  <script src="/shared/dom.js" defer></script>
+  <script src="/shared/icons.js" defer></script>
+  <style>
+    /* ─────────────────────────────────────────────────────────────
+       HOTBAR — styled to match the liquid health/stamina vials:
+       dark translucent glass, heavy ink outline + hard offset block shadow
+       (magazine "bold outline" look), cream serif text, soft inset highlight +
+       top glare. The SELECTED slot scales up and lifts off the row with a warm
+       glow + brightened rim.
+       (Kept in sync with shared/hud-hotbar.js.)
+       All scoped to #hotbar-row so the shared .tsic-slot (inventory,
+       crafting, etc.) is untouched.
+       ───────────────────────────────────────────────────────────── */
+    /* Register --mag/--lift as typed custom props so transitions interpolate
+       them — an unregistered var() would just snap the transform/box-shadow. */
+    @property --mag { syntax: "<number>"; inherits: false; initial-value: 1; }
+    @property --lift { syntax: "<length>"; inherits: false; initial-value: 0px; }
+
+    #hotbar-row {
+      position: relative;
+      display: flex;
+      align-items: flex-end;          /* slots share a floor; selected lifts up */
+      gap: 8px;
+      padding: 18px 4px 4px;          /* headroom for the lift */
+      background: transparent;
+    }
+
+    #hotbar-row .tsic-slot {
+      position: relative;
+      width: 56px; height: 56px;
+      font-family: Georgia, "Libre Baskerville", serif;
+      color: #f0e7d4;
+      /* Dark glass, matching the vials. */
+      background: linear-gradient(180deg, rgba(58, 40, 34, 0.30), rgba(14, 9, 8, 0.40));
+      border: 2px solid var(--ink-night);
+      border-radius: 11px;
+
+      /* Selection scale driven by --mag (scale) + --lift (translateY); only
+         .selected overrides them below. Origin is the slot base so growth
+         pushes UP and never reflows neighbours. */
+      --mag: 1;
+      --lift: 0px;
+      transform-origin: bottom center;
+      transform: translateY(var(--lift)) scale(var(--mag));
+
+      box-shadow:
+        inset 0 1px 0 rgba(255, 250, 240, 0.16),
+        inset 0 0 12px rgba(0, 0, 0, 0.50),
+        var(--shadow-block-sm),                                                              /* hard ink block, magazine outline */
+        0 calc((var(--mag) - 1) * 22px) calc((var(--mag) - 1) * 28px) rgba(0, 0, 0, 0.45),
+        0 0 calc((var(--mag) - 1) * 40px) rgba(240, 220, 170, calc((var(--mag) - 1) * 1.4));  /* warm glow */
+
+      /* Springy grow/shrink as selection moves — animate the registered vars so
+         the transform + box-shadow that read them recompute every frame. */
+      transition:
+        --mag 230ms cubic-bezier(0.34, 1.56, 0.64, 1),
+        --lift 230ms cubic-bezier(0.34, 1.56, 0.64, 1),
+        border-color 150ms ease;
+    }
+    /* Neutralise the shared .tsic-slot:hover nudge — selection owns the transform. */
+    #hotbar-row .tsic-slot:hover { transform: translateY(var(--lift)) scale(var(--mag)); }
+
+    /* Top glare across the glass, matching the vial. */
+    #hotbar-row .tsic-slot::before {
+      content: '';
+      position: absolute;
+      left: 0; right: 0; top: 0;
+      height: 46%;
+      border-radius: 11px 11px 0 0;
+      background: linear-gradient(180deg, rgba(255, 250, 240, 0.14), transparent);
+      pointer-events: none;
+    }
+
+    #hotbar-row .tsic-slot img {
+      position: relative;
+      width: 100%; height: 100%;
+      object-fit: contain;
+      padding: 8px;
+      pointer-events: none;
+      filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.6));
+    }
+
+    /* SELECTED slot — scales up and lifts with a warm glow + brightened rim. */
+    #hotbar-row .tsic-slot.selected {
+      --mag: 1.16;
+      --lift: -5px;
+      border-color: rgba(224, 208, 170, 0.95);
+    }
+
+    /* SELECTED but stowed (item not equipped) — same lift/scale as selected so
+       it still reads as the current slot, but muted rim + greyed, see-through
+       item to show the item isn't out. (SelectedSlotPending, see render below.) */
+    #hotbar-row .tsic-slot.selected-inactive {
+      --mag: 1.16;
+      --lift: -5px;
+      border-color: rgba(150, 145, 135, 0.85);
+    }
+    #hotbar-row .tsic-slot.selected-inactive img {
+      filter: grayscale(0.65) drop-shadow(0 2px 3px rgba(0, 0, 0, 0.6));
+      opacity: 0.6;
+    }
+
+    /* Key number, top-left — clean condensed display font on dark glass with a
+       bone rim, for crisp readable hotkey digits. */
+    #hotbar-row .tsic-slot .key {
+      position: absolute;
+      top: 3px; left: 4px;
+      min-width: 15px;
+      padding: 0 4px;
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 1.35;
+      letter-spacing: 0.02em;
+      text-align: center;
+      color: #f3ecda;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.95);
+      background: rgba(14, 9, 8, 0.62);
+      border: 1px solid var(--ink-night);
+      border-radius: 5px;
+      pointer-events: none;
+    }
+    #hotbar-row .tsic-slot.selected .key { color: #fff; border-color: rgba(224, 208, 170, 0.90); }
+
+    /* Count, bottom-right — same display font + glass pill treatment. */
+    #hotbar-row .tsic-slot .count {
+      position: absolute;
+      bottom: 3px; right: 4px;
+      top: auto; left: auto;
+      font-family: var(--font-display);
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 0.02em;
+      padding: 2px 4px;
+      color: #fff;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.95);
+      background: rgba(14, 9, 8, 0.70);
+      border: 1px solid var(--ink-night);
+      border-radius: 5px;
+      pointer-events: none;
+    }
+
+    /* Drag affordances. */
+    #hotbar-row .tsic-slot.is-dragging   { opacity: 0.45; }
+    #hotbar-row .tsic-slot.is-drop-target {
+      border-color: rgba(224, 208, 170, 0.95);
+      box-shadow: 0 0 0 2px rgba(224, 208, 170, 0.55), inset 0 0 12px rgba(0, 0, 0, 0.50);
+    }
+  </style>
+</head><body>
+  <div id="root" style="position:fixed;left:50%;bottom:24px;transform:translateX(-50%);">
+    <div id="hotbar-row"></div>
+  </div>
+  <script>
+    (function(){
+      let lastHotbar = null;
+      // Signature of the last fully-rendered contents (slot assignments + each
+      // slot's item id/count — NOT the selection). A change that leaves this
+      // equal (e.g. just moving the selection) reuses the existing DOM so the
+      // CSS transition animates the grow/shrink; a content change rebuilds.
+      let lastContentKey = null;
+      let playerItemsBySlot = new Map();
+      // The slot the user is currently dragging — used by the dragend fallback
+      // to "drop outside" = clear assignment.
+      let activeHotbarDrag = null;
+
+      function publish(tag, payload) {
+        if (window.tsic && window.tsic.publishMessage) window.tsic.publishMessage(tag, payload);
+      }
+      function clearSlot(slotIndex) {
+        publish('UI.Cmd.Hotbar.Assign', { SlotIndex: slotIndex, ItemId: '' });
+      }
+      function isAssigned(invSlot) {
+        return invSlot !== undefined && invSlot !== null && invSlot >= 0;
+      }
+      function contentKey() {
+        if (!lastHotbar) return '';
+        const slots = lastHotbar.SlotIndices || [];
+        return slots.map((inv) => {
+          const item = isAssigned(inv) ? playerItemsBySlot.get(inv) : null;
+          return inv + (item && item.ItemId ? (':' + item.ItemId + 'x' + (item.Count || 1)) : '');
+        }).join('|');
+      }
+
+      // Selection-only update: toggle .selected on the existing slots so the CSS
+      // transition animates the grow/shrink instead of snapping after a rebuild.
+      function applySelection() {
+        const host = document.getElementById('hotbar-row');
+        if (!host || !lastHotbar) return;
+        const sel = (typeof lastHotbar.SelectedSlot === 'number') ? lastHotbar.SelectedSlot : -1;
+        Array.from(host.children).forEach((kid, i) => kid.classList.toggle('selected', i === sel));
+      }
+
+      // Animate the selection if only it changed; rebuild if the contents differ.
+      function update() {
+        const host = document.getElementById('hotbar-row');
+        if (host && host.children.length && contentKey() === lastContentKey) applySelection();
+        else render();
+      }
+
+      function render() {
+        if (!lastHotbar) return;
+        const host = document.getElementById('hotbar-row');
+        host.innerHTML = '';
+        const slots = lastHotbar.SlotIndices || [];
+        const selected = (typeof lastHotbar.SelectedSlot === 'number') ? lastHotbar.SelectedSlot : -1;
+        // Slot the player is on but whose item is stowed (not equipped) — rendered greyed-out.
+        const pending = (typeof lastHotbar.SelectedSlotPending === 'number') ? lastHotbar.SelectedSlotPending : -1;
+        for (let i = 0; i < slots.length; i++) {
+          const slot = document.createElement('div');
+          const selClass = (i === selected) ? ' selected' : (i === pending ? ' selected-inactive' : '');
+          slot.className = 'tsic-slot' + selClass;
+          slot.dataset.slot = String(i);
+          const inventorySlot = slots[i];
+          const slotHasItem = isAssigned(inventorySlot);
+          const item = slotHasItem ? playerItemsBySlot.get(inventorySlot) : null;
+          if (item && item.ItemId) {
+            const img = document.createElement('img');
+            img.src = TSIC.itemIconUrl(item.ItemId);
+            img.onerror = () => { img.style.visibility = 'hidden'; };
+            slot.appendChild(img);
+            if (item.Count > 1) {
+              const count = document.createElement('span');
+              count.className = 'count';
+              count.textContent = String(item.Count);
+              slot.appendChild(count);
+            }
+          }
+          const idxLabel = document.createElement('span');
+          idxLabel.className = 'key';
+          idxLabel.textContent = i === 9 ? '0' : String(i + 1);
+          slot.appendChild(idxLabel);
+          slot.onclick = () => publish('UI.Cmd.Hotbar.Select', { SlotIndex: i });
+
+          // Drag source — only assigned slots can be dragged.
+          slot.draggable = slotHasItem;
+          if (slotHasItem) {
+            slot.addEventListener('dragstart', (e) => {
+              activeHotbarDrag = { slot: i, inventorySlot };
+              e.dataTransfer.setData('application/tsic-slot',
+                JSON.stringify({ kind: 'hotbar', slot: i, inventorySlot }));
+              slot.classList.add('is-dragging');
+            });
+            slot.addEventListener('dragend', (e) => {
+              const drag = activeHotbarDrag;
+              activeHotbarDrag = null;
+              slot.classList.remove('is-dragging');
+              // No drop zone accepted it → clear the source slot.
+              if (drag && e.dataTransfer && e.dataTransfer.dropEffect === 'none') {
+                clearSlot(drag.slot);
+              }
+            });
+          }
+
+          // Drop target — accepts inventory rows (assign) and hotbar slots (swap).
+          slot.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            slot.classList.add('is-drop-target');
+          });
+          slot.addEventListener('dragleave', () => slot.classList.remove('is-drop-target'));
+          slot.addEventListener('drop', (e) => {
+            e.preventDefault();
+            slot.classList.remove('is-drop-target');
+
+            const itemData = e.dataTransfer.getData('application/tsic-item');
+            if (itemData) {
+              try {
+                const src = JSON.parse(itemData);
+                publish('UI.Cmd.Hotbar.Assign', { SlotIndex: i, ItemId: String(src.slot) });
+              } catch {}
+              return;
+            }
+            const slotData = e.dataTransfer.getData('application/tsic-slot');
+            if (slotData) {
+              try {
+                const src = JSON.parse(slotData);
+                if (src.slot === i) return;
+                // Swap: assign target to source's inv slot, assign source to target's inv slot.
+                const targetInv = isAssigned(slots[i]) ? String(slots[i]) : '';
+                publish('UI.Cmd.Hotbar.Assign', { SlotIndex: i,        ItemId: String(src.inventorySlot) });
+                publish('UI.Cmd.Hotbar.Assign', { SlotIndex: src.slot, ItemId: targetInv });
+              } catch {}
+            }
+          });
+
+          host.appendChild(slot);
+        }
+        lastContentKey = contentKey();
+      }
+
+      (function boot() {
+        if (!window.tsic || typeof tsic.whenReady !== 'function') { setTimeout(boot, 16); return; }
+        tsic.whenReady(function () {
+          tsic.on('tsic.msg.UI.Hotbar.Changed', (p) => {
+            lastHotbar = p || null;
+            update();
+          });
+          tsic.on('tsic.msg.UI.Inventory.Updated', (p) => {
+            if (!p || p.OwnerId !== 'Player') return;
+            playerItemsBySlot = new Map();
+            for (const it of (p.Items || [])) {
+              if (it && typeof it.SlotIndex === 'number') playerItemsBySlot.set(it.SlotIndex, it);
+            }
+            update();
+          });
+        });
+      })();
+    })();
+  </script>
+</body></html>

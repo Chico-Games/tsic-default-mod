@@ -1,0 +1,513 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="tsic-screen" content="Playground">
+  <meta name="tsic-debug" content="true">
+  <meta name="tsic-input-mode" content="InputMode.Menu">
+  <title>TSIC SPA Playground</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    /* ============================================================
+       TSIC Playground — refined dark "studio" shell.
+       Editorial / premium: warm near-black, a single warm-amber
+       accent, soft low-alpha glows (no neon). Motion lives in the
+       chrome only — never over the live preview iframe, so the
+       previewed screen is always shown faithfully.
+       All ids/classes are load-bearing (driven by playground JS).
+       ============================================================ */
+    :root {
+      --pg-bg:    #0a0a0c;
+      --pg-bg-1:  #0e0e13;   /* rails */
+      --pg-bg-2:  #131319;   /* raised */
+      --pg-bg-3:  #1b1b23;   /* hover */
+      --pg-line:   rgba(224,204,168,0.08);
+      --pg-line-2: rgba(224,204,168,0.16);
+      --pg-text:  #ece6db;
+      --pg-dim:   #a59b89;
+      --pg-mute:  #6b6557;
+      --pg-accent: #e0a86a;   /* warm amber — the single brand accent */
+      --pg-danger: #d2615b;   /* close / fail only */
+      --pg-warn:   #e0b35e;
+      --pg-blue:   #7fa6d8;   /* muted data hues for log/debug only */
+      --pg-violet: #b69bd6;
+      --pg-green:  #6fc193;
+      --glow:        0 0 0 1px rgba(224,168,106,0.35), 0 0 14px rgba(224,168,106,0.14);
+      --glow-danger: 0 0 0 1px rgba(210,97,91,0.40),  0 0 12px rgba(210,97,91,0.16);
+      --font-ui:   "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+      --font-mono: "JetBrains Mono", "Cascadia Code", Consolas, monospace;
+      --ease: cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body {
+      margin: 0; padding: 0; height: 100%;
+      background: var(--pg-bg); color: var(--pg-text);
+      font-family: var(--font-ui);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Atmospheric backdrop: two faint, slow-drifting warm blooms + a
+       hairline grid that fades out toward the bottom. Behind everything. */
+    body::before {
+      content: ''; position: fixed; inset: -20%; z-index: 0; pointer-events: none;
+      background:
+        radial-gradient(38% 42% at 10% 6%,  rgba(224,168,106,0.10), transparent 70%),
+        radial-gradient(42% 46% at 94% 98%, rgba(210,120,70,0.07),  transparent 72%);
+      filter: blur(10px);
+      animation: pg-drift 38s var(--ease) infinite alternate;
+    }
+    body::after {
+      content: ''; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background-image:
+        linear-gradient(rgba(224,204,168,0.022) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(224,204,168,0.022) 1px, transparent 1px);
+      background-size: 46px 46px;
+      mask-image: radial-gradient(120% 120% at 50% 0%, #000 42%, transparent 100%);
+    }
+    @keyframes pg-drift {
+      from { transform: translate3d(-1.5%, -1%, 0) scale(1); }
+      to   { transform: translate3d(2%, 1.5%, 0) scale(1.05); }
+    }
+
+    #root {
+      position: relative; z-index: 1;
+      display: grid; grid-template-columns: 258px minmax(0, 1fr) 392px;
+      grid-template-rows: 100vh; height: 100vh; overflow: hidden;
+    }
+
+    /* shared glassy rail surface */
+    #screens, #side {
+      background: linear-gradient(180deg, rgba(20,20,26,0.72), rgba(11,11,15,0.74));
+      backdrop-filter: blur(10px);
+      display: flex; flex-direction: column; min-width: 0; min-height: 0;
+    }
+    #screens { border-right: 1px solid var(--pg-line); animation: pg-rise .55s var(--ease) both; }
+    #viewer  { display: flex; flex-direction: column; min-width: 0; animation: pg-rise .55s var(--ease) .07s both; }
+    #side    { border-left: 1px solid var(--pg-line); animation: pg-rise .55s var(--ease) .14s both; }
+    @keyframes pg-rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+    @keyframes pg-fade { from { opacity: 0; } to { opacity: 1; } }
+
+    /* ── Left rail header ─────────────────────────── */
+    #screens h1 {
+      font-family: var(--font-mono); font-size: 11px; font-weight: 700;
+      letter-spacing: 0.34em; padding: 16px 16px 14px; margin: 0;
+      color: var(--pg-text); border-bottom: 1px solid var(--pg-line);
+      display: flex; align-items: center; gap: 9px; text-transform: uppercase;
+    }
+    #screens h1::before {
+      content: ''; width: 8px; height: 8px; border-radius: 2px;
+      background: var(--pg-accent); box-shadow: 0 0 9px rgba(224,168,106,0.7);
+      animation: pg-beacon 2.6s ease-in-out infinite;
+    }
+    @keyframes pg-beacon { 0%,100% { opacity: 1; } 50% { opacity: .4; } }
+
+    #pg-legend {
+      padding: 8px 16px; font-family: var(--font-mono); font-size: 10px;
+      letter-spacing: 0.04em; color: var(--pg-mute);
+      border-bottom: 1px solid var(--pg-line);
+      display: flex; align-items: center; gap: 7px;
+    }
+    #pg-legend .pg-scn-dot.on { width: 7px; height: 7px; }
+
+    #pg-filter {
+      margin: 10px 12px; padding: 8px 11px;
+      background: var(--pg-bg-2); color: var(--pg-text);
+      border: 1px solid var(--pg-line); border-radius: 8px;
+      font-family: var(--font-mono); font-size: 12px; outline: none;
+      transition: border-color .2s var(--ease), box-shadow .25s var(--ease), background .2s;
+    }
+    #pg-filter::placeholder { color: var(--pg-mute); }
+    #pg-filter:focus { border-color: rgba(224,168,106,0.5); box-shadow: var(--glow); background: #111016; }
+    #pg-screens { flex: 1; min-height: 0; overflow-y: auto; padding-bottom: 16px; }
+
+    /* ── Category groups ──────────────────────────── */
+    .pg-cat { animation: pg-rise .5s var(--ease) both; }
+    #pg-screens .pg-cat:nth-child(1){animation-delay:.10s}
+    #pg-screens .pg-cat:nth-child(2){animation-delay:.15s}
+    #pg-screens .pg-cat:nth-child(3){animation-delay:.20s}
+    #pg-screens .pg-cat:nth-child(4){animation-delay:.25s}
+    #pg-screens .pg-cat:nth-child(5){animation-delay:.30s}
+    #pg-screens .pg-cat:nth-child(6){animation-delay:.35s}
+    #pg-screens .pg-cat:nth-child(7){animation-delay:.40s}
+    #pg-screens .pg-cat:nth-child(8){animation-delay:.45s}
+    #pg-screens .pg-cat:nth-child(n+9){animation-delay:.50s}
+
+    .pg-cat-h {
+      position: sticky; top: 0; z-index: 2;
+      display: flex; align-items: center; gap: 8px;
+      padding: 9px 16px; cursor: pointer; user-select: none;
+      font-family: var(--font-mono); font-size: 10px; font-weight: 700;
+      letter-spacing: 0.2em; text-transform: uppercase; color: var(--pg-dim);
+      background: linear-gradient(180deg, rgba(14,14,19,0.96), rgba(14,14,19,0.86));
+      backdrop-filter: blur(6px);
+      border-bottom: 1px solid var(--pg-line);
+      transition: color .2s var(--ease);
+    }
+    .pg-cat-h:hover { color: var(--pg-text); }
+    .pg-cat-h .pg-cat-caret {
+      font-size: 9px; color: var(--pg-accent);
+      transition: transform .25s var(--ease), opacity .2s; opacity: .85;
+    }
+    .pg-cat.collapsed .pg-cat-caret { transform: rotate(-90deg); }
+    .pg-cat-h .pg-cat-count {
+      margin-left: auto; color: var(--pg-mute); font-size: 10px; font-weight: 500;
+      padding: 1px 7px; border: 1px solid var(--pg-line); border-radius: 999px;
+    }
+    .pg-cat-rows { overflow: hidden; }
+    .pg-cat.collapsed .pg-cat-rows { display: none; }
+
+    /* ── Screen rows ──────────────────────────────── */
+    .pg-scn {
+      position: relative; padding: 8px 12px 8px 22px; font-size: 13px;
+      cursor: pointer; display: flex; align-items: center; gap: 9px;
+      color: var(--pg-dim);
+      transition: color .18s var(--ease), background .18s var(--ease), transform .18s var(--ease);
+    }
+    .pg-scn::before {
+      content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%) scaleY(0);
+      width: 3px; height: 64%; border-radius: 0 3px 3px 0; background: var(--pg-accent);
+      transition: transform .22s var(--ease);
+    }
+    .pg-scn:hover { color: var(--pg-text); background: rgba(224,204,168,0.045); transform: translateX(2px); }
+    .pg-scn.active {
+      color: #fff; background: linear-gradient(90deg, rgba(224,168,106,0.12), rgba(224,168,106,0.02));
+    }
+    .pg-scn.active::before { transform: translateY(-50%) scaleY(1); }
+    .pg-scn-dot {
+      width: 8px; height: 8px; border-radius: 50%; flex: 0 0 auto;
+      background: var(--pg-bg-3); border: 1px solid var(--pg-line-2);
+      transition: box-shadow .2s, background .2s;
+    }
+    .pg-scn-dot.on {
+      background: var(--pg-accent); border-color: transparent;
+      box-shadow: 0 0 8px rgba(224,168,106,0.65);
+      animation: pg-dotpulse 2.8s ease-in-out infinite;
+    }
+    @keyframes pg-dotpulse { 0%,100% { box-shadow: 0 0 7px rgba(224,168,106,0.5); } 50% { box-shadow: 0 0 12px rgba(224,168,106,0.9); } }
+
+    /* ── Center / viewer ──────────────────────────── */
+    #toolbar {
+      padding: 9px 14px; border-bottom: 1px solid var(--pg-line);
+      display: flex; gap: 9px; align-items: center;
+      background: rgba(11,11,15,0.5); backdrop-filter: blur(6px);
+    }
+    #toolbar button, .pg-btn {
+      font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.04em;
+      color: var(--pg-text); background: var(--pg-bg-2);
+      border: 1px solid var(--pg-line); border-radius: 8px;
+      padding: 6px 12px; cursor: pointer;
+      transition: transform .15s var(--ease), background .18s var(--ease),
+                  border-color .18s var(--ease), box-shadow .25s var(--ease), color .18s;
+    }
+    #toolbar button:hover, .pg-btn:hover {
+      background: var(--pg-bg-3); border-color: rgba(224,168,106,0.4);
+      color: #fff; transform: translateY(-1px); box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+    }
+    #toolbar button:active, .pg-btn:active { transform: translateY(0); }
+    .pg-btn { text-align: left; }
+
+    #pg-live-label {
+      display: inline-flex; align-items: center; gap: 7px;
+      font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.12em;
+      color: var(--pg-dim); cursor: pointer; user-select: none;
+      padding: 5px 11px; border: 1px solid var(--pg-line); border-radius: 8px;
+      background: var(--pg-bg-2); transition: border-color .2s, color .2s;
+    }
+    #pg-live-label:hover { color: var(--pg-text); border-color: var(--pg-line-2); }
+    #pg-live { accent-color: var(--pg-accent); cursor: pointer; margin: 0; width: 13px; height: 13px; }
+    #pg-live:checked { box-shadow: 0 0 8px rgba(224,168,106,0.55); border-radius: 3px; }
+
+    #pg-close { margin-left: auto; }
+    #pg-close:hover { background: rgba(210,97,91,0.16); border-color: var(--pg-danger); color: #fff; box-shadow: var(--glow-danger); }
+
+    /* Transparency checkerboard — kept (functional: reveals what the
+       screen leaves transparent). Wrapped in a subtle inset frame.
+       No overlay/animation here, so the preview stays accurate. */
+    #pg-iframe-wrap {
+      flex: 1; min-height: 0; position: relative;
+      background-color: #cfcfcf;
+      background-image:
+        linear-gradient(45deg, #9e9e9e 25%, transparent 25%, transparent 75%, #9e9e9e 75%, #9e9e9e),
+        linear-gradient(45deg, #9e9e9e 25%, transparent 25%, transparent 75%, #9e9e9e 75%, #9e9e9e);
+      background-size: 22px 22px; background-position: 0 0, 11px 11px;
+      box-shadow: inset 0 0 0 1px var(--pg-line-2), inset 0 0 60px rgba(0,0,0,0.25);
+    }
+    #pg-iframe { width: 100%; height: 100%; border: 0; background: transparent; }
+
+    /* ── Right rail / tabs ────────────────────────── */
+    .pg-tabs { display: flex; border-bottom: 1px solid var(--pg-line); }
+    .pg-tab {
+      position: relative; flex: 1; padding: 11px 12px; cursor: pointer;
+      font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.18em;
+      text-align: center; user-select: none; color: var(--pg-mute);
+      transition: color .2s var(--ease), background .2s var(--ease);
+    }
+    .pg-tab::after {
+      content: ''; position: absolute; left: 14%; right: 14%; bottom: 0; height: 2px;
+      background: var(--pg-accent); border-radius: 2px 2px 0 0;
+      transform: scaleX(0); transform-origin: center; transition: transform .28s var(--ease);
+    }
+    .pg-tab:hover { color: var(--pg-dim); background: rgba(224,204,168,0.035); }
+    .pg-tab.active { color: #fff; }
+    .pg-tab.active::after { transform: scaleX(1); }
+
+    .pg-pane { flex: 1; padding: 12px; overflow-y: auto; display: none; flex-direction: column; gap: 7px; min-height: 0; animation: pg-fade .3s var(--ease); }
+
+    /* Primary / "strong" action — amber. */
+    .pg-btn-strong {
+      background: linear-gradient(135deg, rgba(224,168,106,0.95), rgba(214,146,82,0.85));
+      border-color: transparent; color: #1a1206; font-weight: 700;
+    }
+    .pg-btn-strong:hover { box-shadow: var(--glow); transform: translateY(-1px); color: #1a1206; }
+
+    .pg-input-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; }
+    .pg-input-grid .pg-btn { text-align: center; }
+    .pg-input-custom { display: flex; gap: 5px; margin-top: 9px; align-items: center; }
+    .pg-input-custom input,
+    .pg-input-custom select {
+      flex: 1; min-width: 0; background: var(--pg-bg-2); color: var(--pg-text);
+      border: 1px solid var(--pg-line); border-radius: 7px; padding: 6px 8px;
+      font-family: var(--font-mono); font-size: 11px; outline: none;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .pg-input-custom input:focus,
+    .pg-input-custom select:focus { border-color: rgba(224,168,106,0.5); box-shadow: var(--glow); }
+    .pg-input-custom select optgroup { color: var(--pg-accent); background: var(--pg-bg-1); }
+    .pg-input-custom select option { color: var(--pg-text); background: var(--pg-bg-1); }
+    .pg-input-label {
+      font-family: var(--font-mono); font-size: 11px; color: var(--pg-dim);
+      min-width: 46px; letter-spacing: 0.08em; text-transform: uppercase;
+    }
+
+    .pg-input-mode-bar { margin-bottom: 9px; }
+    .pg-input-mode-bar .pg-btn { width: 100%; padding: 10px; font-size: 12px; letter-spacing: 0.14em; text-align: center; }
+    .pg-input-mode-bar .pg-btn.on {
+      background: linear-gradient(135deg, rgba(224,168,106,0.95), rgba(214,146,82,0.82));
+      border-color: transparent; color: #1a1206; font-weight: 700;
+      box-shadow: 0 0 16px rgba(224,168,106,0.3);
+    }
+
+    /* ── Focus-engine diagnostics ─────────────────── */
+    .pg-focus-block, .pg-axis2d {
+      margin-top: 12px; padding: 12px; border: 1px solid var(--pg-line);
+      border-radius: 10px; background: rgba(224,204,168,0.03);
+      display: flex; flex-direction: column; gap: 7px;
+    }
+    .pg-focus-h, .pg-axis2d-h {
+      font-family: var(--font-mono); font-size: 10px; font-weight: 700;
+      letter-spacing: 0.26em; color: var(--pg-accent);
+      padding-bottom: 6px; border-bottom: 1px solid var(--pg-line); margin-bottom: 2px;
+    }
+    .pg-focus-status { font-size: 12px; color: var(--pg-text); word-break: break-word; line-height: 1.45; }
+    .pg-focus-status.warn { color: var(--pg-warn); }
+    .pg-focus-status.muted { color: var(--pg-dim); font-size: 11px; }
+    .pg-focus-row { display: grid; grid-template-columns: 84px 1fr; gap: 8px; font-size: 12px; line-height: 1.5; }
+    .pg-focus-key { font-family: var(--font-mono); color: var(--pg-mute); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; }
+    .pg-focus-val { color: var(--pg-text); font-family: var(--font-mono); font-size: 11px; word-break: break-word; }
+    .pg-focus-dirs { grid-template-columns: 1fr 1fr 1fr 1fr; }
+    .pg-focus-dirs .pg-btn { font-size: 16px; padding: 8px 6px; }
+
+    /* D-pad cross. */
+    .pg-dpad { display: grid; grid-template-columns: 1fr 1fr 1fr; grid-template-rows: 1fr 1fr 1fr; gap: 4px; width: 138px; margin: 6px auto; }
+    .pg-dpad .pg-btn { text-align: center; font-size: 16px; padding: 9px 0; line-height: 1; color: var(--pg-text); }
+    .pg-dpad .pg-btn:hover { color: var(--pg-accent); border-color: rgba(224,168,106,0.45); box-shadow: var(--glow); }
+    .pg-dpad-up    { grid-column: 2; grid-row: 1; }
+    .pg-dpad-left  { grid-column: 1; grid-row: 2; }
+    .pg-dpad-right { grid-column: 3; grid-row: 2; }
+    .pg-dpad-down  { grid-column: 2; grid-row: 3; }
+
+    /* Axis2D joystick. */
+    .pg-axis2d-row { display: flex; gap: 12px; align-items: center; }
+    .pg-joystick {
+      position: relative; width: 124px; height: 124px; border-radius: 50%;
+      background: radial-gradient(circle at 50% 42%, #1f1d22 0%, #0b0a0e 100%);
+      border: 1px solid var(--pg-line-2); flex: 0 0 auto;
+      touch-action: none; user-select: none;
+      box-shadow: inset 0 2px 12px rgba(0,0,0,0.55);
+    }
+    .pg-joystick::before {
+      content: ''; position: absolute; inset: 0; border-radius: 50%; pointer-events: none;
+      background:
+        linear-gradient(to right, transparent 49%, rgba(224,168,106,0.16) 49%, rgba(224,168,106,0.16) 51%, transparent 51%),
+        linear-gradient(to bottom, transparent 49%, rgba(224,168,106,0.16) 49%, rgba(224,168,106,0.16) 51%, transparent 51%);
+    }
+    .pg-joystick-knob {
+      position: absolute; left: 50%; top: 50%; width: 46px; height: 46px; margin: -23px 0 0 -23px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 38% 32%, #f3d3aa 0%, var(--pg-accent) 46%, #a86a35 100%);
+      border: 1px solid rgba(224,168,106,0.6);
+      box-shadow: 0 3px 10px rgba(0,0,0,0.5), 0 0 12px rgba(224,168,106,0.3);
+      cursor: grab; transition: transform 80ms ease-out;
+    }
+    .pg-joystick.dragging .pg-joystick-knob { cursor: grabbing; transition: none; box-shadow: 0 3px 10px rgba(0,0,0,0.5), 0 0 20px rgba(224,168,106,0.55); }
+    .pg-axis2d-readout { flex: 1; font-family: var(--font-mono); font-size: 12px; color: var(--pg-dim); display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+    .pg-axis2d-readout .v { color: var(--pg-accent); }
+
+    /* ── Debug panel ──────────────────────────────── */
+    .pg-dbg { display: flex; flex-direction: column; gap: 11px; font-size: 12px; }
+    .pg-dbg .pg-dbg-sec { border: 1px solid var(--pg-line); background: rgba(224,204,168,0.03); border-radius: 10px; overflow: hidden; }
+    .pg-dbg .pg-dbg-h {
+      padding: 7px 12px; font-family: var(--font-mono); font-size: 10px; font-weight: 700;
+      letter-spacing: 0.22em; color: var(--pg-accent);
+      border-bottom: 1px solid var(--pg-line); background: rgba(224,168,106,0.05);
+    }
+    .pg-dbg .pg-dbg-body { padding: 9px 12px; display: flex; flex-direction: column; gap: 5px; color: var(--pg-dim); word-break: break-word; }
+    .pg-dbg .pg-dbg-fact { display: grid; grid-template-columns: 100px 1fr; gap: 8px; line-height: 1.4; }
+    .pg-dbg .pg-dbg-k { font-family: var(--font-mono); color: var(--pg-mute); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; }
+    .pg-dbg code { color: var(--pg-text); font-family: var(--font-mono); font-size: 12px; }
+    .pg-dbg code.warn { color: var(--pg-warn); }
+    .pg-dbg code.muted { color: var(--pg-mute); }
+    .pg-dbg .pg-dbg-list { margin: 0; padding-left: 16px; max-height: 140px; overflow: auto; }
+    .pg-dbg .pg-dbg-list li { font-size: 10px; font-family: var(--font-mono); }
+    .pg-dbg .pg-dbg-hist { list-style: none; margin: 0; padding: 0; max-height: 320px; overflow: auto; }
+    .pg-dbg .pg-dbg-hist-row { padding: 3px 0; display: flex; gap: 7px; align-items: baseline; border-bottom: 1px solid var(--pg-line); animation: pg-logrow .25s var(--ease); }
+    .pg-dbg .pg-dbg-hist-row .t { color: var(--pg-mute); font-size: 9px; min-width: 70px; font-family: var(--font-mono); }
+    .pg-dbg .pg-dbg-hist-row .kind { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.1em; min-width: 56px; color: var(--pg-dim); text-transform: uppercase; }
+    .pg-dbg .pg-dbg-hist-row .msg { flex: 1; }
+    .pg-dbg .pg-dbg-publish .kind  { color: var(--pg-blue); }
+    .pg-dbg .pg-dbg-inject  .kind  { color: var(--pg-warn); }
+    .pg-dbg .pg-dbg-scenario .kind { color: var(--pg-violet); }
+    .pg-dbg .pg-dbg-fixture  .kind { color: var(--pg-green); }
+    .pg-dbg .pg-dbg-mode    .kind  { color: var(--pg-accent); }
+    .pg-dbg .pg-dbg-focus   .kind  { color: var(--pg-danger); }
+    .pg-dbg .pg-dbg-fail    .kind,
+    .pg-dbg .pg-dbg-error   .kind  { color: var(--pg-danger); }
+
+    /* ── Log pane ─────────────────────────────────── */
+    #pg-log-toolbar { display: flex; gap: 5px; margin-bottom: 5px; }
+    #pg-log { flex: 1; overflow-y: auto; font-family: var(--font-mono); font-size: 10px; border: 1px solid var(--pg-line); border-radius: 10px; background: rgba(0,0,0,0.25); }
+    .pg-log-row { padding: 3px 9px; border-bottom: 1px solid var(--pg-line); white-space: pre-wrap; word-break: break-word; animation: pg-logrow .22s var(--ease); }
+    .pg-log-row.inject  { color: var(--pg-warn); }
+    .pg-log-row.publish { color: var(--pg-blue); }
+    .pg-log-row.info    { color: var(--pg-dim); }
+    .pg-log-row.fail    { color: var(--pg-danger); }
+    @keyframes pg-logrow { from { opacity: 0; transform: translateX(-6px); } to { opacity: 1; transform: none; } }
+
+    /* ── Scrollbars ───────────────────────────────── */
+    #pg-screens, .pg-pane, #pg-log, .pg-dbg-list, .pg-dbg-hist {
+      scrollbar-width: thin; scrollbar-color: rgba(224,204,168,0.22) transparent;
+    }
+    #pg-screens::-webkit-scrollbar, .pg-pane::-webkit-scrollbar, #pg-log::-webkit-scrollbar { width: 9px; }
+    #pg-screens::-webkit-scrollbar-thumb, .pg-pane::-webkit-scrollbar-thumb, #pg-log::-webkit-scrollbar-thumb {
+      background: rgba(224,204,168,0.18); border-radius: 9px; border: 2px solid transparent; background-clip: padding-box;
+    }
+    #pg-screens::-webkit-scrollbar-thumb:hover, .pg-pane::-webkit-scrollbar-thumb:hover { background: rgba(224,168,106,0.4); background-clip: padding-box; }
+
+    /* Respect reduced-motion: kill all ambient/entrance motion. */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; }
+    }
+  </style>
+
+  <!-- Reuses the existing mock-tsic. -->
+  <script src="/shared/test-harness.js"></script>
+
+  <!-- Playground runtime. -->
+  <script src="/playground/registry.js"></script>
+  <script src="/playground/sim-helpers.js"></script>
+  <script src="/playground/fake-inventory.js"></script>
+  <script src="/playground/input-emulator.js"></script>
+  <script src="/playground/debug-panel.js"></script>
+  <script src="/playground/playground-host.js"></script>
+
+  <!-- Fixture files (alphabetical). -->
+  <!-- FIXTURES-START -->
+  <script src="/playground/fixtures/elements.fixtures.js"></script>
+  <script src="/playground/fixtures/behavior-bar.fixtures.js"></script>
+  <script src="/playground/fixtures/boss-summoner.fixtures.js"></script>
+  <script src="/playground/fixtures/bug-report.fixtures.js"></script>
+  <script src="/playground/fixtures/cage.fixtures.js"></script>
+  <script src="/playground/fixtures/chat.fixtures.js"></script>
+  <script src="/playground/fixtures/cheat-menu.fixtures.js"></script>
+  <script src="/playground/fixtures/circular-progress.fixtures.js"></script>
+  <script src="/playground/fixtures/construction.fixtures.js"></script>
+  <script src="/playground/fixtures/construction-carousel.fixtures.js"></script>
+  <script src="/playground/fixtures/crafting.fixtures.js"></script>
+  <script src="/playground/fixtures/credits.fixtures.js"></script>
+  <script src="/playground/fixtures/crosshair.fixtures.js"></script>
+  <script src="/playground/fixtures/death-screen.fixtures.js"></script>
+  <script src="/playground/fixtures/detection.fixtures.js"></script>
+  <script src="/playground/fixtures/equipment.fixtures.js"></script>
+  <script src="/playground/fixtures/health-bar.fixtures.js"></script>
+  <script src="/playground/fixtures/hotbar.fixtures.js"></script>
+  <script src="/playground/fixtures/in-game.fixtures.js"></script>
+  <script src="/playground/fixtures/interaction.fixtures.js"></script>
+  <script src="/playground/fixtures/inventory.fixtures.js"></script>
+  <script src="/playground/fixtures/loading-screen.fixtures.js"></script>
+  <script src="/playground/fixtures/lore.fixtures.js"></script>
+  <script src="/playground/fixtures/main-menu.fixtures.js"></script>
+  <script src="/playground/fixtures/map.fixtures.js"></script>
+  <script src="/playground/fixtures/mods.fixtures.js"></script>
+  <script src="/playground/fixtures/new-store.fixtures.js"></script>
+  <script src="/playground/fixtures/notifications.fixtures.js"></script>
+  <script src="/playground/fixtures/pause-menu.fixtures.js"></script>
+  <script src="/playground/fixtures/ping.fixtures.js"></script>
+  <script src="/playground/fixtures/ping-markers.fixtures.js"></script>
+  <script src="/playground/fixtures/production.fixtures.js"></script>
+  <script src="/playground/fixtures/quantity-picker.fixtures.js"></script>
+  <script src="/playground/fixtures/repair.fixtures.js"></script>
+  <script src="/playground/fixtures/save-load.fixtures.js"></script>
+  <script src="/playground/fixtures/selection.fixtures.js"></script>
+  <script src="/playground/fixtures/settings.fixtures.js"></script>
+  <script src="/playground/fixtures/stamina-bar.fixtures.js"></script>
+  <script src="/playground/fixtures/stomach.fixtures.js"></script>
+  <script src="/playground/fixtures/storage.fixtures.js"></script>
+  <script src="/playground/fixtures/store-maze.fixtures.js"></script>
+  <script src="/playground/fixtures/teleporter.fixtures.js"></script>
+  <script src="/playground/fixtures/terminal-tier1.fixtures.js"></script>
+  <script src="/playground/fixtures/terminal-tier2.fixtures.js"></script>
+  <script src="/playground/fixtures/terminal-tier3.fixtures.js"></script>
+  <script src="/playground/fixtures/universal-storage.fixtures.js"></script>
+  <script src="/playground/fixtures/universal-storage-setup.fixtures.js"></script>
+  <script src="/playground/fixtures/upgrade.fixtures.js"></script>
+  <script src="/playground/fixtures/voice-chat.fixtures.js"></script>
+  <script src="/playground/fixtures/wardrobe.fixtures.js"></script>
+  <!-- FIXTURES-END -->
+
+</head><body>
+  <div id="root">
+    <div id="screens">
+      <h1>Playground</h1>
+      <input id="pg-filter" placeholder="filter screens…">
+      <div id="pg-legend"><span class="pg-scn-dot on"></span> controller focus engine enabled</div>
+      <div id="pg-screens"></div>
+    </div>
+    <div id="viewer">
+      <div id="toolbar">
+        <button id="pg-reload">Reload</button>
+        <label id="pg-live-label" title="Auto-reload the iframe when watched files change on disk (HTML + linked CSS/JS).">
+          <input type="checkbox" id="pg-live" checked>LIVE
+        </label>
+        <button id="pg-dump">Dump state</button>
+        <button id="pg-subscribed">Subscribed</button>
+        <button id="pg-close">Close</button>
+      </div>
+      <div id="pg-iframe-wrap"><iframe id="pg-iframe" src="about:blank"></iframe></div>
+    </div>
+    <div id="side">
+      <div class="pg-tabs">
+        <div class="pg-tab active" data-pane="pg-scenarios-pane">SCENARIOS</div>
+        <div class="pg-tab" data-pane="pg-input-pane">INPUT</div>
+        <div class="pg-tab" data-pane="pg-debug-pane">DEBUG</div>
+        <div class="pg-tab" data-pane="pg-log-pane">LOG</div>
+      </div>
+      <div id="pg-scenarios-pane" class="pg-pane" style="display:flex;"><div id="pg-scenarios"></div></div>
+      <div id="pg-input-pane" class="pg-pane"><div id="pg-input"></div></div>
+      <div id="pg-debug-pane" class="pg-pane"><div id="pg-debug"></div></div>
+      <div id="pg-log-pane" class="pg-pane">
+        <div id="pg-log-toolbar"><button class="pg-btn" id="pg-clearlog">Clear</button></div>
+        <div id="pg-log"></div>
+      </div>
+    </div>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      TSICPlaygroundHost.boot();
+      document.getElementById('pg-close').addEventListener('click', () => {
+        if (window.tsic) tsic.publishMessage('UI.Cmd.Debug.Close', {});
+      });
+    });
+  </script>
+</body></html>

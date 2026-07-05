@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="tsic-screen" content="CircularProgress">
+  <title>Circular Progress</title>
+  <link rel="stylesheet" href="/shared/base.css">
+  <link rel="stylesheet" href="/shared/components.css">
+    <script src="/shared/tsic-bridge.js" defer></script>
+  <script src="/shared/tsic-runtime.js" defer></script>
+  <script src="/shared/router.js" defer></script>
+  <style>
+    /* Renders a single conic-gradient ring centered on screen while active.
+       The 30 Hz publisher broadcasts Elapsed; the ring's --p variable updates
+       on every message. When bActive is false the host gets display:none. */
+    html, body { background: transparent; }
+    #cp-host { position: fixed; inset: 0; pointer-events: none; display: flex; align-items: center; justify-content: center; }
+    #cp-host.inactive { display: none; }
+    #cp-ring {
+      width: 96px; height: 96px;
+      border-radius: 50%;
+      background: conic-gradient(var(--cp-color, #ffffff) calc(var(--cp-p, 0) * 1%), rgba(241,229,207,0.60) 0);
+      mask: radial-gradient(circle, transparent 35px, #000 36px);
+      -webkit-mask: radial-gradient(circle, transparent 35px, #000 36px);
+    }
+  </style>
+</head><body>
+  <div id="cp-host" class="inactive"><div id="cp-ring"></div></div>
+  <script>
+    (function boot(){
+      if(!window.tsic){ setTimeout(boot,16); return; }
+      tsic.on('tsic.msg.UI.CircularProgress.State', (p) => {
+        const host = document.getElementById('cp-host');
+        const ring = document.getElementById('cp-ring');
+        const active = !!(p && p.bActive && (p.Total > 0));
+        host.classList.toggle('inactive', !active);
+        if (!active) return;
+        const pct = Math.max(0, Math.min(100, Math.round((p.Elapsed / p.Total) * 100)));
+        ring.style.setProperty('--cp-p', String(pct));
+        if (p.Color) ring.style.setProperty('--cp-color', p.Color);
+      });
+    })();
+  </script>
+</body></html>

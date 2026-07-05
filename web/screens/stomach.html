@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="tsic-screen" content="Stomach">
+  <title>Stomach</title>
+  <link rel="stylesheet" href="/shared/base.css">
+  <script src="/shared/tsic-bridge.js" defer></script>
+  <script src="/shared/tsic-runtime.js" defer></script>
+  <script src="/shared/router.js" defer></script>
+  <script src="/shared/dom.js" defer></script>
+  <script src="/shared/icons.js" defer></script>
+  <!-- Thin fixture: the stomach renders via the live shared component, the same
+       one the combined in-game HUD loads (shared/hud-stomach.js). No duplicate
+       renderer here — only the #hud-stomach shell + a standalone position. -->
+  <script src="/shared/hud-stomach.js" defer></script>
+  <style>
+    #hud-stomach { position: fixed; left: 24px; bottom: 30px; }
+  </style>
+</head><body>
+  <div id="hud-stomach"></div>
+</body></html>

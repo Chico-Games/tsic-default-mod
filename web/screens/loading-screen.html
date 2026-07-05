@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="tsic-screen" content="Loading">
+  <title>Loading</title>
+  <link rel="stylesheet" href="/shared/base.css">
+  <link rel="stylesheet" href="/shared/components.css">
+  <script src="/shared/router.js" defer></script>
+  <script src="/shared/tsic-bridge.js" defer></script>
+  <script src="/shared/tsic-runtime.js" defer></script>
+  <script src="/shared/store-maze.js" defer></script>
+  <script src="/shared/store-maze-stage.js" defer></script>
+  <style>
+    .loading-body {
+      padding: 12px 22px 22px;
+      text-align: center;
+      font-family: var(--font-terminal);
+      font-size: 18px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+    }
+    /* Progress bar — driven by UI.Loading.Progress { Progress: 0..1 }. */
+    .loading-bar {
+      margin: 16px auto 0;
+      width: 100%;
+      height: 14px;
+      border: 2px solid var(--ink-night);
+      background: var(--paper-cream, #f4ecd8);
+      overflow: hidden;
+    }
+    .loading-bar-fill {
+      height: 100%;
+      width: 0%;
+      /* Ink fill with a barber-pole of translucent cream diagonals that slowly
+         slide, so the bar reads as "working" even when progress sits still. */
+      background-color: var(--ink-night);
+      background-image: linear-gradient(45deg,
+        rgba(240, 232, 208, 0.22) 25%, transparent 25%,
+        transparent 50%, rgba(240, 232, 208, 0.22) 50%,
+        rgba(240, 232, 208, 0.22) 75%, transparent 75%, transparent);
+      background-size: 18px 18px;
+      transition: width 0.35s ease;
+      animation: loading-stripes 1.6s linear infinite;
+    }
+    @keyframes loading-stripes {
+      from { background-position: 18px 0; }
+      to   { background-position: 0 0; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .loading-bar-fill { animation: none; }
+    }
+    .loading-pct {
+      margin-top: 8px;
+      font-size: 13px;
+      letter-spacing: 0.22em;
+      color: var(--ink-night);
+    }
+    .loading-dots > span { display: inline-block; opacity: 0; }
+    .loading-dots > span:nth-child(1) { animation: tsic-loading-dot-1 1.4s infinite; }
+    .loading-dots > span:nth-child(2) { animation: tsic-loading-dot-2 1.4s infinite; }
+    .loading-dots > span:nth-child(3) { animation: tsic-loading-dot-3 1.4s infinite; }
+    @keyframes tsic-loading-dot-1 {
+      0%, 24.99% { opacity: 0; }
+      25%, 99%   { opacity: 1; }
+      100%       { opacity: 0; }
+    }
+    @keyframes tsic-loading-dot-2 {
+      0%, 49.99% { opacity: 0; }
+      50%, 99%   { opacity: 1; }
+      100%       { opacity: 0; }
+    }
+    @keyframes tsic-loading-dot-3 {
+      0%, 74.99% { opacity: 0; }
+      75%, 99%   { opacity: 1; }
+      100%       { opacity: 0; }
+    }
+  </style>
+</head><body>
+  <div class="tsic-stage--magazine-gradient">
+    <div class="tsic-panel tsic-cover" style="--tsic-cover-width: 420px;">
+      <div class="tsic-masthead">
+        <div class="tsic-masthead-title">
+          Loading World
+        </div>
+        <div class="tsic-masthead-meta">
+          <span class="tsic-masthead-issue">Vol. 1</span>
+          <span class="tsic-masthead-date">Preparing your order.</span>
+        </div>
+      </div>
+      <div class="loading-body">
+        <span id="loading-status">Loading</span><span class="loading-dots" aria-hidden="true"><span>.</span><span>.</span><span>.</span></span>
+        <div class="loading-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+          <div class="loading-bar-fill" id="loading-bar-fill"></div>
+        </div>
+        <div class="loading-pct" id="loading-pct">0%</div>
+      </div>
+    </div>
+  </div>
+  <script>
+    (function () {
+      // Tongue-in-cheek store-prep flavour text. The real backend phase label
+      // is ignored for display — these cycle on a timer so the screen always
+      // feels alive, with a few nods to what the store gets up to after hours.
+      const FLAVOR = [
+        'Assembling the flat-pack wardrobes',
+        'Fluffing the display cushions',
+        'Testing the recliners',
+        'Building the showroom kitchens',
+        'Searching for the last allen key',
+        'Steaming the curtains',
+        'Rotating the mattress display',
+        'Arranging the scatter cushions',
+        'Polishing the dining tables',
+        'Naming the bookshelves',
+        'Untangling the fairy lights',
+        'Bouncing on the mattresses',
+        'Straightening the picture frames',
+        'Re-stuffing the sofas',
+        'Spinning the office chairs',
+        'Vacuuming the showroom rugs',
+        'Tightening the bed frames',
+        'Dressing the showroom bedrooms',
+        'Labelling the drawer units',
+        'Checking under the beds',
+        'Closing the wardrobe doors',
+        'Counting the mannequins',
+      ];
+
+      // Shuffled walk through FLAVOR so each load varies and we never repeat a
+      // line back-to-back across reshuffles.
+      function shuffled(arr) {
+        const a = arr.slice();
+        for (let i = a.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [a[i], a[j]] = [a[j], a[i]];
+        }
+        return a;
+      }
+      let queue = shuffled(FLAVOR);
+      let last = null;
+      function nextFlavor() {
+        if (!queue.length) {
+          queue = shuffled(FLAVOR);
+          if (queue[0] === last && queue.length > 1) queue.push(queue.shift());
+        }
+        last = queue.shift();
+        return last;
+      }
+      const statusEl = document.getElementById('loading-status');
+      function tickFlavor() { if (statusEl) statusEl.textContent = nextFlavor(); }
+      // Swap lines on a randomised interval (~6.5–9.5s) so the cadence feels
+      // organic rather than a metronome. Self-scheduling timeout, not setInterval.
+      function scheduleFlavor() {
+        const delay = 6500 + Math.random() * 3000;
+        setTimeout(function () { tickFlavor(); scheduleFlavor(); }, delay);
+      }
+      tickFlavor();
+      scheduleFlavor();
+
+      function render(payload) {
+        // Headline + status line are independent of progress; only the bar and
+        // percentage track the real 0..1 value.
+        const raw = payload && typeof payload.Progress === 'number' ? payload.Progress : 0;
+        const pct = Math.round(Math.max(0, Math.min(1, raw)) * 100);
+        const fill = document.getElementById('loading-bar-fill');
+        const pctEl = document.getElementById('loading-pct');
+        const bar = document.querySelector('.loading-bar');
+        if (fill)  fill.style.width = pct + '%';
+        if (pctEl) pctEl.textContent = pct + '%';
+        if (bar)   bar.setAttribute('aria-valuenow', String(pct));
+      }
+      // Poll for the bridge instead of a one-shot tsic.whenReady: this inline
+      // script runs at parse time, before window.tsic exists (the C++ bridge —
+      // and the playground/test mock — stamp it later). A bare tsic.whenReady
+      // here throws "tsic is not defined" and the subscription is lost. Retrying
+      // until tsic.bootMenu exists binds to whichever tsic appears, in-game or
+      // in the playground. (Same pattern as action-bar.html.)
+      (function boot() {
+        if (!window.tsic || typeof tsic.bootMenu !== 'function') { setTimeout(boot, 16); return; }
+        tsic.bootMenu(function (ctx) {
+          ctx.on('tsic.msg.UI.Loading.Progress', render);
+        }, { escape: false, closeButton: false });
+      })();
+    })();
+  </script>
+</body></html>

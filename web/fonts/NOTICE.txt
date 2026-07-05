@@ -1,0 +1,15 @@
+Bundled web fonts — third-party notices
+=======================================
+
+All fonts below are licensed under the SIL Open Font License 1.1
+(https://openfontlicense.org), which permits commercial use, bundling, and
+embedding; it requires this notice/license to accompany the font files and
+that the fonts are not sold on their own. The hand-written faces are assigned
+per note series on the in-game paper / note lore screen.
+
+- Shadows Into Light  shadows-into-light-400.woff2
+                      (c) Kimberly Geswein. https://fonts.google.com/specimen/Shadows+Into+Light
+- Gloria Hallelujah   gloria-hallelujah-400.woff2
+                      (c) Kimberly Geswein. https://fonts.google.com/specimen/Gloria+Hallelujah
+- Reenie Beanie       reenie-beanie-400.woff2
+                      (c) James Grieshaber. https://fonts.google.com/specimen/Reenie+Beanie

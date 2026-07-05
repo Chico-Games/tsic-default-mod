@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="tsic-screen" content="Settings">
+  <meta name="tsic-input-mode" content="InputMode.Menu.Settings">
+  <meta name="tsic-cancel-cmd" content="UI.Cmd.Settings.Back">
+  <meta name="tsic-focus" content="enabled">
+  <meta name="tsic-action-bar-context" content='[]'>
+  <title>Settings</title>
+  <link rel="stylesheet" href="/shared/base.css">
+  <link rel="stylesheet" href="/shared/components.css">
+  <script src="/shared/tsic-bridge.js" defer></script>
+  <script src="/shared/tsic-runtime.js" defer></script>
+  <script src="/shared/store-maze.js" defer></script>
+  <script src="/shared/store-maze-stage.js" defer></script>
+  <script src="/shared/icons.js" defer></script>
+  <script src="/shared/router.js" defer></script>
+  <script src="/shared/tsic-focus.js" defer></script>
+  <script src="/shared/tsic-dropdown.js" defer></script>
+  <script src="/screens/settings.js" defer></script>
+  <style>
+    /* Fixed-height content viewport: the body is the same height on every tab
+       (clamped across viewport sizes), so switching Audio/Video/Gameplay/Controls
+       never resizes the cover or jumps the footer — short pages pad out, the long
+       Controls page scrolls internally. Right padding is trimmed (vs the 22px left)
+       and a stable scrollbar gutter is reserved so the rebind controls' right edge
+       lines up with the masthead margin instead of being pushed inward by the
+       scrollbar — and stays put whether or not a tab actually scrolls. */
+    .settings-body { padding: 4px 12px 14px 22px; height: 40vh; min-height: 280px; max-height: 440px; overflow-y: auto; scrollbar-gutter: stable; }
+    /* Tab strip is shared — see .tsic-tab / [data-tsic-tab-bar] in tsic-ui.css. */
+
+    .group { margin-bottom: 22px; }
+    .group h3 {
+      font-family: var(--font-display);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+      margin: 0 0 6px;
+      padding-bottom: 3px;
+      border-bottom: 2px dashed var(--ink-mute);
+    }
+    .field {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px dashed var(--ink-mute);
+      gap: 16px;
+    }
+    .field label {
+      flex: 1;
+      color: var(--ink-night);
+      font-family: var(--font-body);
+      font-size: 14px;
+    }
+    .field-control { display: flex; align-items: center; gap: 8px; }
+    .field input[type=range] {
+      width: 240px;
+      accent-color: var(--mag-red);
+    }
+    .field select {
+      background: var(--paper-bright);
+      color: var(--ink-night);
+      border: 1px solid var(--ink-night);
+      padding: 3px 8px;
+      font-family: inherit;
+    }
+    .field .value-label {
+      color: var(--ink-soft);
+      min-width: 36px;
+      text-align: right;
+      font-family: var(--font-terminal);
+      font-size: 13px;
+    }
+    /* Toggle pill — dark ink track, paper-cream knob, magazine red when on. */
+    .field-toggle {
+      width: 44px; height: 22px;
+      background: var(--ink-mute);
+      border-radius: 12px;
+      position: relative;
+      cursor: pointer;
+      transition: background 120ms linear;
+    }
+    .field-toggle.on { background: var(--mag-red); }
+    .field-toggle::after {
+      content: '';
+      position: absolute;
+      left: 3px; top: 3px;
+      width: 16px; height: 16px;
+      background: var(--paper-cream);
+      border-radius: 50%;
+      transition: left 120ms linear;
+    }
+    .field-toggle.on::after { left: 25px; }
+    .field-toggle.disabled { background: var(--paper-muted); cursor: not-allowed; }
+    .field-rebind {
+      background: var(--paper-bright);
+      color: var(--ink-night);
+      border: 1px solid var(--ink-night);
+      padding: 3px 12px;
+      cursor: pointer;
+      min-width: 120px;
+      font-family: var(--font-body);
+    }
+    .field-rebind:hover { background: var(--mag-yellow); }
+    .field-rebind.waiting { background: var(--mag-red); color: var(--paper-cream); border-color: var(--mag-red); }
+
+    /* Transient status row above the row-buttons. Height is reserved so the
+       apply-countdown / restart notice appearing or clearing never shifts the
+       footer rows. */
+    .settings-status {
+      padding: 8px 22px 0;
+      min-height: 34px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      font-family: var(--font-terminal);
+      font-size: 13px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .settings-status [hidden] { display: none; }
+    #restart-required { color: var(--mag-red); }
+    #apply-toast {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      color: var(--ink-night);
+    }
+    #apply-toast .tsic-button { font-size: 11px; padding: 3px 10px; }
+
+    /* Controls tab — rebind UI (the Controls page is mods-only). Buttons mirror
+       the .field-rebind magazine treatment above so the tab reads consistently. */
+    .binding-row .field-control { gap: 12px; }
+    /* Fixed-width left cell holding the optional Hold/Toggle tickbox, so the rebind
+       buttons start at the same x on every row (present or empty). */
+    .binding-row .toggle-cell { flex: 0 0 44px; display:flex; align-items:center; justify-content:flex-start; }
+    .bind-btn { display:inline-flex; align-items:center; gap:6px; background: var(--paper-bright); color: var(--ink-night);
+            border:1px solid var(--ink-night); padding: 2px 10px; cursor:pointer; min-width: 96px; justify-content:center; font-family: var(--font-body); }
+    .bind-btn:not(.locked):hover { background: var(--mag-yellow); }
+    .bind-btn.waiting { background: var(--mag-red); color: var(--paper-cream); border-color: var(--mag-red); }
+    .bind-btn.locked { opacity: 0.4; cursor: default; }
+    .bind-btn img { width: 20px; height: 20px; }
+    .bind-btn .key-text { font-size: 12px; }
+    .bind-locked { color: var(--cat-ink-soft); font-size: 12px; font-style: italic; }
+    .shared-note { color: var(--cat-ink-soft); font-size: 11px; margin-left: 6px; }
+    #rebind-modal { position: fixed; inset: 0; display:flex; align-items:center; justify-content:center;
+            background: rgba(0,0,0,0.45); z-index: 50; }
+    #rebind-modal[hidden] { display: none; }
+    #rebind-modal .panel { background: var(--cat-bg); color: var(--cat-ink-dark); border: 1px solid var(--cat-border);
+            padding: 24px 32px; min-width: 320px; text-align:center; box-shadow: var(--cat-shadow-soft); }
+    #rebind-modal .panel .msg { margin-bottom: 16px; }
+  </style>
+</head><body>
+  <div class="tsic-stage--magazine-gradient">
+    <div class="tsic-panel tsic-cover" style="--tsic-cover-width: 820px;">
+      <div class="tsic-masthead">
+        <div class="tsic-masthead-title">
+          <em>The Fine</em>
+          Print.
+        </div>
+        <div class="tsic-masthead-meta">
+          <span class="tsic-masthead-issue">Dept. 88</span>
+          <span class="tsic-masthead-date">Shopping, your way.</span>
+        </div>
+      </div>
+
+      <div class="settings-body">
+        <div id="tabs" class="tsic-tab-strip" data-tsic-tab-bar></div>
+        <div id="page" data-tsic-focus-group="setting-list">Loading…</div>
+      </div>
+
+      <div class="settings-status">
+        <span id="restart-required" hidden>Restart required</span>
+        <span id="apply-toast" hidden>
+          Applying… <b id="apply-countdown">10</b>s
+          <button id="btn-keep" class="tsic-button">Keep</button>
+          <button id="btn-revert" class="tsic-button">Revert</button>
+        </span>
+      </div>
+
+      <div class="tsic-cover-rows" data-tsic-focus-group="actions">
+        <button class="tsic-row-button" id="btn-back" data-tsic-initial-focus>
+          <span class="tsic-row-dept">Fire Exit</span>
+          Back to Main
+          <span class="tsic-row-pg">PG. 01</span>
+        </button>
+        <button class="tsic-row-button" id="btn-reset">
+          <span class="tsic-row-dept">Dept. 88</span>
+          Reset to Defaults
+          <span class="tsic-row-pg">RESET</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</body></html>

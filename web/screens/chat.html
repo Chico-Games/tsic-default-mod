@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="tsic-screen" content="Chat">
+  <meta name="tsic-input-mode" content="InputMode.Menu.Chat">
+  <title>Chat</title>
+  <link rel="stylesheet" href="/shared/base.css">
+  <link rel="stylesheet" href="/shared/components.css">
+  <link rel="stylesheet" href="/shared/hud.css">
+    <script src="/shared/tsic-bridge.js" defer></script>
+  <script src="/shared/tsic-runtime.js" defer></script>
+  <script src="/shared/router.js" defer></script>
+  <script src="/shared/hud.js" defer></script>
+  <style>
+    /* Bottom-left transparent overlay — never modal. Body background is fully
+       transparent so the 3D world shows through; only the input strip captures
+       clicks via tsic.setInteractiveRects when focused. */
+    html, body { background: transparent; }
+    #chat-root {
+      position: fixed;
+      left: 24px;
+      bottom: 200px;
+      width: 380px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      pointer-events: none;
+      color: var(--cat-ink-dark);
+      font-size: 13px;
+      line-height: 1.35;
+    }
+    #chat-log {
+      display: flex;
+      flex-direction: column-reverse;
+      gap: 4px;
+      max-height: 240px;
+      overflow: hidden;
+      padding: 6px 8px;
+      background: rgba(241,229,207,0.78);
+      border-left: 2px solid var(--tsic-border);
+      border-radius: 2px;
+    }
+    .cm-row {
+      display: flex;
+      gap: 6px;
+      align-items: baseline;
+    }
+    .cm-sender { color: var(--tsic-accent); font-weight: 600; flex: 0 0 auto; }
+    .cm-text { flex: 1 1 auto; word-break: break-word; }
+    #chat-input-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 8px;
+      background: rgba(241,229,207,0.92);
+      border: 1px solid var(--tsic-border);
+      border-radius: 2px;
+    }
+    /* The input is the ONLY interactive element on the page — clicks elsewhere
+       fall through to the gameplay layer because of pointer-events:none on the
+       root. */
+    #chat-input-row.tsic-interactive { pointer-events: auto; }
+    #chat-input {
+      flex: 1 1 auto;
+      background: transparent;
+      border: 0;
+      outline: none;
+      color: var(--cat-ink-dark);
+      font: inherit;
+    }
+    #chat-input::placeholder { color: var(--tsic-text-dim, rgba(255,255,255,0.35)); }
+    #chat-prompt { color: var(--tsic-text-dim, rgba(255,255,255,0.5)); }
+  </style>
+</head><body>
+  <div id="chat-root">
+    <div id="chat-log"></div>
+    <div id="chat-input-row" class="tsic-interactive">
+      <span id="chat-prompt">&gt;</span>
+      <input id="chat-input" type="text" autocomplete="off" spellcheck="false"
+             placeholder="Press Enter to chat…" maxlength="200">
+    </div>
+  </div>
+  <script>
+    (function () {
+      function escapeHtml(s) {
+        return String(s == null ? '' : s)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;');
+      }
+
+      function render(history) {
+        const log = document.getElementById('chat-log');
+        log.innerHTML = '';
+        const msgs = (history && history.Messages) || [];
+        // Newest first because the log is column-reverse.
+        for (let i = msgs.length - 1; i >= 0; --i) {
+          const m = msgs[i];
+          const row = document.createElement('div');
+          row.className = 'cm-row';
+          const sender = document.createElement('span');
+          sender.className = 'cm-sender';
+          sender.textContent = (m.SenderName || 'Unknown') + ':';
+          const text = document.createElement('span');
+          text.className = 'cm-text';
+          text.textContent = m.Text || '';
+          row.appendChild(sender);
+          row.appendChild(text);
+          log.appendChild(row);
+        }
+      }
+
+      function inputRect() {
+        const row = document.getElementById('chat-input-row');
+        if (!row) return null;
+        const r = row.getBoundingClientRect();
+        // Pad a couple of pixels so the border-radius doesn't clip clicks at the edge.
+        const pad = 2;
+        return {
+          x: Math.max(0, Math.floor(r.left - pad)),
+          y: Math.max(0, Math.floor(r.top - pad)),
+          w: Math.ceil(r.width + pad * 2),
+          h: Math.ceil(r.height + pad * 2),
+        };
+      }
+
+      function publishRects(rects) {
+        if (window.tsic && typeof tsic.setInteractiveRects === 'function') {
+          tsic.setInteractiveRects(rects);
+        }
+      }
+
+      function send() {
+        const input = document.getElementById('chat-input');
+        const text = (input.value || '').trim();
+        if (!text) return;
+        tsic.publishMessage('UI.Cmd.Chat.Send', {
+          // Empty channel: let the server decide. The current C++ chat path
+          // only knows a single global channel.
+          Channel: '',
+          Text: text,
+        });
+        input.value = '';
+      }
+
+      (function boot() {
+      if (!window.tsic || typeof tsic.whenReady !== 'function') { setTimeout(boot, 16); return; }
+      tsic.whenReady(function () {
+        const input = document.getElementById('chat-input');
+
+        // Subscribe immediately so cache replay delivers history whenever this
+        // page is loaded — even when chat isn't the "current screen".
+        tsic.on('tsic.msg.UI.Chat.History', (p) => render(p));
+
+        input.addEventListener('focus', () => {
+          const r = inputRect();
+          if (r) publishRects([r]);
+        });
+        input.addEventListener('blur', () => {
+          publishRects([]);
+        });
+        input.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            send();
+          } else if (e.key === 'Escape') {
+            input.blur();
+          }
+        });
+
+        // Keep the declared rect in sync with the actual layout if the viewport
+        // resizes while the input is focused.
+        window.addEventListener('resize', () => {
+          if (document.activeElement === input) {
+            const r = inputRect();
+            if (r) publishRects([r]);
+          }
+        });
+      });
+      })();
+    })();
+  </script>
+</body></html>

@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="tsic-screen" content="MapDebug">
+  <meta name="tsic-debug" content="true">
+  <meta name="tsic-input-mode" content="InputMode.Menu.Map">
+  <title>Map Debug Grid</title>
+    <script src="/shared/tsic-bridge.js" defer></script>
+  <script src="/shared/tsic-runtime.js" defer></script>
+  <script src="/shared/router.js" defer></script>
+  <script src="/shared/tsic-focus.js" defer></script>
+  <script src="/shared/icons.js" defer></script>
+  <style>
+    html, body { margin: 0; padding: 0; height: 100%; background: #111; color: #ddd;
+      font-family: 'Consolas', monospace; overflow: hidden; }
+    #root { display: flex; flex-direction: column; height: 100%; }
+    #toolbar {
+      flex: 0 0 auto;
+      padding: 8px 12px;
+      background: #1a1a1a;
+      border-bottom: 1px solid #333;
+      display: flex; gap: 16px; align-items: center; flex-wrap: wrap;
+      font-size: 12px;
+    }
+    #toolbar .grp { display: inline-flex; gap: 4px; align-items: center; }
+    #toolbar label { color: #888; margin-right: 4px; }
+    #toolbar button {
+      background: #2a2a2a; color: #ddd; border: 1px solid #444;
+      padding: 4px 10px; font-family: inherit; font-size: 12px; cursor: pointer;
+    }
+    #toolbar button.on { background: #4a6; color: #000; border-color: #6c8; }
+    #toolbar .info { margin-left: auto; color: #666; }
+    #grid {
+      flex: 1 1 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+      gap: 4px;
+      padding: 4px;
+      overflow: auto;
+      min-height: 0;
+    }
+    .cell {
+      background: #222;
+      display: flex; flex-direction: column;
+      min-height: 0; min-width: 0;
+      overflow: hidden;
+    }
+    .cell .hdr {
+      flex: 0 0 auto;
+      padding: 4px 8px;
+      background: #1a1a1a;
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 11px;
+      border-bottom: 1px solid #333;
+    }
+    .cell .name { color: #cce; letter-spacing: 1px; }
+    .cell .status { color: #666; }
+    .cell .status.ok { color: #6c8; }
+    .cell .status.err { color: #e66; font-weight: bold; }
+    .cell .imgwrap {
+      flex: 1 1 auto;
+      display: flex; align-items: center; justify-content: center;
+      min-height: 0; min-width: 0;
+      overflow: auto;
+      position: relative;
+    }
+    .player-dot {
+      position: absolute; z-index: 10;
+      border-radius: 50%;
+      border: 2px solid #fff;
+      box-shadow: 0 0 6px rgba(0,0,0,0.9);
+      pointer-events: none;
+    }
+    /* Backdrop cycle — body[data-bg]. Magenta is the classic "missing texture"
+       tell; checker reveals per-pixel alpha; black shows a solid backdrop. */
+    body[data-bg="magenta"] .imgwrap { background: #ff00ff; }
+    body[data-bg="black"]   .imgwrap { background: #000; }
+    body[data-bg="checker"] .imgwrap {
+      background-color: #444;
+      background-image:
+        linear-gradient(45deg, #888 25%, transparent 25%),
+        linear-gradient(-45deg, #888 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #888 75%),
+        linear-gradient(-45deg, transparent 75%, #888 75%);
+      background-size: 16px 16px;
+      background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+    }
+    /* Size cycle — body[data-size]. `stretch` fits the cell, `native` shows
+       the texture at its actual pixel size (rules out CSS sizing issues). */
+    body[data-size="stretch"] .cell img {
+      max-width: 100%; max-height: 100%;
+      width: 100%; height: 100%;
+      object-fit: contain;
+      image-rendering: pixelated;
+    }
+    body[data-size="native"] .cell img {
+      image-rendering: pixelated;
+    }
+    /* `nocss` mode — wipe all CSS off the <img>. Final fallback for ruling
+       out a WebView CSS bug; if a texture renders here but nowhere else,
+       the bug is in the stylesheet, not the GPU driver or pixel data. */
+    body[data-css="off"] .cell img {
+      all: revert;
+      width: auto; height: auto;
+    }
+  </style>
+</head><body data-bg="none" data-size="stretch" data-css="on">
+  <div id="root">
+    <div id="toolbar">
+      <div class="grp">
+        <label>BG</label>
+        <button data-action="bg">none</button>
+      </div>
+      <div class="grp">
+        <label>SIZE</label>
+        <button data-action="size">stretch</button>
+      </div>
+      <div class="grp">
+        <label>CSS</label>
+        <button data-action="css">on</button>
+      </div>
+      <button data-action="reload">reload all</button>
+      <button data-action="combo-debug">combo matrix &rarr;</button>
+      <button data-action="player-debug">player marker debug &rarr;</button>
+      <button data-action="overlay-test">overlay test (12 variants) &rarr;</button>
+      <button data-action="marker-test">marker render test (18 methods) &rarr;</button>
+      <button data-action="close" style="margin-left:auto;background:#a33;border-color:#c55;">Close</button>
+    </div>
+    <div id="grid">
+      <div class="cell" data-id="world-map">
+        <div class="hdr"><span class="name">world-map</span><span id="player-count" style="color:#3498db;margin-right:8px"></span><span class="status">loading…</span></div>
+        <div class="imgwrap" id="map-imgwrap">
+          <img alt="">
+        </div>
+      </div>
+      <div class="cell" data-id="world-debug-height">
+        <div class="hdr"><span class="name">world-debug-height</span><span class="status">loading…</span></div>
+        <div class="imgwrap"><img alt=""></div>
+      </div>
+      <div class="cell" data-id="fow">
+        <div class="hdr"><span class="name">fow</span><span class="status">loading…</span></div>
+        <div class="imgwrap"><img alt=""></div>
+      </div>
+      <div class="cell" data-id="world-debug-maze">
+        <div class="hdr"><span class="name">world-debug-maze</span><span class="status">loading…</span></div>
+        <div class="imgwrap"><img alt=""></div>
+      </div>
+    </div>
+  </div>
+  <script>
+    (function () {
+      const BG_CYCLE   = ['none', 'magenta', 'black', 'checker'];
+      const SIZE_CYCLE = ['stretch', 'native'];
+      const CSS_CYCLE  = ['on', 'off'];
+
+      function setSrcWithCacheBust(img, id) {
+        img.src = TSIC.runtimeImgUrl(id) + '?t=' + Date.now();
+      }
+
+      function wireCell(cell) {
+        const id     = cell.getAttribute('data-id');
+        const img    = cell.querySelector('img');
+        const status = cell.querySelector('.status');
+        img.addEventListener('load', () => {
+          if (img.naturalWidth === 0 || img.naturalHeight === 0) {
+            status.textContent = 'EMPTY 0×0';
+            status.className = 'status err';
+            return;
+          }
+          status.textContent = `${img.naturalWidth}×${img.naturalHeight}`;
+          status.className = 'status ok';
+        });
+        img.addEventListener('error', () => {
+          status.textContent = 'FAILED';
+          status.className = 'status err';
+        });
+        setSrcWithCacheBust(img, id);
+      }
+
+      function reloadAll() {
+        for (const cell of document.querySelectorAll('.cell')) {
+          const id = cell.getAttribute('data-id');
+          const img = cell.querySelector('img');
+          const status = cell.querySelector('.status');
+          status.textContent = 'loading…';
+          status.className = 'status';
+          setSrcWithCacheBust(img, id);
+        }
+      }
+
+      function cycleAttr(name, cycle) {
+        const cur = document.body.getAttribute(`data-${name}`) || cycle[0];
+        const i = cycle.indexOf(cur);
+        const next = cycle[(i + 1) % cycle.length];
+        document.body.setAttribute(`data-${name}`, next);
+        const btn = document.querySelector(`button[data-action="${name}"]`);
+        if (btn) {
+          btn.textContent = next;
+          btn.classList.toggle('on', next !== cycle[0]);
+        }
+      }
+
+      document.addEventListener('click', (ev) => {
+        const btn = ev.target.closest('button[data-action]');
+        if (!btn) return;
+        const action = btn.getAttribute('data-action');
+        if (action === 'bg')      cycleAttr('bg', BG_CYCLE);
+        else if (action === 'size') cycleAttr('size', SIZE_CYCLE);
+        else if (action === 'css')  cycleAttr('css', CSS_CYCLE);
+        else if (action === 'reload') reloadAll();
+        else if (action === 'combo-debug') window.location.href = '/screens/map-combo-debug.html';
+        else if (action === 'player-debug') window.location.href = '/screens/map-player-debug.html';
+        else if (action === 'overlay-test') window.location.href = '/screens/map-overlay-test.html';
+        else if (action === 'marker-test') window.location.href = '/screens/map-marker-test.html';
+        else if (action === 'close') { if (window.tsic) tsic.publishMessage('UI.Cmd.Debug.Close', {}); }
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') { e.preventDefault(); if (window.tsic) tsic.publishMessage('UI.Cmd.Debug.Close', {}); }
+      });
+
+      for (const cell of document.querySelectorAll('.cell')) {
+        wireCell(cell);
+      }
+
+      // --- Player marker overlay on the world-map cell (div-based) ---
+      let mapBounds = null;
+      let latestPlayers = null;
+      let playerDots = [];
+
+      function clearPlayerDots() {
+        for (let k = 0; k < playerDots.length; k++) {
+          if (playerDots[k].parentNode) playerDots[k].parentNode.removeChild(playerDots[k]);
+        }
+        playerDots = [];
+      }
+
+      function containedRect(img) {
+        const ew = img.clientWidth, eh = img.clientHeight;
+        const nw = img.naturalWidth || 1, nh = img.naturalHeight || 1;
+        const imgAR = nw / nh, elemAR = ew / eh;
+        let rw, rh, ox, oy;
+        if (elemAR > imgAR) { rh = eh; rw = eh * imgAR; ox = (ew - rw) / 2; oy = 0; }
+        else { rw = ew; rh = ew / imgAR; ox = 0; oy = (eh - rh) / 2; }
+        return { ox, oy, rw, rh };
+      }
+
+      function renderDebugPlayers() {
+        clearPlayerDots();
+        const wrap = document.getElementById('map-imgwrap');
+        const img = wrap ? wrap.querySelector('img') : null;
+        if (!wrap || !img || !mapBounds || !latestPlayers || latestPlayers.length === 0) return;
+        if (!img.naturalWidth || !img.clientWidth) return;
+        const worldW = mapBounds.maxY - mapBounds.minY;
+        const worldH = mapBounds.maxX - mapBounds.minX;
+        if (worldW <= 0 || worldH <= 0) return;
+        const imgR = img.getBoundingClientRect();
+        const wrapR = wrap.getBoundingClientRect();
+        const offX = imgR.left - wrapR.left;
+        const offY = imgR.top  - wrapR.top;
+        const cr = containedRect(img);
+        for (let i = 0; i < latestPlayers.length; i++) {
+          const pl = latestPlayers[i];
+          const wx = (pl.Position && pl.Position.X) || 0;
+          const wy = (pl.Position && pl.Position.Y) || 0;
+          const lx = (wy - mapBounds.minY) / worldW;
+          const ly = (mapBounds.maxX - wx) / worldH;
+          const px = offX + cr.ox + lx * cr.rw;
+          const py = offY + cr.oy + ly * cr.rh;
+          const isSelf = (i === 0);
+          const color = pl.Color || (isSelf ? '#3498db' : '#888');
+          // Direction line
+          const arrLen = 10;
+          const arrow = document.createElement('div');
+          arrow.style.cssText = 'position:absolute;z-index:9;pointer-events:none;'
+            + 'left:' + px + 'px;top:' + py + 'px;'
+            + 'width:' + arrLen + 'px;height:2px;'
+            + 'background:#fff;'
+            + 'transform-origin:0 50%;margin-top:-1px;'
+            + 'transform:rotate(' + (pl.YawDeg || 0) + 'deg);';
+          wrap.appendChild(arrow);
+          playerDots.push(arrow);
+          // Dot
+          const sz = isSelf ? 10 : 7;
+          const dot = document.createElement('div');
+          dot.className = 'player-dot';
+          dot.style.left = (px - sz / 2) + 'px';
+          dot.style.top  = (py - sz / 2) + 'px';
+          dot.style.width = sz + 'px';
+          dot.style.height = sz + 'px';
+          dot.style.background = color;
+          wrap.appendChild(dot);
+          playerDots.push(dot);
+        }
+      }
+
+      function onDebugSnapshot(p) {
+        if (!p) return;
+        const minB = p.MinBounds || {};
+        const maxB = p.MaxBounds || {};
+        mapBounds = {
+          minX: minB.X || 0, minY: minB.Y || 0,
+          maxX: maxB.X || 0, maxY: maxB.Y || 0,
+        };
+        latestPlayers = p.Players || [];
+        const countEl = document.getElementById('player-count');
+        if (countEl) {
+          countEl.textContent = latestPlayers.length > 0
+            ? latestPlayers.length + ' player' + (latestPlayers.length > 1 ? 's' : '')
+            : '';
+        }
+        renderDebugPlayers();
+      }
+
+      (function bootMapDebug() {
+        if (!window.tsic) { setTimeout(bootMapDebug, 16); return; }
+        tsic.on('tsic.msg.UI.Map.Snapshot', onDebugSnapshot);
+      })();
+
+      const mapImg = document.querySelector('#map-imgwrap img');
+      if (mapImg) {
+        if (typeof ResizeObserver !== 'undefined') {
+          new ResizeObserver(function () { renderDebugPlayers(); }).observe(mapImg);
+        }
+        mapImg.addEventListener('load', function () { renderDebugPlayers(); });
+      }
+    })();
+  </script>
+</body></html>

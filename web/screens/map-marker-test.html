@@ -1,0 +1,927 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="tsic-screen" content="MapMarkerTest">
+  <meta name="tsic-debug" content="true">
+  <meta name="tsic-input-mode" content="InputMode.Menu.Map">
+  <title>Map Marker Rendering Test</title>
+    <script src="/shared/tsic-bridge.js" defer></script>
+  <script src="/shared/tsic-runtime.js" defer></script>
+  <script src="/shared/router.js" defer></script>
+  <script src="/shared/tsic-focus.js" defer></script>
+  <style>
+    html, body { margin: 0; padding: 0; height: 100%; background: #111; color: #ddd;
+      font-family: 'Consolas', monospace; overflow: hidden; }
+    #root { display: flex; flex-direction: column; height: 100%; }
+    #toolbar {
+      flex: 0 0 auto;
+      padding: 6px 12px;
+      background: #1a1a1a;
+      border-bottom: 1px solid #333;
+      display: flex; gap: 12px; align-items: center;
+      font-size: 12px;
+    }
+    #toolbar button {
+      background: #2a2a2a; color: #ddd; border: 1px solid #444;
+      padding: 4px 10px; font-family: inherit; font-size: 12px; cursor: pointer;
+    }
+    #toolbar #status { color: #cce; margin-left: auto; font-size: 11px; }
+    #toolbar #status.empty { color: #e66; }
+    #tab-bar {
+      flex: 0 0 auto;
+      display: flex; gap: 4px;
+      padding: 6px 12px;
+      background: #1a1a1a;
+      border-bottom: 1px solid #333;
+    }
+    .tab-btn {
+      background: #2a2a2a; border: 1px solid #444; color: #999;
+      padding: 6px 16px; font-family: inherit; font-size: 13px;
+      cursor: pointer; letter-spacing: 1px; font-weight: bold;
+    }
+    .tab-btn.active { background: #3a3a3a; color: #4ae; border-color: #4ae; }
+    .tab-page { display: none; flex: 1 1 auto; min-height: 0; }
+    .tab-page.active { display: flex; flex-direction: column; }
+    .grid {
+      flex: 1 1 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-rows: 1fr 1fr 1fr;
+      gap: 3px;
+      padding: 3px;
+      min-height: 0;
+      overflow: hidden;
+    }
+    .cell {
+      display: flex; flex-direction: column;
+      min-height: 0; min-width: 0;
+      overflow: hidden;
+      border: 1px solid #2a2a2a;
+      background: #1c1c1c;
+    }
+    .cell .hdr {
+      flex: 0 0 auto;
+      padding: 3px 8px;
+      background: #181818;
+      font-size: 10px;
+      border-bottom: 1px solid #2a2a2a;
+      display: flex; justify-content: space-between; gap: 6px;
+    }
+    .cell .hdr .name { color: #cce; letter-spacing: 1px; font-weight: bold; }
+    .cell .hdr .desc { color: #777; font-size: 9px; text-align: right; }
+    .cell .hdr .verdict { font-weight: bold; }
+    .cell .hdr .verdict.pass { color: #2ecc71; }
+    .cell .hdr .verdict.fail { color: #e74c3c; }
+    .map-area {
+      flex: 1 1 auto;
+      position: relative;
+      overflow: hidden;
+      background: #0a0a0a;
+    }
+    .map-area img.bg {
+      width: 100%; height: 100%;
+      object-fit: contain;
+      image-rendering: pixelated;
+    }
+    .map-area canvas.overlay {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+    }
+    .map-area .fallback-grid {
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(40,40,40,0.5) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(40,40,40,0.5) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+    }
+  </style>
+</head><body>
+  <div id="root">
+    <div id="toolbar">
+      <button data-action="back">&larr; Map Debug</button>
+      <span style="color:#666;">green = DOM OK / drawn &middot; red = missing or zero-size</span>
+      <span id="status" class="empty">fixture only (no PIE snapshot)</span>
+      <button data-action="close" style="margin-left:auto;background:#a33;border-color:#c55;">Close</button>
+    </div>
+    <div id="tab-bar">
+      <button class="tab-btn active" data-tab="shape-tab">Shape (9 methods)</button>
+      <button class="tab-btn" data-tab="rot-tab">Rotation (9 methods)</button>
+    </div>
+    <div class="tab-page active" id="shape-tab"><div class="grid" id="shape-grid"></div></div>
+    <div class="tab-page" id="rot-tab"><div class="grid" id="rot-grid"></div></div>
+  </div>
+  <script>
+    (function () {
+      var SHAPE_FIXTURE = {
+        MinBounds: { X: 0, Y: 0 },
+        MaxBounds: { X: 12800, Y: 12800 },
+        Players: [
+          { PlayerId: 'self', Name: 'Self', Position: { X: 6400, Y: 6400 }, YawDeg: 0, Color: '#3498db' },
+          { PlayerId: 'other', Name: 'Other', Position: { X: 10000, Y: 2000 }, YawDeg: 90, Color: '#888888' },
+        ],
+      };
+      var ROT_FIXTURE = {
+        MinBounds: { X: 0, Y: 0 },
+        MaxBounds: { X: 12800, Y: 12800 },
+        Players: [
+          { PlayerId: 'n',  Name: '0°',   Position: { X: 9800, Y: 6400  }, YawDeg: 0,   Color: '#3498db' },
+          { PlayerId: 'ne', Name: '45°',  Position: { X: 8800, Y: 8800  }, YawDeg: 45,  Color: '#1abc9c' },
+          { PlayerId: 'e',  Name: '90°',  Position: { X: 6400, Y: 9800  }, YawDeg: 90,  Color: '#2ecc71' },
+          { PlayerId: 'se', Name: '135°', Position: { X: 4000, Y: 8800  }, YawDeg: 135, Color: '#f1c40f' },
+          { PlayerId: 's',  Name: '180°', Position: { X: 3000, Y: 6400  }, YawDeg: 180, Color: '#e67e22' },
+          { PlayerId: 'sw', Name: '225°', Position: { X: 4000, Y: 4000  }, YawDeg: 225, Color: '#e74c3c' },
+          { PlayerId: 'w',  Name: '270°', Position: { X: 6400, Y: 3000  }, YawDeg: 270, Color: '#9b59b6' },
+          { PlayerId: 'nw', Name: '315°', Position: { X: 8800, Y: 4000  }, YawDeg: 315, Color: '#8e44ad' },
+        ],
+      };
+
+      var LIVE = null;
+      var SVG_NS = 'http://www.w3.org/2000/svg';
+      var DROPLET_D = 'M12 2C6.48 2 2 6.48 2 12c0 6 10 20 10 20s10-14 10-20c0-5.52-4.48-10-10-10z';
+
+      // Border-radius mix shape as SVG path (20x20 viewBox).
+      // 3 rounded corners (r=10) + 1 sharp bottom-left corner.
+      // Three 90-degree arcs sharing center (10,10) r=10, then line to (0,20).
+      var PIN_D = 'M0 10A10 10 0 0 1 10 0A10 10 0 0 1 20 10A10 10 0 0 1 10 20L0 20Z';
+      var PIN_CX = 10, PIN_CY = 10;
+      var PIN_VB = 20;
+
+      // =================================================================
+      //  SHAPE METHODS
+      // =================================================================
+
+      var SHAPE_METHODS = [
+        {
+          id: 'div-circle',
+          name: 'A. DIV CIRCLE',
+          desc: 'div + border-radius:50% (baseline)',
+          anchor: 'center',
+          create: function (color, isSelf) {
+            var sz = isSelf ? 14 : 10;
+            var d = document.createElement('div');
+            d.className = 'mk';
+            d.style.cssText = 'position:absolute;pointer-events:none;'
+              + 'width:' + sz + 'px;height:' + sz + 'px;'
+              + 'background:' + color + ';'
+              + 'border:2px solid #fff;border-radius:50%;'
+              + 'box-shadow:0 0 4px rgba(0,0,0,0.6);';
+            return { els: [d], w: sz, h: sz };
+          }
+        },
+        {
+          id: 'svg-circle',
+          name: 'B. SVG CIRCLE',
+          desc: 'inline <svg><circle> via createElementNS',
+          anchor: 'center',
+          create: function (color, isSelf) {
+            var sz = isSelf ? 18 : 14;
+            var r = sz / 2 - 2;
+            var svg = document.createElementNS(SVG_NS, 'svg');
+            svg.setAttribute('width', sz);
+            svg.setAttribute('height', sz);
+            svg.setAttribute('viewBox', '0 0 ' + sz + ' ' + sz);
+            svg.style.cssText = 'position:absolute;pointer-events:none;overflow:visible;';
+            svg.classList.add('mk');
+            var c = document.createElementNS(SVG_NS, 'circle');
+            c.setAttribute('cx', sz / 2);
+            c.setAttribute('cy', sz / 2);
+            c.setAttribute('r', r);
+            c.setAttribute('fill', color);
+            c.setAttribute('stroke', '#fff');
+            c.setAttribute('stroke-width', '2');
+            svg.appendChild(c);
+            return { els: [svg], w: sz, h: sz };
+          }
+        },
+        {
+          id: 'svg-droplet-ns',
+          name: 'C. SVG DROPLET (createNS)',
+          desc: 'inline <svg><path> droplet via createElementNS',
+          anchor: 'tip',
+          create: function (color, isSelf) {
+            var w = isSelf ? 16 : 11;
+            var h = Math.round(w * 34 / 24);
+            var svg = document.createElementNS(SVG_NS, 'svg');
+            svg.setAttribute('width', w);
+            svg.setAttribute('height', h);
+            svg.setAttribute('viewBox', '0 0 24 34');
+            svg.style.cssText = 'position:absolute;pointer-events:none;overflow:visible;';
+            svg.classList.add('mk');
+            var p = document.createElementNS(SVG_NS, 'path');
+            p.setAttribute('d', DROPLET_D);
+            p.setAttribute('fill', color);
+            p.setAttribute('stroke', '#fff');
+            p.setAttribute('stroke-width', '2');
+            svg.appendChild(p);
+            return { els: [svg], w: w, h: h };
+          }
+        },
+        {
+          id: 'svg-droplet-inner',
+          name: 'D. SVG DROPLET (innerHTML)',
+          desc: 'container innerHTML with SVG markup string',
+          anchor: 'tip',
+          create: function (color, isSelf) {
+            var w = isSelf ? 16 : 11;
+            var h = Math.round(w * 34 / 24);
+            var wrap = document.createElement('div');
+            wrap.style.cssText = 'position:absolute;pointer-events:none;width:' + w + 'px;height:' + h + 'px;';
+            wrap.classList.add('mk');
+            wrap.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="' + w + '" height="' + h
+              + '" viewBox="0 0 24 34" style="overflow:visible;">'
+              + '<path d="' + DROPLET_D + '" fill="' + color + '" stroke="#fff" stroke-width="2"/>'
+              + '</svg>';
+            return { els: [wrap], w: w, h: h };
+          }
+        },
+        {
+          id: 'img-datauri',
+          name: 'E. IMG DATA-URI',
+          desc: '<img src="data:image/svg+xml,..."> droplet',
+          anchor: 'tip',
+          create: function (color, isSelf) {
+            var w = isSelf ? 16 : 11;
+            var h = Math.round(w * 34 / 24);
+            var svgStr = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="34" viewBox="0 0 24 34">'
+              + '<path d="' + DROPLET_D + '" fill="' + color + '" stroke="white" stroke-width="2"/>'
+              + '</svg>';
+            var img = document.createElement('img');
+            img.style.cssText = 'position:absolute;pointer-events:none;width:' + w + 'px;height:' + h + 'px;';
+            img.classList.add('mk');
+            img.src = 'data:image/svg+xml,' + encodeURIComponent(svgStr);
+            return { els: [img], w: w, h: h };
+          }
+        },
+        {
+          id: 'css-pin',
+          name: 'F. CSS PIN',
+          desc: 'circle div + triangle div (no SVG)',
+          anchor: 'tip',
+          create: function (color, isSelf) {
+            var circSz = isSelf ? 14 : 10;
+            var triH = isSelf ? 8 : 6;
+            var triW = isSelf ? 8 : 6;
+            var totalH = circSz + triH;
+            var wrap = document.createElement('div');
+            wrap.style.cssText = 'position:absolute;pointer-events:none;'
+              + 'width:' + circSz + 'px;height:' + totalH + 'px;';
+            wrap.classList.add('mk');
+            var circ = document.createElement('div');
+            circ.style.cssText = 'width:' + circSz + 'px;height:' + circSz + 'px;'
+              + 'background:' + color + ';'
+              + 'border:2px solid #fff;border-radius:50%;'
+              + 'box-sizing:border-box;';
+            wrap.appendChild(circ);
+            var tri = document.createElement('div');
+            tri.style.cssText = 'width:0;height:0;margin:0 auto;'
+              + 'border-left:' + (triW / 2) + 'px solid transparent;'
+              + 'border-right:' + (triW / 2) + 'px solid transparent;'
+              + 'border-top:' + triH + 'px solid ' + color + ';';
+            wrap.appendChild(tri);
+            return { els: [wrap], w: circSz, h: totalH };
+          }
+        },
+        {
+          id: 'bg-svg',
+          name: 'G. DIV BG-IMAGE',
+          desc: 'div background-image: url(data:svg) droplet',
+          anchor: 'tip',
+          create: function (color, isSelf) {
+            var w = isSelf ? 16 : 11;
+            var h = Math.round(w * 34 / 24);
+            var svgStr = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 34">'
+              + '<path d="' + DROPLET_D + '" fill="' + color + '" stroke="white" stroke-width="2"/>'
+              + '</svg>';
+            var d = document.createElement('div');
+            d.style.cssText = 'position:absolute;pointer-events:none;'
+              + 'width:' + w + 'px;height:' + h + 'px;'
+              + 'background-image:url(\"data:image/svg+xml,' + encodeURIComponent(svgStr) + '\");'
+              + 'background-size:contain;background-repeat:no-repeat;';
+            d.classList.add('mk');
+            return { els: [d], w: w, h: h };
+          }
+        },
+        {
+          id: 'css-border-droplet',
+          name: 'H. BORDER-RADIUS MIX',
+          desc: 'div with asymmetric border-radius 50% 50% 50% 0',
+          anchor: 'center',
+          create: function (color, isSelf) {
+            var sz = isSelf ? 18 : 13;
+            var d = document.createElement('div');
+            d.className = 'mk';
+            d.style.cssText = 'position:absolute;pointer-events:none;'
+              + 'width:' + sz + 'px;height:' + sz + 'px;'
+              + 'background:' + color + ';'
+              + 'border:2px solid #fff;'
+              + 'border-radius:50% 50% 50% 0;'
+              + 'box-shadow:0 0 4px rgba(0,0,0,0.6);';
+            return { els: [d], w: sz, h: sz };
+          }
+        },
+        {
+          id: 'css-border-egg',
+          name: 'I. BORDER-RADIUS EGG',
+          desc: 'div with egg border-radius 50%/60% 60% 40% 40%',
+          anchor: 'center',
+          create: function (color, isSelf) {
+            var w = isSelf ? 14 : 10;
+            var h = isSelf ? 20 : 14;
+            var d = document.createElement('div');
+            d.className = 'mk';
+            d.style.cssText = 'position:absolute;pointer-events:none;'
+              + 'width:' + w + 'px;height:' + h + 'px;'
+              + 'background:' + color + ';'
+              + 'border:2px solid #fff;'
+              + 'border-radius:50% 50% 50% 50% / 60% 60% 40% 40%;'
+              + 'box-shadow:0 0 4px rgba(0,0,0,0.6);';
+            return { els: [d], w: w, h: h };
+          }
+        },
+      ];
+
+      // =================================================================
+      //  SVG path rotation (JS math — handles M,L,C,c,s,A,a,Z)
+      // =================================================================
+
+      function rotatePath(d, angleDeg, cx, cy) {
+        var rad = angleDeg * Math.PI / 180;
+        var cosA = Math.cos(rad), sinA = Math.sin(rad);
+        function rA(x, y) {
+          var dx = x - cx, dy = y - cy;
+          return [cx + dx * cosA - dy * sinA, cy + dx * sinA + dy * cosA];
+        }
+        function rR(dx, dy) {
+          return [dx * cosA - dy * sinA, dx * sinA + dy * cosA];
+        }
+        var f = function (p) { return p[0].toFixed(2) + ' ' + p[1].toFixed(2); };
+        var toks = d.match(/[A-Za-z]|[-+]?(?:\d+\.?\d*|\.\d+)/g);
+        var out = [], i = 0;
+        while (i < toks.length) {
+          var c = toks[i++];
+          if (c === 'M' || c === 'L') {
+            out.push(c + f(rA(+toks[i], +toks[i + 1]))); i += 2;
+          } else if (c === 'm' || c === 'l') {
+            out.push(c + f(rR(+toks[i], +toks[i + 1]))); i += 2;
+          } else if (c === 'C') {
+            out.push('C' + f(rA(+toks[i],+toks[i+1])) + ' ' + f(rA(+toks[i+2],+toks[i+3])) + ' ' + f(rA(+toks[i+4],+toks[i+5]))); i += 6;
+          } else if (c === 'c') {
+            out.push('c' + f(rR(+toks[i],+toks[i+1])) + ' ' + f(rR(+toks[i+2],+toks[i+3])) + ' ' + f(rR(+toks[i+4],+toks[i+5]))); i += 6;
+          } else if (c === 'S') {
+            out.push('S' + f(rA(+toks[i],+toks[i+1])) + ' ' + f(rA(+toks[i+2],+toks[i+3]))); i += 4;
+          } else if (c === 's') {
+            out.push('s' + f(rR(+toks[i],+toks[i+1])) + ' ' + f(rR(+toks[i+2],+toks[i+3]))); i += 4;
+          } else if (c === 'A') {
+            // A rx ry x-rot large-arc sweep x y
+            var rx = toks[i], ry = toks[i+1], xrot = +toks[i+2];
+            var la = toks[i+3], sw = toks[i+4];
+            var ep = rA(+toks[i+5], +toks[i+6]);
+            out.push('A' + rx + ' ' + ry + ' ' + ((xrot + angleDeg) % 360).toFixed(2)
+              + ' ' + la + ' ' + sw + ' ' + f(ep));
+            i += 7;
+          } else if (c === 'a') {
+            var rx2 = toks[i], ry2 = toks[i+1], xrot2 = +toks[i+2];
+            var la2 = toks[i+3], sw2 = toks[i+4];
+            var ep2 = rR(+toks[i+5], +toks[i+6]);
+            out.push('a' + rx2 + ' ' + ry2 + ' ' + ((xrot2 + angleDeg) % 360).toFixed(2)
+              + ' ' + la2 + ' ' + sw2 + ' ' + f(ep2));
+            i += 7;
+          } else if (c === 'z' || c === 'Z') {
+            out.push(c);
+          }
+        }
+        return out.join('');
+      }
+
+      // =================================================================
+      //  ROTATION METHODS — border-radius mix shape, different rotation techniques
+      //  Each create(color, angleDeg) returns { els, w, h }, anchored at center.
+      // =================================================================
+
+      var ROT_SZ = 20;
+
+      // Helper: make the base border-radius mix div (unrotated)
+      function makePin(color, sz) {
+        var d = document.createElement('div');
+        d.style.cssText = 'width:' + sz + 'px;height:' + sz + 'px;'
+          + 'background:' + color + ';'
+          + 'border:2px solid #fff;'
+          + 'border-radius:50% 50% 50% 0;'
+          + 'box-sizing:border-box;'
+          + 'box-shadow:0 0 4px rgba(0,0,0,0.6);';
+        return d;
+      }
+
+      // Corner-swap: map angle → border-radius (4 diagonal directions)
+      // Sharp corner points in that direction.
+      // 225° SW = 50% 50% 50% 0  (bottom-left sharp)
+      // 315° NW = 0 50% 50% 50%  (top-left sharp)
+      // 45°  NE = 50% 0 50% 50%  (top-right sharp)
+      // 135° SE = 50% 50% 0 50%  (bottom-right sharp)
+      function cornerRadiusForAngle(angle) {
+        var a = ((angle % 360) + 360) % 360;
+        if (a >= 0   && a < 90)  return '50% 0 50% 50%';   // NE quadrant → sharp top-right
+        if (a >= 90  && a < 180) return '50% 50% 0 50%';   // SE quadrant → sharp bottom-right
+        if (a >= 180 && a < 270) return '50% 50% 50% 0';   // SW quadrant → sharp bottom-left
+        return '0 50% 50% 50%';                              // NW quadrant → sharp top-left
+      }
+
+      // Scale-flip: map angle → scaleX/scaleY (base shape points SW = 225°)
+      function scaleForAngle(angle) {
+        var a = ((angle % 360) + 360) % 360;
+        if (a >= 0   && a < 90)  return 'scale(-1,-1)'; // NE
+        if (a >= 90  && a < 180) return 'scaleX(-1)';   // SE
+        if (a >= 180 && a < 270) return '';               // SW (base)
+        return 'scaleY(-1)';                              // NW
+      }
+
+      var ROT_METHODS = [
+        {
+          id: 'rot-css-rotate',
+          name: 'A. CSS rotate()',
+          desc: 'transform:rotate() on shape div directly',
+          create: function (color, angle) {
+            var d = makePin(color, ROT_SZ);
+            d.classList.add('mk');
+            d.style.position = 'absolute';
+            d.style.pointerEvents = 'none';
+            d.style.transform = 'rotate(' + angle + 'deg)';
+            return { els: [d], w: ROT_SZ, h: ROT_SZ };
+          }
+        },
+        {
+          id: 'rot-css-wrapper',
+          name: 'B. CSS rotate(wrapper)',
+          desc: 'transform:rotate() on parent div wrapping shape',
+          create: function (color, angle) {
+            var wrap = document.createElement('div');
+            wrap.classList.add('mk');
+            wrap.style.cssText = 'position:absolute;pointer-events:none;'
+              + 'width:' + ROT_SZ + 'px;height:' + ROT_SZ + 'px;'
+              + 'transform:rotate(' + angle + 'deg);';
+            wrap.appendChild(makePin(color, ROT_SZ));
+            return { els: [wrap], w: ROT_SZ, h: ROT_SZ };
+          }
+        },
+        {
+          id: 'rot-corner-swap',
+          name: 'C. CORNER SWAP',
+          desc: 'change which corner is sharp (4 directions)',
+          create: function (color, angle) {
+            var d = makePin(color, ROT_SZ);
+            d.classList.add('mk');
+            d.style.position = 'absolute';
+            d.style.pointerEvents = 'none';
+            d.style.borderRadius = cornerRadiusForAngle(angle);
+            return { els: [d], w: ROT_SZ, h: ROT_SZ };
+          }
+        },
+        {
+          id: 'rot-scale-flip',
+          name: 'D. SCALE FLIP',
+          desc: 'transform:scale(-1) to mirror (4 directions)',
+          create: function (color, angle) {
+            var d = makePin(color, ROT_SZ);
+            d.classList.add('mk');
+            d.style.position = 'absolute';
+            d.style.pointerEvents = 'none';
+            var sc = scaleForAngle(angle);
+            if (sc) d.style.transform = sc;
+            return { els: [d], w: ROT_SZ, h: ROT_SZ };
+          }
+        },
+        {
+          id: 'rot-corner-scale-8dir',
+          name: 'E. CORNER+SCALE (8-dir)',
+          desc: 'corner swap + scale flip for 8 compass points',
+          create: function (color, angle) {
+            // Normalize to nearest 45° step
+            var a = ((angle % 360) + 360) % 360;
+            var octant = Math.round(a / 45) % 8;
+            // Each octant: [borderRadius, scaleTransform]
+            // Base corners point at diagonals; scale flips get the in-between cardinal dirs
+            var configs = [
+              ['0 50% 50% 50%', 'scaleX(-1)'],   // 0: N  → sharp top-left, flip X → top-center-ish
+              ['50% 0 50% 50%', ''],               // 1: NE → sharp top-right
+              ['50% 50% 0 50%', 'scaleY(-1)'],    // 2: E  → sharp bottom-right, flip Y → right-center-ish
+              ['50% 50% 0 50%', ''],               // 3: SE → sharp bottom-right
+              ['50% 50% 50% 0', 'scaleX(-1)'],    // 4: S  → sharp bottom-left, flip X → bottom-center-ish
+              ['50% 50% 50% 0', ''],               // 5: SW → sharp bottom-left
+              ['0 50% 50% 50%', 'scaleY(-1)'],    // 6: W  → sharp top-left, flip Y → left-center-ish
+              ['0 50% 50% 50%', ''],               // 7: NW → sharp top-left
+            ];
+            var cfg = configs[octant];
+            var d = makePin(color, ROT_SZ);
+            d.classList.add('mk');
+            d.style.position = 'absolute';
+            d.style.pointerEvents = 'none';
+            d.style.borderRadius = cfg[0];
+            if (cfg[1]) d.style.transform = cfg[1];
+            return { els: [d], w: ROT_SZ, h: ROT_SZ };
+          }
+        },
+        {
+          id: 'rot-canvas',
+          name: 'F. CANVAS 2D',
+          desc: 'canvas context.rotate() + arc/lineTo draw',
+          isCanvas: true,
+          create: function () { return null; }
+        },
+        {
+          id: 'rot-svg-g-xform',
+          name: 'G. SVG <g transform>',
+          desc: 'inline SVG with transform="rotate()" on <g>',
+          create: function (color, angle) {
+            var vb = PIN_VB + 8;
+            var off = 4;
+            var svg = document.createElementNS(SVG_NS, 'svg');
+            svg.setAttribute('width', ROT_SZ);
+            svg.setAttribute('height', ROT_SZ);
+            svg.setAttribute('viewBox', (-off) + ' ' + (-off) + ' ' + vb + ' ' + vb);
+            svg.classList.add('mk');
+            svg.style.cssText = 'position:absolute;pointer-events:none;overflow:visible;';
+            var g = document.createElementNS(SVG_NS, 'g');
+            g.setAttribute('transform', 'rotate(' + angle + ',' + PIN_CX + ',' + PIN_CY + ')');
+            var p = document.createElementNS(SVG_NS, 'path');
+            p.setAttribute('d', PIN_D);
+            p.setAttribute('fill', color);
+            p.setAttribute('stroke', '#fff');
+            p.setAttribute('stroke-width', '2');
+            g.appendChild(p);
+            svg.appendChild(g);
+            return { els: [svg], w: ROT_SZ, h: ROT_SZ };
+          }
+        },
+        {
+          id: 'rot-datauri-svg-xform',
+          name: 'H. DATA-URI + SVG xform',
+          desc: '<img> data:svg with baked SVG g transform',
+          create: function (color, angle) {
+            var vb = PIN_VB + 8;
+            var off = 4;
+            var svgStr = '<svg xmlns="http://www.w3.org/2000/svg" width="' + vb + '" height="' + vb
+              + '" viewBox="' + (-off) + ' ' + (-off) + ' ' + vb + ' ' + vb + '">'
+              + '<g transform="rotate(' + angle + ',' + PIN_CX + ',' + PIN_CY + ')">'
+              + '<path d="' + PIN_D + '" fill="' + color + '" stroke="white" stroke-width="2"/>'
+              + '</g></svg>';
+            var img = document.createElement('img');
+            img.classList.add('mk');
+            img.style.cssText = 'position:absolute;pointer-events:none;width:' + ROT_SZ + 'px;height:' + ROT_SZ + 'px;';
+            img.src = 'data:image/svg+xml,' + encodeURIComponent(svgStr);
+            return { els: [img], w: ROT_SZ, h: ROT_SZ };
+          }
+        },
+        {
+          id: 'rot-precomp-path',
+          name: 'I. PRE-ROTATED PATH',
+          desc: 'JS-rotated path coords, no transforms at all',
+          create: function (color, angle) {
+            var rotD = rotatePath(PIN_D, angle, PIN_CX, PIN_CY);
+            var vb = PIN_VB + 8;
+            var off = 4;
+            var svg = document.createElementNS(SVG_NS, 'svg');
+            svg.setAttribute('width', ROT_SZ);
+            svg.setAttribute('height', ROT_SZ);
+            svg.setAttribute('viewBox', (-off) + ' ' + (-off) + ' ' + vb + ' ' + vb);
+            svg.classList.add('mk');
+            svg.style.cssText = 'position:absolute;pointer-events:none;overflow:visible;';
+            var p = document.createElementNS(SVG_NS, 'path');
+            p.setAttribute('d', rotD);
+            p.setAttribute('fill', color);
+            p.setAttribute('stroke', '#fff');
+            p.setAttribute('stroke-width', '2');
+            svg.appendChild(p);
+            return { els: [svg], w: ROT_SZ, h: ROT_SZ };
+          }
+        },
+      ];
+
+      // =================================================================
+      //  Grid builder & positioning (shared)
+      // =================================================================
+
+      function containedRect(img) {
+        var ew = img.clientWidth || 1, eh = img.clientHeight || 1;
+        var nw = img.naturalWidth || 1, nh = img.naturalHeight || 1;
+        var imgAR = nw / nh, elemAR = ew / eh;
+        var rw, rh, ox, oy;
+        if (elemAR > imgAR) { rh = eh; rw = eh * imgAR; ox = (ew - rw) / 2; oy = 0; }
+        else { rw = ew; rh = ew / imgAR; ox = 0; oy = (eh - rh) / 2; }
+        return { ox: ox, oy: oy, rw: rw, rh: rh };
+      }
+
+      function worldToPixel(wx, wy, snap, area) {
+        var minB = snap.MinBounds, maxB = snap.MaxBounds;
+        var worldW = (maxB.Y - minB.Y) || 1, worldH = (maxB.X - minB.X) || 1;
+        var lx = (wy - minB.Y) / worldW, ly = (maxB.X - wx) / worldH;
+        var img = area.querySelector('img.bg');
+        if (img && img.naturalWidth && img.clientWidth) {
+          var cr = containedRect(img);
+          return { x: cr.ox + lx * cr.rw, y: cr.oy + ly * cr.rh };
+        }
+        return { x: lx * (area.clientWidth || 1), y: ly * (area.clientHeight || 1) };
+      }
+
+      function buildCells(gridId, methods) {
+        var grid = document.getElementById(gridId);
+        for (var i = 0; i < methods.length; i++) {
+          var m = methods[i];
+          var cell = document.createElement('div');
+          cell.className = 'cell';
+          cell.dataset.method = m.id;
+          var hdr = document.createElement('div');
+          hdr.className = 'hdr';
+          hdr.innerHTML = '<span class="name">' + m.name + '</span>'
+            + '<span class="desc">' + m.desc + '</span>'
+            + '<span class="verdict" id="verdict-' + m.id + '"></span>';
+          cell.appendChild(hdr);
+          var area = document.createElement('div');
+          area.className = 'map-area';
+          area.id = 'area-' + m.id;
+          var img = document.createElement('img');
+          img.className = 'bg';
+          img.src = '/runtime/world-map.imgsrc';
+          img.alt = '';
+          img.onerror = function () { this.style.display = 'none'; };
+          area.appendChild(img);
+          var fb = document.createElement('div');
+          fb.className = 'fallback-grid';
+          area.appendChild(fb);
+          if (m.isCanvas) {
+            var cvs = document.createElement('canvas');
+            cvs.className = 'overlay';
+            cvs.id = 'canvas-' + m.id;
+            area.appendChild(cvs);
+          }
+          cell.appendChild(area);
+          grid.appendChild(cell);
+        }
+      }
+
+      // =================================================================
+      //  Shape tab rendering
+      // =================================================================
+
+      function renderShapeCell(method, snap) {
+        var area = document.getElementById('area-' + method.id);
+        if (!area) return;
+        var old = area.querySelectorAll('.mk,.mk-label');
+        for (var k = 0; k < old.length; k++) old[k].parentNode.removeChild(old[k]);
+        var players = snap.Players || [];
+        var placed = 0;
+        for (var i = 0; i < players.length; i++) {
+          var pl = players[i];
+          var pos = worldToPixel((pl.Position && pl.Position.X) || 0, (pl.Position && pl.Position.Y) || 0, snap, area);
+          var result = method.create(pl.Color || '#3498db', i === 0);
+          for (var e = 0; e < result.els.length; e++) {
+            var el = result.els[e];
+            el.style.left = (pos.x - result.w / 2) + 'px';
+            el.style.top  = (pos.y - (method.anchor === 'tip' ? result.h : result.h / 2)) + 'px';
+            area.appendChild(el);
+          }
+          var label = document.createElement('div');
+          label.className = 'mk-label';
+          label.style.cssText = 'position:absolute;pointer-events:none;z-index:20;'
+            + 'font-size:9px;color:#fff;background:rgba(0,0,0,0.7);padding:1px 3px;white-space:nowrap;';
+          label.style.left = (pos.x + result.w / 2 + 3) + 'px';
+          label.style.top = (pos.y - 8) + 'px';
+          label.textContent = pl.Name || pl.PlayerId || ('P' + i);
+          area.appendChild(label);
+          placed++;
+        }
+        updateVerdict(method.id, area, placed);
+      }
+
+      // =================================================================
+      //  Rotation tab rendering
+      // =================================================================
+
+      function renderRotCell(method, snap) {
+        var area = document.getElementById('area-' + method.id);
+        if (!area) return;
+        var old = area.querySelectorAll('.mk,.mk-label');
+        for (var k = 0; k < old.length; k++) old[k].parentNode.removeChild(old[k]);
+        var players = snap.Players || [];
+
+        if (method.isCanvas) {
+          renderCanvasCell(method, snap, area, players);
+          return;
+        }
+
+        var placed = 0;
+        for (var i = 0; i < players.length; i++) {
+          var pl = players[i];
+          var pos = worldToPixel((pl.Position && pl.Position.X) || 0, (pl.Position && pl.Position.Y) || 0, snap, area);
+          var angle = pl.YawDeg || 0;
+          var result = method.create(pl.Color || '#3498db', angle);
+          for (var e = 0; e < result.els.length; e++) {
+            var el = result.els[e];
+            el.style.left = (pos.x - result.w / 2) + 'px';
+            el.style.top  = (pos.y - result.h / 2) + 'px';
+            area.appendChild(el);
+          }
+          var label = document.createElement('div');
+          label.className = 'mk-label';
+          label.style.cssText = 'position:absolute;pointer-events:none;z-index:20;'
+            + 'font-size:9px;color:#fff;background:rgba(0,0,0,0.7);padding:1px 3px;white-space:nowrap;';
+          label.style.left = (pos.x + result.w / 2 + 3) + 'px';
+          label.style.top = (pos.y - 8) + 'px';
+          label.textContent = (pl.Name || '') + ' ' + angle + '°';
+          area.appendChild(label);
+          placed++;
+        }
+        updateVerdict(method.id, area, placed);
+      }
+
+      function drawPin(ctx, x, y, angle, color, sz) {
+        var sc = sz / PIN_VB;
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(angle * Math.PI / 180);
+        ctx.scale(sc, sc);
+        ctx.translate(-PIN_CX, -PIN_CY);
+        ctx.beginPath();
+        ctx.arc(PIN_CX, PIN_CY, PIN_CX, Math.PI, Math.PI / 2, false);
+        ctx.lineTo(0, PIN_VB);
+        ctx.closePath();
+        ctx.fillStyle = color;
+        ctx.fill();
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      var canvasAnimAngle = 0;
+      var canvasAnimId = null;
+
+      function renderCanvasCell(method, snap, area, players) {
+        var cvs = document.getElementById('canvas-' + method.id);
+        if (!cvs) return;
+        cvs.width  = area.clientWidth  || 200;
+        cvs.height = area.clientHeight || 200;
+        var ctx = cvs.getContext('2d');
+
+        function drawFrame() {
+          ctx.clearRect(0, 0, cvs.width, cvs.height);
+
+          // 8 static markers at fixture angles
+          for (var i = 0; i < players.length; i++) {
+            var pl = players[i];
+            var pos = worldToPixel((pl.Position && pl.Position.X) || 0, (pl.Position && pl.Position.Y) || 0, snap, area);
+            var angle = pl.YawDeg || 0;
+            drawPin(ctx, pos.x, pos.y, angle, pl.Color || '#3498db', ROT_SZ);
+
+            ctx.save();
+            ctx.font = '9px Consolas, monospace';
+            ctx.fillStyle = '#fff';
+            ctx.fillText(angle + '°', pos.x + ROT_SZ / 2 + 3, pos.y + 3);
+            ctx.restore();
+          }
+
+          // Animated spinner in the center
+          var cx = cvs.width / 2, cy = cvs.height / 2;
+          drawPin(ctx, cx, cy, canvasAnimAngle, '#fff', ROT_SZ + 6);
+          ctx.save();
+          ctx.font = 'bold 10px Consolas, monospace';
+          ctx.fillStyle = '#4ae';
+          ctx.fillText(Math.round(canvasAnimAngle) + '°', cx + ROT_SZ / 2 + 6, cy + 4);
+          ctx.restore();
+        }
+
+        drawFrame();
+
+        // Start animation loop (only one at a time)
+        if (!canvasAnimId) {
+          var lastCvs = cvs;
+          var lastCtx = ctx;
+          var lastArea = area;
+          var lastSnap = snap;
+          var lastPlayers = players;
+          (function tick() {
+            canvasAnimAngle = (canvasAnimAngle + 2) % 360;
+            var a = document.getElementById('area-' + method.id);
+            if (!a || !document.getElementById('rot-tab').classList.contains('active')) {
+              canvasAnimId = null;
+              return;
+            }
+            var c = document.getElementById('canvas-' + method.id);
+            if (!c) { canvasAnimId = null; return; }
+            var ct = c.getContext('2d');
+            ct.clearRect(0, 0, c.width, c.height);
+
+            for (var i = 0; i < lastPlayers.length; i++) {
+              var pl = lastPlayers[i];
+              var pos = worldToPixel((pl.Position && pl.Position.X) || 0, (pl.Position && pl.Position.Y) || 0, lastSnap, a);
+              drawPin(ct, pos.x, pos.y, pl.YawDeg || 0, pl.Color || '#3498db', ROT_SZ);
+              ct.save();
+              ct.font = '9px Consolas, monospace';
+              ct.fillStyle = '#fff';
+              ct.fillText((pl.YawDeg || 0) + '°', pos.x + ROT_SZ / 2 + 3, pos.y + 3);
+              ct.restore();
+            }
+
+            var cx = c.width / 2, cy = c.height / 2;
+            drawPin(ct, cx, cy, canvasAnimAngle, '#fff', ROT_SZ + 6);
+            ct.save();
+            ct.font = 'bold 10px Consolas, monospace';
+            ct.fillStyle = '#4ae';
+            ct.fillText(Math.round(canvasAnimAngle) + '°', cx + ROT_SZ / 2 + 6, cy + 4);
+            ct.restore();
+
+            canvasAnimId = requestAnimationFrame(tick);
+          })();
+        }
+
+        var verdict = document.getElementById('verdict-' + method.id);
+        if (verdict) {
+          verdict.textContent = (cvs.width > 0 && cvs.height > 0) ? 'ANIMATED' : 'NO CANVAS';
+          verdict.className = 'verdict ' + ((cvs.width > 0 && cvs.height > 0) ? 'pass' : 'fail');
+        }
+      }
+
+      function updateVerdict(methodId, area, placed) {
+        var verdict = document.getElementById('verdict-' + methodId);
+        if (!verdict) return;
+        var markers = area.querySelectorAll('.mk');
+        var visCount = 0;
+        for (var m = 0; m < markers.length; m++) {
+          var r = markers[m].getBoundingClientRect();
+          if (r.width > 0 && r.height > 0) visCount++;
+        }
+        if (visCount === placed && placed > 0) {
+          verdict.textContent = 'DOM OK';
+          verdict.className = 'verdict pass';
+        } else {
+          verdict.textContent = visCount + '/' + placed + ' in DOM';
+          verdict.className = 'verdict fail';
+        }
+      }
+
+      // =================================================================
+      //  Render all + tabs + boot
+      // =================================================================
+
+      function renderAll() {
+        var sSnap = LIVE || SHAPE_FIXTURE;
+        var rSnap = ROT_FIXTURE;
+        for (var i = 0; i < SHAPE_METHODS.length; i++) renderShapeCell(SHAPE_METHODS[i], sSnap);
+        for (var j = 0; j < ROT_METHODS.length; j++) renderRotCell(ROT_METHODS[j], rSnap);
+      }
+
+      function updateStatus() {
+        var el = document.getElementById('status');
+        if (!el) return;
+        if (LIVE) {
+          var pc = (LIVE.Players || []).length;
+          el.textContent = 'LIVE: ' + pc + ' player' + (pc !== 1 ? 's' : '')
+            + ' · bounds ' + (LIVE.MaxBounds.X - LIVE.MinBounds.X) + 'x' + (LIVE.MaxBounds.Y - LIVE.MinBounds.Y);
+          el.className = '';
+        } else {
+          el.textContent = 'fixture only (no PIE snapshot)';
+          el.className = 'empty';
+        }
+      }
+
+      document.getElementById('tab-bar').addEventListener('click', function (ev) {
+        var btn = ev.target.closest('.tab-btn[data-tab]');
+        if (!btn) return;
+        var btns = document.querySelectorAll('.tab-btn');
+        for (var i = 0; i < btns.length; i++) btns[i].classList.remove('active');
+        btn.classList.add('active');
+        var pages = document.querySelectorAll('.tab-page');
+        for (var j = 0; j < pages.length; j++) pages[j].classList.remove('active');
+        document.getElementById(btn.dataset.tab).classList.add('active');
+        renderAll();
+      });
+
+      buildCells('shape-grid', SHAPE_METHODS);
+      buildCells('rot-grid', ROT_METHODS);
+
+      (function boot() {
+        if (!window.tsic) { setTimeout(boot, 16); return; }
+        window.tsic.on('tsic.msg.UI.Map.Snapshot', function (snap) {
+          LIVE = snap;
+          updateStatus();
+          renderAll();
+        });
+        document.addEventListener('click', function (ev) {
+          var btn = ev.target.closest('button[data-action]');
+          if (!btn) return;
+          if (btn.dataset.action === 'back') window.location.href = '/screens/map-debug.html';
+          if (btn.dataset.action === 'close') tsic.publishMessage('UI.Cmd.Debug.Close', {});
+        });
+        document.addEventListener('keydown', function (e) {
+          if (e.key === 'Escape' || e.key === '`' || e.key === '~') {
+            e.preventDefault();
+            tsic.publishMessage('UI.Cmd.Debug.Close', {});
+          }
+        });
+        renderAll();
+        window.addEventListener('resize', renderAll);
+      })();
+    })();
+  </script>
+</body></html>

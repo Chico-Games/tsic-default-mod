@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="tsic-screen" content="UniversalStorage">
+  <meta name="tsic-focus" content="enabled">
+  <meta name="tsic-input-mode" content="InputMode.Menu.Storage">
+  <meta name="tsic-action-bar-context" content='[{"ActionName":"IA_UI_ConfirmAccept","Label":"Take","Priority":10},{"ActionName":"IA_UI_TakeAll","Label":"Take All","Priority":20}]'>
+  <title>Universal Storage</title>
+  <link rel="stylesheet" href="/shared/base.css">
+  <link rel="stylesheet" href="/shared/components.css">
+  <link rel="stylesheet" href="/shared/hud.css">
+    <script src="/shared/tsic-bridge.js" defer></script>
+  <script src="/shared/tsic-runtime.js" defer></script>
+  <script src="/shared/router.js" defer></script>
+  <script src="/shared/tsic-focus.js" defer></script>
+  <script src="/shared/tsic-dropdown.js" defer></script>
+  <script src="/shared/hud.js" defer></script>
+  <script src="/shared/catalog.js" defer></script>
+  <script src="/shared/dom.js" defer></script>
+  <script src="/shared/icons.js" defer></script>
+  <script src="/shared/inventory.js" defer></script>
+  <script src="/shared/context-menu.js" defer></script>
+  <script src="/shared/tab-filter.js" defer></script>
+  <script src="/shared/storage-shell.js" defer></script>
+</head><body>
+  <div id="ss-root" class="tsic-modal-scrim"></div>
+  <script>
+    (function boot() {
+      if (!window.tsic || !window.TSICInventory || !window.TSICStorageShell || !(window.TSIC && window.TSIC.TabFilter)) { setTimeout(boot, 16); return; }
+      tsic.whenReady(function () {
+        window.TSICStorageShell.mount({
+          title: 'Universal Storage',
+          containerEyebrow: 'Universal Inventory',
+          containerOwnerIdMatch: id => id === 'Universal',
+          containerInitialOwnerId: 'Universal',
+          containerMaxSlots: 64,
+        });
+      });
+    })();
+  </script>
+</body></html>

@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="tsic-screen" content="Wardrobe">
+  <meta name="tsic-input-mode" content="InputMode.Menu.Generic">
+  <meta name="tsic-focus" content="enabled">
+  <title>Wardrobe</title>
+  <link rel="stylesheet" href="/shared/base.css">
+  <link rel="stylesheet" href="/shared/components.css">
+  <link rel="stylesheet" href="/shared/hud.css">
+    <script src="/shared/tsic-bridge.js" defer></script>
+  <script src="/shared/tsic-runtime.js" defer></script>
+  <script src="/shared/router.js" defer></script>
+  <script src="/shared/tsic-focus.js" defer></script>
+  <script src="/shared/tsic-dropdown.js" defer></script>
+  <script src="/shared/hud.js" defer></script>
+  <script src="/shared/icons.js" defer></script>
+  <style>
+    #wardrobe-grid  { display:flex; flex-wrap:wrap; gap:6px; align-content:start; flex: 1 1 auto; overflow:auto; padding:8px; background: rgba(241,229,207,0.55); border:1px solid var(--tsic-border); }
+    #wardrobe-preview { flex: 1 1 auto; min-height: 240px; background: rgba(241,229,207,0.92); border:1px solid var(--tsic-border); display:flex; align-items:center; justify-content:center; }
+    #wardrobe-preview img { width:100%; height:100%; object-fit:contain; }
+  </style>
+</head><body>
+  <div id="root" class="tsic-modal-scrim">
+    <div class="tsic-panel tsic-panel--screen">
+      <h2 class="tsic-title" style="margin:0 0 8px;">Wardrobe</h2>
+      <div class="tsic-split">
+        <div class="tsic-split-col">
+          <div class="tsic-eyebrow">Cosmetics</div>
+          <div id="wardrobe-grid"></div>
+        </div>
+        <div class="tsic-split-col">
+          <div class="tsic-eyebrow">Preview</div>
+          <div id="wardrobe-preview"><img id="wardrobe-preview-img" alt=""></div>
+        </div>
+      </div>
+      <div class="tsic-close-row">
+        <button class="tsic-button" id="btn-close" data-tsic-initial-focus>Close</button>
+      </div>
+    </div>
+  </div>
+  <script>
+    (function boot(){
+      if(!window.tsic){ setTimeout(boot,16); return; }
+
+      tsic.on('tsic.msg.UI.Equipment.Updated', (p) => {
+          const host = document.getElementById('wardrobe-grid');
+          host.innerHTML = '';
+          for (const s of ((p && p.Slots) || [])) {
+            const tag = (s.SlotTag || '').toLowerCase();
+            if (tag && tag.indexOf('cosmetic') < 0 && tag.indexOf('wardrobe') < 0 && tag.indexOf('outfit') < 0) {
+              continue;
+            }
+            const slot = document.createElement('div');
+            slot.className = 'tsic-slot';
+            slot.style.cssText = 'width:72px;height:72px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:2px;';
+            if (s.IconUrl) {
+              slot.style.backgroundImage = `url(${s.IconUrl})`;
+              slot.style.backgroundSize = 'cover';
+            } else {
+              const shortTag = (s.SlotTag || '').split('.').pop();
+              const label = document.createElement('div');
+              label.style.cssText = 'font-size:10px;color: var(--cat-ink-soft);';
+              label.textContent = shortTag;
+              slot.appendChild(label);
+              if (s.ItemId) {
+                const shortItem = (s.ItemId || '').replace(/^ID_/, '').slice(0, 8);
+                const item = document.createElement('div');
+                item.style.cssText = 'font-size:9px;color: var(--cat-ink-dark);';
+                item.textContent = shortItem;
+                slot.appendChild(item);
+              }
+            }
+            slot.title = s.SlotTag || '';
+            slot.onclick = () => tsic.publishMessage('UI.Cmd.Equipment.Unequip', { ItemId: '', SlotTag: s.SlotTag || '' });
+            host.appendChild(slot);
+          }
+        });
+        let previewStream = null;
+        tsic.on('tsic.msg.UI.CharacterPreview.Ready', (p) => {
+          if (!p || !p.bReady) return;
+          const img = document.getElementById('wardrobe-preview-img');
+          if (!img) return;
+          // Stream the capture so the character's idle animation plays live.
+          if (previewStream) previewStream();
+          previewStream = TSIC.startRuntimeImgStream(img, 'character-preview');
+        });
+        // Hide must fire on EVERY exit path, not just the Close button —
+        // Escape/gamepad-Back goes through the router's Pause.Resume wiring
+        // and navigates the page away, and C++ never auto-stops the capture
+        // (a SceneCapture renders every frame while it's left enabled).
+        let previewHidden = false;
+        const hidePreviewOnce = () => {
+          if (previewHidden) return;
+          previewHidden = true;
+          if (previewStream) { previewStream(); previewStream = null; }
+          tsic.publishMessage('UI.Cmd.CharacterPreview.Hide', {});
+        };
+        window.addEventListener('pagehide', hidePreviewOnce);
+        window.addEventListener('beforeunload', hidePreviewOnce);
+        document.getElementById('btn-close').onclick = () => {
+          hidePreviewOnce();
+          tsic.publishMessage('UI.Cmd.Pause.Resume', {});
+        };
+      tsic.publishMessage('UI.Cmd.CharacterPreview.Show', {});
+    })();
+  </script>
+</body></html>

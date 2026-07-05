@@ -1,0 +1,104 @@
+/* shared/hud.css — in-game HUD overlay styles.
+ *
+ * HUD elements sit on top of gameplay. Backgrounds use rgba for translucency
+ * so the world reads through; borders are cream/ink hairlines (magazine
+ * palette) and a coloured accent bar carries meaning. A plain drop shadow —
+ * not a glow — keeps labels legible against any backdrop.
+ */
+
+#hud-chrome {
+  position: fixed; left: 0; top: 0; right: 0; bottom: 0;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Top-left corner column — toasts on top, notification cards below, so the
+   two stacks never overlap when both fire. */
+#corner-stack {
+  position: fixed; left: 24px; top: 24px;
+  display: flex; flex-direction: column; gap: 8px;
+  z-index: 100;
+  pointer-events: none;
+}
+
+/* Toasts — corner notifications. Translucent dark plate with a coloured
+   left accent bar that carries the toast's severity. */
+#toast-container {
+  display: flex; flex-direction: column; gap: 8px;
+}
+
+.toast {
+  min-width: 240px;
+  max-width: 380px;
+  padding: 8px 14px;
+  background: rgba(13, 12, 10, 0.86);
+  border: 1px solid rgba(240, 232, 208, 0.30);
+  border-left: 4px solid var(--paper-cream);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  color: var(--paper-bright);
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  pointer-events: none;
+  animation: tsic-toast-in 200ms ease-out;
+}
+.toast--info {
+  border-left-color: var(--paper-cream);
+}
+.toast--warning {
+  border-left-color: var(--mag-yellow);
+  color: var(--mag-yellow);
+}
+.toast--error {
+  border-left-color: var(--mag-red);
+  color: #ff5a4d;
+}
+
+.toast--leaving { animation: tsic-toast-out 200ms ease-in forwards; }
+
+@keyframes tsic-toast-in {
+  from { transform: translateX(-20px); opacity: 0; }
+  to   { transform: translateX(0);     opacity: 1; }
+}
+@keyframes tsic-toast-out {
+  from { transform: translateX(0);     opacity: 1; }
+  to   { transform: translateX(-20px); opacity: 0; }
+}
+
+/* Notification cards (UI.Notification.Show) — typed paper cards with a
+   coloured left accent per type. Rendered by shared/hud-notifications.js. */
+#notif-stack {
+  display: flex; flex-direction: column; gap: 6px;
+  max-width: 380px;
+}
+
+.notif {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 8px 12px;
+  background: rgba(241, 229, 207, 0.92);
+  border-left: 4px solid var(--cat-border-strong);
+  color: rgb(37, 33, 25);
+  box-shadow: var(--cat-shadow-soft);
+  opacity: 0;
+  transform: translateX(-110%);
+  transition: transform 250ms ease-out, opacity 250ms ease-out;
+}
+.notif.visible { opacity: 1; transform: translateX(0); }
+.notif.exiting { transition-duration: 1000ms; opacity: 0; transform: translateX(-110%); }
+
+.notif--Tip          { border-left-color: #3399ff; }
+.notif--Warning      { border-left-color: #ffcc33; }
+.notif--Error        { border-left-color: #ff3333; }
+.notif--Inventory    { border-left-color: #cc9933; }
+.notif--Event        { border-left-color: #9933ff; }
+.notif--Alarm        { border-left-color: #ff0000; }
+.notif--PlayerJoined { border-left-color: #33ff33; }
+.notif--PlayerDied   { border-left-color: #666666; }
+.notif--Progression  { border-left-color: #00ffcc; }
+
+.notif-icon { width: 32px; height: 32px; flex-shrink: 0; image-rendering: pixelated; }
+.notif-body { flex: 1; min-width: 0; }
+.notif-title { font-size: 13px; font-weight: 700; letter-spacing: 0.4px; }
+.notif-text  { font-size: 12px; color: rgba(37, 33, 25, 0.82); margin-top: 2px; }

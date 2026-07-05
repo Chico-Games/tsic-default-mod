@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="tsic-screen" content="NewStore">
+  <meta name="tsic-input-mode" content="InputMode.Menu.MainMenu">
+  <meta name="tsic-cancel-cmd" content="UI.Cmd.Menu.Back">
+  <meta name="tsic-focus" content="enabled">
+  <meta name="tsic-action-bar-context" content='[]'>
+  <title>New Game</title>
+  <link rel="stylesheet" href="/shared/base.css">
+  <link rel="stylesheet" href="/shared/components.css">
+  <script src="/shared/tsic-bridge.js" defer></script>
+  <script src="/shared/tsic-runtime.js" defer></script>
+  <script src="/shared/store-maze.js" defer></script>
+  <script src="/shared/store-maze-stage.js" defer></script>
+  <script src="/shared/router.js" defer></script>
+  <script src="/shared/tsic-focus.js" defer></script>
+  <script src="/shared/tsic-dropdown.js" defer></script>
+  <style>
+    .ns-body { padding: 8px 22px 16px; }
+    .ns-label {
+      display: block;
+      font-family: var(--font-display);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+      margin: 14px 0 6px;
+    }
+    .ns-hint {
+      display: block;
+      font-family: var(--font-body);
+      font-size: 12px;
+      font-style: italic;
+      color: var(--ink-mute);
+      margin-top: 6px;
+    }
+    /* Map dropdown — heavy ink chip with the magazine red on hover. */
+    #layout-dd {
+      width: 100%;
+      padding: 10px 14px;
+      background: var(--ink-night);
+      color: var(--paper-cream);
+      border: 2px solid var(--ink-night);
+      box-shadow: var(--shadow-block-sm);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      font-family: var(--font-display);
+      font-size: 16px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+    #layout-dd:hover,
+    #layout-dd[data-tsic-focused] { background: var(--mag-red); border-color: var(--mag-red); }
+    #layout-dd .tsic-dropdown-label { flex: 1; text-align: left; }
+    #layout-dd .tsic-dropdown-caret {
+      font-size: 14px; line-height: 1; opacity: 0.85;
+      padding-left: 10px; margin-left: 4px;
+      border-left: 1px solid rgba(240, 232, 208, 0.35);
+    }
+    #layout-dd[data-tsic-value=""] .tsic-dropdown-label,
+    #layout-dd:not([data-tsic-value]) .tsic-dropdown-label {
+      color: rgba(240, 232, 208, 0.65);
+      font-style: italic;
+    }
+
+    /* Two-pane mod picker. */
+    .mods-split { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .mods-panel {
+      display: flex; flex-direction: column;
+      border: 2px solid var(--ink-night);
+      background: var(--paper-bright);
+      min-height: 140px;
+      max-height: 220px;
+    }
+    .mods-panel-head {
+      padding: 5px 10px;
+      font-family: var(--font-display);
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--paper-cream);
+      background: var(--ink-night);
+    }
+    .mods-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 4px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .mods-list-empty {
+      padding: 8px 6px;
+      font-family: var(--font-terminal);
+      font-size: 12px;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      color: var(--ink-mute);
+      font-style: italic;
+    }
+    .mod-row {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 6px;
+      background: var(--paper-soft);
+      border: 1px solid transparent;
+      font-family: var(--font-body);
+    }
+    .mod-row:hover,
+    .mod-row[data-tsic-focused] {
+      background: var(--paper-muted);
+      border-color: var(--ink-night);
+    }
+    .mod-row .name {
+      flex: 1;
+      font-size: 13px;
+      color: var(--ink-night);
+      letter-spacing: 0.03em;
+    }
+    .mod-row button {
+      background: var(--paper-bright);
+      border: 1px solid var(--ink-night);
+      color: var(--ink-night);
+      padding: 1px 8px;
+      cursor: pointer;
+      font-family: var(--font-display);
+      font-size: 13px;
+      line-height: 1.4;
+    }
+    .mod-row button:hover { background: var(--mag-yellow); }
+    .mod-row button:disabled {
+      color: var(--ink-mute);
+      background: var(--paper-soft);
+      cursor: not-allowed;
+    }
+    .manage-link {
+      display: inline-block;
+      margin-top: 8px;
+      color: var(--ink-soft);
+      cursor: pointer;
+      text-decoration: underline;
+      font-family: var(--font-body);
+      font-size: 12px;
+      letter-spacing: 0.06em;
+    }
+    .manage-link:hover { color: var(--mag-red); }
+  </style>
+</head><body>
+  <div class="tsic-stage--magazine-gradient">
+    <div class="tsic-panel tsic-cover" style="--tsic-cover-width: 620px;">
+      <div class="tsic-masthead">
+        <div class="tsic-masthead-title">
+          <em>Open a new</em>
+          Store.
+        </div>
+        <div class="tsic-masthead-meta">
+          <span class="tsic-masthead-issue">Dept. 04</span>
+          <span class="tsic-masthead-date">Enter your new home</span>
+        </div>
+      </div>
+
+      <div class="ns-body" data-tsic-focus-group="fields">
+        <label class="ns-label">Map</label>
+        <button class="tsic-dropdown" id="layout-dd" data-tsic-focusable
+                data-tsic-initial-focus data-tsic-options='[]'>
+          <span class="tsic-dropdown-label">Select a map…</span>
+          <span class="tsic-dropdown-caret" aria-hidden="true">▼</span>
+        </button>
+        <span class="ns-hint">Choose which map to play on.</span>
+
+        <label class="ns-label">Active Mods</label>
+        <div class="mods-split">
+          <div class="mods-panel" data-tsic-focus-group="mods-enabled">
+            <div class="mods-panel-head">Enabled</div>
+            <div id="mods-enabled" class="mods-list"></div>
+          </div>
+          <div class="mods-panel" data-tsic-focus-group="mods-available">
+            <div class="mods-panel-head">Available</div>
+            <div id="mods-available" class="mods-list"></div>
+          </div>
+        </div>
+        <span class="manage-link" id="link-manage" data-tsic-focusable tabindex="0">Manage Mods →</span>
+      </div>
+
+      <div class="tsic-cover-rows" data-tsic-focus-group="actions">
+        <button class="tsic-row-button" id="btn-create" disabled>
+          <span class="tsic-row-dept">Dept. 04</span>
+          Create
+          <span class="tsic-row-pg">GO</span>
+        </button>
+        <button class="tsic-row-button" id="btn-back">
+          <span class="tsic-row-dept">Fire Exit</span>
+          Back
+          <span class="tsic-row-pg">PG. 01</span>
+        </button>
+      </div>
+    </div>
+  </div>
+  <script>
+    (function () {
+      let layouts = [];
+      let mods = [];
+      let order = [];
+      let selectedLayout = null;
+
+      function refreshLayoutDD() {
+        const dd = document.getElementById('layout-dd');
+        const opts = layouts.map(L => ({ value: L.LayoutId, label: L.DisplayName }));
+        dd.setAttribute('data-tsic-options', JSON.stringify(opts));
+        if (window.tsic && tsic.dropdown && tsic.dropdown.options) {
+          tsic.dropdown.options(dd, opts);
+        }
+        if (!opts.find(o => o.value === selectedLayout)) {
+          selectedLayout = opts.length ? opts[0].value : null;
+          if (selectedLayout) {
+            if (tsic.dropdown && tsic.dropdown.set) {
+              tsic.dropdown.set(dd, selectedLayout);
+            } else {
+              // tsic-dropdown.js is deferred; if a sticky replay reaches us
+              // before it installs, mirror what .set would do directly.
+              dd.setAttribute('data-tsic-value', String(selectedLayout));
+              const match = opts.find(o => o.value === selectedLayout);
+              const lbl = dd.querySelector('.tsic-dropdown-label');
+              if (lbl && match) lbl.textContent = String(match.label != null ? match.label : match.value);
+            }
+          } else {
+            dd.removeAttribute('data-tsic-value');
+            const lbl = dd.querySelector('.tsic-dropdown-label');
+            if (lbl) lbl.textContent = '— No maps available —';
+          }
+        }
+        validate();
+      }
+
+      function renderMods() {
+        const enabledHost = document.getElementById('mods-enabled');
+        const availHost  = document.getElementById('mods-available');
+        enabledHost.replaceChildren();
+        availHost.replaceChildren();
+        const indexOf = (id) => order.indexOf(id) >= 0 ? order.indexOf(id) : 9999;
+        const enabled   = mods.filter(m =>  m.bEnabled).sort((a, b) => indexOf(a.ModId) - indexOf(b.ModId));
+        const available = mods.filter(m => !m.bEnabled);
+
+        function setEnabled(id, on) {
+          tsic.publishMessage('UI.Cmd.Mod.SetEnabled', { ModId: id, Enabled: on });
+        }
+
+        if (enabled.length === 0) {
+          const empty = document.createElement('div');
+          empty.className = 'mods-list-empty';
+          empty.textContent = 'No mods enabled.';
+          enabledHost.appendChild(empty);
+        } else {
+          for (let i = 0; i < enabled.length; i++) {
+            const m = enabled[i];
+            const row = document.createElement('div');
+            row.className = 'mod-row';
+            row.setAttribute('data-tsic-focusable', '');
+            row.tabIndex = -1;
+
+            const name = document.createElement('span');
+            name.className = 'name';
+            name.textContent = String(m.DisplayName || m.ModId || '');
+
+            const up = document.createElement('button');
+            up.type = 'button'; up.textContent = '↑'; up.title = 'Move up';
+            up.disabled = (i === 0 || !!m.bLocked);
+            up.onclick = () => move(m.ModId, -1);
+
+            const down = document.createElement('button');
+            down.type = 'button'; down.textContent = '↓'; down.title = 'Move down';
+            down.disabled = (i === enabled.length - 1 || !!m.bLocked);
+            down.onclick = () => move(m.ModId, +1);
+
+            const remove = document.createElement('button');
+            remove.type = 'button'; remove.textContent = '→'; remove.title = 'Disable (move to Available)';
+            remove.disabled = !!m.bLocked;
+            remove.onclick = () => setEnabled(m.ModId, false);
+
+            row.append(name, up, down, remove);
+            enabledHost.appendChild(row);
+          }
+        }
+
+        if (available.length === 0) {
+          const empty = document.createElement('div');
+          empty.className = 'mods-list-empty';
+          empty.textContent = mods.length ? 'All installed mods are enabled.'
+                                          : 'No mods installed. Open Manage Mods to subscribe.';
+          availHost.appendChild(empty);
+        } else {
+          for (const m of available) {
+            const row = document.createElement('div');
+            row.className = 'mod-row';
+            row.setAttribute('data-tsic-focusable', '');
+            row.tabIndex = -1;
+
+            const add = document.createElement('button');
+            add.type = 'button'; add.textContent = '←'; add.title = 'Enable (move to Enabled)';
+            add.onclick = () => setEnabled(m.ModId, true);
+
+            const name = document.createElement('span');
+            name.className = 'name';
+            name.textContent = String(m.DisplayName || m.ModId || '');
+
+            row.append(add, name);
+            availHost.appendChild(row);
+          }
+        }
+      }
+
+      function move(modId, delta) {
+        // Adopt a not-yet-ordered mod at the front, then re-resolve its index
+        // so the remove-and-reinsert below never duplicates it.
+        if (order.indexOf(modId) < 0) { order = [modId, ...order]; }
+        const i = order.indexOf(modId);
+        const j = Math.max(0, Math.min(order.length - 1, i + delta));
+        if (i === j) return;
+        order.splice(i, 1);
+        order.splice(j, 0, modId);
+        tsic.publishMessage('UI.Cmd.Mod.SetLoadOrder', { Order: order });
+      }
+
+      function validate() {
+        document.getElementById('btn-create').disabled = !selectedLayout;
+      }
+
+      // tsic-dropdown.js is installed by a deferred script — wait for it
+      // before subscribing to sticky channels, otherwise a cached replay can
+      // fire before .set() exists.
+      (function boot() {
+        if (!window.tsic || !window.tsic.dropdown) { setTimeout(boot, 16); return; }
+        tsic.whenReady(function () {
+          const dd = document.getElementById('layout-dd');
+          dd.addEventListener('tsic-change', (e) => {
+            selectedLayout = (e.detail && e.detail.value) || null;
+            validate();
+          });
+
+          tsic.on('tsic.msg.UI.Menu.Layouts',     (p) => { layouts = (p && p.Layouts) || []; refreshLayoutDD(); });
+          tsic.on('tsic.msg.UI.Mod.InstalledList', (p) => { mods    = (p && p.Mods)    || []; renderMods(); });
+          tsic.on('tsic.msg.UI.Mod.LoadOrder',     (p) => { order   = (p && p.Order)   || []; renderMods(); });
+
+          tsic.onClick('#btn-back',     () => tsic.publishMessage('UI.Cmd.Menu.Navigate', { Screen: 'MainMenu' }));
+          tsic.onClick('#link-manage',  () => tsic.publishMessage('UI.Cmd.Menu.Navigate', { Screen: 'Mods' }));
+          tsic.onClick('#btn-create',   () => {
+            if (!selectedLayout) return;
+            const enabledMods = mods.filter(m => m.bEnabled).map(m => m.ModId);
+            // StoreName / PlayerName left empty — C++ auto-generates "Store N" + "Owner".
+            tsic.publishMessage('UI.Cmd.Menu.StartGame', {
+              StoreName: '',
+              PlayerName: '',
+              LayoutId: selectedLayout,
+              EnabledMods: enabledMods,
+              LoadOrder: order,
+            });
+          });
+        });
+      })();
+    })();
+  </script>
+</body></html>

@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <title>TSIC WebUI — Debug Tools</title>
+  <script src="/shared/test-harness.js"></script>
+  <style>
+    :root {
+      --bg: #0d0d0d; --bg1: #151515; --bg2: #1c1c1c; --bg3: #242424;
+      --border: #2a2a2a; --border-hi: #444;
+      --fg: #ccc; --fg-dim: #666; --fg-bright: #eee;
+      --accent: #4ae; --accent-dim: #2a5a7a;
+      --green: #4a6; --yellow: #ea4; --red: #e55;
+      --mono: 'Consolas', 'Cascadia Code', monospace;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; background: var(--bg); color: var(--fg);
+      font-family: var(--mono); font-size: 12px; overflow: hidden; }
+    #root { display: grid; grid-template-rows: auto 1fr; height: 100%; }
+
+    /* ── Toolbar ─────────────────────────────── */
+    #toolbar {
+      background: var(--bg1); border-bottom: 1px solid var(--border);
+      padding: 6px 12px; display: flex; align-items: center; gap: 10px;
+      flex-wrap: wrap;
+    }
+    #toolbar .title { color: var(--accent); font-size: 13px; font-weight: bold; letter-spacing: 2px; }
+    #toolbar .sep { color: var(--border-hi); }
+    select, input[type="text"] {
+      background: var(--bg3); color: var(--fg); border: 1px solid var(--border);
+      padding: 4px 8px; font-family: var(--mono); font-size: 11px;
+    }
+    select:focus, input:focus { border-color: var(--accent); outline: none; }
+    select { min-width: 220px; }
+    #url-input { flex: 1; min-width: 200px; }
+    .btn {
+      background: var(--bg3); border: 1px solid var(--border); color: var(--fg);
+      padding: 4px 12px; cursor: pointer; font-family: var(--mono); font-size: 11px;
+    }
+    .btn:hover { border-color: var(--accent); color: var(--accent); }
+    .btn.active { border-color: var(--yellow); color: var(--yellow); }
+    .pill {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 2px 8px; border-radius: 3px; font-size: 10px;
+      background: var(--bg3); border: 1px solid var(--border);
+    }
+    .pill .dot { width: 6px; height: 6px; border-radius: 50%; }
+    .pill .dot.on  { background: var(--green); box-shadow: 0 0 4px var(--green); }
+    .pill .dot.off { background: var(--red); }
+    .spacer { flex: 1; }
+    #status { font-size: 10px; color: var(--fg-dim); }
+
+    /* ── Size presets ────────────────────────── */
+    .size-btns { display: flex; gap: 2px; }
+    .size-btn { padding: 3px 8px; font-size: 10px; }
+
+    /* ── Viewer ──────────────────────────────── */
+    #viewer {
+      display: flex; align-items: center; justify-content: center;
+      background: #1a1a1a; overflow: auto; position: relative;
+    }
+    #frame-wrap {
+      position: relative; background: #000;
+      box-shadow: 0 0 40px rgba(0,0,0,0.8);
+      overflow: hidden;
+    }
+    #frame-wrap iframe {
+      display: block; width: 100%; height: 100%; border: 0;
+      background: transparent;
+    }
+    .size-label {
+      position: absolute; bottom: -20px; left: 50%;
+      transform: translateX(-50%);
+      font-size: 9px; color: var(--fg-dim); white-space: nowrap;
+    }
+
+    /* ── Message log sidebar ─────────────────── */
+    #sidebar {
+      display: none; width: 320px; border-left: 1px solid var(--border);
+      background: var(--bg1); overflow-y: auto; font-size: 10px;
+    }
+    #sidebar.open { display: flex; flex-direction: column; }
+    #sidebar h2 {
+      padding: 6px 10px; margin: 0; font-size: 10px; letter-spacing: 1.5px;
+      background: var(--bg2); border-bottom: 1px solid var(--border);
+      color: var(--fg-dim); text-transform: uppercase;
+    }
+    #msg-list { flex: 1; overflow-y: auto; }
+    .msg-row { padding: 3px 10px; border-bottom: 1px solid #1a1a1a; }
+    .msg-row:nth-child(odd) { background: var(--bg); }
+    .msg-dir { font-size: 9px; padding: 1px 4px; border-radius: 2px; margin-right: 4px; }
+    .msg-dir.pub { background: var(--accent-dim); color: var(--accent); }
+    .msg-dir.sub { background: #2a4a2e; color: var(--green); }
+    .msg-ch { color: #c6c; }
+    .msg-payload { color: var(--fg-dim); display: block; margin-top: 1px;
+      max-height: 40px; overflow: hidden; word-break: break-all; }
+  </style>
+</head><body>
+<div id="root">
+  <div id="toolbar">
+    <span class="title">TSIC DEV</span>
+    <span class="sep">|</span>
+
+    <select id="screen-select">
+      <option value="">— pick a screen —</option>
+    </select>
+
+    <span class="sep">or</span>
+    <input type="text" id="url-input" placeholder="/screens/inventory.html">
+    <button class="btn" id="btn-load">Load</button>
+
+    <span class="sep">|</span>
+
+    <div class="size-btns">
+      <button class="btn size-btn" data-w="1920" data-h="1080">1080p</button>
+      <button class="btn size-btn" data-w="2560" data-h="1440">1440p</button>
+      <button class="btn size-btn" data-w="1280" data-h="720">720p</button>
+      <button class="btn size-btn" data-w="100%" data-h="100%">Fill</button>
+    </div>
+
+    <span class="sep">|</span>
+
+    <div class="pill" id="pill-bridge">
+      <span class="dot off" id="dot-bridge"></span>
+      <span>Mock Bridge</span>
+    </div>
+
+    <button class="btn" id="btn-log">Log</button>
+    <button class="btn" id="btn-inject">Inject</button>
+
+    <span class="spacer"></span>
+    <span id="status">No screen loaded</span>
+  </div>
+
+  <div style="display:flex;flex:1;min-height:0;">
+    <div id="viewer">
+      <div id="frame-wrap" style="width:1920px;height:1080px;">
+        <iframe id="viewer-iframe" src="about:blank"></iframe>
+        <span class="size-label" id="size-label">1920 x 1080</span>
+      </div>
+    </div>
+    <div id="sidebar">
+      <h2>Bridge Messages <button class="btn" id="btn-clear-log" style="float:right;font-size:9px;padding:1px 6px;">clear</button></h2>
+      <div id="msg-list"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const iframe    = document.getElementById('viewer-iframe');
+  const select    = document.getElementById('screen-select');
+  const urlInput  = document.getElementById('url-input');
+  const frameWrap = document.getElementById('frame-wrap');
+  const sizeLabel = document.getElementById('size-label');
+  const sidebar   = document.getElementById('sidebar');
+  const msgList   = document.getElementById('msg-list');
+  const status    = document.getElementById('status');
+  const dotBridge = document.getElementById('dot-bridge');
+
+  let currentHandle = null;
+  const msgLog = [];
+
+  // ── Screen list ──────────────────────────────────
+  const SCREENS = [
+    'boss-summoner', 'bug-report', 'cage', 'chat',
+    'cheat-menu', 'circular-progress', 'construction', 'construction-carousel',
+    'crafting', 'credits', 'crosshair', 'css-test', 'death-screen',
+    'detection', 'equipment', 'health-bar', 'hotbar',
+    'in-game', 'interaction', 'inventory', 'loading-screen', 'main-menu',
+    'map', 'map-combo-debug', 'map-debug', 'map-marker-test',
+    'map-overlay-test', 'map-player-debug', 'mods', 'new-store',
+    'notifications', 'paper', 'pause-menu', 'ping', 'ping-markers',
+    'playground', 'production', 'quantity-picker', 'repair', 'save-load',
+    'screen', 'selection', 'settings', 'stamina-bar', 'stomach',
+    'storage', 'tablet', 'teleporter', 'universal-storage',
+    'universal-storage-setup', 'upgrade', 'voice-chat', 'wardrobe',
+    'webui-debug'
+  ];
+
+  SCREENS.forEach(name => {
+    const opt = document.createElement('option');
+    opt.value = '/screens/' + name + '.html';
+    opt.textContent = name;
+    select.appendChild(opt);
+  });
+
+  // ── Load screen ──────────────────────────────────
+  function loadScreen(url) {
+    if (!url) return;
+    status.textContent = 'Loading ' + url + '...';
+    msgLog.length = 0;
+    renderMsgLog();
+
+    const onLoad = () => {
+      iframe.removeEventListener('load', onLoad);
+      try {
+        currentHandle = TSICTestHarness.installMockTsic(iframe.contentWindow, {});
+        dotBridge.className = 'dot on';
+        status.textContent = 'Loaded: ' + url + '  —  Right-click → Inspect to open DevTools';
+
+        // Monkey-patch publishMessage to log outgoing messages
+        const origPublish = iframe.contentWindow.tsic.publishMessage;
+        iframe.contentWindow.tsic.publishMessage = function(channel, payload) {
+          addMsg('pub', channel, payload);
+          return origPublish.call(this, channel, payload);
+        };
+      } catch(e) {
+        dotBridge.className = 'dot off';
+        status.textContent = 'Bridge injection failed (cross-origin?) — ' + e.message;
+      }
+    };
+    iframe.addEventListener('load', onLoad);
+    iframe.src = url;
+  }
+
+  select.addEventListener('change', () => {
+    if (select.value) {
+      urlInput.value = select.value;
+      loadScreen(select.value);
+    }
+  });
+
+  document.getElementById('btn-load').addEventListener('click', () => {
+    const url = urlInput.value.trim();
+    if (url) loadScreen(url);
+  });
+
+  urlInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      const url = urlInput.value.trim();
+      if (url) loadScreen(url);
+    }
+  });
+
+  // ── Size presets ─────────────────────────────────
+  document.querySelectorAll('.size-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const w = btn.dataset.w;
+      const h = btn.dataset.h;
+      if (w === '100%') {
+        frameWrap.style.width = '100%';
+        frameWrap.style.height = '100%';
+        sizeLabel.textContent = 'Fill';
+      } else {
+        frameWrap.style.width = w + 'px';
+        frameWrap.style.height = h + 'px';
+        sizeLabel.textContent = w + ' x ' + h;
+      }
+      document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+  });
+
+  // ── Message log ──────────────────────────────────
+  function addMsg(dir, channel, payload) {
+    msgLog.push({ dir, channel, payload, ts: new Date().toTimeString().slice(0,8) });
+    if (msgLog.length > 500) msgLog.shift();
+    renderMsgLog();
+  }
+
+  function renderMsgLog() {
+    msgList.innerHTML = msgLog.slice(-200).reverse().map(m =>
+      '<div class="msg-row">' +
+        '<span class="msg-dir ' + m.dir + '">' + (m.dir === 'pub' ? 'OUT' : 'IN') + '</span>' +
+        '<span class="msg-ch">' + m.channel + '</span>' +
+        '<span class="msg-payload">' + escHtml(JSON.stringify(m.payload)).slice(0, 120) + '</span>' +
+      '</div>'
+    ).join('');
+  }
+
+  function escHtml(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  document.getElementById('btn-log').addEventListener('click', () => {
+    sidebar.classList.toggle('open');
+  });
+
+  document.getElementById('btn-clear-log').addEventListener('click', () => {
+    msgLog.length = 0;
+    renderMsgLog();
+  });
+
+  // ── Inject dialog ────────────────────────────────
+  document.getElementById('btn-inject').addEventListener('click', () => {
+    if (!currentHandle) { alert('Load a screen first.'); return; }
+    const channel = prompt('Channel (e.g. tsic.msg.UI.Inventory.State):');
+    if (!channel) return;
+    const raw = prompt('JSON payload:', '{}');
+    if (raw === null) return;
+    try {
+      const payload = JSON.parse(raw);
+      currentHandle.inject(channel, payload);
+      addMsg('sub', channel, payload);
+    } catch(e) {
+      alert('Invalid JSON: ' + e.message);
+    }
+  });
+})();
+</script>
+</body></html>

@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="tsic-screen" content="Inventory">
+  <meta name="tsic-focus" content="enabled">
+  <meta name="tsic-input-mode" content="InputMode.Menu.Inventory">
+  <title>Inventory</title>
+  <link rel="stylesheet" href="/shared/base.css">
+  <link rel="stylesheet" href="/shared/components.css">
+  <link rel="stylesheet" href="/shared/hud.css">
+    <script src="/shared/tsic-bridge.js" defer></script>
+  <script src="/shared/tsic-runtime.js" defer></script>
+  <script src="/shared/router.js" defer></script>
+  <script src="/shared/tsic-focus.js" defer></script>
+  <script src="/shared/tsic-dropdown.js" defer></script>
+  <script src="/shared/hud.js" defer></script>
+  <script src="/shared/catalog.js" defer></script>
+  <script src="/shared/dom.js" defer></script>
+  <script src="/shared/icons.js" defer></script>
+  <script src="/shared/inventory.js" defer></script>
+  <script src="/shared/context-menu.js" defer></script>
+  <script src="/shared/tab-filter.js" defer></script>
+  <script src="/shared/behavior-bar.js" defer></script>
+  <style>
+    #inv-header { display:flex; align-items:baseline; gap:18px; margin-bottom:8px; }
+    #inv-header .spacer { flex:1; }
+    #inv-tabs { display:flex; gap:0; }
+    #inv-capacity { display:flex; flex-direction:column; gap:2px; font-size:11px; min-width:200px; }
+    #inv-capacity-line { display:flex; justify-content:space-between; color:rgba(37,33,25,0.75); }
+    #inv-capacity-bar { height:5px; background:rgba(241,229,207,0.55); border-radius:3px; overflow:hidden; }
+    #inv-capacity-fill { height:100%; width:0; background:#cbd5e1; transition: width 100ms linear, background 100ms linear; }
+    #inv-capacity[data-state="warning"] #inv-capacity-fill { background:#f59e0b; }
+    #inv-capacity[data-state="full"] #inv-capacity-fill { background:#ef4444; }
+    #inv-capacity[data-state="overburdened"] #inv-capacity-fill { background:#b91c1c; }
+    #inv-capacity[data-state="overburdened"] #inv-capacity-overburdened { display:block; }
+    #inv-capacity-overburdened { display:none; color:#b91c1c; font-weight:600; letter-spacing:1px; }
+
+    /* Compact rows so more stacks fit on a single page. Scoped to the inventory
+       list so other screens (storage, etc.) keep the roomier default. */
+    #inv-list .tsic-list-row { padding: 2px 8px; gap: 8px; font-size: 11px; line-height: 1.2; }
+    #inv-list .tsic-list-row .icon { width: 20px; height: 20px; }
+    #inv-list .tsic-list-row .right { display:flex; gap:8px; font-size:10px; }
+    #inv-list { gap: 2px; }
+
+    #inv-info { padding:10px; background: rgba(241,229,207,0.88); border:1px solid var(--tsic-border); min-height: 140px; flex: 0 0 auto; max-height: 50%; overflow:auto; }
+    #inv-info img { width:56px !important; height:56px !important; margin:0 auto 6px !important; }
+    #inv-info h3 { font-size: 14px; }
+    #inv-info p { margin: 4px 0; }
+    #inv-equip-row { display:flex; gap:6px; padding:6px; background: rgba(184,170,145,0.35); border:1px solid var(--tsic-border); flex-wrap: wrap; flex: 0 0 auto; }
+    .equip-slot {
+      width:48px; height:48px;
+      background: rgba(241,229,207,0.55);
+      border:1px solid var(--tsic-border);
+      display:flex; align-items:center; justify-content:center;
+      font-size:9px; letter-spacing:1px; text-transform:uppercase;
+      color: var(--cat-ink-soft);
+      cursor:pointer;
+      position: relative;
+    }
+    .equip-slot.is-empty {
+      background: rgba(241,229,207,0.15);
+      border-style: dashed;
+      border-color: rgba(184,170,145,0.75);
+      color: rgba(81,71,57,0.75);
+    }
+    .equip-slot:hover { background: rgba(241,229,207,0.88); }
+    .equip-slot.is-empty:hover { background: rgba(241,229,207,0.45); color: var(--cat-ink-muted, var(--cat-ink-soft)); border-color: var(--cat-border); }
+    .equip-slot img { width:100%; height:100%; object-fit:contain; pointer-events:none; }
+    .equip-slot.is-drop-target { outline: 2px solid var(--cat-green); outline-offset: -2px; }
+    #inv-char-preview { flex: 1 1 auto; min-height: 120px; background: rgba(241,229,207,0.92); border:1px solid var(--tsic-border); display:flex; align-items:center; justify-content:center; }
+    #inv-char-preview img { width:100%; height:100%; object-fit:contain; }
+  </style>
+</head><body>
+<div id="inv-root" class="tsic-modal-scrim">
+  <div id="inv-panel" class="tsic-panel tsic-panel--screen">
+    <div id="inv-header">
+      <h2 class="tsic-title" style="margin:0;">Inventory</h2>
+      <div id="inv-tabs" data-tsic-tab-bar></div>
+      <div class="spacer"></div>
+      <div id="inv-capacity">
+        <div id="inv-capacity-line">
+          <span id="inv-capacity-text">CAPACITY: —</span>
+          <span id="inv-capacity-overburdened">OVERBURDENED</span>
+        </div>
+        <div id="inv-capacity-bar"><div id="inv-capacity-fill"></div></div>
+      </div>
+    </div>
+
+    <div class="tsic-split">
+      <div class="tsic-split-col">
+        <div class="tsic-eyebrow">Items</div>
+        <div id="inv-list" class="tsic-list-pane"></div>
+      </div>
+      <div class="tsic-split-col">
+        <div class="tsic-eyebrow">Selected</div>
+        <div id="inv-info" class="tsic-empty">Hover an item to see details</div>
+        <div class="tsic-eyebrow" style="margin-top:6px;">Equipped</div>
+        <div id="inv-equip-row"></div>
+        <div id="inv-char-preview"><img id="inv-char-img" alt=""></div>
+      </div>
+    </div>
+
+    <div class="tsic-close-row">
+      <button class="tsic-button" id="btn-close" data-tsic-initial-focus>Close (Esc)</button>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+    const TAB_FILTERS = {
+        'All':   null,
+        'Tools': i => i.Category === 'Equipment',
+        'Cons.': i => i.Category === 'Consumable',
+        'Mats':  i => i.Category === 'CraftingMaterial',
+        'Other': i => !['Equipment','Consumable','CraftingMaterial'].includes(i.Category),
+    };
+    const TAB_DEFS = Object.keys(TAB_FILTERS).map(id => ({ id: id, label: id }));
+    let tabFilter = null; // initialized once TSIC.TabFilter is available
+    let lastUpdate = null;
+    let lastEquipment = null;
+    let hoveredItem = null;
+    let selectedSlot = -1;
+
+    function publishHoverContext(it) {
+        if (!window.tsic || !window.tsic.setMenuActionContext) return;
+        const cat = window.tsic.itemCatalog || {};
+        if (!it) {
+            window.tsic.setMenuActionContext([]);
+            return;
+        }
+        const desc = cat[it.ItemId];
+        const category = desc && desc.Category;
+        const entries = [];
+        if (category === 'Equipment') {
+            entries.push({ ActionName: 'IA_UI_ConfirmAccept', Label: 'Equip',         Priority: 10 });
+            entries.push({ ActionName: 'IA_UI_AddToHotbar',   Label: 'Assign Hotbar', Priority: 20 });
+            entries.push({ ActionName: 'IA_UI_DropItem',      Label: 'Drop',          Priority: 30 });
+        } else if (category === 'Consumable') {
+            entries.push({ ActionName: 'IA_UI_ConfirmAccept', Label: 'Use',  Priority: 10 });
+            entries.push({ ActionName: 'IA_UI_DropItem',      Label: 'Drop', Priority: 30 });
+        } else {
+            entries.push({ ActionName: 'IA_UI_DropItem', Label: 'Drop', Priority: 30 });
+        }
+        window.tsic.setMenuActionContext(entries);
+    }
+
+    function refresh() {
+        if (!lastUpdate) return;
+        const cat = window.tsic.itemCatalog || {};
+        const activeTab = tabFilter ? tabFilter.getActive() : 'All';
+        const filter = TAB_FILTERS[activeTab] || null;
+        const items = (lastUpdate.Items || []).filter(it => {
+            if (!filter) return true;
+            const desc = cat[it.ItemId];
+            return desc ? filter(desc) : (activeTab === 'Other' || activeTab === 'All');
+        });
+        const opts = {
+            catalog: cat,
+            selectedIdx: selectedSlot,
+            emptyLabel: 'No items in this category.',
+            onHover: (it) => {
+                hoveredItem = it;
+                renderInfo(it ? cat[it.ItemId] : null, it);
+                publishHoverContext(it);
+            },
+            onLeave: () => {
+                // Keep the last-hovered preview sticky on leave so the right pane
+                // doesn't blank out as the mouse moves between rows.
+            },
+            onClick: (it) => {
+                if (!it) return;
+                selectedSlot = it.SlotIndex;
+                const desc = cat[it.ItemId];
+                if (desc && desc.Category === 'Equipment') {
+                    tsic.publishMessage('UI.Cmd.Equipment.Equip', { ItemId: String(it.SlotIndex), SlotTag: '' });
+                } else if (desc && desc.Category === 'Consumable') {
+                    tsic.publishMessage('UI.Cmd.Inventory.Use', { OwnerId: 'Player', SlotIndex: it.SlotIndex });
+                }
+                // Materials / Other: no primary action — clicking just selects + shows info.
+                refresh();
+            },
+            onRMB: (it, e) => {
+                if (!it) return;
+                selectedSlot = it.SlotIndex;
+                refresh();
+                if (!window.TSICContextMenu) return;
+                const entries = window.TSICInventory.buildItemContextMenu({
+                    it,
+                    desc: cat[it.ItemId],
+                    storageOpen: false,
+                    fromOwnerId: 'Player',
+                });
+                window.TSICContextMenu.open({ x: e.clientX, y: e.clientY, entries });
+            },
+        };
+        window.TSICInventory.renderList(document.getElementById('inv-list'), items, opts);
+
+        const used = (lastUpdate.Items || []).length;
+        const cur = lastUpdate.CurrentWeight || 0;
+        const max = lastUpdate.MaxWeight || 0;
+        const ratio = max > 0 ? cur / max : 0;
+        const cap = document.getElementById('inv-capacity');
+        document.getElementById('inv-capacity-text').textContent =
+            `CAPACITY: ${used} items · ${cur.toFixed(2)}/${max.toFixed(2)} kg`;
+        document.getElementById('inv-capacity-fill').style.width = `${Math.max(0, Math.min(100, ratio * 100))}%`;
+        cap.dataset.state = ratio >= 1.05 ? 'overburdened'
+            : ratio >= 1.0  ? 'full'
+            : ratio >= 0.75 ? 'warning'
+            : 'normal';
+    }
+
+    function renderInfo(desc, instance) {
+        const host = document.getElementById('inv-info');
+        host.classList.remove('tsic-empty');
+        host.innerHTML = '';
+        if (!desc) {
+            host.classList.add('tsic-empty');
+            host.textContent = 'Hover an item to see details';
+            return;
+        }
+        window.TSICInventory.renderInfoPanel(host, desc, instance);
+    }
+
+    // Canonical slot order the inventory always shows, even before the
+    // server has sent UI.Equipment.Updated. Once a real update arrives any
+    // additional/replaced slot tags from the server take precedence.
+    const DEFAULT_EQUIP_SLOTS = [
+        'Entity.Inventory.Item.Equipment.Slot.Head',
+        'Entity.Inventory.Item.Equipment.Slot.Body',
+        'Entity.Inventory.Item.Equipment.Slot.Legs',
+        'Entity.Inventory.Item.Equipment.Slot.Shoes',
+        'Entity.Inventory.Item.Equipment.Slot.Weapon',
+        'Entity.Inventory.Item.Equipment.Slot.Gloves',
+    ];
+
+    function renderEquipment() {
+        const host = document.getElementById('inv-equip-row');
+        host.innerHTML = '';
+        // Build a tag→slot map from server data so the canonical order
+        // controls layout while server-provided ItemIds populate it.
+        const byTag = new Map();
+        const serverSlots = (lastEquipment && lastEquipment.Slots) || [];
+        for (const s of serverSlots) if (s && s.SlotTag) byTag.set(s.SlotTag, s);
+        // Default order first, then any extra server slots not in the default set.
+        const tagOrder = DEFAULT_EQUIP_SLOTS.slice();
+        for (const s of serverSlots) {
+            if (s && s.SlotTag && tagOrder.indexOf(s.SlotTag) === -1) tagOrder.push(s.SlotTag);
+        }
+        for (const tag of tagOrder) {
+            const s = byTag.get(tag) || { SlotTag: tag, ItemId: '' };
+            const div = document.createElement('div');
+            const isEmpty = !s.ItemId;
+            div.className = 'equip-slot' + (isEmpty ? ' is-empty' : '');
+            const label = (s.SlotTag || '').split('.').pop();
+            if (!isEmpty) {
+                const img = document.createElement('img');
+                img.src = TSIC.itemIconUrl(s.ItemId);
+                div.appendChild(img);
+                div.title = `${label} — click to unequip`;
+                div.addEventListener('click', () => {
+                    tsic.publishMessage('UI.Cmd.Equipment.Unequip', { ItemId: '', SlotTag: s.SlotTag });
+                });
+            } else {
+                div.textContent = label;
+                div.title = `${label} (empty)`;
+            }
+            // Every equipment slot accepts an inventory-row drop. The backend's
+            // RequestEquip routes the item to the slot that matches its type, so
+            // we don't pass SlotTag here — any slot drop = "try to equip".
+            div.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                div.classList.add('is-drop-target');
+            });
+            div.addEventListener('dragleave', () => div.classList.remove('is-drop-target'));
+            div.addEventListener('drop', (e) => {
+                e.preventDefault();
+                div.classList.remove('is-drop-target');
+                const raw = e.dataTransfer.getData('application/tsic-item');
+                if (!raw) return;
+                try {
+                    const src = JSON.parse(raw);
+                    tsic.publishMessage('UI.Cmd.Equipment.Equip', { ItemId: String(src.slot), SlotTag: '' });
+                } catch {}
+            });
+            host.appendChild(div);
+        }
+    }
+
+    (function boot() {
+    if (!window.tsic || !window.TSICInventory || !window.TSIC || !window.TSIC.TabFilter) { setTimeout(boot, 16); return; }
+    tabFilter = TSIC.TabFilter.create(
+        document.getElementById('inv-tabs'), TAB_DEFS, function () { refresh(); }
+    );
+    tsic.whenReady(function () {
+        // Render the empty-slot squares immediately so the inventory shows
+        // the player's slots even before the server sends Equipment.Updated.
+        renderEquipment();
+        tsic.on('tsic.msg.UI.Inventory.Updated', (p) => {
+            if (!p || p.OwnerId !== 'Player') return;
+            lastUpdate = p;
+            refresh();
+        });
+        tsic.on('tsic.msg.UI.Equipment.Updated', (p) => {
+            if (!p || p.OwnerId !== 'Player') return;
+            lastEquipment = p;
+            renderEquipment();
+        });
+        tsic.on('tsic.msg.UI.CharacterPreview.Ready', (p) => {
+            if (p && p.bReady) {
+                document.getElementById('inv-char-img').src = TSIC.runtimeImgUrl('character-preview');
+            }
+        });
+        tsic.on('tsic.msg.UI.Input.IA_UI_AddToHotbar', (e) => {
+            if (e.Phase !== 'Started' || !hoveredItem || !window.TSICInventory) return;
+            const it = hoveredItem;
+            window.TSICInventory.openHotbarSlotModal(it.ItemId, (slotIndex) => {
+                tsic.publishMessage('UI.Cmd.Hotbar.Assign', { SlotIndex: slotIndex, ItemId: String(it.SlotIndex) });
+            });
+        });
+
+        // IA_UI_DropItem (gamepad Y / Delete) — drop the hovered or focused row.
+        // Single-item stacks drop instantly; stacks > 1 open the quantity modal.
+        tsic.on('tsic.msg.UI.Input.IA_UI_DropItem', (e) => {
+            if (e.Phase !== 'Started' || !hoveredItem) return;
+            const it = hoveredItem;
+            if (it.Count > 1 && window.TSICInventory && window.TSICInventory.openQuantityModal) {
+                window.TSICInventory.openQuantityModal(it.Count, (count) => {
+                    tsic.publishMessage('UI.Cmd.Inventory.Drop', {
+                        OwnerId: 'Player', SlotIndex: it.SlotIndex, Count: count,
+                    });
+                });
+            } else {
+                tsic.publishMessage('UI.Cmd.Inventory.Drop', {
+                    OwnerId: 'Player', SlotIndex: it.SlotIndex, Count: 1,
+                });
+            }
+        });
+        window.addEventListener('tsic-item-catalog', refresh);
+
+        document.getElementById('btn-close').addEventListener('click', () => {
+            tsic.publishMessage('UI.Cmd.CharacterPreview.Hide', {});
+            tsic.publishMessage('UI.Cmd.Pause.Resume', {});
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                tsic.publishMessage('UI.Cmd.CharacterPreview.Hide', {});
+                tsic.publishMessage('UI.Cmd.Pause.Resume', {});
+            }
+            if (/^[0-9]$/.test(e.key) && hoveredItem) {
+                const slotIndex = e.key === '0' ? 9 : (parseInt(e.key, 10) - 1);
+                tsic.publishMessage('UI.Cmd.Hotbar.Assign', {
+                    SlotIndex: slotIndex,
+                    ItemId: String(hoveredItem.SlotIndex)
+                });
+            }
+        });
+
+        tsic.publishMessage('UI.Cmd.CharacterPreview.Show', {});
+    });
+    })();
+})();
+</script>
+</body></html>

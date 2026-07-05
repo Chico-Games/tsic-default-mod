@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="tsic-screen" content="Construction">
+  <meta name="tsic-focus" content="enabled">
+  <!-- InputMode.Construction is owned by UGameplayAbility_Construct (which
+       Appends/Removes it on the player's input subsystem). The SPA page must
+       NOT also append it: doing so would let beforeunload pull the tag out
+       from under the still-running ability. Per-action subscribers below
+       still receive events because the ability already activates the IMC. -->
+  <meta name="tsic-action-bar-context" content='[{"ActionName":"IA_UI_ConfirmAccept","Label":"Place","Priority":10},{"ActionName":"IA_UI_CancelBack","Label":"Cancel","Priority":1000}]'>
+  <title>Construction</title>
+  <link rel="stylesheet" href="/shared/base.css">
+  <link rel="stylesheet" href="/shared/components.css">
+  <link rel="stylesheet" href="/shared/hud.css">
+    <script src="/shared/tsic-bridge.js" defer></script>
+  <script src="/shared/tsic-runtime.js" defer></script>
+  <script src="/shared/router.js" defer></script>
+  <script src="/shared/tsic-focus.js" defer></script>
+  <script src="/shared/tsic-dropdown.js" defer></script>
+  <script src="/shared/hud.js" defer></script>
+  <script src="/shared/catalog.js" defer></script>
+  <script src="/shared/tab-filter.js" defer></script>
+  <style>
+    #c-tabs { display:flex; gap:0; margin-bottom:8px; }
+    .c-row { display:flex; align-items:center; gap:8px; padding:6px 10px; }
+    .c-row.disabled { color: rgba(47,43,34,0.45); pointer-events: none; }
+    #c-cost { padding: 8px; font-size:11px; background:rgba(241,229,207,0.88); border-top:1px solid var(--tsic-border); }
+    .c-cost-row { display:flex; justify-content:space-between; padding:2px 0; }
+    .c-cost-row .have-less { color:#9f2e25; }
+    .c-cost-row .have-ok   { color:#166534; }
+  </style>
+</head><body>
+  <!-- Sidebar of constructable items (left edge) -->
+  <div id="sidebar" class="tsic-panel" style="position:fixed;left:24px;top:24px;bottom:24px;width:300px;display:flex;flex-direction:column;gap:6px;overflow:hidden;">
+    <h2 class="tsic-title tsic-title--sm">Build</h2>
+    <div id="c-tabs" data-tsic-focus-group="category-tabs" data-tsic-tab-bar></div>
+    <div id="items" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:4px;" data-tsic-focus-group="item-list"></div>
+    <div id="c-cost"></div>
+  </div>
+
+  <!-- Preview status pill (top-center) -->
+  <div id="preview-pill" class="tsic-panel" style="position:fixed;top:24px;left:50%;transform:translateX(-50%);padding:6px 16px;font-size:12px;letter-spacing:2px;display:none;">
+    <span id="preview-text">—</span>
+    <span id="rotation-axis" style="color:rgba(47,43,34,0.65);font-size:10px;margin-left:8px;"></span>
+  </div>
+
+  <!-- Action buttons (bottom-center) -->
+  <div style="position:fixed;bottom:24px;left:50%;transform:translateX(-50%);display:flex;gap:8px;" data-tsic-focus-group="actions">
+    <button class="tsic-button" id="btn-confirm" data-tsic-initial-focus>Confirm</button>
+    <button class="tsic-button" id="btn-cancel">Cancel</button>
+    <button class="tsic-button" id="btn-deconstruct">Deconstruct</button>
+  </div>
+
+  <script>
+    (function(){
+      let lastItems = [];
+      let hoveredItem = null;
+      let tabFilter = null;
+
+      function categoryFor(it) { return (it && (it.Category || it.Type)) || 'Other'; }
+
+      function uniqueCategories(items) {
+        const set = new Set();
+        for (const it of (items || [])) set.add(categoryFor(it));
+        return ['All', ...Array.from(set).sort()];
+      }
+
+      function rebuildTabs() {
+        if (!tabFilter) return;
+        tabFilter.setTabs(uniqueCategories(lastItems).map(function (c) { return { id: c, label: c }; }));
+      }
+
+      function renderCostFor(item) {
+        const host = document.getElementById('c-cost');
+        host.innerHTML = '';
+        if (!item || !Array.isArray(item.Cost) || item.Cost.length === 0) {
+          host.textContent = item ? '(no cost data)' : '';
+          return;
+        }
+        const cat = (window.tsic && window.tsic.itemCatalog) || {};
+        for (const c of item.Cost) {
+          const row = document.createElement('div');
+          row.className = 'c-cost-row';
+          const label = document.createElement('span');
+          label.textContent = (cat[c.ItemId] && cat[c.ItemId].Name) || c.ItemId;
+          const have = document.createElement('span');
+          const haveCount = (c.HaveCount !== undefined) ? c.HaveCount : '?';
+          have.textContent = `${haveCount} / ${c.Count}`;
+          have.className = (typeof c.HaveCount === 'number' && c.HaveCount < c.Count) ? 'have-less' : 'have-ok';
+          row.appendChild(label);
+          row.appendChild(have);
+          host.appendChild(row);
+        }
+      }
+
+      function renderItems() {
+        const host = document.getElementById('items');
+        host.innerHTML = '';
+        const activeCategory = tabFilter ? tabFilter.getActive() : 'All';
+        const items = (lastItems || []).filter(it => activeCategory === 'All' || categoryFor(it) === activeCategory);
+        for (const it of items) {
+          const row = document.createElement('button');
+          row.className = 'tsic-button c-row' + (it.bAffordable === false ? ' disabled' : '');
+          row.style.justifyContent = 'flex-start';
+          if (it.IconUrl) {
+            const img = document.createElement('img');
+            img.src = it.IconUrl;
+            img.style.cssText = 'width:24px;height:24px;object-fit:contain;';
+            row.appendChild(img);
+          }
+          const label = document.createElement('span');
+          label.style.flex = '1';
+          label.textContent = it.Name || it.EntityDefId;
+          row.appendChild(label);
+          row.onmouseenter = () => { hoveredItem = it; renderCostFor(it); };
+          row.onmouseleave = () => { if (hoveredItem === it) { hoveredItem = null; renderCostFor(null); } };
+          row.onclick = () => tsic.publishMessage('UI.Cmd.Construction.Begin', { EntityDefId: it.EntityDefId });
+          host.appendChild(row);
+        }
+      }
+
+      function renderPreview(p) {
+        const pill = document.getElementById('preview-pill');
+        const text = document.getElementById('preview-text');
+        const axis = document.getElementById('rotation-axis');
+        if (!p) { pill.style.display = 'none'; return; }
+        pill.style.display = 'block';
+        if (p.bCanPlace) {
+          text.textContent = 'READY';
+          pill.style.color = '#0f4d24';
+          text.style.color = '#0f4d24';
+          text.style.fontWeight = '700';
+          pill.style.borderColor = 'rgba(15,77,36,0.65)';
+        } else {
+          text.textContent = (p.FailureReason || 'BLOCKED').toUpperCase();
+          pill.style.color = '#9f2e25';
+          text.style.color = '#9f2e25';
+          text.style.fontWeight = '700';
+          pill.style.borderColor = 'rgba(159,46,37,0.65)';
+        }
+        axis.textContent = p.RotationAxis ? `· axis: ${p.RotationAxis}` : '';
+      }
+
+      (function boot() {
+        if (!window.tsic || !window.TSIC || !window.TSIC.TabFilter) { setTimeout(boot, 16); return; }
+        tabFilter = TSIC.TabFilter.create(
+          document.getElementById('c-tabs'), [{ id: 'All', label: 'All' }], function () { renderItems(); }
+        );
+        tsic.whenReady(function () {
+          tsic.on('tsic.msg.UI.Construction.Available', (p) => {
+            lastItems = (p && p.Items) || [];
+            rebuildTabs(); renderItems();
+          });
+          tsic.on('tsic.msg.UI.Construction.PreviewState', (p) => renderPreview(p));
+          window.addEventListener('tsic-item-catalog', () => renderCostFor(hoveredItem));
+
+          document.getElementById('btn-confirm').onclick = () =>
+            tsic.publishMessage('UI.Cmd.Construction.Confirm', {});
+          document.getElementById('btn-cancel').onclick = () =>
+            tsic.publishMessage('UI.Cmd.Construction.Cancel', {});
+          document.getElementById('btn-deconstruct').onclick = () =>
+            tsic.publishMessage('UI.Cmd.Construction.Deconstruct', { EntityId: 0 });
+        });
+      })();
+    })();
+  </script>
+</body></html>

@@ -1,0 +1,385 @@
+/* Tier-1 "Durham Internal Terminal" — 1980s green-phosphor CRT.
+   Reskin per the store-terminal style guide: phosphor green, glow,
+   scanlines + RGB mask, vignette + flicker, VT323 bitmap font, blinking
+   block cursor. Tiers 2/3 keep their own (placeholder) chrome below. */
+.tsic-term-host, .tsic-term { width: 100%; height: 100%; }
+
+.tsic-term--t1 {
+  --term-color: #33ff00;            /* phosphor green */
+  --term-bg: #051405;               /* near-black green screen */
+  --term-glow: 0 0 5px rgba(51,255,0,0.5), 0 0 10px rgba(51,255,0,0.3);
+  position: relative; isolation: isolate; overflow: hidden;
+  height: 100%; box-sizing: border-box; padding: 20px;
+  display: flex; flex-direction: column;
+  background: var(--term-bg); color: var(--term-color);
+  font-family: "VT323", "Courier New", monospace;
+  font-size: 24px; line-height: 1.15;
+  text-shadow: var(--term-glow);
+}
+
+/* Scrolling output + the prompt line sit BELOW the CRT overlays (z-index 1). */
+.tsic-term--t1 .tsic-term-out {
+  position: relative; z-index: 1;
+  flex: 1; min-height: 0; overflow-y: auto; white-space: pre-wrap;
+  scrollbar-width: none;
+}
+.tsic-term--t1 .tsic-term-out::-webkit-scrollbar { display: none; }
+.tsic-term--t1 .tsic-term-line {
+  position: relative; z-index: 1;
+  display: flex; align-items: baseline; gap: 0;
+}
+.tsic-term-row { min-height: 1.15em; }
+.tsic-term--t1 .tsic-term-banner { color: #88ff88; }
+.tsic-term--t1 .tsic-term-err {
+  color: #ff3333;
+  text-shadow: 0 0 5px rgba(255,51,51,0.6), 0 0 10px rgba(255,51,51,0.35);
+}
+.tsic-term--t1 .tsic-term-echo { color: var(--term-color); opacity: 0.7; }
+.tsic-term--t1 .tsic-term-prompt { margin-right: .4ch; }
+
+/* The visible input is an uppercased text mirror followed by a blinking
+   block cursor. The real <input> is kept off the visible flow but focusable
+   so it captures keystrokes (see tier1-text.js). */
+.tsic-term--t1 .tsic-term-mirror { white-space: pre; }
+.tsic-term--t1 .tsic-term-cursor {
+  display: inline-block; width: .55em; height: 1em;
+  background: var(--term-color); box-shadow: var(--term-glow);
+  vertical-align: text-bottom;
+}
+.tsic-term--t1 .tsic-term-input {
+  position: absolute; left: 0; top: 0; width: 1px; height: 1px;
+  padding: 0; border: 0; opacity: 0; outline: none;
+  color: transparent; background: transparent; caret-color: transparent;
+  font: inherit;
+}
+.tsic-term--t1 .tsic-term-program { display: none; } /* tier-1 programs render via the text out */
+
+/* During the BIOS boot the prompt is hidden, but the (invisible) input stays
+   in the DOM and focusable so a keypress can fast-forward the animation. */
+.tsic-term--t1.is-booting .tsic-term-prompt,
+.tsic-term--t1.is-booting .tsic-term-mirror,
+.tsic-term--t1.is-booting .tsic-term-cursor { visibility: hidden; }
+
+/* ASCII logo block printed at the end of boot. */
+.tsic-term--t1 .tsic-term-logo { white-space: pre; margin: 6px 0 14px; }
+
+/* Program-driven theme (term.theme('red')) — emergency red phosphor. Overrides
+   the tier-1 tokens, so text, cursor, glow and background all re-tint. */
+.tsic-term--t1.tsic-term--theme-red {
+  --term-color: #ff2b2b;
+  --term-bg: #160303;
+  --term-glow: 0 0 5px rgba(255,40,40,0.55), 0 0 12px rgba(255,25,25,0.35);
+}
+
+/* CRT overlays — both non-interactive, stacked above the content. */
+.tsic-term--t1::before {                /* scanlines + RGB mask */
+  content: ''; position: absolute; inset: 0; z-index: 2; pointer-events: none;
+  background:
+    linear-gradient(rgba(0,0,0,0.28) 50%, transparent 50%),
+    linear-gradient(90deg, rgba(255,0,0,0.06), rgba(0,255,0,0.02), rgba(0,0,255,0.06));
+  background-size: 100% 4px, 3px 100%;
+}
+.tsic-term--t1::after {                 /* vignette (+ flicker, below) */
+  content: ''; position: absolute; inset: 0; z-index: 3; pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.55) 100%);
+}
+
+/* Motion is opt-in for users who haven't asked to reduce it. */
+@media (prefers-reduced-motion: no-preference) {
+  .tsic-term--t1::after { animation: tsic-crt-flicker 0.15s infinite; }
+  .tsic-term--t1 .tsic-term-cursor { animation: tsic-term-blink 1s step-end infinite; }
+}
+@keyframes tsic-crt-flicker { 0% { opacity: 0.95; } 50% { opacity: 1; } 100% { opacity: 0.98; } }
+@keyframes tsic-term-blink { 0% { opacity: 1; } 50% { opacity: 0; } 100% { opacity: 1; } }
+
+/* ════════════════════════════════════════════════════════════════════
+   Tier-2 "Durham GUI Terminal (Experimental)" — "RetroOS '84": a CGA/EGA-era
+   desktop for the in-world 640K DOS PC. Cyan dithered desktop, white windows,
+   high-contrast black borders + rigid offset block shadows, striped title
+   bars, scanlines + flicker. The store red (#e60000) is the one accent —
+   title-bar stripes, the DURHAM mark, the drive light, errors — for a little
+   Durham styling over the otherwise CGA palette.
+   ════════════════════════════════════════════════════════════════════ */
+.tsic-term--t2 {
+  --t2-bg:        #00aaaa;                 /* CGA cyan desktop */
+  --t2-bg-dither: #008888;                 /* dither blend colour */
+  --t2-win:       #ffffff;                 /* windows / wells */
+  --t2-border:    #000000;                 /* high-contrast borders + text */
+  --t2-text:      #000000;
+  --t2-hi:        #000000;                 /* selected background */
+  --t2-hi-text:   #ffffff;                 /* selected text */
+  --t2-dim:       #555555;                 /* muted text on white */
+  --t2-accent:    var(--mag-red, #e60000); /* Durham red accent */
+  --t2-shadow:    4px 4px 0 var(--t2-border);
+  --t2-shadow-sm: 2px 2px 0 var(--t2-border);
+
+  position: relative; isolation: isolate; overflow: hidden;
+  height: 100%; box-sizing: border-box;
+  display: flex; flex-direction: column;
+  background: var(--t2-bg);
+  color: var(--t2-text);
+  font-family: var(--font-terminal, "VT323", monospace);
+  font-size: 20px; line-height: 1.15;
+}
+
+/* The off-screen text-program iframe (a sibling) never shows on tier 2. */
+.tsic-term--t2 + .tsic-term-program { display: none; }
+
+/* ── Menu bar ─────────────────────────────────────────── */
+.tsic-term--t2 .t2-menubar {
+  flex: 0 0 auto; display: flex; align-items: center; gap: 4px;
+  height: 26px; padding: 0 8px;
+  background: var(--t2-win);
+  border-bottom: 2px solid var(--t2-border);
+}
+.tsic-term--t2 .t2-brand {
+  display: inline-flex; align-items: center; gap: 7px; padding-right: 14px;
+  font-size: 20px; letter-spacing: 1px; color: var(--t2-text);
+}
+.tsic-term--t2 .t2-brand-mark {
+  display: inline-grid; place-items: center; width: 18px; height: 18px;
+  background: var(--t2-accent); color: #fff;
+  border: 2px solid var(--t2-border); font-size: 12px; line-height: 1;
+}
+.tsic-term--t2 .t2-menu-item {
+  font: inherit; background: transparent; border: 0; color: var(--t2-text);
+  padding: 2px 8px; cursor: pointer;
+}
+.tsic-term--t2 .t2-menu-item:hover { background: var(--t2-hi); color: var(--t2-hi-text); } /* invert */
+.tsic-term--t2 .t2-clock { margin-left: auto; color: var(--t2-text); }
+
+/* ── Desktop ──────────────────────────────────────────── */
+.tsic-term--t2 .t2-desktop {
+  position: relative; flex: 1 1 auto; min-height: 0; overflow: hidden;
+  padding: 16px;
+  background-color: var(--t2-bg);
+  /* pure-CSS checkerboard dither — blends two cyans into a third (CGA trick) */
+  background-image:
+    linear-gradient(45deg, var(--t2-bg-dither) 25%, transparent 25%, transparent 75%, var(--t2-bg-dither) 75%, var(--t2-bg-dither)),
+    linear-gradient(45deg, var(--t2-bg-dither) 25%, transparent 25%, transparent 75%, var(--t2-bg-dither) 75%, var(--t2-bg-dither));
+  background-size: 4px 4px;
+  background-position: 0 0, 2px 2px;
+}
+.tsic-term--t2 .t2-icons {
+  display: flex; flex-wrap: wrap; align-content: flex-start; gap: 14px 18px;
+}
+.tsic-term--t2 .t2-empty {
+  font-size: 20px; color: var(--t2-text);
+  background: var(--t2-win); border: 2px solid var(--t2-border); box-shadow: var(--t2-shadow);
+  padding: 8px 12px;
+}
+
+/* ── Program icons ────────────────────────────────────── */
+.tsic-term--t2 .t2-icon {
+  position: relative; width: 84px;
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  background: transparent; border: 0; padding: 4px; cursor: pointer;
+  color: var(--t2-text); font: inherit;
+}
+.tsic-term--t2 .t2-icon-tile {
+  width: 46px; height: 46px; display: grid; place-items: center;
+  font-size: 24px; line-height: 1; color: var(--t2-text);
+  background: var(--t2-win);
+  border: 2px solid var(--t2-border);
+  box-shadow: var(--t2-shadow-sm);                 /* rigid offset block */
+  image-rendering: pixelated;
+}
+.tsic-term--t2 .t2-icon-tile svg { width: 30px; height: 30px; display: block; }
+.tsic-term--t2 .t2-icon-label {
+  font-size: 18px; line-height: 1; text-align: center; padding: 1px 4px;
+}
+.tsic-term--t2 .t2-icon:focus-visible { outline: none; }
+/* selection inverts the label (classic icon highlight) */
+.tsic-term--t2 .t2-icon:hover .t2-icon-label,
+.tsic-term--t2 .t2-icon:focus-visible .t2-icon-label { background: var(--t2-hi); color: var(--t2-hi-text); }
+.tsic-term--t2 .t2-icon:focus-visible .t2-icon-tile { box-shadow: var(--t2-shadow-sm), 0 0 0 2px var(--t2-accent); }
+.tsic-term--t2 .t2-icon:active .t2-icon-tile { box-shadow: none; transform: translate(2px, 2px); } /* press */
+
+.tsic-term--t2 .t2-icon.is-locked .t2-icon-tile {
+  border-style: dashed; box-shadow: none; color: #8a8a8a;
+}
+.tsic-term--t2 .t2-icon.is-locked:hover .t2-icon-label { background: transparent; color: var(--t2-dim); }
+.tsic-term--t2 .t2-icon-lock {
+  position: absolute; top: 32px; left: 50%; transform: translateX(-50%);
+  font-size: 12px; letter-spacing: 0.04em;
+  color: var(--t2-hi-text); background: var(--t2-hi); padding: 0 3px;
+}
+
+/* New-arrival "NEW!" sticker — a catalogue-style red starburst perched on the
+   top-right of a flagged icon tile. Stays until the program is opened. */
+.tsic-term--t2 .t2-icon-tile { position: relative; }
+.tsic-term--t2 .t2-icon-badge {
+  position: absolute; top: -14px; right: -14px; z-index: 1;
+  width: 40px; height: 40px; display: grid; place-items: center;
+  font-size: 13px; font-weight: bold; letter-spacing: 0.03em;
+  color: #fff; background: var(--t2-accent);
+  /* Wide-toothed seal: short spikes, big readable centre so "NEW" stays legible. */
+  clip-path: polygon(50% 0%, 60% 10%, 71% 6%, 73% 18%, 86% 14%, 84% 27%, 96% 29%,
+    89% 39%, 100% 50%, 89% 61%, 96% 71%, 84% 73%, 86% 86%, 73% 82%, 71% 94%,
+    60% 90%, 50% 100%, 40% 90%, 29% 94%, 27% 82%, 14% 86%, 16% 73%, 4% 71%,
+    11% 61%, 0% 50%, 11% 39%, 4% 29%, 16% 27%, 14% 14%, 27% 18%, 29% 6%, 40% 10%);
+  pointer-events: none;
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.35);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .tsic-term--t2 .t2-icon-badge { animation: t2-badge-blink 1.1s steps(1, end) infinite; }
+}
+@keyframes t2-badge-blink { 50% { opacity: 0.35; } }
+
+/* ── Window ───────────────────────────────────────────── */
+.tsic-term--t2 .t2-window {
+  position: absolute; z-index: 5;
+  min-width: 360px; max-width: calc(100% - 24px); max-height: calc(100% - 24px);
+  display: flex; flex-direction: column;
+  background: var(--t2-win);
+  border: 2px solid var(--t2-border);
+  box-shadow: var(--t2-shadow);                    /* rigid 4px offset block */
+}
+.tsic-term--t2 .t2-titlebar {
+  flex: 0 0 auto; display: flex; align-items: center; gap: 6px;
+  height: 24px; padding: 0 4px;
+  color: var(--t2-text);
+  /* classic 80s horizontal stripes — in Durham red */
+  background: repeating-linear-gradient(to bottom, var(--t2-accent) 0 2px, var(--t2-win) 2px 4px);
+  border-bottom: 2px solid var(--t2-border);
+  cursor: grab; user-select: none;
+}
+.tsic-term--t2 .t2-window.is-dragging .t2-titlebar { cursor: grabbing; }
+/* Multiple windows: the focused one keeps the red title stripes and the lifted
+   block shadow; the rest sit flat with muted stripes so the active one reads. */
+.tsic-term--t2 .t2-window:not(.is-focused) { box-shadow: var(--t2-shadow-sm); }
+.tsic-term--t2 .t2-window:not(.is-focused) .t2-titlebar {
+  background: repeating-linear-gradient(to bottom, var(--t2-dim) 0 2px, var(--t2-win) 2px 4px);
+}
+.tsic-term--t2 .t2-window:not(.is-focused) .t2-title { color: var(--t2-dim); }
+.tsic-term--t2 .t2-title {
+  font-size: 18px; letter-spacing: 1px; line-height: 16px;
+  color: var(--t2-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  /* solid plate so the title reads over the stripes */
+  background: var(--t2-win); padding: 1px 8px; border: 2px solid var(--t2-border);
+}
+.tsic-term--t2 .t2-close,
+.tsic-term--t2 .t2-zoom {
+  flex: 0 0 auto; width: 16px; height: 16px; padding: 0;
+  display: grid; place-items: center;
+  background: var(--t2-win); color: var(--t2-text);
+  border: 2px solid var(--t2-border);
+  box-shadow: var(--t2-shadow-sm);
+  font-size: 13px; line-height: 1; cursor: pointer;
+}
+.tsic-term--t2 .t2-zoom { order: 99; margin-left: auto; }            /* maximise box, pushed right */
+.tsic-term--t2 .t2-close { order: 100; }                            /* close, far right (right of maximise) */
+.tsic-term--t2 .t2-zoom::before { content: ''; width: 9px; height: 7px; border: 2px solid currentColor; box-sizing: border-box; }
+.tsic-term--t2 .t2-close:hover,
+.tsic-term--t2 .t2-zoom:hover { background: var(--t2-accent); color: #fff; }
+.tsic-term--t2 .t2-close:active,
+.tsic-term--t2 .t2-zoom:active { box-shadow: none; transform: translate(2px, 2px); } /* press down */
+
+/* Bottom-right grow box — diagonal hatch, drag to resize. */
+.tsic-term--t2 .t2-resize {
+  position: absolute; right: 0; bottom: 0; width: 16px; height: 16px; z-index: 2;
+  cursor: nwse-resize;
+  background: repeating-linear-gradient(135deg, var(--t2-border) 0 1.5px, transparent 1.5px 3px);
+}
+.tsic-term--t2 .t2-window.is-max .t2-resize { display: none; }
+/* An explicitly-sized window: content well fills it (resize/maximize). */
+.tsic-term--t2 .t2-window.is-sized .t2-content { max-height: none; }
+
+.tsic-term--t2 .t2-window-body { flex: 1 1 auto; min-height: 0; display: flex; padding: 4px; }
+.tsic-term--t2 .t2-content {
+  flex: 1 1 auto; min-height: 120px; min-width: 0;
+  max-height: min(60vh, 460px);
+  overflow: auto; white-space: pre;
+  padding: 6px 9px;
+  background: var(--t2-win); color: var(--t2-text);
+  border: 2px solid var(--t2-border);
+  font-family: var(--font-terminal, "VT323", monospace); font-size: 20px; line-height: 1.15;
+  scrollbar-width: thin; scrollbar-color: var(--t2-border) var(--t2-win);
+}
+.tsic-term--t2 .t2-row { min-height: 1.15em; }
+.tsic-term--t2 .t2-row.t2-err { color: var(--t2-accent); }   /* errors in Durham red */
+.tsic-term--t2 .t2-echo { color: var(--t2-dim); }
+.tsic-term--t2 .t2-inputline { display: flex; align-items: center; gap: 6px; min-height: 1.15em; }
+.tsic-term--t2 .t2-input-prompt { white-space: pre; }
+.tsic-term--t2 .t2-input {
+  flex: 1 1 auto; min-width: 60px; padding: 0 4px;
+  background: var(--t2-win); color: var(--t2-text); caret-color: var(--t2-text);
+  border: 2px solid var(--t2-border);
+  font: inherit; outline: none;
+}
+
+/* ── Terminal console (the command line inside a window) ── */
+.tsic-term--t2 .t2-console-line {
+  display: flex; align-items: baseline; min-height: 1.15em; position: relative;
+}
+.tsic-term--t2 .t2-console-prompt { margin-right: 0.5ch; }
+.tsic-term--t2 .t2-console-mirror { white-space: pre; }
+.tsic-term--t2 .t2-console-cursor {
+  display: inline-block; width: 0.55em; height: 1em;
+  background: var(--t2-text); vertical-align: text-bottom;
+}
+/* The real input is invisible but focusable; the mirror + cursor are what show. */
+.tsic-term--t2 .t2-console-input {
+  position: absolute; left: 0; top: 0; width: 1px; height: 1px;
+  padding: 0; border: 0; opacity: 0; outline: none;
+  color: transparent; background: transparent; caret-color: transparent; font: inherit;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .tsic-term--t2 .t2-console-cursor { animation: tsic-term-blink 1s step-end infinite; }
+}
+
+/* ── GUI programs (the program renders its own UI in the window) ── */
+.tsic-term--t2 .t2-content--gui {
+  padding: 0; border: 0; overflow: hidden;
+  flex: 1 1 auto; min-height: 0; max-height: none; background: var(--t2-win);
+}
+.tsic-term--t2 .t2-content--gui .tsic-term-program {
+  display: block; width: 100%; height: 100%; border: 0; background: var(--t2-win);
+}
+
+/* ── Folder window + folder icon ──────────────────────── */
+.tsic-term--t2 .t2-folder-view { white-space: normal; }
+.tsic-term--t2 .t2-folder-view .t2-icons { display: flex; flex-wrap: wrap; gap: 14px 18px; }
+.tsic-term--t2 .t2-icon-folder .t2-icon-tile { position: relative; background: var(--t2-win); }
+.tsic-term--t2 .t2-icon-folder .t2-icon-tile::before {   /* the folder's little tab */
+  content: ''; position: absolute; top: -7px; left: 5px; width: 18px; height: 7px;
+  background: var(--t2-win); border: 2px solid var(--t2-border); border-bottom: 0;
+}
+
+/* ── Status bar ───────────────────────────────────────── */
+.tsic-term--t2 .t2-statusbar {
+  flex: 0 0 auto; display: flex; align-items: center; gap: 10px;
+  height: 24px; padding: 0 9px;
+  background: var(--t2-win);
+  border-top: 2px solid var(--t2-border);
+  font-size: 18px; color: var(--t2-text);
+}
+.tsic-term--t2 .t2-status-hw { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tsic-term--t2 .t2-status-right { margin-left: auto; display: flex; align-items: center; gap: 9px; flex: 0 0 auto; }
+.tsic-term--t2 .t2-disk-led {
+  width: 9px; height: 9px;
+  background: var(--t2-accent); border: 2px solid var(--t2-border);
+}
+.tsic-term--t2 .t2-tier { color: var(--t2-text); }
+
+/* ── CRT effects (scanlines + flicker) ────────────────── */
+.tsic-term--t2::before {   /* scanlines — faint horizontal dark lines */
+  content: ''; position: absolute; inset: 0; z-index: 20; pointer-events: none;
+  background: repeating-linear-gradient(to bottom, rgba(0,0,0,0.16) 0 1px, transparent 1px 3px);
+}
+.tsic-term--t2::after {    /* flicker — a faint dark overlay whose opacity wobbles */
+  content: ''; position: absolute; inset: 0; z-index: 21; pointer-events: none;
+  background: rgba(0,0,0,0.05);
+}
+
+/* Program-driven emergency theme (term.theme('red')) — the cyan desktop goes red. */
+.tsic-term--t2.tsic-term--theme-red { --t2-bg: #aa0000; --t2-bg-dither: #880000; }
+.tsic-term--t2.tsic-term--theme-red::after { background: rgba(170,0,0,0.12); }
+
+@media (prefers-reduced-motion: no-preference) {
+  .tsic-term--t2::after { animation: tsic-crt-flicker 0.12s infinite; }
+}
+
+/* tier-3 stub: just enough to see the chrome swapped (designed in a later pass) */
+.tsic-term--t3 { background: #0c0c12; color: #cfd6e6; font-family: sans-serif; padding: 16px; height: 100%; box-sizing: border-box; }
+.tsic-term--t3 .tsic-term-clearance { color: #d2615b; font-weight: 700; letter-spacing: .1em; }

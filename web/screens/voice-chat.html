@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="tsic-screen" content="VoiceChat">
+  <title>Voice Chat</title>
+  <link rel="stylesheet" href="/shared/base.css">
+  <link rel="stylesheet" href="/shared/components.css">
+    <script src="/shared/tsic-bridge.js" defer></script>
+  <script src="/shared/tsic-runtime.js" defer></script>
+  <script src="/shared/router.js" defer></script>
+  <script src="/shared/tsic-focus.js" defer></script>
+  <script src="/shared/tsic-dropdown.js" defer></script>
+  <style>
+    html, body { background: transparent; }
+    #vc-root  { position: fixed; left: 24px; top: 24px; font-size: 11px; color: var(--cat-ink-dark); }
+    #vc-self  { display:none; align-items:center; gap:6px; padding:4px 8px; background:rgba(220,38,38,0.5); border-radius:3px; margin-bottom:4px; letter-spacing:1px; }
+    #vc-self.on { display:inline-flex; }
+    #vc-self .mic { display:inline-block; width:8px; height:8px; border-radius:50%; background:#fff; animation: vc-pulse 800ms ease-in-out infinite alternate; }
+    @keyframes vc-pulse { from { background: rgba(255,255,255,0.35); } to { background: #fff; } }
+    #vc-list  { display:flex; flex-direction:column; gap:2px; }
+    .vc-row   { padding:2px 8px; background: rgba(241,229,207,0.88); border-left: 2px solid #4ade80; }
+  </style>
+</head><body>
+  <div id="vc-root" class="tsic-pass-through">
+    <div id="vc-self"><span class="mic"></span> TALKING</div>
+    <div id="vc-list"></div>
+  </div>
+  <script>
+    (function boot(){
+      if(!window.tsic){ setTimeout(boot,16); return; }
+      tsic.on('tsic.msg.UI.VoiceChat.State', (p) => {
+        const speaking = (p && p.Speaking) || [];
+        document.getElementById('vc-self').classList.toggle('on', !!(p && p.bSelfPushToTalk));
+        const host = document.getElementById('vc-list');
+        host.innerHTML = '';
+        for (const name of speaking) {
+          const row = document.createElement('div');
+          row.className = 'vc-row';
+          row.textContent = name;
+          host.appendChild(row);
+        }
+      });
+    })();
+  </script>
+</body></html>

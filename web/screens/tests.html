@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="tsic-screen" content="Tests">
+  <title>TSIC SPA Tests</title>
+  <link rel="stylesheet" href="/shared/base.css">
+  <link rel="stylesheet" href="/shared/components.css">
+  <!-- Harness is global; scenario files register themselves into TSICTestHarness.scenarios. -->
+  <script src="/shared/test-harness.js"></script>
+  <!-- Scenario files. Add new ones here. -->
+  <script src="/tests/unit-terminal-constants.test.js"></script>
+  <script src="/tests/unit-terminal-boot.test.js"></script>
+  <script src="/tests/unit-terminal-catalog.test.js"></script>
+  <script src="/tests/unit-terminal-capabilities.test.js"></script>
+  <script src="/tests/unit-terminal-runtime.test.js"></script>
+  <script src="/tests/unit-focus-engine.test.js"></script>
+  <script src="/tests/unit-dropdown.test.js"></script>
+  <script src="/tests/focus-per-screen.test.js"></script>
+  <script src="/tests/focus-cross-screen.test.js"></script>
+  <script src="/tests/focus-stress.test.js"></script>
+  <script src="/tests/focus-integration.test.js"></script>
+  <script src="/tests/inventory.test.js"></script>
+  <script src="/tests/storage.test.js"></script>
+  <script src="/tests/hotbar.test.js"></script>
+  <script src="/tests/behavior-bar.test.js"></script>
+  <script src="/tests/settings.test.js"></script>
+  <script src="/tests/notifications.test.js"></script>
+  <script src="/tests/chat.test.js"></script>
+  <script src="/tests/detection.test.js"></script>
+  <script src="/tests/health-bar.test.js"></script>
+  <script src="/tests/stamina-bar.test.js"></script>
+  <script src="/tests/stomach.test.js"></script>
+  <script src="/tests/crafting.test.js"></script>
+  <script src="/tests/production.test.js"></script>
+  <script src="/tests/teleporter.test.js"></script>
+  <script src="/tests/map.test.js"></script>
+  <script src="/tests/unit-fow-lookup.test.js"></script>
+  <script src="/tests/interaction.test.js"></script>
+  <script src="/tests/selection.test.js"></script>
+  <script src="/tests/quantity-picker.test.js"></script>
+  <script src="/tests/pause-menu.test.js"></script>
+  <script src="/tests/main-menu.test.js"></script>
+  <script src="/tests/save-load.test.js"></script>
+  <script src="/tests/circular-progress.test.js"></script>
+  <script src="/tests/voice-chat.test.js"></script>
+  <script src="/tests/construction.test.js"></script>
+  <script src="/tests/construction-carousel.test.js"></script>
+  <script src="/tests/universal-storage-setup.test.js"></script>
+  <script src="/tests/lore.test.js"></script>
+  <script src="/tests/cheat-menu.test.js"></script>
+  <script src="/tests/death-screen.test.js"></script>
+  <script src="/tests/wardrobe.test.js"></script>
+  <script src="/tests/bug-report.test.js"></script>
+  <script src="/tests/terminal.test.js"></script>
+  <style>
+    html, body { height: 100%; margin: 0; }
+    #root { display: grid; grid-template-columns: 280px 1fr 380px; height: 100vh; background: #0a0a0a; color: var(--cat-ink-dark); }
+    #scenarios { border-right: 1px solid #222; overflow-y: auto; }
+    #scenarios h1 { font-size: 12px; letter-spacing: 3px; padding: 12px; margin: 0; border-bottom: 1px solid #222; color: #ffcc00; }
+    .scn { padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #1a1a1a; cursor: pointer; display: flex; gap: 6px; align-items: center; }
+    .scn:hover { background: #181818; }
+    .scn .dot { width: 8px; height: 8px; border-radius: 50%; background: #333; flex: 0 0 auto; }
+    .scn.pass .dot { background: #22c55e; }
+    .scn.fail .dot { background: #ef4444; }
+    .scn.run .dot  { background: #facc15; }
+    .scn.skip .dot { background: #6b7280; }
+    .scn-name { flex: 1; }
+    .scn-page { color: rgba(226,232,240,0.55); font-size: 9px; }
+    #toolbar { padding: 6px 12px; border-bottom: 1px solid #222; font-size: 11px; display: flex; align-items: center; gap: 8px; }
+    #toolbar button { background: #1a1a1a; color: var(--cat-ink-dark); border: 1px solid #333; padding: 4px 10px; cursor: pointer; }
+    #toolbar button:hover { background: #2a2a2a; }
+    #toolbar .summary { margin-left: auto; color: rgba(226,232,240,0.65); }
+    #viewer { display: flex; flex-direction: column; min-width: 0; }
+    #viewer-frame { flex: 1; background: #d4c19d; min-height: 0; }
+    #viewer-frame iframe { width: 100%; height: 100%; border: 0; background: transparent; }
+    #log { border-left: 1px solid #222; overflow-y: auto; font-family: 'Consolas', monospace; font-size: 11px; }
+    #log h1 { font-size: 12px; letter-spacing: 3px; padding: 12px; margin: 0; border-bottom: 1px solid #222; color: #ffcc00; }
+    .log-entry { padding: 4px 12px; border-bottom: 1px solid #141414; white-space: pre-wrap; word-break: break-word; }
+    .log-entry.info  { color: #cbd5e1; }
+    .log-entry.pass  { color: #4ade80; }
+    .log-entry.fail  { color: #fca5a5; }
+    .log-entry.publish { color: #93c5fd; }
+    .log-entry.inject  { color: #fde68a; }
+  </style>
+</head><body>
+  <div id="root">
+    <div id="scenarios">
+      <h1>SCENARIOS</h1>
+      <div id="scn-list"></div>
+    </div>
+    <div id="viewer">
+      <div id="toolbar">
+        <button id="btn-run-all">Run all</button>
+        <button id="btn-run-sel">Run selected</button>
+        <button id="btn-reset">Reset viewer</button>
+        <span class="summary"><span id="summary-text">0/0</span></span>
+      </div>
+      <div id="viewer-frame"><iframe id="viewer-iframe" src="about:blank"></iframe></div>
+    </div>
+    <div id="log">
+      <h1>LOG</h1>
+      <div id="log-list"></div>
+    </div>
+  </div>
+  <script>
+    (function(){
+      const list = document.getElementById('scn-list');
+      const logList = document.getElementById('log-list');
+      const iframe = document.getElementById('viewer-iframe');
+      const summaryText = document.getElementById('summary-text');
+      let selected = null;
+      const results = new Map();
+
+      function log(kind, msg) {
+        const div = document.createElement('div');
+        div.className = `log-entry ${kind}`;
+        div.textContent = msg;
+        logList.appendChild(div);
+        logList.scrollTop = logList.scrollHeight;
+      }
+
+      function setStatus(scn, status) {
+        results.set(scn.name, status);
+        scn._el.classList.remove('pass','fail','run');
+        if (status) scn._el.classList.add(status);
+        const passes = Array.from(results.values()).filter(s => s === 'pass').length;
+        const total  = TSICTestHarness.scenarios.length;
+        summaryText.textContent = `${passes}/${total}`;
+      }
+
+      function renderList() {
+        list.innerHTML = '';
+        TSICTestHarness.scenarios.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+        for (const scn of TSICTestHarness.scenarios) {
+          const row = document.createElement('div');
+          row.className = 'scn';
+          row.innerHTML = `<div class="dot"></div><div class="scn-name">${scn.name}</div><div class="scn-page">${scn.file || ''}</div>`;
+          row.onclick = () => { selected = scn; renderList(); document.querySelectorAll('.scn').forEach(e => e.style.background = ''); row.style.background = '#222'; };
+          scn._el = row;
+          list.appendChild(row);
+        }
+      }
+
+      function loadIframe(url) {
+        return new Promise((resolve) => {
+          const onLoad = () => {
+            iframe.removeEventListener('load', onLoad);
+            // Install the mock tsic on the iframe's window. Most pages poll
+            // for window.tsic via whenReady() so the assignment is picked up
+            // on the next 16ms tick regardless of whether their defer scripts
+            // have already started.
+            const handle = TSICTestHarness.installMockTsic(iframe.contentWindow, {});
+            resolve(handle);
+          };
+          iframe.addEventListener('load', onLoad);
+          iframe.src = url;
+        });
+      }
+
+      async function runScenario(scn) {
+        log('info', `--- ${scn.name} ---`);
+        // Quarantined (register({ skip })) — see test-harness.js QUARANTINE.
+        if (scn.skip) { log('info', `SKIP — ${scn.skip}`); setStatus(scn, 'skip'); return; }
+        setStatus(scn, 'run');
+        try {
+          const handle = await loadIframe(scn.file);
+          const failures = [];
+          const ctx = {
+            handle,
+            iframe,
+            win: iframe.contentWindow,
+            doc: iframe.contentDocument,
+            assert: TSICTestHarness.assert,
+            events: TSICTestHarness.events,
+            waitFor: TSICTestHarness.waitFor,
+            // Curated short-form helpers so scenarios stay tidy.
+            inject(channel, payload) {
+                log('inject', `inject ${channel}`);
+                handle.inject(channel, payload);
+            },
+            screen(name) { handle.screen(name); },
+            mode(d) { handle.mode(d); },
+            input(action, phase, value) { handle.input(action, phase, value); },
+            setItemCatalog(map) { handle.setItemCatalog(map); },
+            setRecipeCatalog(map) { handle.setRecipeCatalog(map); },
+            expect(err) { if (err) failures.push(err); },
+            publishes() { return handle.publishes(); },
+            clearPublishes() { handle.clearPublishes(); },
+          };
+          // Focus-engine helpers (pressDir/confirm/cancel/active/assertAllReachable/...)
+          ctx.focus = TSICTestHarness.makeFocusHelpers(iframe, handle, failures);
+          // Give the page's defer scripts a tick to register their subscribers.
+          await new Promise(r => setTimeout(r, 80));
+          await scn.run(ctx);
+          if (failures.length > 0) {
+            for (const f of failures) log('fail', f);
+            setStatus(scn, 'fail');
+            return false;
+          } else {
+            log('pass', `OK ${scn.name}`);
+            setStatus(scn, 'pass');
+            return true;
+          }
+        } catch (e) {
+          log('fail', `${scn.name} threw: ${e && e.message ? e.message : e}`);
+          setStatus(scn, 'fail');
+          return false;
+        }
+      }
+
+      async function runAll() {
+        logList.innerHTML = '';
+        results.clear();
+        for (const scn of TSICTestHarness.scenarios) {
+          await runScenario(scn);
+        }
+      }
+
+      document.getElementById('btn-run-all').onclick = runAll;
+      document.getElementById('btn-run-sel').onclick = () => { if (selected) runScenario(selected); };
+      document.getElementById('btn-reset').onclick   = () => { iframe.src = 'about:blank'; };
+
+      renderList();
+      log('info', `Loaded ${TSICTestHarness.scenarios.length} scenarios.`);
+    })();
+  </script>
+</body></html>

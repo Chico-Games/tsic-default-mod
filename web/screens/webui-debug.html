@@ -1,0 +1,1501 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="tsic-screen" content="WebUIDebug">
+  <meta name="tsic-debug" content="true">
+  <meta name="tsic-input-mode" content="InputMode.Menu">
+  <title>WebUI Debug</title>
+    <script src="/shared/tsic-bridge.js" defer></script>
+  <script src="/shared/tsic-runtime.js" defer></script>
+  <script src="/shared/router.js" defer></script>
+  <style>
+    :root {
+      --bg: #0d0d0d; --bg1: #151515; --bg2: #1c1c1c; --bg3: #242424;
+      --border: #2a2a2a; --border-hi: #444;
+      --fg: #ccc; --fg-dim: #666; --fg-bright: #eee;
+      --accent: #4ae; --accent-dim: #2a5a7a;
+      --green: #4a6; --green-dim: #2a4a2e;
+      --yellow: #ea4; --yellow-dim: #5a4a2a;
+      --red: #e55; --red-dim: #5a2a2a;
+      --cyan: #5cc; --magenta: #c6c; --orange: #e84;
+      --mono: 'Consolas', 'Cascadia Code', 'Fira Code', monospace;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; background: var(--bg); color: var(--fg);
+      font-family: var(--mono); font-size: 11px; overflow: hidden; user-select: none; }
+
+    #root { display: grid; grid-template-rows: auto 1fr auto; height: 100%; }
+
+    /* ── Header ─────────────────────────────────── */
+    #header {
+      background: var(--bg1); border-bottom: 1px solid var(--border);
+      padding: 5px 12px; display: flex; align-items: center; gap: 12px;
+    }
+    #header .title { color: var(--accent); font-size: 13px; font-weight: bold; letter-spacing: 2px; }
+    #header .sep { color: var(--border-hi); }
+    .pill {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 2px 8px; border-radius: 3px; font-size: 10px;
+      background: var(--bg3); border: 1px solid var(--border);
+    }
+    .pill .dot { width: 6px; height: 6px; border-radius: 50%; }
+    .pill .dot.on  { background: var(--green); box-shadow: 0 0 4px var(--green); }
+    .pill .dot.off { background: var(--red); }
+    .pill .dot.warn { background: var(--yellow); }
+    #header .spacer { flex: 1; }
+    #header .clock { color: var(--fg-dim); font-size: 10px; }
+    .hdr-btn { background: var(--bg3); border: 1px solid var(--border); color: var(--fg);
+      padding: 3px 10px; cursor: pointer; font-family: var(--mono); font-size: 10px; }
+    .hdr-btn:hover { border-color: var(--accent); }
+    .hdr-btn.active { border-color: var(--yellow); color: var(--yellow); }
+    #stats-bar { display: flex; gap: 12px; font-size: 9px; color: var(--fg-dim); }
+    #stats-bar span { white-space: nowrap; }
+
+    /* ── Main Grid ──────────────────────────────── */
+    #main { display: grid; grid-template-columns: 280px 1fr 300px; gap: 0; min-height: 0; }
+
+    /* ── Columns ────────────────────────────────── */
+    #left { display: flex; flex-direction: column; border-right: 1px solid var(--border); overflow: hidden; }
+    #center { display: flex; flex-direction: column; overflow: hidden; }
+    #right { display: flex; flex-direction: column; border-left: 1px solid var(--border); overflow: hidden; }
+
+    .panel { display: flex; flex-direction: column; overflow: hidden; }
+    .panel-title {
+      flex: 0 0 auto; padding: 5px 10px;
+      background: var(--bg2); border-bottom: 1px solid var(--border);
+      font-size: 10px; color: var(--fg-dim); letter-spacing: 1.5px; text-transform: uppercase;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .panel-title .badge {
+      background: var(--accent-dim); color: var(--accent); padding: 0 5px;
+      border-radius: 2px; font-size: 9px; min-width: 18px; text-align: center;
+    }
+    .panel-body { flex: 1 1 auto; overflow-y: auto; padding: 6px 8px; min-height: 0; }
+    .panel-title .spacer { flex: 1; }
+
+    /* ── Input Mode ─────────────────────────────── */
+    #input-mode-panel { flex: 0 0 auto; }
+    .mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+    .mode-cell {
+      background: var(--bg3); border: 1px solid var(--border); border-radius: 3px;
+      padding: 5px 6px; text-align: center;
+    }
+    .mode-cell.active { border-color: var(--accent); background: var(--accent-dim); }
+    .mode-cell .mode-label { font-size: 9px; color: var(--fg-dim); text-transform: uppercase; letter-spacing: 1px; }
+    .mode-cell .mode-value { font-size: 12px; color: var(--fg-bright); margin-top: 1px; }
+    .mode-cell.active .mode-value { color: var(--accent); }
+
+    /* ── Focus / Selection ──────────────────────── */
+    #focus-panel { flex: 0 0 auto; }
+    .focus-row { display: flex; justify-content: space-between; padding: 2px 0;
+      border-bottom: 1px solid var(--border); font-size: 10px; }
+    .focus-row:last-child { border-bottom: none; }
+    .focus-key { color: var(--fg-dim); flex: 0 0 auto; }
+    .focus-val { color: var(--fg-bright); text-align: right; max-width: 160px;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; margin-left: 6px; }
+    .focus-val.none { color: var(--fg-dim); font-style: italic; }
+    .focus-val.highlight { color: var(--green); }
+    .focus-val.warn { color: var(--yellow); }
+
+    /* ── Selection Preview ──────────────────────── */
+    #selection-panel { flex: 0 0 auto; }
+    .sel-box {
+      background: var(--bg3); border: 1px solid var(--border); border-radius: 3px;
+      padding: 6px 8px; margin-bottom: 4px;
+    }
+    .sel-box.has-selection { border-color: var(--green); }
+    .sel-tag { display: inline-block; font-size: 9px; padding: 1px 5px; border-radius: 2px;
+      margin-right: 4px; margin-bottom: 2px; }
+    .sel-tag.tag-type { background: var(--accent-dim); color: var(--accent); }
+    .sel-tag.tag-id { background: #3a2a5a; color: #b8a; }
+    .sel-tag.tag-class { background: var(--yellow-dim); color: var(--yellow); }
+    .sel-tag.tag-role { background: var(--green-dim); color: var(--green); }
+    .sel-tag.tag-attr { background: var(--bg3); color: var(--fg-dim); border: 1px solid var(--border); }
+    .sel-element-name { font-size: 12px; color: var(--cyan); margin-bottom: 3px; }
+    .sel-props { font-size: 9px; color: var(--fg-dim); line-height: 1.5; }
+    .sel-props .k { color: var(--fg-dim); }
+    .sel-props .v { color: var(--fg-bright); }
+    .sel-none { color: var(--fg-dim); font-style: italic; font-size: 10px; text-align: center; padding: 8px; }
+    .sel-rect { font-size: 9px; color: var(--fg-dim); margin-top: 3px; }
+    .sel-rect b { color: var(--fg); font-weight: normal; }
+
+    /* ── Axes ───────────────────────────────────── */
+    #axes-panel { flex: 0 0 auto; }
+    .axis-row { display: flex; align-items: center; gap: 6px; padding: 2px 0; }
+    .axis-label { width: 70px; color: var(--fg-dim); font-size: 10px; overflow: hidden;
+      text-overflow: ellipsis; white-space: nowrap; flex: 0 0 70px; }
+    .axis-bar-wrap { flex: 1; height: 8px; background: var(--bg3); border-radius: 2px;
+      position: relative; overflow: hidden; border: 1px solid var(--border); }
+    .axis-bar { position: absolute; top: 0; height: 100%; transition: left 60ms, width 60ms; }
+    .axis-bar.x { background: var(--red); }
+    .axis-bar.y { background: var(--green); }
+    .axis-val { width: 40px; text-align: right; color: var(--fg-dim); font-size: 10px; flex: 0 0 40px; }
+    .stick-viz { width: 56px; height: 56px; background: var(--bg3); border: 1px solid var(--border);
+      border-radius: 50%; position: relative; margin: 4px auto; }
+    .stick-dot { width: 8px; height: 8px; background: var(--accent); border-radius: 50%;
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      transition: top 60ms, left 60ms; box-shadow: 0 0 6px var(--accent); }
+    .stick-cross-h, .stick-cross-v { position: absolute; background: var(--border); }
+    .stick-cross-h { width: 100%; height: 1px; top: 50%; left: 0; }
+    .stick-cross-v { width: 1px; height: 100%; left: 50%; top: 0; }
+    .stick-deadzone { position: absolute; width: 40%; height: 40%; top: 30%; left: 30%;
+      border: 1px dashed var(--border-hi); border-radius: 50%; }
+
+    /* ── Active Actions ─────────────────────────── */
+    #buttons-panel { flex: 0 0 auto; }
+    .btn-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3px; }
+    .btn-cell {
+      background: var(--bg3); border: 1px solid var(--border); border-radius: 3px;
+      padding: 3px; text-align: center; font-size: 8px; color: var(--fg-dim);
+      transition: background 100ms, border-color 100ms;
+    }
+    .btn-cell.pressed { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
+
+    /* ── Input History ──────────────────────────── */
+    #history-panel { flex: 1 1 auto; min-height: 0; }
+    #history-panel .panel-body { font-size: 10px; padding: 0; }
+    .hist-row {
+      display: grid; grid-template-columns: 56px 1fr 72px 50px;
+      padding: 2px 8px; border-bottom: 1px solid #1a1a1a;
+      align-items: center; cursor: pointer;
+    }
+    .hist-row:hover { background: var(--bg3) !important; }
+    .hist-row.selected-row { background: var(--accent-dim) !important; border-left: 2px solid var(--accent); }
+    .hist-row:nth-child(odd) { background: var(--bg1); }
+    .hist-row .ts { color: var(--fg-dim); }
+    .hist-row .ch { color: var(--cyan); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .hist-row .phase { padding: 1px 4px; border-radius: 2px; font-size: 9px; text-align: center; }
+    .hist-row .phase.Started   { background: var(--green-dim); color: var(--green); }
+    .hist-row .phase.Triggered { background: var(--yellow-dim); color: var(--yellow); }
+    .hist-row .phase.Completed { background: var(--red-dim); color: var(--red); }
+    .hist-row .phase.Canceled  { background: var(--bg3); color: var(--fg-dim); }
+    .hist-row .val { color: var(--fg-dim); text-align: right; }
+    .hist-header { font-size: 9px; color: var(--fg-dim); text-transform: uppercase;
+      letter-spacing: 1px; border-bottom: 1px solid var(--border); background: var(--bg2);
+      position: sticky; top: 0; z-index: 1; cursor: default !important; }
+
+    /* ── Keyboard Monitor ──────────────────────── */
+    #keyboard-panel { flex: 0 0 auto; border-top: 1px solid var(--border); }
+    .key-row { display: grid; grid-template-columns: 22px 60px 1fr 70px; gap: 4px;
+      padding: 2px 8px; font-size: 10px; align-items: center; border-bottom: 1px solid #1a1a1a; }
+    .key-row:nth-child(odd) { background: var(--bg1); }
+    .key-dir { font-size: 9px; font-weight: bold; }
+    .key-dir.down { color: var(--green); }
+    .key-dir.up { color: var(--red); }
+    .key-name { color: var(--cyan); }
+    .key-code { color: var(--fg-dim); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .key-mods { font-size: 9px; display: flex; gap: 3px; justify-content: flex-end; }
+    .key-mod { padding: 0 3px; border-radius: 2px; background: var(--bg3); color: var(--fg-dim); }
+    .key-mod.active { background: var(--yellow-dim); color: var(--yellow); }
+
+    /* ── Channel Monitor ───────────────────────── */
+    #channels-panel { flex: 0 0 180px; min-height: 0; border-top: 1px solid var(--border); }
+    #channels-panel .panel-body { font-size: 10px; padding: 0; }
+    .chan-row { padding: 2px 8px; border-bottom: 1px solid #1a1a1a; display: flex;
+      justify-content: space-between; align-items: center; cursor: pointer; }
+    .chan-row:nth-child(odd) { background: var(--bg1); }
+    .chan-row:hover { background: var(--bg3); }
+    .chan-name { color: var(--cyan); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+    .chan-kind { font-size: 8px; padding: 0 3px; border-radius: 2px; margin: 0 4px; }
+    .chan-kind.sticky { background: var(--green-dim); color: var(--green); }
+    .chan-kind.event { background: var(--bg3); color: var(--fg-dim); }
+    .chan-count { color: var(--fg-dim); flex: 0 0 30px; text-align: right; }
+    .chan-row.hot { animation: chan-flash 300ms ease-out; }
+    @keyframes chan-flash { from { background: var(--accent-dim); } }
+
+    /* ── Right Column ──────────────────────────── */
+    /* ── Gamepad ────────────────────────────────── */
+    #gamepad-panel { flex: 0 0 auto; }
+    .gp-status { text-align: center; padding: 6px; font-size: 10px; }
+    .gp-status.connected { color: var(--green); }
+    .gp-status.disconnected { color: var(--fg-dim); }
+    .gp-axes { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 2px 4px; }
+    .gp-btn-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 2px; padding: 2px 4px; }
+    .gp-btn {
+      background: var(--bg3); border: 1px solid var(--border); border-radius: 2px;
+      padding: 2px; text-align: center; font-size: 8px; color: var(--fg-dim);
+    }
+    .gp-btn.pressed { background: var(--green-dim); border-color: var(--green); color: var(--green); }
+
+    /* ── Screen History ─────────────────────────── */
+    #screen-history-panel { flex: 0 0 auto; }
+    .screen-row { display: flex; justify-content: space-between; padding: 2px 0;
+      border-bottom: 1px solid var(--border); font-size: 10px; align-items: center; }
+    .screen-name { color: var(--magenta); }
+    .screen-time { color: var(--fg-dim); font-size: 9px; }
+    .screen-row.current .screen-name { color: var(--green); }
+
+    /* ── Sticky Cache ──────────────────────────── */
+    #cache-panel { flex: 0 0 auto; }
+    .cache-row { padding: 2px 0; border-bottom: 1px solid var(--border); font-size: 10px; cursor: pointer; }
+    .cache-row:hover { background: var(--bg3); }
+    .cache-ch { color: var(--cyan); }
+    .cache-age { color: var(--fg-dim); font-size: 9px; float: right; }
+
+    /* ── Message Log ────────────────────────────── */
+    #msglog-panel { flex: 1 1 auto; min-height: 0; }
+    #msglog-panel .panel-body { font-size: 10px; padding: 0; }
+    .msg-row { padding: 2px 8px; border-bottom: 1px solid #1a1a1a; cursor: pointer; }
+    .msg-row:nth-child(odd) { background: var(--bg1); }
+    .msg-row:hover { background: var(--bg3) !important; }
+    .msg-row.selected-row { background: var(--accent-dim) !important; }
+    .msg-ts { color: var(--fg-dim); }
+    .msg-dir { font-size: 9px; padding: 1px 3px; border-radius: 2px; margin: 0 4px; }
+    .msg-dir.in  { background: var(--green-dim); color: var(--green); }
+    .msg-dir.out { background: var(--accent-dim); color: var(--accent); }
+    .msg-ch  { color: var(--magenta); }
+    .msg-payload { color: var(--fg-dim); margin-left: 6px; max-width: 200px; display: inline-block;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
+
+    /* ── Detail Drawer ─────────────────────────── */
+    #detail-drawer {
+      background: var(--bg1); border-top: 2px solid var(--accent);
+      display: none; max-height: 200px; overflow: auto;
+    }
+    #detail-drawer.open { display: block; }
+    #detail-header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 4px 12px; background: var(--bg2); border-bottom: 1px solid var(--border);
+    }
+    #detail-title { font-size: 10px; color: var(--accent); letter-spacing: 1px; text-transform: uppercase; }
+    #detail-close { background: none; border: none; color: var(--fg-dim); cursor: pointer;
+      font-family: var(--mono); font-size: 12px; padding: 2px 6px; }
+    #detail-close:hover { color: var(--fg-bright); }
+    #detail-body {
+      padding: 6px 12px; font-size: 10px; white-space: pre-wrap; word-break: break-all;
+      color: var(--fg); line-height: 1.5;
+    }
+    .json-key { color: var(--cyan); }
+    .json-str { color: var(--green); }
+    .json-num { color: var(--yellow); }
+    .json-bool { color: var(--magenta); }
+    .json-null { color: var(--fg-dim); }
+    .json-bracket { color: var(--fg-dim); }
+
+    /* ── Mouse Tracker ─────────────────────────── */
+    #mouse-panel { flex: 0 0 auto; }
+    .mouse-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4px; }
+    .mouse-cell { background: var(--bg3); border: 1px solid var(--border); border-radius: 3px;
+      padding: 3px 6px; text-align: center; }
+    .mouse-cell .ml { font-size: 8px; color: var(--fg-dim); text-transform: uppercase; }
+    .mouse-cell .mv { font-size: 11px; color: var(--fg-bright); }
+    .mouse-cell.active { border-color: var(--green); }
+    .mouse-btns { display: flex; gap: 3px; justify-content: center; margin-top: 4px; }
+    .mbtn { width: 28px; height: 20px; background: var(--bg3); border: 1px solid var(--border);
+      border-radius: 3px; display: flex; align-items: center; justify-content: center;
+      font-size: 8px; color: var(--fg-dim); }
+    .mbtn.pressed { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
+
+    /* ── Request Tracker ───────────────────────── */
+    #request-panel { flex: 0 0 auto; }
+    .req-row { display: flex; justify-content: space-between; padding: 2px 0;
+      border-bottom: 1px solid var(--border); font-size: 10px; align-items: center; }
+    .req-ch { color: var(--magenta); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .req-status { font-size: 9px; padding: 1px 4px; border-radius: 2px; }
+    .req-status.pending { background: var(--yellow-dim); color: var(--yellow); }
+    .req-status.ok { background: var(--green-dim); color: var(--green); }
+    .req-status.err { background: var(--red-dim); color: var(--red); }
+    .req-lat { color: var(--fg-dim); font-size: 9px; width: 50px; text-align: right; }
+
+    /* ── Event Rate Graph ──────────────────────── */
+    #rate-panel { flex: 0 0 auto; border-top: 1px solid var(--border); }
+    #rate-canvas { width: 100%; height: 150px; display: block; }
+
+    /* ── Scrollbar ──────────────────────────────── */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--bg3); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--border-hi); }
+
+    /* ── Misc ───────────────────────────────────── */
+    .empty-msg { color: var(--fg-dim); font-style: italic; padding: 8px; text-align: center; font-size: 10px; }
+    .sparkline { display: inline-flex; align-items: flex-end; gap: 1px; height: 14px; vertical-align: middle; }
+    .sparkline .bar { width: 2px; background: var(--accent); min-height: 1px;
+      border-radius: 1px 1px 0 0; transition: height 200ms; }
+    .filter-input {
+      width: 100%; background: var(--bg); border: 1px solid var(--border);
+      color: var(--fg); padding: 2px 6px; font-family: var(--mono); font-size: 10px; outline: none;
+    }
+    .filter-input:focus { border-color: var(--accent); }
+    .copy-btn { background: none; border: 1px solid var(--border); color: var(--fg-dim);
+      padding: 1px 6px; cursor: pointer; font-family: var(--mono); font-size: 9px; border-radius: 2px; }
+    .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .tab-bar { display: flex; gap: 0; border-bottom: 1px solid var(--border); }
+    .tab-btn { background: var(--bg2); border: none; border-bottom: 2px solid transparent;
+      color: var(--fg-dim); padding: 4px 10px; cursor: pointer; font-family: var(--mono);
+      font-size: 10px; text-transform: uppercase; letter-spacing: 1px; }
+    .tab-btn:hover { color: var(--fg); }
+    .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+    .tab-content { display: none; }
+    .tab-content.active { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
+  </style>
+</head><body>
+<div id="root">
+  <!-- ── Header ──────────────────────────────────── -->
+  <div id="header">
+    <span class="title">WEBUI DEBUG</span>
+    <span class="sep">|</span>
+    <div class="pill" id="pill-bridge">
+      <span class="dot off" id="dot-bridge"></span>
+      <span>Bridge</span>
+    </div>
+    <div class="pill" id="pill-input">
+      <span class="dot off" id="dot-input"></span>
+      <span id="input-device">---</span>
+    </div>
+    <div class="pill" id="pill-focus">
+      <span class="dot off" id="dot-focus"></span>
+      <span id="focus-target">---</span>
+    </div>
+    <div class="pill" id="pill-fps">
+      <span id="fps-val">--</span> fps
+      <span class="sparkline" id="fps-spark"></span>
+    </div>
+    <div id="stats-bar">
+      <span>ev: <b id="stat-total">0</b></span>
+      <span>rate: <b id="stat-rate">0</b>/s</span>
+      <span>ch: <b id="stat-channels">0</b></span>
+      <span>req: <b id="stat-pending">0</b></span>
+    </div>
+    <span class="spacer"></span>
+    <span class="clock" id="clock">00:00:00</span>
+    <button class="hdr-btn" id="btn-pause">PAUSE</button>
+    <button class="hdr-btn" id="btn-clear">CLEAR</button>
+    <button class="hdr-btn" id="btn-export">EXPORT</button>
+    <button class="hdr-btn" id="btn-close" style="background:#a33;border-color:#c55;">CLOSE</button>
+  </div>
+
+  <!-- ── Main 3-column Layout ────────────────────── -->
+  <div id="main">
+    <!-- ── Left: State ────────────────────────────── -->
+    <div id="left">
+      <div class="panel" id="input-mode-panel">
+        <div class="panel-title">INPUT MODE</div>
+        <div class="panel-body">
+          <div class="mode-grid">
+            <div class="mode-cell" id="mc-device">
+              <div class="mode-label">Device</div>
+              <div class="mode-value" id="val-device">---</div>
+            </div>
+            <div class="mode-cell" id="mc-focus">
+              <div class="mode-label">Focus</div>
+              <div class="mode-value" id="val-focus">---</div>
+            </div>
+            <div class="mode-cell" id="mc-mode">
+              <div class="mode-label">Mode</div>
+              <div class="mode-value" id="val-mode">---</div>
+            </div>
+            <div class="mode-cell" id="mc-screen">
+              <div class="mode-label">Screen</div>
+              <div class="mode-value" id="val-screen">---</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" id="selection-panel">
+        <div class="panel-title">SELECTED ELEMENT</div>
+        <div class="panel-body" id="selection-body">
+          <div class="sel-none">Nothing selected</div>
+        </div>
+      </div>
+
+      <div class="panel" id="focus-panel">
+        <div class="panel-title">FOCUS &amp; SPATIAL NAV</div>
+        <div class="panel-body" id="focus-body">
+          <div class="focus-row"><span class="focus-key">Focused El</span><span class="focus-val none" id="fv-element">none</span></div>
+          <div class="focus-row"><span class="focus-key">Active El</span><span class="focus-val none" id="fv-active">---</span></div>
+          <div class="focus-row"><span class="focus-key">Focus Engine</span><span class="focus-val none" id="fv-engine">---</span></div>
+          <div class="focus-row"><span class="focus-key">Focus Mode</span><span class="focus-val none" id="fv-mode">---</span></div>
+          <div class="focus-row"><span class="focus-key">Scope Depth</span><span class="focus-val none" id="fv-scope">---</span></div>
+          <div class="focus-row"><span class="focus-key">Focusables</span><span class="focus-val none" id="fv-count">---</span></div>
+          <div class="focus-row"><span class="focus-key">Hover Target</span><span class="focus-val none" id="fv-hover">---</span></div>
+        </div>
+      </div>
+
+      <div class="panel" id="mouse-panel">
+        <div class="panel-title">MOUSE</div>
+        <div class="panel-body">
+          <div class="mouse-grid">
+            <div class="mouse-cell"><div class="ml">X</div><div class="mv" id="mouse-x">---</div></div>
+            <div class="mouse-cell"><div class="ml">Y</div><div class="mv" id="mouse-y">---</div></div>
+            <div class="mouse-cell"><div class="ml">Scroll</div><div class="mv" id="mouse-scroll">0</div></div>
+          </div>
+          <div class="mouse-btns">
+            <div class="mbtn" id="mb-left">L</div>
+            <div class="mbtn" id="mb-mid">M</div>
+            <div class="mbtn" id="mb-right">R</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" id="axes-panel">
+        <div class="panel-title">NAVIGATION AXES</div>
+        <div class="panel-body">
+          <div style="display:flex;gap:8px;align-items:flex-start;">
+            <div class="stick-viz" id="stick-nav">
+              <div class="stick-cross-h"></div>
+              <div class="stick-cross-v"></div>
+              <div class="stick-deadzone"></div>
+              <div class="stick-dot" id="stick-dot-nav"></div>
+            </div>
+            <div style="flex:1;">
+              <div class="axis-row">
+                <span class="axis-label">Nav X</span>
+                <div class="axis-bar-wrap"><div class="axis-bar x" id="bar-nav-x"></div></div>
+                <span class="axis-val" id="val-nav-x">0.00</span>
+              </div>
+              <div class="axis-row">
+                <span class="axis-label">Nav Y</span>
+                <div class="axis-bar-wrap"><div class="axis-bar y" id="bar-nav-y"></div></div>
+                <span class="axis-val" id="val-nav-y">0.00</span>
+              </div>
+              <div class="axis-row">
+                <span class="axis-label">Map X</span>
+                <div class="axis-bar-wrap"><div class="axis-bar x" id="bar-map-x"></div></div>
+                <span class="axis-val" id="val-map-x">0.00</span>
+              </div>
+              <div class="axis-row">
+                <span class="axis-label">Map Y</span>
+                <div class="axis-bar-wrap"><div class="axis-bar y" id="bar-map-y"></div></div>
+                <span class="axis-val" id="val-map-y">0.00</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" id="buttons-panel">
+        <div class="panel-title">ACTIVE ACTIONS <span class="badge" id="badge-active">0</span></div>
+        <div class="panel-body">
+          <div class="btn-grid" id="btn-grid"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Center: Tabbed History/Keys/Rate ────────── -->
+    <div id="center">
+      <div class="tab-bar" id="center-tabs">
+        <button class="tab-btn active" data-tab="tab-history">Input History</button>
+        <button class="tab-btn" data-tab="tab-keys">Keyboard</button>
+        <button class="tab-btn" data-tab="tab-rate">Event Rate</button>
+      </div>
+
+      <!-- Tab: Input History -->
+      <div class="tab-content active" id="tab-history">
+        <div class="panel" id="history-panel" style="flex:1;min-height:0;">
+          <div class="panel-title">
+            <span class="badge" id="badge-history">0</span>
+            <span class="spacer"></span>
+            <input type="text" class="filter-input" id="filter-history" placeholder="filter..." style="width:120px;">
+            <button class="copy-btn" id="copy-history">copy</button>
+          </div>
+          <div class="panel-body" id="history-body">
+            <div class="hist-row hist-header">
+              <span>TIME</span><span>ACTION</span><span>PHASE</span><span>VALUE</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab: Keyboard Monitor -->
+      <div class="tab-content" id="tab-keys">
+        <div class="panel" id="keyboard-panel" style="flex:1;min-height:0;">
+          <div class="panel-title">
+            KEYS <span class="badge" id="badge-keys">0</span>
+            <span class="spacer"></span>
+            <button class="copy-btn" id="clear-keys">clear</button>
+          </div>
+          <div class="panel-body" id="keys-body"></div>
+        </div>
+      </div>
+
+      <!-- Tab: Event Rate -->
+      <div class="tab-content" id="tab-rate">
+        <div class="panel" id="rate-panel" style="flex:1;min-height:0;">
+          <div class="panel-title">
+            EVENTS / SECOND
+            <span class="spacer"></span>
+            <span id="rate-peak" style="color:var(--yellow);font-size:9px;">peak: 0</span>
+          </div>
+          <div class="panel-body" style="padding:8px;">
+            <canvas id="rate-canvas" width="600" height="150"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Channel Activity (always visible below tabs) -->
+      <div class="panel" id="channels-panel">
+        <div class="panel-title">
+          CHANNELS <span class="badge" id="badge-channels">0</span>
+          <span class="spacer"></span>
+          <input type="text" class="filter-input" id="filter-channels" placeholder="filter..." style="width:100px;">
+        </div>
+        <div class="panel-body" id="channels-body"></div>
+      </div>
+    </div>
+
+    <!-- ── Right: Gamepad + Screens + Requests + Log ── -->
+    <div id="right">
+      <div class="panel" id="gamepad-panel">
+        <div class="panel-title">GAMEPAD</div>
+        <div class="panel-body">
+          <div class="gp-status disconnected" id="gp-status">No gamepad detected</div>
+          <div class="gp-axes" id="gp-axes">
+            <div class="stick-viz" id="stick-gp-l">
+              <div class="stick-cross-h"></div><div class="stick-cross-v"></div>
+              <div class="stick-dot" id="stick-dot-gp-l"></div>
+            </div>
+            <div class="stick-viz" id="stick-gp-r">
+              <div class="stick-cross-h"></div><div class="stick-cross-v"></div>
+              <div class="stick-dot" id="stick-dot-gp-r"></div>
+            </div>
+          </div>
+          <div class="gp-btn-grid" id="gp-btn-grid"></div>
+        </div>
+      </div>
+
+      <div class="panel" id="screen-history-panel">
+        <div class="panel-title">SCREEN HISTORY <span class="badge" id="badge-screens">0</span></div>
+        <div class="panel-body" id="screen-history-body">
+          <div class="empty-msg">Waiting for screen changes...</div>
+        </div>
+      </div>
+
+      <div class="panel" id="request-panel">
+        <div class="panel-title">REQUESTS <span class="badge" id="badge-requests">0</span></div>
+        <div class="panel-body" id="request-body">
+          <div class="empty-msg">No requests tracked</div>
+        </div>
+      </div>
+
+      <div class="panel" id="cache-panel">
+        <div class="panel-title">
+          STICKY CACHE <span class="badge" id="badge-cache">0</span>
+          <span class="spacer"></span>
+          <button class="copy-btn" id="refresh-cache">refresh</button>
+        </div>
+        <div class="panel-body" id="cache-body">
+          <div class="empty-msg">Click refresh to load</div>
+        </div>
+      </div>
+
+      <div class="panel" id="msglog-panel">
+        <div class="panel-title">
+          MESSAGE LOG <span class="badge" id="badge-msglog">0</span>
+          <span class="spacer"></span>
+          <input type="text" class="filter-input" id="filter-msglog" placeholder="filter..." style="width:90px;">
+        </div>
+        <div class="panel-body" id="msglog-body"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Detail Drawer ───────────────────────────── -->
+  <div id="detail-drawer">
+    <div id="detail-header">
+      <span id="detail-title">DETAIL</span>
+      <button id="detail-close">[x]</button>
+    </div>
+    <div id="detail-body"></div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const MAX_HISTORY = 500;
+  const MAX_MSGLOG  = 300;
+  const MAX_KEYS    = 200;
+  const MAX_SCREENS = 30;
+  const FPS_SAMPLES = 40;
+  const RATE_SAMPLES = 120;
+
+  let paused = false;
+  let historyFilter = '';
+  let channelFilter = '';
+  let msglogFilter  = '';
+  let startTime = Date.now();
+  let selectedHistoryIdx = -1;
+  let selectedMsgIdx = -1;
+  let totalEvents = 0;
+
+  const inputHistory  = [];
+  const channelCounts = new Map();
+  const channelLastAt = new Map();
+  const channelKinds  = new Map();
+  const msgLog        = [];
+  const activeActions = new Map();
+  const fpsHistory    = [];
+  const keyEvents     = [];
+  const screenHistory = [];
+  const requestLog    = [];
+  const rateHistory   = new Array(RATE_SAMPLES).fill(0);
+  let ratePeak = 0;
+  let rateWindowEvents = 0;
+  let lastRateTick = performance.now();
+
+  let lastFrameTime = performance.now();
+  let frameCount = 0;
+  let lastFpsUpdate = 0;
+
+  const gpAxes    = [0,0,0,0,0,0];
+  const gpButtons = new Array(17).fill(false);
+  let gpConnected = false;
+
+  let navX = 0, navY = 0, mapX = 0, mapY = 0;
+  let currentDevice = '---', currentFocusState = '---', currentMode = '---', currentScreen = '---';
+
+  let mouseX = 0, mouseY = 0, mouseScroll = 0;
+  const mouseButtons = [false, false, false];
+
+  let hoverTarget = '';
+
+  // ── Helpers ─────────────────────────────────────
+  function $(id) { return document.getElementById(id); }
+  function ts() {
+    const d = new Date();
+    return d.toTimeString().slice(0,8) + '.' + String(d.getMilliseconds()).padStart(3,'0');
+  }
+  function elapsed() {
+    const ms = Date.now() - startTime;
+    const s = Math.floor(ms / 1000) % 60;
+    const m = Math.floor(ms / 60000) % 60;
+    const h = Math.floor(ms / 3600000);
+    return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  }
+  function shortChannel(ch) {
+    return ch
+      .replace('tsic.msg.UI.Input.', '')
+      .replace('tsic.msg.UI.', 'UI.')
+      .replace('tsic.msg.', '');
+  }
+  function fmtValue(v) {
+    if (v === undefined || v === null) return '';
+    if (typeof v === 'number') return v.toFixed(2);
+    if (typeof v === 'boolean') return String(v);
+    if (v.X !== undefined && v.Y !== undefined) {
+      const z = v.Z !== undefined ? `,${Number(v.Z).toFixed(1)}` : '';
+      return `${Number(v.X).toFixed(1)},${Number(v.Y).toFixed(1)}${z}`;
+    }
+    return JSON.stringify(v).slice(0, 30);
+  }
+  function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+
+  function describeElement(el) {
+    if (!el) return 'none';
+    let s = el.tagName.toLowerCase();
+    if (el.id) s += '#' + el.id;
+    if (el.className && typeof el.className === 'string') {
+      const cls = el.className.split(/\s+/).filter(c => c).slice(0, 3);
+      if (cls.length) s += '.' + cls.join('.');
+    }
+    return s;
+  }
+
+  function syntaxHighlightJSON(obj, indent) {
+    indent = indent || 0;
+    const pad = '  '.repeat(indent);
+    if (obj === null) return `<span class="json-null">null</span>`;
+    if (typeof obj === 'boolean') return `<span class="json-bool">${obj}</span>`;
+    if (typeof obj === 'number') return `<span class="json-num">${obj}</span>`;
+    if (typeof obj === 'string') return `<span class="json-str">"${escHtml(obj)}"</span>`;
+    if (Array.isArray(obj)) {
+      if (obj.length === 0) return `<span class="json-bracket">[]</span>`;
+      const items = obj.map(v => pad + '  ' + syntaxHighlightJSON(v, indent + 1));
+      return `<span class="json-bracket">[</span>\n${items.join(',\n')}\n${pad}<span class="json-bracket">]</span>`;
+    }
+    if (typeof obj === 'object') {
+      const keys = Object.keys(obj);
+      if (keys.length === 0) return `<span class="json-bracket">{}</span>`;
+      const items = keys.map(k =>
+        pad + '  ' + `<span class="json-key">"${escHtml(k)}"</span>: ` + syntaxHighlightJSON(obj[k], indent + 1)
+      );
+      return `<span class="json-bracket">{</span>\n${items.join(',\n')}\n${pad}<span class="json-bracket">}</span>`;
+    }
+    return String(obj);
+  }
+
+  function escHtml(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  // ── Tab System ──────────────────────────────────
+  document.addEventListener('click', (ev) => {
+    const tabBtn = ev.target.closest('.tab-btn[data-tab]');
+    if (!tabBtn) return;
+    const tabId = tabBtn.getAttribute('data-tab');
+    const bar = tabBtn.closest('.tab-bar');
+    const container = bar.parentElement;
+    bar.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    tabBtn.classList.add('active');
+    container.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    const target = container.querySelector('#' + tabId);
+    if (target) target.classList.add('active');
+  });
+
+  // ── FPS ─────────────────────────────────────────
+  function tickFPS(now) {
+    frameCount++;
+    if (now - lastFpsUpdate >= 500) {
+      const fps = Math.round(frameCount / ((now - lastFpsUpdate) / 1000));
+      fpsHistory.push(fps);
+      if (fpsHistory.length > FPS_SAMPLES) fpsHistory.shift();
+      frameCount = 0;
+      lastFpsUpdate = now;
+      $('fps-val').textContent = fps;
+      renderSparkline();
+    }
+    lastFrameTime = now;
+  }
+
+  function renderSparkline() {
+    const el = $('fps-spark');
+    const max = Math.max(60, ...fpsHistory);
+    el.innerHTML = fpsHistory.map(v =>
+      `<span class="bar" style="height:${Math.round(v/max*14)}px"></span>`
+    ).join('');
+  }
+
+  // ── Event Rate ──────────────────────────────────
+  function tickRate(now) {
+    if (now - lastRateTick >= 500) {
+      const rate = Math.round(rateWindowEvents / ((now - lastRateTick) / 1000));
+      rateHistory.push(rate);
+      if (rateHistory.length > RATE_SAMPLES) rateHistory.shift();
+      if (rate > ratePeak) ratePeak = rate;
+      $('stat-rate').textContent = rate;
+      $('rate-peak').textContent = 'peak: ' + ratePeak;
+      rateWindowEvents = 0;
+      lastRateTick = now;
+      renderRateGraph();
+    }
+  }
+
+  function renderRateGraph() {
+    const canvas = $('rate-canvas');
+    if (!canvas) return;
+    // Keep the backing store at the CSS box size so bars/labels draw 1:1
+    // instead of being scaled by the browser.
+    const cssW = canvas.clientWidth, cssH = canvas.clientHeight;
+    if (cssW && cssH && (canvas.width !== cssW || canvas.height !== cssH)) {
+      canvas.width = cssW;
+      canvas.height = cssH;
+    }
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width, H = canvas.height;
+    ctx.clearRect(0, 0, W, H);
+
+    const max = Math.max(10, ...rateHistory);
+    const barW = W / rateHistory.length;
+
+    // Grid lines
+    ctx.strokeStyle = '#222';
+    ctx.lineWidth = 1;
+    for (let i = 1; i <= 4; i++) {
+      const y = H - (H * i / 4);
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+    }
+
+    // Bars
+    ctx.fillStyle = '#4ae';
+    for (let i = 0; i < rateHistory.length; i++) {
+      const h = (rateHistory[i] / max) * (H - 10);
+      ctx.fillRect(i * barW, H - h, barW - 1, h);
+    }
+
+    // Labels
+    ctx.fillStyle = '#666';
+    ctx.font = '9px Consolas';
+    ctx.fillText(max + '/s', 2, 10);
+    ctx.fillText('0', 2, H - 2);
+  }
+
+  // ── Axis Bars ───────────────────────────────────
+  function setAxisBar(id, value) {
+    const bar = $(id);
+    if (!bar) return;
+    const norm = clamp(value, -1, 1);
+    if (norm >= 0) { bar.style.left = '50%'; bar.style.width = (norm * 50) + '%'; }
+    else { bar.style.width = (-norm * 50) + '%'; bar.style.left = (50 + norm * 50) + '%'; }
+  }
+
+  function setStickDot(dotId, x, y) {
+    const dot = $(dotId);
+    if (!dot) return;
+    dot.style.left = (50 + clamp(x, -1, 1) * 42) + '%';
+    dot.style.top  = (50 - clamp(y, -1, 1) * 42) + '%';
+  }
+
+  function updateAxes() {
+    setAxisBar('bar-nav-x', navX); setAxisBar('bar-nav-y', navY);
+    setAxisBar('bar-map-x', mapX); setAxisBar('bar-map-y', mapY);
+    $('val-nav-x').textContent = navX.toFixed(2);
+    $('val-nav-y').textContent = navY.toFixed(2);
+    $('val-map-x').textContent = mapX.toFixed(2);
+    $('val-map-y').textContent = mapY.toFixed(2);
+    setStickDot('stick-dot-nav', navX, navY);
+  }
+
+  // ── Input Mode ──────────────────────────────────
+  function updateInputMode() {
+    $('val-device').textContent = currentDevice;
+    $('val-focus').textContent  = currentFocusState;
+    $('val-mode').textContent   = currentMode;
+    $('val-screen').textContent = currentScreen;
+
+    const isGamepad = currentMode === 'Gamepad';
+    const isMouse   = currentDevice === 'mouse' || currentMode === 'MouseAndKeyboard';
+
+    for (const cell of document.querySelectorAll('.mode-cell')) cell.classList.remove('active');
+    if (isGamepad) $('mc-mode').classList.add('active');
+    if (isMouse) $('mc-device').classList.add('active');
+    if (currentFocusState && currentFocusState !== '---') $('mc-focus').classList.add('active');
+
+    $('input-device').textContent = isGamepad ? 'Gamepad' : (isMouse ? 'KB+M' : currentMode);
+    $('dot-input').className = 'dot ' + (isGamepad ? 'warn' : 'on');
+  }
+
+  // ── Selection / Focus State ─────────────────────
+  function updateSelectionPanel() {
+    // The "selected" element = tsic-focus's current focused element (what the user has "selected" via spatial nav or mouse)
+    const focusedByTsic = document.querySelector('[data-tsic-focused]');
+    const activeEl = document.activeElement;
+    const hoverEl = hoverTarget;
+
+    // Pick the most relevant: tsic-focused > activeElement > hover
+    const selected = focusedByTsic || (activeEl && activeEl !== document.body ? activeEl : null);
+
+    const body = $('selection-body');
+
+    if (!selected) {
+      body.innerHTML = '<div class="sel-none">Nothing selected</div>';
+      $('dot-focus').className = 'dot off';
+      $('focus-target').textContent = 'none';
+      return;
+    }
+
+    $('dot-focus').className = 'dot on';
+    const desc = describeElement(selected);
+    $('focus-target').textContent = desc.slice(0, 20);
+
+    const tags = [];
+    tags.push(`<span class="sel-tag tag-type">&lt;${selected.tagName.toLowerCase()}&gt;</span>`);
+    if (selected.id) tags.push(`<span class="sel-tag tag-id">#${escHtml(selected.id)}</span>`);
+    if (selected.className && typeof selected.className === 'string') {
+      selected.className.split(/\s+/).filter(c => c).forEach(c =>
+        tags.push(`<span class="sel-tag tag-class">.${escHtml(c)}</span>`)
+      );
+    }
+    if (selected.getAttribute('role')) tags.push(`<span class="sel-tag tag-role">role=${escHtml(selected.getAttribute('role'))}</span>`);
+    if (selected.getAttribute('data-tsic-focusable') !== null) tags.push(`<span class="sel-tag tag-attr">focusable</span>`);
+    if (selected.getAttribute('data-tsic-focused') !== null) tags.push(`<span class="sel-tag tag-attr">focused</span>`);
+    if (selected.disabled) tags.push(`<span class="sel-tag tag-attr" style="color:var(--red)">disabled</span>`);
+    if (selected.getAttribute('aria-label')) tags.push(`<span class="sel-tag tag-attr">aria: ${escHtml(selected.getAttribute('aria-label').slice(0,20))}</span>`);
+
+    const rect = selected.getBoundingClientRect();
+    const textContent = (selected.textContent || '').trim().slice(0, 60);
+
+    let propsHtml = '';
+    if (textContent) propsHtml += `<span class="k">text:</span> <span class="v">"${escHtml(textContent)}"</span>\n`;
+    if (selected.href) propsHtml += `<span class="k">href:</span> <span class="v">${escHtml(selected.href)}</span>\n`;
+    if (selected.type) propsHtml += `<span class="k">type:</span> <span class="v">${selected.type}</span>\n`;
+    if (selected.value !== undefined && selected.value !== '') propsHtml += `<span class="k">value:</span> <span class="v">"${escHtml(String(selected.value).slice(0,40))}"</span>\n`;
+    if (selected.name) propsHtml += `<span class="k">name:</span> <span class="v">${escHtml(selected.name)}</span>\n`;
+    const tabIdx = selected.tabIndex;
+    propsHtml += `<span class="k">tabIndex:</span> <span class="v">${tabIdx}</span>\n`;
+    const cs = window.getComputedStyle(selected);
+    propsHtml += `<span class="k">display:</span> <span class="v">${cs.display}</span>  `;
+    propsHtml += `<span class="k">visibility:</span> <span class="v">${cs.visibility}</span>\n`;
+    propsHtml += `<span class="k">pointer:</span> <span class="v">${cs.pointerEvents}</span>  `;
+    propsHtml += `<span class="k">cursor:</span> <span class="v">${cs.cursor}</span>`;
+
+    body.innerHTML =
+      `<div class="sel-box has-selection">` +
+        `<div class="sel-element-name">${desc}</div>` +
+        `<div>${tags.join('')}</div>` +
+        `<div class="sel-props">${propsHtml}</div>` +
+        `<div class="sel-rect">rect: <b>${Math.round(rect.x)},${Math.round(rect.y)}</b> ` +
+          `<b>${Math.round(rect.width)}x${Math.round(rect.height)}</b></div>` +
+      `</div>`;
+  }
+
+  function updateFocusPanel() {
+    const activeEl = document.activeElement;
+    $('fv-active').textContent = describeElement(activeEl);
+    $('fv-active').className = 'focus-val' + (activeEl === document.body || !activeEl ? ' none' : '');
+
+    const focusedEl = document.querySelector('[data-tsic-focused]');
+    $('fv-element').textContent = focusedEl ? describeElement(focusedEl) : 'none';
+    $('fv-element').className = 'focus-val' + (focusedEl ? ' highlight' : ' none');
+
+    $('fv-hover').textContent = hoverTarget || 'none';
+    $('fv-hover').className = 'focus-val' + (hoverTarget ? '' : ' none');
+
+    // Query tsic focus engine if available
+    if (window.tsic && window.tsic.focus) {
+      const f = window.tsic.focus;
+      try {
+        const snap = f.snapshot ? f.snapshot() : {};
+        $('fv-engine').textContent = snap.enabled ? 'enabled' : 'disabled';
+        $('fv-engine').className = 'focus-val' + (snap.enabled ? ' highlight' : ' warn');
+        $('fv-mode').textContent = snap.mode || '---';
+        $('fv-mode').className = 'focus-val';
+        $('fv-scope').textContent = snap.scope !== undefined ? snap.scope : '---';
+        $('fv-scope').className = 'focus-val' + (snap.scope > 0 ? ' warn' : '');
+        $('fv-count').textContent = snap.focusable !== undefined ? snap.focusable : '---';
+        $('fv-count').className = 'focus-val';
+      } catch(e) {}
+    }
+  }
+
+  // ── Active Actions Grid ─────────────────────────
+  function renderActiveActions() {
+    const grid = $('btn-grid');
+    const entries = [...activeActions.entries()].sort((a,b) => a[0].localeCompare(b[0]));
+    $('badge-active').textContent = entries.filter(e => e[1]).length;
+    grid.innerHTML = entries.map(([name, pressed]) =>
+      `<div class="btn-cell${pressed ? ' pressed' : ''}">${escHtml(shortChannel(name))}</div>`
+    ).join('');
+  }
+
+  // ── Input History ───────────────────────────────
+  function addHistoryEntry(channel, phase, value, rawPayload) {
+    if (paused) return;
+    const entry = { ts: ts(), channel, phase, value, raw: rawPayload };
+    inputHistory.unshift(entry);
+    if (inputHistory.length > MAX_HISTORY) inputHistory.pop();
+    renderHistory();
+  }
+
+  function renderHistory() {
+    const body = $('history-body');
+    const headerHTML = '<div class="hist-row hist-header"><span>TIME</span><span>ACTION</span><span>PHASE</span><span>VALUE</span></div>';
+    const filter = historyFilter.toLowerCase();
+    const items = filter
+      ? inputHistory.filter(e => e.channel.toLowerCase().includes(filter) || (e.phase||'').toLowerCase().includes(filter))
+      : inputHistory;
+    $('badge-history').textContent = items.length;
+    body.innerHTML = headerHTML + items.slice(0, 200).map((e, i) =>
+      `<div class="hist-row${i === selectedHistoryIdx ? ' selected-row' : ''}" data-idx="${i}">` +
+        `<span class="ts">${e.ts.slice(9)}</span>` +
+        `<span class="ch">${escHtml(shortChannel(e.channel))}</span>` +
+        `<span class="phase ${e.phase || ''}">${e.phase || '---'}</span>` +
+        `<span class="val">${escHtml(fmtValue(e.value))}</span>` +
+      `</div>`
+    ).join('');
+  }
+
+  $('history-body').addEventListener('click', (ev) => {
+    const row = ev.target.closest('.hist-row[data-idx]');
+    if (!row) return;
+    const idx = parseInt(row.getAttribute('data-idx'));
+    selectedHistoryIdx = idx;
+    selectedMsgIdx = -1;
+    const entry = inputHistory[idx];
+    if (entry) showDetail('Input Event: ' + shortChannel(entry.channel), entry.raw);
+    renderHistory();
+  });
+
+  // ── Keyboard Monitor ────────────────────────────
+  function addKeyEvent(dir, key, code, mods) {
+    if (paused) return;
+    keyEvents.unshift({ ts: ts(), dir, key, code, mods });
+    if (keyEvents.length > MAX_KEYS) keyEvents.pop();
+    renderKeys();
+  }
+
+  function renderKeys() {
+    const body = $('keys-body');
+    $('badge-keys').textContent = keyEvents.length;
+    body.innerHTML = keyEvents.slice(0, 100).map(e => {
+      const modHtml = ['Ctrl','Shift','Alt','Meta'].map(m =>
+        `<span class="key-mod${e.mods[m.toLowerCase()] ? ' active' : ''}">${m}</span>`
+      ).join('');
+      return `<div class="key-row">` +
+        `<span class="key-dir ${e.dir}">${e.dir === 'down' ? 'DN' : 'UP'}</span>` +
+        `<span class="key-name">${escHtml(e.key)}</span>` +
+        `<span class="key-code">${escHtml(e.code)}</span>` +
+        `<span class="key-mods">${modHtml}</span>` +
+      `</div>`;
+    }).join('');
+  }
+
+  // ── Channel Activity ────────────────────────────
+  function bumpChannel(channel) {
+    channelCounts.set(channel, (channelCounts.get(channel) || 0) + 1);
+    channelLastAt.set(channel, performance.now());
+    totalEvents++;
+    rateWindowEvents++;
+    $('stat-total').textContent = totalEvents;
+    $('stat-channels').textContent = channelCounts.size;
+    renderChannels();
+  }
+
+  function renderChannels() {
+    const body = $('channels-body');
+    const filter = channelFilter.toLowerCase();
+    let entries = [...channelCounts.entries()].sort((a,b) => b[1] - a[1]);
+    if (filter) entries = entries.filter(e => e[0].toLowerCase().includes(filter));
+    $('badge-channels').textContent = entries.length;
+
+    const now = performance.now();
+    body.innerHTML = entries.map(([ch, count]) => {
+      const age = now - (channelLastAt.get(ch) || 0);
+      const hot = age < 400 ? ' hot' : '';
+      const kind = channelKinds.get(ch);
+      const kindTag = kind ? `<span class="chan-kind ${kind}">${kind}</span>` : '';
+      return `<div class="chan-row${hot}" data-ch="${escHtml(ch)}">` +
+        `<span class="chan-name">${shortChannel(ch)}</span>` +
+        `${kindTag}` +
+        `<span class="chan-count">${count}</span></div>`;
+    }).join('');
+  }
+
+  $('channels-body').addEventListener('click', (ev) => {
+    const row = ev.target.closest('.chan-row[data-ch]');
+    if (!row) return;
+    const ch = row.getAttribute('data-ch');
+    const cached = window.tsic && window.tsic._lastSticky && window.tsic._lastSticky[ch];
+    if (cached) showDetail('Cached: ' + shortChannel(ch), cached.payload);
+    else showDetail('Channel: ' + shortChannel(ch), { count: channelCounts.get(ch) || 0 });
+  });
+
+  // ── Message Log ─────────────────────────────────
+  function addMsgLog(dir, channel, payload) {
+    if (paused) return;
+    const entry = { ts: ts(), dir, channel, payload };
+    msgLog.unshift(entry);
+    if (msgLog.length > MAX_MSGLOG) msgLog.pop();
+    renderMsgLog();
+  }
+
+  function renderMsgLog() {
+    const body = $('msglog-body');
+    const filter = msglogFilter.toLowerCase();
+    let items = filter ? msgLog.filter(e => e.channel.toLowerCase().includes(filter)) : msgLog;
+    $('badge-msglog').textContent = items.length;
+    body.innerHTML = items.slice(0, 150).map((e, i) =>
+      `<div class="msg-row${i === selectedMsgIdx ? ' selected-row' : ''}" data-idx="${i}">` +
+        `<span class="msg-ts">${e.ts.slice(9)}</span>` +
+        `<span class="msg-dir ${e.dir}">${e.dir === 'in' ? 'IN' : 'OUT'}</span>` +
+        `<span class="msg-ch">${shortChannel(e.channel)}</span>` +
+        `<span class="msg-payload">${typeof e.payload === 'string' ? escHtml(e.payload) : escHtml(JSON.stringify(e.payload).slice(0,60))}</span>` +
+      `</div>`
+    ).join('');
+  }
+
+  $('msglog-body').addEventListener('click', (ev) => {
+    const row = ev.target.closest('.msg-row[data-idx]');
+    if (!row) return;
+    const idx = parseInt(row.getAttribute('data-idx'));
+    selectedMsgIdx = idx;
+    selectedHistoryIdx = -1;
+    const entry = msgLog[idx];
+    if (entry) showDetail(entry.dir.toUpperCase() + ': ' + shortChannel(entry.channel), entry.payload);
+    renderMsgLog();
+  });
+
+  // ── Screen History ──────────────────────────────
+  function addScreenChange(name) {
+    screenHistory.unshift({ name, ts: ts() });
+    if (screenHistory.length > MAX_SCREENS) screenHistory.pop();
+    $('badge-screens').textContent = screenHistory.length;
+    renderScreenHistory();
+  }
+
+  function renderScreenHistory() {
+    const body = $('screen-history-body');
+    body.innerHTML = screenHistory.map((s, i) =>
+      `<div class="screen-row${i === 0 ? ' current' : ''}">` +
+        `<span class="screen-name">${escHtml(s.name)}</span>` +
+        `<span class="screen-time">${s.ts.slice(0, 8)}</span>` +
+      `</div>`
+    ).join('') || '<div class="empty-msg">No screen changes yet</div>';
+  }
+
+  // ── Request Tracker ─────────────────────────────
+  function trackRequest(channel, reqId) {
+    requestLog.unshift({ channel, reqId, startedAt: performance.now(), status: 'pending', latency: null });
+    if (requestLog.length > 50) requestLog.pop();
+    renderRequests();
+  }
+
+  function resolveRequest(reqId, error) {
+    const req = requestLog.find(r => r.reqId === reqId);
+    if (req) {
+      req.status = error ? 'err' : 'ok';
+      req.latency = Math.round(performance.now() - req.startedAt);
+    }
+    renderRequests();
+  }
+
+  function renderRequests() {
+    const pending = requestLog.filter(r => r.status === 'pending').length;
+    $('badge-requests').textContent = requestLog.length;
+    $('stat-pending').textContent = pending;
+    const body = $('request-body');
+    body.innerHTML = requestLog.slice(0, 20).map(r =>
+      `<div class="req-row">` +
+        `<span class="req-ch">${shortChannel(r.channel)}</span>` +
+        `<span class="req-status ${r.status}">${r.status}</span>` +
+        `<span class="req-lat">${r.latency !== null ? r.latency + 'ms' : '...'}</span>` +
+      `</div>`
+    ).join('') || '<div class="empty-msg">No requests</div>';
+  }
+
+  // ── Sticky Cache Viewer ─────────────────────────
+  function refreshCache() {
+    const body = $('cache-body');
+    if (!window.tsic || !window.tsic._lastSticky) {
+      body.innerHTML = '<div class="empty-msg">Bridge not ready</div>';
+      return;
+    }
+    const stickies = window.tsic._lastSticky;
+    const keys = Object.keys(stickies).sort();
+    $('badge-cache').textContent = keys.length;
+    if (keys.length === 0) {
+      body.innerHTML = '<div class="empty-msg">No cached values</div>';
+      return;
+    }
+    body.innerHTML = keys.map(k => {
+      const entry = stickies[k];
+      const age = entry.meta && entry.meta.ageMs ? Math.round(entry.meta.ageMs / 1000) + 's' : '?';
+      return `<div class="cache-row" data-ch="${escHtml(k)}">` +
+        `<span class="cache-ch">${shortChannel(k)}</span>` +
+        `<span class="cache-age">${age} ago</span>` +
+      `</div>`;
+    }).join('');
+  }
+
+  $('cache-body').addEventListener('click', (ev) => {
+    const row = ev.target.closest('.cache-row[data-ch]');
+    if (!row) return;
+    const ch = row.getAttribute('data-ch');
+    const cached = window.tsic._lastSticky[ch];
+    if (cached) showDetail('Cache: ' + shortChannel(ch), { payload: cached.payload, meta: cached.meta });
+  });
+
+  $('refresh-cache').addEventListener('click', refreshCache);
+
+  // ── Detail Drawer ───────────────────────────────
+  function showDetail(title, data) {
+    $('detail-title').textContent = title;
+    try {
+      const obj = typeof data === 'string' ? JSON.parse(data) : data;
+      $('detail-body').innerHTML = syntaxHighlightJSON(obj);
+    } catch(e) {
+      $('detail-body').textContent = String(data);
+    }
+    $('detail-drawer').classList.add('open');
+  }
+
+  $('detail-close').addEventListener('click', () => {
+    $('detail-drawer').classList.remove('open');
+    selectedHistoryIdx = -1;
+    selectedMsgIdx = -1;
+    renderHistory();
+    renderMsgLog();
+  });
+
+  // ── Gamepad ─────────────────────────────────────
+  const GP_BTN_NAMES = ['A','B','X','Y','LB','RB','LT','RT','Bk','St','LS','RS','Up','Dn','Lt','Rt','Hm'];
+
+  function initGamepadUI() {
+    $('gp-btn-grid').innerHTML = GP_BTN_NAMES.map((name, i) =>
+      `<div class="gp-btn" id="gp-b${i}">${name}</div>`
+    ).join('');
+  }
+
+  function updateGamepadUI() {
+    setStickDot('stick-dot-gp-l', gpAxes[0], gpAxes[1]);
+    setStickDot('stick-dot-gp-r', gpAxes[2], gpAxes[3]);
+    for (let i = 0; i < GP_BTN_NAMES.length; i++) {
+      const el = $('gp-b' + i);
+      if (el) el.className = 'gp-btn' + (gpButtons[i] ? ' pressed' : '');
+    }
+  }
+
+  function pollNativeGamepad() {
+    const pads = navigator.getGamepads ? navigator.getGamepads() : [];
+    const gp = pads[0];
+    if (!gp) {
+      if (gpConnected) {
+        gpConnected = false;
+        $('gp-status').textContent = 'No gamepad detected';
+        $('gp-status').className = 'gp-status disconnected';
+      }
+      return;
+    }
+    if (!gpConnected) {
+      gpConnected = true;
+      $('gp-status').textContent = gp.id.slice(0, 36);
+      $('gp-status').className = 'gp-status connected';
+    }
+    for (let i = 0; i < Math.min(gp.axes.length, 6); i++) gpAxes[i] = gp.axes[i];
+    for (let i = 0; i < Math.min(gp.buttons.length, 17); i++) gpButtons[i] = gp.buttons[i].pressed;
+    updateGamepadUI();
+  }
+
+  // ── Mouse Tracking ──────────────────────────────
+  document.addEventListener('mousemove', (ev) => {
+    mouseX = ev.clientX; mouseY = ev.clientY;
+    $('mouse-x').textContent = mouseX;
+    $('mouse-y').textContent = mouseY;
+    // Track what's under the mouse for hover display
+    const el = document.elementFromPoint(mouseX, mouseY);
+    hoverTarget = el ? describeElement(el) : '';
+  });
+
+  document.addEventListener('mousedown', (ev) => {
+    if (ev.button < 3) mouseButtons[ev.button] = true;
+    updateMouseBtns();
+  });
+  document.addEventListener('mouseup', (ev) => {
+    if (ev.button < 3) mouseButtons[ev.button] = false;
+    updateMouseBtns();
+  });
+  document.addEventListener('wheel', (ev) => {
+    mouseScroll += Math.sign(ev.deltaY);
+    $('mouse-scroll').textContent = mouseScroll;
+  }, { passive: true });
+
+  function updateMouseBtns() {
+    $('mb-left').className = 'mbtn' + (mouseButtons[0] ? ' pressed' : '');
+    $('mb-mid').className = 'mbtn' + (mouseButtons[1] ? ' pressed' : '');
+    $('mb-right').className = 'mbtn' + (mouseButtons[2] ? ' pressed' : '');
+  }
+
+  // ── Keyboard Tracking ───────────────────────────
+  window.addEventListener('keydown', (ev) => {
+    addKeyEvent('down', ev.key, ev.code, {
+      ctrl: ev.ctrlKey, shift: ev.shiftKey, alt: ev.altKey, meta: ev.metaKey
+    });
+  }, true);
+  window.addEventListener('keyup', (ev) => {
+    addKeyEvent('up', ev.key, ev.code, {
+      ctrl: ev.ctrlKey, shift: ev.shiftKey, alt: ev.altKey, meta: ev.metaKey
+    });
+  }, true);
+
+  // ── Bridge Boot ─────────────────────────────────
+  function boot() {
+    $('dot-bridge').className = 'dot on';
+
+    // Intercept dispatch to capture all inbound events
+    const origDispatch = window.tsic.__dispatch;
+    window.tsic.__dispatch = function(name, payloadJson, metaJson) {
+      if (!paused) {
+        try {
+          const payload = typeof payloadJson === 'string' ? JSON.parse(payloadJson) : payloadJson;
+          onAnyEvent(name, payload);
+        } catch(e) {}
+      }
+      return origDispatch.call(this, name, payloadJson, metaJson);
+    };
+
+    // Intercept send for outbound tracking
+    const origSend = window.tsic.send;
+    window.tsic.send = function(name, payload) {
+      addMsgLog('out', name, payload);
+      bumpChannel(name);
+      return origSend.call(this, name, payload);
+    };
+
+    // Intercept request for request tracking
+    const origRequest = window.tsic.request;
+    if (origRequest) {
+      window.tsic.request = function(name, payload) {
+        const reqId = window.tsic._nextReqId;
+        trackRequest(name, reqId);
+        return origRequest.call(this, name, payload).then(
+          result => { resolveRequest(reqId, null); return result; },
+          err => { resolveRequest(reqId, err); throw err; }
+        );
+      };
+    }
+
+    // Intercept response resolver for request latency
+    const origResolve = window.tsic.__resolveResponse;
+    if (origResolve) {
+      window.tsic.__resolveResponse = function(reqId, payloadJson, errorMsg) {
+        resolveRequest(reqId, errorMsg);
+        return origResolve.call(this, reqId, payloadJson, errorMsg);
+      };
+    }
+
+    // Subscribe to mode changes
+    tsic.on('tsic.msg.UI.Input.Mode.Changed', (p) => {
+      if (!p) return;
+      if (p.Mode) currentMode = p.Mode;
+      if (p.Device) currentDevice = p.Device;
+      if (p.Focus) currentFocusState = p.Focus;
+      updateInputMode();
+    });
+
+    // Subscribe to screen changes
+    tsic.on('tsic.msg.UI.Screen.Changed', (p) => {
+      if (p && p.Screen) {
+        currentScreen = p.Screen;
+        addScreenChange(p.Screen);
+        updateInputMode();
+      }
+    });
+
+    // Populate channel kinds from describe()
+    try {
+      const channels = tsic.describe();
+      if (Array.isArray(channels)) {
+        channels.forEach(ch => {
+          if (ch && ch.name && ch.kind) channelKinds.set(ch.name, ch.kind);
+        });
+      }
+    } catch(e) {}
+
+    // Load cache on boot
+    setTimeout(refreshCache, 500);
+  }
+
+  // ── Universal Event Handler ─────────────────────
+  function onAnyEvent(channel, payload) {
+    bumpChannel(channel);
+    addMsgLog('in', channel, payload);
+
+    if (channel.startsWith('tsic.msg.UI.Input.IA_')) {
+      const phase = payload.Phase || payload.phase || '';
+      const actionName = channel.replace('tsic.msg.UI.Input.', '');
+      let value = payload.Value || payload.value;
+      if (value === undefined && payload.X !== undefined) value = { X: payload.X, Y: payload.Y };
+
+      addHistoryEntry(channel, phase, value, payload);
+
+      if (phase === 'Started' || phase === 'Triggered') activeActions.set(actionName, true);
+      else if (phase === 'Completed' || phase === 'Canceled') activeActions.set(actionName, false);
+      renderActiveActions();
+
+      if (channel.includes('IA_UI_Navigate')) {
+        if (phase === 'Triggered' || phase === 'Started') {
+          navX = Number(value && value.X || 0);
+          navY = Number(value && value.Y || 0);
+        } else if (phase === 'Completed' || phase === 'Canceled') {
+          navX = 0; navY = 0;
+        }
+        updateAxes();
+      }
+      if (channel.includes('IA_UI_MapMove')) {
+        if (phase === 'Triggered' || phase === 'Started') {
+          mapX = Number(value && value.X || 0);
+          mapY = Number(value && value.Y || 0);
+        } else if (phase === 'Completed' || phase === 'Canceled') {
+          mapX = 0; mapY = 0;
+        }
+        updateAxes();
+      }
+    } else if (!channel.startsWith('tsic.msg.UI.Input.')) {
+      addHistoryEntry(channel, '', payload, payload);
+    }
+  }
+
+  // ── Tick Loop ───────────────────────────────────
+  function tick(now) {
+    tickFPS(now);
+    tickRate(now);
+    $('clock').textContent = elapsed();
+    updateFocusPanel();
+    updateSelectionPanel();
+    pollNativeGamepad();
+    requestAnimationFrame(tick);
+  }
+
+  // ── Export ──────────────────────────────────────
+  function exportLog() {
+    const lines = [];
+    lines.push('=== WEBUI DEBUG EXPORT ===');
+    lines.push('Time: ' + new Date().toISOString());
+    lines.push('Session: ' + elapsed());
+    lines.push('Total Events: ' + totalEvents);
+    lines.push('');
+    lines.push('--- INPUT HISTORY ---');
+    inputHistory.forEach(e => {
+      lines.push(`${e.ts} | ${shortChannel(e.channel)} | ${e.phase || '-'} | ${fmtValue(e.value)} | ${JSON.stringify(e.raw)}`);
+    });
+    lines.push('');
+    lines.push('--- CHANNEL COUNTS ---');
+    [...channelCounts.entries()].sort((a,b) => b[1] - a[1]).forEach(([ch, n]) => {
+      lines.push(`${n.toString().padStart(6)} | ${ch}`);
+    });
+    lines.push('');
+    lines.push('--- KEY EVENTS ---');
+    keyEvents.forEach(e => {
+      lines.push(`${e.ts} | ${e.dir.padEnd(4)} | ${e.key} (${e.code}) | ctrl=${e.mods.ctrl} shift=${e.mods.shift} alt=${e.mods.alt}`);
+    });
+    lines.push('');
+    lines.push('--- SCREEN HISTORY ---');
+    screenHistory.forEach(s => {
+      lines.push(`${s.ts} | ${s.name}`);
+    });
+
+    const blob = new Blob([lines.join('\n')], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `webui-debug-${Date.now()}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  // ── Copy History ────────────────────────────────
+  $('copy-history').addEventListener('click', () => {
+    const text = inputHistory.map(e =>
+      `${e.ts} | ${shortChannel(e.channel)} | ${e.phase || '-'} | ${fmtValue(e.value)}`
+    ).join('\n');
+    navigator.clipboard.writeText(text).catch(() => {});
+  });
+
+  // ── Filter Inputs ───────────────────────────────
+  $('filter-history').addEventListener('input', (e) => { historyFilter = e.target.value; renderHistory(); });
+  $('filter-channels').addEventListener('input', (e) => { channelFilter = e.target.value; renderChannels(); });
+  $('filter-msglog').addEventListener('input', (e) => { msglogFilter = e.target.value; renderMsgLog(); });
+
+  // ── Buttons ─────────────────────────────────────
+  $('btn-pause').addEventListener('click', () => {
+    paused = !paused;
+    $('btn-pause').textContent = paused ? 'RESUME' : 'PAUSE';
+    $('btn-pause').classList.toggle('active', paused);
+  });
+
+  $('btn-clear').addEventListener('click', () => {
+    inputHistory.length = 0; msgLog.length = 0; keyEvents.length = 0;
+    channelCounts.clear(); channelLastAt.clear(); activeActions.clear();
+    totalEvents = 0; rateWindowEvents = 0; ratePeak = 0;
+    rateHistory.length = 0; for (let i = 0; i < RATE_SAMPLES; i++) rateHistory.push(0);
+    startTime = Date.now();
+    selectedHistoryIdx = -1; selectedMsgIdx = -1;
+    $('detail-drawer').classList.remove('open');
+    renderHistory(); renderChannels(); renderMsgLog(); renderActiveActions(); renderKeys();
+    renderRequests(); renderScreenHistory(); renderRateGraph();
+  });
+
+  $('btn-export').addEventListener('click', exportLog);
+  $('btn-close').addEventListener('click', () => {
+    if (window.tsic) tsic.publishMessage('UI.Cmd.Debug.Close', {});
+  });
+  $('clear-keys').addEventListener('click', () => { keyEvents.length = 0; renderKeys(); });
+
+  // Stop propagation on filter inputs so they don't trigger game keybindings
+  for (const input of document.querySelectorAll('.filter-input')) {
+    input.addEventListener('keydown', (e) => e.stopPropagation());
+  }
+
+  // ── Init ────────────────────────────────────────
+  initGamepadUI();
+  updateAxes();
+  lastFpsUpdate = performance.now();
+  lastRateTick = performance.now();
+  requestAnimationFrame(tick);
+  (function waitForBridge() {
+    if (!window.tsic) { setTimeout(waitForBridge, 16); return; }
+    boot();
+  })();
+})();
+</script>
+</body></html>

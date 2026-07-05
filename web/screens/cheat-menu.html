@@ -1,0 +1,567 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="tsic-screen" content="CheatMenu">
+  <meta name="tsic-input-mode" content="InputMode.Menu.CheatMenu">
+  <meta name="tsic-focus" content="enabled">
+  <meta name="tsic-action-bar-context" content='[]'>
+  <title>Cheat Menu</title>
+  <link rel="stylesheet" href="/shared/base.css">
+  <link rel="stylesheet" href="/shared/components.css">
+    <script src="/shared/tsic-bridge.js" defer></script>
+  <script src="/shared/tsic-runtime.js" defer></script>
+  <script src="/shared/router.js" defer></script>
+  <script src="/shared/tsic-focus.js" defer></script>
+  <script src="/shared/tsic-dropdown.js" defer></script>
+  <style>
+    #cm-root  { position:fixed; inset:0; background: rgba(35,31,24,0.55); padding: 16px 24px 32px; overflow:auto; color: var(--cat-ink-dark); }
+    #cm-root h2 { color: #c2410c; margin: 0; }
+    #cm-status { font-size: 12px; font-weight:bold; letter-spacing:2px; text-transform:uppercase; padding:4px 8px; border:1px solid var(--tsic-border); display:inline-block; margin: 6px 0 14px; }
+    #cm-status.is-server { color: #166534; border-color:#166534; }
+    #cm-status.is-client { color: #b91c1c; border-color:#b91c1c; }
+
+    .cm-grid     { display:grid; grid-template-columns: repeat(auto-fill, minmax(360px,1fr)); gap: 14px; max-width: 1280px; }
+    .cm-section  { border:1px solid var(--tsic-border); padding: 10px 12px; background: rgba(255,253,247,0.7); }
+    .cm-section h3 { letter-spacing: 3px; color: rgba(59,47,28,0.7); font-size: 12px; margin: 0 0 8px; text-transform: uppercase; }
+    .cm-row      { display:flex; flex-wrap:wrap; gap: 6px; align-items:center; margin-bottom: 6px; }
+    .cm-row label { font-size: 11px; color: rgba(59,47,28,0.7); min-width: 70px; }
+    .cm-row button { padding: 3px 9px; font-size: 12px; }
+    .cm-input    { background: transparent; color: var(--cat-ink-dark); border:1px solid var(--tsic-border); padding: 2px 6px; min-width: 160px; font-family: inherit; }
+    .cm-input--sm{ min-width: 70px; }
+    .cm-select   { background: transparent; color: var(--cat-ink-dark); border:1px solid var(--tsic-border); padding: 2px 4px; min-width: 200px; max-width: 320px; font-family: inherit; }
+    .cm-exec     { background:#7c2d12; color: #fdf6e3; border:1px solid #c2410c; padding: 3px 10px; cursor:pointer; font-size: 12px; }
+    .cm-toggle   { display:inline-flex; gap:4px; align-items:center; font-size: 12px; cursor:pointer; user-select:none; }
+    .cm-toggle input { margin:0; }
+    .cm-readout  { font-size: 11px; color: rgba(59,47,28,0.7); margin-left:auto; }
+    .cm-meta     { font-size: 11px; color: rgba(59,47,28,0.6); margin-top: 6px; }
+
+    #cm-bottom { display:flex; gap:6px; margin-top: 14px; }
+    #cm-custom { flex: 1; display:flex; gap:6px; }
+    #cm-custom input { flex:1; }
+  </style>
+</head><body>
+  <div id="cm-root">
+    <h2 class="tsic-title tsic-title--lg">Cheat Menu</h2>
+    <div id="cm-status" class="is-client">Client mode — cheats disabled</div>
+    <div class="tsic-meta" style="margin-bottom:10px;">Dev only · commands run on the local player controller via the console.</div>
+
+    <div class="cm-grid">
+      <!-- ============ TARGET PLAYER ============ -->
+      <div class="cm-section">
+        <h3>TARGET PLAYER</h3>
+        <div class="cm-row">
+          <label for="cm-target">Apply to</label>
+          <select class="cm-select" id="cm-target" data-tsic-initial-focus><option value="1">Player 1 (self)</option></select>
+        </div>
+        <div class="cm-meta">Most cheats accept a 1-based player number. Defaults to player 1.</div>
+      </div>
+
+      <!-- ============ ITEM GRANT ============ -->
+      <div class="cm-section">
+        <h3>ITEM GRANT</h3>
+        <div class="cm-row">
+          <label for="cm-mode">Mode</label>
+          <select class="cm-select" id="cm-mode">
+            <option value="GiveItem">Give Item</option>
+            <option value="EquipItem">Equip Item</option>
+            <option value="GiveAllFurniture">Give All Furniture</option>
+            <option value="GiveConstructionItem">Give Construction Item</option>
+            <option value="GiveConstructionItemAndCost">Give CI + Cost</option>
+            <option value="GiveRecipeIngredients">Give Recipe Ingredients</option>
+            <option value="GiveEquippable">Give Equippable</option>
+            <option value="GiveWeapon">Give Weapon</option>
+            <option value="GiveHeadGear">Give Head Gear</option>
+            <option value="GiveBodyArmor">Give Body Armor</option>
+            <option value="GiveLegArmor">Give Leg Armor</option>
+            <option value="GiveShoes">Give Shoes</option>
+            <option value="GiveGloves">Give Gloves</option>
+          </select>
+        </div>
+        <div class="cm-row">
+          <label for="cm-item-filter">Filter</label>
+          <input class="cm-input" id="cm-item-filter" placeholder="type to filter…">
+        </div>
+        <div class="cm-row">
+          <label for="cm-item">Item</label>
+          <select class="cm-select" id="cm-item"><option value="">(catalog loading…)</option></select>
+        </div>
+        <div class="cm-row">
+          <label for="cm-item-count">Quantity</label>
+          <input class="cm-input cm-input--sm" id="cm-item-count" type="number" min="1" value="1">
+          <button class="cm-exec" id="cm-give">Execute</button>
+          <span class="cm-readout" id="cm-item-readout">0 items</span>
+        </div>
+      </div>
+
+      <!-- ============ GAMEPLAY ============ -->
+      <div class="cm-section">
+        <h3>GAMEPLAY CHEATS</h3>
+        <div class="cm-row">
+          <button class="tsic-button" data-cmd-tpl="ScpGod {p}">Toggle God</button>
+          <button class="tsic-button" data-cmd-tpl="ScpGhost {p}">Toggle Ghost</button>
+          <button class="tsic-button" data-cmd-tpl="ScpFly {p}">Toggle Fly</button>
+          <button class="tsic-button" data-cmd-tpl="Creative {p}">Toggle Creative</button>
+        </div>
+        <div class="cm-row">
+          <button class="tsic-button" data-cmd-tpl="Heal {p}">Heal</button>
+          <button class="tsic-button" data-cmd-tpl="Pos {p}">Print Position</button>
+          <button class="tsic-button" data-cmd-tpl="RevealAllRecipes">Toggle Reveal Recipes</button>
+        </div>
+      </div>
+
+      <!-- ============ RESPAWN ============ -->
+      <div class="cm-section">
+        <h3>RESPAWN</h3>
+        <div class="cm-row">
+          <button class="tsic-button" data-cmd-tpl="KeepItems {p}">Toggle Keep Items</button>
+          <button class="tsic-button" data-cmd-tpl="ForceRespawn {p}">Force Respawn</button>
+        </div>
+        <div class="cm-meta">"Keep Items" prevents tombstone spawn on next death for the target player.</div>
+      </div>
+
+      <!-- ============ TELEPORT ============ -->
+      <div class="cm-section">
+        <h3>TELEPORT</h3>
+        <div class="cm-row">
+          <label for="cm-tp-target">To player</label>
+          <select class="cm-select" id="cm-tp-target"><option value="">(none)</option></select>
+          <button class="cm-exec" id="cm-tp-player">Teleport</button>
+        </div>
+        <div class="cm-row">
+          <label>Tile</label>
+          <input class="cm-input cm-input--sm" id="cm-tile-x" type="number" placeholder="East" value="128">
+          <input class="cm-input cm-input--sm" id="cm-tile-y" type="number" placeholder="North" value="128">
+          <button class="cm-exec" id="cm-tp-tile">Teleport</button>
+        </div>
+        <div class="cm-row">
+          <label>World</label>
+          <input class="cm-input cm-input--sm" id="cm-world-x" type="number" placeholder="X">
+          <input class="cm-input cm-input--sm" id="cm-world-y" type="number" placeholder="Y">
+          <input class="cm-input cm-input--sm" id="cm-world-z" type="number" placeholder="Z">
+          <button class="cm-exec" id="cm-tp-world">Teleport</button>
+        </div>
+      </div>
+
+      <!-- ============ TIME ============ -->
+      <div class="cm-section">
+        <h3>TIME</h3>
+        <div class="cm-row">
+          <label for="cm-skip-days">Skip days</label>
+          <input class="cm-input cm-input--sm" id="cm-skip-days" type="number" min="0" step="1" value="1">
+          <button class="cm-exec" id="cm-do-skip-days">Skip</button>
+        </div>
+        <div class="cm-row">
+          <label for="cm-skip-hours">Skip hours</label>
+          <input class="cm-input cm-input--sm" id="cm-skip-hours" type="number" min="0" step="0.5" value="1">
+          <button class="cm-exec" id="cm-do-skip-hours">Skip</button>
+        </div>
+        <div class="cm-row">
+          <button class="tsic-button" data-cmd-tpl="SkipOpen">Skip to Open</button>
+          <button class="tsic-button" data-cmd-tpl="SkipClosed">Skip to Closed</button>
+        </div>
+        <div class="cm-row">
+          <label for="cm-set-time">Set hour</label>
+          <input class="cm-input cm-input--sm" id="cm-set-time" type="number" min="0" max="23" step="0.25" value="12">
+          <button class="cm-exec" id="cm-do-set-time">Set</button>
+        </div>
+        <div class="cm-row">
+          <button class="tsic-button" data-cmd-tpl="slomo 0.25">Speed × 0.25</button>
+          <button class="tsic-button" data-cmd-tpl="slomo 1">Speed × 1</button>
+          <button class="tsic-button" data-cmd-tpl="slomo 2">Speed × 2</button>
+          <button class="tsic-button" data-cmd-tpl="slomo 5">Speed × 5</button>
+        </div>
+      </div>
+
+      <!-- ============ WORLD ============ -->
+      <div class="cm-section">
+        <h3>WORLD</h3>
+        <div class="cm-row">
+          <button class="tsic-button" data-cmd-tpl="HideFOW {p}">Toggle Hide FOW</button>
+          <button class="tsic-button" data-cmd-tpl="ResetFOW">Reset FOW</button>
+          <button class="tsic-button" data-cmd-tpl="EnemyHealthBars">Toggle Enemy HP Bars</button>
+        </div>
+        <div class="cm-row">
+          <button class="tsic-button" data-cmd-tpl="KillAll {p} 2000">Kill All Enemies (r=2000)</button>
+          <button class="tsic-button" data-cmd-tpl="RemoveDrops {p} 2000">Remove Drops (r=2000)</button>
+          <button class="tsic-button" data-cmd-tpl="KillPlayer {p}">Kill Player</button>
+        </div>
+        <div class="cm-row">
+          <button class="tsic-button" data-cmd-tpl="DestroyTarget {p}">Destroy Aimed Target</button>
+          <button class="tsic-button" data-cmd-tpl="DamageEntity 9999 {p}">Damage Nearest (9999)</button>
+        </div>
+      </div>
+
+      <!-- ============ SPAWN CREATURE ============ -->
+      <div class="cm-section">
+        <h3>SPAWN CREATURE</h3>
+        <div class="cm-row">
+          <label for="cm-creature-filter">Filter</label>
+          <input class="cm-input" id="cm-creature-filter" placeholder="type to filter…">
+        </div>
+        <div class="cm-row">
+          <label for="cm-creature">Creature</label>
+          <select class="cm-select" id="cm-creature"><option value="">(catalog loading…)</option></select>
+        </div>
+        <div class="cm-row">
+          <button class="cm-exec" id="cm-spawn-creature">Spawn</button>
+          <span class="cm-readout" id="cm-creature-readout">0 creatures</span>
+        </div>
+      </div>
+
+      <!-- ============ SPAWN FURNITURE ============ -->
+      <div class="cm-section">
+        <h3>SPAWN FURNITURE</h3>
+        <div class="cm-row">
+          <label class="cm-toggle"><input type="checkbox" id="cm-furn-constructed"> Show constructed variants</label>
+        </div>
+        <div class="cm-row">
+          <label for="cm-furn-filter">Filter</label>
+          <input class="cm-input" id="cm-furn-filter" placeholder="type to filter…">
+        </div>
+        <div class="cm-row">
+          <label for="cm-furn">Furniture</label>
+          <select class="cm-select" id="cm-furn"><option value="">(catalog loading…)</option></select>
+        </div>
+        <div class="cm-row">
+          <button class="cm-exec" id="cm-spawn-furn">Spawn (place in front)</button>
+          <button class="cm-exec" id="cm-construct-furn">Construct (carry)</button>
+          <span class="cm-readout" id="cm-furn-readout">0 furniture</span>
+        </div>
+      </div>
+
+      <!-- ============ ENTITY DEBUG ============ -->
+      <div class="cm-section">
+        <h3>ENTITY DEBUG</h3>
+        <div class="cm-row">
+          <button class="tsic-button" data-cmd-tpl="ChunkInfo">Chunk Info</button>
+          <button class="tsic-button" data-cmd-tpl="LayoutDiagnostic">Layout Diagnostic</button>
+          <button class="tsic-button" data-cmd-tpl="EntityNaming">Toggle Entity Naming</button>
+        </div>
+        <div class="cm-row">
+          <label for="cm-entity-id">Entity</label>
+          <input class="cm-input cm-input--sm" id="cm-entity-id" type="number" placeholder="id">
+          <button class="cm-exec" data-cmd-tpl-input="FindEntity {v}" data-input="cm-entity-id">Find</button>
+          <button class="cm-exec" data-cmd-tpl-input="InspectEntity {v}" data-input="cm-entity-id">Inspect</button>
+          <button class="cm-exec" data-cmd-tpl-input="TeleportToEntity {v} {p}" data-input="cm-entity-id">Teleport To</button>
+        </div>
+        <div class="cm-row">
+          <label for="cm-list-radius">List r</label>
+          <input class="cm-input cm-input--sm" id="cm-list-radius" type="number" value="5000">
+          <button class="cm-exec" data-cmd-tpl-input="ListEntities {v} {p}" data-input="cm-list-radius">List Nearby</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="cm-bottom">
+      <div id="cm-custom">
+        <input class="cm-input" id="cm-custom-cmd" placeholder="Any console command…">
+        <button class="cm-exec" id="cm-custom-go">Run</button>
+      </div>
+      <button class="tsic-button" id="btn-back">Close</button>
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      // Local state — populated from UI.Cheat.Catalog and UI.Players.List.
+      const state = {
+        catalog: null,                 // FScpUICheatCatalog payload
+        players: [],                   // [{Id,Name,bIsHost}, ...]
+        targetPlayer: 1,               // 1-based player number
+      };
+
+      const $ = (id) => document.getElementById(id);
+
+      function shortName(full) {
+        if (!full) return '';
+        const i = full.lastIndexOf('/');
+        return i >= 0 ? full.slice(i + 1) : full;
+      }
+
+      function formatEntry(item) {
+        const short = shortName(item.InternalName);
+        return item.DisplayName ? `${item.DisplayName} [${short}]` : short;
+      }
+
+      function exec(cmd) {
+        if (!cmd) return;
+        tsic.publishMessage('UI.Cmd.Cheat.Execute', { Command: cmd });
+      }
+
+      function expandTemplate(tpl) {
+        return tpl
+          .replaceAll('{p}', String(state.targetPlayer))
+          .trim();
+      }
+
+      // -------------- DROPDOWN POPULATION --------------
+
+      function listForMode(mode) {
+        const c = state.catalog;
+        if (!c) return [];
+        switch (mode) {
+          case 'GiveItem':                    return c.Items || [];
+          case 'EquipItem':                   return c.Items || [];
+          case 'GiveAllFurniture':            return [];   // no item picker
+          case 'GiveConstructionItem':        return c.ConstructionItems || [];
+          case 'GiveConstructionItemAndCost': return c.ConstructionItems || [];
+          case 'GiveRecipeIngredients':       return c.Recipes || [];
+          case 'GiveEquippable':              return c.Equippables || [];
+          case 'GiveWeapon':                  return c.Weapons || [];
+          case 'GiveHeadGear':                return c.HeadGear || [];
+          case 'GiveBodyArmor':               return c.BodyArmor || [];
+          case 'GiveLegArmor':                return c.LegArmor || [];
+          case 'GiveShoes':                   return c.Shoes || [];
+          case 'GiveGloves':                  return c.Gloves || [];
+          default:                            return [];
+        }
+      }
+
+      function fillSelect(selectEl, items, filter) {
+        const f = (filter || '').toLowerCase();
+        selectEl.innerHTML = '';
+        let visibleCount = 0;
+        for (const it of items) {
+          const display = it.DisplayName || '';
+          const internal = it.InternalName || '';
+          if (f && !display.toLowerCase().includes(f) && !shortName(internal).toLowerCase().includes(f)) {
+            continue;
+          }
+          const opt = document.createElement('option');
+          opt.value = internal;
+          opt.textContent = formatEntry(it);
+          selectEl.appendChild(opt);
+          visibleCount++;
+        }
+        return { visibleCount, totalCount: items.length };
+      }
+
+      function refreshItemSelect() {
+        const mode = $('cm-mode').value;
+        const list = listForMode(mode);
+        const filter = $('cm-item-filter').value;
+        const { visibleCount, totalCount } = fillSelect($('cm-item'), list, filter);
+        $('cm-item-readout').textContent = `${visibleCount} / ${totalCount} items`;
+        $('cm-item').disabled = (mode === 'GiveAllFurniture');
+        $('cm-item-filter').disabled = (mode === 'GiveAllFurniture');
+      }
+
+      function refreshCreatureSelect() {
+        const list = (state.catalog && state.catalog.Creatures) || [];
+        const filter = $('cm-creature-filter').value;
+        const { visibleCount, totalCount } = fillSelect($('cm-creature'), list, filter);
+        $('cm-creature-readout').textContent = `${visibleCount} / ${totalCount} creatures`;
+      }
+
+      function refreshFurnitureSelect() {
+        const wantConstructed = $('cm-furn-constructed').checked;
+        const list = state.catalog
+          ? (wantConstructed ? (state.catalog.FurnitureConstructed || []) : (state.catalog.FurnitureDefault || []))
+          : [];
+        const filter = $('cm-furn-filter').value;
+        const { visibleCount, totalCount } = fillSelect($('cm-furn'), list, filter);
+        $('cm-furn-readout').textContent = `${visibleCount} / ${totalCount} furniture`;
+      }
+
+      function refreshTargetPlayerSelects() {
+        const list = state.players || [];
+        const targetSel = $('cm-target');
+        const tpSel = $('cm-tp-target');
+        const prevTarget = targetSel.value;
+        const prevTp = tpSel.value;
+        targetSel.innerHTML = '';
+        tpSel.innerHTML = '';
+        if (list.length === 0) {
+          // No players list yet — keep "Player 1 (self)" placeholder
+          const opt = document.createElement('option');
+          opt.value = '1';
+          opt.textContent = 'Player 1 (self)';
+          targetSel.appendChild(opt);
+          const opt2 = document.createElement('option');
+          opt2.value = '';
+          opt2.textContent = '(no other players)';
+          tpSel.appendChild(opt2);
+          return;
+        }
+        list.forEach((pl, idx) => {
+          const num = idx + 1;
+          const tag = pl.bIsHost ? ' (host)' : '';
+          const opt = document.createElement('option');
+          opt.value = String(num);
+          opt.textContent = `${num}: ${pl.Name || pl.Id || '?'}${tag}`;
+          targetSel.appendChild(opt);
+          if (num !== state.targetPlayer) {
+            const opt2 = document.createElement('option');
+            opt2.value = String(num);
+            opt2.textContent = `${num}: ${pl.Name || pl.Id || '?'}${tag}`;
+            tpSel.appendChild(opt2);
+          }
+        });
+        if (prevTarget) targetSel.value = prevTarget;
+        if (prevTp) tpSel.value = prevTp;
+        if (!targetSel.value && targetSel.options.length) targetSel.selectedIndex = 0;
+      }
+
+      // -------------- COMMAND HANDLERS --------------
+
+      function onGive() {
+        const mode = $('cm-mode').value;
+        const qty = parseInt($('cm-item-count').value, 10) || 1;
+        const p = state.targetPlayer;
+        if (mode === 'GiveAllFurniture') {
+          exec(`GiveAllFurniture ${qty} ${p}`);
+          return;
+        }
+        const itemName = shortName($('cm-item').value);
+        if (!itemName) return;
+        switch (mode) {
+          case 'GiveItem':                    exec(`GiveItem ${itemName} ${qty} ${p}`); break;
+          case 'EquipItem':                   exec(`EquipItem ${itemName} ${p}`); break;
+          case 'GiveConstructionItem':        exec(`GiveConstructionItem ${itemName} ${qty} ${p}`); break;
+          case 'GiveConstructionItemAndCost': exec(`GiveConstructionItemAndCost ${itemName} ${qty} ${p}`); break;
+          case 'GiveRecipeIngredients':       exec(`GiveRecipeIngredients ${itemName} ${qty} ${p}`); break;
+          case 'GiveEquippable':              exec(`GiveEquippable ${itemName} ${qty} ${p}`); break;
+          case 'GiveWeapon':                  exec(`GiveWeapon ${itemName} ${qty} ${p}`); break;
+          case 'GiveHeadGear':                exec(`GiveHeadGear ${itemName} ${qty} ${p}`); break;
+          case 'GiveBodyArmor':               exec(`GiveBodyArmor ${itemName} ${qty} ${p}`); break;
+          case 'GiveLegArmor':                exec(`GiveLegArmor ${itemName} ${qty} ${p}`); break;
+          case 'GiveShoes':                   exec(`GiveShoes ${itemName} ${qty} ${p}`); break;
+          case 'GiveGloves':                  exec(`GiveGloves ${itemName} ${qty} ${p}`); break;
+        }
+      }
+
+      function onSpawnCreature() {
+        const name = $('cm-creature').value;
+        if (!name) return;
+        // WorldCheats::Spawn expects an FName, which can be the asset path.
+        exec(`Spawn ${name} ${state.targetPlayer}`);
+      }
+
+      function onSpawnFurniture(kind) {
+        const name = shortName($('cm-furn').value);
+        if (!name) return;
+        if (kind === 'construct') {
+          exec(`Construct ${name}`);
+        } else {
+          exec(`SpawnFurniture ${name}`);
+        }
+      }
+
+      function onTeleportPlayer() {
+        const to = parseInt($('cm-tp-target').value, 10);
+        if (!Number.isFinite(to)) return;
+        exec(`TeleportPlayer ${state.targetPlayer} ${to}`);
+      }
+
+      function onTeleportTile() {
+        const x = parseInt($('cm-tile-x').value, 10);
+        const y = parseInt($('cm-tile-y').value, 10);
+        if (!Number.isFinite(x) || !Number.isFinite(y)) return;
+        exec(`TeleportToTile ${state.targetPlayer} ${x} ${y}`);
+      }
+
+      function onTeleportWorld() {
+        const x = parseFloat($('cm-world-x').value);
+        const y = parseFloat($('cm-world-y').value);
+        const z = parseFloat($('cm-world-z').value) || 0;
+        if (!Number.isFinite(x) || !Number.isFinite(y)) return;
+        exec(`TeleportToLocation ${state.targetPlayer} ${x} ${y} ${z}`);
+      }
+
+      // -------------- BIND --------------
+
+      (function boot() {
+      if (!window.tsic || typeof tsic.whenReady !== 'function') { setTimeout(boot, 16); return; }
+      tsic.whenReady(function () {
+        // Subscribe to catalog + player list.
+        tsic.on('tsic.msg.UI.Cheat.Catalog', (p) => {
+          state.catalog = p || null;
+          refreshItemSelect();
+          refreshCreatureSelect();
+          refreshFurnitureSelect();
+          $('cm-status').textContent = 'Server mode — cheats active';
+          $('cm-status').classList.remove('is-client');
+          $('cm-status').classList.add('is-server');
+        });
+        tsic.on('tsic.msg.UI.Players.List', (p) => {
+          state.players = (p && p.Players) || [];
+          refreshTargetPlayerSelects();
+        });
+
+        // Item Grant — mode / filter / give.
+        $('cm-mode').addEventListener('change', refreshItemSelect);
+        $('cm-item-filter').addEventListener('input', refreshItemSelect);
+        $('cm-give').addEventListener('click', onGive);
+
+        // Target player.
+        $('cm-target').addEventListener('change', (e) => {
+          state.targetPlayer = parseInt(e.target.value, 10) || 1;
+          refreshTargetPlayerSelects();
+        });
+
+        // Spawn creature.
+        $('cm-creature-filter').addEventListener('input', refreshCreatureSelect);
+        $('cm-spawn-creature').addEventListener('click', onSpawnCreature);
+
+        // Spawn furniture.
+        $('cm-furn-constructed').addEventListener('change', refreshFurnitureSelect);
+        $('cm-furn-filter').addEventListener('input', refreshFurnitureSelect);
+        $('cm-spawn-furn').addEventListener('click', () => onSpawnFurniture('place'));
+        $('cm-construct-furn').addEventListener('click', () => onSpawnFurniture('construct'));
+
+        // Teleport.
+        $('cm-tp-player').addEventListener('click', onTeleportPlayer);
+        $('cm-tp-tile').addEventListener('click', onTeleportTile);
+        $('cm-tp-world').addEventListener('click', onTeleportWorld);
+
+        // Time.
+        $('cm-do-skip-days').addEventListener('click', () => {
+          const v = parseInt($('cm-skip-days').value, 10);
+          if (Number.isFinite(v)) exec(`SkipDays ${v}`);
+        });
+        $('cm-do-skip-hours').addEventListener('click', () => {
+          const v = parseFloat($('cm-skip-hours').value);
+          if (Number.isFinite(v)) exec(`SkipHours ${v}`);
+        });
+        $('cm-do-set-time').addEventListener('click', () => {
+          const v = parseFloat($('cm-set-time').value);
+          if (Number.isFinite(v)) exec(`SetTime ${v}`);
+        });
+
+        // Generic templated buttons (data-cmd-tpl).
+        document.querySelectorAll('button[data-cmd-tpl]').forEach((btn) => {
+          btn.addEventListener('click', () => exec(expandTemplate(btn.getAttribute('data-cmd-tpl'))));
+        });
+        // Templated buttons that pull a value from an input (data-input).
+        document.querySelectorAll('button[data-cmd-tpl-input]').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const tpl = btn.getAttribute('data-cmd-tpl-input');
+            const inputId = btn.getAttribute('data-input');
+            const v = $(inputId).value.trim();
+            if (!v) return;
+            exec(expandTemplate(tpl.replaceAll('{v}', v)));
+          });
+        });
+
+        // Custom command.
+        $('cm-custom-go').addEventListener('click', () => {
+          const v = $('cm-custom-cmd').value.trim();
+          if (v) exec(v);
+        });
+        $('cm-custom-cmd').addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') $('cm-custom-go').click();
+        });
+
+        // Close.
+        $('btn-back').addEventListener('click', () => tsic.publishMessage('UI.Cmd.Pause.Resume', {}));
+
+        // First paint — show placeholder lists until the broadcast lands.
+        refreshItemSelect();
+        refreshCreatureSelect();
+        refreshFurnitureSelect();
+        refreshTargetPlayerSelects();
+      });
+      })();
+    })();
+  </script>
+</body></html>

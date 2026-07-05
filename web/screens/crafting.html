@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="tsic-screen" content="Crafting">
+  <meta name="tsic-focus" content="enabled">
+  <meta name="tsic-input-mode" content="InputMode.Menu.Crafting">
+  <meta name="tsic-action-bar-context" content='[{"ActionName":"IA_UI_ConfirmAccept","Label":"Craft","Priority":10}]'>
+  <title>Crafting</title>
+  <link rel="stylesheet" href="/shared/base.css">
+  <link rel="stylesheet" href="/shared/components.css">
+  <link rel="stylesheet" href="/shared/hud.css">
+    <script src="/shared/tsic-bridge.js" defer></script>
+  <script src="/shared/tsic-runtime.js" defer></script>
+  <script src="/shared/router.js" defer></script>
+  <script src="/shared/tsic-focus.js" defer></script>
+  <script src="/shared/tsic-dropdown.js" defer></script>
+  <script src="/shared/hud.js" defer></script>
+  <script src="/shared/catalog.js" defer></script>
+  <script src="/shared/recipe-info.js" defer></script>
+  <script src="/shared/dom.js" defer></script>
+  <script src="/shared/icons.js" defer></script>
+  <script src="/shared/recipe-station.js" defer></script>
+</head><body>
+<div id="c-root" class="tsic-modal-scrim">
+  <div id="c-panel" class="tsic-panel tsic-panel--screen">
+    <h2 class="tsic-title" style="margin:0 0 8px;">Crafting</h2>
+    <div id="c-station"></div>
+    <div class="tsic-close-row">
+      <button class="tsic-button" id="btn-close" data-tsic-initial-focus>Close (Esc)</button>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+    (function boot() {
+    if (!window.tsic || !window.TSICRecipeInfo || !window.TSIC.RecipeStation) { setTimeout(boot, 16); return; }
+    tsic.whenReady(function () {
+        TSIC.RecipeStation.mount(document.getElementById('c-station'), {
+            kind: 'Crafting',
+            actionLabel: 'Craft',
+            soundSuccess: 'Craft.Success',
+            soundFail: 'Craft.Fail',
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') document.getElementById('btn-close').click();
+        });
+        document.getElementById('btn-close').addEventListener('click', () => {
+            tsic.publishMessage('UI.Cmd.Pause.Resume', {});
+        });
+    });
+    })();
+})();
+</script>
+</body></html>

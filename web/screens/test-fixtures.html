@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="tsic-screen" content="TestFixtures">
+  <meta name="tsic-debug" content="true">
+  <meta name="tsic-input-mode" content="InputMode.Menu">
+  <title>Test Fixtures</title>
+  <!-- Minimal host page that loads every shared module so unit-style
+       scenarios can exercise each module in isolation. Visiting this
+       page in-game would be a no-op (no UI rendered). -->
+    <script src="/shared/tsic-bridge.js" defer></script>
+  <script src="/shared/tsic-runtime.js" defer></script>
+  <script src="/shared/router.js" defer></script>
+  <script src="/shared/hud.js" defer></script>
+  <script src="/shared/catalog.js" defer></script>
+  <script src="/shared/dom.js" defer></script>
+  <script src="/shared/icons.js" defer></script>
+  <script src="/shared/inventory.js" defer></script>
+  <script src="/shared/context-menu.js" defer></script>
+  <script src="/shared/recipe-info.js" defer></script>
+  <script src="/shared/behavior-bar.js" defer></script>
+  <script src="/shared/fow-lookup.js" defer></script>
+  <script src="/shared/terminal/constants.js" defer></script>
+  <script src="/shared/terminal/boot.js" defer></script>
+  <script src="/shared/terminal/catalog.js" defer></script>
+  <script src="/shared/terminal/capabilities.js" defer></script>
+  <script src="/shared/terminal/runtime.js" defer></script>
+  <script src="/shared/terminal/console-core.js" defer></script>
+  <script src="/shared/terminal/shells/tier1-text.js" defer></script>
+</head><body>
+  <div id="host" style="position:fixed;inset:0;"></div>
+  <button id="btn-close" style="position:fixed;top:8px;right:8px;z-index:9999;background:#a33;color:#eee;border:1px solid #c55;padding:4px 12px;font-size:12px;cursor:pointer;">Close</button>
+  <script>
+    document.getElementById('btn-close').addEventListener('click', function() {
+      if (window.tsic) tsic.publishMessage('UI.Cmd.Debug.Close', {});
+    });
+  </script>
+</body></html>

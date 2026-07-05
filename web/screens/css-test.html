@@ -1,0 +1,647 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="tsic-screen" content="CSSTest">
+  <meta name="tsic-debug" content="true">
+  <meta name="tsic-input-mode" content="InputMode.Menu">
+  <title>WebUI CSS Feature Test Grid</title>
+    <script src="/shared/tsic-bridge.js" defer></script>
+  <script src="/shared/tsic-runtime.js" defer></script>
+  <script src="/shared/router.js" defer></script>
+  <style>
+    html, body { margin: 0; padding: 0; height: 100%; background: #111; color: #ddd;
+      font-family: 'Consolas', monospace; overflow: hidden; }
+    * { box-sizing: border-box; }
+
+    #root { display: flex; flex-direction: column; height: 100%; }
+
+    /* --- Toolbar --- */
+    #toolbar {
+      flex: 0 0 auto; padding: 8px 12px; background: #1a1a1a;
+      border-bottom: 1px solid #333;
+      display: flex; gap: 8px; align-items: center; font-size: 12px;
+    }
+    #toolbar button {
+      background: #2a2a2a; color: #ddd; border: 1px solid #444;
+      padding: 4px 12px; font-family: inherit; font-size: 12px; cursor: pointer;
+    }
+    #toolbar button.active { background: #4a6; color: #000; border-color: #6c8; }
+    #toolbar .spacer { flex: 1; }
+    #toolbar .page-info { color: #888; font-size: 11px; }
+    #toolbar button.close-btn { background: #a33; border-color: #c55; }
+
+    /* --- Grid --- */
+    .page { display: none; flex: 1 1 auto; overflow-y: auto; padding: 8px; }
+    .page.active { display: block; }
+    .page h2 { margin: 0 0 8px; font-size: 14px; color: #aaf; border-bottom: 1px solid #333; padding-bottom: 4px; }
+
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 8px; margin-bottom: 16px; }
+
+    .panel {
+      background: #1a1a1a; border: 1px solid #333; min-height: 160px;
+      display: flex; flex-direction: column; overflow: hidden;
+    }
+    .panel .hdr {
+      padding: 4px 8px; background: #222; border-bottom: 1px solid #333;
+      display: flex; justify-content: space-between; font-size: 11px;
+    }
+    .panel .num { color: #f80; font-weight: bold; margin-right: 6px; }
+    .panel .name { color: #cce; }
+    .panel .result { font-size: 10px; padding: 0 2px; border-radius: 2px; }
+    .panel .result.pass { background: #2a5; color: #fff; }
+    .panel .result.fail { background: #a33; color: #fff; }
+    .panel .result.unknown { background: #555; color: #ccc; }
+    .panel .desc {
+      padding: 4px 8px; font-size: 10px; color: #888;
+      border-bottom: 1px solid #282828;
+    }
+    .panel .demo {
+      flex: 1; padding: 8px; display: flex; align-items: center; justify-content: center;
+      position: relative; overflow: hidden;
+    }
+
+    /* --- Demo helper classes --- */
+    .demo-box { width: 60px; height: 60px; background: #4a6; }
+    .demo-text { font-size: 18px; font-weight: bold; }
+    .demo-circle { width: 50px; height: 50px; border-radius: 50%; background: #36a; }
+    .demo-gradient { width: 80px; height: 60px; }
+    .demo-small { width: 30px; height: 30px; background: #e55; }
+    .checker-bg {
+      background-color: #444;
+      background-image:
+        linear-gradient(45deg, #888 25%, transparent 25%),
+        linear-gradient(-45deg, #888 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #888 75%),
+        linear-gradient(-45deg, transparent 75%, #888 75%);
+      background-size: 8px 8px;
+      background-position: 0 0, 0 4px, 4px -4px, -4px 0;
+    }
+  </style>
+</head><body>
+<div id="root">
+  <div id="toolbar">
+    <button class="tab-btn active" data-page="0">1: Transforms</button>
+    <button class="tab-btn" data-page="1">2: Opacity &amp; Blend</button>
+    <button class="tab-btn" data-page="2">3: Clipping</button>
+    <button class="tab-btn" data-page="3">4: Filters</button>
+    <button class="tab-btn" data-page="4">5: Layout</button>
+    <button class="tab-btn" data-page="5">6: Working</button>
+    <button class="tab-btn" data-page="6">7: Edge Cases</button>
+    <span class="spacer"></span>
+    <span class="page-info">WebUI.CSSTest &middot; <span id="ul-version">CEF</span></span>
+    <button class="close-btn" data-action="close">Close</button>
+  </div>
+
+  <!-- ==================== PAGE 1: TRANSFORMS ==================== -->
+  <div class="page active" data-page="0">
+    <h2>Page 1: Transform Tests</h2>
+    <div class="grid">
+
+      <div class="panel"><div class="hdr"><span><span class="num">01</span><span class="name">translate(px) absolute</span></span><span class="result unknown">?</span></div>
+        <div class="desc">Should see: green box shifted 20px right and down from top-left.</div>
+        <div class="demo"><div style="position:absolute;left:0;top:0;width:100%;height:100%;">
+          <div class="demo-box" style="position:absolute;left:0;top:0;transform:translate(20px,20px);width:40px;height:40px;"></div>
+        </div></div></div>
+
+      <div class="panel"><div class="hdr"><span><span class="num">02</span><span class="name">translate(%) absolute</span></span><span class="result unknown">?</span></div>
+        <div class="desc">Should see: green box centered via translate(-50%,-50%) on position:absolute.</div>
+        <div class="demo"><div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);" class="demo-box" ></div></div></div>
+
+      <div class="panel"><div class="hdr"><span><span class="num">03</span><span class="name">translate(%) fixed</span></span><span class="result unknown">?</span></div>
+        <div class="desc">KNOWN BUG in 1.4.0: position:fixed + translate(-50%,-50%) = invisible. Should see green box if 1.4.1 fixed it.</div>
+        <div class="demo" style="position:relative;"><div style="position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:40px;height:40px;background:#4a6;z-index:1;pointer-events:none;display:none;" id="test03"></div>
+          <span style="color:#666;font-size:10px;">(renders at body level, check overlay)</span>
+        </div></div>
+
+      <div class="panel"><div class="hdr"><span><span class="num">04</span><span class="name">scale()</span></span><span class="result unknown">?</span></div>
+        <div class="desc">Should see: green box scaled up 1.5x (larger than normal).</div>
+        <div class="demo"><div class="demo-box" style="transform:scale(1.5);width:40px;height:40px;"></div></div></div>
+
+      <div class="panel"><div class="hdr"><span><span class="num">05</span><span class="name">rotate()</span></span><span class="result unknown">?</span></div>
+        <div class="desc">KNOWN BUG in 1.4.0: rotate() on small elements = empty. Should see: red box rotated 45 degrees.</div>
+        <div class="demo"><div class="demo-small" style="transform:rotate(45deg);"></div></div></div>
+
+      <div class="panel"><div class="hdr"><span><span class="num">06</span><span class="name">rotate() on parent</span></span><span class="result unknown">?</span></div>
+        <div class="desc">Should see: parent wrapper rotated, child green box visible inside.</div>
+        <div class="demo"><div style="transform:rotate(30deg);"><div class="demo-box" style="width:40px;height:40px;"></div></div></div></div>
+
+      <div class="panel"><div class="hdr"><span><span class="num">07</span><span class="name">skew()</span></span><span class="result unknown">?</span></div>
+        <div class="desc">KNOWN BUG in 1.4.0: skew() on small elements = empty. Should see: red box skewed.</div>
+        <div class="demo"><div class="demo-small" style="transform:skew(15deg,5deg);"></div></div></div>
+
+      <div class="panel"><div class="hdr"><span><span class="num">08</span><span class="name">translate+scale combo</span></span><span class="result unknown">?</span></div>
+        <div class="desc">Known WORKING in 1.4.0: translate + scale on absolute wrapper. Map pan/zoom recipe.</div>
+        <div class="demo"><div style="position:absolute;transform:translate(10px,10px) scale(1.3);"><div class="demo-box" style="width:40px;height:40px;"></div></div></div></div>
+
+      <div class="panel"><div class="hdr"><span><span class="num">09</span><span class="name">rotate+scale combo</span></span><span class="result unknown">?</span></div>
+        <div class="desc">Should see: green box rotated 20deg and scaled up.</div>
+        <div class="demo"><div class="demo-box" style="width:40px;height:40px;transform:rotate(20deg) scale(1.3);"></div></div></div>
+
+      <div class="panel"><div class="hdr"><span><span class="num">10</span><span class="name">translate on fixed (margin workaround)</span></span><span class="result unknown">?</span></div>
+        <div class="desc">Margin-based centering workaround for fixed positioning. Should always work.</div>
+        <div class="demo"><div style="position:absolute;left:50%;top:50%;margin-left:-20px;margin-top:-20px;width:40px;height:40px;background:#4a6;"></div></div></div>
+
+    </div>
+  </div>
+
+  <!-- ==================== PAGE 2: OPACITY & BLEND ==================== -->
+  <div class="page" data-page="1">
+    <h2>Page 2: Opacity &amp; Blend Mode Tests</h2>
+    <div class="grid">
+
+      <div class="panel"><div class="hdr"><span><span class="num">11</span><span class="name">opacity: 1.0</span></span><span class="result unknown">?</span></div>
+        <div class="desc">Baseline: full opacity. Should see: solid green box.</div>
+        <div class="demo"><div class="demo-box" style="opacity:1.0;"></div></div></div>
+
+      <div class="panel"><div class="hdr"><span><span class="num">12</span><span class="name">opacity: 0.5</span></span><span class="result unknown">?</span></div>
+        <div class="desc">KNOWN BUG in 1.4.0: opacity &lt; 1 = invisible (compositor layer fail). Should see: semi-transparent green box.</div>
+        <div class="demo checker-bg"><div class="demo-box" style="opacity:0.5;"></div></div></div>
+
+      <div class="panel"><div class="hdr"><span><span class="num">13</span><span class="name">opacity: 0.3</span></span><span class="result unknown">?</span></div>
+        <div class="desc">Very low opacity test. Should see: faint green box over checker.</div>
+        <div class="demo checker-bg"><div class="demo-box" style="opacity:0.3;"></div></div></div>
+
+      <div class="panel"><div class="hdr"><span><span class="num">14</span><span class="name">rgba() background</span></span><span class="result unknown">?</span></div>
+        <div class="desc">Workaround: rgba alpha instead of CSS opacity. Should always work.</div>
+        <div class="demo checker-bg"><div style="width:60px;height:60px;background:rgba(68,170,102,0.5);"></div></div></div>
+
+      <div class="panel"><div class="hdr"><span><span class="num">15</span><span class="name">opacity: 0 (hidden)</span></span><span class="result unknown">?</span></div>
+        <div class="desc">Should see: nothing (box fully transparent). If you see a box, opacity:0 is broken.</div>
+        <div class="demo checker-bg"><div class="demo-box" style="opacity:0;"></div>
+          <span style="position:absolute;color:#888;font-size:10px;">should be empty</span>
+        </div></div>
+
+      <div class="panel"><div class="hdr"><span><span class="num">16</span><span class="name">mix-blend-mode: multiply</span></span><span class="result unknown">?</span></div>
+        <div class="desc">KNOWN BUG in 1.4.0: any mix-blend-mode other than normal = invisible. Red over green, should multiply to dark.</div>
+        <div class="demo"><div style="position:relative;width:80px;height:60px;">
+          <div style="position:absolute;left:0;top:0;width:60px;height:60px;background:#4a6;"></div>
+          <div style="position:absolute;left:20px;top:0;width:60px;height:60px;background:#e44;mix-blend-mode:multiply;"></div>
+        </div></div></div>
+
+      <div class="panel"><div class="hdr"><span><span class="num">17</span><span class="name">mix-blend-mode: screen</span></span><span class="result unknown">?</span></div>
+        <div class="desc">Screen blend: overlapping area should lighten. Two colored boxes.</div>
+        <div class="demo"><div style="position:relative;width:80px;height:60px;">
+          <div style="position:absolute;left:0;top:0;width:60px;height:60px;background:#36a;"></div>
+          <div style="position:absolute;left:20px;top:0;width:60px;height:60px;background:#e44;mix-blend-mode:screen;"></div>
+        </div></div></div>
+
+      <div class="panel"><div class="hdr"><span><span class="num">18</span><span class="name">mix-blend-mode: overlay</span></span><span class="result unknown">?</span></div>
+        <div class="desc">Overlay blend: combination of multiply and screen.</div>
+        <div class="demo"><div style="position:relative;width:80px;height:60px;">
+          <div style="position:absolute;left:0;top:0;width:60px;height:60px;background:#4a6;"></div>
+          <div style="position:absolute;left:20px;top:0;width:60px;height:60px;background:#36a;mix-blend-mode:overlay;"></div>
+        </div></div></div>
+
+      <div class="panel"><div class="hdr"><span><span class="num">19</span><span class="name">opacity on text</span></span><span class="result unknown">?</span></div>
+        <div class="desc">opacity:0.5 on text element. Should see semi-transparent white text.</div>
+        <div class="demo"><span class="demo-text" style="opacity:0.5;color:#fff;">Hello</span></div></div>
+
+      <div class="panel"><div class="hdr"><span><span class="num">20</span><span class="name">opacity animation</span></span><span class="result unknown">?</span></div>
+        <div class="desc">CSS animation pulsing opacity 0.2 &harr; 1.0. Should see: breathing green box.</div>
+        <div class="demo"><div class="demo-box" style="width:40px;height:40px;animation:pulse-opacity 2s ease-in-out infinite;"></div></div></div>
+
+    </div>
+  </div>
+
+  <!-- ==================== PAGE 3: CLIPPING ==================== -->
+  <div class="page" data-page="2">
+    <h2>Page 3: Clip &amp; Mask Tests</h2>
+    <div class="grid">
+
+      <div class="panel"><div class="hdr"><span><span class="num">21</span><span class="name">border-radius: 50%</span></span><span class="result unknown">?</span></div>
+        <div class="desc">Known WORKING: border-radius circles. Should see: blue circle.</div>
+        <div class="demo"><div class="demo-circle"></div></div></div>
+
+      <div class="panel"><div class="hdr"><span><span class="num">22</span><span class="name">border-radius: mixed</span></span><span class="result unknown">?</span></div>
+        <div class="desc">Mixed corner radii: 20px 5px 30px 10px. Should see: asymmetric rounded rect.</div>
+        <div class="demo"><div style="width:70px;height:50px;background:#4a6;border-radius:20px 5px 30px 10px;"></div></div></div>
+
+      <div class="panel"><div class="hdr"><span><span class="num">23</span><span class="name">clip-path: circle()</span></span><span class="result unknown">?</span></div>
+        <div class="desc">KNOWN BUG in 1.4.0: clip-path circle = invisible. Should see: circular green shape.</div>
+        <div class="demo"><div style="width:60px;height:60px;background:#4a6;clip-path:circle(50% at 50% 50%);"></div></div></div>
+
+      <div class="panel"><div class="hdr"><span><span class="num">24</span><span class="name">clip-path: polygon()</span></span><span class="result unknown">?</span></div>
+        <div class="desc">KNOWN BUG in 1.4.0: clip-path polygon = invisible. Should see: triangle shape.</div>
+        <div class="demo"><div style="width:60px;height:60px;background:#e55;clip-path:polygon(50% 0%, 0% 100%, 100% 100%);"></div></div></div>
+
+      <div class="panel"><div class="hdr"><span><span class="num">25</span><span class="name">clip-path: inset()</span></span><span class="result unknown">?</span></div>
+        <div class="desc">Inset clip-path: should clip 10px from all edges.</div>
+        <div class="demo"><div style="width:60px;height:60px;background:#4a6;clip-path:inset(10px);"></div></div></div>
+
+      <div class="panel"><div class="hdr"><span><span class="num">26</span><span class="name">overflow: hidden</span></span><span class="result unknown">?</span></div>
+        <div class="desc">overflow:hidden clipping. Should see: green box truncated at container edge.</div>
+        <div class="demo"><div style="width:50px;height:50px;overflow:hidden;border:1px solid #555;">
+          <div style="width:80px;height:80px;background:#4a6;"></div>
+        </div></div></div>
+
+      <div class="panel"><div class="hdr"><span><span class="num">27</span><span class="name">SVG clipPath</span></span><span class="result unknown">?</span></div>
+        <div class="desc">SVG clipPath reference (known workaround for clip-path). Should see: star-ish shape.</div>
+        <div class="demo">
+          <svg width="60" height="60" viewBox="0 0 60 60">
+            <defs><clipPath id="star-clip"><polygon points="30,5 36,22 54,22 40,33 45,50 30,40 15,50 20,33 6,22 24,22"/></clipPath></defs>
+            <rect width="60" height="60" fill="#4a6" clip-path="url(#star-clip)"/>
+          </svg>
+        </div></div>
+
+      <div class="panel"><div class="hdr"><span><span class="num">28</span><span class="name">clip-path: ellipse()</span></span><span class="result unknown">?</span></div>
+        <div class="desc">Elliptical clip-path. Should see: ellipse-shaped green area.</div>
+        <div class="demo"><div style="width:80px;height:50px;background:#4a6;clip-path:ellipse(40px 25px at 50% 50%);"></div></div></div>
+
+      <div class="panel"><div class="hdr"><span><span class="num">29</span><span class="name">mask-image gradient</span></span><span class="result unknown">?</span></div>
+        <div class="desc">mask-image with linear gradient. Should see: green box fading to transparent.</div>
+        <div class="demo checker-bg"><div style="width:80px;height:50px;background:#4a6;-webkit-mask-image:linear-gradient(to right, black, transparent);mask-image:linear-gradient(to right, black, transparent);"></div></div></div>
+
+      <div class="panel"><div class="hdr"><span><span class="num">30</span><span class="name">clip-path with animation</span></span><span class="result unknown">?</span></div>
+        <div class="desc">Animated clip-path. Should see: morphing shape.</div>
+        <div class="demo"><div style="width:60px;height:60px;background:#e55;animation:morph-clip 3s ease-in-out infinite;"></div></div></div>
+
+    </div>
+  </div>
+
+  <!-- ==================== PAGE 4: FILTERS ==================== -->
+  <div class="page" data-page="3">
+    <h2>Page 4: CSS Filter Tests (new in 1.4.1)</h2>
+    <div class="grid">
+
+      <div class="panel"><div class="hdr"><span><span class="num">31</span><span class="name">filter: grayscale(1)</span></span><span class="result unknown">?</span></div>
+        <div class="desc">Should see: green box rendered as gray (desaturated).</div>
+        <div class="demo"><div class="demo-box" style="filter:grayscale(1);"></div></div></div>
+
+      <div class="panel"><div class="hdr"><span><span class="num">32</span><span class="name">filter: sepia(1)</span></span><span class="result unknown">?</span></div>
+        <div class="desc">Should see: green box with warm sepia tone.</div>
+        <div class="demo"><div class="demo-box" style="filter:sepia(1);"></div></div></div>
+
+      <div class="panel"><div class="hdr"><span><span class="num">33</span><span class="name">filter: saturate(3)</span></span><span class="result unknown">?</span></div>
+        <div class="desc">Should see: oversaturated (vivid) green box.</div>
+        <div class="demo"><div class="demo-box" style="filter:saturate(3);"></div></div></div>
+
+      <div class="panel"><div class="hdr"><span><span class="num">34</span><span class="name">filter: hue-rotate(90deg)</span></span><span class="result unknown">?</span></div>
+        <div class="desc">Should see: green box shifted to cyan/blue range.</div>
+        <div class="demo"><div class="demo-box" style="filter:hue-rotate(90deg);"></div></div></div>
+
+      <div class="panel"><div class="hdr"><span><span class="num">35</span><span class="name">filter: invert(1)</span></span><span class="result unknown">?</span></div>
+        <div class="desc">Should see: inverted green = magenta-ish/pink box.</div>
+        <div class="demo"><div class="demo-box" style="filter:invert(1);"></div></div></div>
+
+      <div class="panel"><div class="hdr"><span><span class="num">36</span><span class="name">filter: brightness(2)</span></span><span class="result unknown">?</span></div>
+        <div class="desc">Should see: very bright (washed out) green box.</div>
+        <div class="demo"><div class="demo-box" style="filter:brightness(2);"></div></div></div>
+
+      <div class="panel"><div class="hdr"><span><span class="num">37</span><span class="name">filter: contrast(3)</span></span><span class="result unknown">?</span></div>
+        <div class="desc">Should see: high-contrast green box (more vivid edges).</div>
+        <div class="demo"><div class="demo-box" style="filter:contrast(3);"></div></div></div>
+
+      <div class="panel"><div class="hdr"><span><span class="num">38</span><span class="name">filter: blur(4px)</span></span><span class="result unknown">?</span></div>
+        <div class="desc">Should see: green box with blurred edges bleeding into the background.</div>
+        <div class="demo"><div class="demo-box" style="filter:blur(4px);width:40px;height:40px;"></div></div></div>
+
+      <div class="panel"><div class="hdr"><span><span class="num">39</span><span class="name">filter: drop-shadow()</span></span><span class="result unknown">?</span></div>
+        <div class="desc">Should see: green box with a visible dark shadow offset to the right/bottom.</div>
+        <div class="demo"><div class="demo-box" style="filter:drop-shadow(4px 4px 3px rgba(0,0,0,0.7));width:40px;height:40px;"></div></div></div>
+
+      <div class="panel"><div class="hdr"><span><span class="num">40</span><span class="name">filter: combined</span></span><span class="result unknown">?</span></div>
+        <div class="desc">Combined filter: grayscale(0.5) blur(2px) brightness(1.3). Should see: muted, slightly blurry, bright box.</div>
+        <div class="demo"><div class="demo-box" style="filter:grayscale(0.5) blur(2px) brightness(1.3);width:40px;height:40px;"></div></div></div>
+
+      <div class="panel"><div class="hdr"><span><span class="num">41</span><span class="name">backdrop-filter: blur()</span></span><span class="result unknown">?</span></div>
+        <div class="desc">KNOWN NOT SUPPORTED in 1.4.0. Should see: frosted glass effect over colored blocks if 1.4.1 added it.</div>
+        <div class="demo">
+          <div style="position:relative;width:100px;height:60px;">
+            <div style="position:absolute;left:0;top:0;width:50px;height:60px;background:#e55;"></div>
+            <div style="position:absolute;left:50px;top:0;width:50px;height:60px;background:#36a;"></div>
+            <div style="position:absolute;left:15px;top:10px;width:70px;height:40px;background:rgba(255,255,255,0.1);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);border:1px solid rgba(255,255,255,0.2);"></div>
+          </div>
+        </div></div>
+
+      <div class="panel"><div class="hdr"><span><span class="num">42</span><span class="name">filter on text</span></span><span class="result unknown">?</span></div>
+        <div class="desc">filter: blur(1px) on text. Should see: slightly blurry "Hello" text.</div>
+        <div class="demo"><span class="demo-text" style="filter:blur(1px);color:#fff;">Hello</span></div></div>
+
+    </div>
+  </div>
+
+  <!-- ==================== PAGE 5: LAYOUT & POSITIONING ==================== -->
+  <div class="page" data-page="4">
+    <h2>Page 5: Layout, Position &amp; Compositing Tests</h2>
+    <div class="grid">
+
+      <div class="panel"><div class="hdr"><span><span class="num">43</span><span class="name">will-change: transform</span></span><span class="result unknown">?</span></div>
+        <div class="desc">Known WORKING: will-change alone doesn't break. Should see: green box.</div>
+        <div class="demo"><div class="demo-box" style="will-change:transform;width:40px;height:40px;"></div></div></div>
+
+      <div class="panel"><div class="hdr"><span><span class="num">44</span><span class="name">position: sticky</span></span><span class="result unknown">?</span></div>
+        <div class="desc">position:sticky test. Should see: green box (may or may not stick to scroll).</div>
+        <div class="demo" style="overflow:auto;"><div style="height:120px;">
+          <div style="height:20px;background:#333;"></div>
+          <div style="position:sticky;top:0;width:40px;height:40px;background:#4a6;"></div>
+          <div style="height:80px;background:#222;"></div>
+        </div></div></div>
+
+      <div class="panel"><div class="hdr"><span><span class="num">45</span><span class="name">z-index stacking</span></span><span class="result unknown">?</span></div>
+        <div class="desc">z-index ordering. Should see: blue on top of green (blue overlaps right half).</div>
+        <div class="demo"><div style="position:relative;width:80px;height:50px;">
+          <div style="position:absolute;left:0;top:0;width:50px;height:50px;background:#4a6;z-index:1;"></div>
+          <div style="position:absolute;left:30px;top:5px;width:50px;height:40px;background:#36a;z-index:2;"></div>
+        </div></div></div>
+
+      <div class="panel"><div class="hdr"><span><span class="num">46</span><span class="name">flex layout</span></span><span class="result unknown">?</span></div>
+        <div class="desc">Flexbox row with gap. Should see: 3 colored boxes in a row with spacing.</div>
+        <div class="demo"><div style="display:flex;gap:8px;">
+          <div style="width:30px;height:30px;background:#e55;"></div>
+          <div style="width:30px;height:30px;background:#4a6;"></div>
+          <div style="width:30px;height:30px;background:#36a;"></div>
+        </div></div></div>
+
+      <div class="panel"><div class="hdr"><span><span class="num">47</span><span class="name">grid layout</span></span><span class="result unknown">?</span></div>
+        <div class="desc">CSS Grid 2x2 with gap. Should see: 4 colored cells.</div>
+        <div class="demo"><div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;width:80px;">
+          <div style="height:30px;background:#e55;"></div>
+          <div style="height:30px;background:#4a6;"></div>
+          <div style="height:30px;background:#36a;"></div>
+          <div style="height:30px;background:#f80;"></div>
+        </div></div></div>
+
+      <div class="panel"><div class="hdr"><span><span class="num">48</span><span class="name">CSS animation</span></span><span class="result unknown">?</span></div>
+        <div class="desc">Known WORKING: @keyframes animation. Should see: green box sliding back and forth.</div>
+        <div class="demo"><div class="demo-box" style="width:30px;height:30px;animation:slide-x 2s ease-in-out infinite alternate;"></div></div></div>
+
+      <div class="panel"><div class="hdr"><span><span class="num">49</span><span class="name">CSS transition</span></span><span class="result unknown">?</span></div>
+        <div class="desc">Hover/click transition. Click the box: should smoothly change color and scale.</div>
+        <div class="demo"><div id="test49" data-toggled="0" style="width:40px;height:40px;background:#4a6;transition:all 0.5s ease;cursor:pointer;"></div></div></div>
+
+      <div class="panel"><div class="hdr"><span><span class="num">50</span><span class="name">transform-origin</span></span><span class="result unknown">?</span></div>
+        <div class="desc">Rotate with transform-origin at top-left. Should see: box pivoting from its corner.</div>
+        <div class="demo"><div style="width:40px;height:40px;background:#4a6;transform:rotate(30deg);transform-origin:0 0;"></div></div></div>
+
+      <div class="panel"><div class="hdr"><span><span class="num">51</span><span class="name">opacity + transform</span></span><span class="result unknown">?</span></div>
+        <div class="desc">Combined: opacity:0.6 + transform:scale(1.2). Both are compositor triggers.</div>
+        <div class="demo checker-bg"><div class="demo-box" style="width:40px;height:40px;opacity:0.6;transform:scale(1.2);"></div></div></div>
+
+      <div class="panel"><div class="hdr"><span><span class="num">52</span><span class="name">nested opacity</span></span><span class="result unknown">?</span></div>
+        <div class="desc">Nested opacity: parent 0.7, child 0.7. Should see: quite transparent green box.</div>
+        <div class="demo checker-bg"><div style="opacity:0.7;"><div class="demo-box" style="opacity:0.7;width:40px;height:40px;"></div></div></div></div>
+
+    </div>
+  </div>
+
+  <!-- ==================== PAGE 6: KNOWN WORKING ==================== -->
+  <div class="page" data-page="5">
+    <h2>Page 6: Known Working Features (validation)</h2>
+    <div class="grid">
+
+      <div class="panel"><div class="hdr"><span><span class="num">53</span><span class="name">box-shadow</span></span><span class="result unknown">?</span></div>
+        <div class="desc">Known WORKING: box-shadow (non-inset). Should see: green box with dark shadow.</div>
+        <div class="demo"><div class="demo-box" style="width:40px;height:40px;box-shadow:4px 4px 8px rgba(0,0,0,0.8);"></div></div></div>
+
+      <div class="panel"><div class="hdr"><span><span class="num">54</span><span class="name">box-shadow inset</span></span><span class="result unknown">?</span></div>
+        <div class="desc">Inset box-shadow. Should see: green box with inner shadow.</div>
+        <div class="demo"><div class="demo-box" style="width:50px;height:50px;box-shadow:inset 0 0 10px rgba(0,0,0,0.7);"></div></div></div>
+
+      <div class="panel"><div class="hdr"><span><span class="num">55</span><span class="name">linear-gradient</span></span><span class="result unknown">?</span></div>
+        <div class="desc">Known WORKING: linear gradient background. Should see: green-to-blue gradient.</div>
+        <div class="demo"><div class="demo-gradient" style="background:linear-gradient(to right, #4a6, #36a);"></div></div></div>
+
+      <div class="panel"><div class="hdr"><span><span class="num">56</span><span class="name">radial-gradient</span></span><span class="result unknown">?</span></div>
+        <div class="desc">Known WORKING: radial gradient. Should see: bright center fading out.</div>
+        <div class="demo"><div class="demo-gradient" style="background:radial-gradient(circle, #fff, #36a, #111);"></div></div></div>
+
+      <div class="panel"><div class="hdr"><span><span class="num">57</span><span class="name">conic-gradient</span></span><span class="result unknown">?</span></div>
+        <div class="desc">Known WORKING: conic gradient. Should see: color wheel effect.</div>
+        <div class="demo"><div style="width:60px;height:60px;border-radius:50%;background:conic-gradient(#e55, #f80, #ee5, #4a6, #36a, #a4e, #e55);"></div></div></div>
+
+      <div class="panel"><div class="hdr"><span><span class="num">58</span><span class="name">text-shadow</span></span><span class="result unknown">?</span></div>
+        <div class="desc">Known WORKING: text-shadow. Should see: glowing text.</div>
+        <div class="demo"><span class="demo-text" style="color:#fff;text-shadow:0 0 10px #4a6, 0 0 20px #4a6;">Glow</span></div></div>
+
+      <div class="panel"><div class="hdr"><span><span class="num">59</span><span class="name">SVG image</span></span><span class="result unknown">?</span></div>
+        <div class="desc">Known WORKING: inline SVG rendering. Should see: colored circles and rect.</div>
+        <div class="demo">
+          <svg width="80" height="50" viewBox="0 0 80 50">
+            <rect x="5" y="5" width="30" height="40" fill="#4a6" rx="4"/>
+            <circle cx="55" cy="15" r="10" fill="#e55"/>
+            <circle cx="55" cy="35" r="10" fill="#36a"/>
+          </svg>
+        </div></div>
+
+      <div class="panel"><div class="hdr"><span><span class="num">60</span><span class="name">border-radius + overflow</span></span><span class="result unknown">?</span></div>
+        <div class="desc">Rounded container clipping child. Should see: gradient circle (not square).</div>
+        <div class="demo"><div style="width:60px;height:60px;border-radius:50%;overflow:hidden;">
+          <div style="width:100%;height:100%;background:linear-gradient(135deg, #e55, #36a);"></div>
+        </div></div></div>
+
+      <div class="panel"><div class="hdr"><span><span class="num">61</span><span class="name">multiple backgrounds</span></span><span class="result unknown">?</span></div>
+        <div class="desc">Multiple background layers. Should see: striped pattern from stacked gradients.</div>
+        <div class="demo"><div style="width:80px;height:60px;background:repeating-linear-gradient(45deg, transparent, transparent 5px, rgba(255,255,255,0.1) 5px, rgba(255,255,255,0.1) 10px), linear-gradient(to bottom, #4a6, #36a);"></div></div></div>
+
+      <div class="panel"><div class="hdr"><span><span class="num">62</span><span class="name">outline</span></span><span class="result unknown">?</span></div>
+        <div class="desc">CSS outline (not border). Should see: green box with dotted white outline.</div>
+        <div class="demo"><div style="width:40px;height:40px;background:#4a6;outline:2px dotted #fff;outline-offset:3px;"></div></div></div>
+
+    </div>
+  </div>
+
+  <!-- ==================== PAGE 7: EDGE CASES & MISC ==================== -->
+  <div class="page" data-page="6">
+    <h2>Page 7: Edge Cases, Pseudo-elements &amp; Misc</h2>
+    <div class="grid">
+
+      <div class="panel"><div class="hdr"><span><span class="num">63</span><span class="name">::before pseudo</span></span><span class="result unknown">?</span></div>
+        <div class="desc">Should see: red square (::before) followed by green square (element).</div>
+        <div class="demo"><div id="test63" style="width:40px;height:40px;background:#4a6;position:relative;margin-left:50px;"></div></div></div>
+
+      <div class="panel"><div class="hdr"><span><span class="num">64</span><span class="name">::after pseudo</span></span><span class="result unknown">?</span></div>
+        <div class="desc">Should see: green square with a blue label "AFTER" below it.</div>
+        <div class="demo"><div id="test64" style="width:40px;height:40px;background:#4a6;position:relative;"></div></div></div>
+
+      <div class="panel"><div class="hdr"><span><span class="num">65</span><span class="name">CSS variables</span></span><span class="result unknown">?</span></div>
+        <div class="desc">CSS custom property --my-color. Should see: orange box.</div>
+        <div class="demo"><div style="--my-color:#f80;width:50px;height:50px;background:var(--my-color);"></div></div></div>
+
+      <div class="panel"><div class="hdr"><span><span class="num">66</span><span class="name">calc() values</span></span><span class="result unknown">?</span></div>
+        <div class="desc">Width: calc(100% - 40px). Should see: green bar stretching across panel with 20px gap on each side.</div>
+        <div class="demo" style="width:100%;"><div style="width:calc(100% - 40px);height:30px;background:#4a6;margin:0 auto;"></div></div></div>
+
+      <div class="panel"><div class="hdr"><span><span class="num">67</span><span class="name">text-overflow: ellipsis</span></span><span class="result unknown">?</span></div>
+        <div class="desc">Should see: long text truncated with "..." at the end.</div>
+        <div class="demo"><div style="width:120px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#ddd;font-size:12px;">This is a very long sentence that should be truncated with an ellipsis at the end</div></div></div>
+
+      <div class="panel"><div class="hdr"><span><span class="num">68</span><span class="name">border styles</span></span><span class="result unknown">?</span></div>
+        <div class="desc">Should see: dashed top, dotted right, solid bottom, double left borders.</div>
+        <div class="demo"><div style="width:60px;height:60px;background:#222;border-top:3px dashed #e55;border-right:3px dotted #4a6;border-bottom:3px solid #36a;border-left:3px double #f80;"></div></div></div>
+
+      <div class="panel"><div class="hdr"><span><span class="num">69</span><span class="name">visibility: hidden</span></span><span class="result unknown">?</span></div>
+        <div class="desc">Should see: gap where the hidden box is (preserves layout space), unlike display:none.</div>
+        <div class="demo"><div style="display:flex;gap:4px;">
+          <div style="width:30px;height:30px;background:#4a6;"></div>
+          <div style="width:30px;height:30px;background:#e55;visibility:hidden;"></div>
+          <div style="width:30px;height:30px;background:#36a;"></div>
+        </div></div></div>
+
+      <div class="panel"><div class="hdr"><span><span class="num">70</span><span class="name">text + transform</span></span><span class="result unknown">?</span></div>
+        <div class="desc">1.4.1 FIX: transforms on glyphs. Should see: "Hello" text rotated 15 degrees.</div>
+        <div class="demo"><span class="demo-text" style="color:#fff;display:inline-block;transform:rotate(15deg);">Hello</span></div></div>
+
+      <div class="panel"><div class="hdr"><span><span class="num">71</span><span class="name">elliptical gradient</span></span><span class="result unknown">?</span></div>
+        <div class="desc">1.4.1 FIX: elliptical gradient drawing. Should see: wide elliptical gradient (not circular).</div>
+        <div class="demo"><div style="width:100px;height:50px;background:radial-gradient(ellipse 50px 25px at 50% 50%, #fff, #36a, #111);"></div></div></div>
+
+      <div class="panel"><div class="hdr"><span><span class="num">72</span><span class="name">aspect-ratio</span></span><span class="result unknown">?</span></div>
+        <div class="desc">aspect-ratio: 16/9. Should see: wide green rectangle maintaining 16:9 ratio.</div>
+        <div class="demo"><div style="width:96px;aspect-ratio:16/9;background:#4a6;"></div></div></div>
+
+      <div class="panel"><div class="hdr"><span><span class="num">73</span><span class="name">3D transform</span></span><span class="result unknown">?</span></div>
+        <div class="desc">perspective + rotateY. Should see: green box with 3D perspective tilt.</div>
+        <div class="demo"><div style="perspective:200px;"><div style="width:50px;height:50px;background:#4a6;transform:rotateY(30deg);"></div></div></div></div>
+
+      <div class="panel"><div class="hdr"><span><span class="num">74</span><span class="name">inverse clip mask</span></span><span class="result unknown">?</span></div>
+        <div class="desc">1.4.1 FIX: inverse clipping masks. Clip everything INSIDE the circle (show only corners).</div>
+        <div class="demo"><div style="width:60px;height:60px;background:#4a6;position:relative;overflow:hidden;">
+          <div style="position:absolute;inset:-5px;border-radius:50%;box-shadow:0 0 0 100px #1a1a1a;"></div>
+        </div></div></div>
+
+      <div class="panel"><div class="hdr"><span><span class="num">75</span><span class="name">transform: matrix()</span></span><span class="result unknown">?</span></div>
+        <div class="desc">Raw matrix transform (scale 1.2 + skew). Should see: distorted green box.</div>
+        <div class="demo"><div style="width:40px;height:40px;background:#4a6;transform:matrix(1.2, 0.1, -0.1, 1.2, 0, 0);"></div></div></div>
+
+      <div class="panel"><div class="hdr"><span><span class="num">76</span><span class="name">nth-child striping</span></span><span class="result unknown">?</span></div>
+        <div class="desc">Should see: alternating green/dark rows using :nth-child(odd).</div>
+        <div class="demo"><div id="test76" style="width:100px;font-size:10px;"></div></div></div>
+
+      <div class="panel"><div class="hdr"><span><span class="num">77</span><span class="name">pointer-events: none</span></span><span class="result unknown">?</span></div>
+        <div class="desc">Overlay has pointer-events:none. Click should reach the green box underneath and turn it red.</div>
+        <div class="demo"><div style="position:relative;width:60px;height:60px;">
+          <div id="test77" style="width:60px;height:60px;background:#4a6;cursor:pointer;"></div>
+          <div style="position:absolute;inset:0;background:rgba(0,0,255,0.2);pointer-events:none;display:flex;align-items:center;justify-content:center;color:#fff;font-size:9px;">overlay</div>
+        </div></div></div>
+
+      <div class="panel"><div class="hdr"><span><span class="num">78</span><span class="name">conic-gradient (alt)</span></span><span class="result unknown">?</span></div>
+        <div class="desc">Simple conic gradient with only 2 stops. Should see: pie-chart style split.</div>
+        <div class="demo"><div style="width:60px;height:60px;border-radius:50%;background:conic-gradient(#4a6 0deg 180deg, #36a 180deg 360deg);"></div></div></div>
+
+      <div class="panel"><div class="hdr"><span><span class="num">79</span><span class="name">SVG gradient fill</span></span><span class="result unknown">?</span></div>
+        <div class="desc">SVG with linearGradient fill. Should see: rect with gradient from red to blue.</div>
+        <div class="demo">
+          <svg width="80" height="50" viewBox="0 0 80 50">
+            <defs><linearGradient id="svg-grad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#e55"/><stop offset="100%" stop-color="#36a"/></linearGradient></defs>
+            <rect x="5" y="5" width="70" height="40" fill="url(#svg-grad)" rx="6"/>
+          </svg>
+        </div></div>
+
+      <div class="panel"><div class="hdr"><span><span class="num">80</span><span class="name">filter on image</span></span><span class="result unknown">?</span></div>
+        <div class="desc">filter:grayscale on an SVG. Should see: desaturated (gray) circles.</div>
+        <div class="demo" style="filter:grayscale(1);">
+          <svg width="80" height="40" viewBox="0 0 80 40">
+            <circle cx="20" cy="20" r="15" fill="#e55"/>
+            <circle cx="50" cy="20" r="15" fill="#4a6"/>
+          </svg>
+        </div></div>
+
+    </div>
+  </div>
+
+</div>
+
+<style>
+  #test63::before {
+    content: '';
+    position: absolute; left: -45px; top: 0;
+    width: 40px; height: 40px;
+    background: #e55;
+  }
+  #test64::after {
+    content: 'AFTER';
+    position: absolute; left: 0; top: 45px;
+    font-size: 10px; color: #36a; font-weight: bold;
+  }
+  #test76 > div:nth-child(odd) { background: #3a5; }
+  #test76 > div:nth-child(even) { background: #222; }
+  #test76 > div { padding: 2px 6px; }
+  @keyframes pulse-opacity {
+    0%, 100% { opacity: 0.2; }
+    50% { opacity: 1.0; }
+  }
+  @keyframes slide-x {
+    from { transform: translateX(-30px); }
+    to   { transform: translateX(30px); }
+  }
+  @keyframes morph-clip {
+    0%, 100% { clip-path: circle(50% at 50% 50%); }
+    50%      { clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); }
+  }
+</style>
+
+<script>
+(function() {
+  // Tab switching
+  document.querySelectorAll('.tab-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var page = btn.getAttribute('data-page');
+      document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+      document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
+      btn.classList.add('active');
+      var target = document.querySelector('.page[data-page="' + page + '"]');
+      if (target) target.classList.add('active');
+    });
+  });
+
+  // Close
+  var closeBtn = document.querySelector('[data-action="close"]');
+  if (closeBtn) {
+    closeBtn.addEventListener('click', function() {
+      if (window.tsic) tsic.publishMessage('UI.Cmd.Debug.Close', {});
+    });
+  }
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') { e.preventDefault(); if (window.tsic) tsic.publishMessage('UI.Cmd.Debug.Close', {}); }
+  });
+
+  // Display Chrome major version from the user agent (CEF embeds Chromium).
+  var ua = navigator.userAgent || '';
+  var m = ua.match(/Chrome\/([\d.]+)/);
+  var verEl = document.getElementById('ul-version');
+  if (verEl) verEl.textContent = m ? ('Chrome ' + m[1].split('.')[0]) : 'unknown';
+
+  // Test #03 - fixed position translate: enable only when page 1 is active
+  var test03 = document.getElementById('test03');
+  if (test03) {
+    function updateTest03() {
+      var page0Active = document.querySelector('.page[data-page="0"]').classList.contains('active');
+      test03.style.display = page0Active ? 'block' : 'none';
+    }
+    document.querySelectorAll('.tab-btn').forEach(function(btn) {
+      btn.addEventListener('click', updateTest03);
+    });
+    updateTest03();
+  }
+
+  // Test #49 - transition toggle
+  var test49 = document.getElementById('test49');
+  if (test49) {
+    test49.addEventListener('click', function() {
+      var on = this.getAttribute('data-toggled') === '1';
+      this.setAttribute('data-toggled', on ? '0' : '1');
+      this.style.background = on ? '#4a6' : '#e55';
+      this.style.transform = on ? 'scale(1)' : 'scale(1.3)';
+    });
+  }
+
+  // Test #76 - nth-child striping
+  var test76 = document.getElementById('test76');
+  if (test76) {
+    for (var i = 1; i <= 6; i++) {
+      var row = document.createElement('div');
+      row.textContent = 'Row ' + i;
+      test76.appendChild(row);
+    }
+  }
+
+  // Test #77 - pointer-events:none click-through
+  var test77 = document.getElementById('test77');
+  if (test77) {
+    test77.addEventListener('click', function() {
+      this.style.background = this.style.background === 'rgb(238, 85, 85)' ? '#4a6' : '#e55';
+    });
+  }
+})();
+</script>
+</body></html>

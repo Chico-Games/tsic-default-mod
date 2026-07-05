@@ -1,0 +1,615 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="tsic-screen" content="MapPlayerDebug">
+  <meta name="tsic-debug" content="true">
+  <meta name="tsic-input-mode" content="InputMode.Menu.Map">
+  <title>Map Player Marker Debug</title>
+    <script src="/shared/tsic-bridge.js" defer></script>
+  <script src="/shared/tsic-runtime.js" defer></script>
+  <script src="/shared/router.js" defer></script>
+  <script src="/shared/tsic-focus.js" defer></script>
+  <style>
+    html, body { margin: 0; padding: 0; height: 100%; background: #111; color: #ddd;
+      font-family: 'Consolas', monospace; overflow: hidden; }
+    #root { display: flex; flex-direction: column; height: 100%; }
+    #toolbar {
+      flex: 0 0 auto;
+      padding: 8px 12px;
+      background: #1a1a1a;
+      border-bottom: 1px solid #333;
+      display: flex; gap: 16px; align-items: center; flex-wrap: wrap;
+      font-size: 12px;
+    }
+    #toolbar button {
+      background: #2a2a2a; color: #ddd; border: 1px solid #444;
+      padding: 4px 10px; font-family: inherit; font-size: 12px; cursor: pointer;
+    }
+    #toolbar .info { color: #666; }
+    #toolbar #status { color: #cce; }
+    #toolbar #status.empty { color: #e66; }
+    #grid {
+      flex: 1 1 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-rows: 1fr 1fr 1.5fr;
+      gap: 4px;
+      padding: 4px;
+      overflow: hidden;
+      min-height: 0;
+    }
+    .cell.wide { grid-column: 1 / -1; }
+    .cell {
+      background: #1c1c1c;
+      display: flex; flex-direction: column;
+      min-height: 0; min-width: 0;
+      overflow: hidden;
+      border: 1px solid #2a2a2a;
+    }
+    .cell .hdr {
+      flex: 0 0 auto;
+      padding: 4px 8px;
+      background: #181818;
+      font-size: 11px;
+      border-bottom: 1px solid #2a2a2a;
+      display: flex; justify-content: space-between; gap: 8px;
+    }
+    .cell .hdr .name { color: #cce; letter-spacing: 1px; font-weight: bold; }
+    .cell .hdr .desc { color: #777; font-size: 10px; flex: 1 1 auto; text-align: right; }
+    .cell .dual {
+      flex: 1 1 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1px;
+      background: #2a2a2a;
+      min-height: 0;
+    }
+    .view {
+      position: relative;
+      background: #0c0c0c;
+      overflow: hidden;
+      min-width: 0; min-height: 0;
+    }
+    .view .source-label {
+      position: absolute; top: 2px; left: 2px;
+      font-size: 9px; letter-spacing: 1px;
+      color: #888; pointer-events: none; z-index: 100;
+      background: rgba(0,0,0,0.5); padding: 1px 4px;
+    }
+    .view.live .source-label { color: #6c8; }
+    .view.fixture .source-label { color: #c86; }
+    .view pre {
+      margin: 0; padding: 18px 4px 4px 4px;
+      font-size: 10px; line-height: 1.3; color: #bbb;
+      white-space: pre; word-wrap: normal;
+      height: 100%; box-sizing: border-box;
+      overflow: auto;
+    }
+    .view .warn {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      color: #e66; font-size: 11px;
+    }
+    /* Map overlay cell — full-width bottom row */
+    .map-view {
+      flex: 1 1 auto;
+      position: relative;
+      overflow: hidden;
+      background: #0c0c0c;
+    }
+    .map-view img {
+      width: 100%; height: 100%;
+      object-fit: contain;
+      image-rendering: pixelated;
+    }
+    .map-view .source-label {
+      position: absolute; top: 2px; left: 2px;
+      font-size: 9px; letter-spacing: 1px;
+      color: #6c8; pointer-events: none; z-index: 20;
+      background: rgba(0,0,0,0.5); padding: 1px 4px;
+    }
+  </style>
+</head><body>
+  <div id="root">
+    <div id="toolbar">
+      <button data-action="back">&larr; Textures</button>
+      <button data-action="overlay-test">Overlay Test (12 variants) &rarr;</button>
+      <button data-action="marker-test">Marker Render Test (18 methods) &rarr;</button>
+      <span id="status" class="empty">no UI.Map.Snapshot received yet</span>
+      <span class="info" style="margin-left:auto;">
+        Esc returns &middot; green = LIVE PIE snapshot &middot; orange = fixed FIXTURE
+        &middot; visible-but-red dot = position computed but out of view bounds
+      </span>
+      <button data-action="close" style="background:#a33;border-color:#c55;">Close</button>
+    </div>
+    <div id="grid">
+      <!-- 1. RAW: text dump of the snapshot, no visualisation. Confirms data is arriving. -->
+      <div class="cell" data-variant="raw">
+        <div class="hdr"><span class="name">1. RAW</span><span class="desc">text dump of incoming snapshot</span></div>
+        <div class="dual">
+          <div class="view live" data-source="live"><span class="source-label">LIVE</span></div>
+          <div class="view fixture" data-source="fixture"><span class="source-label">FIXTURE</span></div>
+        </div>
+      </div>
+      <!-- 2. PROOF: solid red dot at view center, ignores data. Confirms rendering pipeline / CSS works. -->
+      <div class="cell" data-variant="proof">
+        <div class="hdr"><span class="name">2. PROOF</span><span class="desc">red dot at center, ignores data</span></div>
+        <div class="dual">
+          <div class="view live" data-source="live"><span class="source-label">LIVE</span></div>
+          <div class="view fixture" data-source="fixture"><span class="source-label">FIXTURE</span></div>
+        </div>
+      </div>
+      <!-- 3. CURRENT: same transform map.html uses (wy -> x, maxX-wx -> y). -->
+      <div class="cell" data-variant="current">
+        <div class="hdr"><span class="name">3. CURRENT</span><span class="desc">wy &rarr; x, maxX-wx &rarr; y (map.html)</span></div>
+        <div class="dual">
+          <div class="view live" data-source="live"><span class="source-label">LIVE</span></div>
+          <div class="view fixture" data-source="fixture"><span class="source-label">FIXTURE</span></div>
+        </div>
+      </div>
+      <!-- 4. SWAPPED: wx -> x, maxY-wy -> y. Axis assignment swap. -->
+      <div class="cell" data-variant="swapped">
+        <div class="hdr"><span class="name">4. SWAPPED</span><span class="desc">wx &rarr; x, maxY-wy &rarr; y (axes swapped)</span></div>
+        <div class="dual">
+          <div class="view live" data-source="live"><span class="source-label">LIVE</span></div>
+          <div class="view fixture" data-source="fixture"><span class="source-label">FIXTURE</span></div>
+        </div>
+      </div>
+      <!-- 5. SIMPLE: no Y flip. wy -> x, wx -> y. -->
+      <div class="cell" data-variant="simple">
+        <div class="hdr"><span class="name">5. SIMPLE</span><span class="desc">wy &rarr; x, wx &rarr; y (no Y flip)</span></div>
+        <div class="dual">
+          <div class="view live" data-source="live"><span class="source-label">LIVE</span></div>
+          <div class="view fixture" data-source="fixture"><span class="source-label">FIXTURE</span></div>
+        </div>
+      </div>
+      <!-- 6. CORNERS: CURRENT transform but draws bounds, corners, origin, players. -->
+      <div class="cell" data-variant="corners">
+        <div class="hdr"><span class="name">6. CORNERS</span><span class="desc">CURRENT + NW/NE/SW/SE + (0,0) + player</span></div>
+        <div class="dual">
+          <div class="view live" data-source="live"><span class="source-label">LIVE</span></div>
+          <div class="view fixture" data-source="fixture"><span class="source-label">FIXTURE</span></div>
+        </div>
+      </div>
+      <!-- 7. MAP OVERLAY: player markers over the actual world-map texture -->
+      <div class="cell wide" data-variant="mapoverlay">
+        <div class="hdr"><span class="name">7. MAP OVERLAY</span><span id="overlay-status" class="desc">LIVE markers on world-map texture (CURRENT transform)</span></div>
+        <div class="map-view" id="map-overlay-view">
+          <span class="source-label">LIVE</span>
+          <img id="map-tex" src="/runtime/world-map.imgsrc" alt="">
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    (function () {
+      // FIXTURE — mirrors the real worldgen convention after the (0,0)..(FullWidth,
+      // FullWidth) bounds fix: square map anchored at the origin, +X = North,
+      // +Y = East, world units = cm. The default world is roughly 64 tiles
+      // wide at 200 cm/tile = 12800 cm. Two players at known positions:
+      //   p_self at the geometric centre of the world (6400, 6400)
+      //   p_corner near the NW corner (10000, 2000) — high North, low East.
+      // If the CURRENT variant draws p_self at fixture-view centre and p_corner
+      // near the TOP-LEFT of the fixture view, the transform is correct.
+      const FIXTURE = {
+        MinBounds: { X: 0, Y: 0 },
+        MaxBounds: { X: 12800, Y: 12800 },
+        Players: [
+          { PlayerId: 'p_self',   Name: 'Self (centre)',  Position: { X: 6400,  Y: 6400  }, YawDeg: 0,  Color: '#0000FF' },
+          { PlayerId: 'p_corner', Name: 'Corner (NW-ish)', Position: { X: 10000, Y: 2000 }, YawDeg: 45, Color: '#00FF00' },
+        ],
+      };
+      // Sentinel empty snapshot for the LIVE column before any broadcast arrives.
+      const EMPTY = { MinBounds: { X: 0, Y: 0 }, MaxBounds: { X: 0, Y: 0 }, Players: [] };
+
+      let LIVE = null;
+
+      // Render variants — each takes (viewElement, snapshot). Variants live as a
+      // map so adding a new variant is one cell in the HTML + one entry here.
+      const VARIANTS = {
+        raw:     renderRaw,
+        proof:   renderProof,
+        current: renderCurrent,
+        swapped: renderSwapped,
+        simple:  renderSimple,
+        corners: renderCorners,
+      };
+
+      function clearView(view) {
+        // Preserve the .source-label span so the LIVE/FIXTURE chip survives across renders.
+        const label = view.querySelector('.source-label');
+        view.innerHTML = '';
+        if (label) view.appendChild(label);
+      }
+
+      function fmt(n) {
+        return Math.round(n);
+      }
+
+      // Render the snapshot as plain text. Highlights the values used by each
+      // transform so the user can sanity-check them by eye.
+      function renderRaw(view, snap) {
+        clearView(view);
+        const lines = [];
+        lines.push('bounds.min: (' + snap.MinBounds.X + ', ' + snap.MinBounds.Y + ')');
+        lines.push('bounds.max: (' + snap.MaxBounds.X + ', ' + snap.MaxBounds.Y + ')');
+        const W = snap.MaxBounds.X - snap.MinBounds.X;
+        const H = snap.MaxBounds.Y - snap.MinBounds.Y;
+        lines.push('size:       ' + W + ' x ' + H);
+        lines.push('players:    ' + (snap.Players || []).length);
+        lines.push('icons:      ' + (snap.Icons ? snap.Icons.length : 'n/a'));
+        lines.push('');
+        for (const p of (snap.Players || [])) {
+          lines.push('[' + (p.PlayerId || '?') + ']');
+          lines.push('  pos:    (' + p.Position.X + ', ' + p.Position.Y + ')');
+          lines.push('  yaw:    ' + (p.YawDeg || 0));
+          // Compute what CURRENT transform would produce
+          const lx = p.Position.Y - snap.MinBounds.Y;
+          const ly = snap.MaxBounds.X - p.Position.X;
+          lines.push('  CURRENT local: (' + fmt(lx) + ', ' + fmt(ly) + ')');
+          const inBounds = (lx >= 0 && lx <= W && ly >= 0 && ly <= H);
+          lines.push('  in-bounds:     ' + inBounds);
+        }
+        const pre = document.createElement('pre');
+        pre.textContent = lines.join('\n');
+        view.appendChild(pre);
+      }
+
+      // Static red dot at the view's geometric centre. Has no dependency on the
+      // snapshot — if THIS doesn't show, the rendering pipeline / CSS / DOM
+      // insertion path is broken for this kind of element.
+      function renderProof(view, snap) {
+        clearView(view);
+        const dot = document.createElement('div');
+        dot.style.cssText = 'position:absolute;left:50%;top:50%;width:24px;height:24px;'
+                          + 'margin:-12px 0 0 -12px;background:#e74c3c;'
+                          + 'border:3px solid #fff;border-radius:50%;'
+                          + 'box-shadow:0 0 12px #e74c3c;';
+        view.appendChild(dot);
+        const label = document.createElement('div');
+        label.textContent = 'PROOF';
+        label.style.cssText = 'position:absolute;left:50%;top:50%;margin-top:20px;'
+                            + 'transform:translateX(-50%);color:#fff;font-size:9px;'
+                            + 'text-shadow:1px 1px 0 #000;';
+        view.appendChild(label);
+      }
+
+      // Compute fit-scale + offset so [minX..maxX] x [minY..maxY] maps into the
+      // viewport with a small margin. Returns null if bounds are degenerate.
+      function fitProjection(view, snap) {
+        const W = snap.MaxBounds.X - snap.MinBounds.X;
+        const H = snap.MaxBounds.Y - snap.MinBounds.Y;
+        if (W <= 0 || H <= 0) return null;
+        const vw = view.clientWidth;
+        const vh = view.clientHeight;
+        if (vw <= 0 || vh <= 0) return null;
+        const scale = Math.min(vw / W, vh / H) * 0.9;
+        const drawW = W * scale;
+        const drawH = H * scale;
+        return {
+          scale,
+          offsetX: (vw - drawW) / 2,
+          offsetY: (vh - drawH) / 2,
+          drawW,
+          drawH,
+          W, H,
+        };
+      }
+
+      // Shared rendering for the 3 transform-variant cells. mapFn(wx, wy, snap)
+      // -> { x, y } in LOCAL units (still in world cm, just translated to
+      // [0..W] x [0..H]). The fit projection then scales it to viewport pixels.
+      function renderTransformVariant(view, snap, mapFn) {
+        clearView(view);
+        if ((snap.Players || []).length === 0) {
+          const w = document.createElement('div');
+          w.className = 'warn';
+          w.textContent = snap.MaxBounds.X > 0 ? 'no players' : 'no snapshot';
+          view.appendChild(w);
+          return;
+        }
+        const fit = fitProjection(view, snap);
+        if (!fit) {
+          const w = document.createElement('div');
+          w.className = 'warn';
+          w.textContent = 'bad bounds';
+          view.appendChild(w);
+          return;
+        }
+        // Bounds rectangle so the user can see where the world frame sits in the view.
+        const rect = document.createElement('div');
+        rect.style.cssText = 'position:absolute;'
+                           + 'left:' + fit.offsetX + 'px;top:' + fit.offsetY + 'px;'
+                           + 'width:' + fit.drawW + 'px;height:' + fit.drawH + 'px;'
+                           + 'border:1px dashed #555;box-sizing:border-box;';
+        view.appendChild(rect);
+
+        for (let i = 0; i < snap.Players.length; i++) {
+          const p = snap.Players[i];
+          const { x: lx, y: ly } = mapFn(p.Position.X, p.Position.Y, snap);
+          const vx = fit.offsetX + lx * fit.scale;
+          const vy = fit.offsetY + ly * fit.scale;
+          const inView = (vx >= 0 && vx <= view.clientWidth && vy >= 0 && vy <= view.clientHeight);
+          const isSelf = i === 0;
+          const plColor = p.Color || (isSelf ? '#3498db' : '#bbbbbb');
+          const fill = inView ? plColor : '#e74c3c';
+          const dot = document.createElement('div');
+          dot.style.cssText = 'position:absolute;'
+                            + 'left:' + (vx - 7) + 'px;top:' + (vy - 7) + 'px;'
+                            + 'width:14px;height:14px;'
+                            + 'background:' + fill + ';'
+                            + 'border:2px solid #fff;border-radius:50%;'
+                            + 'box-shadow:0 0 6px rgba(0,0,0,0.8);';
+          view.appendChild(dot);
+
+          const tag = document.createElement('div');
+          tag.innerHTML = '[' + i + '] (' + fmt(p.Position.X) + ',' + fmt(p.Position.Y) + ')'
+                       + ' &rarr; (' + fmt(vx) + ',' + fmt(vy) + ')'
+                       + (inView ? '' : ' <span style="color:#e74c3c;">OFF</span>');
+          tag.style.cssText = 'position:absolute;'
+                            + 'left:' + (vx + 10) + 'px;top:' + (vy - 8) + 'px;'
+                            + 'font-size:9px;color:' + fill + ';'
+                            + 'text-shadow:1px 1px 0 #000;'
+                            + 'pointer-events:none;white-space:nowrap;';
+          view.appendChild(tag);
+        }
+      }
+
+      function renderCurrent(view, snap) {
+        renderTransformVariant(view, snap, (wx, wy, s) => ({
+          x: wy - s.MinBounds.Y,
+          y: s.MaxBounds.X - wx,
+        }));
+      }
+
+      function renderSwapped(view, snap) {
+        renderTransformVariant(view, snap, (wx, wy, s) => ({
+          x: wx - s.MinBounds.X,
+          y: s.MaxBounds.Y - wy,
+        }));
+      }
+
+      function renderSimple(view, snap) {
+        renderTransformVariant(view, snap, (wx, wy, s) => ({
+          x: wy - s.MinBounds.Y,
+          y: wx - s.MinBounds.X,
+        }));
+      }
+
+      // Corners variant: bounds rectangle + colored dots at each bounds corner
+      // + origin dot + player. If the world bounds frame is mis-described (e.g.
+      // pawn position is outside it, or the corners are in the wrong order),
+      // this is the cell that reveals it.
+      function renderCorners(view, snap) {
+        clearView(view);
+        const fit = fitProjection(view, snap);
+        if (!fit) {
+          const w = document.createElement('div');
+          w.className = 'warn';
+          w.textContent = 'bad bounds';
+          view.appendChild(w);
+          return;
+        }
+        // Bounds rectangle (solid this time, easier to see).
+        const rect = document.createElement('div');
+        rect.style.cssText = 'position:absolute;'
+                           + 'left:' + fit.offsetX + 'px;top:' + fit.offsetY + 'px;'
+                           + 'width:' + fit.drawW + 'px;height:' + fit.drawH + 'px;'
+                           + 'border:2px solid #888;box-sizing:border-box;';
+        view.appendChild(rect);
+
+        const map = (wx, wy) => ({
+          x: wy - snap.MinBounds.Y,
+          y: snap.MaxBounds.X - wx,
+        });
+        const addDot = (wx, wy, color, label, size) => {
+          const sz = size || 8;
+          const { x: lx, y: ly } = map(wx, wy);
+          const vx = fit.offsetX + lx * fit.scale;
+          const vy = fit.offsetY + ly * fit.scale;
+          const dot = document.createElement('div');
+          dot.style.cssText = 'position:absolute;'
+                            + 'left:' + (vx - sz / 2) + 'px;top:' + (vy - sz / 2) + 'px;'
+                            + 'width:' + sz + 'px;height:' + sz + 'px;'
+                            + 'background:' + color + ';'
+                            + 'border:1px solid #000;border-radius:50%;';
+          view.appendChild(dot);
+          if (label) {
+            const tag = document.createElement('div');
+            tag.textContent = label;
+            tag.style.cssText = 'position:absolute;'
+                              + 'left:' + (vx + sz) + 'px;top:' + (vy - 7) + 'px;'
+                              + 'font-size:9px;color:' + color + ';'
+                              + 'text-shadow:1px 1px 0 #000;pointer-events:none;'
+                              + 'white-space:nowrap;';
+            view.appendChild(tag);
+          }
+        };
+
+        // 4 corners of the bounds rectangle, named by compass direction under
+        // North-up projection (CURRENT transform: top of screen = +North).
+        addDot(snap.MaxBounds.X, snap.MinBounds.Y, '#f1c40f', 'NW (maxX,minY)');
+        addDot(snap.MaxBounds.X, snap.MaxBounds.Y, '#2ecc71', 'NE (maxX,maxY)');
+        addDot(snap.MinBounds.X, snap.MinBounds.Y, '#9b59b6', 'SW (minX,minY)');
+        addDot(snap.MinBounds.X, snap.MaxBounds.Y, '#e67e22', 'SE (minX,maxY)');
+        // World origin marker — should land at SW corner if bounds.min = (0,0).
+        // If it lands elsewhere, the player position is in a different frame
+        // than the bounds reported.
+        addDot(0, 0, '#ffffff', '(0,0)', 10);
+
+        for (let i = 0; i < (snap.Players || []).length; i++) {
+          const p = snap.Players[i];
+          const label = '[' + i + '] ' + (p.Name || p.PlayerId || 'P' + i);
+          const plColor = p.Color || (i === 0 ? '#3498db' : '#bbbbbb');
+          addDot(p.Position.X, p.Position.Y, plColor, label, 14);
+        }
+      }
+
+      // --- 7. MAP OVERLAY: player markers on top of the world-map texture ---
+      // Uses positioned HTML divs (same proven pattern as variants 3-6) instead
+      // of SVG, which can fail to composite over ImageSource <img> in the WebView.
+
+      // Compute the rendered image area within the <img> element when using
+      // object-fit: contain. Returns { ox, oy, rw, rh } — the pixel offset and
+      // rendered dimensions of the actual image content.
+      function containedRect(img) {
+        var ew = img.clientWidth;
+        var eh = img.clientHeight;
+        var nw = img.naturalWidth  || 1;
+        var nh = img.naturalHeight || 1;
+        var imgAR  = nw / nh;
+        var elemAR = ew / eh;
+        var rw, rh, ox, oy;
+        if (elemAR > imgAR) {
+          rh = eh; rw = eh * imgAR;
+          ox = (ew - rw) / 2; oy = 0;
+        } else {
+          rw = ew; rh = ew / imgAR;
+          ox = 0; oy = (eh - rh) / 2;
+        }
+        return { ox: ox, oy: oy, rw: rw, rh: rh };
+      }
+
+      var overlayMarkers = [];
+      function clearOverlayMarkers() {
+        for (var k = 0; k < overlayMarkers.length; k++) {
+          if (overlayMarkers[k].parentNode) overlayMarkers[k].parentNode.removeChild(overlayMarkers[k]);
+        }
+        overlayMarkers = [];
+      }
+
+      function renderMapOverlay(snap) {
+        var view = document.getElementById('map-overlay-view');
+        var img  = document.getElementById('map-tex');
+        var stat = document.getElementById('overlay-status');
+        if (!view || !img) return;
+        clearOverlayMarkers();
+        if (!snap || !snap.Players || snap.Players.length === 0) {
+          if (stat) stat.textContent = snap ? 'no players in snapshot' : 'waiting for snapshot…';
+          return;
+        }
+        var minB = snap.MinBounds || {};
+        var maxB = snap.MaxBounds || {};
+        var worldW = (maxB.Y || 0) - (minB.Y || 0);
+        var worldH = (maxB.X || 0) - (minB.X || 0);
+        if (worldW <= 0 || worldH <= 0) {
+          if (stat) stat.textContent = 'bad bounds (' + worldW + 'x' + worldH + ')';
+          return;
+        }
+        if (!img.naturalWidth || !img.clientWidth) {
+          if (stat) stat.textContent = 'image not loaded yet';
+          return;
+        }
+        var cr = containedRect(img);
+        if (stat) {
+          stat.textContent = snap.Players.length + ' player'
+            + (snap.Players.length > 1 ? 's' : '')
+            + ' · img ' + img.naturalWidth + 'x' + img.naturalHeight
+            + ' → ' + fmt(cr.rw) + 'x' + fmt(cr.rh)
+            + ' @ (' + fmt(cr.ox) + ',' + fmt(cr.oy) + ')';
+        }
+        for (var i = 0; i < snap.Players.length; i++) {
+          var pl = snap.Players[i];
+          var wx = (pl.Position && pl.Position.X) || 0;
+          var wy = (pl.Position && pl.Position.Y) || 0;
+          var lx = (wy - (minB.Y || 0)) / worldW;
+          var ly = ((maxB.X || 0) - wx) / worldH;
+          var px = cr.ox + lx * cr.rw;
+          var py = cr.oy + ly * cr.rh;
+          var isSelf = (i === 0);
+          var color = pl.Color || (isSelf ? '#3498db' : '#888888');
+          // Direction arrow — CSS triangle pointing in yaw direction
+          var yawRad = ((pl.YawDeg || 0) - 90) * Math.PI / 180;
+          var arrLen = 14;
+          var ax = Math.cos(yawRad) * arrLen;
+          var ay = Math.sin(yawRad) * arrLen;
+          var arrow = document.createElement('div');
+          arrow.style.cssText = 'position:absolute;z-index:9;pointer-events:none;'
+            + 'left:' + px + 'px;top:' + py + 'px;'
+            + 'width:' + (arrLen * 2) + 'px;height:2px;'
+            + 'background:#fff;'
+            + 'transform-origin:0 50%;'
+            + 'margin-top:-1px;'
+            + 'transform:rotate(' + (pl.YawDeg || 0) + 'deg);';
+          view.appendChild(arrow);
+          overlayMarkers.push(arrow);
+          // Player dot
+          var sz = isSelf ? 14 : 10;
+          var dot = document.createElement('div');
+          dot.style.cssText = 'position:absolute;z-index:10;'
+            + 'left:' + (px - sz / 2) + 'px;top:' + (py - sz / 2) + 'px;'
+            + 'width:' + sz + 'px;height:' + sz + 'px;'
+            + 'background:' + color + ';'
+            + 'border:2px solid #fff;border-radius:50%;'
+            + 'box-shadow:0 0 6px #000;'
+            + 'pointer-events:none;';
+          view.appendChild(dot);
+          overlayMarkers.push(dot);
+          // Name label with solid background
+          var tag = document.createElement('div');
+          tag.style.cssText = 'position:absolute;z-index:11;'
+            + 'left:' + (px + sz / 2 + 4) + 'px;top:' + (py - 9) + 'px;'
+            + 'font-size:10px;color:#fff;'
+            + 'background:' + color + ';'
+            + 'padding:1px 4px;'
+            + 'pointer-events:none;white-space:nowrap;'
+            + 'letter-spacing:0.5px;';
+          tag.textContent = pl.Name || pl.PlayerId || ('P' + (i + 1));
+          view.appendChild(tag);
+          overlayMarkers.push(tag);
+        }
+      }
+
+      // Run every variant against both data sources. Called on first paint,
+      // resize, and every UI.Map.Snapshot broadcast.
+      function renderAll() {
+        for (const cell of document.querySelectorAll('.cell')) {
+          const variant = cell.dataset.variant;
+          const fn = VARIANTS[variant];
+          if (!fn) continue;
+          const liveView = cell.querySelector('.view.live');
+          const fixView  = cell.querySelector('.view.fixture');
+          if (liveView) fn(liveView, LIVE || EMPTY);
+          if (fixView)  fn(fixView, FIXTURE);
+        }
+        renderMapOverlay(LIVE);
+      }
+
+      function setStatus(text, isEmpty) {
+        const el = document.getElementById('status');
+        if (!el) return;
+        el.textContent = text;
+        el.className = isEmpty ? 'empty' : '';
+      }
+
+      (function boot() {
+        if (!window.tsic) { setTimeout(boot, 16); return; }
+
+        window.tsic.on('tsic.msg.UI.Map.Snapshot', (snap) => {
+          LIVE = snap;
+          const W = (snap && snap.MaxBounds ? snap.MaxBounds.X - snap.MinBounds.X : 0);
+          const H = (snap && snap.MaxBounds ? snap.MaxBounds.Y - snap.MinBounds.Y : 0);
+          const playerCount = (snap && snap.Players) ? snap.Players.length : 0;
+          setStatus('snapshot: bounds ' + W + 'x' + H
+                  + ' (' + snap.MinBounds.X + ',' + snap.MinBounds.Y + ')-(' + snap.MaxBounds.X + ',' + snap.MaxBounds.Y + ')'
+                  + ', players: ' + playerCount, playerCount === 0);
+          renderAll();
+        });
+
+        document.addEventListener('click', (ev) => {
+          const btn = ev.target.closest('button[data-action]');
+          if (!btn) return;
+          if (btn.dataset.action === 'back') window.location.href = '/screens/map-debug.html';
+          if (btn.dataset.action === 'overlay-test') window.location.href = '/screens/map-overlay-test.html';
+          if (btn.dataset.action === 'marker-test') window.location.href = '/screens/map-marker-test.html';
+          if (btn.dataset.action === 'close') { if (window.tsic) tsic.publishMessage('UI.Cmd.Debug.Close', {}); }
+        });
+
+        // First paint — LIVE will be empty (no snapshot yet), FIXTURE will be populated.
+        renderAll();
+        // Re-render on resize so dot positions track the new view dimensions.
+        window.addEventListener('resize', renderAll);
+      })();
+    })();
+  </script>
+</body></html>

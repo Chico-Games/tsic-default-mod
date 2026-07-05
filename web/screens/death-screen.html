@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="tsic-screen" content="DeathScreen">
+  <meta name="tsic-focus" content="enabled">
+  <title>You died</title>
+  <link rel="stylesheet" href="/shared/base.css">
+  <link rel="stylesheet" href="/shared/components.css">
+  <link rel="stylesheet" href="/shared/hud.css">
+  <script src="/shared/router.js" defer></script>
+  <script src="/shared/tsic-bridge.js" defer></script>
+  <script src="/shared/tsic-runtime.js" defer></script>
+  <script src="/shared/store-maze.js" defer></script>
+  <script src="/shared/store-maze-stage.js" defer></script>
+  <script src="/shared/tsic-focus.js" defer></script>
+  <script src="/shared/hud.js" defer></script>
+  <style>
+    .tsic-death-subtitle {
+      margin: 0;
+      font-family: var(--font-terminal);
+      font-size: 14px;
+      letter-spacing: 0.04em;
+      color: var(--ink-soft);
+      text-align: center;
+      text-transform: uppercase;
+    }
+  </style>
+</head><body>
+  <div class="tsic-stage--magazine-gradient">
+    <div class="tsic-panel tsic-cover" style="--tsic-cover-width: 420px;">
+      <div class="tsic-masthead" style="flex-direction: column; align-items: center; gap: 8px;">
+        <div class="tsic-masthead-title" style="text-align: center;">
+          You Died.
+        </div>
+        <p class="tsic-death-subtitle">The Store has taken you. Your loved one remains lost.</p>
+      </div>
+      <div class="tsic-cover-rows" data-tsic-focus-group="nav">
+        <button class="tsic-row-button" id="btn-respawn" data-tsic-initial-focus>
+          <span class="tsic-row-dept">Dept. 01</span>
+          Respawn
+          <span class="tsic-row-pg">PG. 01</span>
+        </button>
+        <button class="tsic-row-button" id="btn-menu">
+          <span class="tsic-row-dept">Fire Exit</span>
+          Quit to Menu
+          <span class="tsic-row-pg">END</span>
+        </button>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Inline scripts run during HTML parse, BEFORE the deferred tsic-*.js
+    // load — poll until the runtime exists (see main-menu.html).
+    (function boot() {
+      if (!window.tsic || typeof tsic.bootMenu !== 'function') { setTimeout(boot, 16); return; }
+      tsic.whenReady(() => tsic.bootMenu(function () {
+        // Server respawns the player; we just signal intent via the existing
+        // Pause.Resume command. Swap for a dedicated Death.Respawn when it lands.
+        tsic.onClick('#btn-respawn', () => tsic.publishMessage('UI.Cmd.Pause.Resume', {}));
+        tsic.onClick('#btn-menu',    () => tsic.publishMessage('UI.Cmd.Pause.QuitToMenu', {}));
+      }, { escape: false, closeButton: false }));
+    })();
+  </script>
+</body></html>

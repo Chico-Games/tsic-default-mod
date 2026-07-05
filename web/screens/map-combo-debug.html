@@ -1,0 +1,404 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="tsic-screen" content="MapComboDebug">
+  <meta name="tsic-debug" content="true">
+  <meta name="tsic-input-mode" content="InputMode.Menu.Map">
+  <title>Map CSS Combinations Debug</title>
+    <script src="/shared/tsic-bridge.js" defer></script>
+  <script src="/shared/tsic-runtime.js" defer></script>
+  <script src="/shared/router.js" defer></script>
+  <script src="/shared/tsic-focus.js" defer></script>
+  <style>
+    html, body { margin: 0; padding: 0; height: 100%; background: #111; color: #ddd;
+      font-family: 'Consolas', monospace; overflow: hidden; }
+    #root { display: flex; flex-direction: column; height: 100%; }
+    #toolbar {
+      flex: 0 0 auto;
+      padding: 6px 12px;
+      background: #1a1a1a;
+      border-bottom: 1px solid #333;
+      display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+      font-size: 11px;
+    }
+    #toolbar button {
+      background: #2a2a2a; color: #ddd; border: 1px solid #444;
+      padding: 3px 8px; font-family: inherit; font-size: 11px; cursor: pointer;
+    }
+    #toolbar .info { color: #555; margin-left: auto; }
+    #grid {
+      flex: 1 1 auto;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      gap: 3px;
+      padding: 3px;
+      overflow: hidden;
+      min-height: 0;
+    }
+    .cell {
+      background: #1a1a1a;
+      display: flex; flex-direction: column;
+      min-height: 0; min-width: 0;
+      overflow: hidden;
+      border: 1px solid #2a2a2a;
+    }
+    .cell .hdr {
+      flex: 0 0 auto;
+      padding: 2px 6px;
+      background: #151515;
+      font-size: 9px;
+      border-bottom: 1px solid #2a2a2a;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .cell .hdr .idx { color: #555; min-width: 16px; }
+    .cell .hdr .name { color: #cce; letter-spacing: 1px; font-weight: bold; }
+    .cell .hdr .tags { display: flex; gap: 3px; margin-left: auto; }
+    .cell .hdr .tag {
+      font-size: 7px; font-weight: bold; letter-spacing: 0.5px;
+      padding: 1px 4px; border-radius: 2px;
+    }
+    .tag-fold { background: #8b6914; color: #ffd54f; }
+    .tag-pl   { background: #1a5276; color: #5dade2; }
+    .tag-svg  { background: #1e4d2b; color: #58d68d; }
+    .tag-shd  { background: #4a235a; color: #bb8fce; }
+    .cell .note {
+      flex: 0 0 auto;
+      padding: 1px 6px;
+      background: #121212;
+      font-size: 8px;
+      color: #666;
+      border-top: 1px solid #2a2a2a;
+    }
+
+    /* ---- Map body ----
+       The world-map texture is a background-image on the body div,
+       NOT an <img> element. This avoids containedRect() math and
+       lets pseudo-elements (::before / ::after) overlay it naturally.
+       Players are positioned with percentage left/top so no image-
+       size calculation is needed. */
+    .cell .body {
+      flex: 1 1 auto;
+      position: relative;
+      overflow: hidden;
+      min-height: 0;
+      background-color: #d4c19d;
+      background-image: url('/runtime/world-map.imgsrc');
+      background-size: 100% 100%;
+      background-repeat: no-repeat;
+      image-rendering: pixelated;
+      image-rendering: -webkit-optimize-contrast;
+      image-rendering: crisp-edges;
+    }
+
+    /* ---- Paper shadow (::before) ---- */
+    .cell[data-shadow] .body::before {
+      content: "";
+      position: absolute;
+      width: 100%; height: 4%;
+      left: 0; bottom: -4%;
+      z-index: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(177deg, rgba(0,0,0,0.22) 10%, transparent 50%),
+        linear-gradient(-177deg, rgba(0,0,0,0.22) 10%, transparent 50%);
+      background-size: 49% 100%, 49% 100%;
+      background-position: 2% 0, 98% 0;
+      background-repeat: no-repeat;
+    }
+
+    /* ---- Fold overlay (::after) ----
+       Two variants: simple (2 gradients) and full (10 gradients).
+       These match the production map.html exactly. */
+    .cell[data-folds="simple"] .body::after {
+      content: "";
+      position: absolute;
+      left: 0; top: 0;
+      width: 100%; height: 100%;
+      z-index: 2;
+      pointer-events: none;
+      background-image:
+        linear-gradient(to right, rgba(255,255,255,0.1) 0.5%, rgba(0,0,0,0.15) 1.2%, transparent 1.2%),
+        linear-gradient(to bottom, rgba(255,255,255,0.1) 0.5%, rgba(0,0,0,0.15) 1.2%, transparent 1.2%);
+      background-size: 50% 100%, 100% 50%;
+      background-position: right top, left bottom;
+      background-repeat: no-repeat;
+    }
+    .cell[data-folds="full"] .body::after {
+      content: "";
+      position: absolute;
+      left: 0; top: 0;
+      width: 100%; height: 100%;
+      z-index: 2;
+      pointer-events: none;
+      background-image:
+        linear-gradient(to right, rgba(255,255,255,0.1) 0.5%, rgba(0,0,0,0.15) 1.2%, transparent 1.2%),
+        linear-gradient(to bottom, rgba(255,255,255,0.1) 0.5%, rgba(0,0,0,0.15) 1.2%, transparent 1.2%),
+        linear-gradient(to bottom, rgba(255,255,255,0.1) 0.5%, rgba(0,0,0,0.15) 1.2%, transparent 1.2%),
+        linear-gradient(265deg, rgba(0,0,0,0.2), transparent 10%),
+        linear-gradient(5deg, rgba(0,0,0,0.2), transparent 15%),
+        linear-gradient(-5deg, rgba(0,0,0,0.1), transparent 10%),
+        linear-gradient(5deg, rgba(0,0,0,0.1), transparent 10%),
+        linear-gradient(-265deg, rgba(0,0,0,0.2), transparent 10%),
+        linear-gradient(-5deg, rgba(0,0,0,0.2), transparent 15%),
+        linear-gradient(266deg, rgba(0,0,0,0.2), transparent 10%);
+      background-size:
+        50% 100%, 100% 33.3333%, 100% 33.3333%,
+        50% 33.3333%, 50% 33.3333%, 50% 33.3333%,
+        50% 33.3333%, 50% 33.3333%, 50% 33.3333%, 50% 33.3333%;
+      background-position:
+        right top, left center, left bottom,
+        left top, left top, right top,
+        left center, right center, right center, left bottom;
+      background-repeat: no-repeat;
+    }
+
+    /* ---- Exaggerated fold variant ----
+       Same layout as full but with heavier darkening so the fold
+       lines are unmistakable even at small cell sizes. */
+    .cell[data-folds="heavy"] .body::after {
+      content: "";
+      position: absolute;
+      left: 0; top: 0;
+      width: 100%; height: 100%;
+      z-index: 2;
+      pointer-events: none;
+      background-image:
+        linear-gradient(to right, rgba(255,255,255,0.3) 0.5%, rgba(0,0,0,0.5) 2%, transparent 3%),
+        linear-gradient(to bottom, rgba(255,255,255,0.3) 0.5%, rgba(0,0,0,0.5) 2%, transparent 3%),
+        linear-gradient(to bottom, rgba(255,255,255,0.3) 0.5%, rgba(0,0,0,0.5) 2%, transparent 3%),
+        linear-gradient(265deg, rgba(0,0,0,0.5), transparent 12%),
+        linear-gradient(5deg, rgba(0,0,0,0.5), transparent 18%),
+        linear-gradient(-5deg, rgba(0,0,0,0.4), transparent 12%),
+        linear-gradient(5deg, rgba(0,0,0,0.4), transparent 12%),
+        linear-gradient(-265deg, rgba(0,0,0,0.5), transparent 12%),
+        linear-gradient(-5deg, rgba(0,0,0,0.5), transparent 18%),
+        linear-gradient(266deg, rgba(0,0,0,0.5), transparent 12%);
+      background-size:
+        50% 100%, 100% 33.3333%, 100% 33.3333%,
+        50% 33.3333%, 50% 33.3333%, 50% 33.3333%,
+        50% 33.3333%, 50% 33.3333%, 50% 33.3333%, 50% 33.3333%;
+      background-position:
+        right top, left center, left bottom,
+        left top, left top, right top,
+        left center, right center, right center, left bottom;
+      background-repeat: no-repeat;
+    }
+
+    /* ---- Player markers ----
+       Positioned via percentage left/top (no containedRect needed).
+       transform: translate(-50%,-50%) centers the dot on the position. */
+    .pl-dot {
+      position: absolute;
+      z-index: 8;
+      pointer-events: none;
+      box-sizing: border-box;
+      border: 2px solid #fff;
+      border-radius: 50%;
+      box-shadow: 0 0 4px rgba(0,0,0,0.6);
+    }
+    /* Teardrop — override border-radius per data-snap attribute */
+    .pl-tear {
+      position: absolute;
+      z-index: 8;
+      pointer-events: none;
+      box-sizing: border-box;
+      border: 2px solid #fff;
+      box-shadow: 0 0 3px rgba(0,0,0,0.4);
+    }
+    .pl-tear[data-snap="0"] { border-radius: 50% 50% 50% 50% / 40% 40% 50% 50%; }
+    .pl-tear[data-snap="1"] { border-radius: 50% 0 50% 50%; }
+    .pl-tear[data-snap="2"] { border-radius: 50% 40% 40% 50% / 50% 50% 50% 50%; }
+    .pl-tear[data-snap="3"] { border-radius: 50% 50% 0 50%; }
+    .pl-tear[data-snap="4"] { border-radius: 50% 50% 50% 50% / 50% 50% 40% 40%; }
+    .pl-tear[data-snap="5"] { border-radius: 50% 50% 50% 0; }
+    .pl-tear[data-snap="6"] { border-radius: 40% 50% 50% 40% / 50% 50% 50% 50%; }
+    .pl-tear[data-snap="7"] { border-radius: 0 50% 50% 50%; }
+    .pl-label {
+      position: absolute;
+      z-index: 9;
+      pointer-events: none;
+      white-space: nowrap;
+      font-size: 8px;
+      color: #fff;
+      padding: 0 3px;
+    }
+  </style>
+</head><body>
+  <div id="root">
+    <div id="toolbar">
+      <button data-action="back">&larr; Map Debug</button>
+      <span style="color:#cce;">Fold + Player CSS Combination Matrix</span>
+      <span class="info">compare which combos render in the WebView &mdash; Esc to close</span>
+      <button data-action="close" style="margin-left:auto;background:#a33;border-color:#c55;">Close</button>
+    </div>
+    <div id="grid"></div>
+  </div>
+  <script>
+    (function () {
+      /* ---- Fixture data ---- */
+      var B = { minX: 0, minY: 0, maxX: 12800, maxY: 12800 };
+      var WW = B.maxY - B.minY;
+      var WH = B.maxX - B.minX;
+
+      var PLAYERS = [
+        { Name: 'Self',  X: 6400,  Y: 6400,  Yaw: 0,   Color: '#3498db' },
+        { Name: 'Alice', X: 10000, Y: 2000,  Yaw: 135, Color: '#2ecc71' },
+        { Name: 'Bob',   X: 2000,  Y: 10000, Yaw: 270, Color: '#e67e22' },
+      ];
+
+      var ICONS = [
+        { Cat: 'spawn',  X: 8000,  Y: 4000,  Color: '#f1c40f' },
+        { Cat: 'tele',   X: 4000,  Y: 8000,  Color: '#2ecc71' },
+        { Cat: 'land',   X: 6000,  Y: 11000, Color: '#e74c3c' },
+        { Cat: 'death',  X: 11000, Y: 6000,  Color: '#9b59b6' },
+      ];
+
+      /* Teardrop tip offsets (fraction of marker size) */
+      var SNAP_TX = [0.5, 1, 1, 1, 0.5, 0, 0, 0];
+      var SNAP_TY = [0, 0, 0.5, 1, 1, 1, 0.5, 0];
+
+      /* World-to-percentage conversion */
+      function pctX(wy) { return ((wy - B.minY) / WW * 100); }
+      function pctY(wx) { return ((B.maxX - wx) / WH * 100); }
+
+      /* ---- Combination definitions ---- */
+      var COMBOS = [
+        /* Row 1: fold variations */
+        { name: 'Baseline',       note: 'texture + parchment bg, no overlays',         tags: [],                folds: false,    players: false,     icons: false, shadow: false },
+        { name: 'Simple fold',    note: '::after, 2 gradients (vert+horiz crease)',     tags: ['fold'],          folds: 'simple', players: false,     icons: false, shadow: false },
+        { name: 'Full folds',     note: '::after, 10 gradients (2x3 panel grid)',       tags: ['fold'],          folds: 'full',   players: false,     icons: false, shadow: false },
+        { name: 'HEAVY folds',    note: '::after, 10 grads, 3x opacity (visibility test)', tags: ['fold'],      folds: 'heavy',  players: false,     icons: false, shadow: false },
+
+        /* Row 2: player + fold combos */
+        { name: 'Circle dots',    note: 'div border-radius:50%, z:8, no folds',         tags: ['pl'],            folds: false,    players: 'circle',  icons: false, shadow: false },
+        { name: 'Teardrops',      note: 'div 8-snap BR + labels, z:8, no folds',        tags: ['pl'],            folds: false,    players: 'teardrop', icons: false, shadow: false },
+        { name: 'Circles+Folds',  note: 'circle dots(z:8) + full folds(::after z:2)',   tags: ['pl','fold'],     folds: 'full',   players: 'circle',  icons: false, shadow: false },
+        { name: 'Tears+Folds',    note: 'teardrops(z:8) + full folds(::after z:2)',      tags: ['pl','fold'],     folds: 'full',   players: 'teardrop', icons: false, shadow: false },
+
+        /* Row 3: SVG + kitchen sink */
+        { name: 'SVG icons',      note: 'SVG circles in viewBox, z:6, no folds',        tags: ['svg'],           folds: false,    players: false,     icons: true,  shadow: false },
+        { name: 'SVG+Folds',      note: 'SVG(z:6) + full folds(::after z:2)',            tags: ['svg','fold'],    folds: 'full',   players: false,     icons: true,  shadow: false },
+        { name: 'Tears+SVG',      note: 'teardrops(z:8) + SVG(z:6), no folds',          tags: ['pl','svg'],      folds: false,    players: 'teardrop', icons: true,  shadow: false },
+        { name: 'FULL',           note: 'shadow(::before) + folds(::after) + tears + SVG', tags: ['fold','pl','svg','shd'], folds: 'full', players: 'teardrop', icons: true, shadow: true },
+      ];
+
+      /* ---- Tag rendering ---- */
+      var TAG_CLS = { fold: 'tag-fold', pl: 'tag-pl', svg: 'tag-svg', shd: 'tag-shd' };
+      var TAG_LBL = { fold: 'FOLD', pl: 'PLAYER', svg: 'SVG', shd: 'SHADOW' };
+
+      function tagsHTML(tags) {
+        var h = '';
+        for (var i = 0; i < tags.length; i++) {
+          h += '<span class="tag ' + TAG_CLS[tags[i]] + '">' + TAG_LBL[tags[i]] + '</span>';
+        }
+        return h;
+      }
+
+      /* ---- Build grid ---- */
+      var grid = document.getElementById('grid');
+
+      for (var c = 0; c < COMBOS.length; c++) {
+        var combo = COMBOS[c];
+        var cell = document.createElement('div');
+        cell.className = 'cell';
+        if (combo.folds)  cell.setAttribute('data-folds', combo.folds);
+        if (combo.shadow) cell.setAttribute('data-shadow', '');
+
+        cell.innerHTML = '<div class="hdr">'
+          + '<span class="idx">' + (c + 1) + '</span>'
+          + '<span class="name">' + combo.name + '</span>'
+          + '<span class="tags">' + tagsHTML(combo.tags) + '</span>'
+          + '</div>'
+          + '<div class="body"></div>'
+          + '<div class="note">' + combo.note + '</div>';
+        grid.appendChild(cell);
+
+        var body = cell.querySelector('.body');
+
+        /* Add player markers */
+        if (combo.players === 'circle') {
+          for (var p = 0; p < PLAYERS.length; p++) {
+            var pl = PLAYERS[p];
+            var sz = p === 0 ? 14 : 10;
+            var dot = document.createElement('div');
+            dot.className = 'pl-dot';
+            dot.style.width = sz + 'px';
+            dot.style.height = sz + 'px';
+            dot.style.background = pl.Color;
+            dot.style.left = 'calc(' + pctX(pl.Y) + '% - ' + (sz / 2) + 'px)';
+            dot.style.top  = 'calc(' + pctY(pl.X) + '% - ' + (sz / 2) + 'px)';
+            body.appendChild(dot);
+          }
+        }
+        if (combo.players === 'teardrop') {
+          for (var p = 0; p < PLAYERS.length; p++) {
+            var pl = PLAYERS[p];
+            var isSelf = (p === 0);
+            var sz = isSelf ? 16 : 12;
+            var snap = Math.round(((pl.Yaw % 360 + 360) % 360) / 45) % 8;
+            var mk = document.createElement('div');
+            mk.className = 'pl-tear';
+            mk.setAttribute('data-snap', String(snap));
+            mk.style.width = sz + 'px';
+            mk.style.height = sz + 'px';
+            mk.style.background = pl.Color;
+            mk.style.left = 'calc(' + pctX(pl.Y) + '% - ' + (SNAP_TX[snap] * sz) + 'px)';
+            mk.style.top  = 'calc(' + pctY(pl.X) + '% - ' + (SNAP_TY[snap] * sz) + 'px)';
+            body.appendChild(mk);
+
+            var label = document.createElement('div');
+            label.className = 'pl-label';
+            label.style.background = pl.Color;
+            label.textContent = pl.Name;
+            label.style.left = pctX(pl.Y) + '%';
+            label.style.top  = 'calc(' + pctY(pl.X) + '% + ' + ((1 - SNAP_TY[snap]) * sz + 2) + 'px)';
+            label.style.transform = 'translateX(-50%)';
+            body.appendChild(label);
+          }
+        }
+
+        /* Add SVG icons */
+        if (combo.icons) {
+          var ns = 'http://www.w3.org/2000/svg';
+          var svg = document.createElementNS(ns, 'svg');
+          svg.setAttribute('style',
+            'position:absolute;left:0;top:0;width:100%;height:100%;z-index:6;pointer-events:none;overflow:hidden;');
+          svg.setAttribute('viewBox', '0 0 ' + WW + ' ' + WH);
+          var r = Math.max(WW, WH) * 0.018;
+          for (var k = 0; k < ICONS.length; k++) {
+            var ic = ICONS[k];
+            var lx = ic.Y - B.minY;
+            var ly = B.maxX - ic.X;
+            var circle = document.createElementNS(ns, 'circle');
+            circle.setAttribute('cx', String(lx));
+            circle.setAttribute('cy', String(ly));
+            circle.setAttribute('r', String(r));
+            circle.setAttribute('fill', ic.Color);
+            circle.setAttribute('stroke', '#000');
+            circle.setAttribute('stroke-width', String(r * 0.15));
+            svg.appendChild(circle);
+          }
+          body.appendChild(svg);
+        }
+      }
+
+      /* ---- Toolbar ---- */
+      document.addEventListener('click', function (ev) {
+        var btn = ev.target.closest('button[data-action]');
+        if (!btn) return;
+        if (btn.dataset.action === 'back') window.location.href = '/screens/map-debug.html';
+        if (btn.dataset.action === 'close') {
+          if (window.tsic) tsic.publishMessage('UI.Cmd.Debug.Close', {});
+        }
+      });
+
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          if (window.tsic) tsic.publishMessage('UI.Cmd.Debug.Close', {});
+        }
+      });
+    })();
+  </script>
+</body></html>

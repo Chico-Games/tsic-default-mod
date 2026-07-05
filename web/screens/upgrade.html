@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="tsic-screen" content="Upgrade">
+  <meta name="tsic-focus" content="enabled">
+  <meta name="tsic-input-mode" content="InputMode.Menu.Upgrade">
+  <meta name="tsic-action-bar-context" content='[{"ActionName":"IA_UI_ConfirmAccept","Label":"Upgrade","Priority":10}]'>
+  <title>Upgrade</title>
+  <link rel="stylesheet" href="/shared/base.css">
+  <link rel="stylesheet" href="/shared/components.css">
+  <link rel="stylesheet" href="/shared/hud.css">
+    <script src="/shared/tsic-bridge.js" defer></script>
+  <script src="/shared/tsic-runtime.js" defer></script>
+  <script src="/shared/router.js" defer></script>
+  <script src="/shared/tsic-focus.js" defer></script>
+  <script src="/shared/tsic-dropdown.js" defer></script>
+  <script src="/shared/hud.js" defer></script>
+  <script src="/shared/catalog.js" defer></script>
+  <script src="/shared/dom.js" defer></script>
+  <script src="/shared/icons.js" defer></script>
+  <style>
+    /* Layered on tsic-row-button — keep gap/padding consistent with the
+       crafting/summoner siblings. */
+    .up-row { gap:10px; padding:8px 12px; }
+    .up-meta { flex:1; min-width:0; display:flex; flex-direction:column; gap:4px; }
+    .up-name { font-weight:700; }
+    .up-ings { display:flex; flex-wrap:wrap; gap:6px 12px; font-size:11px; color: rgba(59,47,28,0.85); }
+    .up-ings .up-ing { display:flex; align-items:center; gap:4px; }
+    .up-ings .up-ing img { width:18px; height:18px; object-fit:contain; }
+  </style>
+</head><body>
+  <div id="modal" class="tsic-modal-scrim">
+    <div class="tsic-panel tsic-panel--screen">
+      <h2 class="tsic-title" style="margin:0 0 8px;">Upgrade</h2>
+      <div class="tsic-eyebrow">Available upgrades</div>
+      <div id="recipes" class="tsic-list-pane" style="flex:1 1 auto;"></div>
+      <div class="tsic-close-row">
+        <button class="tsic-button" id="btn-close" data-tsic-initial-focus>Close</button>
+      </div>
+    </div>
+  </div>
+  <script>
+    (function(){
+      let stationId = null;
+      let lastRecipes = [];
+      let materialCounts = {};
+
+      function render() {
+        const host = document.getElementById('recipes');
+        host.innerHTML = '';
+        const cat = (window.tsic && window.tsic.itemCatalog) || {};
+        if (lastRecipes.length === 0) {
+          const empty = document.createElement('div');
+          empty.className = 'tsic-empty';
+          empty.textContent = 'Already at max tier — no further upgrades available.';
+          host.appendChild(empty);
+          return;
+        }
+        for (const r of lastRecipes) {
+          const canBuy = window.TSICRecipeInfo
+              ? window.TSICRecipeInfo.canCraft(r, materialCounts)
+              : (r.Ingredients || []).every(i => ((materialCounts && materialCounts[i.ItemId]) || 0) >= i.Count);
+          const row = document.createElement('button');
+          row.type = 'button';
+          row.className = 'tsic-row-button up-row';
+          row.disabled = !canBuy;
+          const meta = document.createElement('div');
+          meta.className = 'up-meta';
+          const name = document.createElement('div');
+          name.className = 'up-name';
+          name.textContent = r.Name || r.RecipeId;
+          meta.appendChild(name);
+          const ings = document.createElement('div');
+          ings.className = 'up-ings';
+          for (const i of (r.Ingredients || [])) {
+            const ing = document.createElement('span');
+            ing.className = 'up-ing';
+            const img = TSIC.iconImg(TSIC.itemIconUrl(i.ItemId));
+            ing.appendChild(img);
+            const have = (materialCounts && materialCounts[i.ItemId]) || 0;
+            const enough = have >= i.Count;
+            const lbl = document.createElement('span');
+            lbl.textContent = `${(cat[i.ItemId] || {}).Name || i.ItemId} x${i.Count} (have ${have})`;
+            lbl.style.color = enough ? 'var(--cat-ink-dark)' : 'var(--cat-red, #b91c1c)';
+            ing.appendChild(lbl);
+            ings.appendChild(ing);
+          }
+          meta.appendChild(ings);
+          row.appendChild(meta);
+          row.onclick = () => {
+            if (!canBuy) return;
+            tsic.publishMessage('UI.Cmd.Recipe.Start', { Kind: 'Upgrade', StationId: stationId, RecipeId: r.RecipeId, Count: 1 });
+          };
+          host.appendChild(row);
+        }
+      }
+
+      (function boot() {
+        if (!window.tsic || typeof tsic.whenReady !== 'function') { setTimeout(boot, 16); return; }
+        tsic.whenReady(function () {
+          tsic.on('tsic.msg.UI.Recipe.StationOpened', (p) => {
+            if (!p || p.Kind !== 'Upgrade') return;
+            stationId = p.StationId;
+            lastRecipes = p.Recipes || [];
+            materialCounts = p.MaterialCounts || {};
+            render();
+          });
+          window.addEventListener('tsic-item-catalog', render);
+          document.getElementById('btn-close').onclick = () =>
+            tsic.publishMessage('UI.Cmd.Pause.Resume', {});
+        });
+      })();
+    })();
+  </script>
+</body></html>

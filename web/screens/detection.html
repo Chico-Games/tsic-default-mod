@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="tsic-screen" content="Detection">
+  <title>Detection</title>
+  <link rel="stylesheet" href="/shared/base.css">
+  <link rel="stylesheet" href="/shared/components.css">
+  <link rel="stylesheet" href="/shared/hud.css">
+    <script src="/shared/tsic-bridge.js" defer></script>
+  <script src="/shared/tsic-runtime.js" defer></script>
+  <script src="/shared/router.js" defer></script>
+  <script src="/shared/hud.js" defer></script>
+  <style>
+    /* Transparent HUD overlay — sits over the 3D scene, never captures focus.
+       The whole effect lives on the screen *edges*; the centre stays clear.
+
+       Directionality is the point: each enemy is a precise angular WEDGE, not a
+       fuzzy blob, so you can read a full 360° at a glance and tell several
+       threats apart. The trick is a screen-centred conic-gradient (conic 0° =
+       up, +clockwise — exactly the BearingDeg convention) masked down to an
+       outer ring, so the bright band lands on the edge in the threat's true
+       direction while the middle of the screen stays unobscured. */
+    html, body {
+      background: transparent;
+      pointer-events: none;
+      overflow: hidden;
+      margin: 0;
+    }
+
+    /* ---- Ambient edge vignette (overall detection) -------------------- */
+    /* Faint by design — it conveys "something is watching" without competing
+       with the directional wedges that tell you *where*. */
+    #vignette {
+      position: fixed; inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0;
+      --edge: 10%;
+      --col: 231, 76, 60;
+      background:
+        linear-gradient(to right,  rgba(var(--col), 0.7), transparent var(--edge)),
+        linear-gradient(to left,   rgba(var(--col), 0.7), transparent var(--edge)),
+        linear-gradient(to bottom, rgba(var(--col), 0.7), transparent var(--edge)),
+        linear-gradient(to top,    rgba(var(--col), 0.7), transparent var(--edge));
+      transition: opacity 220ms ease;
+      will-change: opacity;
+    }
+    #vignette.pulse { animation: edge-pulse var(--pulse, 1.8s) ease-in-out infinite; }
+    @keyframes edge-pulse {
+      0%, 100% { opacity: var(--lo, 0.12); }
+      50%      { opacity: var(--hi, 0.3); }
+    }
+
+    /* ---- Per-enemy directional wedge ---------------------------------- */
+    /* A full-screen conic-gradient (one bright band pointed at the bearing)
+       masked to the outer ring so only the edge-hugging arc shows. */
+    .arc {
+      position: fixed; inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      opacity: var(--hi, 0.7);
+      /* keep the centre fully clear, glow toward the edges */
+      -webkit-mask-image: radial-gradient(ellipse farthest-side at 50% 50%, transparent 46%, #000 92%);
+              mask-image: radial-gradient(ellipse farthest-side at 50% 50%, transparent 46%, #000 92%);
+      will-change: opacity;
+    }
+    .arc.pulse { animation: arc-pulse var(--pulse, 1.6s) ease-in-out infinite; }
+    @keyframes arc-pulse {
+      0%, 100% { opacity: var(--lo, 0.3); }
+      50%      { opacity: var(--hi, 0.8); }
+    }
+
+    /* Inward-pointing chevron — pinpoints the threat's exact bearing on the
+       edge. Rotated by JS to point toward screen centre. */
+    .chev {
+      position: fixed; left: 0; top: 0;
+      width: 32px; height: 32px;
+      margin-left: -16px; margin-top: -16px;
+      z-index: 3;                     /* always above the wedge glow + vignette */
+      pointer-events: none;
+      opacity: var(--hi, 0.7);
+      /* Dark halo — separates the mark from the red glow and reads as ominous. */
+      filter: drop-shadow(0 0 4px rgba(0, 0, 0, 0.85));
+    }
+    .chev svg { width: 100%; height: 100%; display: block; transform-origin: 50% 50%; overflow: visible; }
+    /* Black outline via paint-order so the stroke sits behind the fill — a clean
+       dark edge around the (bright red) mark. */
+    .chev path {
+      fill: var(--chev-fill, rgb(255, 246, 242));
+      stroke: #000; stroke-width: 2.4;
+      stroke-linejoin: miter; paint-order: stroke;
+    }
+    .chev.pulse { animation: chev-pulse var(--pulse, 1.6s) ease-in-out infinite; }
+    /* Creepy: the claw geometry itself MORPHS (a real shape animation on the
+       path's `d`, not a transform wobble) — the barbs splay and the spike
+       lunges out, then retracts. The inner svg also pumps in size. */
+    .chev.pulse svg  { animation: chev-throb var(--pulse, 1.6s) ease-in-out infinite; }
+    .chev.pulse path { animation: chev-morph var(--pulse, 1.6s) ease-in-out infinite; }
+    @keyframes chev-pulse {
+      0%, 100% { opacity: var(--lo, 0.45); }
+      50%      { opacity: var(--hi, 0.9); }
+    }
+    @keyframes chev-throb {
+      0%, 100% { transform: scale(var(--throb-lo, 0.96)); }
+      50%      { transform: scale(var(--throb-hi, 1.08)); }
+    }
+    /* Resting claw → lunged/flexed claw. Both paths share the exact same command
+       sequence (M C L L C L L C Z) so the morph interpolates cleanly. */
+    @keyframes chev-morph {
+      0%, 100% { d: path("M12 3 C12.6 8.5 13.8 12.2 15 15 L18.5 19.5 L13.2 16 C12.7 17.2 11.3 17.2 10.8 16 L5.5 19.5 L9 15 C10.2 12.2 11.4 8.5 12 3 Z"); }
+      50%      { d: path("M12 0.5 C12.9 8 14.6 12.6 16.2 15.6 L21.5 22 L13.6 16.6 C12.9 19 11.1 19 10.4 16.6 L2.5 22 L7.8 15.6 C9.4 12.6 11.1 8 12 0.5 Z"); }
+    }
+
+    /* Players who opt out of motion get a steady (non-pulsing) read instead. */
+    @media (prefers-reduced-motion: reduce) {
+      #vignette.pulse, .arc.pulse, .chev.pulse, .chev.pulse svg, .chev.pulse path { animation: none; }
+    }
+  </style>
+</head><body>
+  <div id="vignette"></div>
+  <div id="threats"></div>
+  <script>
+    (function boot() {
+      if (!window.tsic) { setTimeout(boot, 16); return; }
+
+      // A barbed, concave-sided spike (not a clean chevron) — points inward,
+      // reads like a claw/fang for a creepier threat marker. This is the morph's
+      // resting state; chev-morph animates `d` between this and a lunged claw.
+      const CHEVRON_SVG =
+        '<svg viewBox="0 0 24 24" aria-hidden="true">' +
+        '<path d="M12 3 C12.6 8.5 13.8 12.2 15 15 L18.5 19.5 L13.2 16 C12.7 17.2 11.3 17.2 10.8 16 ' +
+        'L5.5 19.5 L9 15 C10.2 12.2 11.4 8.5 12 3 Z"/></svg>';
+
+      // Muted dark red (a faint contact) → bright red (locked on). Eased so the
+      // glow stays dull/subdued through the low-mid range and brightens to the
+      // alarm red only as the threat closes in on full detection.
+      const C_LOW  = [130, 68, 64];
+      const C_HIGH = [231, 76, 60];
+      function rampColor(t) {
+        const k = Math.pow(Math.max(0, Math.min(1, t)), 1.3);
+        const mix = (a, b) => Math.round(a + (b - a) * k);
+        return `${mix(C_LOW[0], C_HIGH[0])}, ${mix(C_LOW[1], C_HIGH[1])}, ${mix(C_LOW[2], C_HIGH[2])}`;
+      }
+      const lerp = (a, b, t) => a + (b - a) * Math.max(0, Math.min(1, t));
+
+      // conic-gradient(from <bearing>deg ...) puts gradient-angle 0 at the
+      // bearing direction (conic 0° = up, +clockwise == BearingDeg). We build a
+      // single soft band centred on 0°/360° (half-width `w`), transparent
+      // everywhere else — so the bright arc points exactly at the threat.
+      function wedgeGradient(bearingDeg, col, w) {
+        const from = ((bearingDeg % 360) + 360) % 360;
+        return `conic-gradient(from ${from.toFixed(1)}deg,` +
+          ` rgba(${col},0.95) 0deg,` +
+          ` rgba(${col},0) ${w.toFixed(1)}deg,` +
+          ` rgba(${col},0) ${(360 - w).toFixed(1)}deg,` +
+          ` rgba(${col},0.95) 360deg)`;
+      }
+
+      // Map a bearing to where a ray from screen centre meets the viewport edge,
+      // for placing the chevron, plus the inward rotation that points it at
+      // centre. This MUST account for the real viewport aspect ratio: the conic
+      // wedge follows the true geometric angle, so a square-space mapping
+      // (normalising by max(|dx|,|dy|)) drifts off the wedge near the corners —
+      // on a 16:9 screen the diagonal sits at atan(16/9), not 45°. Solve the
+      // actual ray↔rectangle intersection in pixels instead.
+      function edgeAnchor(bearingDeg) {
+        const t = (bearingDeg || 0) * Math.PI / 180;
+        const dx = Math.sin(t), dy = -Math.cos(t);
+        const a = (window.innerWidth  || 1) / 2;   // half-extents in pixels
+        const b = (window.innerHeight || 1) / 2;
+        const tx = Math.abs(dx) > 1e-6 ? a / Math.abs(dx) : Infinity;
+        const ty = Math.abs(dy) > 1e-6 ? b / Math.abs(dy) : Infinity;
+        const s = Math.min(tx, ty);                // distance to first edge hit
+        const fx = (s * dx) / a, fy = (s * dy) / b; // -1..1 on each axis
+        return {
+          x: 50 + fx * 45.5, y: 50 + fy * 45.5,    // on the ray, just inside the edge
+          rotDeg: bearingDeg + 180,                // point toward centre
+        };
+      }
+
+      const threats = document.getElementById('threats');
+      const vignette = document.getElementById('vignette');
+      let lastPayload = null;
+
+      function render(p) {
+        lastPayload = p;
+        threats.textContent = '';
+
+        if (!p) {
+          vignette.style.opacity = '0';
+          vignette.classList.remove('pulse');
+          return;
+        }
+
+        // --- Directional wedges, one per enemy ---
+        const enemies = p.Enemies || [];
+        for (const e of enemies) {
+          const score = Math.max(0, Math.min(1, e.DetectionScore || 0));
+          if (score <= 0) continue;
+
+          const col = rampColor(score);
+          // Visible floor: even a faint contact reads (≈ what 40% used to look
+          // like), then climbs to a hard, bright lock at full detection.
+          const hi = lerp(0.62, 1.0, score);
+          // Flash depth: barely breathes when low, hard strobe when near spotted.
+          const lo = hi * lerp(0.9, 0.32, score);
+          // Flash speed: slow when low, urgent when near spotted.
+          const pulse = lerp(3.0, 0.55, score).toFixed(2) + 's';
+          // Width grows with the threat.
+          const w = lerp(22, 46, score);
+          // Height: how far the arc reaches inward. Short (hugs the edge) when
+          // low, grows tall as detection rises — driven by the mask's clear
+          // centre shrinking from 60% → 32%.
+          const innerClear = lerp(60, 32, score);
+          const mask = `radial-gradient(ellipse farthest-side at 50% 50%, transparent ${innerClear.toFixed(1)}%, #000 94%)`;
+          // Chevron tracks the threat too: small + white when faint, growing
+          // large + bright red as detection closes in. To avoid a washed-out
+          // pink mid-range we hold red at full brightness (R=255) and crash the
+          // green/blue channels down fast, so it's saturated bright red by ~45%
+          // detection — anything higher reads as unmistakable red, not pink.
+          const ct = Math.pow(Math.min(1, score / 0.45), 0.7);
+          const gb = (hiC) => Math.round(255 + (hiC - 255) * ct);
+          const chevFill = `rgb(255, ${gb(38)}, ${gb(32)})`;
+          const chevScale = lerp(0.65, 1.95, score);
+          // Throb: barely breathes when faint, pumps hard when near spotted.
+          const throbLo = lerp(0.98, 0.8, score);
+          const throbHi = lerp(1.02, 1.22, score);
+          const a = edgeAnchor(e.BearingDeg);
+
+          const arc = document.createElement('div');
+          arc.className = 'arc pulse';
+          arc.style.setProperty('--hi', hi.toFixed(3));
+          arc.style.setProperty('--lo', lo.toFixed(3));
+          arc.style.setProperty('--pulse', pulse);
+          arc.style.webkitMaskImage = mask;
+          arc.style.maskImage = mask;
+          arc.style.backgroundImage = wedgeGradient(e.BearingDeg, col, w);
+          threats.appendChild(arc);
+
+          const chev = document.createElement('div');
+          chev.className = 'chev pulse';
+          chev.style.setProperty('--col', col);
+          chev.style.setProperty('--hi', hi.toFixed(3));
+          chev.style.setProperty('--lo', lo.toFixed(3));
+          chev.style.setProperty('--pulse', pulse);
+          chev.style.setProperty('--chev-fill', chevFill);
+          chev.style.setProperty('--throb-lo', throbLo.toFixed(3));
+          chev.style.setProperty('--throb-hi', throbHi.toFixed(3));
+          chev.style.left = a.x + '%';
+          chev.style.top = a.y + '%';
+          chev.style.transform = `rotate(${a.rotDeg}deg) scale(${chevScale.toFixed(2)})`;
+          chev.innerHTML = CHEVRON_SVG;
+          threats.appendChild(chev);
+        }
+
+        // --- Ambient edge vignette (strongest threat / ScreenMist) ---
+        const mist = Math.max(0, Math.min(1, p.ScreenMist || 0));
+        if (mist <= 0.001) {
+          vignette.style.opacity = '0';
+          vignette.classList.remove('pulse');
+          return;
+        }
+        const hi = lerp(0.16, 0.4, mist);
+        const lo = hi * lerp(0.92, 0.45, mist);
+        vignette.style.setProperty('--col', rampColor(mist));
+        vignette.style.setProperty('--edge', lerp(7, 13, mist).toFixed(1) + '%');
+        vignette.style.setProperty('--hi', hi.toFixed(3));
+        vignette.style.setProperty('--lo', lo.toFixed(3));
+        vignette.style.setProperty('--pulse', lerp(3.2, 0.85, mist).toFixed(2) + 's');
+        vignette.style.opacity = hi.toFixed(3); // steady fallback (reduced-motion)
+        vignette.classList.add('pulse');
+      }
+
+      tsic.on('tsic.msg.UI.Detection.State', (p) => render(p));
+      // Chevron placement depends on viewport size — re-lay-out on resize so it
+      // stays glued to the wedge when the window changes.
+      window.addEventListener('resize', () => render(lastPayload));
+    })();
+  </script>
+</body></html>

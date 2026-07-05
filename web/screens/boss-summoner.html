@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="tsic-screen" content="BossSummoner">
+  <meta name="tsic-focus" content="enabled">
+  <meta name="tsic-input-mode" content="InputMode.Menu.BossSummoner">
+  <meta name="tsic-action-bar-context" content='[{"ActionName":"IA_UI_ConfirmAccept","Label":"Summon","Priority":10}]'>
+  <title>Boss Summoner</title>
+  <link rel="stylesheet" href="/shared/base.css">
+  <link rel="stylesheet" href="/shared/components.css">
+  <link rel="stylesheet" href="/shared/hud.css">
+    <script src="/shared/tsic-bridge.js" defer></script>
+  <script src="/shared/tsic-runtime.js" defer></script>
+  <script src="/shared/router.js" defer></script>
+  <script src="/shared/tsic-focus.js" defer></script>
+  <script src="/shared/tsic-dropdown.js" defer></script>
+  <script src="/shared/hud.js" defer></script>
+  <script src="/shared/catalog.js" defer></script>
+  <script src="/shared/dom.js" defer></script>
+  <script src="/shared/icons.js" defer></script>
+  <script src="/shared/recipe-info.js" defer></script>
+  <script src="/shared/recipe-station.js" defer></script>
+</head><body>
+  <div id="modal" class="tsic-modal-scrim">
+    <div class="tsic-panel tsic-panel--screen">
+      <h2 class="tsic-title" style="margin:0 0 8px;">Boss Summoner</h2>
+      <div id="bs-station"></div>
+      <div class="tsic-close-row" data-tsic-focus-group="actions">
+        <button class="tsic-button" id="btn-close" data-tsic-initial-focus>Close</button>
+      </div>
+    </div>
+  </div>
+  <script>
+    (function(){
+      (function boot() {
+        if (!window.tsic || !window.TSICRecipeInfo || !window.TSIC.RecipeStation) { setTimeout(boot, 16); return; }
+        tsic.whenReady(function () {
+          TSIC.RecipeStation.mount(document.getElementById('bs-station'), {
+            kind: 'Boss',
+            actionLabel: 'Summon',
+            emptyText: 'No rituals available yet.',
+            rowName: function(r) { return r.Name || r.RecipeId; },
+            rowIcon: function(r) {
+              // Boss recipes may not have Outputs; use the first ingredient icon.
+              if (r.Outputs && r.Outputs[0]) return r.Outputs[0].ItemId;
+              if (r.Ingredients && r.Ingredients[0]) return r.Ingredients[0].ItemId;
+              return '';
+            },
+            isLocked: function(r) { return r.bDiscovered === false; },
+            canAction: function(r, mats) {
+              if (!r || r.bDiscovered === false) return false;
+              // Check ingredient requirements against material counts.
+              for (var i = 0; i < (r.Ingredients || []).length; i++) {
+                var ing = r.Ingredients[i];
+                if (((mats && mats[ing.ItemId]) || 0) < ing.Count) return false;
+              }
+              return true;
+            },
+          });
+
+          document.getElementById('btn-close').onclick = () =>
+            tsic.publishMessage('UI.Cmd.Pause.Resume', {});
+        });
+      })();
+    })();
+  </script>
+</body></html>

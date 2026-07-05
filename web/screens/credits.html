@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="tsic-screen" content="Credits">
+  <meta name="tsic-input-mode" content="InputMode.Menu.MainMenu">
+  <meta name="tsic-cancel-cmd" content="UI.Cmd.Menu.Back">
+  <meta name="tsic-focus" content="enabled">
+  <meta name="tsic-action-bar-context" content='[]'>
+  <title>Credits</title>
+  <link rel="stylesheet" href="/shared/base.css">
+  <link rel="stylesheet" href="/shared/components.css">
+  <script src="/shared/router.js" defer></script>
+  <script src="/shared/tsic-bridge.js" defer></script>
+  <script src="/shared/tsic-runtime.js" defer></script>
+  <script src="/shared/store-maze.js" defer></script>
+  <script src="/shared/store-maze-stage.js" defer></script>
+  <script src="/shared/tsic-focus.js" defer></script>
+  <script src="/shared/tsic-dropdown.js" defer></script>
+  <style>
+    .credits-body {
+      padding: 18px 28px 14px;
+      max-height: 60vh;
+      overflow-y: auto;
+    }
+    .credits-body h2 {
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+      margin: 18px 0 6px;
+      padding-bottom: 4px;
+      border-bottom: 2px dashed var(--ink-mute);
+    }
+    .credits-body h2:first-child { margin-top: 0; }
+    .credits-body ul { list-style: none; padding: 0; margin: 0; }
+    .credits-body li {
+      font-family: var(--font-body);
+      font-size: 15px;
+      padding: 3px 0;
+      letter-spacing: 0.04em;
+      color: var(--ink-night);
+    }
+    .credits-body li.muted { color: var(--ink-mute); font-style: italic; }
+  </style>
+</head><body>
+  <div class="tsic-stage--magazine-gradient">
+    <div class="tsic-panel tsic-cover" style="--tsic-cover-width: 560px;">
+      <div class="tsic-masthead">
+        <div class="tsic-masthead-title">
+          <em>About</em>
+          The Brand.
+        </div>
+        <div class="tsic-masthead-meta">
+          <span class="tsic-masthead-issue">Dept. 99</span>
+          <span class="tsic-masthead-date">Treat our staff with mutual respect.</span>
+        </div>
+      </div>
+
+      <div class="credits-body">
+        <h2>Design &amp; Programming</h2>
+        <ul><li>Chico Games</li></ul>
+
+        <h2>Art</h2>
+        <ul><li class="muted">—</li></ul>
+
+        <h2>Special Thanks</h2>
+        <ul><li class="muted">—</li></ul>
+
+        <h2>Built With</h2>
+        <ul>
+          <li>Unreal Engine 5.7</li>
+          <li>CEF / Chromium</li>
+          <li>mod.io</li>
+        </ul>
+      </div>
+
+      <div class="tsic-cover-rows" data-tsic-focus-group="actions">
+        <button class="tsic-row-button" id="btn-back" data-tsic-initial-focus>
+          <span class="tsic-row-dept">Fire Exit</span>
+          Back to Main
+          <span class="tsic-row-pg">PG. 01</span>
+        </button>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Inline scripts run during HTML parse, BEFORE the deferred tsic-*.js
+    // load — poll until the runtime exists (see main-menu.html).
+    (function boot() {
+      if (!window.tsic || typeof tsic.bootMenu !== 'function') { setTimeout(boot, 16); return; }
+      tsic.whenReady(() => tsic.bootMenu(function () {
+        tsic.onClick('#btn-back', () =>
+          tsic.publishMessage('UI.Cmd.Menu.Navigate', { Screen: 'MainMenu' }));
+      }));
+    })();
+  </script>
+</body></html>

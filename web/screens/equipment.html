@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="tsic-screen" content="Equipment">
+  <meta name="tsic-input-mode" content="InputMode.Menu.Generic">
+  <meta name="tsic-focus" content="enabled">
+  <title>Equipment</title>
+  <link rel="stylesheet" href="/shared/base.css">
+  <link rel="stylesheet" href="/shared/components.css">
+  <link rel="stylesheet" href="/shared/hud.css">
+  <script src="/shared/router.js" defer></script>
+    <script src="/shared/tsic-bridge.js" defer></script>
+  <script src="/shared/tsic-runtime.js" defer></script>
+  <script src="/shared/tsic-focus.js" defer></script>
+  <script src="/shared/hud.js" defer></script>
+  <script src="/shared/dom.js" defer></script>
+  <script src="/shared/icons.js" defer></script>
+  <style>
+    /* Paper-doll equipment: slots positioned anatomically over a humanoid
+       silhouette. Slot screen-position (%) is keyed by SlotTag below; the
+       container's aspect matches the SVG viewBox so the two stay aligned. */
+    #doll {
+      position: relative;
+      width: 360px; height: 360px;     /* matches the 48×48 silhouette viewBox */
+      margin: 6px auto 2px;
+    }
+    #doll-fig {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+    }
+    /* The silhouette — faint ink figure on the cream paper. */
+    #doll-fig .fig {
+      fill: var(--ink);
+      fill-opacity: 0.16;
+    }
+
+    .eq-slot {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      display: flex; flex-direction: column; align-items: center; gap: 3px;
+      width: 64px;
+    }
+    .eq-slot .tsic-slot {
+      width: 64px; height: 64px;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+    }
+    .eq-slot.is-empty .tsic-slot {
+      /* Empty sockets read as recessed placeholders, not filled tiles. */
+      background: rgba(244, 236, 216, 0.45);
+      border-style: dashed;
+      border-color: var(--cat-ink-muted);
+    }
+    .eq-slot .tsic-slot img { width: 100%; height: 100%; object-fit: contain; padding: 7px; pointer-events: none; }
+    .eq-cap {
+      font-family: var(--font-display);
+      font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--cat-ink-soft);
+      white-space: nowrap;
+    }
+  </style>
+</head><body>
+  <div id="root" class="tsic-modal-scrim">
+    <div class="tsic-panel" style="width:440px;max-height:88vh;overflow:auto;">
+      <h2 class="tsic-title">Equipment</h2>
+      <div id="doll">
+        <!-- Front-facing body silhouette — Health Icons "body" (CC0 / public domain,
+             https://healthicons.org). Inlined so it works offline in-game. -->
+        <svg id="doll-fig" viewBox="0 0 48 48" aria-hidden="true">
+          <path class="fig" fill-rule="evenodd" clip-rule="evenodd" d="M24 13a4.5 4.5 0 1 0 0-9a4.5 4.5 0 0 0 0 9m13.92 2.44a2 2 0 0 1-1.36 2.48c-2.376.692-4.522 1.214-6.56 1.561V42a2 2 0 0 1-3.992.181l-1-11A2 2 0 0 1 25 31h-2a2 2 0 0 1-.008.181l-1 11A2 2 0 0 1 18 42V19.444c-2.033-.35-4.171-.861-6.535-1.517a2 2 0 1 1 1.07-3.854c4.608 1.278 8.07 1.912 11.474 1.927c3.396.015 6.85-.585 11.431-1.92a2 2 0 0 1 2.48 1.36"/>
+        </svg>
+      </div>
+      <div class="tsic-close-row">
+        <button class="tsic-button" id="btn-close" data-tsic-initial-focus>Close</button>
+      </div>
+    </div>
+  </div>
+  <script>
+    (function () {
+      // SlotTag (last segment) → anatomical screen position [x%, y%] + label.
+      const SLOTS = {
+        Head:     { pos: [50, 21], label: 'Head' },
+        Face:     { pos: [50, 24], label: 'Face' },
+        Neck:     { pos: [50, 30], label: 'Neck' },
+        Amulet:   { pos: [50, 30], label: 'Amulet' },
+        Back:     { pos: [80, 32], label: 'Back' },
+        Body:     { pos: [50, 47], label: 'Body' },
+        Chest:    { pos: [50, 47], label: 'Chest' },
+        Hands:    { pos: [16, 46], label: 'Hands' },
+        Gloves:   { pos: [16, 46], label: 'Gloves' },
+        MainHand: { pos: [84, 34], label: 'Main' },
+        OffHand:  { pos: [16, 34], label: 'Off' },
+        Ring:     { pos: [85, 58], label: 'Ring' },
+        Legs:     { pos: [50, 66], label: 'Legs' },
+        Feet:     { pos: [50, 87], label: 'Feet' },
+        Boots:    { pos: [50, 87], label: 'Boots' },
+      };
+
+      function short(tag) { return (tag || '').split('.').pop(); }
+
+      function render(slots) {
+        const doll = document.getElementById('doll');
+        // Wipe previous slots but keep the silhouette SVG.
+        doll.querySelectorAll('.eq-slot').forEach((n) => n.remove());
+
+        let fallback = 0;   // unknown tags stack down the right edge
+        for (const s of slots) {
+          const key = short(s.SlotTag);
+          const meta = SLOTS[key];
+          const pos = meta ? meta.pos : [98, 10 + fallback++ * 16];
+          const label = meta ? meta.label : key;
+
+          const cell = document.createElement('div');
+          cell.className = 'eq-slot';
+          cell.style.left = pos[0] + '%';
+          cell.style.top = pos[1] + '%';
+          cell.title = (s.SlotTag || '') + (s.ItemId ? (' — ' + s.ItemId) : '');
+
+          const box = document.createElement('div');
+          box.className = 'tsic-slot';
+
+          const iconUrl = s.IconUrl || (s.ItemId && window.TSIC ? TSIC.itemIconUrl(s.ItemId) : '');
+          if (iconUrl) {
+            const img = document.createElement('img');
+            img.src = iconUrl;
+            img.alt = label;
+            img.onerror = () => { img.remove(); cell.classList.add('is-empty'); };
+            box.appendChild(img);
+          } else {
+            cell.classList.add('is-empty');
+          }
+
+          if (s.ItemId) {
+            box.onclick = () => tsic.publishMessage('UI.Cmd.Equipment.Unequip', { ItemId: '', SlotTag: s.SlotTag || '' });
+          }
+          cell.appendChild(box);
+
+          const cap = document.createElement('div');
+          cap.className = 'eq-cap';
+          cap.textContent = label;
+          cell.appendChild(cap);
+
+          doll.appendChild(cell);
+        }
+      }
+
+      (function boot() {
+        if (!window.tsic || typeof tsic.bootMenu !== 'function') { setTimeout(boot, 16); return; }
+        tsic.bootMenu(function (ctx) {
+          ctx.on('tsic.msg.UI.Equipment.Updated', (p) => render(((p && p.Slots) || [])));
+          document.getElementById('btn-close').onclick = () =>
+            tsic.publishMessage('UI.Cmd.Pause.Resume', {});
+        });
+      })();
+    })();
+  </script>
+</body></html>

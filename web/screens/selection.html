@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="tsic-screen" content="Selection">
+  <meta name="tsic-input-mode" content="InputMode.Menu.Generic">
+  <meta name="tsic-focus" content="enabled">
+  <title>Selection</title>
+  <link rel="stylesheet" href="/shared/base.css">
+  <link rel="stylesheet" href="/shared/components.css">
+  <link rel="stylesheet" href="/shared/hud.css">
+  <script src="/shared/router.js" defer></script>
+    <script src="/shared/tsic-bridge.js" defer></script>
+  <script src="/shared/tsic-runtime.js" defer></script>
+  <script src="/shared/tsic-focus.js" defer></script>
+  <script src="/shared/tsic-dropdown.js" defer></script>
+  <script src="/shared/hud.js" defer></script>
+  <style>
+    .row { display:flex; align-items:center; gap:10px; justify-content:flex-start; padding:8px 12px; text-align:left; width:100%; }
+    .row img { width:24px; height:24px; object-fit:contain; }
+    .row.disabled { color:rgba(47,43,34,0.4); pointer-events:none; }
+  </style>
+</head><body>
+  <div id="modal" class="tsic-modal-scrim">
+    <div class="tsic-panel" style="width:420px;max-height:80vh;display:flex;flex-direction:column;">
+      <h2 id="title" class="tsic-title tsic-title--sm">Select</h2>
+      <div id="rows" class="tsic-stack tsic-stack--sm" style="overflow-y:auto;" data-tsic-focus-group="option-list"></div>
+      <div id="empty" class="tsic-empty" style="display:none;">No options available.</div>
+    </div>
+  </div>
+  <script>
+    (function () {
+      function render(p) {
+        const host = document.getElementById('rows');
+        const empty = document.getElementById('empty');
+        const title = document.getElementById('title');
+        host.innerHTML = '';
+
+        // The selection.html page renders any non-Cage context. cage.html filters Context === "Cage".
+        if (p && p.Context && p.Context === 'Cage') {
+          // Cage selections render in cage.html — ignore here.
+          empty.style.display = 'block';
+          return;
+        }
+
+        title.textContent = (p && p.Context && p.Context !== 'Default') ? p.Context : 'Select';
+        const options = (p && p.Options) || [];
+        if (options.length === 0) {
+          empty.style.display = 'block';
+          return;
+        }
+        empty.style.display = 'none';
+        let firstFocusable = null;
+        for (const opt of options) {
+          const row = document.createElement('button');
+          row.className = 'tsic-button row' + (opt.bDisabled ? ' disabled' : '');
+          if (opt.bDisabled) row.disabled = true;
+          if (opt.IconUrl) {
+            const img = document.createElement('img');
+            // Retry the cold-cache /tex/item-icon 404 (serves the in-data fallback
+            // on miss) instead of leaving a broken-image glyph.
+            if (window.TSIC && TSIC.attachIconRetry) TSIC.attachIconRetry(img, opt.IconUrl);
+            img.src = opt.IconUrl;
+            row.appendChild(img);
+          }
+          const label = document.createElement('span');
+          label.textContent = opt.Label || opt.OptionId;
+          row.appendChild(label);
+          row.onclick = () => tsic.publishMessage('UI.Cmd.Selection.Choose', {
+            OptionId: opt.OptionId || '',
+          });
+          host.appendChild(row);
+          if (!firstFocusable && !opt.bDisabled) firstFocusable = row;
+        }
+        if (firstFocusable) firstFocusable.setAttribute('data-tsic-initial-focus', '');
+        if (window.tsic && window.tsic.focus) window.tsic.focus.refresh();
+      }
+
+      (function boot() {
+        if (!window.tsic || typeof tsic.bootMenu !== 'function') { setTimeout(boot, 16); return; }
+        tsic.bootMenu(function (ctx) {
+          ctx.on('tsic.msg.UI.Selection.Opened', (p) => render(p));
+        }, { escape: false, closeButton: false });
+      })();
+    })();
+  </script>
+</body></html>

@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="tsic-screen" content="PauseMenu">
+  <meta name="tsic-input-mode" content="InputMode.Menu.Pause">
+  <meta name="tsic-focus" content="enabled">
+  <meta name="tsic-action-bar-context" content='[{"ActionName":"IA_UI_CancelBack","Label":"Resume","Priority":1000}]'>
+  <title>Paused</title>
+  <link rel="stylesheet" href="/shared/base.css">
+  <link rel="stylesheet" href="/shared/components.css">
+  <link rel="stylesheet" href="/shared/hud.css">
+  <script src="/shared/router.js" defer></script>
+  <script src="/shared/tsic-bridge.js" defer></script>
+  <script src="/shared/tsic-runtime.js" defer></script>
+  <script src="/shared/tsic-focus.js" defer></script>
+  <script src="/shared/tsic-dropdown.js" defer></script>
+  <script src="/shared/hud.js" defer></script>
+  <style>
+    #pause-panel {
+      width: 380px;
+      text-align: center;
+      padding: 0;
+    }
+    #pause-panel .tsic-masthead { padding: 14px 16px 8px; margin: 0; }
+    #pause-panel .pause-body { padding: 0 18px 18px; }
+    .pl {
+      text-align: left;
+      margin: 12px 0 16px;
+      max-height: 140px;
+      overflow: auto;
+      border: 2px dashed var(--ink-mute);
+      padding: 6px 10px;
+    }
+    .pl-row {
+      padding: 3px 0;
+      font-family: var(--font-terminal);
+      font-size: 14px;
+      color: var(--ink-night);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .pause-btn-row > button { flex: 1; }
+  </style>
+</head><body>
+  <div id="pause-overlay" class="tsic-modal-scrim tsic-modal-scrim--dim">
+    <div id="pause-panel" class="tsic-panel">
+
+      <!-- Masthead -->
+      <div class="tsic-masthead">
+        <div class="tsic-masthead-title" style="font-size:42px;">
+          <em>Paused</em>
+        </div>
+        <div class="tsic-masthead-meta">
+          <span class="tsic-masthead-issue">INTERMISSION</span>
+          <span class="tsic-masthead-date">See you soon.</span>
+        </div>
+      </div>
+
+      <div class="pause-body">
+        <div class="tsic-eyebrow" style="text-align:left;">Roster</div>
+        <div class="pl" id="players"></div>
+
+        <div data-tsic-focus-group="nav">
+          <button class="tsic-button" style="width:100%;" id="btn-resume" data-tsic-initial-focus>Resume</button>
+          <div class="tsic-row pause-btn-row" style="margin-top:10px; gap:8px;">
+            <button class="tsic-button secondary" id="btn-settings">Settings</button>
+            <button class="tsic-button secondary" id="btn-menu">Quit</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function boot() {
+      if (!window.tsic || typeof tsic.bootMenu !== 'function') { setTimeout(boot, 16); return; }
+      tsic.bootMenu(function (ctx) {
+        ctx.on('tsic.msg.UI.Players.List', (p) => {
+          const host = document.getElementById('players');
+          host.replaceChildren();
+          if (!p || !p.Players) return;
+          for (const pl of p.Players) {
+            const row = document.createElement('div');
+            row.className = 'pl-row';
+            row.textContent = (pl.bIsHost ? '>> ' : '— ') + pl.Name;
+            host.appendChild(row);
+          }
+        });
+        document.getElementById('btn-resume').onclick   = () => tsic.publishMessage('UI.Cmd.Pause.Resume', {});
+        document.getElementById('btn-settings').onclick = () => tsic.publishMessage('UI.Cmd.Pause.Settings', {});
+        document.getElementById('btn-menu').onclick     = () => tsic.publishMessage('UI.Cmd.Pause.QuitToMenu', {});
+      });
+    })();
+  </script>
+</body></html>

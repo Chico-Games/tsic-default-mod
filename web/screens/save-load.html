@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="tsic-screen" content="LoadSave">
+  <meta name="tsic-input-mode" content="InputMode.Menu.MainMenu">
+  <meta name="tsic-cancel-cmd" content="UI.Cmd.Menu.Back">
+  <meta name="tsic-focus" content="enabled">
+  <meta name="tsic-action-bar-context" content='[]'>
+  <title>Save / Load</title>
+  <link rel="stylesheet" href="/shared/base.css">
+  <link rel="stylesheet" href="/shared/components.css">
+  <script src="/shared/router.js" defer></script>
+  <script src="/shared/tsic-bridge.js" defer></script>
+  <script src="/shared/tsic-runtime.js" defer></script>
+  <script src="/shared/store-maze.js" defer></script>
+  <script src="/shared/store-maze-stage.js" defer></script>
+  <script src="/shared/tsic-focus.js" defer></script>
+  <script src="/shared/tsic-dropdown.js" defer></script>
+  <style>
+    .slot-list {
+      padding: 6px 4px 0;
+      max-height: 380px;
+      overflow-y: auto;
+    }
+    /* Save slot — card-style row with thumbnail, metadata, and a delete chip.
+       Reuses the magazine row-button rhythm (dashed top border, hover slide)
+       but drops the >> indicator via a custom class since the thumb fills
+       the lead-in slot. */
+    .save-slot {
+      display: grid;
+      grid-template-columns: 84px 1fr auto;
+      gap: 14px;
+      align-items: center;
+      width: 100%;
+      padding: 10px 14px;
+      background: var(--paper-bright);
+      border: 0;
+      border-top: 2px dashed var(--ink-mute);
+      color: var(--ink-night);
+      text-align: left;
+      cursor: pointer;
+      transition: background-color 120ms ease;
+      font-family: var(--font-body);
+    }
+    .save-slot:first-child { border-top: 0; }
+    .save-slot:hover,
+    .save-slot[data-tsic-focused] { background: var(--paper-muted); }
+    .save-slot:active { background: var(--paper-soft); }
+    .slot-thumb {
+      width: 84px; height: 56px;
+      background: var(--paper-muted);
+      border: 1px solid var(--ink-night);
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+      color: var(--ink-soft);
+      font-family: var(--font-terminal);
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+    .slot-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .slot-meta { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+    .slot-opened {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 400;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--ink-night);
+    }
+    .slot-playtime {
+      font-family: var(--font-terminal);
+      font-size: 13px;
+      color: var(--ink-soft);
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+    }
+    .slot-delete {
+      padding: 4px 10px;
+      font-family: var(--font-body);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      background: var(--mag-red);
+      color: #fff;
+      border: 1px solid var(--ink-night);
+      cursor: pointer;
+    }
+    .slot-delete:hover,
+    .slot-delete[data-tsic-focused] { background: var(--mag-red-dark); }
+    .slot-delete.armed { background: var(--ink-night); }
+    .slot-empty {
+      padding: 28px 16px;
+      text-align: center;
+      font-family: var(--font-terminal);
+      font-size: 14px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--ink-mute);
+    }
+  </style>
+</head><body>
+  <div class="tsic-stage--magazine-gradient">
+    <div class="tsic-panel tsic-cover" style="--tsic-cover-width: 580px;">
+      <div class="tsic-masthead">
+        <div class="tsic-masthead-title">
+          <em>Pick up where</em>
+          You Left Off.
+        </div>
+        <div class="tsic-masthead-meta">
+          <span class="tsic-masthead-issue">Dept. 12</span>
+          <span class="tsic-masthead-date">Welcome back!</span>
+        </div>
+      </div>
+
+      <div id="slots" class="slot-list" data-tsic-focus-group="slot-list"></div>
+
+      <div class="tsic-cover-rows" data-tsic-focus-group="actions">
+        <button class="tsic-row-button" id="btn-back" data-tsic-initial-focus>
+          <span class="tsic-row-dept">Fire Exit</span>
+          Back to Main
+          <span class="tsic-row-pg">PG. 01</span>
+        </button>
+      </div>
+    </div>
+  </div>
+  <script>
+    (function () {
+      function formatPlaytime(seconds) {
+        const total = Math.max(0, Math.floor(Number(seconds) || 0));
+        const h = Math.floor(total / 3600);
+        const m = Math.floor((total % 3600) / 60);
+        if (h > 0) return `${h}h ${String(m).padStart(2, '0')}m`;
+        return `${m}m`;
+      }
+      function formatOpened(iso) {
+        if (!iso) return '—';
+        const d = new Date(iso);
+        if (isNaN(d)) return iso;
+        const date = d.toLocaleDateString();
+        const time = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        return `${date}  ${time}`;
+      }
+      function safeThumbnailUrl(u) {
+        if (typeof u !== 'string' || !u) return null;
+        if (u.startsWith('data:image/png;base64,')) return u;
+        try {
+          const parsed = new URL(u);
+          return (parsed.protocol === 'http:' || parsed.protocol === 'https:') ? parsed.href : null;
+        } catch { return null; }
+      }
+      function renderSlots(p) {
+        const host = document.getElementById('slots');
+        host.replaceChildren();
+        const slots = (p && p.Slots) || [];
+        if (!slots.length) {
+          const empty = document.createElement('div');
+          empty.className = 'slot-empty';
+          empty.textContent = 'No saves yet.';
+          host.appendChild(empty);
+          return;
+        }
+        for (const s of slots) {
+          // A div, not a <button>: the Delete chip inside must itself be a
+          // real <button> for gamepad focus, and buttons can't nest.
+          const row = document.createElement('div');
+          row.className = 'save-slot';
+          row.setAttribute('role', 'button');
+          row.setAttribute('data-tsic-focusable', '');
+          row.setAttribute('aria-label', `Load save from ${formatOpened(s.TimestampIso)}`);
+
+          const thumb = document.createElement('div');
+          thumb.className = 'slot-thumb';
+          const url = safeThumbnailUrl(s.ThumbnailUrl);
+          if (url) {
+            const img = document.createElement('img');
+            img.src = url;
+            img.alt = '';
+            thumb.appendChild(img);
+          } else {
+            thumb.textContent = 'No image';
+          }
+
+          const meta = document.createElement('div');
+          meta.className = 'slot-meta';
+          const opened = document.createElement('span');
+          opened.className = 'slot-opened';
+          opened.textContent = formatOpened(s.TimestampIso);
+          const playtime = document.createElement('span');
+          playtime.className = 'slot-playtime';
+          playtime.textContent = `Playtime ${formatPlaytime(s.PlaytimeSeconds)}`;
+          meta.append(opened, playtime);
+
+          // Two-step in-page confirm: native confirm() escapes the CEF
+          // texture (no JS-dialog handler is bound up the WebUI chain).
+          const del = document.createElement('button');
+          del.type = 'button';
+          del.className = 'slot-delete';
+          del.textContent = 'Delete';
+          del.setAttribute('aria-label', `Delete save ${s.SlotId}`);
+          let disarmTimer = 0;
+          del.onclick = (ev) => {
+            ev.stopPropagation();
+            if (!del.classList.contains('armed')) {
+              del.classList.add('armed');
+              del.textContent = 'Sure?';
+              disarmTimer = setTimeout(() => {
+                del.classList.remove('armed');
+                del.textContent = 'Delete';
+              }, 3000);
+              return;
+            }
+            clearTimeout(disarmTimer);
+            tsic.publishMessage('UI.Cmd.Save.DeleteSlot', { SlotId: s.SlotId });
+          };
+
+          row.append(thumb, meta, del);
+          row.onclick = () => tsic.publishMessage('UI.Cmd.Menu.LoadSlot', { SlotId: s.SlotId });
+          host.appendChild(row);
+        }
+      }
+      // Inline scripts run during HTML parse, BEFORE the deferred tsic-*.js
+      // load — poll until the runtime exists (see main-menu.html).
+      (function boot() {
+        if (!window.tsic || typeof tsic.bootMenu !== 'function') { setTimeout(boot, 16); return; }
+        tsic.whenReady(() => tsic.bootMenu(function (ctx) {
+          ctx.on('tsic.msg.UI.Save.Slots', renderSlots);
+          tsic.onClick('#btn-back', () =>
+            tsic.publishMessage('UI.Cmd.Menu.Navigate', { Screen: 'MainMenu' }));
+        }));
+      })();
+    })();
+  </script>
+</body></html>

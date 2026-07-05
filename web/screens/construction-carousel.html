@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="tsic-screen" content="ConstructionCarousel">
+  <meta name="tsic-debug" content="true">
+  <title>Construction Carousel</title>
+  <!-- Test/playground host for the LIVE construction-carousel component
+       (shared/hud-construction-carousel.js). In production hud.js loads that
+       component on the InGame screen; here we just host it in isolation.
+
+       DO NOT add rendering logic to this file — the carousel is rendered by
+       shared/hud-construction-carousel.js, which builds its own DOM shell.
+
+       No tsic-bridge.js / tsic-runtime.js: the spa-test-runner stamps a mock
+       window.tsic in beforeParse, and tsic-bridge.js would overwrite it.
+       dom.js + icons.js are all the component needs for icon URLs. -->
+  <link rel="stylesheet" href="/shared/base.css">
+  <link rel="stylesheet" href="/shared/components.css">
+  <style> html, body { background: transparent; } </style>
+  <script src="/shared/dom.js" defer></script>
+  <script src="/shared/icons.js" defer></script>
+  <script src="/shared/hud-construction-carousel.js" defer></script>
+</head><body></body></html>

@@ -1,0 +1,532 @@
+/* shared/tsic-ui.css
+ *
+ * Layout primitives + the long tail of small components (tabs, dropdowns,
+ * context menus, scrims, gamepad-focus mirrors). Same class names as before
+ * so existing pages adopt the new look without HTML edits.
+ *
+ * Sections:
+ *   1. Layout primitives  — .tsic-modal-scrim, .tsic-stack, .tsic-row
+ *   2. Panel scaffolding  — .tsic-panel--screen, .tsic-split, .tsic-list-pane
+ *   3. List rows          — .tsic-list-row (article-row look, paper-context)
+ *   4. Storage shell      — .ss-* (storage / universal storage)
+ *   5. Typography         — .tsic-title, .tsic-eyebrow, .tsic-meta
+ *   6. Buttons row, tabs  — .tsic-button-row, .tsic-tab-bar, .tsic-close-row
+ *   7. Empty / dividers   — .tsic-empty, .tsic-divider
+ *   8. Context menu       — .tsic-context-menu / .tsic-context-item
+ *   9. Drag-and-drop      — .is-drop-target, .is-dragging
+ *  10. Gamepad focus      — html[data-tsic-input="Gamepad"] mirror rules
+ *  11. Dropdown           — .tsic-dropdown / .tsic-dropdown-portal
+ */
+
+/* ═════════════ 1. Layout primitives ═════════════ */
+
+/* Full-viewport scrim that centres its child. Synthwave-tinted by default. */
+.tsic-modal-scrim {
+    position: fixed; inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(13, 14, 21, 0.55);
+}
+.tsic-modal-scrim--dim   { background: rgba(13, 14, 21, 0.78); }
+.tsic-modal-scrim--clear { background: transparent; }
+
+/* Vertical stack with consistent gap. */
+.tsic-stack         { display: flex; flex-direction: column; gap: 12px; }
+.tsic-stack--sm     { gap: 6px; }
+
+/* Horizontal row with consistent gap. */
+.tsic-row           { display: flex; flex-direction: row; gap: 12px; align-items: center; }
+.tsic-row--sm       { gap: 6px; }
+
+/* ═════════════ 2. Panel scaffolding ═════════════
+ * Screen-sized modal panel. Used by inventory, production, crafting, storage,
+ * upgrade, repair, summoner — the "main feature" full-screen modals.
+ * Capped so the panel doesn't get gigantic on 4K and doesn't pinch on small. */
+.tsic-panel--screen {
+    width: 60vw;
+    height: 60vh;
+    max-width: 1200px;
+    min-width: 720px;
+    max-height: 760px;
+    min-height: 420px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Split-pane body for screen panels: two columns of vertical lists. */
+.tsic-split {
+    flex: 1 1 auto;
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    gap: 12px;
+    min-height: 0;
+}
+.tsic-split > .tsic-split-col {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    min-width: 0;
+    gap: 8px;
+}
+
+/* Scrollable list pane that fills its parent column. */
+.tsic-list-pane {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    background: var(--paper-bright);
+    border: 2px solid var(--ink-night);
+    padding: 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-height: 0;
+}
+
+/* ═════════════ 3. List rows ═════════════
+ * Used inside .tsic-list-pane for inventory / production / crafting / storage.
+ * Magazine "article row" look — bold name, dashed bottom border between rows,
+ * red `>>` indicator on hover/selected. */
+.tsic-list-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 10px;
+    background: transparent;
+    border: 0;
+    border-bottom: 1px dashed rgba(10, 10, 10, 0.30);
+    cursor: pointer;
+    color: var(--ink-night);
+    font-family: var(--font-display);
+    font-size: 14px;
+    line-height: 1.2;
+    letter-spacing: 0.04em;
+}
+button.tsic-list-row {
+    font: inherit;
+    text-align: left;
+    width: 100%;
+    font-family: var(--font-display);
+}
+.tsic-list-row:hover { background: var(--paper-muted); padding-left: 14px; }
+.tsic-list-row.is-selected {
+    background: var(--mag-red);
+    color: #ffffff;
+    border-bottom-color: var(--mag-red);
+    padding-left: 14px;
+}
+.tsic-list-row.is-selected::before {
+    content: '>>';
+    color: #ffffff;
+    font-weight: 900;
+    margin-right: 2px;
+}
+.tsic-list-row.is-locked { color: var(--ink-mute); cursor: not-allowed; }
+
+.tsic-list-row .icon {
+    width: 28px; height: 28px;
+    flex: 0 0 auto;
+    background: var(--paper-bright);
+    border: 1px solid var(--ink-night);
+    display: flex; align-items: center; justify-content: center;
+}
+.tsic-list-row.is-selected .icon { border-color: #ffffff; background: rgba(255, 255, 255, 0.18); }
+.tsic-list-row .icon img { width: 100%; height: 100%; object-fit: contain; }
+.tsic-list-row .name {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-transform: uppercase;
+}
+.tsic-list-row .right {
+    flex: 0 0 auto;
+    text-align: right;
+    font-size: 12px;
+    font-family: var(--font-terminal);
+    color: var(--ink-soft);
+    letter-spacing: 0.04em;
+}
+.tsic-list-row.is-selected .right { color: rgba(255, 255, 255, 0.85); }
+
+/* ═════════════ 4. Storage shell ═════════════
+ * Shared between regular storage and universal storage. Lives inside a
+ * .tsic-panel--screen so column widths come from the grid above; this
+ * section only styles the header, per-side capacity, tabs, and info strip. */
+#ss-header {
+    display: flex;
+    align-items: baseline;
+    gap: 18px;
+    margin-bottom: 8px;
+}
+#ss-header .spacer { flex: 1 1 auto; }
+.ss-col-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+}
+/* Storage tabs share the unified .tsic-tab treatment (see §6); only the size
+   is trimmed for the denser two-pane storage shell. */
+.ss-tabs .tsic-tab { padding: 4px 10px; font-size: 13px; }
+
+.ss-capacity {
+    display: flex; flex-direction: column; gap: 2px;
+    font-size: 11px;
+    flex: 0 0 auto;
+}
+.ss-capacity-line {
+    display: flex;
+    justify-content: space-between;
+    color: var(--ink-soft);
+    font-family: var(--font-terminal);
+    letter-spacing: 0.06em;
+}
+.ss-capacity-bar {
+    height: 5px;
+    background: var(--paper-muted);
+    border: 1px solid var(--ink-night);
+}
+.ss-capacity-fill {
+    height: 100%;
+    width: 0;
+    background: var(--ink-night);
+    transition: width 100ms linear, background 100ms linear;
+}
+.ss-capacity[data-state="warning"]      .ss-capacity-fill { background: var(--mag-yellow); }
+.ss-capacity[data-state="full"]         .ss-capacity-fill { background: var(--mag-red); }
+.ss-capacity[data-state="overburdened"] .ss-capacity-fill { background: var(--mag-red-dark); }
+
+#ss-info {
+    flex: 0 0 auto;
+    margin-top: 8px;
+    padding: 8px 10px;
+    background: var(--paper-bright);
+    border: 2px solid var(--ink-night);
+    font-family: var(--font-terminal);
+    font-size: 13px;
+    min-height: 56px;
+    color: var(--ink-night);
+}
+#ss-info.tsic-empty { padding: 12px 10px; }
+
+/* Storage shell uses the same compact rows as inventory. */
+#ss-player-list .tsic-list-row,
+#ss-container-list .tsic-list-row { padding: 3px 8px; gap: 8px; font-size: 12px; line-height: 1.2; }
+#ss-player-list .tsic-list-row .icon,
+#ss-container-list .tsic-list-row .icon { width: 20px; height: 20px; }
+#ss-player-list .tsic-list-row .right,
+#ss-container-list .tsic-list-row .right { display:flex; gap:8px; font-size:11px; }
+#ss-player-list, #ss-container-list { gap: 1px; }
+
+/* ═════════════ 5. Typography ═════════════ */
+
+/* Section title — display-font headline. */
+.tsic-title {
+    margin: 0 0 12px;
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 28px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-night);
+    line-height: 0.95;
+}
+.tsic-title--lg { font-size: 42px; letter-spacing: 0.04em; }
+.tsic-title--sm { font-size: 18px; letter-spacing: 0.10em; margin-bottom: 6px; }
+
+/* Eyebrow — small uppercase label that sits above content. */
+.tsic-eyebrow {
+    font-family: var(--font-body);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 6px;
+}
+/* Meta — terminal-font tiny text used for stack counts, subnames. */
+.tsic-meta {
+    font-family: var(--font-terminal);
+    font-size: 13px;
+    color: var(--ink-soft);
+    letter-spacing: 0.04em;
+}
+
+/* ═════════════ 6. Button-row + tabs ═════════════ */
+
+.tsic-button-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 16px;
+}
+.tsic-button-row--start   { justify-content: flex-start; }
+
+.tsic-close-row {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 12px;
+}
+
+/* Magazine tab-bar — borderless section labels sitting on one heavy ink
+   underline; the active tab is a solid red block whose lower edge meets the
+   underline. No gaps, no vertical dividers. Every tab strip carries
+   data-tsic-tab-bar, so the bar treatment is keyed off that attribute and all
+   screens (settings, inventory, storage, construction…) stay identical. */
+.tsic-tab-bar,
+[data-tsic-tab-bar] {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0;
+    border-bottom: 4px solid var(--ink-night);
+    margin-bottom: 12px;
+}
+.tsic-tab {
+    position: relative;
+    bottom: -4px;                 /* overlap the 4px underline */
+    padding: 8px 16px;
+    background: transparent;
+    border: 0;
+    color: var(--ink-soft);
+    font-family: var(--font-display);
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background-color 120ms ease, color 120ms ease;
+}
+.tsic-tab:hover { color: var(--ink-night); }
+.tsic-tab.is-active {
+    background: var(--mag-red);
+    color: #ffffff;
+}
+
+/* Pointer-events helpers — HUD overlays mostly pass through with selective opt-in. */
+.tsic-pass-through { pointer-events: none; }
+.tsic-interactive  { pointer-events: auto; }
+
+/* ═════════════ 7. Empty / spacers / dividers ═════════════ */
+
+.tsic-empty {
+    padding: 24px 12px;
+    text-align: center;
+    color: var(--ink-soft);
+    font-family: var(--font-display);
+    font-size: 16px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.tsic-divider {
+    height: 0;
+    border: 0;
+    border-top: 2px solid var(--ink-night);
+    margin: 12px 0;
+}
+
+/* ═════════════ 8. Context menu (shared/context-menu.js) ═════════════ */
+
+.tsic-context-menu {
+    position: fixed;
+    z-index: 1100;
+    min-width: 200px;
+    padding: 4px;
+    background: var(--paper-cream);
+    border: 3px solid var(--ink-night);
+    box-shadow: var(--shadow-block);
+    font-family: var(--font-display);
+    font-size: 14px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-night);
+    user-select: none;
+}
+.tsic-context-item {
+    padding: 6px 10px;
+    cursor: pointer;
+    transition: background-color 80ms ease, color 80ms ease, padding-left 120ms ease;
+}
+.tsic-context-item:hover {
+    background: var(--mag-red);
+    color: #ffffff;
+    padding-left: 14px;
+}
+.tsic-context-item.is-disabled {
+    color: var(--ink-mute);
+    pointer-events: none;
+}
+
+/* ═════════════ 9. Drag-and-drop ═════════════ */
+
+.is-drop-target {
+    outline: 2px dashed var(--mag-red);
+    outline-offset: -2px;
+    box-shadow: inset 0 0 0 3px rgba(230, 0, 0, 0.12);
+}
+.is-dragging {
+    color: var(--ink-mute);
+    background: rgba(230, 0, 0, 0.10);
+}
+
+/* ═════════════ 10. Gamepad focus mirror ═════════════
+ * In Gamepad mode the focused element needs an unmistakable highlight.
+ * Two things together:
+ *   1) Outline + halo ring so the focus is visible even on subtle elements.
+ *   2) Mirror :hover styles onto [data-tsic-focused] so a focused button gets
+ *      the same look mouse users see on hover.
+ * All rules only fire under html[data-tsic-input="Gamepad"]. */
+
+html[data-tsic-input="Gamepad"] [data-tsic-focused],
+html[data-tsic-input="Gamepad"] :focus-visible {
+    outline: 3px solid var(--mag-red);
+    outline-offset: 3px;
+    box-shadow: 0 0 0 5px rgba(230, 0, 0, 0.18);
+}
+
+/* Mirror :hover styles onto [data-tsic-focused] so a focused button reads the
+   same as a hovered one. Matches the letterpress button system in components.css. */
+html[data-tsic-input="Gamepad"] .tsic-button[data-tsic-focused] {
+    background: #ff1a1a;
+    transform: translate(-2px, -2px);
+    box-shadow: var(--shadow-block-lg);
+}
+html[data-tsic-input="Gamepad"] .tsic-button.cancel[data-tsic-focused],
+html[data-tsic-input="Gamepad"] .tsic-button.secondary[data-tsic-focused],
+html[data-tsic-input="Gamepad"] .tsic-button[data-variant="secondary"][data-tsic-focused] {
+    background: var(--ink-night);
+    color: var(--paper-bright);
+}
+html[data-tsic-input="Gamepad"] .tsic-button.danger[data-tsic-focused],
+html[data-tsic-input="Gamepad"] .tsic-button.pink[data-tsic-focused],
+html[data-tsic-input="Gamepad"] .tsic-button[data-variant="danger"][data-tsic-focused] {
+    background: var(--mag-red);
+    color: var(--paper-bright);
+}
+html[data-tsic-input="Gamepad"] .tsic-button.ghost[data-tsic-focused] {
+    color: var(--mag-red);
+}
+
+html[data-tsic-input="Gamepad"] .tsic-list-row[data-tsic-focused] {
+    background: var(--paper-muted);
+    padding-left: 14px;
+    outline-offset: -2px;
+}
+html[data-tsic-input="Gamepad"] .tsic-list-row.is-selected[data-tsic-focused] {
+    background: var(--mag-red);
+    color: #ffffff;
+}
+
+html[data-tsic-input="Gamepad"] .tsic-tab[data-tsic-focused] {
+    background: var(--paper-muted);
+}
+
+html[data-tsic-input="Gamepad"] .tsic-dropdown[data-tsic-focused] {
+    background: var(--paper-muted);
+}
+
+html[data-tsic-input="Gamepad"] .tsic-context-item[data-tsic-focused] {
+    background: var(--mag-red);
+    color: #ffffff;
+    padding-left: 14px;
+}
+
+html[data-tsic-input="Gamepad"] .tsic-link[data-tsic-focused] {
+    color: var(--mag-red);
+}
+
+html[data-tsic-input="Gamepad"] .tsic-row-button[data-tsic-focused] {
+    background: var(--paper-muted);
+    padding-left: 22px;
+}
+
+/* Storage shell tabs and inventory tabs. */
+html[data-tsic-input="Gamepad"] .ss-tabs .tsic-tab[data-tsic-focused],
+html[data-tsic-input="Gamepad"] .inv-tab[data-tsic-focused] {
+    background: var(--paper-muted);
+}
+
+/* ═════════════ 11. Dropdown (tsic-dropdown.js) ═════════════ */
+
+.tsic-dropdown {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    background: var(--paper-bright);
+    border: 2px solid var(--ink-night);
+    color: var(--ink-night);
+    font-family: var(--font-display);
+    font-size: 14px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background-color 120ms ease, color 120ms ease;
+}
+.tsic-dropdown:hover { background: var(--paper-muted); }
+.tsic-dropdown[aria-expanded="true"] {
+    background: var(--mag-red);
+    color: #ffffff;
+    border-color: var(--ink-night);
+}
+.tsic-dropdown[aria-expanded="true"] .tsic-dropdown-caret { color: #ffffff; }
+.tsic-dropdown-caret { font-size: 10px; color: var(--mag-red); }
+.tsic-dropdown-label {
+    flex: 1 1 auto;
+    text-align: left;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.tsic-dropdown-portal {
+    position: absolute;
+    z-index: 1000;
+    background: var(--paper-cream);
+    border: 3px solid var(--ink-night);
+    box-shadow: var(--shadow-block);
+    min-width: 180px;
+    max-height: 320px;
+    overflow-y: auto;
+    padding: 4px;
+}
+.tsic-dropdown-portal ul[role="listbox"] {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    list-style: none;
+    margin: 0; padding: 0;
+}
+.tsic-dropdown-portal li[role="option"] {
+    padding: 6px 10px;
+    cursor: pointer;
+    font-family: var(--font-display);
+    font-size: 14px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-night);
+    transition: background-color 80ms ease, color 80ms ease, padding-left 120ms ease;
+}
+.tsic-dropdown-portal li[role="option"]:hover,
+.tsic-dropdown-portal li[role="option"][data-tsic-focused] {
+    background: var(--mag-red);
+    color: #ffffff;
+    padding-left: 14px;
+}
+.tsic-dropdown-portal li[role="option"][aria-selected="true"] {
+    font-weight: 900;
+}
+.tsic-dropdown-portal li[role="option"][aria-selected="true"]::before {
+    content: '>>';
+    color: var(--mag-red);
+    margin-right: 6px;
+    font-weight: 900;
+}
+.tsic-dropdown-portal li[role="option"][aria-selected="true"]:hover::before,
+.tsic-dropdown-portal li[role="option"][aria-selected="true"][data-tsic-focused]::before { color: #ffffff; }

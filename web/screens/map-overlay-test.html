@@ -1,0 +1,588 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="tsic-screen" content="MapOverlayTest">
+  <meta name="tsic-debug" content="true">
+  <meta name="tsic-input-mode" content="InputMode.Menu.Map">
+  <title>Map Overlay Rendering Test</title>
+    <script src="/shared/tsic-bridge.js" defer></script>
+  <script src="/shared/tsic-runtime.js" defer></script>
+  <script src="/shared/router.js" defer></script>
+  <script src="/shared/tsic-focus.js" defer></script>
+  <style>
+    html, body { margin: 0; padding: 0; height: 100%; background: #111; color: #ddd;
+      font-family: 'Consolas', monospace; overflow: hidden; }
+    #root { display: flex; flex-direction: column; height: 100%; }
+    #toolbar {
+      flex: 0 0 auto;
+      padding: 6px 12px;
+      background: #1a1a1a;
+      border-bottom: 1px solid #333;
+      display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+      font-size: 11px;
+    }
+    #toolbar button {
+      background: #2a2a2a; color: #ddd; border: 1px solid #444;
+      padding: 3px 8px; font-family: inherit; font-size: 11px; cursor: pointer;
+    }
+    #toolbar #status { color: #cce; }
+    #toolbar #status.empty { color: #e66; }
+    #toolbar .info { color: #555; margin-left: auto; }
+    #grid {
+      flex: 1 1 auto;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      gap: 3px;
+      padding: 3px;
+      overflow: hidden;
+      min-height: 0;
+    }
+    .cell {
+      background: #1a1a1a;
+      display: flex; flex-direction: column;
+      min-height: 0; min-width: 0;
+      overflow: hidden;
+      border: 1px solid #2a2a2a;
+    }
+    .cell .hdr {
+      flex: 0 0 auto;
+      padding: 2px 6px;
+      background: #151515;
+      font-size: 9px;
+      border-bottom: 1px solid #2a2a2a;
+      display: flex; justify-content: space-between; gap: 4px;
+    }
+    .cell .hdr .name { color: #cce; letter-spacing: 1px; font-weight: bold; }
+    .cell .hdr .verdict { color: #666; font-size: 8px; }
+    .cell .hdr .verdict.pass { color: #6c8; }
+    .cell .hdr .verdict.fail { color: #e66; }
+    .cell .body {
+      flex: 1 1 auto;
+      position: relative;
+      overflow: hidden;
+      background: #0c0c0c;
+      min-height: 0;
+    }
+    .cell .body img {
+      width: 100%; height: 100%;
+      object-fit: contain;
+      image-rendering: pixelated;
+    }
+    /* Dot marker (HTML div) */
+    .mk-dot {
+      position: absolute; border-radius: 50%;
+      border: 2px solid #fff;
+      box-shadow: 0 0 6px rgba(0,0,0,0.9);
+      pointer-events: none;
+    }
+    /* Label (HTML div) */
+    .mk-label {
+      position: absolute; pointer-events: none; white-space: nowrap;
+      font-size: 9px;
+      text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
+    }
+  </style>
+</head><body>
+  <div id="root">
+    <div id="toolbar">
+      <button data-action="back">&larr; Textures</button>
+      <button data-action="player-debug">&larr; Player Debug</button>
+      <span id="status" class="empty">waiting for snapshot…</span>
+      <span class="info">12 overlay techniques · green = renders · red = blank</span>
+      <button data-action="close" style="margin-left:auto;background:#a33;border-color:#c55;">Close</button>
+    </div>
+    <div id="grid"></div>
+  </div>
+  <script>
+    (function () {
+      // Each variant is a self-contained rendering technique that places a
+      // player marker over the world-map texture. Some will work in the
+      // WebView, some won't — that's the point. The grid shows all of them
+      // at once so you can compare without reloading.
+      //
+      // Every variant gets a cell with:
+      //   - <img> for the world-map texture (object-fit: contain)
+      //   - a render(body, img, snap) callback that adds overlay elements
+
+      var LIVE = null;
+
+      function fmt(n) { return Math.round(n); }
+
+      // object-fit:contain math — rendered image rect within the <img> element
+      function containedRect(img) {
+        var ew = img.clientWidth, eh = img.clientHeight;
+        var nw = img.naturalWidth || 1, nh = img.naturalHeight || 1;
+        var ar = nw / nh, ear = ew / eh;
+        var rw, rh, ox, oy;
+        if (ear > ar) { rh = eh; rw = eh * ar; ox = (ew - rw) / 2; oy = 0; }
+        else          { rw = ew; rh = ew / ar; ox = 0; oy = (eh - rh) / 2; }
+        return { ox: ox, oy: oy, rw: rw, rh: rh };
+      }
+
+      // CURRENT transform: world (X,Y) → local fraction (0..1, 0..1)
+      function worldFrac(wx, wy, snap) {
+        var minB = snap.MinBounds, maxB = snap.MaxBounds;
+        var worldW = maxB.Y - minB.Y, worldH = maxB.X - minB.X;
+        if (worldW <= 0 || worldH <= 0) return null;
+        return {
+          fx: (wy - minB.Y) / worldW,
+          fy: (maxB.X - wx) / worldH,
+        };
+      }
+
+      // --- VARIANT DEFINITIONS ---
+
+      var VARIANTS = [
+        // 1. HTML div dot + containedRect positioning (proven in player-debug)
+        {
+          name: 'DIV DOT + contain',
+          desc: 'HTML div circle, containedRect offset',
+          render: function (body, img, snap) {
+            var cr = containedRect(img);
+            eachPlayer(snap, function (pl, i, isSelf) {
+              var f = worldFrac(pl.Position.X, pl.Position.Y, snap);
+              if (!f) return;
+              var px = cr.ox + f.fx * cr.rw;
+              var py = cr.oy + f.fy * cr.rh;
+              var c = playerColor(pl, isSelf);
+              addDirLine(body, px, py, pl.YawDeg || 0, 14);
+              addDot(body, px, py, isSelf ? 14 : 10, c);
+              addLabel(body, px + 10, py - 8, pl, c);
+            });
+          },
+        },
+        // 2. HTML div dot, no containedRect (raw % of img element)
+        {
+          name: 'DIV DOT + raw%',
+          desc: 'HTML div, left/top as % of img size (ignores contain offset)',
+          render: function (body, img, snap) {
+            eachPlayer(snap, function (pl, i, isSelf) {
+              var f = worldFrac(pl.Position.X, pl.Position.Y, snap);
+              if (!f) return;
+              var px = f.fx * img.clientWidth;
+              var py = f.fy * img.clientHeight;
+              var c = playerColor(pl, isSelf);
+              addDirLine(body, px, py, pl.YawDeg || 0, 14);
+              addDot(body, px, py, isSelf ? 14 : 10, c);
+              addLabel(body, px + 10, py - 8, pl, c);
+            });
+          },
+        },
+        // 3. SVG overlay with viewBox + polygon (production map.html style)
+        {
+          name: 'SVG POLYGON',
+          desc: 'SVG viewBox + polygon + rotate transform',
+          render: function (body, img, snap) {
+            var minB = snap.MinBounds, maxB = snap.MaxBounds;
+            var wW = maxB.Y - minB.Y, wH = maxB.X - minB.X;
+            if (wW <= 0 || wH <= 0) return;
+            var svg = svgEl('svg', {
+              width: img.clientWidth, height: img.clientHeight,
+              viewBox: '0 0 ' + wW + ' ' + wH,
+              style: 'position:absolute;left:0;top:0;width:' + img.clientWidth + 'px;height:' + img.clientHeight + 'px;pointer-events:none;',
+            });
+            var tip = Math.max(wW, wH) * 0.015;
+            var base = tip * 0.67;
+            eachPlayer(snap, function (pl, i, isSelf) {
+              var lx = pl.Position.Y - minB.Y;
+              var ly = maxB.X - pl.Position.X;
+              var yaw = pl.YawDeg || 0;
+              var tri = svgEl('polygon', {
+                points: '0,' + (-tip) + ' ' + base + ',' + base + ' ' + (-base) + ',' + base,
+                transform: 'translate(' + lx + ',' + ly + ') rotate(' + yaw + ')',
+                fill: isSelf ? '#3498db' : '#bbb', stroke: '#fff', 'stroke-width': tip * 0.12,
+              });
+              svg.appendChild(tri);
+            });
+            body.appendChild(svg);
+          },
+        },
+        // 4. SVG circle (no rotate) — tests if rotate is the problem
+        {
+          name: 'SVG CIRCLE',
+          desc: 'SVG viewBox + circle (no rotate)',
+          render: function (body, img, snap) {
+            var minB = snap.MinBounds, maxB = snap.MaxBounds;
+            var wW = maxB.Y - minB.Y, wH = maxB.X - minB.X;
+            if (wW <= 0 || wH <= 0) return;
+            var svg = svgEl('svg', {
+              width: img.clientWidth, height: img.clientHeight,
+              viewBox: '0 0 ' + wW + ' ' + wH,
+              style: 'position:absolute;left:0;top:0;width:' + img.clientWidth + 'px;height:' + img.clientHeight + 'px;pointer-events:none;',
+            });
+            var r = Math.max(wW, wH) * 0.01;
+            eachPlayer(snap, function (pl, i, isSelf) {
+              var lx = pl.Position.Y - minB.Y;
+              var ly = maxB.X - pl.Position.X;
+              svg.appendChild(svgEl('circle', {
+                cx: lx, cy: ly, r: r,
+                fill: isSelf ? '#3498db' : '#bbb', stroke: '#fff', 'stroke-width': r * 0.2,
+              }));
+            });
+            body.appendChild(svg);
+          },
+        },
+        // 5. SVG rect (simplest shape — no curves, no rotate)
+        {
+          name: 'SVG RECT',
+          desc: 'SVG viewBox + rect (no curves, no rotate)',
+          render: function (body, img, snap) {
+            var minB = snap.MinBounds, maxB = snap.MaxBounds;
+            var wW = maxB.Y - minB.Y, wH = maxB.X - minB.X;
+            if (wW <= 0 || wH <= 0) return;
+            var svg = svgEl('svg', {
+              width: img.clientWidth, height: img.clientHeight,
+              viewBox: '0 0 ' + wW + ' ' + wH,
+              style: 'position:absolute;left:0;top:0;width:' + img.clientWidth + 'px;height:' + img.clientHeight + 'px;pointer-events:none;',
+            });
+            var sz = Math.max(wW, wH) * 0.015;
+            eachPlayer(snap, function (pl, i, isSelf) {
+              var lx = pl.Position.Y - minB.Y;
+              var ly = maxB.X - pl.Position.X;
+              svg.appendChild(svgEl('rect', {
+                x: lx - sz / 2, y: ly - sz / 2, width: sz, height: sz,
+                fill: isSelf ? '#3498db' : '#bbb', stroke: '#fff', 'stroke-width': sz * 0.1,
+              }));
+            });
+            body.appendChild(svg);
+          },
+        },
+        // 6. SVG with containedRect offset (position SVG over rendered image area)
+        {
+          name: 'SVG + containRect',
+          desc: 'SVG positioned via containedRect, circle markers',
+          render: function (body, img, snap) {
+            var minB = snap.MinBounds, maxB = snap.MaxBounds;
+            var wW = maxB.Y - minB.Y, wH = maxB.X - minB.X;
+            if (wW <= 0 || wH <= 0) return;
+            var cr = containedRect(img);
+            var svg = svgEl('svg', {
+              width: Math.round(cr.rw), height: Math.round(cr.rh),
+              viewBox: '0 0 ' + wW + ' ' + wH,
+              style: 'position:absolute;'
+                + 'left:' + Math.round(cr.ox) + 'px;top:' + Math.round(cr.oy) + 'px;'
+                + 'width:' + Math.round(cr.rw) + 'px;height:' + Math.round(cr.rh) + 'px;'
+                + 'pointer-events:none;',
+            });
+            var r = Math.max(wW, wH) * 0.01;
+            eachPlayer(snap, function (pl, i, isSelf) {
+              var lx = pl.Position.Y - minB.Y;
+              var ly = maxB.X - pl.Position.X;
+              svg.appendChild(svgEl('circle', {
+                cx: lx, cy: ly, r: r,
+                fill: isSelf ? '#3498db' : '#bbb', stroke: '#fff', 'stroke-width': r * 0.2,
+              }));
+            });
+            body.appendChild(svg);
+          },
+        },
+        // 7. Canvas 2D overlay
+        {
+          name: 'CANVAS 2D',
+          desc: 'HTML canvas with 2D arc + fill',
+          render: function (body, img, snap) {
+            var cr = containedRect(img);
+            var canvas = document.createElement('canvas');
+            canvas.width = img.clientWidth;
+            canvas.height = img.clientHeight;
+            canvas.style.cssText = 'position:absolute;left:0;top:0;width:'
+              + img.clientWidth + 'px;height:' + img.clientHeight + 'px;pointer-events:none;';
+            var ctx = canvas.getContext('2d');
+            if (!ctx) return;
+            eachPlayer(snap, function (pl, i, isSelf) {
+              var f = worldFrac(pl.Position.X, pl.Position.Y, snap);
+              if (!f) return;
+              var px = cr.ox + f.fx * cr.rw;
+              var py = cr.oy + f.fy * cr.rh;
+              var r = isSelf ? 8 : 5;
+              ctx.beginPath();
+              ctx.arc(px, py, r, 0, Math.PI * 2);
+              ctx.fillStyle = isSelf ? '#3498db' : '#bbb';
+              ctx.fill();
+              ctx.lineWidth = 2;
+              ctx.strokeStyle = '#fff';
+              ctx.stroke();
+            });
+            body.appendChild(canvas);
+          },
+        },
+        // 8. Inline SVG in body (not layered — just appended to flow, absolute-positioned)
+        {
+          name: 'INLINE SVG abs',
+          desc: 'SVG element inside body div, absolute, no viewBox',
+          render: function (body, img, snap) {
+            var cr = containedRect(img);
+            eachPlayer(snap, function (pl, i, isSelf) {
+              var f = worldFrac(pl.Position.X, pl.Position.Y, snap);
+              if (!f) return;
+              var px = cr.ox + f.fx * cr.rw;
+              var py = cr.oy + f.fy * cr.rh;
+              var r = isSelf ? 8 : 5;
+              var svg = svgEl('svg', {
+                width: r * 2 + 4, height: r * 2 + 4,
+                style: 'position:absolute;left:' + (px - r - 2) + 'px;top:' + (py - r - 2) + 'px;'
+                  + 'pointer-events:none;overflow:visible;',
+              });
+              svg.appendChild(svgEl('circle', {
+                cx: r + 2, cy: r + 2, r: r,
+                fill: isSelf ? '#3498db' : '#bbb', stroke: '#fff', 'stroke-width': 2,
+              }));
+              body.appendChild(svg);
+            });
+          },
+        },
+        // 9. CSS background-image dot (border-radius circle via pure CSS)
+        {
+          name: 'CSS BG DOT',
+          desc: 'Div with background-color + border-radius + dir + label',
+          render: function (body, img, snap) {
+            var cr = containedRect(img);
+            eachPlayer(snap, function (pl, i, isSelf) {
+              var f = worldFrac(pl.Position.X, pl.Position.Y, snap);
+              if (!f) return;
+              var px = cr.ox + f.fx * cr.rw;
+              var py = cr.oy + f.fy * cr.rh;
+              var c = playerColor(pl, isSelf);
+              addDirLine(body, px, py, pl.YawDeg || 0, 12);
+              var sz = isSelf ? 14 : 10;
+              var d = document.createElement('div');
+              d.style.cssText = 'position:absolute;pointer-events:none;'
+                + 'left:' + (px - sz / 2) + 'px;top:' + (py - sz / 2) + 'px;'
+                + 'width:' + sz + 'px;height:' + sz + 'px;'
+                + 'background-color:' + c + ';'
+                + 'border-radius:50%;'
+                + 'border:2px solid #fff;'
+                + 'box-shadow:0 0 6px #000;';
+              body.appendChild(d);
+              addLabel(body, px + sz / 2 + 4, py - 8, pl, c);
+            });
+          },
+        },
+        // 10. CSS box-shadow only (no child element — shadow on body itself)
+        {
+          name: 'BOX-SHADOW',
+          desc: 'Single div with multiple box-shadows for each player',
+          render: function (body, img, snap) {
+            var cr = containedRect(img);
+            var shadows = [];
+            eachPlayer(snap, function (pl, i, isSelf) {
+              var f = worldFrac(pl.Position.X, pl.Position.Y, snap);
+              if (!f) return;
+              var px = cr.ox + f.fx * cr.rw;
+              var py = cr.oy + f.fy * cr.rh;
+              var color = isSelf ? '#3498db' : '#bbb';
+              shadows.push(px + 'px ' + py + 'px 0 6px ' + color);
+              shadows.push(px + 'px ' + py + 'px 0 8px #fff');
+            });
+            if (shadows.length === 0) return;
+            var d = document.createElement('div');
+            d.style.cssText = 'position:absolute;left:0;top:0;width:0;height:0;'
+              + 'border-radius:50%;pointer-events:none;'
+              + 'box-shadow:' + shadows.join(',') + ';';
+            body.appendChild(d);
+          },
+        },
+        // 11. SVG polygon with translate only (no rotate)
+        {
+          name: 'SVG TRI no-rot',
+          desc: 'SVG polygon triangle, translate only (no rotate)',
+          render: function (body, img, snap) {
+            var minB = snap.MinBounds, maxB = snap.MaxBounds;
+            var wW = maxB.Y - minB.Y, wH = maxB.X - minB.X;
+            if (wW <= 0 || wH <= 0) return;
+            var svg = svgEl('svg', {
+              width: img.clientWidth, height: img.clientHeight,
+              viewBox: '0 0 ' + wW + ' ' + wH,
+              style: 'position:absolute;left:0;top:0;width:' + img.clientWidth + 'px;height:' + img.clientHeight + 'px;pointer-events:none;',
+            });
+            var tip = Math.max(wW, wH) * 0.015;
+            var base = tip * 0.67;
+            eachPlayer(snap, function (pl, i, isSelf) {
+              var lx = pl.Position.Y - minB.Y;
+              var ly = maxB.X - pl.Position.X;
+              var tri = svgEl('polygon', {
+                points: '0,' + (-tip) + ' ' + base + ',' + base + ' ' + (-base) + ',' + base,
+                transform: 'translate(' + lx + ',' + ly + ')',
+                fill: isSelf ? '#3498db' : '#bbb', stroke: '#fff', 'stroke-width': tip * 0.12,
+              });
+              svg.appendChild(tri);
+            });
+            body.appendChild(svg);
+          },
+        },
+        // 12. SVG text only — simplest possible SVG content
+        {
+          name: 'SVG TEXT',
+          desc: 'SVG viewBox + text element at player position',
+          render: function (body, img, snap) {
+            var minB = snap.MinBounds, maxB = snap.MaxBounds;
+            var wW = maxB.Y - minB.Y, wH = maxB.X - minB.X;
+            if (wW <= 0 || wH <= 0) return;
+            var svg = svgEl('svg', {
+              width: img.clientWidth, height: img.clientHeight,
+              viewBox: '0 0 ' + wW + ' ' + wH,
+              style: 'position:absolute;left:0;top:0;width:' + img.clientWidth + 'px;height:' + img.clientHeight + 'px;pointer-events:none;',
+            });
+            var fs = Math.max(wW, wH) * 0.02;
+            eachPlayer(snap, function (pl, i, isSelf) {
+              var lx = pl.Position.Y - minB.Y;
+              var ly = maxB.X - pl.Position.X;
+              var t = svgEl('text', {
+                x: lx, y: ly,
+                'text-anchor': 'middle', 'dominant-baseline': 'central',
+                fill: isSelf ? '#3498db' : '#bbb',
+                stroke: '#000', 'stroke-width': fs * 0.08,
+                'font-family': 'Consolas, monospace',
+                'font-size': fs,
+              });
+              t.textContent = isSelf ? '▲' : '●';
+              svg.appendChild(t);
+            });
+            body.appendChild(svg);
+          },
+        },
+      ];
+
+      // --- Helpers ---
+
+      function svgEl(tag, attrs) {
+        var e = document.createElementNS('http://www.w3.org/2000/svg', tag);
+        if (attrs) for (var k in attrs) {
+          if (k === 'style') e.setAttribute('style', attrs[k]);
+          else e.setAttribute(k, String(attrs[k]));
+        }
+        return e;
+      }
+
+      function eachPlayer(snap, fn) {
+        var list = (snap && snap.Players) || [];
+        for (var i = 0; i < list.length; i++) {
+          fn(list[i], i, i === 0);
+        }
+      }
+
+      function playerColor(pl, isSelf) {
+        return pl.Color || (isSelf ? '#3498db' : '#888888');
+      }
+
+      function addDot(parent, px, py, sz, color) {
+        var d = document.createElement('div');
+        d.className = 'mk-dot';
+        d.style.left = (px - sz / 2) + 'px';
+        d.style.top  = (py - sz / 2) + 'px';
+        d.style.width = sz + 'px';
+        d.style.height = sz + 'px';
+        d.style.background = color;
+        parent.appendChild(d);
+      }
+
+      function addDirLine(parent, px, py, yaw, len) {
+        var d = document.createElement('div');
+        d.style.cssText = 'position:absolute;z-index:9;pointer-events:none;'
+          + 'left:' + px + 'px;top:' + py + 'px;'
+          + 'width:' + len + 'px;height:2px;background:#fff;'
+          + 'transform-origin:0 50%;margin-top:-1px;'
+          + 'transform:rotate(' + yaw + 'deg);';
+        parent.appendChild(d);
+      }
+
+      function addLabel(parent, px, py, pl, color) {
+        var d = document.createElement('div');
+        d.className = 'mk-label';
+        d.style.left = px + 'px';
+        d.style.top  = py + 'px';
+        d.style.color = '#fff';
+        d.style.background = color;
+        d.style.padding = '1px 3px';
+        d.textContent = pl.Name || pl.PlayerId || '?';
+        parent.appendChild(d);
+      }
+
+      // --- Build the grid ---
+
+      var grid = document.getElementById('grid');
+      var cells = [];
+
+      for (var v = 0; v < VARIANTS.length; v++) {
+        var variant = VARIANTS[v];
+        var cell = document.createElement('div');
+        cell.className = 'cell';
+        cell.innerHTML =
+          '<div class="hdr">'
+          + '<span class="name">' + (v + 1) + '. ' + variant.name + '</span>'
+          + '<span class="verdict"></span>'
+          + '</div>'
+          + '<div class="body">'
+          + '<img src="/runtime/world-map.imgsrc" alt="">'
+          + '</div>';
+        grid.appendChild(cell);
+        cells.push({ cell: cell, variant: variant });
+      }
+
+      // --- Render all variants ---
+
+      function renderAll() {
+        for (var c = 0; c < cells.length; c++) {
+          var body = cells[c].cell.querySelector('.body');
+          var img  = body.querySelector('img');
+          var verdict = cells[c].cell.querySelector('.verdict');
+          // Clear previous overlay elements (keep img)
+          var children = body.children;
+          for (var j = children.length - 1; j >= 0; j--) {
+            if (children[j] !== img) body.removeChild(children[j]);
+          }
+          if (!LIVE || !LIVE.Players || LIVE.Players.length === 0
+              || !img.naturalWidth || !img.clientWidth) {
+            verdict.textContent = LIVE ? 'no data' : 'waiting';
+            verdict.className = 'verdict';
+            continue;
+          }
+          try {
+            cells[c].variant.render(body, img, LIVE);
+            // Count how many children were added beyond the img
+            var added = body.children.length - 1;
+            verdict.textContent = added > 0 ? (added + ' el') : '0 el';
+            verdict.className = added > 0 ? 'verdict pass' : 'verdict fail';
+          } catch (e) {
+            verdict.textContent = 'ERR';
+            verdict.className = 'verdict fail';
+          }
+        }
+      }
+
+      // --- Event wiring ---
+
+      function setStatus(text, isEmpty) {
+        var el = document.getElementById('status');
+        if (!el) return;
+        el.textContent = text;
+        el.className = isEmpty ? 'empty' : '';
+      }
+
+      (function boot() {
+        if (!window.tsic) { setTimeout(boot, 16); return; }
+
+        window.tsic.on('tsic.msg.UI.Map.Snapshot', function (snap) {
+          LIVE = snap;
+          var W = snap.MaxBounds.X - snap.MinBounds.X;
+          var H = snap.MaxBounds.Y - snap.MinBounds.Y;
+          var n = (snap.Players || []).length;
+          setStatus('bounds ' + W + 'x' + H + ', ' + n + ' player' + (n !== 1 ? 's' : ''), n === 0);
+          renderAll();
+        });
+
+        document.addEventListener('click', function (ev) {
+          var btn = ev.target.closest('button[data-action]');
+          if (!btn) return;
+          if (btn.dataset.action === 'back') window.location.href = '/screens/map-debug.html';
+          if (btn.dataset.action === 'player-debug') window.location.href = '/screens/map-player-debug.html';
+          if (btn.dataset.action === 'close') { if (window.tsic) tsic.publishMessage('UI.Cmd.Debug.Close', {}); }
+        });
+
+        renderAll();
+        window.addEventListener('resize', renderAll);
+      })();
+    })();
+  </script>
+</body></html>

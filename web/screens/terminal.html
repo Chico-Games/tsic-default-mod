@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="tsic-screen" content="Terminal">
+  <meta name="tsic-debug" content="true">
+  <meta name="tsic-input-mode" content="InputMode.Menu.Terminal">
+  <title>TSIC Terminal</title>
+  <link rel="stylesheet" href="/shared/base.css">
+  <link rel="stylesheet" href="/shared/screen-manager.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/shared/terminal/terminal.css">
+  <script defer src="/shared/dom.js"></script>
+  <script defer src="/shared/tsic-runtime.js"></script>
+  <script defer src="/shared/router.js"></script>
+  <script defer src="/shared/screen-manager.js"></script>
+  <script defer src="/shared/terminal/constants.js"></script>
+  <script defer src="/shared/terminal/boot.js"></script>
+  <script defer src="/shared/terminal/catalog.js"></script>
+  <script defer src="/shared/terminal/capabilities.js"></script>
+  <script defer src="/shared/terminal/runtime.js"></script>
+  <script defer src="/shared/terminal/console-core.js"></script>
+  <script defer src="/shared/terminal/shells/tier1-text.js"></script>
+  <script defer src="/shared/terminal/shells/tier2-windowed.js"></script>
+  <script defer src="/shared/terminal/shells/tier3-scp.js"></script>
+  <script defer src="/shared/screens/terminal.js"></script>
+</head>
+<body>
+  <div id="standalone-mount"></div>
+  <script>
+    // Standalone bootstrap: when this page is loaded directly (tests/playground)
+    // there's no SPA shell driving the screen manager, so nudge screen-manager
+    // to mount the registered Terminal screen. The manager only swaps on
+    // UI.Screen.Changed, so we drive that channel here. We publish on the
+    // 'tsic.msg.'-prefixed channel because that's the exact name screen-manager
+    // subscribes to (state broadcasts arrive prefixed). In the live SPA the
+    // in-game.html shell drives this; terminal.html is only loaded standalone
+    // by the mock-backed test runner and the playground.
+    (function boot() {
+      if (!window.tsic || !window.TSIC || !window.TSICTerminal || !TSIC.__screenManagerInstalled) { setTimeout(boot, 16); return; }
+      // screen-manager subscribes to UI.Screen.Changed asynchronously (it waits
+      // for window.tsic), and the mock's publishMessage is not sticky, so a
+      // single publish can race ahead of the subscription. Re-publish until the
+      // Terminal overlay actually mounts.
+      if (document.querySelector('#screen-overlay-host [data-screen="Terminal"]')) return;
+      window.tsic.publishMessage('tsic.msg.UI.Screen.Changed', { Name: 'Terminal' });
+      setTimeout(boot, 16);
+    })();
+  </script>
+</body></html>

@@ -1,0 +1,10 @@
+{
+  "id": "com.tsic.logs2",
+  "name": "LOGS_V2",
+  "version": "2.0",
+  "minTier": 2,
+  "entry": "main.js",
+  "folder": null,
+  "icon": "logs",
+  "capabilities": ["gfx.canvas", "storage.local"]
+}

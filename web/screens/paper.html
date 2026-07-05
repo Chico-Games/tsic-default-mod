@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="tsic-screen" content="Paper">
+  <meta name="tsic-input-mode" content="InputMode.Menu.Generic">
+  <meta name="tsic-focus" content="enabled">
+  <meta name="tsic-action-bar-context" content='[]'>
+  <title>Note</title>
+  <link rel="stylesheet" href="/shared/base.css">
+  <link rel="stylesheet" href="/shared/components.css">
+    <script src="/shared/tsic-bridge.js" defer></script>
+  <script src="/shared/tsic-runtime.js" defer></script>
+  <script src="/shared/router.js" defer></script>
+  <script src="/shared/tsic-focus.js" defer></script>
+  <script src="/shared/lore.js" data-kind="Paper" defer></script>
+  <style>
+    /* A scrap of hand-written paper: aged, mottled stock with a faint grain,
+       torn edges (clip-path — so the shadow uses filter: drop-shadow, which
+       respects the clip), a slight tilt, and a scrappy pen font. The reader
+       chrome (page nav, index, font toggle) sits OFF the paper on the scrim so
+       it reads as UI, not part of the note. */
+    #paper-root { padding: 40px; flex-direction: column; gap: 16px; }
+
+    #paper-sheet {
+      width: 560px; max-height: 72vh; overflow: hidden;
+      color: #2a2114;
+      font-family: var(--note-hand, var(--font-hand));   /* lore.js picks the hand per note series */
+      transform: rotate(-0.8deg);
+      background-color: #e9dcbb;
+      background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E"),
+        radial-gradient(130% 100% at 22% 4%, rgba(255,252,243,0.6), transparent 55%),
+        radial-gradient(120% 110% at 95% 100%, rgba(110,84,44,0.22), transparent 52%);
+      clip-path: polygon(
+        0% 2%, 20% 0.4%, 40% 2.2%, 60% 0.5%, 80% 2.1%, 100% 0.6%,
+        99% 20%, 100% 40%, 98.5% 60%, 100% 80%, 99% 98%,
+        80% 99%, 60% 100%, 40% 98.4%, 20% 99.8%, 0% 99%,
+        1% 80%, 0% 60%, 1.5% 40%, 0.5% 20%);
+      filter: drop-shadow(0 10px 20px rgba(28,22,12,0.5));
+    }
+
+    #lore-group   { font-family: var(--font-body); font-size: 11px; letter-spacing: 4px; text-transform: uppercase; color: rgba(42,33,20,0.5); margin-bottom: 12px; }
+    #lore-heading { font-size: 32px; font-weight: 700; margin: 0 0 16px; line-height: 1.1; text-shadow: 0 0 0.5px rgba(42,33,20,0.35); }
+    #lore-body    { white-space: pre-wrap; font-size: 20px; line-height: 1.7; text-shadow: 0 0 0.5px rgba(42,33,20,0.30); }
+
+    /* Inner scroller. The paper background lives on #paper-sheet (full width), so
+       the scrollbar is inset with margin-right and the paper still shows to its
+       right; a transparent track lets the paper show behind it too. Normal thumb. */
+    #paper-scroll {
+      max-height: 72vh; overflow-y: auto; overflow-x: hidden;
+      padding: 40px 42px 44px; margin-right: 9px;
+      scrollbar-color: var(--ink-night) transparent;
+    }
+    #paper-scroll::-webkit-scrollbar-track { background: transparent; border: 0; }
+
+    /* Easy-read mode: swap the handwriting for our standard body font, straighten
+       the page, open up spacing, and lift contrast — the scrappy slant/handwriting
+       is the hard-to-read part, so we plain it out rather than restyle glyphs. */
+    #paper-sheet.readable              { font-family: var(--font-body); transform: none; color: #1d1810; }
+    #paper-sheet.readable #lore-heading{ font-size: 24px; font-weight: 800; text-shadow: none; }
+    #paper-sheet.readable #lore-body   { font-size: 16px; line-height: 1.7; text-shadow: none; }
+
+    /* Reader chrome on the scrim (not on the paper). */
+    .paper-ui { width: 560px; display: flex; flex-direction: column; gap: 10px; }
+    #lore-index-list { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; max-height: 96px; overflow: auto; }
+    #lore-index-list:empty { display: none; }
+    .lore-index {
+      font-family: var(--font-hand); font-size: 14px; color: #efe6d2;
+      padding: 3px 10px; cursor: pointer;
+      border: 1px solid rgba(240,232,212,0.35); border-radius: 2px;
+      background: rgba(20,18,14,0.35);
+    }
+    .lore-index:hover { background: rgba(240,232,212,0.16); }
+    .lore-index.current { background: var(--mag-red); border-color: var(--mag-red); color: #fff; }
+
+    #lore-controls { display: flex; align-items: center; gap: 8px; }
+    #lore-controls .spacer { flex: 1 1 auto; }
+    #lore-pageinfo { color: rgba(240,232,212,0.6); font-size: 12px; font-family: var(--font-terminal); letter-spacing: 0.04em; }
+
+    /* Font toggle — a small pill that reads as "on" when dyslexia mode is active. */
+    #lore-font-toggle {
+      font-family: var(--font-body); font-size: 12px; font-weight: 700; letter-spacing: 0.04em;
+      padding: 6px 12px; cursor: pointer; color: #efe6d2;
+      background: rgba(20,18,14,0.40); border: 2px solid rgba(240,232,212,0.40); border-radius: 3px;
+      transition: background-color 120ms ease, color 120ms ease, border-color 120ms ease;
+    }
+    #lore-font-toggle:hover { background: rgba(240,232,212,0.14); }
+    #lore-font-toggle.is-on { background: var(--mag-yellow); border-color: var(--mag-yellow); color: #1a1408; }
+  </style>
+</head><body>
+  <div id="paper-root" class="tsic-modal-scrim tsic-modal-scrim--dim">
+    <div id="paper-sheet">
+      <div id="paper-scroll">
+        <div id="lore-group"></div>
+        <h1 id="lore-heading"></h1>
+        <div id="lore-body"></div>
+      </div>
+    </div>
+    <div class="paper-ui">
+      <div id="lore-index-list"></div>
+      <div id="lore-controls">
+        <button id="lore-font-toggle" aria-pressed="false" data-tsic-focusable title="Switch to a plain, easy-to-read font">Easy-read font</button>
+        <span class="spacer"></span>
+        <span id="lore-pageinfo"></span>
+        <button class="tsic-button" id="lore-prev">‹ Prev</button>
+        <button class="tsic-button" id="lore-next">Next ›</button>
+        <button class="tsic-button" id="lore-close" data-tsic-initial-focus>Close</button>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Easy-read font toggle — plain body font + straighter, higher-contrast page.
+    // Persisted, applied before paint.
+    (function () {
+      var KEY = 'tsic.lore.readable';
+      var on = false;
+      try { on = localStorage.getItem(KEY) === '1'; } catch (e) {}
+      function apply() {
+        var sheet = document.getElementById('paper-sheet');
+        if (sheet) sheet.classList.toggle('readable', on);
+        var btn = document.getElementById('lore-font-toggle');
+        if (btn) { btn.classList.toggle('is-on', on); btn.setAttribute('aria-pressed', on ? 'true' : 'false'); }
+      }
+      function boot() {
+        apply();
+        var btn = document.getElementById('lore-font-toggle');
+        if (btn) btn.onclick = function () {
+          on = !on;
+          try { localStorage.setItem(KEY, on ? '1' : '0'); } catch (e) {}
+          apply();
+        };
+      }
+      if (document.readyState !== 'loading') boot();
+      else document.addEventListener('DOMContentLoaded', boot);
+    })();
+  </script>
+</body></html>

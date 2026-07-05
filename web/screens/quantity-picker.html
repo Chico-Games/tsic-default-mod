@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="tsic-screen" content="QuantityPicker">
+  <meta name="tsic-input-mode" content="InputMode.Menu.Generic">
+  <meta name="tsic-focus" content="enabled">
+  <title>Quantity Picker</title>
+  <link rel="stylesheet" href="/shared/base.css">
+  <link rel="stylesheet" href="/shared/components.css">
+  <link rel="stylesheet" href="/shared/hud.css">
+  <script src="/shared/router.js" defer></script>
+    <script src="/shared/tsic-bridge.js" defer></script>
+  <script src="/shared/tsic-runtime.js" defer></script>
+  <script src="/shared/tsic-focus.js" defer></script>
+  <script src="/shared/tsic-dropdown.js" defer></script>
+  <script src="/shared/hud.js" defer></script>
+  <style>
+    .row { display:flex; align-items:center; gap:12px; margin-top: 12px; }
+    .row input[type=range] { flex: 1; }
+    .row input[type=number] { width: 70px; background: transparent; color: var(--cat-ink-dark); border: 1px solid var(--tsic-border); padding: 4px; }
+  </style>
+</head><body>
+  <div id="modal" class="tsic-modal-scrim">
+    <div class="tsic-panel" style="width:360px;">
+      <h2 class="tsic-title">Quantity</h2>
+      <div class="row" data-tsic-focus-group="value-row">
+        <input id="slider" type="range" min="1" max="99" value="1">
+        <input id="num" type="number" min="1" max="99" value="1">
+      </div>
+      <div class="tsic-button-row" data-tsic-focus-group="actions">
+        <button class="tsic-button" id="btn-cancel">Cancel</button>
+        <button class="tsic-button" id="btn-confirm" data-tsic-initial-focus>Confirm</button>
+      </div>
+    </div>
+  </div>
+  <script>
+    (function () {
+      // Read params from URL query (e.g. ?fromOwnerId=Player&fromSlot=3&toOwnerId=Storage:42&maxCount=20)
+      const params = new URLSearchParams(window.location.search);
+      const fromOwnerId = params.get('fromOwnerId') || 'Player';
+      const toOwnerId   = params.get('toOwnerId')   || 'Player';
+      const fromSlot    = parseInt(params.get('fromSlot') || '-1', 10);
+      const toSlot      = parseInt(params.get('toSlot')   || '-1', 10);
+      const maxCount    = Math.max(1, parseInt(params.get('maxCount') || '99', 10));
+
+      (function boot() {
+        if (!window.tsic || typeof tsic.bootMenu !== 'function') { setTimeout(boot, 16); return; }
+        tsic.bootMenu(function (ctx) {
+          const slider = document.getElementById('slider');
+          const num = document.getElementById('num');
+          slider.max = maxCount;
+          num.max = maxCount;
+          slider.value = Math.min(slider.value, maxCount);
+          num.value = slider.value;
+          slider.oninput = () => { num.value = slider.value; };
+          num.oninput = () => {
+            const v = Math.max(1, Math.min(maxCount, parseInt(num.value || '1', 10) || 1));
+            num.value = v;
+            slider.value = v;
+          };
+          document.getElementById('btn-confirm').onclick = () => {
+            const count = parseInt(slider.value, 10) || 1;
+            tsic.publishMessage('UI.Cmd.Inventory.Transfer', {
+              FromOwnerId: fromOwnerId,
+              ToOwnerId: toOwnerId,
+              FromSlot: fromSlot,
+              ToSlot: toSlot,
+              Count: count
+            });
+            tsic.publishMessage('UI.Cmd.Pause.Resume', {});
+          };
+          document.getElementById('btn-cancel').onclick = () =>
+            tsic.publishMessage('UI.Cmd.Pause.Resume', {});
+        });
+      })();
+    })();
+  </script>
+</body></html>
