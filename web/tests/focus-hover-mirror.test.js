@@ -25,8 +25,8 @@ TSICTestHarness.register({
         if (!mirror) return;
         const txt = mirror.textContent || '';
         ctx.expect(ctx.assert.truthy(
-            txt.indexOf('html[data-tsic-input="Gamepad"]') !== -1,
-            'mirror should gate to Gamepad mode'));
+            txt.indexOf('html:is([data-tsic-input="Gamepad"], [data-tsic-kbnav])') !== -1,
+            'mirror should gate to Gamepad mode or engaged keyboard-nav'));
         ctx.expect(ctx.assert.truthy(
             txt.indexOf('[data-tsic-focused]') !== -1,
             'mirror should reference [data-tsic-focused]'));

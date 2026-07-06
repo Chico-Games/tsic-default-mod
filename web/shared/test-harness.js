@@ -179,6 +179,16 @@
                 }
             }
         }
+        // Carry component APIs over too — tsic-focus.js / tsic-dropdown.js
+        // install themselves on the bridge object (t.focus = api,
+        // t.dropdown = {...}), so replacing window.tsic without this would
+        // orphan them: pages and tests reading window.tsic.focus (router /
+        // screen-manager backHandled, scope tests) or window.tsic.dropdown
+        // would see nothing.
+        if (prior && prior !== fake) {
+            if (prior.focus) fake.focus = prior.focus;
+            if (prior.dropdown) fake.dropdown = prior.dropdown;
+        }
 
         // Install on the iframe's window so the page's `if (window.tsic)` checks pass.
         win.tsic = fake;

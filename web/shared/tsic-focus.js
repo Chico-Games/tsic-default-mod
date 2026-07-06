@@ -9,6 +9,14 @@
 // [data-tsic-focused], scrollable containers auto-follow, and modal scopes
 // constrain navigation + restore caller focus on close.
 //
+// Input modes. In Gamepad mode the engine always drives focus. In
+// MouseAndKeyboard mode the engine is dormant until the player presses a
+// nav key (arrows — UI.Behavior.Nav*); that engages keyboard-nav, stamps
+// <html data-tsic-kbnav> so the focus-ring CSS shows, and Accept/Back work
+// exactly as on gamepad. Any real mouse movement or click disengages it and
+// hands highlighting back to :hover. DOM focus is left in place on
+// disengage, so the next arrow press resumes from the same element.
+//
 // Exposes window.tsic.focus.*:
 //   enable() / disable() / isEnabled() / getMode()
 //   refresh()                      // re-scan after dynamic re-render (currently a no-op
@@ -30,6 +38,8 @@
         const State = {
             enabled: false,
             mode: 'MouseAndKeyboard',
+            kbnav: false,        // keyboard-nav engaged while in MouseAndKeyboard mode
+            backConsumedByScope: false, // Back popped a scope this dispatch — pages skip their close
             memory: {},          // per-screen last-focused stable selector
             scopeStack: [],      // [{ root, caller }]
             smoothScroll: true,  // tests flip this to 'instant'
@@ -45,6 +55,29 @@
         function metaSaysEnabled() {
             const m = document.querySelector('meta[name="tsic-focus"]');
             return !!(m && m.getAttribute('content') === 'enabled');
+        }
+
+        // Keyboard-nav sub-state for MouseAndKeyboard mode. Engaged by the
+        // first nav keypress, disengaged by mouse activity. The <html>
+        // attribute gates the same focus-ring CSS the Gamepad attribute does.
+        function setKbnav(on) {
+            if (State.kbnav === on) return;
+            State.kbnav = on;
+            try {
+                if (on) document.documentElement.setAttribute('data-tsic-kbnav', '');
+                else document.documentElement.removeAttribute('data-tsic-kbnav');
+            } catch (e) {}
+            if (!on) {
+                for (const stale of document.querySelectorAll('[data-tsic-focused]')) {
+                    stale.removeAttribute('data-tsic-focused');
+                }
+            }
+        }
+
+        // True while the engine owns focus movement: always on gamepad,
+        // on keyboard only once the player has started navigating by keys.
+        function navDriving() {
+            return State.mode === 'Gamepad' || State.kbnav;
         }
 
         function isFocusable(el) {
@@ -242,7 +275,7 @@
             },
 
             step(dir) {
-                if (!State.enabled || State.mode !== 'Gamepad') return false;
+                if (!State.enabled || !navDriving()) return false;
                 const scopeRoot = State.scopeStack.length > 0
                     ? State.scopeStack[State.scopeStack.length - 1].root
                     : document;
@@ -315,10 +348,20 @@
 
             resetMemory() { State.memory = {}; },
 
+            // True when a Back press is (or just was) consumed by popping a
+            // modal scope. Router/screen-manager check this before publishing
+            // their close command so one Esc/B press closes the dropdown, not
+            // the whole screen. Covers both listener orders: scope still open
+            // (they ran first) or the just-popped flag (engine ran first).
+            backHandled() {
+                return State.scopeStack.length > 0 || State.backConsumedByScope;
+            },
+
             snapshot() {
                 return {
                     mode: State.mode,
                     enabled: State.enabled,
+                    kbnav: State.kbnav,
                     scope: State.scopeStack.length,
                     focusable: focusableSet().length,
                 };
@@ -363,6 +406,7 @@
             const mode = (payload && payload.Mode) || 'MouseAndKeyboard';
             State.mode = mode;
             stampMode(mode);
+            setKbnav(false);
             if (!State.enabled) return;
             if (mode === 'Gamepad') {
                 try { t.setInteractiveRects && t.setInteractiveRects([]); } catch (e) {}
@@ -411,6 +455,11 @@
         // Move focus one step; for sliders, L/R nudges the value instead of jumping columns.
         function navStep(dir) {
             if (!State.enabled) return;
+            // A nav keypress in MouseAndKeyboard mode engages keyboard-nav.
+            // (Keys can't reach here while a text field is focused — the
+            // runtime hands keyboard capture to CEF for typing, so Enhanced
+            // Input behaviors don't fire; see tsic-runtime.js.)
+            if (State.mode !== 'Gamepad') setKbnav(true);
             if (dir === 'left' || dir === 'right') {
                 const cur = currentFocused();
                 if (cur && cur.tagName === 'INPUT' && cur.type === 'range' && !cur.disabled) {
@@ -446,7 +495,7 @@
         t.on('tsic.msg.UI.Behavior.NavRight', (p) => { if (p && p.Phase === 'Started') navStep('right'); });
 
         t.on('tsic.msg.UI.Behavior.Accept', (payload) => {
-            if (!State.enabled || State.mode !== 'Gamepad') return;
+            if (!State.enabled || !navDriving()) return;
             if (!payload || payload.Phase !== 'Started') return;
             const a = document.activeElement;
             // Same fallback as step() — when iframe lost focus the marker is the
@@ -468,12 +517,33 @@
             }
         });
 
+        // Back pops an open modal scope in ANY input mode — a mouse user's
+        // Esc must close the dropdown they clicked open, not the screen.
+        // The consumed flag lets the page's own Back handler (router /
+        // screen-manager via backHandled()) skip its close for this press;
+        // it clears after the current dispatch settles.
         t.on('tsic.msg.UI.Behavior.Back', (payload) => {
-            if (!State.enabled || State.mode !== 'Gamepad') return;
+            if (!State.enabled) return;
             if (!payload || payload.Phase !== 'Started') return;
-            if (State.scopeStack.length > 0) api.popScope();
-            // else: let the page's own Esc / close-screen handler take over.
+            if (State.scopeStack.length === 0) return;
+            api.popScope();
+            State.backConsumedByScope = true;
+            setTimeout(() => { State.backConsumedByScope = false; }, 0);
         });
+
+        // Mouse activity ends keyboard-nav: the ring hides, :hover takes
+        // back over. DOM focus is intentionally left alone so arrows resume
+        // from the same element. Capture phase so no page handler can
+        // swallow the event first.
+        let lastMouseX = NaN, lastMouseY = NaN;
+        document.addEventListener('mousemove', (ev) => {
+            const moved = ev.clientX !== lastMouseX || ev.clientY !== lastMouseY;
+            lastMouseX = ev.clientX; lastMouseY = ev.clientY;
+            if (moved && State.kbnav) setKbnav(false);
+        }, true);
+        document.addEventListener('mousedown', () => {
+            if (State.kbnav) setKbnav(false);
+        }, true);
 
         // Next/Prev tab — cycles tabs in a [data-tsic-tab-bar] container.
         // Picks the tab bar nearest to current focus so multi-pane screens
@@ -616,7 +686,7 @@
                 // Replace :hover with our focused attribute. Multiple :hover
                 // in one selector (rare, e.g. .a:hover .b:hover) — replace all.
                 const focused = p.replace(/:hover/g, '[data-tsic-focused]');
-                mapped.push('html[data-tsic-input="Gamepad"] ' + focused);
+                mapped.push('html:is([data-tsic-input="Gamepad"], [data-tsic-kbnav]) ' + focused);
             }
             return mapped.length ? mapped.join(', ') : null;
         }

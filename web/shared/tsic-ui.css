@@ -14,7 +14,7 @@
  *   7. Empty / dividers   — .tsic-empty, .tsic-divider
  *   8. Context menu       — .tsic-context-menu / .tsic-context-item
  *   9. Drag-and-drop      — .is-drop-target, .is-dragging
- *  10. Gamepad focus      — html[data-tsic-input="Gamepad"] mirror rules
+ *  10. Nav focus          — html[data-tsic-input="Gamepad"] / [data-tsic-kbnav] mirror rules
  *  11. Dropdown           — .tsic-dropdown / .tsic-dropdown-portal
  */
 
@@ -374,80 +374,74 @@ button.tsic-list-row {
     background: rgba(230, 0, 0, 0.10);
 }
 
-/* ═════════════ 10. Gamepad focus mirror ═════════════
- * In Gamepad mode the focused element needs an unmistakable highlight.
- * Two things together:
- *   1) Outline + halo ring so the focus is visible even on subtle elements.
- *   2) Mirror :hover styles onto [data-tsic-focused] so a focused button gets
- *      the same look mouse users see on hover.
- * All rules only fire under html[data-tsic-input="Gamepad"]. */
-
-html[data-tsic-input="Gamepad"] [data-tsic-focused],
-html[data-tsic-input="Gamepad"] :focus-visible {
-    outline: 3px solid var(--mag-red);
-    outline-offset: 3px;
-    box-shadow: 0 0 0 5px rgba(230, 0, 0, 0.18);
-}
+/* ═════════════ 10. Nav focus mirror (gamepad + keyboard) ═════════════
+ * When the focus engine is driving (Gamepad mode, or keyboard-nav engaged
+ * by an arrow press in MouseAndKeyboard mode — html[data-tsic-kbnav], see
+ * tsic-focus.js), the focused element is highlighted by mirroring :hover
+ * styles onto [data-tsic-focused] — a focused control reads exactly like a
+ * hovered one. No extra outline ring (removed by request 2026-07-06).
+ * All rules only fire under html[data-tsic-input="Gamepad"] or
+ * html[data-tsic-kbnav]. */
 
 /* Mirror :hover styles onto [data-tsic-focused] so a focused button reads the
    same as a hovered one. Matches the letterpress button system in components.css. */
-html[data-tsic-input="Gamepad"] .tsic-button[data-tsic-focused] {
+html:is([data-tsic-input="Gamepad"], [data-tsic-kbnav]) .tsic-button[data-tsic-focused] {
     background: #ff1a1a;
     transform: translate(-2px, -2px);
     box-shadow: var(--shadow-block-lg);
 }
-html[data-tsic-input="Gamepad"] .tsic-button.cancel[data-tsic-focused],
-html[data-tsic-input="Gamepad"] .tsic-button.secondary[data-tsic-focused],
-html[data-tsic-input="Gamepad"] .tsic-button[data-variant="secondary"][data-tsic-focused] {
+html:is([data-tsic-input="Gamepad"], [data-tsic-kbnav]) .tsic-button.cancel[data-tsic-focused],
+html:is([data-tsic-input="Gamepad"], [data-tsic-kbnav]) .tsic-button.secondary[data-tsic-focused],
+html:is([data-tsic-input="Gamepad"], [data-tsic-kbnav]) .tsic-button[data-variant="secondary"][data-tsic-focused] {
     background: var(--ink-night);
     color: var(--paper-bright);
 }
-html[data-tsic-input="Gamepad"] .tsic-button.danger[data-tsic-focused],
-html[data-tsic-input="Gamepad"] .tsic-button.pink[data-tsic-focused],
-html[data-tsic-input="Gamepad"] .tsic-button[data-variant="danger"][data-tsic-focused] {
+html:is([data-tsic-input="Gamepad"], [data-tsic-kbnav]) .tsic-button.danger[data-tsic-focused],
+html:is([data-tsic-input="Gamepad"], [data-tsic-kbnav]) .tsic-button.pink[data-tsic-focused],
+html:is([data-tsic-input="Gamepad"], [data-tsic-kbnav]) .tsic-button[data-variant="danger"][data-tsic-focused] {
     background: var(--mag-red);
     color: var(--paper-bright);
 }
-html[data-tsic-input="Gamepad"] .tsic-button.ghost[data-tsic-focused] {
+html:is([data-tsic-input="Gamepad"], [data-tsic-kbnav]) .tsic-button.ghost[data-tsic-focused] {
     color: var(--mag-red);
 }
 
-html[data-tsic-input="Gamepad"] .tsic-list-row[data-tsic-focused] {
+html:is([data-tsic-input="Gamepad"], [data-tsic-kbnav]) .tsic-list-row[data-tsic-focused] {
     background: var(--paper-muted);
     padding-left: 14px;
     outline-offset: -2px;
 }
-html[data-tsic-input="Gamepad"] .tsic-list-row.is-selected[data-tsic-focused] {
+html:is([data-tsic-input="Gamepad"], [data-tsic-kbnav]) .tsic-list-row.is-selected[data-tsic-focused] {
     background: var(--mag-red);
     color: #ffffff;
 }
 
-html[data-tsic-input="Gamepad"] .tsic-tab[data-tsic-focused] {
+html:is([data-tsic-input="Gamepad"], [data-tsic-kbnav]) .tsic-tab[data-tsic-focused] {
     background: var(--paper-muted);
 }
 
-html[data-tsic-input="Gamepad"] .tsic-dropdown[data-tsic-focused] {
+html:is([data-tsic-input="Gamepad"], [data-tsic-kbnav]) .tsic-dropdown[data-tsic-focused] {
     background: var(--paper-muted);
 }
 
-html[data-tsic-input="Gamepad"] .tsic-context-item[data-tsic-focused] {
+html:is([data-tsic-input="Gamepad"], [data-tsic-kbnav]) .tsic-context-item[data-tsic-focused] {
     background: var(--mag-red);
     color: #ffffff;
     padding-left: 14px;
 }
 
-html[data-tsic-input="Gamepad"] .tsic-link[data-tsic-focused] {
+html:is([data-tsic-input="Gamepad"], [data-tsic-kbnav]) .tsic-link[data-tsic-focused] {
     color: var(--mag-red);
 }
 
-html[data-tsic-input="Gamepad"] .tsic-row-button[data-tsic-focused] {
+html:is([data-tsic-input="Gamepad"], [data-tsic-kbnav]) .tsic-row-button[data-tsic-focused] {
     background: var(--paper-muted);
     padding-left: 22px;
 }
 
 /* Storage shell tabs and inventory tabs. */
-html[data-tsic-input="Gamepad"] .ss-tabs .tsic-tab[data-tsic-focused],
-html[data-tsic-input="Gamepad"] .inv-tab[data-tsic-focused] {
+html:is([data-tsic-input="Gamepad"], [data-tsic-kbnav]) .ss-tabs .tsic-tab[data-tsic-focused],
+html:is([data-tsic-input="Gamepad"], [data-tsic-kbnav]) .inv-tab[data-tsic-focused] {
     background: var(--paper-muted);
 }
 

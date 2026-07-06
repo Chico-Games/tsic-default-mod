@@ -138,6 +138,10 @@
     window.tsic.on('tsic.msg.UI.Behavior.Back', (p) => {
       if (!p || p.Phase !== 'Started') return;
       if (activeName === 'InGame') return;
+      // A modal focus scope (open dropdown) consumes the Back press — the
+      // engine pops it; this press must not also close the screen.
+      const f = window.tsic.focus;
+      if (f && f.backHandled && f.backHandled()) return;
       const entry = MOUNTED.get(activeName);
       if (!entry) return;
       // Modules that handle cancel themselves (e.g. Construction, whose

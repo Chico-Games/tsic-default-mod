@@ -2,6 +2,12 @@
 <html lang="en"><head>
   <meta charset="utf-8">
   <meta name="tsic-screen" content="MainMenu">
+  <!-- Activates the generic UI menu input situation so UI.Behavior.* events
+       (arrow nav, Accept, Back) fire here. Without it NO situation is active
+       on the title screen and neither keyboard nor D-pad nav produce events.
+       cancel-cmd is blank: this is the front-end root, Esc has nowhere to go. -->
+  <meta name="tsic-input-mode" content="InputMode.Menu.MainMenu">
+  <meta name="tsic-cancel-cmd" content="">
   <meta name="tsic-focus" content="enabled">
   <title>TSIC — Main Menu</title>
   <link rel="stylesheet" href="/shared/base.css">
