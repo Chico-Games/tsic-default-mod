@@ -1,36 +1,36 @@
 {
-  "id": "ID_PizzaCutterLamp_EQ",
-  "asset_path": "/Game/Items/Equipment/Weapons/PizzaCutterLamp/ID_PizzaCutterLamp_EQ",
+  "id": "ID_PotMace_EQ",
+  "asset_path": "/Game/Items/Equipment/Weapons/PotMace/ID_PotMace_EQ",
   "class": "UEquippableDefinition",
   "schema_version": 2,
   "properties": {
     "equipment_actors_and_meshes": [
       {
-        "mesh": "/Game/Items/Equipment/Weapons/PizzaCutterLamp/Meshes/pizza_cutter_lamp.pizza_cutter_lamp",
-        "attach_socket": "hand_l_weapon",
+        "mesh": "/Game/Items/Equipment/Weapons/PotMace/Meshes/SM_PotMace.SM_PotMace",
+        "attach_socket": "hand_r_weapon",
         "attach_transform": {
           "rotation": {
-            "x": -0.09537988,
-            "y": 0.67682028,
-            "z": 0.08910588,
-            "w": 0.72448405
+            "x": 0.04361939,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 0.99904822
           },
           "translation": {
-            "x": 20.800559,
-            "y": -4.380131,
-            "z": -88.068920
+            "x": -18.000003,
+            "y": 4.480872,
+            "z": 19.890015
           },
           "scale3_d": {
-            "x": 4.0,
-            "y": 4.0,
-            "z": 4.0
+            "x": 0.35,
+            "y": 0.35,
+            "z": 0.35
           }
         }
       }
     ],
-    "equipped_layer_class": "/Game/Items/Equipment/Weapons/SledgeHammer/Blueprints/ABP_SledgeHammer.ABP_SledgeHammer_C",
+    "equipped_layer_class": "/Game/Items/Equipment/Weapons/Hammer/Blueprints/ABP_Hammer.ABP_Hammer_C",
     "ability_sets_to_grant": [
-      "/Game/Items/Equipment/Weapons/PizzaCutterLamp/Abilities/AS_PizzaCutterLamp.AS_PizzaCutterLamp"
+      "/Game/Items/Equipment/Weapons/PotMace/Abilities/AS_PotMace.AS_PotMace"
     ],
     "effects_to_apply": {
       "b_apply_heal_per_second": false,
@@ -83,11 +83,11 @@
     "has_durability": true,
     "has_ammo": false,
     "max_ammo": 0,
-    "display_name": "Pizza Cutter Lamp",
-    "description": "A bizarre weapon combining a pizza cutter with a lamp. Slashing damage with built-in illumination for dark areas.",
+    "display_name": "Pot Mace",
+    "description": "A cooking pot mounted on a sturdy handle. Improvised but effective, delivering heavy blunt strikes.",
     "stackable": false,
     "weight": 0.10000000149011612,
-    "static_item_definition": "FD_PizzaCutterLamp_SI",
+    "static_item_definition": "FD_PotMace_SI",
     "equipment_slot": "Entity.Inventory.Item.Equipment.Slot.Weapon",
     "item_category_tag": "Entity.Inventory.Item.Category.Weapon"
   }
