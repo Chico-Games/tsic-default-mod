@@ -92883,7 +92883,8 @@
       "LYD_SCPBasePower_Up",
       "LYD_SCPBasePower_UpDown",
       "LYD_SCPBasePower_UpRight",
-      "LYD_SCPBasePower_UpRightDown"
+      "LYD_SCPBasePower_UpRightDown",
+      "LYD_SCPBasePower_All_Decrease"
     ],
     "environmental_effects": [],
     "ambient_audio": {

@@ -92879,7 +92879,9 @@
     },
     "loot_multiplier": 1.0,
     "layouts": [
-      "LYD_SCPBaseEntrance_Stairs"
+      "LYD_SCPBaseEntrance_Stairs",
+      "LYD_SCPBaseEntrance_All",
+      "LYD_SCPBaseEntrance_All_Decrease"
     ],
     "environmental_effects": [],
     "ambient_audio": {

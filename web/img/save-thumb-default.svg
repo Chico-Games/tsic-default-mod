@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 168 112" width="168" height="112">
+  <!-- Default save-slot thumbnail: shown when a save has no captured screenshot yet. -->
+  <rect width="168" height="112" fill="#d8d2c4"/>
+  <rect x="0" y="0" width="168" height="112" fill="none" stroke="#211f1a" stroke-width="2"/>
+  <!-- storefront awning -->
+  <g stroke="#211f1a" stroke-width="2" fill="none">
+    <rect x="44" y="34" width="80" height="44" fill="#e6e0d2"/>
+    <path d="M40 34 h88 l-6 -12 h-76 z" fill="#b8442c"/>
+    <path d="M52 22 v12 M64 22 v12 M76 22 v12 M88 22 v12 M100 22 v12 M112 22 v12"/>
+    <!-- door + window -->
+    <rect x="54" y="48" width="20" height="30" fill="#c8c2b2"/>
+    <rect x="84" y="48" width="30" height="18" fill="#c8c2b2"/>
+  </g>
+  <text x="84" y="98" text-anchor="middle" font-family="'Courier New', monospace" font-size="10" letter-spacing="3" fill="#5a564c">NO PHOTO</text>
+</svg>

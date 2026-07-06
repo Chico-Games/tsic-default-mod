@@ -243,13 +243,12 @@ TSICTestHarness.register({
 });
 
 TSICTestHarness.register({
-    name: 'PauseMenu: Quit to Menu publishes Pause.QuitToMenu',
+    name: 'PauseMenu: Save and Return to Main Menu publishes Pause.QuitToMenu',
     file: '/screens/pause-menu.html',
     async run(ctx) {
-        await ctx.waitFor(() => ctx.doc.querySelector('button'));
+        await ctx.waitFor(() => ctx.doc.querySelector('#btn-menu'));
         ctx.clearPublishes();
-        const btn = Array.from(ctx.doc.querySelectorAll('button')).find(b => /quit/i.test(b.textContent || ''));
-        btn && btn.click();
+        ctx.doc.querySelector('#btn-menu').click();
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Pause.QuitToMenu'));
     },
 });

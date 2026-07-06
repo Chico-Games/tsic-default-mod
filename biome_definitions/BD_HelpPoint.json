@@ -92878,7 +92878,10 @@
       "hold_loot_rarity": []
     },
     "loot_multiplier": 1.0,
-    "layouts": [],
+    "layouts": [
+      "LYD_HelpPoint_All",
+      "LYD_HelpPoint_All_Decrease"
+    ],
     "environmental_effects": [],
     "ambient_audio": {
       "volume": 1.0,

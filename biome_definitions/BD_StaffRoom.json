@@ -92885,7 +92885,8 @@
       "LYD_StaffRoom_Up",
       "LYD_StaffRoom_UpDown",
       "LYD_StaffRoom_UpRight",
-      "LYD_StaffRoom_UpRightDown"
+      "LYD_StaffRoom_UpRightDown",
+      "LYD_StaffRoom_All_Decrease"
     ],
     "environmental_effects": [],
     "ambient_audio": {

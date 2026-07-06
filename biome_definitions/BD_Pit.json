@@ -92883,8 +92883,7 @@
     "furniture_lsp": "LSP_Pit_Furniture",
     "layouts": [
       "LYD_Pit",
-      "LYD_Pit_All_Decrease",
-      "LYD_Pit_Decrease"
+      "LYD_Pit_All_Decrease"
     ],
     "environmental_effects": [],
     "ambient_audio": {

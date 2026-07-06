@@ -409,9 +409,9 @@ TSICTestHarness.register({
     },
 });
 
-// ---- BugReport: omitting description still allows submit (page-level) --
+// ---- BugReport: omitting description blocks submit (client gate) -------
 TSICTestHarness.register({
-    name: 'BugReport: empty description still publishes (server is the gate)',
+    name: 'BugReport: empty description does not publish Submit',
     file: '/screens/bug-report.html',
     async run(ctx) {
         await ctx.waitFor(() => ctx.doc.querySelector('textarea'));
@@ -419,9 +419,7 @@ TSICTestHarness.register({
         ctx.clearPublishes();
         const submit = Array.from(ctx.doc.querySelectorAll('button')).find(b => /submit/i.test(b.textContent || ''));
         submit && submit.click();
-        // The page may or may not gate empty descriptions; either behaviour is
-        // acceptable. Just confirm no crash.
-        ctx.expect(ctx.assert.truthy(true));
+        ctx.expect(ctx.assert.notPublished(ctx.handle, 'UI.Cmd.BugReport.Submit'));
     },
 });
 

@@ -15,7 +15,6 @@
     [data-screen="PauseMenu"] .pl { text-align:left; margin: 16px 0; max-height: 140px; overflow:auto; }
     [data-screen="PauseMenu"] .pl-row { padding: 4px 6px; display:flex; align-items:center; gap:8px; }
     [data-screen="PauseMenu"] .pl-dot { width:10px; height:10px; border-radius:50%; flex:0 0 auto; border:1px solid rgba(255,255,255,0.5); }
-    [data-screen="PauseMenu"] .pause-btn-row > button { flex: 1; }
   `;
 
   const TEMPLATE = `
@@ -25,10 +24,9 @@
         <div class="pl" id="players"></div>
         <div data-tsic-focus-group="nav">
           <button class="tsic-button" style="width:100%;" id="btn-resume" data-tsic-initial-focus>Resume</button>
-          <div class="tsic-row pause-btn-row" style="margin-top:8px; gap:8px;">
-            <button class="tsic-button" id="btn-settings">Settings</button>
-            <button class="tsic-button" id="btn-menu">Quit to Menu</button>
-          </div>
+          <button class="tsic-button" style="width:100%; margin-top:8px;" id="btn-settings">Settings</button>
+          <button class="tsic-button" style="width:100%; margin-top:8px;" id="btn-bug-report">Report a Bug</button>
+          <button class="tsic-button" style="width:100%; margin-top:8px;" id="btn-menu">Save and Return to Main Menu</button>
         </div>
       </div>
     </div>
@@ -80,9 +78,10 @@
         });
       });
 
-      root.querySelector('#btn-resume').onclick   = () => ctx.publish('UI.Cmd.Pause.Resume');
-      root.querySelector('#btn-settings').onclick = () => ctx.publish('UI.Cmd.Pause.Settings');
-      root.querySelector('#btn-menu').onclick     = () => ctx.publish('UI.Cmd.Pause.QuitToMenu');
+      root.querySelector('#btn-resume').onclick     = () => ctx.publish('UI.Cmd.Pause.Resume');
+      root.querySelector('#btn-settings').onclick   = () => ctx.publish('UI.Cmd.Pause.Settings');
+      root.querySelector('#btn-bug-report').onclick = () => ctx.publish('UI.Cmd.Pause.BugReport');
+      root.querySelector('#btn-menu').onclick       = () => ctx.publish('UI.Cmd.Pause.QuitToMenu');
     },
 
     // onShow / onHide intentionally omitted — there's no transient state to

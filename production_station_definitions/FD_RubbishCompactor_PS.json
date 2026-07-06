@@ -19,7 +19,6 @@
     "has_toggled_on_vfx": false,
     "has_toggled_off_vfx": false,
     "starting_health": 100.0,
-    "destructible_collection": "/Game/Furniture/SewingMachine/GeometryCollections/GCS_SewingMachine.GCS_SewingMachine",
     "loot_dropped_on_death": [],
     "deconstruction_tier": 0,
     "building_base": {
@@ -47,7 +46,6 @@
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,
-    "static_mesh": "/Game/Furniture/SewingMachine/Meshes/SM_SewingMachine.SM_SewingMachine",
     "casts_shadow": true,
     "collision_profile_name": {
       "name": "Furniture"

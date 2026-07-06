@@ -11,6 +11,9 @@
   <script src="/shared/store-maze.js" defer></script>
   <script src="/shared/store-maze-stage.js" defer></script>
   <style>
+    /* Fully opaque paper — the loading screen must hide the world behind it
+       (the stage class defaults to a translucent backdrop for menu overlays). */
+    .tsic-stage--magazine-gradient { --tsic-stage-paper-alpha: 1; }
     .loading-body {
       padding: 12px 22px 22px;
       text-align: center;

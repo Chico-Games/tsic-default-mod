@@ -62,10 +62,9 @@
 
         <div data-tsic-focus-group="nav">
           <button class="tsic-button" style="width:100%;" id="btn-resume" data-tsic-initial-focus>Resume</button>
-          <div class="tsic-row pause-btn-row" style="margin-top:10px; gap:8px;">
-            <button class="tsic-button secondary" id="btn-settings">Settings</button>
-            <button class="tsic-button secondary" id="btn-menu">Quit</button>
-          </div>
+          <button class="tsic-button secondary" style="width:100%; margin-top:10px;" id="btn-settings">Settings</button>
+          <button class="tsic-button secondary" style="width:100%; margin-top:10px;" id="btn-bug-report">Report a Bug</button>
+          <button class="tsic-button secondary" style="width:100%; margin-top:10px;" id="btn-menu">Save and Return to Main Menu</button>
         </div>
       </div>
     </div>
@@ -86,9 +85,10 @@
             host.appendChild(row);
           }
         });
-        document.getElementById('btn-resume').onclick   = () => tsic.publishMessage('UI.Cmd.Pause.Resume', {});
-        document.getElementById('btn-settings').onclick = () => tsic.publishMessage('UI.Cmd.Pause.Settings', {});
-        document.getElementById('btn-menu').onclick     = () => tsic.publishMessage('UI.Cmd.Pause.QuitToMenu', {});
+        document.getElementById('btn-resume').onclick     = () => tsic.publishMessage('UI.Cmd.Pause.Resume', {});
+        document.getElementById('btn-settings').onclick   = () => tsic.publishMessage('UI.Cmd.Pause.Settings', {});
+        document.getElementById('btn-bug-report').onclick = () => tsic.publishMessage('UI.Cmd.Pause.BugReport', {});
+        document.getElementById('btn-menu').onclick       = () => tsic.publishMessage('UI.Cmd.Pause.QuitToMenu', {});
       });
     })();
   </script>

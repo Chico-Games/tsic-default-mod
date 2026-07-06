@@ -142,9 +142,12 @@
         const time = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         return `${date}  ${time}`;
       }
+      // Shown for saves that don't have a captured screenshot yet, and as the
+      // onerror fallback for broken thumbnail data.
+      const DEFAULT_THUMB = '/img/save-thumb-default.svg';
       function safeThumbnailUrl(u) {
         if (typeof u !== 'string' || !u) return null;
-        if (u.startsWith('data:image/png;base64,')) return u;
+        if (u.startsWith('data:image/jpeg;base64,') || u.startsWith('data:image/png;base64,')) return u;
         try {
           const parsed = new URL(u);
           return (parsed.protocol === 'http:' || parsed.protocol === 'https:') ? parsed.href : null;
@@ -172,15 +175,18 @@
 
           const thumb = document.createElement('div');
           thumb.className = 'slot-thumb';
-          const url = safeThumbnailUrl(s.ThumbnailUrl);
-          if (url) {
-            const img = document.createElement('img');
-            img.src = url;
-            img.alt = '';
-            thumb.appendChild(img);
-          } else {
-            thumb.textContent = 'No image';
-          }
+          const img = document.createElement('img');
+          img.src = safeThumbnailUrl(s.ThumbnailUrl) || DEFAULT_THUMB;
+          img.alt = '';
+          img.onerror = () => {
+            if (img.src.endsWith(DEFAULT_THUMB)) {
+              img.remove();
+              thumb.textContent = 'No image';
+              return;
+            }
+            img.src = DEFAULT_THUMB;
+          };
+          thumb.appendChild(img);
 
           const meta = document.createElement('div');
           meta.className = 'slot-meta';
