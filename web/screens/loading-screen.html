@@ -23,42 +23,6 @@
       text-transform: uppercase;
       color: var(--ink-soft);
     }
-    /* Progress bar — driven by UI.Loading.Progress { Progress: 0..1 }. */
-    .loading-bar {
-      margin: 16px auto 0;
-      width: 100%;
-      height: 14px;
-      border: 2px solid var(--ink-night);
-      background: var(--paper-cream, #f4ecd8);
-      overflow: hidden;
-    }
-    .loading-bar-fill {
-      height: 100%;
-      width: 0%;
-      /* Ink fill with a barber-pole of translucent cream diagonals that slowly
-         slide, so the bar reads as "working" even when progress sits still. */
-      background-color: var(--ink-night);
-      background-image: linear-gradient(45deg,
-        rgba(240, 232, 208, 0.22) 25%, transparent 25%,
-        transparent 50%, rgba(240, 232, 208, 0.22) 50%,
-        rgba(240, 232, 208, 0.22) 75%, transparent 75%, transparent);
-      background-size: 18px 18px;
-      transition: width 0.35s ease;
-      animation: loading-stripes 1.6s linear infinite;
-    }
-    @keyframes loading-stripes {
-      from { background-position: 18px 0; }
-      to   { background-position: 0 0; }
-    }
-    @media (prefers-reduced-motion: reduce) {
-      .loading-bar-fill { animation: none; }
-    }
-    .loading-pct {
-      margin-top: 8px;
-      font-size: 13px;
-      letter-spacing: 0.22em;
-      color: var(--ink-night);
-    }
     .loading-dots > span { display: inline-block; opacity: 0; }
     .loading-dots > span:nth-child(1) { animation: tsic-loading-dot-1 1.4s infinite; }
     .loading-dots > span:nth-child(2) { animation: tsic-loading-dot-2 1.4s infinite; }
@@ -93,10 +57,6 @@
       </div>
       <div class="loading-body">
         <span id="loading-status">Loading</span><span class="loading-dots" aria-hidden="true"><span>.</span><span>.</span><span>.</span></span>
-        <div class="loading-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
-          <div class="loading-bar-fill" id="loading-bar-fill"></div>
-        </div>
-        <div class="loading-pct" id="loading-pct">0%</div>
       </div>
     </div>
   </div>
@@ -161,18 +121,6 @@
       tickFlavor();
       scheduleFlavor();
 
-      function render(payload) {
-        // Headline + status line are independent of progress; only the bar and
-        // percentage track the real 0..1 value.
-        const raw = payload && typeof payload.Progress === 'number' ? payload.Progress : 0;
-        const pct = Math.round(Math.max(0, Math.min(1, raw)) * 100);
-        const fill = document.getElementById('loading-bar-fill');
-        const pctEl = document.getElementById('loading-pct');
-        const bar = document.querySelector('.loading-bar');
-        if (fill)  fill.style.width = pct + '%';
-        if (pctEl) pctEl.textContent = pct + '%';
-        if (bar)   bar.setAttribute('aria-valuenow', String(pct));
-      }
       // Poll for the bridge instead of a one-shot tsic.whenReady: this inline
       // script runs at parse time, before window.tsic exists (the C++ bridge —
       // and the playground/test mock — stamp it later). A bare tsic.whenReady
@@ -181,9 +129,7 @@
       // in the playground. (Same pattern as action-bar.html.)
       (function boot() {
         if (!window.tsic || typeof tsic.bootMenu !== 'function') { setTimeout(boot, 16); return; }
-        tsic.bootMenu(function (ctx) {
-          ctx.on('tsic.msg.UI.Loading.Progress', render);
-        }, { escape: false, closeButton: false });
+        tsic.bootMenu(function () {}, { escape: false, closeButton: false });
       })();
     })();
   </script>
