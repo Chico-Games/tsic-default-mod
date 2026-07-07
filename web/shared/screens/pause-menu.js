@@ -27,6 +27,8 @@
           <button class="tsic-button" style="width:100%; margin-top:8px;" id="btn-settings">Settings</button>
           <button class="tsic-button" style="width:100%; margin-top:8px;" id="btn-bug-report">Report a Bug</button>
           <button class="tsic-button" style="width:100%; margin-top:8px;" id="btn-menu">Save and Return to Main Menu</button>
+          <!-- Dev/testing only: revealed by the UI.State.DevMode flag in non-shipping builds. -->
+          <button class="tsic-button" style="width:100%; margin-top:8px; display:none;" id="btn-dev-join">Join Game (Dev)</button>
         </div>
       </div>
     </div>
@@ -82,6 +84,16 @@
       root.querySelector('#btn-settings').onclick   = () => ctx.publish('UI.Cmd.Pause.Settings');
       root.querySelector('#btn-bug-report').onclick = () => ctx.publish('UI.Cmd.Pause.BugReport');
       root.querySelector('#btn-menu').onclick       = () => ctx.publish('UI.Cmd.Pause.QuitToMenu');
+
+      // Dev/testing: reveal + wire the "Join Game (Dev)" button. Destroys this
+      // instance's own session (if hosting) then finds + joins the host.
+      const devJoin = root.querySelector('#btn-dev-join');
+      if (devJoin) {
+        devJoin.onclick = () => ctx.publish('UI.Cmd.Dev.JoinGame');
+        ctx.on('tsic.msg.UI.State.DevMode', (p) => {
+          devJoin.style.display = (p && p.bDevBuild) ? '' : 'none';
+        });
+      }
     },
 
     // onShow / onHide intentionally omitted — there's no transient state to

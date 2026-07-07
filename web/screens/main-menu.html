@@ -298,6 +298,12 @@
           Leave the Store
           <span class="tsic-row-pg">END</span>
         </button>
+        <!-- Dev/testing only: revealed by the UI.State.DevMode flag in non-shipping builds. -->
+        <button class="tsic-row-button" id="btn-dev-join" style="display:none">
+          <span class="tsic-row-dept">Dev</span>
+          Join Game (Dev)
+          <span class="tsic-row-pg">DEV</span>
+        </button>
       </div>
     </div>
   </div>
@@ -903,6 +909,17 @@
         document.getElementById('btn-credits').onclick  = nav('Credits');
         document.getElementById('btn-exit').onclick     = () =>
           tsic.publishMessage('UI.Cmd.Menu.Exit', {});
+
+        // Dev/testing: reveal + wire the "Join Game (Dev)" button. The
+        // UI.State.DevMode flag is cached, so this fires with the current
+        // value as soon as we subscribe.
+        var devJoin = document.getElementById('btn-dev-join');
+        if (devJoin) {
+          devJoin.onclick = () => tsic.publishMessage('UI.Cmd.Dev.JoinGame', {});
+          tsic.on('tsic.msg.UI.State.DevMode', (p) => {
+            devJoin.style.display = (p && p.bDevBuild) ? '' : 'none';
+          });
+        }
       });
     })();
   </script>
