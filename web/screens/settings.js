@@ -140,21 +140,41 @@
             controlUpdaters[s.Key] = (val) => tog.classList.toggle('on', !!val);
             ctl.appendChild(tog);
         } else if (type === 'enum' || Array.isArray(s.Options)) {
-            const sel = document.createElement('select');
-            sel.disabled = isDisabled;
-            for (const opt of (s.Options || [])) {
-                const o = document.createElement('option');
-                o.value = String(opt.Value !== undefined ? opt.Value : opt);
-                o.textContent = String(opt.Label !== undefined ? opt.Label : opt);
-                if (o.value === String(v)) o.selected = true;
-                sel.appendChild(o);
-            }
-            sel.onchange = () => {
-                localState[s.Key] = sel.value;
-                publishSet(s.Key, localState[s.Key]);
+            // tsic-dropdown, NOT a native <select>: CEF renders native select popups
+            // through a Slate menu that misplaces/flips under accelerated paint.
+            const opts = (s.Options || []).map((opt) => ({
+                value: String(opt.Value !== undefined ? opt.Value : opt),
+                label: String(opt.Label !== undefined ? opt.Label : opt),
+            }));
+            const dd = document.createElement('button');
+            dd.type = 'button';
+            dd.className = 'tsic-dropdown';
+            dd.disabled = isDisabled;
+            dd.setAttribute('data-tsic-focusable', '');
+            dd.setAttribute('data-tsic-options', JSON.stringify(opts));
+            dd.setAttribute('data-tsic-value', String(v));
+            const ddLabel = document.createElement('span');
+            ddLabel.className = 'tsic-dropdown-label';
+            const current = opts.find((o) => o.value === String(v));
+            ddLabel.textContent = current ? current.label : String(v);
+            const ddCaret = document.createElement('span');
+            ddCaret.className = 'tsic-dropdown-caret';
+            ddCaret.textContent = '▾';
+            dd.appendChild(ddLabel);
+            dd.appendChild(ddCaret);
+            dd.addEventListener('tsic-change', () => {
+                // controlUpdaters value echoes call tsic.dropdown.set, which fires
+                // tsic-change too — only publish genuine changes.
+                const newValue = tsic.dropdown.get(dd);
+                if (localState[s.Key] === newValue) return;
+                localState[s.Key] = newValue;
+                publishSet(s.Key, newValue);
+            });
+            controlUpdaters[s.Key] = (val) => {
+                localState[s.Key] = String(val);
+                tsic.dropdown.set(dd, String(val));
             };
-            controlUpdaters[s.Key] = (val) => { sel.value = String(val); };
-            ctl.appendChild(sel);
+            ctl.appendChild(dd);
         } else if (type === 'action') {
             const btn = document.createElement('button');
             btn.className = 'tsic-button';

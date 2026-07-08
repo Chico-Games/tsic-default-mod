@@ -17,7 +17,7 @@
     [data-screen="BugReport"] #br-overlay { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:auto; }
     [data-screen="BugReport"] .field { display:flex; flex-direction:column; gap:4px; margin-top: 10px; }
     [data-screen="BugReport"] .field > label { font-size:11px; letter-spacing:1px; color: rgba(59,47,28,0.75); text-transform:uppercase; }
-    [data-screen="BugReport"] .field > select, [data-screen="BugReport"] .field > textarea {
+    [data-screen="BugReport"] .field > textarea {
       background: transparent;
       color: var(--cat-ink-dark);
       border: 1px solid var(--tsic-border);
@@ -40,12 +40,18 @@
         <div data-tsic-focus-group="form-fields">
           <div class="field">
             <label for="br-category">Category</label>
-            <select id="br-category" data-tsic-focusable>
-              <option value="Gameplay">Gameplay</option>
-              <option value="UI">UI</option>
-              <option value="Crash">Crash</option>
-              <option value="Other">Other</option>
-            </select>
+            <!-- tsic-dropdown, not a native <select>: CEF's native select popup renders
+                 through a Slate menu that misplaces/flips under accelerated paint. -->
+            <button id="br-category" type="button" class="tsic-dropdown" data-tsic-focusable
+                    data-tsic-value="Gameplay"
+                    data-tsic-options='[
+                      {"value":"Gameplay","label":"Gameplay"},
+                      {"value":"UI","label":"UI"},
+                      {"value":"Crash","label":"Crash"},
+                      {"value":"Other","label":"Other"}]'>
+              <span class="tsic-dropdown-label">Gameplay</span>
+              <span class="tsic-dropdown-caret">▾</span>
+            </button>
           </div>
 
           <div class="field">
@@ -108,7 +114,7 @@
           return;
         }
         ctx.publish('UI.Cmd.BugReport.Submit', {
-          Category: root.querySelector('#br-category').value || 'Other',
+          Category: tsic.dropdown.get(root.querySelector('#br-category')) || 'Other',
           Description: desc,
           bIncludeScreenshot: !!root.querySelector('#br-screenshot').checked,
           bIncludeLog: !!root.querySelector('#br-log').checked,

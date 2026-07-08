@@ -174,15 +174,19 @@
       <div class="auth-strip" style="margin-bottom:8px;">
         <div>
           <input id="search" type="text" placeholder="Search mods…" style="width:300px;">
-          <select id="sort" style="background:rgba(241,229,207,0.88);
-                                   border:1px solid rgba(184,170,145,0.45);
-                                   color: var(--ink-night); padding:8px;">
-            <option value="popular">Popular</option>
-            <option value="-date_added">Recently Added</option>
-            <option value="-downloads_total">Most Downloaded</option>
-            <option value="-subscribers_total">Most Subscribed</option>
-            <option value="-ratings_weighted_aggregate">Top Rated</option>
-          </select>
+          <!-- tsic-dropdown, not a native <select>: CEF's native select popup renders
+               through a Slate menu that misplaces/flips under accelerated paint. -->
+          <button id="sort" type="button" class="tsic-dropdown" data-tsic-focusable
+                  data-tsic-value="popular"
+                  data-tsic-options='[
+                    {"value":"popular","label":"Popular"},
+                    {"value":"-date_added","label":"Recently Added"},
+                    {"value":"-downloads_total","label":"Most Downloaded"},
+                    {"value":"-subscribers_total","label":"Most Subscribed"},
+                    {"value":"-ratings_weighted_aggregate","label":"Top Rated"}]'>
+            <span class="tsic-dropdown-label">Popular</span>
+            <span class="tsic-dropdown-caret">▾</span>
+          </button>
         </div>
         <div id="tag-chips" style="color:rgba(37,33,25,0.8);"></div>
       </div>
@@ -375,7 +379,7 @@
       }
       try {
         const q = document.getElementById('search').value.trim();
-        const sort = document.getElementById('sort').value;
+        const sort = tsic.dropdown.get(document.getElementById('sort')) || 'popular';
         const tagsIn = buildTagsInQuery();
         const r = await listMods(client, { q, sort, tagsIn, limit: PAGE, offset }, myAbort.signal);
         if (myAbort.signal.aborted) return;
@@ -530,7 +534,7 @@
       loadTags();
       loadPage(true);
       document.getElementById('search').oninput = searchSoon;
-      document.getElementById('sort').onchange = () => loadPage(true);
+      document.getElementById('sort').addEventListener('tsic-change', () => loadPage(true));
       document.getElementById('btn-loadmore').onclick = () => loadPage(false);
     }
 
