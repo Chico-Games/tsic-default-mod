@@ -180,6 +180,18 @@
         };
     }
 
+    // ---- Custom cursor ---------------------------------------------------
+    // Every live page gets the magazine cursor layer (shared/cursor.js —
+    // arrow / target brackets / I-beam / map registration mark). Injected
+    // here so no page has to remember the script tag; cursor.js self-guards
+    // against the test harness and double-install.
+    if (!document.querySelector('script[src*="/shared/cursor.js"]')) {
+        var cursorScript = document.createElement('script');
+        cursorScript.src = '/shared/cursor.js';
+        cursorScript.defer = true;
+        document.head.appendChild(cursorScript);
+    }
+
     // The mock tsic in test-harness.js installs the namespace synchronously
     // before any page script runs; production C++ stamps it slightly later.
     // Either way, poll-and-install — this stays harmless if called twice.

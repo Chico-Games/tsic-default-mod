@@ -161,7 +161,7 @@
   const TEMPLATE = `
     <div id="map-root">
       <div id="map-title">MAP</div>
-      <div id="map-viewport">
+      <div id="map-viewport" data-cursor="map">
         <div id="map-content">
           <img id="world-tex" src="/runtime/world-map.imgsrc">
           <img id="debug-height-tex" src="/runtime/world-debug-height.imgsrc">
@@ -627,7 +627,18 @@
         return [e.Label, e.Category, `(${x}, ${y})`].filter(Boolean).join(' • ');
       }
 
-      function hideHoverChip() { const chip = qs('#hover-chip'); if (chip) chip.style.display = 'none'; }
+      function hideHoverChip() { const chip = qs('#hover-chip'); if (chip) chip.style.display = 'none'; setPoiHover(false); }
+      // Mirrors "the mouse is over a pickable POI" onto the viewport so the
+      // custom cursor (shared/cursor.js) switches to its locked-on look. POIs
+      // are hit-tested in code, so the cursor can't see them via DOM hover.
+      function setPoiHover(on) {
+        const vp = qs('#map-viewport');
+        if (!vp) return;
+        const want = !!on && !state.isPad;
+        if (vp.hasAttribute('data-cursor-poi') === want) return;
+        vp.toggleAttribute('data-cursor-poi', want);
+        if (window.TSICCursor) window.TSICCursor.refresh();
+      }
       // The fog overlay is visible unless the SetFogOfWarVisible cheat hid it.
       // When it's hidden (or fog is disabled), don't suppress hover.
       function fowOverlayVisible() {
@@ -650,7 +661,9 @@
           hideHoverChip();
           return;
         }
-        let text = describePick(pickAt(lx, ly));
+        const pick = pickAt(lx, ly);
+        setPoiHover(!!pick);
+        let text = describePick(pick);
         if (!text) { text = describeTile(wx, wy); }
         if (!text) { hideHoverChip(); return; }
         chip.textContent = text;

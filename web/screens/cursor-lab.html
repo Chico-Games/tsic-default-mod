@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>TSIC — Cursor Lab (Final)</title>
+<!--
+  cursor-lab.html — preview page for the shipped custom cursor.
+
+  Loads the REAL runtime module (../shared/cursor.js — the same file every
+  game page gets via tsic-runtime.js), so what you see here is exactly what
+  renders in-game. Works straight from Chrome via file://.
+
+  States: ink arrow (default) · red target brackets (interactive) ·
+  I-beam (text entry) · registration mark (over the map area) ·
+  small red ring ripple on click.
+-->
+<style>
+  :root {
+    --paper:        #f4ecd8;
+    --paper-cream:  #f0e8d0;
+    --paper-bright: #fffdf3;
+    --paper-muted:  #e3d8b8;
+    --ink-night:    #0a0a0a;
+    --ink-soft:     #4a4239;
+    --mag-red:      #e60000;
+    --mag-yellow:   #ffcc00;
+    --shadow-block-sm: 2px 2px 0 var(--ink-night);
+    --shadow-block:    4px 4px 0 var(--ink-night);
+    --shadow-block-lg: 6px 6px 0 var(--ink-night);
+    --font-display:  "Bebas Neue", "Bahnschrift Condensed", Impact, "Arial Black", sans-serif;
+    --font-terminal: "VT323", Consolas, "Cascadia Code", "Courier New", monospace;
+    --font-body:     "Inter", "Segoe UI", system-ui, sans-serif;
+  }
+
+  * { box-sizing: border-box; user-select: none; -webkit-user-select: none; }
+  html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; }
+
+  body {
+    font-family: var(--font-body);
+    color: var(--ink-night);
+    background-color: var(--paper-cream);
+    background-image:
+      radial-gradient(rgba(10, 10, 10, 0.10) 14%, transparent 15%),
+      radial-gradient(rgba(10, 10, 10, 0.08) 14%, transparent 15%);
+    background-size: 10px 10px, 10px 10px;
+    background-position: 0 0, 5px 5px;
+    display: flex;
+    flex-direction: column;
+    padding: 22px 28px;
+    gap: 14px;
+  }
+
+  .masthead { display: flex; align-items: baseline; gap: 14px; flex: 0 0 auto; }
+  .masthead h1 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 44px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    line-height: 0.9;
+  }
+  .masthead .issue {
+    background: var(--mag-red);
+    color: var(--paper-bright);
+    font-family: var(--font-display);
+    font-size: 15px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border: 2px solid var(--ink-night);
+    box-shadow: var(--shadow-block-sm);
+  }
+  .masthead .hint {
+    margin-left: auto;
+    font-family: var(--font-terminal);
+    font-size: 15px;
+    color: var(--ink-soft);
+  }
+
+  .lab { flex: 1 1 auto; display: grid; grid-template-columns: 1.15fr 1fr; gap: 16px; min-height: 0; }
+
+  .panel {
+    background: var(--paper-cream);
+    border: 4px solid var(--ink-night);
+    box-shadow: var(--shadow-block);
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow-y: auto;
+  }
+  .panel .eyebrow {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+  }
+  .panel section { margin-bottom: 16px; }
+
+  .tsic-button {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+    padding: 10px 22px;
+    background: var(--mag-red);
+    color: var(--paper-bright);
+    border: 3px solid var(--ink-night);
+    font-family: var(--font-display);
+    font-size: 18px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    box-shadow: var(--shadow-block);
+    transition: transform 90ms ease, box-shadow 90ms ease, background-color 150ms ease, color 150ms ease;
+    margin-right: 10px;
+  }
+  .tsic-button::before { content: ''; position: absolute; inset: 0; border: 1px solid rgba(255, 253, 243, 0.28); pointer-events: none; }
+  .tsic-button:hover { background: #ff1a1a; transform: translate(-2px, -2px); box-shadow: var(--shadow-block-lg); }
+  .tsic-button:active { transform: translate(2px, 2px); box-shadow: none; }
+  .tsic-button.secondary { background: var(--paper-bright); color: var(--ink-night); }
+  .tsic-button.secondary:hover { background: var(--ink-night); color: var(--paper-bright); }
+
+  .tsic-tab-bar { display: flex; border-bottom: 4px solid var(--ink-night); margin-bottom: 10px; }
+  .tsic-tab {
+    position: relative;
+    bottom: -4px;
+    padding: 8px 16px;
+    background: transparent;
+    border: 0;
+    color: var(--ink-soft);
+    font-family: var(--font-display);
+    font-size: 16px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    transition: background-color 120ms ease, color 120ms ease;
+  }
+  .tsic-tab:hover { color: var(--ink-night); }
+  .tsic-tab.is-active { background: var(--mag-red); color: #ffffff; }
+
+  .tsic-list-pane {
+    background: var(--paper-bright);
+    border: 2px solid var(--ink-night);
+    padding: 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    max-width: 460px;
+  }
+  .tsic-list-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 10px;
+    border-bottom: 1px dashed rgba(10, 10, 10, 0.30);
+    font-family: var(--font-display);
+    font-size: 14px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    transition: padding-left 120ms ease, background-color 80ms ease;
+  }
+  .tsic-list-row:hover { background: var(--paper-muted); padding-left: 14px; }
+  .tsic-list-row .right { margin-left: auto; font-family: var(--font-terminal); font-size: 12px; color: var(--ink-soft); }
+
+  .tsic-input {
+    background: var(--paper-bright);
+    border: 2px solid var(--ink-night);
+    padding: 8px 10px;
+    font-family: var(--font-terminal);
+    font-size: 15px;
+    color: var(--ink-night);
+    width: 260px;
+    user-select: text;
+    -webkit-user-select: text;
+  }
+  textarea.tsic-input { width: 100%; max-width: 460px; height: 70px; resize: none; }
+  input[type="range"] { width: 220px; accent-color: var(--mag-red); }
+  a.tsic-link { color: var(--mag-red); font-family: var(--font-display); font-size: 16px; letter-spacing: 0.08em; text-transform: uppercase; }
+
+  /* Fake map area — same hook the real map screen uses (data-cursor="map"). */
+  .fake-map {
+    position: relative;
+    flex: 1 1 auto;
+    min-height: 260px;
+    background:
+      linear-gradient(rgba(255, 253, 243, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 253, 243, 0.05) 1px, transparent 1px),
+      #14161f;
+    background-size: 28px 28px, 28px 28px, auto;
+    border: 3px solid var(--ink-night);
+    box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.65);
+  }
+  .fake-map .tag {
+    position: absolute;
+    left: 10px; top: 10px;
+    background: var(--ink-night);
+    color: var(--paper-bright);
+    font-family: var(--font-terminal);
+    font-size: 13px;
+    padding: 2px 6px;
+  }
+  /* Fake POIs — the real map hit-tests POIs in code and toggles
+     data-cursor-poi on the viewport; here plain hover does the same. */
+  .fake-map .poi {
+    position: absolute;
+    width: 11px; height: 11px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 253, 243, 0.8);
+  }
+  .fake-map .poi::after {
+    content: attr(data-label);
+    position: absolute;
+    left: 14px; top: -2px;
+    color: rgba(255, 253, 243, 0.6);
+    font-family: var(--font-terminal);
+    font-size: 12px;
+    white-space: nowrap;
+  }
+
+  .footer {
+    flex: 0 0 auto;
+    font-family: var(--font-terminal);
+    font-size: 15px;
+    color: var(--ink-soft);
+  }
+</style>
+</head>
+<body>
+
+  <header class="masthead">
+    <h1>Cursor Lab</h1>
+    <span class="issue">Final &middot; As Shipped</span>
+    <span class="hint">SAME MODULE THE GAME LOADS (shared/cursor.js)</span>
+  </header>
+
+  <div class="lab">
+    <div class="panel">
+      <div class="eyebrow">Interactive — target brackets</div>
+      <section>
+        <button class="tsic-button">Craft Item</button>
+        <button class="tsic-button secondary">Cancel</button>
+      </section>
+      <section>
+        <div class="tsic-tab-bar">
+          <button class="tsic-tab is-active">Inventory</button>
+          <button class="tsic-tab">Equipment</button>
+          <button class="tsic-tab">Crafting</button>
+        </div>
+        <div class="tsic-list-pane">
+          <div class="tsic-list-row">Sledge Hammer <span class="right">x1 &middot; 8.2kg</span></div>
+          <div class="tsic-list-row">Dowel Bat <span class="right">x1 &middot; 1.4kg</span></div>
+          <div class="tsic-list-row">Bread <span class="right">x3 &middot; 0.9kg</span></div>
+        </div>
+      </section>
+      <div class="eyebrow">Text entry — I-beam</div>
+      <section>
+        <input class="tsic-input" type="text" placeholder="TYPE HERE — TEXT FIELD">
+        <textarea class="tsic-input" placeholder="MULTILINE NOTES…"></textarea>
+      </section>
+      <div class="eyebrow">Misc</div>
+      <section>
+        <input type="range" min="0" max="100" value="60">
+        <a class="tsic-link" href="#" onclick="return false">Read the manual</a>
+      </section>
+    </div>
+
+    <div class="panel">
+      <div class="eyebrow">Map area — registration mark (locks on over a POI)</div>
+      <div class="fake-map" data-cursor="map" id="fake-map">
+        <span class="tag">WORLD MAP (FAKE) — hover a POI, drag/click to feel the press state</span>
+        <span class="poi" data-label="SPAWN"      style="left: 30%; top: 40%; background: #f1c40f;"></span>
+        <span class="poi" data-label="TELEPORTER" style="left: 62%; top: 30%; background: #2ecc71;"></span>
+        <span class="poi" data-label="LANDMARK"   style="left: 55%; top: 70%; background: #e74c3c;"></span>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    ARROW = default &middot; BRACKETS = interactive &middot; I-BEAM = text &middot; REGISTRATION = map &middot; CLICK = small red ring
+  </footer>
+
+  <!-- The real runtime cursor module. Relative path so file:// works. -->
+  <script src="../shared/cursor.js" defer></script>
+  <script>
+    // Emulate the real map screen: it hit-tests POIs in code and toggles
+    // data-cursor-poi on the viewport. Here plain DOM hover stands in.
+    (function () {
+      var map = document.getElementById('fake-map');
+      map.addEventListener('pointerover', function (e) {
+        var over = !!(e.target.closest && e.target.closest('.poi'));
+        map.toggleAttribute('data-cursor-poi', over);
+        if (window.TSICCursor) window.TSICCursor.refresh();
+      });
+    })();
+  </script>
+</body>
+</html>
