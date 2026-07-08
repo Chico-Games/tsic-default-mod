@@ -225,19 +225,41 @@
 
         document.documentElement.addEventListener('pointerleave', function () { root.classList.add('is-gone'); });
 
-        // Hide while the game owns the mouse; show again in menu/UI mode.
-        // Same signal hud-crosshair.js uses, inverted. Bridge-less pages
-        // (Chrome preview) just never suppress.
+        // Hide while the game owns the mouse. Mirrors the C++ rule in
+        // ScpUIDirectorSubsystem::RefreshFocusCapture: the UI has the mouse
+        // when an overlay is open OR the current screen is a capture screen.
+        // (UI.Input.Mode.Changed only carries the input DEVICE — gamepad is
+        // handled via html[data-tsic-input] CSS.) Both channels are sticky,
+        // so a freshly loaded page gets current state on subscribe.
+        // Keep in sync with the CaptureScreens set in ScpUIDirectorSubsystem.cpp.
+        var CAPTURE_SCREENS = {
+            MainMenu: 1, NewStore: 1, LoadSave: 1, Mods: 1, Settings: 1,
+            Credits: 1, DeathScreen: 1, PauseMenu: 1, Inventory: 1, Map: 1,
+            Crafting: 1, Production: 1, Chat: 1, CheatMenu: 1, HtmlGame: 1,
+            DebugScreen: 1, Construction: 1,
+        };
+        var currentScreen = '';
+        var overlayCount = 0;
+        function applySuppression() {
+            var uiHasMouse = overlayCount > 0 || !!CAPTURE_SCREENS[currentScreen];
+            root.classList.toggle('is-suppressed', !uiHasMouse);
+        }
         var tries = 0;
-        (function bindInputMode() {
+        (function bindUiState() {
             var t = window.tsic;
             if (!t || typeof t.on !== 'function') {
-                if (++tries < 100) setTimeout(bindInputMode, 150);
+                // Bridge-less pages (Chrome preview) never suppress.
+                if (++tries < 100) setTimeout(bindUiState, 150);
                 return;
             }
-            t.on('tsic.msg.UI.Input.Mode.Changed', function (p) {
-                var isMenuMode = !!p && String(p.Device || '') === 'mouse' && String(p.Focus || '') === 'ui';
-                root.classList.toggle('is-suppressed', !isMenuMode);
+            t.on('tsic.msg.UI.Screen.Changed', function (p) {
+                if (!p || !p.Name) return;
+                currentScreen = String(p.Name);
+                applySuppression();
+            });
+            t.on('tsic.msg.UI.Overlay.Changed', function (p) {
+                overlayCount = (p && p.Stack && p.Stack.length) || 0;
+                applySuppression();
             });
         })();
     }
