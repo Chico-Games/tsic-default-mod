@@ -25,7 +25,11 @@ TSICTestHarness.register({
         ctx.expect(ctx.assert.domText(ctx.doc, '.group h3', 'Display'));
         ctx.expect(ctx.assert.domExists(ctx.doc, 'input[type="range"]'));
         ctx.expect(ctx.assert.domExists(ctx.doc, '.field-toggle'));
-        ctx.expect(ctx.assert.domExists(ctx.doc, 'select'));
+        // Enum fields render as tsic-dropdown triggers, never native <select>
+        // (CEF's native select popup misrenders under accelerated paint).
+        ctx.expect(ctx.assert.domExists(ctx.doc, 'button.tsic-dropdown[data-tsic-options]'));
+        ctx.expect(ctx.assert.eq(ctx.doc.querySelectorAll('select').length, 0));
+        ctx.expect(ctx.assert.eq(ctx.win.tsic.dropdown.get(ctx.doc.querySelector('button.tsic-dropdown')), 'Med'));
     },
 });
 
