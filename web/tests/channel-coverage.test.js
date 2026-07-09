@@ -15,8 +15,8 @@ TSICTestHarness.register({
         await new Promise(r => setTimeout(r, 30));
         ctx.expect(ctx.assert.truthy(true));
         // Synthetic JS-publish covers the channel string so the coverage report
-        // accounts for it; production has no UI-page that publishes Apply
-        // directly (Settings.Set is the per-change command).
+        // accounts for it (the settings page publishes Apply itself when the
+        // keep-countdown popover resolves to Keep — see settings.test.js).
         ctx.win.tsic.publishMessage('UI.Cmd.Settings.Apply', { SettingsJson: '{}' });
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Settings.Apply'));
     },

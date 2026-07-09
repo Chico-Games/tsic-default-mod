@@ -1,8 +1,9 @@
 // /screens/settings.html subscribes to:
 //   tsic.msg.UI.Settings.Catalog    { Json: <serialized Pages tree> }
 //   tsic.msg.UI.Settings.Value      { Key, ValueJson }
-//   tsic.msg.UI.Settings.Footer     { AnyDirty, RestartRequired, ApplyCountdownSeconds }
-//   tsic.msg.UI.Settings.ApplyToast { CountdownSeconds }
+//   tsic.msg.UI.Settings.Footer     { RestartRequired }
+// Apply/Revert (and the keep-countdown popover) are owned by the page itself —
+// drive them by editing a control, then clicking the bottom-right buttons.
 TSICPlayground.register({
     id: 'settings',
     label: 'Settings',
@@ -33,7 +34,7 @@ TSICPlayground.register({
                     ] },
                 ] },
             ],
-            Footer: { AnyDirty: false, RestartRequired: false, ApplyCountdownSeconds: -1 },
+            Footer: { RestartRequired: false },
         } };
     },
     project(state) {
@@ -45,9 +46,7 @@ TSICPlayground.register({
     // inject is the assertion that matters.
     scenarios: [
         { label: 'Default',           apply() {},                                                                                  expect: { visualChange: false } },
-        { label: 'Dirty (unsaved)',   apply(s) { s.catalog.Footer.AnyDirty = true; s.catalog.Footer.RestartRequired = false; },     expect: { visualChange: false } },
-        { label: 'Restart required',  apply(s) { s.catalog.Footer.RestartRequired = true; s.catalog.Footer.AnyDirty = true; } },
-        { label: 'Apply countdown',   apply(s) { s.catalog.Footer.ApplyCountdownSeconds = 12; } },
+        { label: 'Restart required',  apply(s) { s.catalog.Footer.RestartRequired = true; } },
         { label: 'Quiet audio',       apply(s) {
             for (const p of s.catalog.Pages) for (const g of p.Groups) for (const f of g.Settings) {
                 if (f.Key && f.Key.startsWith('audio.')) f.Value = 0.1;

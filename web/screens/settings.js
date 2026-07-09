@@ -49,7 +49,7 @@
                 ] },
             ] },
         ],
-        Footer: { bAnyDirty: false, bRestartRequired: false, ApplyCountdownSeconds: -1 },
+        Footer: { bRestartRequired: false },
     };
 
     const CONTROLS_PAGE_ID = 'ControlsCollection';
@@ -59,6 +59,31 @@
     let controlsState = null;
     let activeRebind = null;   // { hotkeyId, bGamepad, btn }
     const localState = {};
+
+    // Apply/Revert staging. `baseline` holds the last committed value per key
+    // (the value when the screen opened, or at the last Keep/Revert). `pending`
+    // holds uncommitted edits. Live keys still publish on change so controls
+    // preview instantly (volume audible while dragging); DEFERRED keys — video
+    // mode changes that can black out the display — only publish on Apply,
+    // guarded by the keep/revert countdown popover.
+    const baseline = {};
+    const pending = {};
+    const KEEP_COUNTDOWN_SECONDS = 10;
+    let deferredApplied = false; // pending deferred keys were published (Apply pressed)
+    let countdownTimer = null;
+    let activePopover = null;    // { el, kind: 'countdown' | 'confirm' }
+
+    function isDeferred(key) { return String(key).indexOf('video.') === 0; }
+
+    // Normalize a value to the representation its control produces, so
+    // baseline comparisons don't miss on '1' !== 1.
+    function normValue(s, val) {
+        const type = String(s.Type || '').toLowerCase();
+        if (type === 'range' || type === 'number') return Number(val);
+        if (type === 'bool') return !!val;
+        if (type === 'enum' || Array.isArray(s.Options)) return String(val);
+        return val;
+    }
 
     // Structural signature of the last render + per-key value updaters. A
     // Catalog whose structure is unchanged (only Values differ) is patched in
@@ -81,6 +106,21 @@
 
     function publishAction(key) {
         tsic.publishMessage('UI.Cmd.Settings.Action', { Key: key });
+    }
+
+    // Route every control edit through here. Live keys publish immediately;
+    // deferred keys wait for Apply. Either way the edit is pending until the
+    // user Applies+Keeps it (or it reverts).
+    function stageSet(key, value) {
+        if (key in baseline && baseline[key] === value) {
+            delete pending[key];
+        } else {
+            pending[key] = value;
+        }
+        if (!isDeferred(key)) {
+            publishSet(key, value);
+        }
+        updateActionButtons();
     }
 
     // Cap displayed numbers at 2 decimal places, dropping trailing zeros
@@ -106,6 +146,12 @@
         const v = valueOf(s);
         const isDisabled = !!s.Disabled;
 
+        // First sight of a key: its catalog value is the revert baseline.
+        // Re-renders keep the original (pending edits live in localState).
+        if (s.Key && type !== 'action' && !(s.Key in baseline)) {
+            baseline[s.Key] = normValue(s, s.Value);
+        }
+
         if (type === 'range' || type === 'number') {
             const min = (typeof s.Min === 'number') ? s.Min : 0;
             const max = (typeof s.Max === 'number') ? s.Max : 1;
@@ -125,13 +171,13 @@
                 slider.value = String(n);
                 localState[s.Key] = n;
                 valueLabel.textContent = fmt2(n);
-                publishSet(s.Key, n);
+                stageSet(s.Key, n);
             };
             controlUpdaters[s.Key] = (val) => {
                 const n = Number(val);
                 if (Number.isNaN(n)) return;
                 slider.value = String(n);
-                valueLabel.textContent = String(n);
+                valueLabel.textContent = fmt2(n);
             };
             ctl.appendChild(slider);
             ctl.appendChild(valueLabel);
@@ -142,7 +188,7 @@
                 tog.onclick = () => {
                     localState[s.Key] = !(localState[s.Key] !== undefined ? localState[s.Key] : v);
                     tog.classList.toggle('on', localState[s.Key]);
-                    publishSet(s.Key, localState[s.Key]);
+                    stageSet(s.Key, localState[s.Key]);
                 };
             }
             controlUpdaters[s.Key] = (val) => tog.classList.toggle('on', !!val);
@@ -176,7 +222,7 @@
                 const newValue = tsic.dropdown.get(dd);
                 if (localState[s.Key] === newValue) return;
                 localState[s.Key] = newValue;
-                publishSet(s.Key, newValue);
+                stageSet(s.Key, newValue);
             });
             controlUpdaters[s.Key] = (val) => {
                 localState[s.Key] = String(val);
@@ -333,6 +379,7 @@
         if (modal) return modal;
         modal = document.createElement('div');
         modal.id = 'rebind-modal';
+        modal.className = 'settings-modal';
         modal.hidden = true;
         const panel = document.createElement('div');
         panel.className = 'panel';
@@ -345,7 +392,7 @@
         row.id = 'rebind-actions';
         panel.appendChild(row);
         modal.appendChild(panel);
-        document.getElementById('wrap').appendChild(modal);
+        document.body.appendChild(modal);
         return modal;
     }
 
@@ -408,6 +455,138 @@
         if (cap.bConflict) { showConflictModal(cap); return; }
         // No conflict (applied) or cancelled — close. ControlsState refresh re-renders.
         hideModal();
+    }
+
+    // ---- Apply / Revert flow ----
+
+    function updateActionButtons() {
+        const dirty = Object.keys(pending).length > 0;
+        const apply = document.getElementById('btn-apply');
+        const revert = document.getElementById('btn-revert');
+        if (apply) apply.disabled = !dirty;
+        if (revert) revert.disabled = !dirty;
+    }
+
+    // Commit: pending values become the new baseline. Everything is already
+    // published (live keys on change, deferred keys on Apply).
+    function commitPending() {
+        const committed = {};
+        for (const k of Object.keys(pending)) {
+            baseline[k] = pending[k];
+            committed[k] = pending[k];
+            delete pending[k];
+        }
+        deferredApplied = false;
+        updateActionButtons();
+        try {
+            tsic.publishMessage('UI.Cmd.Settings.Apply', { SettingsJson: JSON.stringify(committed) });
+        } catch (e) {}
+    }
+
+    // Roll every pending key back to its baseline: restore the control UI, and
+    // republish anything that reached C++ (live keys always; deferred keys only
+    // after Apply published them).
+    function revertPending() {
+        for (const k of Object.keys(pending)) {
+            const old = baseline[k];
+            localState[k] = old;
+            if (!isDeferred(k) || deferredApplied) publishSet(k, old);
+            if (controlUpdaters[k]) controlUpdaters[k](old);
+            delete pending[k];
+        }
+        deferredApplied = false;
+        updateActionButtons();
+        try { tsic.publishMessage('UI.Cmd.Settings.Revert', {}); } catch (e) {}
+    }
+
+    // One popover at a time. `action`: 'keep' | 'revert' | 'cancel'.
+    // `viaScopePop` is true when the focus scope was already popped (gamepad/
+    // Esc Back handled by tsic-focus), so we must not pop it again.
+    function resolvePopover(action, viaScopePop) {
+        const p = activePopover;
+        if (!p) return;
+        activePopover = null;
+        if (countdownTimer) { clearInterval(countdownTimer); countdownTimer = null; }
+        p.el.remove();
+        if (!viaScopePop && tsic.focus && tsic.focus.popScope) tsic.focus.popScope();
+        if (action === 'keep') commitPending();
+        else if (action === 'revert') revertPending();
+    }
+
+    function popoverButton(id, label, variant, action) {
+        const btn = document.createElement('button');
+        btn.id = id;
+        btn.className = 'tsic-button' + (variant ? ' ' + variant : '');
+        btn.type = 'button';
+        btn.textContent = label;
+        btn.onclick = () => resolvePopover(action, false);
+        return btn;
+    }
+
+    function openPopover(kind, titleText, subNodes, buttons, initialBtn) {
+        resolvePopover('cancel', false); // never stack popovers
+        const modal = document.createElement('div');
+        modal.id = 'settings-popover';
+        modal.className = 'settings-modal';
+        const panel = document.createElement('div');
+        panel.className = 'panel';
+        const msg = document.createElement('div');
+        msg.className = 'msg';
+        msg.appendChild(document.createTextNode(titleText));
+        if (subNodes && subNodes.length) {
+            const sub = document.createElement('div');
+            sub.className = 'sub';
+            for (const n of subNodes) sub.appendChild(n);
+            msg.appendChild(sub);
+        }
+        panel.appendChild(msg);
+        const row = document.createElement('div');
+        row.className = 'tsic-button-row';
+        for (const b of buttons) row.appendChild(b);
+        panel.appendChild(row);
+        modal.appendChild(panel);
+        document.body.appendChild(modal);
+        activePopover = { el: modal, kind };
+        // Modal focus scope: gamepad focus stays inside, and a Back press pops
+        // the popover (router skips its screen-close via backHandled()). Back
+        // resolves to the popover's safe action.
+        if (tsic.focus && tsic.focus.pushScope) {
+            tsic.focus.pushScope(modal, initialBtn, { onPop: () => {
+                if (!activePopover) return; // popped by resolvePopover itself
+                resolvePopover(activePopover.kind === 'countdown' ? 'revert' : 'cancel', true);
+            } });
+        }
+    }
+
+    function doApply() {
+        if (!Object.keys(pending).length || activePopover) return;
+        // Deferred keys go out now; live keys were published as they changed.
+        for (const k of Object.keys(pending)) {
+            if (isDeferred(k)) publishSet(k, pending[k]);
+        }
+        deferredApplied = true;
+
+        let remaining = KEEP_COUNTDOWN_SECONDS;
+        const count = document.createElement('b');
+        count.id = 'popover-countdown';
+        count.textContent = String(remaining);
+        const sub = [document.createTextNode('Reverting in '), count, document.createTextNode('s')];
+        const keepBtn = popoverButton('popover-keep', 'Keep changes', '', 'keep');
+        const revertBtn = popoverButton('popover-revert', 'Revert', 'secondary', 'revert');
+        openPopover('countdown', 'Keep these settings?', sub, [revertBtn, keepBtn], keepBtn);
+        countdownTimer = setInterval(() => {
+            remaining -= 1;
+            if (remaining <= 0) { resolvePopover('revert', false); return; }
+            count.textContent = String(remaining);
+        }, 1000);
+    }
+
+    function askRevert() {
+        if (!Object.keys(pending).length || activePopover) return;
+        const sub = [document.createTextNode('Unapplied changes go back to their previous values.')];
+        const cancelBtn = popoverButton('popover-cancel', 'Cancel', 'secondary', 'cancel');
+        const revertBtn = popoverButton('popover-revert', 'Revert', 'danger', 'revert');
+        openPopover('confirm', 'Revert changes?', sub, [cancelBtn, revertBtn], cancelBtn);
     }
 
     // ---- Page / tab plumbing ----
@@ -492,24 +671,21 @@
         if (!page) return;
         for (const g of (page.Groups || [])) {
             for (const s of (g.Settings || [])) {
-                if (s.Key && controlUpdaters[s.Key]) {
-                    localState[s.Key] = s.Value;
-                    controlUpdaters[s.Key](s.Value);
-                }
+                if (!s.Key || !controlUpdaters[s.Key]) continue;
+                // An echoed value is the applied truth — it is also the new
+                // revert baseline, unless the user has an edit in flight.
+                if (!(s.Key in pending)) baseline[s.Key] = normValue(s, s.Value);
+                localState[s.Key] = s.Value;
+                controlUpdaters[s.Key](s.Value);
             }
         }
     }
 
     function renderFooter(footer) {
+        // Tolerate both spellings: the C++ bridge's authored-name serialization
+        // drops the leading 'b' (RestartRequired), the static catalog keeps it.
         const restart = document.getElementById('restart-required');
-        const toast = document.getElementById('apply-toast');
-        const count = document.getElementById('apply-countdown');
-        if (restart) restart.hidden = !(footer && footer.bRestartRequired);
-        if (toast) {
-            const active = footer && typeof footer.ApplyCountdownSeconds === 'number' && footer.ApplyCountdownSeconds >= 0;
-            toast.hidden = !active;
-            if (active && count) count.textContent = String(Math.ceil(footer.ApplyCountdownSeconds));
-        }
+        if (restart) restart.hidden = !(footer && (footer.bRestartRequired || footer.RestartRequired));
     }
 
     function onCatalog(payload) {
@@ -526,6 +702,13 @@
             applyValues(lastCatalog);
             return;
         }
+        // A structurally new catalog is a new source of truth — drop any edits
+        // and baselines from the previous one so buildField re-seeds from it.
+        for (const k of Object.keys(pending)) delete pending[k];
+        for (const k of Object.keys(baseline)) delete baseline[k];
+        for (const k of Object.keys(localState)) delete localState[k];
+        deferredApplied = false;
+        updateActionButtons();
         renderTabs(lastCatalog);
         renderPage();
     }
@@ -544,15 +727,7 @@
 
     function onFooter(payload) { renderFooter(payload); }
 
-    function onApplyToast(payload) {
-        const count = document.getElementById('apply-countdown');
-        if (count && payload) count.textContent = String(Math.ceil(payload.CountdownSeconds || 0));
-        const toast = document.getElementById('apply-toast');
-        if (toast) toast.hidden = !payload || (payload.CountdownSeconds || 0) <= 0;
-    }
-
     function goBack() { tsic.publishMessage('UI.Cmd.Settings.Back', {}); }
-    function doRevert() { tsic.publishMessage('UI.Cmd.Settings.Revert', {}); }
     function doReset() {
         if (activePageId === CONTROLS_PAGE_ID) {
             tsic.publishMessage('UI.Cmd.Settings.ResetControls', {});
@@ -562,6 +737,16 @@
     }
 
     function onGlobalKey(e) {
+        if (activePopover) {
+            // Esc resolves the popover to its safe action: mid-countdown that is
+            // revert (the same thing the timeout would do), on the confirm
+            // dialog it is cancel. Mirrors the Back-pop path in openPopover.
+            if (e.key === 'Escape') {
+                e.preventDefault(); e.stopPropagation();
+                resolvePopover(activePopover.kind === 'countdown' ? 'revert' : 'cancel', false);
+            }
+            return;
+        }
         if (activeRebind) {
             // Capture is owned by C++; here we only let Esc dismiss the dialog for
             // keyboard users whose Esc reaches CEF (e.g. focused dialog).
@@ -579,12 +764,16 @@
     tsic.on('tsic.msg.UI.Settings.RebindCapture', onRebindCapture);
     tsic.on('tsic.msg.UI.Settings.Value', onValue);
     tsic.on('tsic.msg.UI.Settings.Footer', onFooter);
-    tsic.on('tsic.msg.UI.Settings.ApplyToast', onApplyToast);
     window.addEventListener('keydown', onGlobalKey, true);
+    // Leaving the screen mid-countdown means the user never chose Keep — take
+    // the safe path and roll the applied values back before the page goes away.
+    window.addEventListener('pagehide', () => {
+        if (activePopover && activePopover.kind === 'countdown') resolvePopover('revert', true);
+    });
     const backBtn = document.getElementById('btn-back');     if (backBtn)  backBtn.onclick  = goBack;
     const resetBtn = document.getElementById('btn-reset');   if (resetBtn) resetBtn.onclick = doReset;
-    const keepBtn = document.getElementById('btn-keep');     if (keepBtn)  keepBtn.onclick  = () => tsic.publishMessage('UI.Cmd.Settings.Apply', { SettingsJson: '{}' });
-    const revertBtn = document.getElementById('btn-revert'); if (revertBtn)revertBtn.onclick= doRevert;
+    const applyBtn = document.getElementById('btn-apply');   if (applyBtn) applyBtn.onclick = doApply;
+    const revertBtn = document.getElementById('btn-revert'); if (revertBtn)revertBtn.onclick= askRevert;
     // Fallback only: if a real catalog was already delivered (sticky replay on
     // subscribe), don't clobber it with the placeholder.
     if (!lastCatalog) onCatalog({ Json: JSON.stringify(STATIC_CATALOG) });

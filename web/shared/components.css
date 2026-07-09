@@ -85,16 +85,6 @@
   transform: translate(3px, 3px);
   box-shadow: 1px 1px 0 var(--ink-night);
 }
-.tsic-button:disabled,
-.tsic-button[disabled] {
-  background: var(--paper-muted);
-  color: var(--ink-mute);
-  box-shadow: var(--shadow-block-sm);
-  cursor: not-allowed;
-  transform: none;
-}
-.tsic-button:disabled::before,
-.tsic-button[disabled]::before { border-color: transparent; }
 /* On-theme keyboard focus ring (gamepad focus mirrored in tsic-ui.css). */
 .tsic-button:focus-visible {
   outline: 3px solid var(--ink-night);
@@ -206,6 +196,20 @@
 /* Small + large size modifiers. */
 .tsic-button.sm { min-height: 30px; padding: 5px 13px; font-size: 15px; }
 .tsic-button.lg { min-height: 52px; padding: 14px 32px; font-size: 26px; }
+
+/* DISABLED — after the variants so a disabled button always reads disabled,
+   whatever its variant fill. */
+.tsic-button:disabled,
+.tsic-button[disabled] {
+  background: var(--paper-muted);
+  color: var(--ink-mute);
+  box-shadow: var(--shadow-block-sm);
+  cursor: not-allowed;
+  transform: none;
+  animation: none;
+}
+.tsic-button:disabled::before,
+.tsic-button[disabled]::before { border-color: transparent; }
 
 /* ═════════════════════════════════════════════════════════════
    INPUTS
