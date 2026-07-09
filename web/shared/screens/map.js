@@ -104,7 +104,8 @@
       background: rgba(35,31,24,0.35);
       display: flex; gap: 18px; flex-wrap: wrap;
     }
-    [data-screen="Map"] #legend .swatch { display:inline-block; width:10px; height:10px; vertical-align:middle; margin-right:4px; }
+    [data-screen="Map"] #legend .li { display:inline-flex; align-items:center; gap:5px; }
+    [data-screen="Map"] #legend .li svg { display:block; overflow:visible; }
     [data-screen="Map"] #hint { margin-left: auto; color: rgba(108, 94, 73, 0.6); }
     [data-screen="Map"] #empty {
       position: absolute; inset: 0;
@@ -182,11 +183,6 @@
         <div id="hover-chip"></div>
       </div>
       <div id="legend">
-        <span><span class="swatch" style="background:#3498db;"></span>Player</span>
-        <span><span class="swatch" style="background:#f1c40f;"></span>Spawn</span>
-        <span><span class="swatch" style="background:#2ecc71;"></span>Teleporter</span>
-        <span><span class="swatch" style="background:#e74c3c;"></span>Landmark</span>
-        <span><span class="swatch" style="background:#ffcc00;"></span>Ping</span>
         <span id="hint" data-base="drag = pan · wheel = zoom · R = reset · Esc = close · RMB = ping · WebUI.Map.DebugHeight / DebugMazeRegions">drag = pan · wheel = zoom · R = reset · Esc = close · RMB = ping · WebUI.Map.DebugHeight / DebugMazeRegions</span>
       </div>
     </div>
@@ -210,6 +206,7 @@
 
       // ---- helpers / state -----------------------------------------
       const qs = (sel) => root.querySelector(sel);
+      // Legend built after helpers are declared (see end of mount).
 
       const PX_PER_CM = 1;
       const ICON_PX = 8;
@@ -327,6 +324,106 @@
         return 'ic-other';
       }
 
+      // Biome map colour ("#RRGGBB") under a world point, from the TileGrid
+      // palette. Null when there's no tile data or the biome has no colour.
+      function biomeColorAt(wx, wy) {
+        if (!tileGrid || !Array.isArray(tileGrid.colors) || tileGrid.tileSize <= 0 || tileGrid.worldSize <= 0) return null;
+        const N = Math.floor(wx / tileGrid.tileSize);
+        const E = Math.floor(wy / tileGrid.tileSize);
+        if (N < 0 || E < 0 || N >= tileGrid.worldSize || E >= tileGrid.worldSize) return null;
+        const paletteIdx = tileGrid.biomes[N * tileGrid.worldSize + E] | 0;
+        const col = tileGrid.colors[paletteIdx];
+        return (typeof col === 'string' && col.length >= 4) ? col : null;
+      }
+
+      // Fog gate for markers: hide icons over unexplored fog, mirroring the hover
+      // panel. Fail-open when there's no fog data or the fog overlay is hidden.
+      function iconVisibleInFog(wx, wy) {
+        const TF = window.TSICFow;
+        if (!fowGrid || !TF || !fowOverlayVisible()) return true;
+        return TF.exploredAt(fowGrid, wx, wy);
+      }
+
+      // --- marker shape geometry (points centred on cx,cy) ------------
+      function regularPoints(cx, cy, radius, sides, startDeg) {
+        const start = (startDeg || 0) * Math.PI / 180;
+        const pts = [];
+        for (let i = 0; i < sides; i++) {
+          const a = start + i * 2 * Math.PI / sides;
+          pts.push((cx + radius * Math.cos(a)).toFixed(2) + ',' + (cy + radius * Math.sin(a)).toFixed(2));
+        }
+        return pts.join(' ');
+      }
+      function starPoints(cx, cy, rOuter, rInner, points, startDeg) {
+        const start = (startDeg || 0) * Math.PI / 180;
+        const pts = [];
+        for (let i = 0; i < points * 2; i++) {
+          const rr = (i % 2 === 0) ? rOuter : rInner;
+          const a = start + i * Math.PI / points;
+          pts.push((cx + rr * Math.cos(a)).toFixed(2) + ',' + (cy + rr * Math.sin(a)).toFixed(2));
+        }
+        return pts.join(' ');
+      }
+      function crossPoints(cx, cy, arm, thick) {
+        const p = [
+          [-thick, -arm], [thick, -arm], [thick, -thick], [arm, -thick], [arm, thick], [thick, thick],
+          [thick, arm], [-thick, arm], [-thick, thick], [-arm, thick], [-arm, -thick], [-thick, -thick],
+        ];
+        return p.map((xy) => (cx + xy[0]).toFixed(2) + ',' + (cy + xy[1]).toFixed(2)).join(' ');
+      }
+      // A distinct shape per icon category so type reads without relying on colour.
+      // spawn = star, teleporter = diamond, deathbox = cross, landmark = circle,
+      // other = square.
+      function markerShape(category, cx, cy, r) {
+        const c = (category || '').toLowerCase();
+        if (c === 'landmark') return svgEl('circle', { cx: cx, cy: cy, r: r });
+        if (c === 'spawn' || c === 'spawnpoint') return svgEl('polygon', { points: starPoints(cx, cy, r * 1.25, r * 0.55, 5, -90) });
+        if (c === 'fasttravel' || c === 'teleporter') return svgEl('polygon', { points: regularPoints(cx, cy, r * 1.2, 4, -90) });
+        if (c === 'deathbox') return svgEl('polygon', { points: crossPoints(cx, cy, r * 1.15, r * 0.38) });
+        return svgEl('polygon', { points: regularPoints(cx, cy, r * 0.95, 4, -45) });
+      }
+
+      // Small legend glyph that matches the on-map marker shape for a category.
+      function legendGlyph(kind, color) {
+        const s = svgEl('svg', { width: 14, height: 14, viewBox: '0 0 14 14' });
+        if (kind === 'player') {
+          const arrow = svgEl('polygon', { points: '12,7 3,2.5 5.5,7 3,11.5', fill: color, stroke: '#fff', 'stroke-width': 1 });
+          s.appendChild(arrow);
+          return s;
+        }
+        if (kind === 'ping') {
+          s.appendChild(svgEl('line', { x1: 3, y1: 3, x2: 11, y2: 11, stroke: color, 'stroke-width': 2.2 }));
+          s.appendChild(svgEl('line', { x1: 3, y1: 11, x2: 11, y2: 3, stroke: color, 'stroke-width': 2.2 }));
+          return s;
+        }
+        const shape = markerShape(kind, 7, 7, 5);
+        shape.setAttribute('fill', color);
+        shape.setAttribute('stroke', '#231f18');
+        shape.setAttribute('stroke-width', 1);
+        s.appendChild(shape);
+        return s;
+      }
+      function buildLegend() {
+        const legend = qs('#legend');
+        const hint = qs('#hint');
+        if (!legend || !hint) return;
+        const items = [
+          { label: 'Player', kind: 'player', color: '#3498db' },
+          { label: 'Landmark', kind: 'landmark', color: '#c98a3a' },
+          { label: 'Spawn', kind: 'spawnpoint', color: '#f1c40f' },
+          { label: 'Teleporter', kind: 'teleporter', color: '#2ecc71' },
+          { label: 'Death', kind: 'deathbox', color: '#9b59b6' },
+          { label: 'Ping', kind: 'ping', color: '#ffcc00' },
+        ];
+        for (const it of items) {
+          const span = document.createElement('span');
+          span.className = 'li';
+          span.appendChild(legendGlyph(it.kind, it.color));
+          span.appendChild(document.createTextNode(it.label));
+          legend.insertBefore(span, hint);
+        }
+      }
+
       const CLUSTER_SCREEN_PX = 32;
       function clusterIcons(icons) {
         if (state.scale >= 0.5) return { clusters: [], singletons: icons || [] };
@@ -367,31 +464,40 @@
         g.textContent = '';
         const inv = state.scale > 0 ? (1 / state.scale) : 1;
         const r = ICON_PX * inv;
-        const sw = 1 * inv;
-        const { clusters, singletons } = clusterIcons(icons);
+        const sw = 1.5 * inv;
+        // Hide markers sitting on unexplored fog before clustering, so cluster
+        // counts only reflect what the player has actually discovered.
+        const visible = (icons || []).filter((ic) =>
+          iconVisibleInFog((ic.Position && ic.Position.X) || 0, (ic.Position && ic.Position.Y) || 0));
+        const { clusters, singletons } = clusterIcons(visible);
         for (const ic of singletons) {
-          const pos = worldToLocal((ic.Position && ic.Position.X) || 0,
-                                   (ic.Position && ic.Position.Y) || 0);
+          const wx = (ic.Position && ic.Position.X) || 0;
+          const wy = (ic.Position && ic.Position.Y) || 0;
+          const pos = worldToLocal(wx, wy);
           const c = (ic.Category || '').toLowerCase();
           const isClickable = c === 'fasttravel' && (ic.EntityId | 0) > 0;
-          const circle = svgEl('circle', {
-            cx: pos.x, cy: pos.y, r: r,
-            class: `ic ${categoryClass(ic.Category)}${isClickable ? ' clickable' : ''}`,
-            stroke: '#000', 'stroke-width': sw,
-          });
+          const shape = markerShape(ic.Category, pos.x, pos.y, r);
+          shape.setAttribute('class', `ic ${categoryClass(ic.Category)}${isClickable ? ' clickable' : ''}`);
+          shape.setAttribute('stroke', '#231f18');
+          shape.setAttribute('stroke-width', sw);
+          // Landmarks are POI-biome markers — tint them with the biome's map colour.
+          if (c === 'landmark') {
+            const biomeCol = biomeColorAt(wx, wy);
+            if (biomeCol) shape.setAttribute('fill', biomeCol);
+          }
           if (isClickable) {
-            circle.setAttribute('data-entity-id', String(ic.EntityId | 0));
-            circle.addEventListener('click', (ev) => {
+            shape.setAttribute('data-entity-id', String(ic.EntityId | 0));
+            shape.addEventListener('click', (ev) => {
               ev.stopPropagation();
               ctx.publish('UI.Cmd.Teleporter.Travel', {
-                FromId: 0, ToId: parseInt(circle.dataset.entityId, 10) || 0,
+                FromId: 0, ToId: parseInt(shape.dataset.entityId, 10) || 0,
               });
             });
           }
           const title = svgEl('title');
           title.textContent = ic.Label || ic.Category || ic.IconId || '';
-          circle.appendChild(title);
-          g.appendChild(circle);
+          shape.appendChild(title);
+          g.appendChild(shape);
         }
         const clusterR = ICON_PX * 1.5 * inv;
         for (const cl of clusters) {
@@ -574,9 +680,12 @@
           maxX: (p.MaxBounds && p.MaxBounds.X) || 0,
           maxY: (p.MaxBounds && p.MaxBounds.Y) || 0,
           palette: Array.isArray(p.BiomePalette) ? p.BiomePalette : [],
+          colors:  Array.isArray(p.BiomeColors) ? p.BiomeColors : [],
           biomes:  expandRLE(p.BiomeRLE,  total),
           heights: expandRLE(p.HeightRLE, total),
         };
+        // Repaint markers so newly-arrived biome colours apply.
+        if (ctx.isVisible() && latestSnapshot) rerenderSoon();
       }
 
       function tileAt(wx, wy) {
@@ -887,8 +996,16 @@
         updateHoverChipSoon();
       }
 
-      // Zoom: Started fires for a mouse-wheel tick; Triggered repeats while a gamepad trigger is held.
-      const zoomStep = (e, dir) => { if (e.Phase === 'Started' || e.Phase === 'Triggered') zoomBy(dir, e.ElapsedSec || 0.12); };
+      // Zoom via the behavior system is GAMEPAD-ONLY (zooms at viewport centre —
+      // there's no cursor on a pad). The mouse wheel is also bound to these
+      // hotkeys (HK_MapZoomIn/Out → MouseScrollUp/Down), but the wheel already
+      // has a cursor-anchored DOM handler below; letting the behavior path also
+      // fire made every wheel tick zoom twice (once at the cursor, once at the
+      // centre) and fight itself. Gate on isPad so only one path runs per input.
+      const zoomStep = (e, dir) => {
+        if (!state.isPad) return;
+        if (e.Phase === 'Started' || e.Phase === 'Triggered') zoomBy(dir, e.ElapsedSec || 0.12);
+      };
       ctx.on('tsic.msg.UI.Behavior.MapZoomIn',  (e) => zoomStep(e, +1));
       ctx.on('tsic.msg.UI.Behavior.MapZoomOut', (e) => zoomStep(e, -1));
       ctx.on('tsic.msg.UI.Behavior.MapCenter',     (e) => { if (e.Phase === 'Started') centerOnLocalPlayer(); });
@@ -952,6 +1069,8 @@
         h.textContent = cheatEnabled ? base + ' · Ctrl+Click = teleport (cheats)' : base;
       }
       ctx.on('tsic.msg.UI.Cheat.Catalog', () => { cheatEnabled = true; updateHint(); });
+
+      buildLegend();
     },
 
     onShow(/* params, ctx */) {
