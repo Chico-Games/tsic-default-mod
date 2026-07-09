@@ -722,7 +722,15 @@
 
     function onValue(payload) {
         if (!payload || !payload.Key) return;
-        try { localState[payload.Key] = JSON.parse(payload.ValueJson || 'null'); } catch (e) {}
+        let v;
+        try { v = JSON.parse(payload.ValueJson || 'null'); } catch (e) { return; }
+        // Authoritative saved value (per-key sticky replay when the screen
+        // opens, or a later C++ echo): it moves the control and becomes the
+        // revert baseline — unless the user already has an edit in flight.
+        if (payload.Key in pending) return;
+        baseline[payload.Key] = v;
+        localState[payload.Key] = v;
+        if (controlUpdaters[payload.Key]) controlUpdaters[payload.Key](v);
     }
 
     function onFooter(payload) { renderFooter(payload); }
@@ -759,6 +767,11 @@
         }
     }
 
+    // Build the static structure BEFORE subscribing: tsic.on replays sticky
+    // messages synchronously, so the per-key UI.Settings.Value replays (the
+    // real saved values) land on an already-built page and move its controls —
+    // subscribing first would let the placeholder build wipe them.
+    onCatalog({ Json: JSON.stringify(STATIC_CATALOG) });
     tsic.on('tsic.msg.UI.Settings.Catalog', onCatalog);
     tsic.on('tsic.msg.UI.Settings.ControlsState', onControlsState);
     tsic.on('tsic.msg.UI.Settings.RebindCapture', onRebindCapture);
@@ -774,7 +787,4 @@
     const resetBtn = document.getElementById('btn-reset');   if (resetBtn) resetBtn.onclick = doReset;
     const applyBtn = document.getElementById('btn-apply');   if (applyBtn) applyBtn.onclick = doApply;
     const revertBtn = document.getElementById('btn-revert'); if (revertBtn)revertBtn.onclick= askRevert;
-    // Fallback only: if a real catalog was already delivered (sticky replay on
-    // subscribe), don't clobber it with the placeholder.
-    if (!lastCatalog) onCatalog({ Json: JSON.stringify(STATIC_CATALOG) });
 })();

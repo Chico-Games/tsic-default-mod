@@ -53,6 +53,37 @@ TSICTestHarness.register({
     },
 });
 
+TSICTestHarness.register({
+    name: 'Settings: UI.Settings.Value moves controls and sets the revert baseline',
+    file: '/screens/settings.html',
+    async run(ctx) {
+        // The page boots with its static catalog (Audio tab active, master at 0.8).
+        await ctx.waitFor(() => ctx.doc.querySelector('input[type="range"]'));
+        const slider = ctx.doc.querySelector('input[type="range"]');
+        ctx.expect(ctx.assert.eq(slider.value, '0.8'));
+        // Saved values arrive per key (sticky replay in-game). Rendered control
+        // moves; a not-yet-rendered key (video tab) lands in state for later.
+        ctx.inject('tsic.msg.UI.Settings.Value', { Key: 'audio.master', ValueJson: '0.23' });
+        ctx.inject('tsic.msg.UI.Settings.Value', { Key: 'video.resolution', ValueJson: '"2560x1440"' });
+        await ctx.waitFor(() => slider.value === '0.23');
+        ctx.expect(ctx.doc.getElementById('btn-apply').disabled ? null : 'saved values must not arm Apply');
+        // The saved value is the revert baseline: edit, revert, land on 0.23 not 0.8.
+        slider.value = '0.5';
+        slider.dispatchEvent(new ctx.win.Event('input', { bubbles: true }));
+        ctx.clearPublishes();
+        ctx.doc.getElementById('btn-revert').click();
+        await ctx.waitFor(() => ctx.doc.getElementById('popover-revert'));
+        ctx.doc.getElementById('popover-revert').click();
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Settings.Set',
+            { where: p => p.Key === 'audio.master' && p.ValueJson === '0.23' }));
+        ctx.expect(ctx.assert.eq(slider.value, '0.23'));
+        // The video value applies when its tab first renders.
+        Array.from(ctx.doc.querySelectorAll('.tsic-tab')).find(b => b.textContent === 'Video').click();
+        await ctx.waitFor(() => ctx.doc.querySelector('button.tsic-dropdown'));
+        ctx.expect(ctx.assert.eq(ctx.win.tsic.dropdown.get(ctx.doc.querySelector('button.tsic-dropdown')), '2560x1440'));
+    },
+});
+
 // ---- Apply / Revert flow ----
 
 const APPLY_REVERT_CATALOG = {
