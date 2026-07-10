@@ -191,6 +191,10 @@
             const tog = document.createElement('div');
             tog.className = 'field-toggle' + (v ? ' on' : '') + (isDisabled ? ' disabled' : '');
             if (!isDisabled) {
+                tog.setAttribute('data-tsic-focusable', '');
+                tog.tabIndex = 0;
+            }
+            if (!isDisabled) {
                 tog.onclick = () => {
                     localState[s.Key] = !(localState[s.Key] !== undefined ? localState[s.Key] : v);
                     tog.classList.toggle('on', localState[s.Key]);
@@ -358,6 +362,9 @@
         if (entry.bToggleable && entry.ToggleBehaviorTagName) {
             const tog = document.createElement('div');
             tog.className = 'field-toggle' + (entry.HoldToggle === 1 ? ' on' : '');
+            // Reachable by gamepad/keyboard nav; Accept fires the click handler.
+            tog.setAttribute('data-tsic-focusable', '');
+            tog.tabIndex = 0;
             const word = document.createElement('span');
             word.className = 'mode-word';
             word.textContent = entry.HoldToggle === 1 ? 'Toggle' : 'Hold';
@@ -422,6 +429,11 @@
         search.placeholder = 'Search bindings…';
         search.value = bindingFilter;
         search.oninput = () => { bindingFilter = search.value; applyBindingFilter(host); };
+        // Down from the search enters the first visible row's control — the rows'
+        // focusables are right-aligned, so nothing below overlaps the search box
+        // and spatial nav would otherwise skip the whole list to the footer.
+        search.setAttribute('data-tsic-nav-down',
+            '#page .binding-row :is([data-tsic-focusable], .bind-btn)');
         toolbar.appendChild(search);
         for (const caption of ['Mode', 'Binding']) {
             const cap = document.createElement('span');
@@ -739,6 +751,12 @@
             btn.dataset.pageId = p.Id;
             btn.textContent = p.Title || p.Id;
             btn.onclick = () => { activePageId = p.Id; renderTabs(); renderPage(); };
+            // Down from any tab enters the page content. Spatial nav can't infer
+            // this: the page's focusables sit left (search) or right (bind
+            // buttons) of most tabs, so the only rect-overlapping candidate
+            // below would be the full-width footer buttons.
+            btn.setAttribute('data-tsic-nav-down',
+                '#page :is(button, input, select, textarea, [data-tsic-focusable])');
             host.appendChild(btn);
         }
     }

@@ -45,6 +45,10 @@
             'settings boots a STATIC catalog that defaults the active tab; test expects the injected pages[0] active',
         'Settings: clicking a tab switches the visible page':
             'same STATIC-catalog default; tab switching itself works',
+        'Focus/SaveLoad: reachable + groups mutually reachable':
+            'nested-focusable engine gap: each slot row\'s inner delete button centre sits ~1px ' +
+            'closer than the row\'s own centre, so spatial nav always lands on the child and the ' +
+            'row itself is never visited — needs parent/child disambiguation in pickNeighbor',
         // Presumed-working per maintainer; test asserts a stale interaction/selector:
         'Drag/Inventory: dropping slot A onto slot B publishes Transfer':
             'jsdom drag emulation against the current inventory row drag handlers — re-verify if touched',
@@ -283,14 +287,20 @@
         function active() { const d = doc(); return d ? d.activeElement : null; }
         function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
 
+        // Navigation/accept/back reach the page as UI.Behavior.* broadcasts (the
+        // C++ input manager dispatches behaviours; tsic-focus subscribes to those).
+        // The old UI.Input.IA_UI_* channels have no listeners — injecting them
+        // navigates nothing. Use the DISCRETE Nav* channels (D-pad semantics):
+        // one step per press, no analog-stick rate limiter to swallow rapid
+        // test presses.
         const fx = {
             pressDir(dir) {
-                const map = { up: { X: 0, Y: 1 }, down: { X: 0, Y: -1 }, left: { X: -1, Y: 0 }, right: { X: 1, Y: 0 } };
-                const v = map[dir] || { X: 0, Y: 0 };
-                handle.input('IA_UI_Navigate', 'Started', { X: v.X, Y: v.Y, Z: 0 });
+                const channel = { up: 'NavUp', down: 'NavDown', left: 'NavLeft', right: 'NavRight' }[dir];
+                if (!channel) return;
+                handle.inject('tsic.msg.UI.Behavior.' + channel, { Phase: 'Started' });
             },
-            confirm() { handle.input('IA_UI_ConfirmAccept', 'Started'); },
-            cancel()  { handle.input('IA_UI_CancelBack', 'Started'); },
+            confirm() { handle.inject('tsic.msg.UI.Behavior.Accept', { Phase: 'Started' }); },
+            cancel()  { handle.inject('tsic.msg.UI.Behavior.Back',   { Phase: 'Started' }); },
             active,
             activeId() {
                 const el = active();

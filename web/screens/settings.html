@@ -97,6 +97,13 @@
     }
     .field-toggle.on::after { left: 25px; }
     .field-toggle.disabled { background: var(--paper-muted); cursor: not-allowed; }
+    .field-toggle { outline: none; }
+    html:is([data-tsic-input="Gamepad"], [data-tsic-kbnav]) .field-toggle[data-tsic-focused] {
+      outline: 2px solid var(--mag-red); outline-offset: 2px;
+    }
+    html:is([data-tsic-input="Gamepad"], [data-tsic-kbnav]) .bind-btn:not(.locked)[data-tsic-focused] {
+      background: var(--mag-yellow);
+    }
     .field-rebind {
       background: var(--paper-bright);
       color: var(--ink-night);

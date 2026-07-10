@@ -298,11 +298,13 @@ TSICTestHarness.register({
         ctx.win.tsic.focus.enable();
         ctx.mode('Gamepad');
         await new Promise(r => setTimeout(r, 50));
-        ctx.input('IA_UI_Navigate', 'Started', { X: 0, Y: -1, Z: 0 });
+        // Analog stick input arrives as the UI.Behavior.Navigate broadcast.
+        ctx.inject('tsic.msg.UI.Behavior.Navigate', { Phase: 'Started', Value: { X: 0, Y: -1, Z: 0 } });
         await new Promise(r => setTimeout(r, 20));
         ctx.expect(ctx.assert.eq(ctx.doc.activeElement.id, 'b'));
+        // A held-stick Triggered burst is rate-limited: at most one more step.
         for (let i = 0; i < 5; i++) {
-            ctx.input('IA_UI_Navigate', 'Triggered', { X: 0, Y: -1, Z: 0 });
+            ctx.inject('tsic.msg.UI.Behavior.Navigate', { Phase: 'Triggered', Value: { X: 0, Y: -1, Z: 0 } });
         }
         await new Promise(r => setTimeout(r, 30));
         const idAfterBurst = ctx.doc.activeElement.id;

@@ -177,11 +177,20 @@ TSICTestHarness.register({
         ctx.inject('tsic.msg.UI.Players.List', { Players: [] });
         ctx.mode('Gamepad');
         await TSICTestHarness.fx.awaitInitialFocus(ctx);
+        // Move focus off the initial (Resume) button so a committed click is
+        // distinguishable from the menu's own Back handling — Back on the pause
+        // menu legitimately resumes; it must NOT press whatever button focus
+        // happens to sit on.
+        ctx.focus.pressDir('down');
+        await new Promise(r => setTimeout(r, 30));
+        const focused = ctx.doc.activeElement;
+        ctx.expect(focused && focused.id !== 'btn-resume' ? null : 'setup: focus should have moved off Resume');
+        let clicked = false;
+        focused.addEventListener('click', () => { clicked = true; });
         ctx.clearPublishes();
-        // Cancel at top level should NOT click the focused button.
         ctx.focus.cancel();
         await new Promise(r => setTimeout(r, 30));
-        ctx.expect(ctx.assert.notPublished(ctx.handle, 'UI.Cmd.Pause.Resume'));
+        ctx.expect(clicked ? 'Cancel must not click the focused button' : null);
     },
 });
 

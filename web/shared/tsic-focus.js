@@ -303,6 +303,23 @@
                     if (init && candidates.includes(init)) return api.focus(init, { trust: layoutless });
                     return api.focus(candidates[0], { trust: layoutless });
                 }
+                // Author-declared override: data-tsic-nav-<dir> holds a CSS selector
+                // for a transition spatial math cannot infer — e.g. a tab strip whose
+                // page content sits below-LEFT of it, where the only rect-overlapping
+                // candidate below is a full-width footer button. First focusable match
+                // wins; a missing/hidden target falls through to spatial. Scoped
+                // navigation never escapes the scope root.
+                const hintSel = cur.getAttribute && cur.getAttribute('data-tsic-nav-' + dir);
+                if (hintSel) {
+                    let hinted = null;
+                    try {
+                        for (const m of document.querySelectorAll(hintSel)) {
+                            if (State.scopeStack.length > 0 && !scopeRoot.contains(m)) continue;
+                            if (layoutless ? isStructurallyFocusable(m) : isFocusable(m)) { hinted = m; break; }
+                        }
+                    } catch (e) {}
+                    if (hinted) return api.focus(hinted, { trust: layoutless });
+                }
                 if (layoutless) {
                     // DOM order. Up/Left = previous, Down/Right = next.
                     const idx = candidates.indexOf(cur);
@@ -471,7 +488,9 @@
         }
 
         // Analog stick menu navigation (gamepad). BH_Navigate is a 2D axis behaviour.
-        let lastNavAt = 0;
+        // -Infinity, not 0: performance.now() is epoched at page start, so 0 would
+        // swallow every flick in the page's first 180ms (the repeat-limit window).
+        let lastNavAt = -Infinity;
         t.on('tsic.msg.UI.Behavior.Navigate', (payload) => {
             if (!State.enabled || State.mode !== 'Gamepad') return;
             const phase = payload && payload.Phase;

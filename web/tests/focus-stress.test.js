@@ -40,12 +40,13 @@ TSICTestHarness.register({
         TSICTestHarness.fx.applyRects(ctx.doc.querySelectorAll('button'), { onlyIfZeroRect: true });
         ctx.win.tsic.focus.enable();
         ctx.mode('Gamepad'); await new Promise(r => setTimeout(r, 40));
-        // Below the engine's 0.4 deadzone — should be ignored.
-        ctx.input('IA_UI_Navigate', 'Started', { X: 0.2, Y: 0.2, Z: 0 });
+        // Below the engine's 0.4 deadzone — should be ignored. (Analog stick
+        // input arrives as the UI.Behavior.Navigate broadcast.)
+        ctx.inject('tsic.msg.UI.Behavior.Navigate', { Phase: 'Started', Value: { X: 0.2, Y: 0.2, Z: 0 } });
         await new Promise(r => setTimeout(r, 20));
         ctx.expect(ctx.assert.eq(ctx.doc.activeElement.id, 'a'));
         // Above the deadzone — should move.
-        ctx.input('IA_UI_Navigate', 'Started', { X: 0, Y: -1, Z: 0 });
+        ctx.inject('tsic.msg.UI.Behavior.Navigate', { Phase: 'Started', Value: { X: 0, Y: -1, Z: 0 } });
         await new Promise(r => setTimeout(r, 20));
         ctx.expect(ctx.assert.eq(ctx.doc.activeElement.id, 'b'));
     },
@@ -64,14 +65,16 @@ TSICTestHarness.register({
         TSICTestHarness.fx.applyRects(ctx.doc.querySelectorAll('button'), { onlyIfZeroRect: true });
         ctx.win.tsic.focus.enable();
         ctx.mode('Gamepad'); await new Promise(r => setTimeout(r, 40));
-        // X=0.9, Y=-0.4 — X dominates, so we should go right.
-        ctx.input('IA_UI_Navigate', 'Started', { X: 0.9, Y: -0.4, Z: 0 });
+        // X=0.9, Y=-0.4 — X dominates, so we should go right. (Analog stick
+        // input arrives as the UI.Behavior.Navigate broadcast.)
+        ctx.inject('tsic.msg.UI.Behavior.Navigate', { Phase: 'Started', Value: { X: 0.9, Y: -0.4, Z: 0 } });
         await new Promise(r => setTimeout(r, 20));
         ctx.expect(ctx.assert.eq(ctx.doc.activeElement.id, 'right'));
-        // Now Y dominates — should go down (from current 'right' button).
+        // Now Y dominates — should go down. Wait out the engine's 180ms
+        // analog repeat limiter so the second flick registers.
         ctx.win.tsic.focus.focus('#cur');
-        await new Promise(r => setTimeout(r, 20));
-        ctx.input('IA_UI_Navigate', 'Started', { X: 0.4, Y: -0.9, Z: 0 });
+        await new Promise(r => setTimeout(r, 220));
+        ctx.inject('tsic.msg.UI.Behavior.Navigate', { Phase: 'Started', Value: { X: 0.4, Y: -0.9, Z: 0 } });
         await new Promise(r => setTimeout(r, 20));
         ctx.expect(ctx.assert.eq(ctx.doc.activeElement.id, 'down'));
     },
@@ -258,7 +261,7 @@ TSICTestHarness.register({
 });
 
 TSICTestHarness.register({
-    name: 'Focus/Stress: pressDir in MouseAndKeyboard mode does not move focus',
+    name: 'Focus/Stress: pressDir after switching to MouseAndKeyboard engages kbnav and moves focus',
     file: '/screens/inventory.html',
     async run(ctx) {
         TSICTestHarness.fx.setupFixture(ctx,
@@ -270,12 +273,13 @@ TSICTestHarness.register({
         ctx.win.tsic.focus.enable();
         ctx.mode('Gamepad'); await new Promise(r => setTimeout(r, 40));
         ctx.mode('MouseAndKeyboard'); await new Promise(r => setTimeout(r, 30));
-        const before = ctx.doc.activeElement && ctx.doc.activeElement.id;
+        // A nav press in MouseAndKeyboard mode engages keyboard-nav (kbnav) and
+        // navigates — the same design the Focus/Keyboard suite covers on real pages.
         ctx.focus.pressDir('down');
         await new Promise(r => setTimeout(r, 20));
-        const after = ctx.doc.activeElement && ctx.doc.activeElement.id;
-        // Mouse mode — engine should be inert.
-        ctx.expect(ctx.assert.eq(before, after));
+        ctx.expect(ctx.assert.eq(ctx.doc.activeElement && ctx.doc.activeElement.id, 'b'));
+        ctx.expect(ctx.doc.documentElement.hasAttribute('data-tsic-kbnav')
+            ? null : 'kbnav attribute should be stamped after an arrow press in KBM mode');
     },
 });
 

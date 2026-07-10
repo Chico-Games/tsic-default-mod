@@ -220,6 +220,48 @@ TSICTestHarness.register({
 });
 
 TSICTestHarness.register({
+    name: 'Focus/Controls: tabs reach the list, bind buttons reach the Hold/Toggle pill',
+    file: '/screens/settings.html',
+    tags: ['focus'],
+    async run(ctx) {
+        await openDeviceTab(ctx, 'Keyboard & Mouse');
+        ctx.mode('Gamepad');
+        const fx = ctx.focus;
+        const f = ctx.win.tsic.focus;
+        const delay = (ms) => new Promise(r => setTimeout(r, ms));
+
+        // Down from the tab strip lands on the page content (search box), and the
+        // next Down enters the binding list — not the footer buttons.
+        f.focus(ctx.doc.querySelector('.tsic-tab.is-active'), { trust: true });
+        await delay(8);
+        fx.pressDir('down'); await delay(16);
+        ctx.expect(ctx.doc.activeElement && ctx.doc.activeElement.id === 'binding-search'
+            ? null : 'down from tabs should land on the search box');
+        fx.pressDir('down'); await delay(16);
+        ctx.expect(ctx.doc.activeElement && ctx.doc.activeElement.closest('.binding-row')
+            ? null : 'down from search should enter the binding list, not skip to the footer');
+
+        // Bind button <-> Hold/Toggle pill roundtrip on a toggleable row.
+        const crouchBind = ctx.doc.querySelector('.binding-row[data-hotkey-id="HK_Crouch"] .bind-btn');
+        f.focus(crouchBind, { trust: true }); await delay(8);
+        fx.pressDir('left'); await delay(16);
+        const pill = ctx.doc.activeElement;
+        ctx.expect(pill && pill.classList.contains('field-toggle')
+            ? null : 'left from the bind button should focus the Hold/Toggle pill');
+        fx.pressDir('right'); await delay(16);
+        ctx.expect(ctx.doc.activeElement === crouchBind
+            ? null : 'right from the pill should return to the bind button');
+
+        // Accept on the focused pill toggles the preference.
+        f.focus(ctx.doc.querySelector('.binding-row[data-hotkey-id="HK_Crouch"] .field-toggle'), { trust: true });
+        await delay(8);
+        ctx.clearPublishes();
+        fx.confirm(); await delay(16);
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Settings.Set', { where: p => p.Key === 'hold_toggle' }));
+    },
+});
+
+TSICTestHarness.register({
     name: 'Controls: search filters rows and hides emptied groups',
     file: '/screens/settings.html',
     async run(ctx) {
