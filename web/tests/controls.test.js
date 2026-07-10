@@ -5,19 +5,24 @@
 
 const CONTROLS_STATE = {
     Entries: [
-        { HotkeyId: 'HK_Crouch', DisplayName: 'Crouch', BehaviorsLabel: 'Crouch',
+        // BehaviorsLabel === DisplayName -> the subtext is an echo and must be hidden.
+        { HotkeyId: 'HK_Crouch', DisplayName: 'Crouch', BehaviorsLabel: 'Crouch', Category: 'Movement',
           KeyboardKeyText: 'Left Control', GamepadKeyText: 'Gamepad Right Thumbstick',
           bKeyboardRemappable: true, bGamepadRemappable: true,
-          bToggleable: true, HoldToggle: 0, ToggleBehaviorTagName: 'Input.Behavior.Crouch' },
-        { HotkeyId: 'HK_Interact', DisplayName: 'Interact', BehaviorsLabel: 'Interact, Open Storage',
+          bToggleable: true, HoldToggle: 0, ToggleBehaviorTagName: 'Input.Behavior.Crouch',
+          KeyboardConflictsWith: '', GamepadConflictsWith: '', KeyboardSharedWith: '', GamepadSharedWith: '' },
+        { HotkeyId: 'HK_Interact', DisplayName: 'Interact', BehaviorsLabel: 'Interact, Open Storage', Category: 'Interaction',
           KeyboardKeyText: 'E', GamepadKeyText: 'Gamepad Face Button Bottom',
           bKeyboardRemappable: true, bGamepadRemappable: true,
-          bToggleable: false, HoldToggle: 0, ToggleBehaviorTagName: '' },
+          bToggleable: false, HoldToggle: 0, ToggleBehaviorTagName: '',
+          KeyboardConflictsWith: 'Take All', GamepadConflictsWith: '',
+          KeyboardSharedWith: '', GamepadSharedWith: 'Jump' },
         // Keyboard-only action: unbound + locked on gamepad -> hidden from the Controller tab.
-        { HotkeyId: 'HK_KbOnly', DisplayName: 'Screenshot', BehaviorsLabel: 'Screenshot',
+        { HotkeyId: 'HK_KbOnly', DisplayName: 'Screenshot', BehaviorsLabel: 'Screenshot', Category: 'Interface',
           KeyboardKeyText: 'F12', GamepadKeyText: '',
           bKeyboardRemappable: true, bGamepadRemappable: false,
-          bToggleable: false, HoldToggle: 0, ToggleBehaviorTagName: '' },
+          bToggleable: false, HoldToggle: 0, ToggleBehaviorTagName: '',
+          KeyboardConflictsWith: '', GamepadConflictsWith: '', KeyboardSharedWith: '', GamepadSharedWith: '' },
     ],
     MouseSensitivity: 1, GamepadSensitivity: 0.5, GamepadDeadzone: 0.15, bInvertMouseY: false, bInvertGamepadY: false,
 };
@@ -149,12 +154,15 @@ TSICTestHarness.register({
 });
 
 TSICTestHarness.register({
-    name: 'Controls: hold/toggle pill publishes Set hold_toggle',
+    name: 'Controls: hold/toggle pill publishes Set hold_toggle and updates its mode word',
     file: '/screens/settings.html',
     async run(ctx) {
         await openDeviceTab(ctx, 'Controller');
+        const row = ctx.doc.querySelector('.binding-row[data-hotkey-id="HK_Crouch"]');
+        ctx.expect(row.querySelector('.mode-word') && row.querySelector('.mode-word').textContent === 'Hold'
+            ? null : 'mode word should read Hold before toggling');
         ctx.clearPublishes();
-        ctx.doc.querySelector('.binding-row[data-hotkey-id="HK_Crouch"] .field-toggle').click();
+        row.querySelector('.field-toggle').click();
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Settings.Set', {
             where: p => {
                 if (p.Key !== 'hold_toggle') return false;
@@ -162,6 +170,73 @@ TSICTestHarness.register({
                 catch (e) { return false; }
             },
         }));
+        ctx.expect(row.querySelector('.mode-word').textContent === 'Toggle'
+            ? null : 'mode word should read Toggle after toggling');
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Controls: rows group under category headers in canonical order',
+    file: '/screens/settings.html',
+    async run(ctx) {
+        await openDeviceTab(ctx, 'Keyboard & Mouse');
+        const headers = Array.from(ctx.doc.querySelectorAll('.binding-group h3')).map(h => h.textContent);
+        ctx.expect(JSON.stringify(headers) === JSON.stringify(['Movement', 'Interaction', 'Interface'])
+            ? null : 'expected Movement, Interaction, Interface — got ' + headers.join(', '));
+        const movement = ctx.doc.querySelector('.binding-group');
+        ctx.expect(movement.querySelector('.binding-row[data-hotkey-id="HK_Crouch"]')
+            ? null : 'Crouch should sit under Movement');
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Controls: echoed behaviour subtext is hidden, informative subtext kept',
+    file: '/screens/settings.html',
+    async run(ctx) {
+        await openDeviceTab(ctx, 'Keyboard & Mouse');
+        const crouch = ctx.doc.querySelector('.binding-row[data-hotkey-id="HK_Crouch"]');
+        ctx.expect(crouch.querySelector('.shared-note') ? '"Crouch Crouch" echo should be hidden' : null);
+        const interact = ctx.doc.querySelector('.binding-row[data-hotkey-id="HK_Interact"]');
+        const note = interact.querySelector('.shared-note');
+        ctx.expect(note && note.textContent === 'Open Storage'
+            ? null : 'Interact should keep only the non-echo part of its behaviours');
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Controls: same-context conflicts render red with named tooltip; cross-context is tooltip-only',
+    file: '/screens/settings.html',
+    async run(ctx) {
+        await openDeviceTab(ctx, 'Keyboard & Mouse');
+        const kbBtn = ctx.doc.querySelector('.binding-row[data-hotkey-id="HK_Interact"] .bind-btn');
+        ctx.expect(kbBtn.classList.contains('conflict') ? null : 'same-context conflict should mark the cap red');
+        ctx.expect(kbBtn.title.indexOf('Take All') >= 0 ? null : 'conflict tooltip should name the other action');
+
+        await openDeviceTab(ctx, 'Controller');
+        const gpBtn = ctx.doc.querySelector('.binding-row[data-hotkey-id="HK_Interact"] .bind-btn');
+        ctx.expect(gpBtn.classList.contains('conflict') ? 'cross-context sharing must NOT mark the cap red' : null);
+        ctx.expect(gpBtn.title.indexOf('Jump') >= 0 ? null : 'sharing tooltip should name the other action');
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Controls: search filters rows and hides emptied groups',
+    file: '/screens/settings.html',
+    async run(ctx) {
+        await openDeviceTab(ctx, 'Keyboard & Mouse');
+        const search = ctx.doc.getElementById('binding-search');
+        ctx.expect(search ? null : 'search box missing');
+        search.value = 'crouch';
+        search.dispatchEvent(new ctx.win.Event('input', { bubbles: true }));
+        const visibleRows = Array.from(ctx.doc.querySelectorAll('.binding-row')).filter(r => !r.hidden);
+        ctx.expect(visibleRows.length === 1 && visibleRows[0].dataset.hotkeyId === 'HK_Crouch'
+            ? null : 'only the Crouch row should remain visible');
+        const hiddenGroups = Array.from(ctx.doc.querySelectorAll('.binding-group')).filter(g => g.hidden);
+        ctx.expect(hiddenGroups.length === 2 ? null : 'groups with no matches should hide');
+        search.value = '';
+        search.dispatchEvent(new ctx.win.Event('input', { bubbles: true }));
+        ctx.expect(Array.from(ctx.doc.querySelectorAll('.binding-row')).every(r => !r.hidden)
+            ? null : 'clearing the search should restore all rows');
     },
 });
 

@@ -293,7 +293,8 @@
         btn.type = 'button';
         btn.dataset.hotkeyId = entry.HotkeyId;
         btn.dataset.gamepad = isGamepad ? '1' : '0';
-        keyCapInto(btn, isGamepad ? entry.GamepadKeyText : entry.KeyboardKeyText, isGamepad);
+        const keyText = isGamepad ? entry.GamepadKeyText : entry.KeyboardKeyText;
+        keyCapInto(btn, keyText, isGamepad);
         const remappable = isGamepad ? entry.bGamepadRemappable : entry.bKeyboardRemappable;
         if (remappable === false) {
             btn.classList.add('locked');
@@ -301,47 +302,80 @@
         } else {
             btn.onclick = () => beginRebind(entry.HotkeyId, isGamepad, btn);
         }
+        // Same key in the same context is a real conflict (red); in a different
+        // context it is deliberate sharing, surfaced in the tooltip only.
+        const conflicts = isGamepad ? entry.GamepadConflictsWith : entry.KeyboardConflictsWith;
+        const shared = isGamepad ? entry.GamepadSharedWith : entry.KeyboardSharedWith;
+        const tips = [];
+        if (keyText) tips.push(keyText);
+        if (conflicts) {
+            btn.classList.add('conflict');
+            tips.push('Also bound to ' + conflicts + ' in the same context');
+        }
+        if (shared) tips.push('Also used by ' + shared + ' (different context)');
+        if (tips.length) btn.title = tips.join('\n');
         return btn;
+    }
+
+    // The description under an action name is its behaviour list; most hotkeys back a
+    // single behaviour with the same name, which would just echo it ("Build Build") —
+    // show only the parts that add information.
+    function bindingNote(entry) {
+        const name = entry.DisplayName || entry.HotkeyId;
+        return String(entry.BehaviorsLabel || '')
+            .split(',').map(s => s.trim())
+            .filter(s => s && s !== name)
+            .join(', ');
     }
 
     function buildBindingRow(entry, isGamepad) {
         const row = document.createElement('div');
-        row.className = 'field binding-row';
+        row.className = 'binding-row';
         row.dataset.hotkeyId = entry.HotkeyId;
 
-        const lbl = document.createElement('label');
-        lbl.textContent = entry.DisplayName || entry.HotkeyId;
-        if (entry.BehaviorsLabel) {
-            const note = document.createElement('span');
-            note.className = 'shared-note';
-            note.textContent = entry.BehaviorsLabel;
-            lbl.appendChild(note);
+        const name = document.createElement('label');
+        name.className = 'binding-name';
+        name.textContent = entry.DisplayName || entry.HotkeyId;
+        const note = bindingNote(entry);
+        if (note) {
+            const sub = document.createElement('span');
+            sub.className = 'shared-note';
+            sub.textContent = note;
+            name.appendChild(sub);
         }
-        row.appendChild(lbl);
+        // Names ellipsize rather than widen the layout — full text in the tooltip.
+        name.title = (entry.DisplayName || entry.HotkeyId) + (note ? ' — ' + note : '');
+        row.appendChild(name);
 
-        const ctl = document.createElement('div');
-        ctl.className = 'field-control';
+        const leader = document.createElement('div');
+        leader.className = 'binding-leader';
+        row.appendChild(leader);
 
-        // Hold/Toggle preference as a tickbox in a fixed-width left cell, so the
-        // rebind buttons line up across every row (ticked = toggle, unticked = hold).
-        // It is a per-ACTION preference, so it appears on both device tabs.
-        const toggleCell = document.createElement('div');
-        toggleCell.className = 'toggle-cell';
+        // Hold/Toggle is a per-ACTION preference, so it appears on both device tabs;
+        // the word next to the pill states the current mode outright.
+        const mode = document.createElement('div');
+        mode.className = 'mode-cell';
         if (entry.bToggleable && entry.ToggleBehaviorTagName) {
             const tog = document.createElement('div');
             tog.className = 'field-toggle' + (entry.HoldToggle === 1 ? ' on' : '');
-            tog.title = 'Toggle (ticked) vs Hold (unticked)';
+            const word = document.createElement('span');
+            word.className = 'mode-word';
+            word.textContent = entry.HoldToggle === 1 ? 'Toggle' : 'Hold';
             tog.onclick = () => {
                 const next = !tog.classList.contains('on');
                 tog.classList.toggle('on', next);
+                word.textContent = next ? 'Toggle' : 'Hold';
                 publishSet('hold_toggle', { behavior: entry.ToggleBehaviorTagName, toggle: next });
             };
-            toggleCell.appendChild(tog);
+            mode.appendChild(tog);
+            mode.appendChild(word);
         }
-        ctl.appendChild(toggleCell);
+        row.appendChild(mode);
 
-        ctl.appendChild(buildRebindButton(entry, isGamepad));
-        row.appendChild(ctl);
+        const bind = document.createElement('div');
+        bind.className = 'bind-cell';
+        bind.appendChild(buildRebindButton(entry, isGamepad));
+        row.appendChild(bind);
         return row;
     }
 
@@ -352,22 +386,78 @@
         return buildField({ Key: key, Label: label, Type: 'bool', Value: value });
     }
 
-    // One device's view of the ControlsState: bindings grid, that device's analog
-    // prefs, and a per-device reset. An entry shows on a tab when it is bound or
-    // remappable on that device; bound-but-locked renders the greyed cap.
+    // Category headers render in a fixed canonical order; anything unrecognized
+    // (e.g. a modded hotkey with its own category) lands after them, Other last.
+    const CATEGORY_ORDER = ['Movement', 'Interaction', 'Combat', 'Building', 'Map', 'Hotbar', 'Interface'];
+
+    // Search text survives re-renders — every applied rebind refreshes ControlsState,
+    // which rebuilds the page, and losing the filter mid-search would be jarring.
+    let bindingFilter = '';
+
+    function applyBindingFilter(host) {
+        const needle = bindingFilter.trim().toLowerCase();
+        for (const group of host.querySelectorAll('.binding-group')) {
+            let visible = 0;
+            for (const row of group.querySelectorAll('.binding-row')) {
+                const hit = !needle || (row.dataset.search || '').indexOf(needle) >= 0;
+                row.hidden = !hit;
+                if (hit) visible++;
+            }
+            group.hidden = visible === 0;
+        }
+    }
+
+    // One device's view of the ControlsState: searchable, category-grouped binding
+    // rows, that device's analog prefs, and a per-device reset. An entry shows on a
+    // tab when it is bound or remappable on that device; bound-but-locked renders
+    // the greyed cap.
     function renderControlsPage(host, isGamepad) {
         const cs = controlsState || { Entries: [] };
-        const sec = makeGroup('Bindings');
-        const grid = document.createElement('div');
-        grid.className = 'binding-grid';
-        for (const e of (cs.Entries || [])) {
+
+        const toolbar = document.createElement('div');
+        toolbar.className = 'bindings-toolbar';
+        const search = document.createElement('input');
+        search.id = 'binding-search';
+        search.type = 'text';
+        search.placeholder = 'Search bindings…';
+        search.value = bindingFilter;
+        search.oninput = () => { bindingFilter = search.value; applyBindingFilter(host); };
+        toolbar.appendChild(search);
+        for (const caption of ['Mode', 'Binding']) {
+            const cap = document.createElement('span');
+            cap.className = 'col-caption';
+            cap.textContent = caption;
+            toolbar.appendChild(cap);
+        }
+        host.appendChild(toolbar);
+
+        const entries = (cs.Entries || []).filter((e) => {
             const remappable = isGamepad ? e.bGamepadRemappable !== false : e.bKeyboardRemappable !== false;
             const bound = !!(isGamepad ? e.GamepadKeyText : e.KeyboardKeyText);
-            if (!remappable && !bound) continue;
-            grid.appendChild(buildBindingRow(e, isGamepad));
+            return remappable || bound;
+        });
+        const byCat = new Map();
+        for (const e of entries) {
+            const cat = e.Category || 'Other';
+            if (!byCat.has(cat)) byCat.set(cat, []);
+            byCat.get(cat).push(e);
         }
-        sec.appendChild(grid);
-        host.appendChild(sec);
+        const extraCats = Array.from(byCat.keys())
+            .filter(c => CATEGORY_ORDER.indexOf(c) < 0 && c !== 'Other').sort();
+        const cats = CATEGORY_ORDER.filter(c => byCat.has(c)).concat(extraCats);
+        if (byCat.has('Other')) cats.push('Other');
+        for (const cat of cats) {
+            const sec = makeGroup(cat);
+            sec.classList.add('binding-group');
+            for (const e of byCat.get(cat)) {
+                const row = buildBindingRow(e, isGamepad);
+                row.dataset.search = (e.DisplayName + ' ' + (e.BehaviorsLabel || '') + ' '
+                    + (isGamepad ? e.GamepadKeyText : e.KeyboardKeyText)).toLowerCase();
+                sec.appendChild(row);
+            }
+            host.appendChild(sec);
+        }
+        applyBindingFilter(host);
 
         const inp = makeGroup(isGamepad ? 'Gamepad' : 'Mouse');
         if (isGamepad) {
