@@ -11,9 +11,10 @@
         tsic.publishMessage('UI.Cmd.Input.RemoveModeTag', { Tag: 'InputMode.Menu.Settings' });
     });
 
-    // Static catalog for Audio/Video/Gameplay. The "Controls" tab is built
-    // dynamically from UI.Settings.ControlsState (rebinds can't be captured in JS;
-    // the C++ input manager drives capture — see HandleCmdSettingsBeginRebind).
+    // Static catalog for Audio/Video/Gameplay. The "Keyboard & Mouse" and
+    // "Controller" tabs are built dynamically from UI.Settings.ControlsState
+    // (rebinds can't be captured in JS; the C++ input manager drives capture —
+    // see HandleCmdSettingsBeginRebind).
     const STATIC_CATALOG = {
         Pages: [
             { Id: 'AudioCollection', Title: 'Audio', Groups: [
@@ -52,12 +53,17 @@
         Footer: { bRestartRequired: false },
     };
 
-    const CONTROLS_PAGE_ID = 'ControlsCollection';
+    // The single ControlsState feeds two device tabs; each renders one device's
+    // bind button per action so the rows fit a two-column grid.
+    const KBM_PAGE_ID = 'ControlsKeyboard';
+    const GAMEPAD_PAGE_ID = 'ControlsGamepad';
+    function isControlsPage(id) { return id === KBM_PAGE_ID || id === GAMEPAD_PAGE_ID; }
 
     let activePageId = null;
     let lastCatalog = null;
     let controlsState = null;
     let activeRebind = null;   // { hotkeyId, bGamepad, btn }
+    let modalScopePushed = false; // conflict prompt focus trap (tsic.focus.pushScope)
     const localState = {};
 
     // Apply/Revert staging. `baseline` holds the last committed value per key
@@ -298,7 +304,7 @@
         return btn;
     }
 
-    function buildBindingRow(entry) {
+    function buildBindingRow(entry, isGamepad) {
         const row = document.createElement('div');
         row.className = 'field binding-row';
         row.dataset.hotkeyId = entry.HotkeyId;
@@ -316,8 +322,9 @@
         const ctl = document.createElement('div');
         ctl.className = 'field-control';
 
-        // Hold/Toggle preference as a tickbox in a fixed-width left cell, so the two
+        // Hold/Toggle preference as a tickbox in a fixed-width left cell, so the
         // rebind buttons line up across every row (ticked = toggle, unticked = hold).
+        // It is a per-ACTION preference, so it appears on both device tabs.
         const toggleCell = document.createElement('div');
         toggleCell.className = 'toggle-cell';
         if (entry.bToggleable && entry.ToggleBehaviorTagName) {
@@ -333,8 +340,7 @@
         }
         ctl.appendChild(toggleCell);
 
-        ctl.appendChild(buildRebindButton(entry, false));
-        ctl.appendChild(buildRebindButton(entry, true));
+        ctl.appendChild(buildRebindButton(entry, isGamepad));
         row.appendChild(ctl);
         return row;
     }
@@ -346,18 +352,32 @@
         return buildField({ Key: key, Label: label, Type: 'bool', Value: value });
     }
 
-    function renderControlsPage(host) {
+    // One device's view of the ControlsState: bindings grid, that device's analog
+    // prefs, and a per-device reset. An entry shows on a tab when it is bound or
+    // remappable on that device; bound-but-locked renders the greyed cap.
+    function renderControlsPage(host, isGamepad) {
         const cs = controlsState || { Entries: [] };
-        const sec = makeGroup('Controls');
-        for (const e of (cs.Entries || [])) sec.appendChild(buildBindingRow(e));
+        const sec = makeGroup('Bindings');
+        const grid = document.createElement('div');
+        grid.className = 'binding-grid';
+        for (const e of (cs.Entries || [])) {
+            const remappable = isGamepad ? e.bGamepadRemappable !== false : e.bKeyboardRemappable !== false;
+            const bound = !!(isGamepad ? e.GamepadKeyText : e.KeyboardKeyText);
+            if (!remappable && !bound) continue;
+            grid.appendChild(buildBindingRow(e, isGamepad));
+        }
+        sec.appendChild(grid);
         host.appendChild(sec);
 
-        const inp = makeGroup('Input');
-        inp.appendChild(sliderRow('Mouse sensitivity', 'mouse_sensitivity', cs.MouseSensitivity, 0.1, 3, 0.05));
-        inp.appendChild(sliderRow('Gamepad sensitivity', 'gamepad_sensitivity', cs.GamepadSensitivity, 0.05, 1, 0.05));
-        inp.appendChild(sliderRow('Gamepad stick deadzone', 'gamepad_deadzone', cs.GamepadDeadzone, 0, 0.9, 0.01));
-        inp.appendChild(toggleRow('Invert mouse Y', 'invert_mouse_y', cs.bInvertMouseY));
-        inp.appendChild(toggleRow('Invert gamepad Y', 'invert_gamepad_y', cs.bInvertGamepadY));
+        const inp = makeGroup(isGamepad ? 'Gamepad' : 'Mouse');
+        if (isGamepad) {
+            inp.appendChild(sliderRow('Gamepad sensitivity', 'gamepad_sensitivity', cs.GamepadSensitivity, 0.05, 1, 0.05));
+            inp.appendChild(sliderRow('Gamepad stick deadzone', 'gamepad_deadzone', cs.GamepadDeadzone, 0, 0.9, 0.01));
+            inp.appendChild(toggleRow('Invert gamepad Y', 'invert_gamepad_y', cs.bInvertGamepadY));
+        } else {
+            inp.appendChild(sliderRow('Mouse sensitivity', 'mouse_sensitivity', cs.MouseSensitivity, 0.1, 3, 0.05));
+            inp.appendChild(toggleRow('Invert mouse Y', 'invert_mouse_y', cs.bInvertMouseY));
+        }
         host.appendChild(inp);
 
         const resetRow = document.createElement('div');
@@ -366,8 +386,8 @@
         resetBtn.className = 'tsic-button';
         resetBtn.id = 'btn-reset-controls';
         resetBtn.type = 'button';
-        resetBtn.textContent = 'Reset bindings to defaults';
-        resetBtn.onclick = () => tsic.publishMessage('UI.Cmd.Settings.ResetControls', {});
+        resetBtn.textContent = isGamepad ? 'Reset controller bindings' : 'Reset keyboard bindings';
+        resetBtn.onclick = () => tsic.publishMessage('UI.Cmd.Settings.ResetControls', { bGamepad: !!isGamepad });
         resetRow.appendChild(resetBtn);
         host.appendChild(resetRow);
     }
@@ -396,16 +416,17 @@
         return modal;
     }
 
+    // Capture has no buttons: cancel is Esc / Start (reserved keys, handled by the
+    // C++ input manager; the window Esc handler below covers keyboard users whose
+    // Esc reaches CEF first). Any on-screen button would be unreachable anyway —
+    // every gamepad press is captured as the binding.
     function showCaptureModal() {
         const modal = ensureModal();
-        document.getElementById('rebind-msg').textContent = 'Press a key…  (Esc to cancel)';
-        const actions = document.getElementById('rebind-actions');
-        actions.innerHTML = '';
-        const cancel = document.createElement('button');
-        cancel.className = 'tsic-button';
-        cancel.textContent = 'Cancel';
-        cancel.onclick = cancelRebind;
-        actions.appendChild(cancel);
+        const gamepad = activeRebind && activeRebind.bGamepad;
+        document.getElementById('rebind-msg').textContent = gamepad
+            ? 'Press a button…  (Start to cancel)'
+            : 'Press a key…  (Esc to cancel)';
+        document.getElementById('rebind-actions').innerHTML = '';
         modal.hidden = false;
     }
 
@@ -427,6 +448,14 @@
         actions.appendChild(replace);
         actions.appendChild(cancel);
         modal.hidden = false;
+        // Focus-trap the prompt so controller users can pick Replace; a Back that
+        // pops the scope (B) abandons the pending rebind like Esc/Start do.
+        if (tsic.focus && tsic.focus.pushScope && !modalScopePushed) {
+            modalScopePushed = true;
+            tsic.focus.pushScope(modal.querySelector('.panel'), cancel, {
+                onPop: () => { modalScopePushed = false; if (activeRebind) cancelRebind(); },
+            });
+        }
     }
 
     function hideModal() {
@@ -434,6 +463,10 @@
         if (modal) modal.hidden = true;
         if (activeRebind && activeRebind.btn) activeRebind.btn.classList.remove('waiting');
         activeRebind = null;
+        if (modalScopePushed) {
+            modalScopePushed = false;
+            if (tsic.focus && tsic.focus.popScope) tsic.focus.popScope();
+        }
     }
 
     function beginRebind(hotkeyId, bGamepad, btn) {
@@ -594,7 +627,8 @@
     function allPages() {
         const pages = ((lastCatalog && lastCatalog.Pages) || []).slice();
         if (controlsState) {
-            pages.push({ Id: CONTROLS_PAGE_ID, Title: 'Controls' });
+            pages.push({ Id: KBM_PAGE_ID, Title: 'Keyboard & Mouse' });
+            pages.push({ Id: GAMEPAD_PAGE_ID, Title: 'Controller' });
         }
         return pages;
     }
@@ -624,10 +658,10 @@
         if (!host) return;
         host.innerHTML = '';
         // DOM was just wiped — drop the now-stale value-patch updaters before we
-        // rebuild (or hand off to the Controls page, which registers none).
+        // rebuild (or hand off to a device bindings page, which registers none).
         for (const k in controlUpdaters) delete controlUpdaters[k];
-        if (activePageId === CONTROLS_PAGE_ID) {
-            renderControlsPage(host);
+        if (isControlsPage(activePageId)) {
+            renderControlsPage(host, activePageId === GAMEPAD_PAGE_ID);
             return;
         }
         const page = lastCatalog && (lastCatalog.Pages || []).find(p => p.Id === activePageId);
@@ -717,7 +751,7 @@
         if (!payload) return;
         controlsState = payload;
         renderTabs();
-        if (activePageId === CONTROLS_PAGE_ID) renderPage();
+        if (isControlsPage(activePageId)) renderPage();
     }
 
     function onValue(payload) {
@@ -737,8 +771,8 @@
 
     function goBack() { tsic.publishMessage('UI.Cmd.Settings.Back', {}); }
     function doReset() {
-        if (activePageId === CONTROLS_PAGE_ID) {
-            tsic.publishMessage('UI.Cmd.Settings.ResetControls', {});
+        if (isControlsPage(activePageId)) {
+            tsic.publishMessage('UI.Cmd.Settings.ResetControls', { bGamepad: activePageId === GAMEPAD_PAGE_ID });
             return;
         }
         tsic.publishMessage('UI.Cmd.Settings.ResetDefaults', { PageId: activePageId || '' });

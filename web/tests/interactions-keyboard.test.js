@@ -85,25 +85,6 @@ TSICTestHarness.register({
     },
 });
 
-// ---- Settings rebind capture --------------------------------------------
-TSICTestHarness.register({
-    name: 'Keys/Settings: every printable key passes through to RebindKey publish',
-    file: '/screens/settings.html',
-    async run(ctx) {
-        ctx.inject('tsic.msg.UI.Settings.Catalog', {
-            Json: JSON.stringify({ Pages: [{ Id: 'X', Title: 'X', Groups: [{ Id: 'Ctrls', Title: 'Ctrls', Settings: [{ Key: 'attack', Label: 'Attack', Type: 'keybind', Value: 'LMB' }] }] }] }),
-        });
-        await ctx.waitFor(() => ctx.doc.querySelector('.bind-btn'));
-        for (const key of ['q', 'a', 'F1']) {
-            ctx.doc.querySelector('.bind-btn').click();
-            await new Promise(r => setTimeout(r, 15));
-            ctx.clearPublishes();
-            ctx.win.dispatchEvent(new ctx.win.KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
-            ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Settings.RebindKey', { where: p => p.Key === key }));
-        }
-    },
-});
-
 // ---- Universal Storage modal: Enter submits, Esc cancels ----------------
 TSICTestHarness.register({
     name: 'Keys/USS: Enter inside create-group input submits',

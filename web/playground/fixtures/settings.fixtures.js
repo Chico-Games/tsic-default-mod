@@ -1,7 +1,8 @@
 // /screens/settings.html subscribes to:
-//   tsic.msg.UI.Settings.Catalog    { Json: <serialized Pages tree> }
-//   tsic.msg.UI.Settings.Value      { Key, ValueJson }
-//   tsic.msg.UI.Settings.Footer     { RestartRequired }
+//   tsic.msg.UI.Settings.Catalog       { Json: <serialized Pages tree> }
+//   tsic.msg.UI.Settings.ControlsState { Entries, MouseSensitivity, … } -> KB&M + Controller tabs
+//   tsic.msg.UI.Settings.Value         { Key, ValueJson }
+//   tsic.msg.UI.Settings.Footer        { RestartRequired }
 // Apply/Revert (and the keep-countdown popover) are owned by the page itself —
 // drive them by editing a control, then clicking the bottom-right buttons.
 TSICPlayground.register({
@@ -35,10 +36,39 @@ TSICPlayground.register({
                 ] },
             ],
             Footer: { RestartRequired: false },
+        },
+        controls: {
+            Entries: [
+                { HotkeyId: 'HK_Crouch', DisplayName: 'Crouch', BehaviorsLabel: 'Crouch',
+                  KeyboardKeyText: 'Left Control', GamepadKeyText: 'Gamepad Right Thumbstick Button',
+                  bKeyboardRemappable: true, bGamepadRemappable: true,
+                  bToggleable: true, HoldToggle: 0, ToggleBehaviorTagName: 'Input.Behavior.Crouch' },
+                { HotkeyId: 'HK_Sprint', DisplayName: 'Sprint', BehaviorsLabel: 'Sprint',
+                  KeyboardKeyText: 'Left Shift', GamepadKeyText: 'Gamepad Left Thumbstick Button',
+                  bKeyboardRemappable: true, bGamepadRemappable: true,
+                  bToggleable: true, HoldToggle: 1, ToggleBehaviorTagName: 'Input.Behavior.Sprint' },
+                { HotkeyId: 'HK_Interact', DisplayName: 'Interact', BehaviorsLabel: 'Interact, Open Storage',
+                  KeyboardKeyText: 'E', GamepadKeyText: 'Gamepad Face Button Bottom',
+                  bKeyboardRemappable: true, bGamepadRemappable: true,
+                  bToggleable: false, HoldToggle: 0, ToggleBehaviorTagName: '' },
+                { HotkeyId: 'HK_Inventory', DisplayName: 'Inventory', BehaviorsLabel: 'Inventory',
+                  KeyboardKeyText: 'Tab', GamepadKeyText: 'Gamepad Special Left',
+                  bKeyboardRemappable: true, bGamepadRemappable: true,
+                  bToggleable: false, HoldToggle: 0, ToggleBehaviorTagName: '' },
+                { HotkeyId: 'HK_Map', DisplayName: 'Map', BehaviorsLabel: 'Map',
+                  KeyboardKeyText: 'M', GamepadKeyText: '',
+                  bKeyboardRemappable: true, bGamepadRemappable: false,
+                  bToggleable: false, HoldToggle: 0, ToggleBehaviorTagName: '' },
+            ],
+            MouseSensitivity: 1, GamepadSensitivity: 0.5, GamepadDeadzone: 0.15,
+            bInvertMouseY: false, bInvertGamepadY: false,
         } };
     },
     project(state) {
-        return [['tsic.msg.UI.Settings.Catalog', { Json: JSON.stringify(state.catalog) }]];
+        return [
+            ['tsic.msg.UI.Settings.Catalog', { Json: JSON.stringify(state.catalog) }],
+            ['tsic.msg.UI.Settings.ControlsState', state.controls],
+        ];
     },
     // The settings page only re-renders the visible page (Audio first), so
     // changes to non-displayed pages or to Footer flags don't move the

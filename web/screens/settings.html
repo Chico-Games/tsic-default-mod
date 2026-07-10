@@ -20,13 +20,14 @@
   <script src="/screens/settings.js" defer></script>
   <style>
     /* Fixed-height content viewport: the body is the same height on every tab
-       (clamped across viewport sizes), so switching Audio/Video/Gameplay/Controls
-       never resizes the cover or jumps the footer — short pages pad out, the long
-       Controls page scrolls internally. Right padding is trimmed (vs the 22px left)
-       and a stable scrollbar gutter is reserved so the rebind controls' right edge
-       lines up with the masthead margin instead of being pushed inward by the
-       scrollbar — and stays put whether or not a tab actually scrolls. */
-    .settings-body { padding: 4px 12px 14px 22px; height: 40vh; min-height: 280px; max-height: 440px; overflow-y: auto; scrollbar-gutter: stable; }
+       (clamped across viewport sizes), so switching tabs never resizes the cover or
+       jumps the footer — short pages pad out, the binding tabs scroll internally.
+       Sized so the two-column binding grid shows (nearly) the whole list at 1080p.
+       Right padding is trimmed (vs the 22px left) and a stable scrollbar gutter is
+       reserved so the rebind controls' right edge lines up with the masthead margin
+       instead of being pushed inward by the scrollbar — and stays put whether or
+       not a tab actually scrolls. */
+    .settings-body { padding: 4px 12px 14px 22px; height: 62vh; min-height: 320px; max-height: 720px; overflow-y: auto; scrollbar-gutter: stable; }
     /* Tab strip is shared — see .tsic-tab / [data-tsic-tab-bar] in tsic-ui.css. */
 
     .group { margin-bottom: 22px; }
@@ -126,8 +127,10 @@
     .settings-actions { margin-left: auto; display: flex; gap: 8px; }
     .settings-actions .tsic-button { font-size: 11px; padding: 4px 14px; }
 
-    /* Controls tab — rebind UI (the Controls page is mods-only). Buttons mirror
-       the .field-rebind magazine treatment above so the tab reads consistently. */
+    /* Device binding tabs (Keyboard & Mouse / Controller) — rebind UI. Buttons mirror
+       the .field-rebind magazine treatment above so the tabs read consistently.
+       Bindings lay out two columns wide so the whole list fits the taller body. */
+    .binding-grid { display: grid; grid-template-columns: 1fr 1fr; column-gap: 36px; }
     .binding-row .field-control { gap: 12px; }
     /* Fixed-width left cell holding the optional Hold/Toggle tickbox, so the rebind
        buttons start at the same x on every row (present or empty). */
@@ -160,7 +163,7 @@
   </style>
 </head><body>
   <div class="tsic-stage--magazine-gradient">
-    <div class="tsic-panel tsic-cover" style="--tsic-cover-width: 820px;">
+    <div class="tsic-panel tsic-cover" style="--tsic-cover-width: 1160px;">
       <div class="tsic-masthead">
         <div class="tsic-masthead-title">
           <em>The Fine</em>
