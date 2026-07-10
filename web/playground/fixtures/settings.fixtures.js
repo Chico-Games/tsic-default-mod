@@ -3,8 +3,8 @@
 //   tsic.msg.UI.Settings.ControlsState { Entries, MouseSensitivity, … } -> KB&M + Controller tabs
 //   tsic.msg.UI.Settings.Value         { Key, ValueJson }
 //   tsic.msg.UI.Settings.Footer        { RestartRequired }
-// Apply/Revert (and the keep-countdown popover) are owned by the page itself —
-// drive them by editing a control, then clicking the bottom-right buttons.
+// Settings apply instantly; video.* keys open the keep/revert countdown owned
+// by the page — drive it by changing a video control.
 TSICPlayground.register({
     id: 'settings',
     label: 'Settings',

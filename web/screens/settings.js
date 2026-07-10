@@ -66,30 +66,16 @@
     let modalScopePushed = false; // conflict prompt focus trap (tsic.focus.pushScope)
     const localState = {};
 
-    // Apply/Revert staging. `baseline` holds the last committed value per key
-    // (the value when the screen opened, or at the last Keep/Revert). `pending`
-    // holds uncommitted edits. Live keys still publish on change so controls
-    // preview instantly (volume audible while dragging); DEFERRED keys — video
-    // mode changes that can black out the display — only publish on Apply,
-    // guarded by the keep/revert countdown popover.
-    const baseline = {};
-    const pending = {};
+    // Instant apply: every edit publishes immediately and per-key persistence
+    // happens C++-side on Set. The one carve-out is video-mode keys — a bad
+    // display change can strand the player, so those open a keep/revert
+    // countdown with the pre-change value as the rollback target.
     const KEEP_COUNTDOWN_SECONDS = 10;
-    let deferredApplied = false; // pending deferred keys were published (Apply pressed)
     let countdownTimer = null;
-    let activePopover = null;    // { el, kind: 'countdown' | 'confirm' }
+    let activePopover = null;    // { el, kind: 'countdown' }
+    const videoRevert = {};      // key -> pre-change value while the countdown is open
 
-    function isDeferred(key) { return String(key).indexOf('video.') === 0; }
-
-    // Normalize a value to the representation its control produces, so
-    // baseline comparisons don't miss on '1' !== 1.
-    function normValue(s, val) {
-        const type = String(s.Type || '').toLowerCase();
-        if (type === 'range' || type === 'number') return Number(val);
-        if (type === 'bool') return !!val;
-        if (type === 'enum' || Array.isArray(s.Options)) return String(val);
-        return val;
-    }
+    function isVideoKey(key) { return String(key).indexOf('video.') === 0; }
 
     // Structural signature of the last render + per-key value updaters. A
     // Catalog whose structure is unchanged (only Values differ) is patched in
@@ -114,19 +100,15 @@
         tsic.publishMessage('UI.Cmd.Settings.Action', { Key: key });
     }
 
-    // Route every control edit through here. Live keys publish immediately;
-    // deferred keys wait for Apply. Either way the edit is pending until the
-    // user Applies+Keeps it (or it reverts).
-    function stageSet(key, value) {
-        if (key in baseline && baseline[key] === value) {
-            delete pending[key];
-        } else {
-            pending[key] = value;
-        }
-        if (!isDeferred(key)) {
-            publishSet(key, value);
-        }
-        updateActionButtons();
+    // Route every control edit through here. Everything publishes immediately;
+    // video-mode keys additionally open the keep/revert countdown, remembering
+    // the pre-change value as the rollback target. Repeat edits while the
+    // countdown runs join its revert set but keep the ORIGINAL value.
+    function applySet(key, value, oldValue) {
+        publishSet(key, value);
+        if (!isVideoKey(key)) return;
+        if (!(key in videoRevert)) videoRevert[key] = oldValue;
+        openKeepCountdown();
     }
 
     // Cap displayed numbers at 2 decimal places, dropping trailing zeros
@@ -152,12 +134,6 @@
         const v = valueOf(s);
         const isDisabled = !!s.Disabled;
 
-        // First sight of a key: its catalog value is the revert baseline.
-        // Re-renders keep the original (pending edits live in localState).
-        if (s.Key && type !== 'action' && !(s.Key in baseline)) {
-            baseline[s.Key] = normValue(s, s.Value);
-        }
-
         if (type === 'range' || type === 'number') {
             const min = (typeof s.Min === 'number') ? s.Min : 0;
             const max = (typeof s.Max === 'number') ? s.Max : 1;
@@ -175,9 +151,10 @@
                 if (Number.isNaN(n)) return;
                 n = Math.max(min, Math.min(max, n));
                 slider.value = String(n);
+                const old = (s.Key in localState) ? localState[s.Key] : s.Value;
                 localState[s.Key] = n;
                 valueLabel.textContent = fmt2(n);
-                stageSet(s.Key, n);
+                applySet(s.Key, n, old);
             };
             controlUpdaters[s.Key] = (val) => {
                 const n = Number(val);
@@ -196,9 +173,10 @@
             }
             if (!isDisabled) {
                 tog.onclick = () => {
-                    localState[s.Key] = !(localState[s.Key] !== undefined ? localState[s.Key] : v);
+                    const old = localState[s.Key] !== undefined ? localState[s.Key] : v;
+                    localState[s.Key] = !old;
                     tog.classList.toggle('on', localState[s.Key]);
-                    stageSet(s.Key, localState[s.Key]);
+                    applySet(s.Key, localState[s.Key], old);
                 };
             }
             controlUpdaters[s.Key] = (val) => tog.classList.toggle('on', !!val);
@@ -231,8 +209,9 @@
                 // tsic-change too — only publish genuine changes.
                 const newValue = tsic.dropdown.get(dd);
                 if (localState[s.Key] === newValue) return;
+                const old = (s.Key in localState) ? localState[s.Key] : String(v);
                 localState[s.Key] = newValue;
-                stageSet(s.Key, newValue);
+                applySet(s.Key, newValue, old);
             });
             controlUpdaters[s.Key] = (val) => {
                 localState[s.Key] = String(val);
@@ -592,49 +571,24 @@
         hideModal();
     }
 
-    // ---- Apply / Revert flow ----
+    // ---- Video keep/revert countdown ----
 
-    function updateActionButtons() {
-        const dirty = Object.keys(pending).length > 0;
-        const apply = document.getElementById('btn-apply');
-        const revert = document.getElementById('btn-revert');
-        if (apply) apply.disabled = !dirty;
-        if (revert) revert.disabled = !dirty;
-    }
-
-    // Commit: pending values become the new baseline. Everything is already
-    // published (live keys on change, deferred keys on Apply).
-    function commitPending() {
-        const committed = {};
-        for (const k of Object.keys(pending)) {
-            baseline[k] = pending[k];
-            committed[k] = pending[k];
-            delete pending[k];
-        }
-        deferredApplied = false;
-        updateActionButtons();
-        try {
-            tsic.publishMessage('UI.Cmd.Settings.Apply', { SettingsJson: JSON.stringify(committed) });
-        } catch (e) {}
-    }
-
-    // Roll every pending key back to its baseline: restore the control UI, and
-    // republish anything that reached C++ (live keys always; deferred keys only
-    // after Apply published them).
-    function revertPending() {
-        for (const k of Object.keys(pending)) {
-            const old = baseline[k];
+    // Roll the just-changed video keys back to their pre-change values.
+    function revertVideo() {
+        for (const k of Object.keys(videoRevert)) {
+            const old = videoRevert[k];
             localState[k] = old;
-            if (!isDeferred(k) || deferredApplied) publishSet(k, old);
+            publishSet(k, old);
             if (controlUpdaters[k]) controlUpdaters[k](old);
-            delete pending[k];
+            delete videoRevert[k];
         }
-        deferredApplied = false;
-        updateActionButtons();
-        try { tsic.publishMessage('UI.Cmd.Settings.Revert', {}); } catch (e) {}
     }
 
-    // One popover at a time. `action`: 'keep' | 'revert' | 'cancel'.
+    function keepVideo() {
+        for (const k of Object.keys(videoRevert)) delete videoRevert[k];
+    }
+
+    // One popover at a time. `action`: 'keep' | 'revert'.
     // `viaScopePop` is true when the focus scope was already popped (gamepad/
     // Esc Back handled by tsic-focus), so we must not pop it again.
     function resolvePopover(action, viaScopePop) {
@@ -644,8 +598,8 @@
         if (countdownTimer) { clearInterval(countdownTimer); countdownTimer = null; }
         p.el.remove();
         if (!viaScopePop && tsic.focus && tsic.focus.popScope) tsic.focus.popScope();
-        if (action === 'keep') commitPending();
-        else if (action === 'revert') revertPending();
+        if (action === 'keep') keepVideo();
+        else if (action === 'revert') revertVideo();
     }
 
     function popoverButton(id, label, variant, action) {
@@ -693,14 +647,11 @@
         }
     }
 
-    function doApply() {
-        if (!Object.keys(pending).length || activePopover) return;
-        // Deferred keys go out now; live keys were published as they changed.
-        for (const k of Object.keys(pending)) {
-            if (isDeferred(k)) publishSet(k, pending[k]);
-        }
-        deferredApplied = true;
-
+    // A video-mode change just applied: give the player a timed escape hatch.
+    // Runs at most one countdown; further video edits while it's open join its
+    // revert set (applySet) without resetting the timer.
+    function openKeepCountdown() {
+        if (activePopover) return;
         let remaining = KEEP_COUNTDOWN_SECONDS;
         const count = document.createElement('b');
         count.id = 'popover-countdown';
@@ -714,14 +665,6 @@
             if (remaining <= 0) { resolvePopover('revert', false); return; }
             count.textContent = String(remaining);
         }, 1000);
-    }
-
-    function askRevert() {
-        if (!Object.keys(pending).length || activePopover) return;
-        const sub = [document.createTextNode('Unapplied changes go back to their previous values.')];
-        const cancelBtn = popoverButton('popover-cancel', 'Cancel', 'secondary', 'cancel');
-        const revertBtn = popoverButton('popover-revert', 'Revert', 'danger', 'revert');
-        openPopover('confirm', 'Revert changes?', sub, [cancelBtn, revertBtn], cancelBtn);
     }
 
     // ---- Page / tab plumbing ----
@@ -825,9 +768,7 @@
         for (const g of (page.Groups || [])) {
             for (const s of (g.Settings || [])) {
                 if (!s.Key || !controlUpdaters[s.Key]) continue;
-                // An echoed value is the applied truth — it is also the new
-                // revert baseline, unless the user has an edit in flight.
-                if (!(s.Key in pending)) baseline[s.Key] = normValue(s, s.Value);
+                // An echoed value is the applied truth — move the control.
                 localState[s.Key] = s.Value;
                 controlUpdaters[s.Key](s.Value);
             }
@@ -855,13 +796,9 @@
             applyValues(lastCatalog);
             return;
         }
-        // A structurally new catalog is a new source of truth — drop any edits
-        // and baselines from the previous one so buildField re-seeds from it.
-        for (const k of Object.keys(pending)) delete pending[k];
-        for (const k of Object.keys(baseline)) delete baseline[k];
+        // A structurally new catalog is a new source of truth — drop edits from
+        // the previous one so buildField re-seeds from it.
         for (const k of Object.keys(localState)) delete localState[k];
-        deferredApplied = false;
-        updateActionButtons();
         renderTabs(lastCatalog);
         renderPage();
     }
@@ -910,10 +847,7 @@
         let v;
         try { v = JSON.parse(payload.ValueJson || 'null'); } catch (e) { return; }
         // Authoritative saved value (per-key sticky replay when the screen
-        // opens, or a later C++ echo): it moves the control and becomes the
-        // revert baseline — unless the user already has an edit in flight.
-        if (payload.Key in pending) return;
-        baseline[payload.Key] = v;
+        // opens, or a later C++ echo): it moves the control.
         localState[payload.Key] = v;
         if (controlUpdaters[payload.Key]) controlUpdaters[payload.Key](v);
     }
@@ -931,12 +865,11 @@
 
     function onGlobalKey(e) {
         if (activePopover) {
-            // Esc resolves the popover to its safe action: mid-countdown that is
-            // revert (the same thing the timeout would do), on the confirm
-            // dialog it is cancel. Mirrors the Back-pop path in openPopover.
+            // Esc resolves the countdown to its safe action: revert — the same
+            // thing the timeout would do. Mirrors the Back-pop path in openPopover.
             if (e.key === 'Escape') {
                 e.preventDefault(); e.stopPropagation();
-                resolvePopover(activePopover.kind === 'countdown' ? 'revert' : 'cancel', false);
+                resolvePopover('revert', false);
             }
             return;
         }
@@ -970,6 +903,4 @@
     });
     const backBtn = document.getElementById('btn-back');     if (backBtn)  backBtn.onclick  = goBack;
     const resetBtn = document.getElementById('btn-reset');   if (resetBtn) resetBtn.onclick = doReset;
-    const applyBtn = document.getElementById('btn-apply');   if (applyBtn) applyBtn.onclick = doApply;
-    const revertBtn = document.getElementById('btn-revert'); if (revertBtn)revertBtn.onclick= askRevert;
 })();

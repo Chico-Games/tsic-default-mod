@@ -54,7 +54,7 @@ TSICTestHarness.register({
 });
 
 TSICTestHarness.register({
-    name: 'Settings: UI.Settings.Value moves controls and sets the revert baseline',
+    name: 'Settings: UI.Settings.Value moves controls',
     file: '/screens/settings.html',
     async run(ctx) {
         // The page boots with its static catalog (Audio tab active, master at 0.8).
@@ -66,17 +66,7 @@ TSICTestHarness.register({
         ctx.inject('tsic.msg.UI.Settings.Value', { Key: 'audio.master', ValueJson: '0.23' });
         ctx.inject('tsic.msg.UI.Settings.Value', { Key: 'video.resolution', ValueJson: '"2560x1440"' });
         await ctx.waitFor(() => slider.value === '0.23');
-        ctx.expect(ctx.doc.getElementById('btn-apply').disabled ? null : 'saved values must not arm Apply');
-        // The saved value is the revert baseline: edit, revert, land on 0.23 not 0.8.
-        slider.value = '0.5';
-        slider.dispatchEvent(new ctx.win.Event('input', { bubbles: true }));
-        ctx.clearPublishes();
-        ctx.doc.getElementById('btn-revert').click();
-        await ctx.waitFor(() => ctx.doc.getElementById('popover-revert'));
-        ctx.doc.getElementById('popover-revert').click();
-        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Settings.Set',
-            { where: p => p.Key === 'audio.master' && p.ValueJson === '0.23' }));
-        ctx.expect(ctx.assert.eq(slider.value, '0.23'));
+        ctx.expect(ctx.doc.getElementById('settings-popover') ? 'saved values must not open the countdown' : null);
         // The video value applies when its tab first renders.
         Array.from(ctx.doc.querySelectorAll('.tsic-tab')).find(b => b.textContent === 'Video').click();
         await ctx.waitFor(() => ctx.doc.querySelector('button.tsic-dropdown'));
@@ -84,9 +74,9 @@ TSICTestHarness.register({
     },
 });
 
-// ---- Apply / Revert flow ----
+// ---- Instant apply + video keep-countdown ----
 
-const APPLY_REVERT_CATALOG = {
+const INSTANT_CATALOG = {
     Pages: [
         { Id: 'AudioCollection', Title: 'Audio', Groups: [{ Id: 'Audio', Title: 'Audio',
             Settings: [{ Key: 'audio.master', Label: 'Master', Type: 'range', Min: 0, Max: 1, Step: 0.05, Value: 0.5 }] }] },
@@ -98,48 +88,60 @@ const APPLY_REVERT_CATALOG = {
 };
 
 async function openVideoTab(ctx) {
-    ctx.inject('tsic.msg.UI.Settings.Catalog', { Json: JSON.stringify(APPLY_REVERT_CATALOG) });
+    ctx.inject('tsic.msg.UI.Settings.Catalog', { Json: JSON.stringify(INSTANT_CATALOG) });
     await ctx.waitFor(() => Array.from(ctx.doc.querySelectorAll('.tsic-tab')).some(b => b.textContent === 'Video'));
     Array.from(ctx.doc.querySelectorAll('.tsic-tab')).find(b => b.textContent === 'Video').click();
     await ctx.waitFor(() => ctx.doc.querySelector('button.tsic-dropdown'));
 }
 
 TSICTestHarness.register({
-    name: 'Settings: video change stages until Apply; Keep commits',
+    name: 'Settings: audio edits apply instantly with no popover or action buttons',
     file: '/screens/settings.html',
     async run(ctx) {
-        await openVideoTab(ctx);
-        const dd = ctx.doc.querySelector('button.tsic-dropdown');
-        const applyBtn = ctx.doc.getElementById('btn-apply');
-        ctx.expect(applyBtn.disabled ? null : 'Apply should start disabled');
+        ctx.inject('tsic.msg.UI.Settings.Catalog', { Json: JSON.stringify(INSTANT_CATALOG) });
+        await ctx.waitFor(() => ctx.doc.querySelector('input[type="range"]'));
+        // The staged Apply/Revert pair is gone — settings are instant.
+        ctx.expect(ctx.doc.getElementById('btn-apply') ? 'Apply button should not exist' : null);
+        ctx.expect(ctx.doc.getElementById('btn-revert') ? 'Revert button should not exist' : null);
         ctx.clearPublishes();
-        ctx.win.tsic.dropdown.set(dd, '2560x1440');
-        // Deferred key: nothing reaches C++ until Apply, but the buttons arm.
-        ctx.expect(ctx.publishes().some(p => p.channel === 'UI.Cmd.Settings.Set')
-            ? 'video key must not publish before Apply' : null);
-        ctx.expect(applyBtn.disabled ? 'Apply should arm after an edit' : null);
-        applyBtn.click();
+        const slider = ctx.doc.querySelector('input[type="range"]');
+        slider.value = '0.8';
+        slider.dispatchEvent(new ctx.win.Event('input', { bubbles: true }));
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Settings.Set',
-            { where: p => p.Key === 'video.resolution' && p.ValueJson.includes('2560x1440') }));
-        // Keep-countdown popover is up and live.
-        ctx.expect(ctx.assert.domExists(ctx.doc, '#settings-popover'));
-        ctx.expect(ctx.assert.domText(ctx.doc, '#popover-countdown', '10'));
-        ctx.doc.getElementById('popover-keep').click();
-        ctx.expect(ctx.doc.getElementById('settings-popover') ? 'popover should close on Keep' : null);
-        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Settings.Apply',
-            { where: p => (p.SettingsJson || '').includes('2560x1440') }));
-        ctx.expect(applyBtn.disabled ? null : 'Apply should disarm after Keep');
+            { where: p => p.Key === 'audio.master' && p.ValueJson === '0.8' }));
+        ctx.expect(ctx.doc.getElementById('settings-popover') ? 'non-video keys must not open the countdown' : null);
     },
 });
 
 TSICTestHarness.register({
-    name: 'Settings: keep-countdown ticks; Revert restores the old value',
+    name: 'Settings: video change applies instantly and opens the keep-countdown; Keep closes it',
+    file: '/screens/settings.html',
+    async run(ctx) {
+        await openVideoTab(ctx);
+        const dd = ctx.doc.querySelector('button.tsic-dropdown');
+        ctx.clearPublishes();
+        ctx.win.tsic.dropdown.set(dd, '2560x1440');
+        // Instant apply: the change reaches C++ immediately...
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Settings.Set',
+            { where: p => p.Key === 'video.resolution' && p.ValueJson.includes('2560x1440') }));
+        // ...and the keep/revert escape hatch opens at once.
+        ctx.expect(ctx.assert.domExists(ctx.doc, '#settings-popover'));
+        ctx.expect(ctx.assert.domText(ctx.doc, '#popover-countdown', '10'));
+        ctx.clearPublishes();
+        ctx.doc.getElementById('popover-keep').click();
+        ctx.expect(ctx.doc.getElementById('settings-popover') ? 'popover should close on Keep' : null);
+        ctx.expect(ctx.publishes().some(p => p.channel === 'UI.Cmd.Settings.Set')
+            ? 'Keep must not republish anything' : null);
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Settings: keep-countdown ticks; Revert restores the pre-change value',
     file: '/screens/settings.html',
     async run(ctx) {
         await openVideoTab(ctx);
         const dd = ctx.doc.querySelector('button.tsic-dropdown');
         ctx.win.tsic.dropdown.set(dd, '2560x1440');
-        ctx.doc.getElementById('btn-apply').click();
         await ctx.waitFor(() => ctx.doc.getElementById('popover-countdown'));
         // The countdown is a real timer — one tick moves 10 -> 9.
         await ctx.waitFor(() => ctx.doc.getElementById('popover-countdown').textContent === '9', { timeout: 2500 });
@@ -147,39 +149,7 @@ TSICTestHarness.register({
         ctx.doc.getElementById('popover-revert').click();
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Settings.Set',
             { where: p => p.Key === 'video.resolution' && p.ValueJson.includes('1920x1080') }));
-        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Settings.Revert'));
         ctx.expect(ctx.assert.eq(ctx.win.tsic.dropdown.get(dd), '1920x1080'));
         ctx.expect(ctx.doc.getElementById('settings-popover') ? 'popover should close on Revert' : null);
-        ctx.expect(ctx.doc.getElementById('btn-apply').disabled ? null : 'Apply should disarm after Revert');
-    },
-});
-
-TSICTestHarness.register({
-    name: 'Settings: Revert button confirms, restores live keys; Cancel keeps edits',
-    file: '/screens/settings.html',
-    async run(ctx) {
-        ctx.inject('tsic.msg.UI.Settings.Catalog', { Json: JSON.stringify(APPLY_REVERT_CATALOG) });
-        await ctx.waitFor(() => ctx.doc.querySelector('input[type="range"]'));
-        const slider = ctx.doc.querySelector('input[type="range"]');
-        slider.value = '0.8';
-        slider.dispatchEvent(new ctx.win.Event('input', { bubbles: true }));
-        const revertBtn = ctx.doc.getElementById('btn-revert');
-        ctx.expect(revertBtn.disabled ? 'Revert should arm after an edit' : null);
-        // Cancel path: the confirm popover closes and the edit survives.
-        revertBtn.click();
-        await ctx.waitFor(() => ctx.doc.getElementById('popover-cancel'));
-        ctx.doc.getElementById('popover-cancel').click();
-        ctx.expect(ctx.doc.getElementById('settings-popover') ? 'popover should close on Cancel' : null);
-        ctx.expect(ctx.assert.eq(slider.value, '0.8'));
-        ctx.expect(revertBtn.disabled ? 'edits should survive Cancel' : null);
-        // Confirm path: the live key republishes its baseline and the UI snaps back.
-        ctx.clearPublishes();
-        revertBtn.click();
-        await ctx.waitFor(() => ctx.doc.getElementById('popover-revert'));
-        ctx.doc.getElementById('popover-revert').click();
-        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Settings.Set',
-            { where: p => p.Key === 'audio.master' && p.ValueJson === '0.5' }));
-        ctx.expect(ctx.assert.eq(slider.value, '0.5'));
-        ctx.expect(revertBtn.disabled ? null : 'Revert should disarm after reverting');
     },
 });
