@@ -262,6 +262,54 @@ TSICTestHarness.register({
 });
 
 TSICTestHarness.register({
+    name: 'Focus/Controls: bumper tab switch lands on the top setting',
+    file: '/screens/settings.html',
+    tags: ['focus'],
+    async run(ctx) {
+        await openDeviceTab(ctx, 'Keyboard & Mouse');
+        ctx.mode('Gamepad');
+        const delay = (ms) => new Promise(r => setTimeout(r, ms));
+        // Cycle to the next tab (Controller) via the bumper behaviour.
+        ctx.inject('tsic.msg.UI.Behavior.NextTab', { Phase: 'Started' });
+        await delay(30);
+        const active = Array.from(ctx.doc.querySelectorAll('.tsic-tab')).find(b => b.classList.contains('is-active'));
+        ctx.expect(active && active.textContent === 'Controller' ? null : 'NextTab should activate the Controller tab');
+        const focusedRow = ctx.doc.activeElement && ctx.doc.activeElement.closest
+            && ctx.doc.activeElement.closest('.binding-row');
+        ctx.expect(focusedRow && focusedRow === ctx.doc.querySelector('.binding-row')
+            ? null : 'focus should land on the first binding row of the new tab, not the footer');
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Focus/Controls: Hold/Toggle keeps focus across the ControlsState echo',
+    file: '/screens/settings.html',
+    tags: ['focus'],
+    async run(ctx) {
+        await openDeviceTab(ctx, 'Keyboard & Mouse');
+        ctx.mode('Gamepad');
+        const delay = (ms) => new Promise(r => setTimeout(r, ms));
+        const f = ctx.win.tsic.focus;
+        f.focus(ctx.doc.querySelector('.binding-row[data-hotkey-id="HK_Crouch"] .field-toggle'), { trust: true });
+        await delay(8);
+        ctx.focus.confirm(); // A press -> click -> publishes Set hold_toggle
+        await delay(16);
+        // The C++ side echoes a fresh ControlsState (HoldToggle updated), which
+        // rebuilds the page — focus must come back to the same pill.
+        const echoed = JSON.parse(JSON.stringify(CONTROLS_STATE));
+        echoed.Entries.find(e => e.HotkeyId === 'HK_Crouch').HoldToggle = 1;
+        ctx.inject('tsic.msg.UI.Settings.ControlsState', echoed);
+        await delay(16);
+        const a = ctx.doc.activeElement;
+        ctx.expect(a && a.classList && a.classList.contains('field-toggle')
+            && a.closest('.binding-row').dataset.hotkeyId === 'HK_Crouch'
+            ? null : 'focus should return to the Crouch pill after the echo rebuild');
+        ctx.expect(a.closest('.mode-cell').querySelector('.mode-word').textContent === 'Toggle'
+            ? null : 'echoed HoldToggle should render as Toggle');
+    },
+});
+
+TSICTestHarness.register({
     name: 'Controls: search filters rows and hides emptied groups',
     file: '/screens/settings.html',
     async run(ctx) {

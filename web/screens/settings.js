@@ -750,7 +750,18 @@
             btn.type = 'button';
             btn.dataset.pageId = p.Id;
             btn.textContent = p.Title || p.Id;
-            btn.onclick = () => { activePageId = p.Id; renderTabs(); renderPage(); };
+            btn.onclick = () => {
+                activePageId = p.Id;
+                renderTabs();
+                renderPage();
+                // Land on the new page's top setting (skipping the search box).
+                // Bumper tab-cycling routes through this click too; without an
+                // explicit target the rebuild orphans focus and the next press
+                // fell back to the footer's Back button.
+                const first = document.querySelector(
+                    '#page :is(button, select, textarea, [data-tsic-focusable], input:not(#binding-search))');
+                if (first && window.tsic && tsic.focus && tsic.focus.focus) tsic.focus.focus(first);
+            };
             // Down from any tab enters the page content. Spatial nav can't infer
             // this: the page's focusables sit left (search) or right (bind
             // buttons) of most tabs, so the only rect-overlapping candidate
@@ -855,11 +866,43 @@
         renderPage();
     }
 
+    // Every applied edit echoes a fresh ControlsState, and the rebuild destroys
+    // whatever control the player had focused (toggling Hold/Toggle with A would
+    // dump focus to <body>, and the next stick press fell back to the footer).
+    // Capture a stable identity before the rebuild and re-focus its equivalent.
+    function focusIdentity() {
+        const el = document.activeElement;
+        if (!el || el === document.body) return null;
+        if (el.id === 'binding-search') return { search: true };
+        if (el.classList && el.classList.contains('tsic-tab')) return { tabId: el.dataset.pageId };
+        const row = el.closest && el.closest('.binding-row');
+        if (row) return { hotkeyId: row.dataset.hotkeyId, pill: el.classList.contains('field-toggle') };
+        return null;
+    }
+
+    function restoreFocus(identity) {
+        if (!identity) return;
+        let el = null;
+        if (identity.search) {
+            el = document.getElementById('binding-search');
+        } else if (identity.tabId) {
+            el = document.querySelector('.tsic-tab[data-page-id="' + identity.tabId + '"]');
+        } else if (identity.hotkeyId) {
+            const row = document.querySelector('.binding-row[data-hotkey-id="' + identity.hotkeyId + '"]');
+            if (row) el = identity.pill ? row.querySelector('.field-toggle') : row.querySelector('.bind-btn');
+        }
+        if (!el) return;
+        if (window.tsic && tsic.focus && tsic.focus.focus) tsic.focus.focus(el);
+        else el.focus();
+    }
+
     function onControlsState(payload) {
         if (!payload) return;
+        const focused = focusIdentity();
         controlsState = payload;
         renderTabs();
         if (isControlsPage(activePageId)) renderPage();
+        restoreFocus(focused);
     }
 
     function onValue(payload) {
