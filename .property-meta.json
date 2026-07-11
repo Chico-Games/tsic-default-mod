@@ -47937,34 +47937,6 @@
       "display_name": null,
       "categories": null
     },
-    "ChunkSettings.tile_generate_entity_per_second": {
-      "tooltip": "Number of entity actors to generate per second per tile (SOURCE OF TRUTH - editable in data asset)",
-      "category": "Chunks",
-      "cpp_type": "int32",
-      "element_class": null,
-      "clamp_min": 1,
-      "clamp_max": 1000,
-      "ui_min": null,
-      "ui_max": null,
-      "edit_condition": null,
-      "edit_spec": "EditAnywhere",
-      "display_name": null,
-      "categories": null
-    },
-    "ChunkSettings.max_generation_ms_per_tick": {
-      "tooltip": "Maximum milliseconds GenerateChunk may spend per tick before deferring remaining tiles. Tiles are processed in round-robin order so no tile is permanently starved.",
-      "category": "Chunks",
-      "cpp_type": "float",
-      "element_class": null,
-      "clamp_min": 0.5,
-      "clamp_max": 16.0,
-      "ui_min": null,
-      "ui_max": null,
-      "edit_condition": null,
-      "edit_spec": "EditAnywhere",
-      "display_name": null,
-      "categories": null
-    },
     "MapUISettings.tile_width_pixels": {
       "tooltip": "Tile width in pixels for UI",
       "category": "Map",
