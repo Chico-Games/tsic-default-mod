@@ -4,6 +4,7 @@
   "class": "UConstructableItemDefinition",
   "schema_version": 2,
   "properties": {
+    "furniture_to_construct": "FD_Bookcase_Constructed_ST",
     "display_name": "Bookcase",
     "description": "Store furniture.",
     "stackable": true,
