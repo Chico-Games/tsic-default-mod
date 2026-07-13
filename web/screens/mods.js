@@ -22,7 +22,24 @@ let bootedBrowse = false;
 let lastModItems = [];        // last rendered card payloads; used to repaint Subscribe state
 let subscribedMap = new Map();
 let dlProgress = new Map();   // NameId -> 0..1, or null while the size is unknown
+let dlCreep = new Map();      // NameId -> { pct, timer } simulated fill while waiting
+let dlStartedAt = new Map();  // NameId -> timestamp of the first visible progress
+let finishingIds = new Set(); // NameIds playing the fill-to-100% completion beat
 let checkingTimer = null;
+
+// Tiny mods download in a single chunk — without a floor the bar blinks in
+// and out before it reads as feedback. Completion fills the bar to 100%
+// (FILL) and holds until at least MIN_FEEDBACK of total bar time has shown.
+const DL_MIN_FEEDBACK_MS = 650;
+const DL_FILL_MS = 420;
+
+// Simulated fill while no sized progress has arrived: creeps asymptotically
+// toward CREEP_CAP so the bar always visibly FILLS (a full-width
+// indeterminate bar just reads as "already done"). Real progress overrides
+// it forward, never backward; the completion beat finishes the last stretch.
+const DL_CREEP_CAP = 0.85;
+const DL_CREEP_TICK_MS = 120;
+const DL_CREEP_RATE = 0.055;
 
 const REDUCED_MOTION = window.matchMedia
   && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -614,18 +631,41 @@ function findCard(nameId) {
   return document.querySelector(`.card[data-name-id="${CSS.escape(nameId)}"]`);
 }
 
-// Shared painter for a download bar: determinate fill when the size is
-// known, striped indeterminate otherwise.
+// The bar's displayed value: real progress when ahead, otherwise the creep.
+function displayedPct(nameId) {
+  const real = dlProgress.get(nameId);
+  const creep = dlCreep.get(nameId);
+  return Math.max(typeof real === 'number' ? real : 0, creep ? creep.pct : 0);
+}
+
+function stopCreep(nameId) {
+  const creep = dlCreep.get(nameId);
+  if (creep) clearInterval(creep.timer);
+  dlCreep.delete(nameId);
+}
+
+function startCreep(nameId) {
+  if (dlCreep.has(nameId)) return;
+  const creep = { pct: 0, timer: 0 };
+  creep.timer = setInterval(() => {
+    creep.pct = Math.min(DL_CREEP_CAP, creep.pct + (DL_CREEP_CAP - creep.pct) * DL_CREEP_RATE);
+    const real = dlProgress.get(nameId);
+    if (typeof real === 'number' && real > creep.pct) creep.pct = real;
+    paintRowDownload(nameId);
+    paintCardDownload(nameId);
+  }, DL_CREEP_TICK_MS);
+  dlCreep.set(nameId, creep);
+}
+
+// Shared painter for a download bar — a striped fill at the displayed
+// percentage (creep or real, whichever is ahead).
 function applyDownloadPaint(host, barSel, fillSel, nameId, busyClass) {
   const active = dlProgress.has(nameId);
   host.classList.toggle(busyClass, active);
   const bar = host.querySelector(barSel);
   const fill = host.querySelector(fillSel);
   if (!bar || !fill) return;
-  const pct = dlProgress.get(nameId);
-  const determinate = active && typeof pct === 'number';
-  bar.classList.toggle('ind', active && !determinate);
-  fill.style.width = determinate ? Math.round(pct * 100) + '%' : '0%';
+  fill.style.width = active ? Math.round(displayedPct(nameId) * 100) + '%' : '0%';
 }
 
 function paintRowDownload(nameId) {
@@ -649,14 +689,20 @@ function paintCardDownload(nameId) {
 }
 
 function setDownloadProgress(nameId, pct) {
+  if (finishingIds.has(nameId)) return;  // completion beat owns the bar now
+  if (!dlStartedAt.has(nameId)) dlStartedAt.set(nameId, Date.now());
   dlProgress.set(nameId, pct);
+  startCreep(nameId);
   paintRowDownload(nameId);
   paintCardDownload(nameId);
   refreshSubscribeButtons();
 }
 
-function finishDownload(nameId, ok) {
+function finalizeDownload(nameId, ok) {
+  finishingIds.delete(nameId);
+  stopCreep(nameId);
   dlProgress.delete(nameId);
+  dlStartedAt.delete(nameId);
   paintRowDownload(nameId);
   paintCardDownload(nameId);
   const card = findCard(nameId);
@@ -677,6 +723,31 @@ function finishDownload(nameId, ok) {
   refreshSubscribeButtons();
 }
 
+function finishDownload(nameId, ok) {
+  if (finishingIds.has(nameId)) return;
+  if (!ok || REDUCED_MOTION) {
+    finalizeDownload(nameId, ok);
+    return;
+  }
+  // Success: sweep the bar from wherever the creep/progress left it to 100%
+  // and hold long enough that even an instant download reads as
+  // "downloaded, installed".
+  finishingIds.add(nameId);
+  stopCreep(nameId);
+  const shownFor = Date.now() - (dlStartedAt.get(nameId) || Date.now());
+  const holdMs = DL_FILL_MS + Math.max(0, DL_MIN_FEEDBACK_MS - shownFor);
+  const row = document.querySelector(`.lib-row[data-mod-id="${CSS.escape(nameId)}"]`);
+  const card = findCard(nameId);
+  for (const host of [row, card]) {
+    const fill = host && host.querySelector('.dl-fill, .card-dl-fill');
+    if (fill) fill.style.transition = `width ${DL_FILL_MS}ms ease-out`;
+  }
+  dlProgress.set(nameId, 1);
+  paintRowDownload(nameId);
+  paintCardDownload(nameId);
+  setTimeout(() => finalizeDownload(nameId, true), holdMs);
+}
+
 // ---------------------------------------------------------------- boot ----
 
 function teardown() {
@@ -684,6 +755,8 @@ function teardown() {
   searchTimer = null;
   clearTimeout(checkingTimer);
   checkingTimer = null;
+  for (const creep of dlCreep.values()) clearInterval(creep.timer);
+  dlCreep.clear();
   if (searchAbort) { try { searchAbort.abort(); } catch (_) {} searchAbort = null; }
   pendingSearch = false;
 }

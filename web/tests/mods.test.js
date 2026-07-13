@@ -195,31 +195,40 @@ TSICTestHarness.register({
         ctx.inject('tsic.msg.UI.Mod.UpdateProgress', { NameId: 'mod.a', State: 'downloading', Error: '' });
         const row = () => ctx.doc.querySelector('.lib-row[data-mod-id="mod.a"]');
         ctx.expect(ctx.assert.truthy(row().classList.contains('is-downloading')));
+        // done plays a fill-to-100% + minimum-feedback beat before clearing.
         ctx.inject('tsic.msg.UI.Mod.UpdateProgress', { NameId: 'mod.a', State: 'done', Error: '' });
+        ctx.expect(ctx.assert.truthy(row().classList.contains('is-downloading')));
+        await ctx.waitFor(() => !row().classList.contains('is-downloading'), { timeout: 3000 });
         ctx.expect(ctx.assert.truthy(!row().classList.contains('is-downloading')));
     },
 });
 
 TSICTestHarness.register({
-    name: 'Mods: download bar is determinate with Progress, striped without',
+    name: 'Mods: download bar creeps up without sized progress and sweeps full on done',
     file: '/screens/mods.html',
     async run(ctx) {
         await ctx.waitFor(() => ctx.doc.getElementById('list-active'));
         modsFixture(ctx);
         await ctx.waitFor(() => ctx.doc.querySelector('.lib-row[data-mod-id="mod.a"]'));
-        const bar = () => ctx.doc.querySelector('.lib-row[data-mod-id="mod.a"] .dl-bar');
         const fill = () => ctx.doc.querySelector('.lib-row[data-mod-id="mod.a"] .dl-fill');
+        const width = () => parseFloat(fill().style.width) || 0;
 
+        // No sized progress -> the simulated fill must visibly grow.
         ctx.inject('tsic.msg.UI.Mod.UpdateProgress', { NameId: 'mod.a', State: 'downloading', Progress: 0, Error: '' });
-        ctx.expect(ctx.assert.truthy(bar().classList.contains('ind')));
+        await ctx.waitFor(() => width() > 0, { timeout: 2000 });
+        const early = width();
+        await ctx.waitFor(() => width() > early, { timeout: 2000 });
 
+        // Real progress ahead of the creep takes over.
         ctx.inject('tsic.msg.UI.Mod.UpdateProgress', { NameId: 'mod.a', State: 'downloading', Progress: 0.5, Error: '' });
-        ctx.expect(ctx.assert.truthy(!bar().classList.contains('ind')));
-        ctx.expect(ctx.assert.eq(fill().style.width, '50%'));
+        ctx.expect(ctx.assert.truthy(width() >= 50));
 
+        // done sweeps the fill to 100% and holds before clearing.
         ctx.inject('tsic.msg.UI.Mod.UpdateProgress', { NameId: 'mod.a', State: 'done', Error: '' });
-        ctx.expect(ctx.assert.truthy(
-            !ctx.doc.querySelector('.lib-row[data-mod-id="mod.a"]').classList.contains('is-downloading')));
+        ctx.expect(ctx.assert.eq(fill().style.width, '100%'));
+        await ctx.waitFor(() =>
+            !ctx.doc.querySelector('.lib-row[data-mod-id="mod.a"]').classList.contains('is-downloading'),
+            { timeout: 3000 });
     },
 });
 
