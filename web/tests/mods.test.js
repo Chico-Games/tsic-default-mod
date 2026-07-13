@@ -199,3 +199,51 @@ TSICTestHarness.register({
         ctx.expect(ctx.assert.truthy(!row().classList.contains('is-downloading')));
     },
 });
+
+TSICTestHarness.register({
+    name: 'Mods: download bar is determinate with Progress, striped without',
+    file: '/screens/mods.html',
+    async run(ctx) {
+        await ctx.waitFor(() => ctx.doc.getElementById('list-active'));
+        modsFixture(ctx);
+        await ctx.waitFor(() => ctx.doc.querySelector('.lib-row[data-mod-id="mod.a"]'));
+        const bar = () => ctx.doc.querySelector('.lib-row[data-mod-id="mod.a"] .dl-bar');
+        const fill = () => ctx.doc.querySelector('.lib-row[data-mod-id="mod.a"] .dl-fill');
+
+        ctx.inject('tsic.msg.UI.Mod.UpdateProgress', { NameId: 'mod.a', State: 'downloading', Progress: 0, Error: '' });
+        ctx.expect(ctx.assert.truthy(bar().classList.contains('ind')));
+
+        ctx.inject('tsic.msg.UI.Mod.UpdateProgress', { NameId: 'mod.a', State: 'downloading', Progress: 0.5, Error: '' });
+        ctx.expect(ctx.assert.truthy(!bar().classList.contains('ind')));
+        ctx.expect(ctx.assert.eq(fill().style.width, '50%'));
+
+        ctx.inject('tsic.msg.UI.Mod.UpdateProgress', { NameId: 'mod.a', State: 'done', Error: '' });
+        ctx.expect(ctx.assert.truthy(
+            !ctx.doc.querySelector('.lib-row[data-mod-id="mod.a"]').classList.contains('is-downloading')));
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Mods: a newly installed mod animates into the library list',
+    file: '/screens/mods.html',
+    async run(ctx) {
+        await ctx.waitFor(() => ctx.doc.getElementById('list-inactive'));
+        modsFixture(ctx);
+        await ctx.waitFor(() => ctx.doc.querySelector('.lib-row[data-mod-id="mod.b"]'));
+        // Fresh InstalledList lands with an extra mod — the install pipeline's
+        // post-install broadcast. The new row must carry the entrance animation.
+        ctx.inject('tsic.msg.UI.Mod.InstalledList', { Mods: [
+            { ModId: 'com.chicogames.default', DisplayName: 'Base Game', Version: '1.0', bEnabled: true,  bLocked: true,  bShipped: true },
+            { ModId: 'mod.a', DisplayName: 'Alpha Mod',   Version: '1.0', bEnabled: true,  bLocked: false, bShipped: false },
+            { ModId: 'mod.b', DisplayName: 'Beta Mod',    Version: '2.0', bEnabled: false, bLocked: false, bShipped: false },
+            { ModId: 'mod.s', DisplayName: 'Shipped Mod', Version: '1.0', bEnabled: false, bLocked: false, bShipped: true },
+            { ModId: 'mod.new', DisplayName: 'Fresh Install', Version: '1.0', bEnabled: false, bLocked: false, bShipped: false },
+        ] });
+        const fresh = ctx.doc.querySelector('.lib-row[data-mod-id="mod.new"]');
+        ctx.expect(ctx.assert.truthy(fresh));
+        ctx.expect(ctx.assert.truthy(fresh.classList.contains('row-enter')));
+        // Pre-existing rows must NOT replay the entrance.
+        ctx.expect(ctx.assert.truthy(
+            !ctx.doc.querySelector('.lib-row[data-mod-id="mod.b"]').classList.contains('row-enter')));
+    },
+});

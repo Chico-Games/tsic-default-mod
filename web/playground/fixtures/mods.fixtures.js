@@ -4,7 +4,7 @@
 //   tsic.msg.UI.Mod.LoadOrder       { Order:[modId, ...] }
 //   tsic.msg.UI.Mod.InstallFailed   { ModId, Reason }
 //   tsic.msg.UI.Mod.Subscriptions   { Subs:[{NameId, ModIoId, DisplayName, bHasUpdate, bInstalled}] }
-//   tsic.msg.UI.Mod.UpdateProgress  { NameId, State('checking'|'downloading'|'done'|'failed'), Error }
+//   tsic.msg.UI.Mod.UpdateProgress  { NameId, State('checking'|'downloading'|'done'|'failed'), Error, Progress(0..1) }
 TSICPlayground.register({
     id: 'mods',
     label: 'Mods',
@@ -53,7 +53,11 @@ TSICPlayground.register({
         } },
         { label: 'Downloading',    apply(s) {
             s.subs = [{ NameId: 'mod.example.bigger-loot', ModIoId: 42, DisplayName: 'Bigger Loot', bHasUpdate: true, bInstalled: true }];
-            s.progress = { NameId: 'mod.example.bigger-loot', State: 'downloading', Error: '' };
+            s.progress = { NameId: 'mod.example.bigger-loot', State: 'downloading', Error: '', Progress: 0.45 };
+        } },
+        { label: 'Downloading (no size)', apply(s) {
+            s.subs = [{ NameId: 'mod.example.bigger-loot', ModIoId: 42, DisplayName: 'Bigger Loot', bHasUpdate: true, bInstalled: true }];
+            s.progress = { NameId: 'mod.example.bigger-loot', State: 'downloading', Error: '', Progress: 0 };
         } },
         { label: 'Update failed',  apply(s) {
             s.progress = { NameId: 'mod.example.bigger-loot', State: 'failed', Error: 'Network error' };

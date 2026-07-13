@@ -242,24 +242,43 @@
     .btn-uninstall:hover { border-color: var(--mag-red); color: var(--mag-red); }
     .btn-uninstall:disabled { opacity: 0.35; pointer-events: none; }
 
-    /* Indeterminate download bar pinned to the row's bottom edge. */
-    .dl-bar { position: absolute; left: 0; right: 0; bottom: 0; height: 3px; display: none; }
-    @keyframes dl-march { to { background-position: 22.6px 0; } }
-    .lib-row.is-downloading { border-color: var(--mag-red); }
-    .lib-row.is-downloading .dl-bar {
-      display: block;
-      background: repeating-linear-gradient(45deg,
-        var(--mag-red) 0 8px, rgba(180, 30, 30, 0.25) 8px 16px);
-      animation: dl-march 0.5s linear infinite;
+    /* Download bars — the standard striped magazine bar (.tsic-bar-fill
+       recipe: red fill, 45° ink stripes) with the stripes marching while a
+       download is live. One stripe period at 45° = 10px × √2 ≈ 14.14px.
+       Determinate fill when the file size is known, full-width otherwise. */
+    @keyframes dl-march { to { background-position: 14.14px 0; } }
+    .dl-fill, .card-dl-fill {
+      height: 100%; width: 0%;
+      background-color: var(--mag-red);
+      background-image: repeating-linear-gradient(45deg,
+        transparent, transparent 5px,
+        rgba(0, 0, 0, 0.18) 5px, rgba(0, 0, 0, 0.18) 10px);
+      animation: dl-march 0.45s linear infinite;
+      transition: width 0.2s linear;
     }
+    .dl-bar.ind .dl-fill, .card-dl.ind .card-dl-fill { width: 100%; opacity: 0.75; }
+
+    .dl-bar { position: absolute; left: 0; right: 0; bottom: 0; height: 5px; display: none; overflow: hidden; background: var(--paper-muted); }
+    .lib-row.is-downloading { border-color: var(--mag-red); }
+    .lib-row.is-downloading .dl-bar { display: block; }
+
+    .card-dl { height: 8px; border: 1px solid var(--ink-night); background: var(--paper-muted); overflow: hidden; }
+    .card.is-installing { border-color: var(--mag-red); }
+    /* After .card-sub:disabled so the busy state wins: the muted disabled
+       grey is unreadable over the paper while installing. */
+    .card-sub.is-busy {
+      background: var(--mag-red); border-color: var(--mag-red);
+      color: var(--paper-bright); cursor: default;
+    }
+
     @keyframes flash-ok { 0% { background-color: rgba(70, 140, 70, 0.4); } }
-    .lib-row.flash-ok { animation: flash-ok 0.9s ease; }
+    .lib-row.flash-ok, .card.flash-ok { animation: flash-ok 0.9s ease; }
     @keyframes flash-fail {
       0%, 100% { transform: translateX(0); background-color: rgba(180, 30, 30, 0.3); }
       25% { transform: translateX(-4px); }
       75% { transform: translateX(4px); }
     }
-    .lib-row.flash-fail { animation: flash-fail 0.45s ease; }
+    .lib-row.flash-fail, .card.flash-fail { animation: flash-fail 0.45s ease; }
 
     @media (prefers-reduced-motion: reduce) {
       * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }

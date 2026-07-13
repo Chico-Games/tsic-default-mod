@@ -21,7 +21,7 @@ let installedOrder = [];
 let bootedBrowse = false;
 let lastModItems = [];        // last rendered card payloads; used to repaint Subscribe state
 let subscribedMap = new Map();
-let downloadingIds = new Set();  // NameIds currently downloading an update
+let dlProgress = new Map();   // NameId -> 0..1, or null while the size is unknown
 let checkingTimer = null;
 
 const REDUCED_MOTION = window.matchMedia
@@ -197,6 +197,9 @@ function renderMods(items, reset) {
     const card = buildCard(m, subbed);
     card.style.animationDelay = (Math.min(i++, 20) * 22) + 'ms';
     host.appendChild(card);
+    if (dlProgress.has(String(m && m.name_id || ''))) {
+      paintCardDownload(String(m.name_id));
+    }
   }
 }
 function buildCard(m, subbed) {
@@ -232,14 +235,26 @@ function buildCard(m, subbed) {
 }
 function paintSubscribeButton(btn, m, subbed) {
   const nameId = String(m && m.name_id || '');
-  const isSub = subscribedMap.has(nameId);
-  btn.classList.toggle('is-sub', subbed && isSub);
-  if (!subbed) {
+  const sub = subscribedMap.get(nameId);
+  const installing = dlProgress.has(nameId);
+  btn.classList.toggle('is-busy', installing);
+  btn.classList.toggle('is-sub', !installing && subbed && !!sub);
+  if (installing) {
+    btn.textContent = 'Installing…';
+    btn.disabled = true;
+    btn.title = '';
+    btn.onclick = null;
+  } else if (!subbed) {
     btn.textContent = 'Subscribe';
     btn.disabled = true;
     btn.title = 'Sign in to subscribe';
     btn.onclick = null;
-  } else if (isSub) {
+  } else if (sub && sub.installed) {
+    btn.textContent = 'Uninstall';
+    btn.disabled = false;
+    btn.title = '';
+    btn.onclick = () => doUninstallFromCard(m);
+  } else if (sub) {
     btn.textContent = 'Unsubscribe';
     btn.disabled = false;
     btn.title = '';
@@ -286,7 +301,9 @@ async function doSubscribe(m) {
       DisplayName: String(m.name || ''),
     });
     subscribedMap.set(String(m.name_id), { modIoId: m.id, hasUpdate: false, installed: false });
-    refreshSubscribeButtons();
+    // The install pipeline starts server-side right away; show the card as
+    // busy (indeterminate) until the first sized progress event lands.
+    setDownloadProgress(String(m.name_id || ''), null);
   } catch (e) { showInstallError(e.message); }
 }
 async function doUnsubscribe(m) {
@@ -300,6 +317,19 @@ async function doUnsubscribe(m) {
     subscribedMap.delete(String(m.name_id));
     refreshSubscribeButtons();
   } catch (e) { showInstallError(e.message); }
+}
+
+// Card-side uninstall for an installed subscription. UI.Cmd.Mod.Uninstall
+// removes the files AND the mod.io subscription server-side, then broadcasts
+// fresh InstalledList/Subscriptions — the library row leaves via its own
+// animation and this card reverts to Subscribe.
+function doUninstallFromCard(m) {
+  const nameId = String(m && m.name_id || '');
+  if (!nameId) { return; }
+  showInstallError('');
+  tsic.publishMessage('UI.Cmd.Mod.Uninstall', { NameId: nameId });
+  subscribedMap.delete(nameId);
+  refreshSubscribeButtons();
 }
 function bootBrowse() {
   if (bootedBrowse) return;
@@ -323,6 +353,8 @@ function orderIndex(id) {
 // FLIP: capture row rects keyed by ModId, mutate the DOM, then animate every
 // surviving row from its old rect to its new one (this is what carries a row
 // visually across the column gap and slides its old/new neighbours apart).
+// Rows with no prior rect just landed (fresh install) — they get the
+// slide-up entrance animation instead, staggered by list position.
 function animateLibraryChange(mutate) {
   const rowsNow = document.querySelectorAll('.lib-row');
   const before = new Map();
@@ -330,10 +362,15 @@ function animateLibraryChange(mutate) {
 
   mutate();
 
-  if (REDUCED_MOTION || !before.size) return;
+  if (REDUCED_MOTION) return;
   for (const r of document.querySelectorAll('.lib-row')) {
     const b = before.get(r.dataset.modId);
-    if (!b) continue;  // brand-new row: .row-enter animation handles it
+    if (!b) {
+      const idx = Array.prototype.indexOf.call(r.parentElement.children, r);
+      r.style.animationDelay = Math.min(idx * 30, 240) + 'ms';
+      r.classList.add('row-enter');
+      continue;
+    }
     const a = r.getBoundingClientRect();
     const dx = b.left - a.left;
     const dy = b.top - a.top;
@@ -357,8 +394,6 @@ function buildRow(m, opts) {
   const row = document.createElement('div');
   row.className = 'lib-row';
   row.dataset.modId = m.ModId;
-  if (downloadingIds.has(m.ModId)) row.classList.add('is-downloading');
-  if (opts.entered) row.classList.add('row-enter');
 
   if (opts.active) {
     // ← back to the stockroom (or a lock when the mod is pinned)
@@ -401,7 +436,7 @@ function buildRow(m, opts) {
     const updateBtn = document.createElement('button');
     updateBtn.type = 'button';
     updateBtn.className = 'btn-update';
-    const busy = downloadingIds.has(m.ModId);
+    const busy = dlProgress.has(m.ModId);
     updateBtn.textContent = busy ? 'Updating…' : 'Update';
     updateBtn.disabled = busy;
     updateBtn.onclick = () =>
@@ -453,7 +488,11 @@ function buildRow(m, opts) {
 
   const bar = document.createElement('div');
   bar.className = 'dl-bar';
+  const fill = document.createElement('div');
+  fill.className = 'dl-fill';
+  bar.appendChild(fill);
   row.appendChild(bar);
+  if (dlProgress.has(m.ModId)) applyDownloadPaint(row, '.dl-bar', '.dl-fill', m.ModId, 'is-downloading');
 
   return row;
 }
@@ -538,6 +577,8 @@ function moveActive(modId, delta) {
 
 function doUninstall(m) {
   tsic.publishMessage('UI.Cmd.Mod.Uninstall', { NameId: m.ModId });
+  subscribedMap.delete(m.ModId);
+  refreshSubscribeButtons();
   const row = document.querySelector(`.lib-row[data-mod-id="${CSS.escape(m.ModId)}"]`);
   if (!row || REDUCED_MOTION) {
     installedMods = installedMods.filter(x => x.ModId !== m.ModId);
@@ -560,18 +601,80 @@ function setChecking(on) {
   if (on) checkingTimer = setTimeout(() => { el.style.display = 'none'; }, 12000);
 }
 
+function flashEl(el, cls) {
+  if (!el) return;
+  el.classList.remove('flash-ok', 'flash-fail');
+  void el.offsetWidth;  // restart the animation if it was already applied
+  el.classList.add(cls);
+}
 function flashRow(modId, cls) {
-  const row = document.querySelector(`.lib-row[data-mod-id="${CSS.escape(modId)}"]`);
-  if (!row) return;
-  row.classList.remove('flash-ok', 'flash-fail');
-  void row.offsetWidth;  // restart the animation if it was already applied
-  row.classList.add(cls);
+  flashEl(document.querySelector(`.lib-row[data-mod-id="${CSS.escape(modId)}"]`), cls);
+}
+function findCard(nameId) {
+  return document.querySelector(`.card[data-name-id="${CSS.escape(nameId)}"]`);
 }
 
-function setRowDownloading(modId, on) {
-  if (on) downloadingIds.add(modId); else downloadingIds.delete(modId);
-  const row = document.querySelector(`.lib-row[data-mod-id="${CSS.escape(modId)}"]`);
-  if (row) row.classList.toggle('is-downloading', on);
+// Shared painter for a download bar: determinate fill when the size is
+// known, striped indeterminate otherwise.
+function applyDownloadPaint(host, barSel, fillSel, nameId, busyClass) {
+  const active = dlProgress.has(nameId);
+  host.classList.toggle(busyClass, active);
+  const bar = host.querySelector(barSel);
+  const fill = host.querySelector(fillSel);
+  if (!bar || !fill) return;
+  const pct = dlProgress.get(nameId);
+  const determinate = active && typeof pct === 'number';
+  bar.classList.toggle('ind', active && !determinate);
+  fill.style.width = determinate ? Math.round(pct * 100) + '%' : '0%';
+}
+
+function paintRowDownload(nameId) {
+  const row = document.querySelector(`.lib-row[data-mod-id="${CSS.escape(nameId)}"]`);
+  if (row) applyDownloadPaint(row, '.dl-bar', '.dl-fill', nameId, 'is-downloading');
+}
+
+function paintCardDownload(nameId) {
+  const card = findCard(nameId);
+  if (!card) return;
+  let bar = card.querySelector('.card-dl');
+  if (!bar && dlProgress.has(nameId)) {
+    bar = document.createElement('div');
+    bar.className = 'card-dl';
+    const fill = document.createElement('div');
+    fill.className = 'card-dl-fill';
+    bar.appendChild(fill);
+    card.appendChild(bar);
+  }
+  applyDownloadPaint(card, '.card-dl', '.card-dl-fill', nameId, 'is-installing');
+}
+
+function setDownloadProgress(nameId, pct) {
+  dlProgress.set(nameId, pct);
+  paintRowDownload(nameId);
+  paintCardDownload(nameId);
+  refreshSubscribeButtons();
+}
+
+function finishDownload(nameId, ok) {
+  dlProgress.delete(nameId);
+  paintRowDownload(nameId);
+  paintCardDownload(nameId);
+  const card = findCard(nameId);
+  if (card) {
+    const bar = card.querySelector('.card-dl');
+    if (bar) bar.remove();
+  }
+  if (ok) {
+    const sub = subscribedMap.get(nameId);
+    if (sub) sub.installed = true;
+    renderLibraryAnimated();
+    flashRow(nameId, 'flash-ok');
+    flashEl(card, 'flash-ok');
+  } else {
+    flashRow(nameId, 'flash-fail');
+    flashEl(card, 'flash-fail');
+  }
+  refreshSubscribeButtons();
 }
 
 // ---------------------------------------------------------------- boot ----
@@ -629,14 +732,12 @@ window.addEventListener('beforeunload', teardown);
       setChecking(false);
       if (!p.NameId) return;
       if (p.State === 'downloading') {
-        setRowDownloading(p.NameId, true);
+        const pct = (typeof p.Progress === 'number' && p.Progress > 0) ? p.Progress : null;
+        setDownloadProgress(p.NameId, pct);
       } else if (p.State === 'done') {
-        setRowDownloading(p.NameId, false);
-        renderLibraryAnimated();
-        flashRow(p.NameId, 'flash-ok');
+        finishDownload(p.NameId, true);
       } else if (p.State === 'failed') {
-        setRowDownloading(p.NameId, false);
-        flashRow(p.NameId, 'flash-fail');
+        finishDownload(p.NameId, false);
         if (p.Error) showInstallError(`Update failed (${p.NameId}): ${p.Error}`);
       }
     });
