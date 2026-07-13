@@ -31,10 +31,26 @@
   var players = [];
   var animating = false;
   var lastTime = 0;
+  var fowMsgs = 0;
   // Test/debug hook: the Gauntlet DOM-assert seam reads the caught-up idle
-  // state (no-redraw-at-rest contract) through here. Not a public API.
+  // state (no-redraw-at-rest contract), the FOW refresh count, and the fog
+  // alpha at the player's own map position (a healthy minimap is always
+  // revealed where the player stands) through here. Not a public API.
   window.__tsicMinimap = {
-    get animating() { return animating; }
+    get animating() { return animating; },
+    get fowMsgs() { return fowMsgs; },
+    sampleFowAtPlayer: function () {
+      if (!fow || !fow.naturalWidth || !worldW || !worldH) return 'n/a';
+      var c = document.createElement('canvas');
+      c.width = 1; c.height = 1;
+      var x = c.getContext('2d');
+      var px = Math.max(0, Math.min(fow.naturalWidth - 1, currentLocal.x / worldW * fow.naturalWidth));
+      var py = Math.max(0, Math.min(fow.naturalHeight - 1, currentLocal.y / worldH * fow.naturalHeight));
+      try {
+        x.drawImage(fow, px, py, 1, 1, 0, 0, 1, 1);
+        return x.getImageData(0, 0, 1, 1).data[3]; // 0 = revealed, 255 = fogged
+      } catch (e) { return 'err:' + e.name; }
+    }
   };
 
   function worldToLocal(wx, wy) {
@@ -150,21 +166,29 @@
   }
 
   tsic.on('tsic.msg.UI.Map.Fow', function () {
+    fowMsgs++;
     if (fow) fow.src = TSIC.runtimeImgUrl('fow') + '?t=' + Date.now();
   });
 
-  // The world-map image source registers only after async map-texture
-  // generation completes — a fast HUD boot can fetch world-map.imgsrc before
-  // it exists, and a failed <img> never retries on its own, leaving the
-  // minimap black until the HUD DOM is rebuilt (e.g. after opening the map
-  // screen). Re-fetch on the snapshot tick until pixels actually arrive.
+  // The world-map and fow image sources register only after their async
+  // texture generation completes — a fast HUD boot can fetch either .imgsrc
+  // before it exists, and a failed <img> never retries on its own, leaving
+  // the minimap black/fog-less until the HUD DOM is rebuilt (e.g. after
+  // opening the map screen). Re-fetch on the snapshot tick until pixels
+  // actually arrive. (Fog CONTENT staleness is handled separately: the
+  // UI.Map.Fow bridge message is cached, so a late-subscribing page replays
+  // the last regen and the handler below refetches.)
   var texRetryAt = 0;
+  function retryFailedImg(img, name, now) {
+    if (!img || !img.complete || img.naturalWidth > 0) return;
+    img.src = TSIC.runtimeImgUrl(name) + '?t=' + now;
+  }
   function ensureTexLoaded() {
-    if (!tex.complete || tex.naturalWidth > 0) return;
     var now = Date.now();
     if (now < texRetryAt) return;
     texRetryAt = now + 2000;
-    tex.src = TSIC.runtimeImgUrl('world-map') + '?t=' + now;
+    retryFailedImg(tex, 'world-map', now);
+    retryFailedImg(fow, 'fow', now);
   }
 
   tsic.on('tsic.msg.UI.Map.Snapshot', function (p) {
