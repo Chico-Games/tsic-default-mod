@@ -227,6 +227,15 @@
         maxScale: MAX_SCALE,
         iconPx: ICON_PX,
         defaultZoomMult: DEFAULT_ZOOM_MULT,
+        // Drops the fog gate to its documented fail-open state (fowGrid = null)
+        // so icon/cluster contracts are testable without hours of exploration.
+        disableFogGate() {
+          fowGrid = null;
+          if (latestSnapshot) renderIcons(latestSnapshot.Icons);
+        },
+        // Viewport-centre zoom via the REAL clamp path (what triggers drive);
+        // dt is seconds-at-rate, so large values pin against MIN/MAX.
+        zoomBy(direction, dt) { zoomBy(direction, dt); },
       };
       let latestSnapshot = null;
       let latestPings = null;
@@ -1019,7 +1028,9 @@
       ctx.on('tsic.msg.UI.Behavior.MapZoomOut', (e) => zoomStep(e, -1));
       ctx.on('tsic.msg.UI.Behavior.MapCenter',     (e) => { if (e.Phase === 'Started') centerOnLocalPlayer(); });
       ctx.on('tsic.msg.UI.Behavior.MapPlacePing',  (e) => { if (e.Phase === 'Started') placePingAtCursorOrCenter(); });
-      ctx.on('tsic.msg.UI.Behavior.MapResetView',  (e) => { if (e.Phase === 'Started' && typeof resetView === 'function') resetView(); });
+      // Same contract as keyboard 'R': fit the whole map. (This previously
+      // guarded on an undefined `resetView` and silently no-oped on gamepad.)
+      ctx.on('tsic.msg.UI.Behavior.MapResetView',  (e) => { if (e.Phase === 'Started') fitToBounds(); });
       ctx.on('tsic.msg.UI.Behavior.MapMove', (e) => {
         if (!ctx.isVisible() || e.Phase !== 'Axis') return;
         const dt = (1 / 60);
