@@ -9,7 +9,7 @@
   <title>Mods</title>
   <link rel="stylesheet" href="/shared/base.css">
   <link rel="stylesheet" href="/shared/components.css">
-    <script src="/shared/tsic-bridge.js" defer></script>
+  <script src="/shared/tsic-bridge.js" defer></script>
   <script src="/shared/tsic-runtime.js" defer></script>
   <script src="/shared/store-maze.js" defer></script>
   <script src="/shared/store-maze-stage.js" defer></script>
@@ -17,99 +17,257 @@
   <script src="/shared/tsic-focus.js" defer></script>
   <script src="/shared/tsic-dropdown.js" defer></script>
   <script src="/shared/tab-filter.js" defer></script>
+  <script type="module" src="/screens/mods.js"></script>
   <style>
-    .mods-body { padding: 8px 22px 14px; }
+    /* ---- Cover fills the viewport (stage has 32px padding all round) ---- */
+    .mods-cover { height: min(calc(100vh - 64px), 1100px); }
+    .mods-cover .tsic-masthead { padding: 14px 22px 4px; }
+    .mods-cover .tsic-masthead-title { font-size: 40px; }
+    .mods-cover .tsic-masthead-title em { font-size: 18px; margin-top: 0; }
+
+    .mods-body {
+      flex: 1; min-height: 0;
+      display: flex; flex-direction: column; gap: 10px;
+      padding: 4px 22px 8px;
+    }
     .mods-body .panel {
       border: 2px solid var(--ink-night);
       background: var(--paper-bright);
-      padding: 14px 16px;
-      margin-bottom: 14px;
     }
-    .auth-strip { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
-    .auth-strip input {
-      background: var(--paper-bright);
-      border: 1px solid var(--ink-night);
-      color: var(--ink-night);
-      padding: 6px 10px;
-      font: inherit;
-      margin-right: 6px;
-    }
-    .auth-strip button {
-      background: var(--ink-night);
-      border: 1px solid var(--ink-night);
-      color: var(--paper-cream);
-      padding: 6px 14px;
-      cursor: pointer;
-      font: inherit;
-      font-family: var(--font-display);
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-    }
-    .auth-strip button:hover { background: var(--mag-red); border-color: var(--mag-red); }
-    .auth-heading {
-      font-family: var(--font-display);
-      font-size: 13px;
-      font-weight: 800;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--ink-soft);
-      margin: 0 0 8px;
-    }
-    .auth-explain { font-size: 13px; color: var(--ink-night); line-height: 1.6; margin-bottom: 10px; }
-    .auth-explain a { color: var(--mag-red); text-decoration: underline; }
-    .auth-explain a:hover { color: var(--mag-red-dark); }
-    .auth-steps { font-size: 12px; color: var(--ink-soft); line-height: 1.5; margin: 0; padding: 0 0 0 18px; list-style: decimal; }
-    .auth-steps li { margin-bottom: 2px; }
-    .error { color: var(--mag-red); font-size: 12px; margin-top: 6px; }
+    .error { color: var(--mag-red); font-size: 12px; }
 
-    .browse { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-    .card {
-      border: 1px solid var(--ink-night);
-      background: var(--paper-soft);
-      padding: 8px;
+    @keyframes fade-in    { from { opacity: 0; } }
+    @keyframes fade-slide { from { opacity: 0; transform: translateY(-4px); } }
+
+    /* ================= DISCOVERY (condensed strip) ================= */
+    .disco { flex: none; padding: 8px 12px; }
+    .disco-head {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 12px; margin-bottom: 8px; min-height: 30px;
     }
-    .card .logo { width: 100%; aspect-ratio: 16 / 9; background: var(--ink-night); }
-    .card .name { font-family: var(--font-display); font-weight: 800; letter-spacing: 0.04em; margin-top: 6px; color: var(--ink-night); }
-    .card .summary { font-size: 12px; color: var(--ink-soft); margin: 6px 0; line-height: 1.4; }
+    .disco-title {
+      font-family: var(--font-display); font-weight: 800; font-size: 13px;
+      letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-soft);
+      white-space: nowrap;
+    }
+    .disco-title .disco-sub { color: var(--mag-red); margin-left: 6px; }
+
+    .auth-state { display: flex; align-items: center; gap: 8px; animation: fade-slide 0.25s ease both; }
+    .auth-note { font-size: 12px; color: var(--ink-soft); white-space: nowrap; }
+    .auth-note a { color: var(--mag-red); text-decoration: underline; }
+    .auth-note a:hover { color: var(--mag-red-dark); }
+    .auth-note b { color: var(--ink-night); }
+
+    .disco input[type=email], .disco input[type=text] {
+      background: var(--paper-bright); border: 1px solid var(--ink-night);
+      color: var(--ink-night); padding: 5px 10px; font: inherit; font-size: 13px;
+    }
+    .code-input { width: 96px; letter-spacing: 6px; text-align: center; text-transform: uppercase; }
+
+    .btn-solid, .btn-ghost {
+      border: 1px solid var(--ink-night); padding: 5px 12px; cursor: pointer;
+      font: inherit; font-family: var(--font-display); font-size: 12px;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+    }
+    .btn-solid { background: var(--ink-night); color: var(--paper-cream); }
+    .btn-solid:hover { background: var(--mag-red); border-color: var(--mag-red); }
+    .btn-ghost { background: transparent; color: var(--ink-night); }
+    .btn-ghost:hover { background: var(--mag-yellow); }
+
+    .disco-controls { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+    #search { flex: 1; min-width: 0; }
+    #btn-filters .caret { display: inline-block; transition: transform 0.25s ease; }
+    #btn-filters.open .caret { transform: rotate(180deg); }
+
+    /* Collapsible tag tray — animates open/closed via grid rows. */
+    .tag-tray { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.28s ease; }
+    .tag-tray.open { grid-template-rows: 1fr; margin-bottom: 8px; }
+    .tag-tray-inner {
+      overflow: hidden; min-height: 0;
+      display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: center;
+    }
+    .tag-group-label { color: var(--ink-mute); font-size: 11px; }
+    .tag-chip {
+      padding: 2px 8px; border: 1px solid var(--ink-mute); background: var(--paper-soft);
+      color: var(--ink-night); font: inherit; font-size: 11px; cursor: pointer;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+    }
+    .tag-chip:hover { border-color: var(--ink-night); }
+    .tag-chip.on { background: var(--mag-red); border-color: var(--mag-red); color: var(--paper-bright); }
+
+    /* Horizontal card rail. */
+    .disco-rail-wrap { display: flex; gap: 8px; align-items: stretch; }
+    .disco-rail {
+      flex: 1; min-width: 0;
+      display: grid; grid-auto-flow: column; grid-auto-columns: 180px;
+      gap: 8px; overflow-x: auto; overflow-y: hidden;
+      padding-bottom: 6px;
+      scrollbar-width: thin;
+    }
+    .disco-rail:empty { min-height: 40px; }
+    @keyframes card-in { from { opacity: 0; transform: translateY(10px); } }
+    .card {
+      border: 1px solid var(--ink-night); background: var(--paper-soft);
+      padding: 6px; display: flex; flex-direction: column; gap: 5px;
+      animation: card-in 0.35s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+    }
+    .card .logo {
+      width: 100%; aspect-ratio: 16 / 9; background-color: var(--ink-night);
+      background-size: cover; background-position: center;
+    }
+    .card .name {
+      font-family: var(--font-display); font-weight: 800; font-size: 12px;
+      letter-spacing: 0.04em; color: var(--ink-night);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .card .summary { font-size: 10px; line-height: 1.35; color: var(--ink-soft); height: 27px; overflow: hidden; }
     .card-sub {
-      background: var(--ink-night);
-      border: 1px solid var(--ink-night);
-      color: var(--paper-cream);
-      padding: 3px 10px;
-      cursor: pointer;
-      font: inherit;
-      font-family: var(--font-display);
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      font-size: 12px;
+      margin-top: auto; padding: 3px 8px; font-size: 11px;
+      background: var(--ink-night); border: 1px solid var(--ink-night); color: var(--paper-cream);
+      cursor: pointer; font-family: var(--font-display); letter-spacing: 0.08em; text-transform: uppercase;
+      transition: background 0.15s, border-color 0.15s;
     }
     .card-sub:hover { background: var(--mag-red); border-color: var(--mag-red); }
     .card-sub:disabled { color: var(--ink-mute); background: var(--paper-soft); border-color: var(--ink-mute); cursor: default; }
+    .card-sub.is-sub { background: var(--mag-red); border-color: var(--mag-red); }
+    #btn-loadmore {
+      flex: none; width: 32px; writing-mode: vertical-rl;
+      background: var(--paper-soft); border: 1px solid var(--ink-night); color: var(--ink-night);
+      font-family: var(--font-display); font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase;
+      cursor: pointer; transition: background 0.15s, color 0.15s;
+    }
+    #btn-loadmore:hover { background: var(--ink-night); color: var(--paper-cream); }
 
-    .installed-list { display: flex; flex-direction: column; gap: 4px; }
-    .installed-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 4px 6px;
+    /* ================= LIBRARY (two columns) ================= */
+    .library {
+      flex: 1; min-height: 0;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+    }
+    .lib-col {
+      display: flex; flex-direction: column; min-height: 0;
+      border: 2px solid var(--ink-night); background: var(--paper-bright);
+    }
+    .lib-head {
+      flex: none; display: flex; align-items: center; gap: 8px;
+      padding: 7px 10px; border-bottom: 2px solid var(--ink-night);
       background: var(--paper-soft);
-      border: 1px solid transparent;
     }
-    .installed-row:hover { border-color: var(--ink-night); }
-    .installed-row .name { flex: 1; font-family: var(--font-body); color: var(--ink-night); }
-    .installed-row button {
-      background: var(--paper-bright);
-      border: 1px solid var(--ink-night);
-      color: var(--ink-night);
-      padding: 2px 8px;
-      cursor: pointer;
-      font: inherit;
+    .lib-title {
+      font-family: var(--font-display); font-weight: 800; font-size: 14px;
+      letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-night);
     }
-    .installed-row button:hover { background: var(--mag-yellow); }
+    .lib-sub { font-size: 10px; color: var(--ink-soft); letter-spacing: 0.08em; text-transform: uppercase; }
+    .lib-count {
+      margin-left: auto; min-width: 22px; height: 20px; padding: 0 5px;
+      display: grid; place-items: center;
+      background: var(--ink-night); color: var(--paper-cream);
+      font-family: var(--font-display); font-size: 11px; font-weight: 800;
+      transition: transform 0.2s ease;
+    }
+    .lib-col--active .lib-head { background: var(--ink-night); }
+    .lib-col--active .lib-title { color: var(--paper-cream); }
+    .lib-col--active .lib-sub { color: rgba(241, 229, 207, 0.65); }
+    .lib-col--active .lib-count { background: var(--mag-red); }
+    @keyframes pulse { 50% { opacity: 0.35; } }
+    .lib-status {
+      font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+      color: rgba(241, 229, 207, 0.8); animation: pulse 1.2s ease-in-out infinite;
+    }
+    #btn-update-all {
+      padding: 2px 8px; font-size: 10px;
+      background: transparent; border: 1px solid rgba(241, 229, 207, 0.5); color: var(--paper-cream);
+      cursor: pointer; font-family: var(--font-display); letter-spacing: 0.08em; text-transform: uppercase;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    #btn-update-all:hover { background: var(--mag-red); border-color: var(--mag-red); }
+
+    .lib-list {
+      flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden;
+      padding: 8px; display: flex; flex-direction: column; gap: 6px;
+      scrollbar-gutter: stable; scrollbar-width: thin;
+    }
+    .lib-empty {
+      color: var(--ink-mute); font-size: 12px; letter-spacing: 0.06em;
+      text-align: center; padding: 16px 10px; animation: fade-in 0.3s ease;
+    }
+
+    .lib-row {
+      position: relative; flex: none;
+      display: flex; align-items: center; gap: 7px;
+      padding: 6px 8px;
+      background: var(--paper-soft); border: 1px solid var(--ink-night);
+      will-change: transform;
+    }
+    .lib-row.is-flying { z-index: 6; box-shadow: var(--shadow-block-sm); }
+    @keyframes row-enter { from { opacity: 0; transform: translateY(6px) scale(0.98); } }
+    .lib-row.row-enter { animation: row-enter 0.3s cubic-bezier(0.2, 0.7, 0.2, 1); }
+    .lib-row.row-exit { transition: opacity 0.22s ease, transform 0.22s ease; opacity: 0; transform: translateX(-14px) scale(0.98); pointer-events: none; }
+    .lib-col--active .lib-row.row-exit { transform: translateX(14px) scale(0.98); }
+
+    .lib-row .name {
+      flex: 1; min-width: 0; font-size: 13px; color: var(--ink-night);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .lib-row .ver { color: var(--ink-mute); font-size: 11px; margin-left: 6px; }
+    .ord {
+      flex: none; width: 22px; height: 22px; display: grid; place-items: center;
+      background: var(--ink-night); color: var(--paper-cream);
+      font-family: var(--font-display); font-size: 11px; font-weight: 800;
+    }
+    .lock { flex: none; width: 26px; text-align: center; font-size: 13px; color: var(--ink-soft); }
+
+    .btn-move, .btn-step {
+      flex: none; width: 26px; height: 26px; padding: 0;
+      display: grid; place-items: center;
+      background: var(--paper-bright); border: 1px solid var(--ink-night); color: var(--ink-night);
+      font-size: 14px; line-height: 1; cursor: pointer;
+      transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.12s;
+    }
+    .btn-move:hover { background: var(--mag-red); border-color: var(--mag-red); color: var(--paper-bright); }
+    .btn-move--right:hover { transform: translateX(2px); }
+    .btn-move--left:hover { transform: translateX(-2px); }
+    .btn-step:hover { background: var(--mag-yellow); }
+    .btn-move:disabled, .btn-step:disabled { opacity: 0.35; pointer-events: none; }
+
+    .btn-update, .btn-uninstall {
+      flex: none; padding: 3px 8px; font-size: 10px; cursor: pointer;
+      font-family: var(--font-display); letter-spacing: 0.06em; text-transform: uppercase;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+    }
+    .btn-update { background: var(--ink-night); border: 1px solid var(--ink-night); color: var(--paper-cream); }
+    .btn-update:hover { background: var(--mag-red); border-color: var(--mag-red); }
+    .btn-update:disabled { opacity: 0.5; pointer-events: none; }
+    .btn-uninstall { background: transparent; border: 1px solid var(--ink-mute); color: var(--ink-soft); }
+    .btn-uninstall:hover { border-color: var(--mag-red); color: var(--mag-red); }
+    .btn-uninstall:disabled { opacity: 0.35; pointer-events: none; }
+
+    /* Indeterminate download bar pinned to the row's bottom edge. */
+    .dl-bar { position: absolute; left: 0; right: 0; bottom: 0; height: 3px; display: none; }
+    @keyframes dl-march { to { background-position: 22.6px 0; } }
+    .lib-row.is-downloading { border-color: var(--mag-red); }
+    .lib-row.is-downloading .dl-bar {
+      display: block;
+      background: repeating-linear-gradient(45deg,
+        var(--mag-red) 0 8px, rgba(180, 30, 30, 0.25) 8px 16px);
+      animation: dl-march 0.5s linear infinite;
+    }
+    @keyframes flash-ok { 0% { background-color: rgba(70, 140, 70, 0.4); } }
+    .lib-row.flash-ok { animation: flash-ok 0.9s ease; }
+    @keyframes flash-fail {
+      0%, 100% { transform: translateX(0); background-color: rgba(180, 30, 30, 0.3); }
+      25% { transform: translateX(-4px); }
+      75% { transform: translateX(4px); }
+    }
+    .lib-row.flash-fail { animation: flash-fail 0.45s ease; }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+    }
   </style>
 </head><body>
   <div class="tsic-stage--magazine-gradient">
-    <div class="tsic-panel tsic-cover" style="--tsic-cover-width: 1024px;">
+    <div class="tsic-panel tsic-cover mods-cover" style="--tsic-cover-width: 1500px;">
       <div class="tsic-masthead">
         <div class="tsic-masthead-title">
           <em>Special</em>
@@ -123,89 +281,85 @@
 
       <div class="mods-body">
 
-    <div id="mods-tabs" class="tsic-tab-bar" data-tsic-tab-bar></div>
-    <div class="error" id="tab-launch-msg" style="display:none; margin-bottom:10px;"></div>
+        <div id="mods-tabs" class="tsic-tab-bar" data-tsic-tab-bar></div>
+        <div class="error" id="tab-launch-msg" style="display:none;"></div>
 
-    <div class="panel" id="panel-auth">
-      <div id="auth-signed-out" style="display:none;">
-        <div class="auth-heading">Sign in with mod.io</div>
-        <div class="auth-explain">
-          You need a <a href="https://mod.io" target="_blank" rel="noopener">mod.io</a> account
-          to subscribe to and install mods.
-          Don't have one? <a href="https://mod.io/join" target="_blank" rel="noopener">Create a free account</a> — then come back here and enter your email below.
-        </div>
-        <div class="auth-strip">
-          <div>
-            <input id="email" type="email" placeholder="you@example.com">
-            <button id="btn-request">Send login code</button>
+        <section class="panel disco" id="panel-discovery" data-tsic-focus-group="discovery">
+          <div class="disco-head">
+            <div class="disco-title">Mail-Order Catalogue <span class="disco-sub">mod.io</span></div>
+            <div class="disco-auth">
+              <div class="auth-state" id="auth-signed-out" style="display:none;">
+                <span class="auth-note">Sign in to subscribe —
+                  <a href="https://mod.io/join" target="_blank" rel="noopener">create a free account</a></span>
+                <input id="email" type="email" placeholder="you@example.com">
+                <button id="btn-request" class="btn-solid">Send code</button>
+              </div>
+              <div class="auth-state" id="auth-awaiting-code" style="display:none;">
+                <span class="auth-note">Code sent — check your inbox (and spam)</span>
+                <input id="code" type="text" class="code-input" placeholder="A1B2C" maxlength="5">
+                <button id="btn-exchange" class="btn-solid">Sign in</button>
+                <button id="btn-cancel-code" class="btn-ghost">Cancel</button>
+              </div>
+              <div class="auth-state" id="auth-signed-in" style="display:none;">
+                <span class="auth-note"><b id="username"></b></span>
+                <button id="btn-signout" class="btn-ghost">Sign out</button>
+              </div>
+              <div class="auth-state" id="auth-disabled" style="display:none;">
+                <span class="auth-note">mod.io is not configured for this project.</span>
+              </div>
+            </div>
           </div>
-        </div>
-        <ol class="auth-steps" style="margin-top: 8px;">
-          <li>Enter the email linked to your mod.io account above</li>
-          <li>Check your inbox for a 5-character code from mod.io</li>
-          <li>Enter the code here to sign in</li>
-        </ol>
-      </div>
-      <div id="auth-awaiting-code" style="display:none;">
-        <div class="auth-heading">Enter your code</div>
-        <div class="auth-explain">
-          A 5-character code was sent to your email. Check your inbox (and spam folder) and enter it below.
-        </div>
-        <div class="auth-strip">
-          <div>
-            <input id="code" type="text" placeholder="A1B2C" maxlength="5"
-                   style="letter-spacing: 8px; text-align: center; text-transform: uppercase;">
-            <button id="btn-exchange">Sign in</button>
+
+          <div class="disco-controls">
+            <input id="search" type="text" placeholder="Search the catalogue…">
+            <!-- tsic-dropdown, not a native <select>: CEF's native select popup renders
+                 through a Slate menu that misplaces/flips under accelerated paint. -->
+            <button id="sort" type="button" class="tsic-dropdown" data-tsic-focusable
+                    data-tsic-value="popular"
+                    data-tsic-options='[
+                      {"value":"popular","label":"Popular"},
+                      {"value":"-date_added","label":"Recently Added"},
+                      {"value":"-downloads_total","label":"Most Downloaded"},
+                      {"value":"-subscribers_total","label":"Most Subscribed"},
+                      {"value":"-ratings_weighted_aggregate","label":"Top Rated"}]'>
+              <span class="tsic-dropdown-label">Popular</span>
+              <span class="tsic-dropdown-caret">▾</span>
+            </button>
+            <button id="btn-filters" type="button" class="btn-ghost">Filters <span class="caret">▾</span></button>
           </div>
-          <button id="btn-cancel-code">Cancel</button>
-        </div>
-      </div>
-      <div class="auth-strip" id="auth-signed-in" style="display:none;">
-        <div><b id="username"></b></div>
-        <button id="btn-signout">Sign out</button>
-      </div>
-      <div class="auth-strip" id="auth-disabled" style="display:none;">
-        <div style="color:rgba(37,33,25,0.75);">mod.io is not configured for this project.</div>
-      </div>
-      <div class="error" id="auth-error" style="display:none;"></div>
-    </div>
+          <div class="tag-tray" id="tag-tray">
+            <div class="tag-tray-inner" id="tag-chips"></div>
+          </div>
 
-    <div class="panel" id="panel-browse">
-      <div class="auth-strip" style="margin-bottom:8px;">
-        <div>
-          <input id="search" type="text" placeholder="Search mods…" style="width:300px;">
-          <!-- tsic-dropdown, not a native <select>: CEF's native select popup renders
-               through a Slate menu that misplaces/flips under accelerated paint. -->
-          <button id="sort" type="button" class="tsic-dropdown" data-tsic-focusable
-                  data-tsic-value="popular"
-                  data-tsic-options='[
-                    {"value":"popular","label":"Popular"},
-                    {"value":"-date_added","label":"Recently Added"},
-                    {"value":"-downloads_total","label":"Most Downloaded"},
-                    {"value":"-subscribers_total","label":"Most Subscribed"},
-                    {"value":"-ratings_weighted_aggregate","label":"Top Rated"}]'>
-            <span class="tsic-dropdown-label">Popular</span>
-            <span class="tsic-dropdown-caret">▾</span>
-          </button>
-        </div>
-        <div id="tag-chips" style="color:rgba(37,33,25,0.8);"></div>
-      </div>
-      <div class="browse" id="browse"></div>
-      <div style="text-align:center; margin-top:10px;">
-        <button id="btn-loadmore" style="background:rgba(241,229,207,0.92);
-                  border:1px solid rgba(255,255,255,0.3); color: var(--ink-night);
-                  padding:6px 16px; cursor:pointer; display:none;">Load more</button>
-      </div>
-    </div>
+          <div class="disco-rail-wrap">
+            <div class="disco-rail" id="browse"></div>
+            <button id="btn-loadmore" style="display:none;">More</button>
+          </div>
 
-    <div class="panel" id="panel-installed">
-      <div style="margin-bottom:8px; color:rgba(37,33,25,0.75); letter-spacing:3px;
-                  text-transform:uppercase; font-size:11px;">
-        Installed (Load Order)
-      </div>
-      <div class="installed-list" id="installed-list"></div>
-      <div class="error" id="install-error" style="display:none;"></div>
-    </div>
+          <div class="error" id="auth-error" style="display:none;"></div>
+          <div class="error" id="install-error" style="display:none;"></div>
+        </section>
+
+        <section class="library">
+          <div class="lib-col" id="col-inactive">
+            <div class="lib-head">
+              <span class="lib-title">Stockroom</span>
+              <span class="lib-sub">Installed · not active</span>
+              <span class="lib-count" id="count-inactive">0</span>
+            </div>
+            <div class="lib-list" id="list-inactive" data-tsic-focus-group="stockroom"></div>
+          </div>
+          <div class="lib-col lib-col--active" id="col-active">
+            <div class="lib-head">
+              <span class="lib-title">Shop Floor</span>
+              <span class="lib-sub">Active · loads top to bottom</span>
+              <span class="lib-status" id="lib-status" style="display:none;">Checking…</span>
+              <button id="btn-update-all" type="button" style="display:none;">Update All</button>
+              <span class="lib-count" id="count-active">0</span>
+            </div>
+            <div class="lib-list" id="list-active" data-tsic-focus-group="shopfloor"></div>
+          </div>
+        </section>
 
       </div><!-- /mods-body -->
 
@@ -218,538 +372,4 @@
       </div>
     </div>
   </div>
-
-  <script type="module">
-    import { createClient, makeBaseUrl, listMods, getGameTags, subscribe,
-             unsubscribe, listModfiles, listSubscribed, logout } from '/shared/modio.js';
-    import { createAuth, loadToken, loadProfile, clearToken } from '/shared/modio-auth.js';
-
-    let cfg = null;
-    let client = null;
-    let auth = null;
-    let activeTags = new Map();   // tagName -> groupName (preserves which group each chip belongs to)
-    let tagGroups = [];           // [{ name, tags:[...] }]
-    let offset = 0;
-    const PAGE = 24;
-    let searchTimer = null;
-    let searchAbort = null;       // AbortController for the in-flight listMods
-    let pendingSearch = false;    // true if a new search was requested while one was running
-    let installedMods = [];
-    let installedOrder = [];
-    let bootedBrowse = false;
-    let lastModItems = [];        // last rendered card payloads; used to repaint Subscribe state
-    let subscribedMap = new Map();
-
-    function show(id) {
-      for (const sel of ['signed-out','awaiting-code','signed-in','disabled']) {
-        const el = document.getElementById('auth-' + sel);
-        if (el) el.style.display = (sel === id) ? '' : 'none';
-      }
-    }
-    function showAuthError(msg) {
-      const el = document.getElementById('auth-error');
-      el.textContent = msg || '';
-      el.style.display = msg ? '' : 'none';
-    }
-    function showInstallError(msg) {
-      const el = document.getElementById('install-error');
-      el.textContent = msg || '';
-      el.style.display = msg ? '' : 'none';
-    }
-    function safeHttpUrl(u) {
-      if (!u) return '';
-      try {
-        const parsed = new URL(u);
-        return (parsed.protocol === 'http:' || parsed.protocol === 'https:')
-          ? parsed.toString() : '';
-      } catch (_) { return ''; }
-    }
-
-    function bootAuth() {
-      if (auth) return;
-      auth = createAuth(client);
-      auth.onChange((state) => {
-        if (state === 'idle') show('signed-out');
-        else if (state === 'awaiting-code') show('awaiting-code');
-        else if (state === 'signed-in') {
-          show('signed-in');
-          const p = loadProfile();
-          document.getElementById('username').textContent = (p && p.username) || 'mod.io user';
-          refreshSubscribeButtons();
-        }
-      });
-      if (loadToken()) {
-        show('signed-in');
-        const p = loadProfile();
-        document.getElementById('username').textContent = (p && p.username) || 'mod.io user';
-      } else {
-        show('signed-out');
-      }
-      document.getElementById('btn-request').onclick = async () => {
-        showAuthError('');
-        try { await auth.requestCode(document.getElementById('email').value.trim()); }
-        catch (e) { showAuthError(e.message); }
-      };
-      document.getElementById('btn-exchange').onclick = async () => {
-        showAuthError('');
-        try {
-          await auth.exchangeCode(document.getElementById('code').value.trim().toUpperCase());
-          const token = loadToken();
-          const expires = localStorage.getItem('tsic.modio.tokenExpires');
-          if (token) {
-            tsic.publishMessage('UI.Cmd.Mod.SaveToken', {
-              Token: token,
-              ExpiresEpoch: Number(expires) || 0,
-            });
-          }
-        } catch (e) { showAuthError(e.message); }
-      };
-      document.getElementById('btn-cancel-code').onclick = () => doSignOut();
-      document.getElementById('btn-signout').onclick = () => doSignOut();
-    }
-
-    async function doSignOut() {
-      if (!auth) return;
-      try { if (client && loadToken()) await logout(client); } catch (_) {}
-      auth.signOut();
-      tsic.publishMessage('UI.Cmd.Mod.ClearToken', {});
-      subscribedMap.clear();
-      refreshSubscribeButtons();
-    }
-
-    async function loadTags() {
-      if (!client) return;
-      try {
-        const r = await getGameTags(client);
-        tagGroups = (r.tag_options || []).map(g => ({
-          name: String(g.name || ''),
-          tags: (g.tags || []).map(String),
-        }));
-        renderTagChips();
-      } catch (e) { console.warn('tags failed', e); }
-    }
-    function renderTagChips() {
-      const host = document.getElementById('tag-chips');
-      host.replaceChildren();
-      for (const g of tagGroups) {
-        if (!g.tags.length) continue;
-        const groupWrap = document.createElement('span');
-        groupWrap.style.cssText = 'margin-left:8px; white-space:nowrap;';
-        if (g.name) {
-          const label = document.createElement('span');
-          label.textContent = g.name + ':';
-          label.style.cssText = 'color:rgba(37,33,25,0.55); font-size:11px; margin-right:4px;';
-          groupWrap.appendChild(label);
-        }
-        for (const t of g.tags) {
-          const b = document.createElement('button');
-          b.type = 'button';
-          b.textContent = t;
-          const isActive = activeTags.has(t);
-          b.style.cssText = `padding:2px 8px; margin-left:4px; cursor:pointer;
-            border:1px solid rgba(184,170,145,0.45); font: inherit; color: inherit;
-            background:${isActive ? 'rgba(180,30,30,0.45)' : 'rgba(241,229,207,0.88)'};`;
-          b.onclick = () => {
-            if (activeTags.has(t)) activeTags.delete(t);
-            else activeTags.set(t, g.name);
-            renderTagChips();
-            searchSoon();
-          };
-          groupWrap.appendChild(b);
-        }
-        host.appendChild(groupWrap);
-      }
-    }
-    function buildTagsInQuery() {
-      // mod.io accepts both bare 'tags-in' and group-scoped 'tags-in[Group]'.
-      // We send the bare list (one CSV) since that's what the API spec documents
-      // for the generic filter. Grouping is preserved client-side for UX only.
-      if (!activeTags.size) return undefined;
-      return Array.from(activeTags.keys()).join(',');
-    }
-    async function loadPage(reset) {
-      if (!client) return;
-      if (reset && searchAbort) { searchAbort.abort(); }
-      const myAbort = new AbortController();
-      searchAbort = myAbort;
-      if (reset) {
-        offset = 0;
-        document.getElementById('browse').replaceChildren();
-        lastModItems = [];
-      }
-      try {
-        const q = document.getElementById('search').value.trim();
-        const sort = tsic.dropdown.get(document.getElementById('sort')) || 'popular';
-        const tagsIn = buildTagsInQuery();
-        const r = await listMods(client, { q, sort, tagsIn, limit: PAGE, offset }, myAbort.signal);
-        if (myAbort.signal.aborted) return;
-        const items = r.data || [];
-        renderMods(items, reset);
-        offset += items.length;
-        const more = (offset < (r.result_total || 0));
-        document.getElementById('btn-loadmore').style.display = more ? '' : 'none';
-      } catch (e) {
-        if (e && (e.name === 'AbortError' || myAbort.signal.aborted)) return;
-        showAuthError(e.message);
-      } finally {
-        if (searchAbort === myAbort) searchAbort = null;
-        // Fire the deferred search even when THIS request was the one just aborted — that is
-        // exactly the case searchSoon() schedules. Gating on !myAbort.signal.aborted made the
-        // refetch unreachable (the aborted controller is always our own), silently dropping it.
-        if (pendingSearch) {
-          pendingSearch = false;
-          loadPage(true);
-        }
-      }
-    }
-    function renderMods(items, reset) {
-      const host = document.getElementById('browse');
-      if (reset) host.replaceChildren();
-      const subbed = !!loadToken();
-      for (const m of items) {
-        lastModItems.push(m);
-        host.appendChild(buildCard(m, subbed));
-      }
-    }
-    function buildCard(m, subbed) {
-      const el = document.createElement('div');
-      el.className = 'card';
-      el.dataset.nameId = String(m && m.name_id || '');
-
-      const logo = document.createElement('div');
-      logo.className = 'logo';
-      const logoUrl = safeHttpUrl(m && m.logo && m.logo.thumb_320x180);
-      if (logoUrl) {
-        logo.style.backgroundImage = `url("${logoUrl.replace(/"/g, '%22')}")`;
-        logo.style.backgroundSize = 'cover';
-        logo.style.backgroundPosition = 'center';
-      }
-      el.appendChild(logo);
-
-      const name = document.createElement('div');
-      name.className = 'name';
-      name.textContent = String(m && m.name || '');
-      el.appendChild(name);
-
-      const summary = document.createElement('div');
-      summary.className = 'summary';
-      summary.textContent = String(m && m.summary || '').slice(0, 140);
-      el.appendChild(summary);
-
-      const btn = document.createElement('button');
-      btn.className = 'card-sub';
-      const nameId = String(m && m.name_id || '');
-      const isSub = subscribedMap.has(nameId);
-
-      if (!subbed) {
-        btn.textContent = 'Subscribe';
-        btn.disabled = true;
-        btn.title = 'Sign in to subscribe';
-      } else if (isSub) {
-        btn.textContent = 'Unsubscribe';
-        btn.style.background = 'rgba(180,30,30,0.55)';
-        btn.onclick = () => doUnsubscribe(m);
-      } else {
-        btn.textContent = 'Subscribe';
-        btn.onclick = () => doSubscribe(m);
-      }
-      el.appendChild(btn);
-
-      return el;
-    }
-    function refreshSubscribeButtons() {
-      const host = document.getElementById('browse');
-      if (!host) return;
-      const subbed = !!loadToken();
-      for (const card of host.querySelectorAll('.card')) {
-        const nameId = card.dataset.nameId || '';
-        const btn = card.querySelector('.card-sub');
-        if (!btn) continue;
-        const isSub = subscribedMap.has(nameId);
-
-        if (!subbed) {
-          btn.textContent = 'Subscribe';
-          btn.disabled = true;
-          btn.title = 'Sign in to subscribe';
-          btn.style.background = '';
-          btn.onclick = null;
-        } else if (isSub) {
-          btn.textContent = 'Unsubscribe';
-          btn.disabled = false;
-          btn.title = '';
-          btn.style.background = 'rgba(180,30,30,0.55)';
-          const m = lastModItems.find(mod => String(mod.name_id) === nameId);
-          btn.onclick = m ? () => doUnsubscribe(m) : null;
-        } else {
-          btn.textContent = 'Subscribe';
-          btn.disabled = false;
-          btn.title = '';
-          btn.style.background = '';
-          const m = lastModItems.find(mod => String(mod.name_id) === nameId);
-          btn.onclick = m ? () => doSubscribe(m) : null;
-        }
-      }
-    }
-    function searchSoon() {
-      clearTimeout(searchTimer);
-      searchTimer = setTimeout(() => {
-        if (searchAbort) {
-          // A previous fetch is in flight — schedule a refetch when it completes.
-          pendingSearch = true;
-          searchAbort.abort();
-        } else {
-          loadPage(true);
-        }
-      }, 300);
-    }
-    async function doSubscribe(m) {
-      if (!loadToken()) { showAuthError('Sign in to subscribe.'); return; }
-      showInstallError('');
-      try {
-        await subscribe(client, m.id);
-        tsic.publishMessage('UI.Cmd.Mod.Subscribe', {
-          ModIoId: m.id,
-          NameId: String(m.name_id || ''),
-          DisplayName: String(m.name || ''),
-        });
-        subscribedMap.set(String(m.name_id), { modIoId: m.id, hasUpdate: false, installed: false });
-        refreshSubscribeButtons();
-      } catch (e) { showInstallError(e.message); }
-    }
-    async function doUnsubscribe(m) {
-      if (!loadToken()) { return; }
-      showInstallError('');
-      try {
-        await unsubscribe(client, m.id);
-        tsic.publishMessage('UI.Cmd.Mod.Unsubscribe', {
-          NameId: String(m.name_id || ''),
-        });
-        subscribedMap.delete(String(m.name_id));
-        refreshSubscribeButtons();
-      } catch (e) { showInstallError(e.message); }
-    }
-    function bootBrowse() {
-      if (bootedBrowse) return;
-      bootedBrowse = true;
-      loadTags();
-      loadPage(true);
-      document.getElementById('search').oninput = searchSoon;
-      document.getElementById('sort').addEventListener('tsic-change', () => loadPage(true));
-      document.getElementById('btn-loadmore').onclick = () => loadPage(false);
-    }
-
-    function renderInstalled() {
-      const host = document.getElementById('installed-list');
-      host.replaceChildren();
-      const indexOf = (id) => installedOrder.indexOf(id) >= 0 ? installedOrder.indexOf(id) : 9999;
-      installedMods.sort((a, b) => indexOf(a.ModId) - indexOf(b.ModId));
-
-      let hasAnyUpdate = false;
-
-      for (const m of installedMods) {
-        const row = document.createElement('div');
-        row.className = 'installed-row';
-
-        const cb = document.createElement('input');
-        cb.type = 'checkbox';
-        cb.checked = !!m.bEnabled;
-        cb.disabled = !!m.bLocked;
-        cb.onchange = (e) =>
-          tsic.publishMessage('UI.Cmd.Mod.SetEnabled', { ModId: m.ModId, Enabled: e.target.checked });
-        row.appendChild(cb);
-
-        const nameSpan = document.createElement('span');
-        nameSpan.className = 'name';
-        nameSpan.textContent = String(m.DisplayName || '');
-        if (m.Version) {
-          const v = document.createElement('span');
-          v.style.cssText = 'color:rgba(37,33,25,0.5); font-size:11px; margin-left:4px;';
-          v.textContent = String(m.Version);
-          nameSpan.appendChild(v);
-        }
-        row.appendChild(nameSpan);
-
-        const subInfo = subscribedMap.get(m.ModId);
-        if (subInfo && subInfo.hasUpdate) {
-          hasAnyUpdate = true;
-          const updateBtn = document.createElement('button');
-          updateBtn.type = 'button';
-          updateBtn.textContent = 'Update';
-          updateBtn.style.cssText = 'background:rgba(30,120,180,0.45); border:1px solid rgba(255,255,255,0.35); color:var(--ink-night); padding:2px 8px; cursor:pointer; font:inherit; margin-right:4px;';
-          updateBtn.onclick = () =>
-            tsic.publishMessage('UI.Cmd.Mod.CheckUpdates', { NameId: m.ModId });
-          row.appendChild(updateBtn);
-        }
-
-        const up = document.createElement('button');
-        up.type = 'button';
-        up.textContent = '↑';
-        up.disabled = !!m.bLocked;
-        up.onclick = () => moveInstalled(m.ModId, -1);
-        row.appendChild(up);
-
-        const down = document.createElement('button');
-        down.type = 'button';
-        down.textContent = '↓';
-        down.disabled = !!m.bLocked;
-        down.onclick = () => moveInstalled(m.ModId, +1);
-        row.appendChild(down);
-
-        const uninstallBtn = document.createElement('button');
-        uninstallBtn.type = 'button';
-        uninstallBtn.textContent = 'Uninstall';
-        uninstallBtn.disabled = !!m.bLocked;
-        uninstallBtn.style.cssText = 'background:rgba(180,30,30,0.45); border:1px solid rgba(255,255,255,0.35); color:var(--ink-night); padding:2px 8px; cursor:pointer; font:inherit; margin-left:4px;';
-        uninstallBtn.onclick = () =>
-          tsic.publishMessage('UI.Cmd.Mod.Uninstall', { NameId: m.ModId });
-        row.appendChild(uninstallBtn);
-
-        host.appendChild(row);
-      }
-
-      let updateAllBtn = document.getElementById('btn-update-all');
-      if (hasAnyUpdate) {
-        if (!updateAllBtn) {
-          updateAllBtn = document.createElement('button');
-          updateAllBtn.id = 'btn-update-all';
-          updateAllBtn.type = 'button';
-          updateAllBtn.textContent = 'Update All';
-          updateAllBtn.style.cssText = 'background:rgba(30,120,180,0.45); border:1px solid rgba(255,255,255,0.35); color:var(--ink-night); padding:4px 12px; cursor:pointer; font:inherit; margin-bottom:8px;';
-          updateAllBtn.onclick = () =>
-            tsic.publishMessage('UI.Cmd.Mod.CheckUpdates', {});
-          const panel = document.getElementById('panel-installed');
-          panel.insertBefore(updateAllBtn, host);
-        }
-        updateAllBtn.style.display = '';
-      } else if (updateAllBtn) {
-        updateAllBtn.style.display = 'none';
-      }
-
-      if (!installedMods.length) {
-        const empty = document.createElement('div');
-        empty.style.color = 'rgba(37,33,25,0.6)';
-        empty.textContent = 'No mods installed yet.';
-        host.appendChild(empty);
-      }
-    }
-    function mergeNewModsIntoOrder() {
-      // Any installed mod missing from order goes to the end so the published
-      // Order is complete and SetOrder doesn't drop its slot.
-      const known = new Set(installedOrder);
-      for (const m of installedMods) {
-        if (m && m.ModId && !known.has(m.ModId)) {
-          installedOrder.push(m.ModId);
-          known.add(m.ModId);
-        }
-      }
-    }
-    function moveInstalled(modId, delta) {
-      mergeNewModsIntoOrder();
-      const i = installedOrder.indexOf(modId);
-      if (i < 0) installedOrder.unshift(modId);
-      const baseIndex = installedOrder.indexOf(modId);
-      const j = Math.max(0, Math.min(installedOrder.length - 1, baseIndex + delta));
-      if (baseIndex === j) return;
-      installedOrder.splice(baseIndex, 1);
-      installedOrder.splice(j, 0, modId);
-      tsic.publishMessage('UI.Cmd.Mod.SetLoadOrder', { Order: installedOrder.slice() });
-    }
-
-    function teardown() {
-      clearTimeout(searchTimer);
-      searchTimer = null;
-      if (searchAbort) { try { searchAbort.abort(); } catch (_) {} searchAbort = null; }
-      pendingSearch = false;
-    }
-    window.addEventListener('pagehide', teardown);
-    window.addEventListener('beforeunload', teardown);
-
-    (function boot() {
-    if (!window.tsic || typeof tsic.whenReady !== 'function') { setTimeout(boot, 16); return; }
-    tsic.whenReady(function () {
-      tsic.on('tsic.msg.UI.Mod.IoConfig', (p) => {
-        // Treat missing GameId OR missing ApiKey as "mod.io not configured".
-        if (!p || !p.GameId || !p.ApiKey) { show('disabled'); return; }
-        cfg = { gameId: Number(p.GameId), apiKey: p.ApiKey, env: p.Env,
-                baseUrl: makeBaseUrl(Number(p.GameId), p.Env) };
-        client = createClient(cfg, () => loadToken());
-        bootAuth();
-        bootBrowse();
-      });
-      tsic.on('tsic.msg.UI.Mod.InstalledList', (p) => {
-        installedMods = (p && p.Mods) || [];
-        renderInstalled();
-      });
-      tsic.on('tsic.msg.UI.Mod.LoadOrder', (p) => {
-        installedOrder = (p && p.Order) ? p.Order.slice() : [];
-        renderInstalled();
-      });
-      tsic.on('tsic.msg.UI.Mod.InstallFailed', (p) => {
-        if (p && p.Reason) showInstallError(`Install failed (${p.ModId}): ${p.Reason}`);
-      });
-      tsic.on('tsic.msg.UI.Mod.Subscriptions', (p) => {
-        subscribedMap.clear();
-        const subs = (p && p.Subs) || [];
-        for (const s of subs) {
-          subscribedMap.set(s.NameId, {
-            modIoId: s.ModIoId,
-            hasUpdate: !!s.bHasUpdate,
-            installed: !!s.bInstalled,
-          });
-        }
-        refreshSubscribeButtons();
-        renderInstalled();
-      });
-      tsic.on('tsic.msg.UI.Mod.UpdateProgress', (p) => {
-        if (!p) return;
-        if (p.State === 'done' || p.State === 'failed') {
-          renderInstalled();
-        }
-        if (p.State === 'failed' && p.Error) {
-          showInstallError(`Update failed (${p.NameId}): ${p.Error}`);
-        }
-      });
-      document.getElementById('btn-back').onclick = () =>
-        tsic.publishMessage('UI.Cmd.Menu.Navigate', { Screen: 'MainMenu' });
-
-      // --- Modding tool tabs -----------------------------------------------
-      // The editor tabs are external static web apps (GitHub Pages). They are
-      // opened as a full-screen top-level navigation so the Definition Editor's
-      // File System Access API works (it is blocked inside cross-origin iframes).
-      // Each tool shows its own "Back to game" button (it is launched with
-      // ?host=tsic) that navigates back to this screen via http://tsic.local/.
-      const TOOL_URLS = {
-        defeditor: 'https://chico-games.github.io/TSIC-Mod-Maker/?host=tsic',
-        mapeditor: 'https://chico-games.github.io/TSICLevelEditor/?host=tsic',
-      };
-      function launchTool(url) {
-        const msg = document.getElementById('tab-launch-msg');
-        if (!navigator.onLine) {
-          msg.textContent = 'These modding tools require an internet connection.';
-          msg.style.display = '';
-          return;
-        }
-        msg.style.display = 'none';
-        window.location.href = url;
-      }
-      if (window.TSIC && TSIC.TabFilter) {
-        const toolTabs = TSIC.TabFilter.create(
-          document.getElementById('mods-tabs'),
-          [
-            { id: 'browse',    label: 'Browse & Install' },
-            { id: 'defeditor', label: 'Definition Editor' },
-            { id: 'mapeditor', label: 'Map Editor' },
-          ],
-          function (active) {
-            if (active === 'browse') return;
-            launchTool(TOOL_URLS[active]);
-            // Revert highlight so returning to this screen lands on Browse and
-            // the offline message (if shown) sits under the Browse tab.
-            toolTabs.setActive('browse');
-          }
-        );
-      }
-    });
-    })();
-  </script>
 </body></html>
