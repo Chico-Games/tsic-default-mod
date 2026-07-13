@@ -31,6 +31,11 @@
   var players = [];
   var animating = false;
   var lastTime = 0;
+  // Test/debug hook: the Gauntlet DOM-assert seam reads the caught-up idle
+  // state (no-redraw-at-rest contract) through here. Not a public API.
+  window.__tsicMinimap = {
+    get animating() { return animating; }
+  };
 
   function worldToLocal(wx, wy) {
     return {

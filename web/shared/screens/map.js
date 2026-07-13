@@ -219,6 +219,15 @@
       // Default open/reset zoom relative to the fit-whole-map scale (1 = fit whole map).
       const DEFAULT_ZOOM_MULT = 3;
       const state = { panX: 0, panY: 0, scale: 1, isPad: false, mouseX: -1, mouseY: -1 };
+      // Test/debug hook: the Gauntlet DOM-assert seam reads closure state
+      // (zoom clamps, pad mode, icon sizing) through here. Not a public API.
+      window.__tsicMap = {
+        state,
+        get minScale() { return MIN_SCALE; },
+        maxScale: MAX_SCALE,
+        iconPx: ICON_PX,
+        defaultZoomMult: DEFAULT_ZOOM_MULT,
+      };
       let latestSnapshot = null;
       let latestPings = null;
       let tileGrid = null;
