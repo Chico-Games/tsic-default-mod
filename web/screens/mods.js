@@ -429,13 +429,16 @@ function buildRow(m, opts) {
     row.appendChild(down);
   }
 
-  const uninstallBtn = document.createElement('button');
-  uninstallBtn.type = 'button';
-  uninstallBtn.className = 'btn-uninstall';
-  uninstallBtn.textContent = 'Uninstall';
-  uninstallBtn.disabled = !!m.bLocked;
-  uninstallBtn.onclick = () => doUninstall(m);
-  row.appendChild(uninstallBtn);
+  // Shipped mods (base game + bundled mods) can only be deactivated —
+  // there is nothing to uninstall.
+  if (!m.bShipped && !m.bLocked) {
+    const uninstallBtn = document.createElement('button');
+    uninstallBtn.type = 'button';
+    uninstallBtn.className = 'btn-uninstall';
+    uninstallBtn.textContent = 'Uninstall';
+    uninstallBtn.onclick = () => doUninstall(m);
+    row.appendChild(uninstallBtn);
+  }
 
   if (!opts.active) {
     // → onto the shop floor

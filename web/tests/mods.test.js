@@ -3,11 +3,12 @@
 
 function modsFixture(ctx) {
     ctx.inject('tsic.msg.UI.Mod.InstalledList', { Mods: [
-        { ModId: 'com.chicogames.default', DisplayName: 'Base Game', Version: '1.0', bEnabled: true,  bLocked: true },
-        { ModId: 'mod.a', DisplayName: 'Alpha Mod', Version: '1.0', bEnabled: true,  bLocked: false },
-        { ModId: 'mod.b', DisplayName: 'Beta Mod',  Version: '2.0', bEnabled: false, bLocked: false },
+        { ModId: 'com.chicogames.default', DisplayName: 'Base Game', Version: '1.0', bEnabled: true,  bLocked: true,  bShipped: true },
+        { ModId: 'mod.a', DisplayName: 'Alpha Mod',   Version: '1.0', bEnabled: true,  bLocked: false, bShipped: false },
+        { ModId: 'mod.b', DisplayName: 'Beta Mod',    Version: '2.0', bEnabled: false, bLocked: false, bShipped: false },
+        { ModId: 'mod.s', DisplayName: 'Shipped Mod', Version: '1.0', bEnabled: false, bLocked: false, bShipped: true },
     ] });
-    ctx.inject('tsic.msg.UI.Mod.LoadOrder', { Order: ['com.chicogames.default', 'mod.a', 'mod.b'] });
+    ctx.inject('tsic.msg.UI.Mod.LoadOrder', { Order: ['com.chicogames.default', 'mod.a', 'mod.b', 'mod.s'] });
 }
 function rowIds(ctx, listId) {
     return Array.from(ctx.doc.querySelectorAll('#' + listId + ' .lib-row'))
@@ -22,9 +23,9 @@ TSICTestHarness.register({
         modsFixture(ctx);
         await ctx.waitFor(() => ctx.doc.querySelector('#list-active .lib-row'));
         ctx.expect(ctx.assert.eq(rowIds(ctx, 'list-active').join(','), 'com.chicogames.default,mod.a'));
-        ctx.expect(ctx.assert.eq(rowIds(ctx, 'list-inactive').join(','), 'mod.b'));
+        ctx.expect(ctx.assert.eq(rowIds(ctx, 'list-inactive').join(','), 'mod.b,mod.s'));
         ctx.expect(ctx.assert.eq(ctx.doc.getElementById('count-active').textContent, '2'));
-        ctx.expect(ctx.assert.eq(ctx.doc.getElementById('count-inactive').textContent, '1'));
+        ctx.expect(ctx.assert.eq(ctx.doc.getElementById('count-inactive').textContent, '2'));
     },
 });
 
@@ -71,7 +72,7 @@ TSICTestHarness.register({
         upBtn.click();
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Mod.SetLoadOrder',
             { where: p => Array.isArray(p.Order)
-                && p.Order.join(',') === 'mod.a,com.chicogames.default,mod.b' }));
+                && p.Order.join(',') === 'mod.a,com.chicogames.default,mod.b,mod.s' }));
         ctx.expect(ctx.assert.eq(rowIds(ctx, 'list-active').join(','), 'mod.a,com.chicogames.default'));
     },
 });
@@ -86,10 +87,25 @@ TSICTestHarness.register({
         const locked = ctx.doc.querySelector('#list-active .lib-row[data-mod-id="com.chicogames.default"]');
         ctx.expect(ctx.assert.truthy(!locked.querySelector('.btn-move')));
         ctx.expect(ctx.assert.truthy(locked.querySelector('.lock')));
-        ctx.expect(ctx.assert.truthy(locked.querySelector('.btn-uninstall').disabled));
+        ctx.expect(ctx.assert.truthy(!locked.querySelector('.btn-uninstall')));
         for (const step of locked.querySelectorAll('.btn-step')) {
             ctx.expect(ctx.assert.truthy(step.disabled));
         }
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Mods: shipped mod offers activate/deactivate but no uninstall',
+    file: '/screens/mods.html',
+    async run(ctx) {
+        await ctx.waitFor(() => ctx.doc.getElementById('list-inactive'));
+        modsFixture(ctx);
+        await ctx.waitFor(() => ctx.doc.querySelector('#list-inactive .lib-row[data-mod-id="mod.s"]'));
+        const shipped = ctx.doc.querySelector('#list-inactive .lib-row[data-mod-id="mod.s"]');
+        ctx.expect(ctx.assert.truthy(shipped.querySelector('.btn-move--right')));
+        ctx.expect(ctx.assert.truthy(!shipped.querySelector('.btn-uninstall')));
+        const normal = ctx.doc.querySelector('#list-inactive .lib-row[data-mod-id="mod.b"]');
+        ctx.expect(ctx.assert.truthy(normal.querySelector('.btn-uninstall')));
     },
 });
 
@@ -118,6 +134,54 @@ TSICTestHarness.register({
         await ctx.waitFor(() => (ctx.doc.getElementById('install-error').textContent || '').includes('Disk full'));
         ctx.expect(ctx.assert.truthy(
             ctx.doc.getElementById('install-error').textContent.includes('mod.x')));
+    },
+});
+
+// ---- typing guard (tsic-focus.js isTypingContext) -------------------------
+
+TSICTestHarness.register({
+    name: 'Mods: typing in a text input blocks tab-switch and nav shortcuts',
+    file: '/screens/mods.html',
+    async run(ctx) {
+        await ctx.waitFor(() => ctx.doc.getElementById('search') && ctx.win.tsic && ctx.win.tsic.focus);
+        modsFixture(ctx);
+        const activeTabLabel = () => {
+            const t = ctx.doc.querySelector('#mods-tabs .active, #mods-tabs [aria-selected="true"]');
+            return t ? t.textContent.trim() : '';
+        };
+        const startTab = activeTabLabel();
+
+        const search = ctx.doc.getElementById('search');
+        search.focus();
+        ctx.expect(ctx.assert.truthy(ctx.win.tsic.focus.isTypingContext()));
+
+        ctx.inject('tsic.msg.UI.Behavior.NextTab', { Phase: 'Started' });
+        ctx.inject('tsic.msg.UI.Behavior.PrevTab', { Phase: 'Started' });
+        ctx.expect(ctx.assert.eq(activeTabLabel(), startTab));
+
+        ctx.inject('tsic.msg.UI.Behavior.NavDown', { Phase: 'Started' });
+        ctx.expect(ctx.assert.eq(ctx.doc.activeElement, search));
+
+        // Blurring the input releases the guard.
+        search.blur();
+        ctx.expect(ctx.assert.truthy(!ctx.win.tsic.focus.isTypingContext()));
+        ctx.inject('tsic.msg.UI.Behavior.NavDown', { Phase: 'Started' });
+        ctx.expect(ctx.assert.truthy(ctx.doc.documentElement.hasAttribute('data-tsic-kbnav')));
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Mods: gamepad nav is exempt from the typing guard (can step off an input)',
+    file: '/screens/mods.html',
+    async run(ctx) {
+        await ctx.waitFor(() => ctx.doc.getElementById('search') && ctx.win.tsic && ctx.win.tsic.focus);
+        modsFixture(ctx);
+        ctx.mode('Gamepad');
+        const search = ctx.doc.getElementById('search');
+        search.focus();
+        ctx.expect(ctx.assert.truthy(!ctx.win.tsic.focus.isTypingContext()));
+        ctx.inject('tsic.msg.UI.Behavior.NavDown', { Phase: 'Started' });
+        ctx.expect(ctx.assert.truthy(ctx.doc.activeElement !== search));
     },
 });
 

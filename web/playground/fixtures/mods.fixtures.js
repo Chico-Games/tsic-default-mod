@@ -1,6 +1,6 @@
 // /screens/mods.html subscribes to:
 //   tsic.msg.UI.Mod.IoConfig        { GameId, ApiKey, Env }
-//   tsic.msg.UI.Mod.InstalledList   { Mods:[{ModId, DisplayName, Version, bEnabled, bLocked}] }
+//   tsic.msg.UI.Mod.InstalledList   { Mods:[{ModId, DisplayName, Version, bEnabled, bLocked, bShipped}] }
 //   tsic.msg.UI.Mod.LoadOrder       { Order:[modId, ...] }
 //   tsic.msg.UI.Mod.InstallFailed   { ModId, Reason }
 //   tsic.msg.UI.Mod.Subscriptions   { Subs:[{NameId, ModIoId, DisplayName, bHasUpdate, bInstalled}] }
@@ -12,10 +12,10 @@ TSICPlayground.register({
     initialState() { return {
         ioConfig: { GameId: 1234, ApiKey: 'fake-key', Env: 'test' },
         installed: [
-            { ModId: 'com.chicogames.default',  DisplayName: 'TSIC Base Game', Version: '1.0', bEnabled: true,  bLocked: true },
-            { ModId: 'mod.example.bigger-loot', DisplayName: 'Bigger Loot',    Version: '1.0', bEnabled: true,  bLocked: false },
-            { ModId: 'mod.foo.shop-overhaul',   DisplayName: 'Shop Overhaul',  Version: '0.3', bEnabled: false, bLocked: false },
-            { ModId: 'mod.bar.cheats',          DisplayName: 'Cheats Plus',    Version: '2.1', bEnabled: false, bLocked: false },
+            { ModId: 'com.chicogames.default',  DisplayName: 'TSIC Base Game', Version: '1.0', bEnabled: true,  bLocked: true,  bShipped: true },
+            { ModId: 'mod.example.bigger-loot', DisplayName: 'Bigger Loot',    Version: '1.0', bEnabled: true,  bLocked: false, bShipped: false },
+            { ModId: 'mod.foo.shop-overhaul',   DisplayName: 'Shop Overhaul',  Version: '0.3', bEnabled: false, bLocked: false, bShipped: true },
+            { ModId: 'mod.bar.cheats',          DisplayName: 'Cheats Plus',    Version: '2.1', bEnabled: false, bLocked: false, bShipped: false },
         ],
         order: ['com.chicogames.default', 'mod.example.bigger-loot', 'mod.foo.shop-overhaul', 'mod.bar.cheats'],
         subs: [],

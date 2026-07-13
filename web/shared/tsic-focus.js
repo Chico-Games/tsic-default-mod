@@ -26,6 +26,7 @@
 //   pushScope(rootEl, initialEl)   // modal scope; subsequent step() restricted to root
 //   popScope()                     // restores caller focus
 //   resetMemory()                  // clear per-screen focus memory (for tests)
+//   isTypingContext()              // true while a text-entry element owns focus (KBM only)
 //   snapshot()                     // debug — { mode, enabled, scope, focusable: [...] }
 //   __focusableSet()               // (test-only) returns current focusable list
 //   __stableSelector(el)           // (test-only) structural selector
@@ -78,6 +79,21 @@
         // on keyboard only once the player has started navigating by keys.
         function navDriving() {
             return State.mode === 'Gamepad' || State.kbnav;
+        }
+
+        // While a text-entry element owns DOM focus, printable keys are
+        // content, not commands — nav/tab/page behaviors must not fire (Q in
+        // a search box types "q", it doesn't switch tabs). Gamepad-only for
+        // the exemption: a gamepad can't type, and d-pad nav must still be
+        // able to step off a focused input.
+        function isTypingContext() {
+            if (State.mode === 'Gamepad') return false;
+            const a = document.activeElement;
+            if (!a) return false;
+            if (a.isContentEditable) return true;
+            if (a.tagName === 'TEXTAREA') return true;
+            if (a.tagName !== 'INPUT') return false;
+            return !/^(button|submit|reset|checkbox|radio|range|color|file|image|hidden)$/i.test(a.type || 'text');
         }
 
         function isFocusable(el) {
@@ -249,6 +265,7 @@
             disable() { State.enabled = false; },
             isEnabled() { return State.enabled; },
             getMode() { return State.mode; },
+            isTypingContext() { return isTypingContext(); },
 
             refresh() {
                 // No cached state — focusable list is read fresh on every step.
@@ -508,10 +525,11 @@
         });
 
         // Discrete directional nav: arrow keys (KBM) and D-pad (gamepad), one step per press.
-        t.on('tsic.msg.UI.Behavior.NavUp',    (p) => { if (p && p.Phase === 'Started') navStep('up'); });
-        t.on('tsic.msg.UI.Behavior.NavDown',  (p) => { if (p && p.Phase === 'Started') navStep('down'); });
-        t.on('tsic.msg.UI.Behavior.NavLeft',  (p) => { if (p && p.Phase === 'Started') navStep('left'); });
-        t.on('tsic.msg.UI.Behavior.NavRight', (p) => { if (p && p.Phase === 'Started') navStep('right'); });
+        // Typing guard: arrows move the caret inside a focused text field.
+        t.on('tsic.msg.UI.Behavior.NavUp',    (p) => { if (p && p.Phase === 'Started' && !isTypingContext()) navStep('up'); });
+        t.on('tsic.msg.UI.Behavior.NavDown',  (p) => { if (p && p.Phase === 'Started' && !isTypingContext()) navStep('down'); });
+        t.on('tsic.msg.UI.Behavior.NavLeft',  (p) => { if (p && p.Phase === 'Started' && !isTypingContext()) navStep('left'); });
+        t.on('tsic.msg.UI.Behavior.NavRight', (p) => { if (p && p.Phase === 'Started' && !isTypingContext()) navStep('right'); });
 
         t.on('tsic.msg.UI.Behavior.Accept', (payload) => {
             if (!State.enabled || !navDriving()) return;
@@ -612,11 +630,11 @@
             return true;
         }
         t.on('tsic.msg.UI.Behavior.NextTab', (payload) => {
-            if (!payload || payload.Phase !== 'Started') return;
+            if (!payload || payload.Phase !== 'Started' || isTypingContext()) return;
             cycleTab(+1);
         });
         t.on('tsic.msg.UI.Behavior.PrevTab', (payload) => {
-            if (!payload || payload.Phase !== 'Started') return;
+            if (!payload || payload.Phase !== 'Started' || isTypingContext()) return;
             cycleTab(-1);
         });
 
@@ -640,11 +658,11 @@
             target.scrollBy({ top: step, left: 0, behavior: 'auto' });
         }
         t.on('tsic.msg.UI.Behavior.NextPage', (payload) => {
-            if (!payload || payload.Phase !== 'Started') return;
+            if (!payload || payload.Phase !== 'Started' || isTypingContext()) return;
             pageStep(+1);
         });
         t.on('tsic.msg.UI.Behavior.PrevPage', (payload) => {
-            if (!payload || payload.Phase !== 'Started') return;
+            if (!payload || payload.Phase !== 'Started' || isTypingContext()) return;
             pageStep(-1);
         });
 
