@@ -153,8 +153,23 @@
     if (fow) fow.src = TSIC.runtimeImgUrl('fow') + '?t=' + Date.now();
   });
 
+  // The world-map image source registers only after async map-texture
+  // generation completes — a fast HUD boot can fetch world-map.imgsrc before
+  // it exists, and a failed <img> never retries on its own, leaving the
+  // minimap black until the HUD DOM is rebuilt (e.g. after opening the map
+  // screen). Re-fetch on the snapshot tick until pixels actually arrive.
+  var texRetryAt = 0;
+  function ensureTexLoaded() {
+    if (!tex.complete || tex.naturalWidth > 0) return;
+    var now = Date.now();
+    if (now < texRetryAt) return;
+    texRetryAt = now + 2000;
+    tex.src = TSIC.runtimeImgUrl('world-map') + '?t=' + now;
+  }
+
   tsic.on('tsic.msg.UI.Map.Snapshot', function (p) {
     if (!p) return;
+    ensureTexLoaded();
     updateBounds(p.MinBounds, p.MaxBounds);
     players = p.Players || [];
     if (players.length > 0) {
