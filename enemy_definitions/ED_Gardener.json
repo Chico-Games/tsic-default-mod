@@ -15,6 +15,14 @@
       }
     ],
     "weighted_chance": 1000,
-    "world_gen_priority": 1000
+    "world_gen_priority": 1000,
+    "ai_stack": "v2",
+    "brain_config": "BCD_Gardener",
+    "behavior": "BHV_Gardener",
+    "sense_profile": "SNS_Gardener",
+    "wounded_tag": {
+      "tag": "State.Wounded",
+      "below": 0.5
+    }
   }
 }

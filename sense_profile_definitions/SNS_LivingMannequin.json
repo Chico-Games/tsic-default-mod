@@ -1,0 +1,16 @@
+{
+  "id": "SNS_LivingMannequin",
+  "class": "ScpSenseProfileDefinition",
+  "properties": {
+    "extends": "SNS_BaseStaff",
+    "sight": {
+      "primary_range": 3500,
+      "acquire_rate": 1.2,
+      "lose_rate": 0.15
+    },
+    "awareness_stages": {
+      "suspicious": 0.25,
+      "alert": 0.6
+    }
+  }
+}

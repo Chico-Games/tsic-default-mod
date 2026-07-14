@@ -1,0 +1,29 @@
+{
+  "id": "BCD_BoneHead",
+  "class": "ScpBrainConfigDefinition",
+  "properties": {
+    "extends": "BCD_BaseHostile",
+    "attacks": [
+      {
+        "ability": "AI.BoneHead.Attack.Melee",
+        "weight": 1.0,
+        "min_range": 0,
+        "max_range": 220
+      },
+      {
+        "ability": "AI.BoneHead.Attack.Charge",
+        "weight": 0.5,
+        "min_range": 600,
+        "max_range": 2500,
+        "requires_los": true
+      },
+      {
+        "ability": "AI.BoneHead.Attack.Throw",
+        "weight": 0.3,
+        "min_range": 800,
+        "max_range": 2000,
+        "requires_los": true
+      }
+    ]
+  }
+}

@@ -1,0 +1,156 @@
+{
+  "id": "BHV_TVHead",
+  "class": "ScpBehaviorDefinition",
+  "properties": {
+    "roots": [
+      {
+        "name": "Patrol",
+        "intent": "AI.Behavior.Patrol",
+        "states": [
+          {
+            "name": "Wander",
+            "initial": true,
+            "actions": [
+              {
+                "do": "wander",
+                "ring_min": 800,
+                "ring_max": 2500,
+                "speed_profile": "walk"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Investigate",
+        "intent": "AI.Behavior.Investigate",
+        "actions": [
+          {
+            "do": "run_skill",
+            "skill": "SKL_Investigate",
+            "params": {
+              "Spot": "$Brain.PointOfInterest"
+            }
+          }
+        ]
+      },
+      {
+        "name": "Chase",
+        "intent": "AI.Behavior.Chase",
+        "states": [
+          {
+            "name": "Pursue",
+            "initial": true,
+            "actions": [
+              {
+                "do": "move_to",
+                "target": "$Brain.PrimaryTarget",
+                "acceptance": 250,
+                "speed_profile": "sprint",
+                "repath_if_moved": 150
+              }
+            ],
+            "transitions": [
+              {
+                "on": "event",
+                "event": "AI.Event.PathBlocked",
+                "to": "ClearPath",
+                "conditions": [
+                  {
+                    "if": "can_break_furniture",
+                    "entity": "$Path.BlockingEntity"
+                  }
+                ]
+              },
+              {
+                "on": "actions_succeeded",
+                "to": "Pursue"
+              },
+              {
+                "on": "action_failed",
+                "to": "Pursue"
+              }
+            ]
+          },
+          {
+            "name": "ClearPath",
+            "actions": [
+              {
+                "do": "run_skill",
+                "skill": "SKL_DestroyEntity",
+                "params": {
+                  "Entity": "$Path.BlockingEntity",
+                  "Ability": "AI.TVHead.Attack.Melee"
+                }
+              }
+            ],
+            "transitions": [
+              {
+                "on": "actions_succeeded",
+                "to": "Pursue"
+              },
+              {
+                "on": "action_failed",
+                "to": "Pursue"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Combat",
+        "intent": "AI.Behavior.Combat",
+        "actions": [
+          {
+            "do": "run_skill",
+            "skill": "SKL_Engage",
+            "params": {
+              "Target": "$Brain.PrimaryTarget",
+              "Attack": "$Brain.AttackTag"
+            }
+          }
+        ]
+      },
+      {
+        "name": "Search",
+        "intent": "AI.Behavior.Search",
+        "actions": [
+          {
+            "do": "run_skill",
+            "skill": "SKL_Investigate",
+            "params": {
+              "Spot": "$Brain.PointOfInterest"
+            }
+          }
+        ]
+      },
+      {
+        "name": "AttackNuisance",
+        "intent": "AI.Behavior.AttackNuisance",
+        "actions": [
+          {
+            "do": "run_skill",
+            "skill": "SKL_DestroyEntity",
+            "params": {
+              "Entity": "$Brain.NuisanceTarget",
+              "Ability": "AI.TVHead.Attack.Melee"
+            }
+          }
+        ]
+      },
+      {
+        "name": "Flee",
+        "intent": "AI.Behavior.Flee",
+        "actions": [
+          {
+            "do": "run_skill",
+            "skill": "SKL_FleeToSafety",
+            "params": {
+              "Threat": "$Brain.PrimaryTarget"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

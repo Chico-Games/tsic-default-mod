@@ -1,0 +1,238 @@
+{
+  "id": "BCD_LivingMannequin",
+  "class": "ScpBrainConfigDefinition",
+  "properties": {
+    "extends": "BCD_BaseHostile",
+    "attacks": [
+      {
+        "ability": "AI.LivingMannequin.Attack.Regular",
+        "weight": 1.0,
+        "min_range": 0,
+        "max_range": 220
+      },
+      {
+        "ability": "AI.LivingMannequin.Attack.PowerSwing.Forward",
+        "weight": 0.4,
+        "min_range": 0,
+        "max_range": 250
+      },
+      {
+        "ability": "AI.LivingMannequin.Attack.Grab",
+        "weight": 0.3,
+        "min_range": 0,
+        "max_range": 180
+      }
+    ],
+    "intents": [
+      {
+        "intent": "AI.Behavior.Patrol",
+        "base": 0.2
+      },
+      {
+        "intent": "AI.Behavior.Investigate",
+        "base": 0.0,
+        "considerations": [
+          {
+            "input": "noise_interest",
+            "curve": {
+              "preset": "linear"
+            }
+          },
+          {
+            "input": "awareness",
+            "curve": {
+              "preset": "linear",
+              "invert": true,
+              "y_min": 0.3,
+              "y_max": 1.0
+            },
+            "in_min": 0.0,
+            "in_max": 0.75
+          }
+        ]
+      },
+      {
+        "intent": "AI.Behavior.Chase",
+        "base": 0.0,
+        "hysteresis": 0.1,
+        "considerations": [
+          {
+            "input": "awareness",
+            "curve": {
+              "preset": "step",
+              "threshold": 0.75
+            }
+          },
+          {
+            "input": "target_distance",
+            "curve": {
+              "preset": "linear",
+              "y_min": 0.5,
+              "y_max": 1.0
+            },
+            "in_min": 250,
+            "in_max": 4000
+          },
+          {
+            "input": "night_factor",
+            "curve": {
+              "preset": "linear",
+              "y_min": 0.6,
+              "y_max": 1.0
+            }
+          }
+        ]
+      },
+      {
+        "intent": "AI.Behavior.Combat",
+        "base": 0.0,
+        "hysteresis": 0.15,
+        "considerations": [
+          {
+            "input": "awareness",
+            "curve": {
+              "preset": "step",
+              "threshold": 0.75
+            }
+          },
+          {
+            "input": "target_distance",
+            "curve": {
+              "preset": "linear",
+              "invert": true
+            },
+            "in_min": 0,
+            "in_max": 300
+          }
+        ]
+      },
+      {
+        "intent": "AI.Behavior.Search",
+        "base": 0.0,
+        "considerations": [
+          {
+            "input": "target_visibility",
+            "curve": {
+              "preset": "step",
+              "invert": true,
+              "threshold": 0.5
+            }
+          },
+          {
+            "input": "awareness",
+            "curve": {
+              "preset": "linear"
+            },
+            "in_min": 0.2,
+            "in_max": 0.75
+          },
+          {
+            "id": "memory_window",
+            "input": "time_since_seen",
+            "curve": {
+              "preset": "linear",
+              "invert": true
+            },
+            "in_min": 0,
+            "in_max": 20
+          }
+        ]
+      },
+      {
+        "intent": "AI.Behavior.AttackNuisance",
+        "base": 0.0,
+        "considerations": [
+          {
+            "input": "nuisance_interest",
+            "curve": {
+              "preset": "linear"
+            },
+            "in_min": 0,
+            "in_max": 30
+          },
+          {
+            "input": "awareness",
+            "curve": {
+              "preset": "linear",
+              "invert": true
+            },
+            "in_max": 0.75
+          },
+          {
+            "input": "health_pct",
+            "curve": {
+              "preset": "step",
+              "threshold": 0.4
+            }
+          }
+        ]
+      },
+      {
+        "intent": "AI.Behavior.Freeze",
+        "base": 0.0,
+        "considerations": [
+          {
+            "input": "being_observed",
+            "curve": {
+              "preset": "step",
+              "threshold": 0.5,
+              "y_max": 1.5
+            }
+          }
+        ]
+      }
+    ],
+    "movement_profiles": [
+      {
+        "name": "walk",
+        "max_speed": 250,
+        "accel": 1000,
+        "rotation_rate": 220,
+        "nav_filter": "StoreStaff"
+      },
+      {
+        "name": "hurry",
+        "max_speed": 450,
+        "accel": 1600,
+        "rotation_rate": 320,
+        "nav_filter": "StoreStaff"
+      },
+      {
+        "name": "sprint",
+        "max_speed": 700,
+        "accel": 2600,
+        "rotation_rate": 420,
+        "nav_filter": "StoreStaff"
+      }
+    ],
+    "modifiers": [
+      {
+        "when": {
+          "day_section": "Gameplay.DaySection.Night"
+        },
+        "ops": [
+          {
+            "path": "intents.AI.Behavior.Chase.base",
+            "op": "add",
+            "value": 0.05
+          },
+          {
+            "path": "intents.AI.Behavior.Chase.hysteresis",
+            "op": "add",
+            "value": 0.1
+          },
+          {
+            "path": "intents.AI.Behavior.Search.considerations.memory_window.in_max",
+            "op": "set",
+            "value": 120
+          },
+          {
+            "path": "attack_failure_cooldown",
+            "op": "set",
+            "value": 1.0
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "id": "SKL_DestroyEntity",
+  "class": "ScpSkillDefinition",
+  "properties": {
+    "inputs": { "Entity": "actor", "Ability": "tag" },
+    "states": [
+      {
+        "name": "Approach",
+        "initial": true,
+        "actions": [
+          { "do": "move_to", "target": "$In.Entity", "acceptance": 180, "speed_profile": "hurry" }
+        ],
+        "transitions": [
+          {
+            "on": "tick",
+            "conditions": [ { "if": "is_valid", "ref": "$In.Entity", "negate": true } ],
+            "result": "succeeded"
+          },
+          { "on": "actions_succeeded", "to": "Smash" },
+          { "on": "action_failed", "result": "failed" }
+        ]
+      },
+      {
+        "name": "Smash",
+        "actions": [
+          { "do": "face", "target": "$In.Entity" },
+          { "do": "activate_ability", "ability": "$In.Ability" }
+        ],
+        "transitions": [
+          {
+            "on": "tick",
+            "conditions": [ { "if": "is_valid", "ref": "$In.Entity", "negate": true } ],
+            "result": "succeeded"
+          },
+          { "on": "actions_succeeded", "to": "Smash" },
+          { "on": "action_failed", "result": "failed" }
+        ]
+      }
+    ]
+  }
+}

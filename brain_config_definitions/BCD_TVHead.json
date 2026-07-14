@@ -1,0 +1,15 @@
+{
+  "id": "BCD_TVHead",
+  "class": "ScpBrainConfigDefinition",
+  "properties": {
+    "extends": "BCD_BaseHostile",
+    "attacks": [
+      {
+        "ability": "AI.TVHead.Attack.Melee",
+        "weight": 1.0,
+        "min_range": 0,
+        "max_range": 230
+      }
+    ]
+  }
+}

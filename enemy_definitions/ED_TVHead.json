@@ -15,6 +15,14 @@
       }
     ],
     "weighted_chance": 1000,
-    "world_gen_priority": 1000
+    "world_gen_priority": 1000,
+    "ai_stack": "v2",
+    "brain_config": "BCD_TVHead",
+    "behavior": "BHV_TVHead",
+    "sense_profile": "SNS_TVHead",
+    "wounded_tag": {
+      "tag": "State.Wounded",
+      "below": 0.5
+    }
   }
 }

@@ -1,0 +1,7 @@
+{
+  "id": "SNS_Janitor",
+  "class": "ScpSenseProfileDefinition",
+  "properties": {
+    "extends": "SNS_BaseStaff"
+  }
+}

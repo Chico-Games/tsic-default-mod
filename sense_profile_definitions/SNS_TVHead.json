@@ -1,0 +1,11 @@
+{
+  "id": "SNS_TVHead",
+  "class": "ScpSenseProfileDefinition",
+  "properties": {
+    "extends": "SNS_BaseStaff",
+    "awareness_stages": {
+      "suspicious": 0.3,
+      "alert": 0.75
+    }
+  }
+}

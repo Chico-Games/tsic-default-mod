@@ -1,0 +1,7 @@
+{
+  "id": "SNS_Gardener",
+  "class": "ScpSenseProfileDefinition",
+  "properties": {
+    "extends": "SNS_BaseStaff"
+  }
+}

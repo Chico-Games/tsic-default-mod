@@ -1,0 +1,67 @@
+{
+  "id": "SNS_BaseStaff",
+  "class": "ScpSenseProfileDefinition",
+  "properties": {
+    "abstract": true,
+    "sight": {
+      "primary_cone_half_angle": 35,
+      "primary_range": 2500,
+      "peripheral_cone_half_angle": 80,
+      "peripheral_range": 900,
+      "peripheral_gain": 0.4,
+      "acquire_rate": 0.67,
+      "lose_rate": 0.25,
+      "stealth_acquire_multiplier": 0.35,
+      "stealth_range_multiplier": 0.6,
+      "still_multiplier": 0.6,
+      "sprint_multiplier": 1.5,
+      "auto_detect_radius": 150
+    },
+    "hearing": {
+      "acuity": 1.0,
+      "occlusion_attenuation": 0.5
+    },
+    "awareness_stages": {
+      "suspicious": 0.35,
+      "alert": 0.75
+    },
+    "light_sensitivity": [
+      {
+        "in": 0.0,
+        "out": 0.05
+      },
+      {
+        "in": 0.3,
+        "out": 0.5
+      },
+      {
+        "in": 1.0,
+        "out": 1.0
+      }
+    ],
+    "modifiers": [
+      {
+        "when": {
+          "day_section": "Gameplay.DaySection.Night"
+        },
+        "ops": [
+          {
+            "path": "sight.primary_range",
+            "op": "set",
+            "value": 3500
+          },
+          {
+            "path": "sight.acquire_rate",
+            "op": "mul",
+            "value": 1.6
+          },
+          {
+            "path": "sight.lose_rate",
+            "op": "mul",
+            "value": 0.3
+          }
+        ]
+      }
+    ]
+  }
+}

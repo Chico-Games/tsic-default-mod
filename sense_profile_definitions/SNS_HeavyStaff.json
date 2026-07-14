@@ -1,0 +1,7 @@
+{
+  "id": "SNS_HeavyStaff",
+  "class": "ScpSenseProfileDefinition",
+  "properties": {
+    "extends": "SNS_BaseStaff"
+  }
+}

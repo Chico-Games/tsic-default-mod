@@ -1,0 +1,32 @@
+{
+  "id": "SKL_FleeToSafety",
+  "class": "ScpSkillDefinition",
+  "properties": {
+    "inputs": { "Threat": "actor" },
+    "states": [
+      {
+        "name": "Hop",
+        "initial": true,
+        "actions": [
+          { "do": "flee_from", "target": "$In.Threat", "distance": 900, "speed_profile": "sprint" }
+        ],
+        "transitions": [
+          {
+            "on": "tick",
+            "conditions": [ { "if": "is_valid", "ref": "$In.Threat", "negate": true } ],
+            "result": "succeeded"
+          },
+          {
+            "on": "actions_succeeded",
+            "conditions": [
+              { "if": "distance", "a": "$Self", "b": "$In.Threat", "greater_than": 2500 }
+            ],
+            "result": "succeeded"
+          },
+          { "on": "actions_succeeded", "to": "Hop" },
+          { "on": "action_failed", "result": "failed" }
+        ]
+      }
+    ]
+  }
+}
