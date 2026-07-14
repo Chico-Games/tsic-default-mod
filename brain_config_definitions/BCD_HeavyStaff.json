@@ -24,21 +24,21 @@
         "max_speed": 180,
         "accel": 600,
         "rotation_rate": 150,
-        "nav_filter": "StoreStaff"
+        "nav_filter": "Brute"
       },
       {
         "name": "hurry",
         "max_speed": 300,
         "accel": 900,
         "rotation_rate": 220,
-        "nav_filter": "StoreStaff"
+        "nav_filter": "Brute"
       },
       {
         "name": "sprint",
         "max_speed": 420,
         "accel": 1400,
         "rotation_rate": 280,
-        "nav_filter": "StoreStaff"
+        "nav_filter": "Brute"
       }
     ],
     "max_breakable_armour": 3

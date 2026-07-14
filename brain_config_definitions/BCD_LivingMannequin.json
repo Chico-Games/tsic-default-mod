@@ -188,21 +188,21 @@
         "max_speed": 250,
         "accel": 1000,
         "rotation_rate": 220,
-        "nav_filter": "StoreStaff"
+        "nav_filter": "Sneaky"
       },
       {
         "name": "hurry",
         "max_speed": 450,
         "accel": 1600,
         "rotation_rate": 320,
-        "nav_filter": "StoreStaff"
+        "nav_filter": "Sneaky"
       },
       {
         "name": "sprint",
         "max_speed": 700,
         "accel": 2600,
         "rotation_rate": 420,
-        "nav_filter": "StoreStaff"
+        "nav_filter": "Sneaky"
       }
     ],
     "modifiers": [
