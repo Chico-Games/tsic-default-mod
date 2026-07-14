@@ -1,62 +1,6 @@
 {
   "schema_version": 2,
   "properties": {
-    "GameplayAbility_AI_PushFurniture.spawned_actor": {
-      "tooltip": null,
-      "category": null,
-      "cpp_type": "TWeakObjectPtr<AAIMovedFurnitureActor>",
-      "element_class": null,
-      "clamp_min": null,
-      "clamp_max": null,
-      "ui_min": null,
-      "ui_max": null,
-      "edit_condition": null,
-      "edit_spec": null,
-      "display_name": null,
-      "categories": null
-    },
-    "GameplayAbility_AI_TidyFurniture.movement_curve": {
-      "tooltip": null,
-      "category": "Furniture",
-      "cpp_type": "TObjectPtr<UCurveFloat>",
-      "element_class": "CurveFloat",
-      "clamp_min": null,
-      "clamp_max": null,
-      "ui_min": null,
-      "ui_max": null,
-      "edit_condition": null,
-      "edit_spec": "EditDefaultsOnly",
-      "display_name": null,
-      "categories": null
-    },
-    "GameplayAbility_AI_TidyFurniture.curve_duration": {
-      "tooltip": null,
-      "category": "Furniture",
-      "cpp_type": "float",
-      "element_class": null,
-      "clamp_min": 0.1,
-      "clamp_max": null,
-      "ui_min": null,
-      "ui_max": null,
-      "edit_condition": null,
-      "edit_spec": "EditDefaultsOnly",
-      "display_name": null,
-      "categories": null
-    },
-    "GameplayAbility_AI_TidyFurniture.spawned_actor": {
-      "tooltip": null,
-      "category": null,
-      "cpp_type": "TWeakObjectPtr<AAIMovedFurnitureActor>",
-      "element_class": null,
-      "clamp_min": null,
-      "clamp_max": null,
-      "ui_min": null,
-      "ui_max": null,
-      "edit_condition": null,
-      "edit_spec": null,
-      "display_name": null,
-      "categories": null
-    },
     "GameplayAbility_Pounce.pounce_distance": {
       "tooltip": null,
       "category": "Pounce|Targeting",

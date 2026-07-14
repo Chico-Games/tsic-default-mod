@@ -7,14 +7,18 @@
   <!-- Test-only host for the LIVE crosshair component
        (shared/hud-crosshair.js). In production hud.js creates the
        #hud-crosshair dot and injects its styles; here we provide the minimal
-       shell so the component can be exercised in isolation.
+       shell so the component can be exercised in isolation. Also subscribes to
+       tsic.msg.UI.Interaction.Targets { bDraggable, bDragging } for the drag
+       affordance ring.
 
        DO NOT add rendering logic to this file. Crosshair visibility is driven
        by shared/hud-crosshair.js — this page only hosts it. -->
   <style>
     /* Mirror the rules hud.js injects, so getComputedStyle()-based
        hidden/visible assertions work. */
-    #hud-crosshair { position:fixed; left:50%; top:50%; margin-left:-2px; margin-top:-2px; width:4px; height:4px; background:#fff; border-radius:50%; pointer-events:none; z-index:20; }
+    #hud-crosshair { position:fixed; left:50%; top:50%; margin-left:-2px; margin-top:-2px; width:4px; height:4px; background:#fff; border-radius:50%; pointer-events:none; z-index:20; transition:box-shadow 120ms ease, transform 120ms ease; }
+    #hud-crosshair.draggable { box-shadow:0 0 0 3px rgba(255,255,255,0.30); }
+    #hud-crosshair.dragging { transform:scale(1.4); box-shadow:0 0 0 3px rgba(255,255,255,0.65); }
     #hud-crosshair.hidden { display:none; }
   </style>
   <!-- No tsic-bridge.js / tsic-runtime.js: in the spa-test-runner the harness

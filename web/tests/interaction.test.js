@@ -34,6 +34,32 @@ TSICTestHarness.register({
 });
 
 TSICTestHarness.register({
+    name: 'Crosshair: draggable look-target shows the faint drag ring',
+    file: '/screens/test-crosshair.html',
+    async run(ctx) {
+        ctx.inject('tsic.msg.UI.Interaction.Targets', { Targets: [], bDraggable: true, bDragging: false });
+        await ctx.waitFor(() => ctx.doc.getElementById('hud-crosshair').classList.contains('draggable'));
+        const dot = ctx.doc.getElementById('hud-crosshair');
+        ctx.expect(ctx.assert.truthy(dot.classList.contains('draggable'), 'expected .draggable ring'));
+        ctx.expect(ctx.assert.truthy(!dot.classList.contains('dragging'), 'not dragging yet'));
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Crosshair: dragging ring wins over draggable and clears on release',
+    file: '/screens/test-crosshair.html',
+    async run(ctx) {
+        ctx.inject('tsic.msg.UI.Interaction.Targets', { Targets: [], bDraggable: true, bDragging: true });
+        await ctx.waitFor(() => ctx.doc.getElementById('hud-crosshair').classList.contains('dragging'));
+        const dot = ctx.doc.getElementById('hud-crosshair');
+        ctx.expect(ctx.assert.truthy(!dot.classList.contains('draggable'), 'dragging replaces draggable'));
+        ctx.inject('tsic.msg.UI.Interaction.Targets', { Targets: [], bDraggable: false, bDragging: false });
+        await ctx.waitFor(() => !dot.classList.contains('dragging'));
+        ctx.expect(ctx.assert.truthy(!dot.classList.contains('dragging') && !dot.classList.contains('draggable'), 'rings cleared'));
+    },
+});
+
+TSICTestHarness.register({
     name: 'Interaction: target without a Label falls back to "Interact"',
     file: '/screens/test-interaction.html',
     async run(ctx) {

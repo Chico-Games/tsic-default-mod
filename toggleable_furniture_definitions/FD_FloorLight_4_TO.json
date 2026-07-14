@@ -101,7 +101,48 @@
     },
     "has_toggled_on_lights": true,
     "toggled_on_light": {
-      "light_datas": []
+      "light_datas": [
+        {
+          "light_type": {
+            "name": "POINT_LIGHT",
+            "value": 0
+          },
+          "relative_transform": {
+            "rotation": {
+              "x": 0.0,
+              "y": -0.0,
+              "z": 0.0,
+              "w": 1.0
+            },
+            "translation": {
+              "x": -4.431389110915994,
+              "y": 0.9498337039497002,
+              "z": 150.69013693824616
+            },
+            "scale3_d": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          },
+          "intensity": 1000,
+          "attenuation_radius": 500,
+          "casts_shadows": false,
+          "light_color": {
+            "b": 214,
+            "g": 244,
+            "r": 255,
+            "a": 255
+          },
+          "source_radius": 25.524991989135742,
+          "soft_source_radius": 21.98541831970215,
+          "source_length": 0,
+          "max_draw_distance": 0,
+          "max_distance_fade_range": 0,
+          "inner_cone_angle": 0,
+          "outer_cone_angle": 0
+        }
+      ]
     },
     "has_toggled_off_lights": false,
     "toggled_off_light": {

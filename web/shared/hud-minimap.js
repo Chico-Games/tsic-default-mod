@@ -53,6 +53,16 @@
   var lastTime = 0;
   var lastRender = 0;
   var fowMsgs = 0;
+  // Last fully-decoded fog bitmap — the only thing render() blits. Assigning
+  // a new .src to a live <img> resets its JS-visible bitmap for the whole
+  // fetch+decode (naturalWidth reads 0 and drawImage draws nothing until the
+  // new PNG arrives), so blitting the element directly dropped the fog layer
+  // for a few frames on every fog regen while moving — a visible flash.
+  // reloadFow() decodes into an offscreen Image and swaps this reference only
+  // once the bitmap is ready; a failed fetch simply keeps the previous fog.
+  // The element may already be complete before this script runs, so seed
+  // from it (the load listener below never fires for an already-loaded img).
+  var fowDraw = (fow && fow.complete && fow.naturalWidth > 0) ? fow : null;
   // Test/debug hook: the Gauntlet DOM-assert seam reads the caught-up idle
   // state (no-redraw-at-rest contract), the FOW refresh count, and the fog
   // alpha at the player's own map position (a healthy minimap is always
@@ -61,14 +71,15 @@
     get animating() { return animating; },
     get fowMsgs() { return fowMsgs; },
     sampleFowAtPlayer: function () {
-      if (!fow || !fow.naturalWidth || !worldW || !worldH) return 'n/a';
+      var img = fowDraw;
+      if (!img || !img.naturalWidth || !worldW || !worldH) return 'n/a';
       var c = document.createElement('canvas');
       c.width = 1; c.height = 1;
       var x = c.getContext('2d');
-      var px = Math.max(0, Math.min(fow.naturalWidth - 1, currentLocal.x / worldW * fow.naturalWidth));
-      var py = Math.max(0, Math.min(fow.naturalHeight - 1, currentLocal.y / worldH * fow.naturalHeight));
+      var px = Math.max(0, Math.min(img.naturalWidth - 1, currentLocal.x / worldW * img.naturalWidth));
+      var py = Math.max(0, Math.min(img.naturalHeight - 1, currentLocal.y / worldH * img.naturalHeight));
       try {
-        x.drawImage(fow, px, py, 1, 1, 0, 0, 1, 1);
+        x.drawImage(img, px, py, 1, 1, 0, 0, 1, 1);
         return x.getImageData(0, 0, 1, 1).data[3]; // 0 = revealed, 255 = fogged
       } catch (e) { return 'err:' + e.name; }
     }
@@ -125,7 +136,7 @@
     ctx.clearRect(0, 0, SIZE, SIZE);
     drawLayer(tex, lx, ly, viewR);
     // fow.style.display doubles as the SetFogOfWarVisible cheat flag (hud.js)
-    if (fow && fow.style.display !== 'none') drawLayer(fow, lx, ly, viewR);
+    if (fow && fow.style.display !== 'none') drawLayer(fowDraw, lx, ly, viewR);
 
     for (var i = 1; i < players.length; i++) {
       var pl = players[i];
@@ -196,12 +207,29 @@
 
   // The canvas only repaints on animation ticks — when a source image loads
   // (or fog pixels regenerate) at rest, repaint once so the new pixels show.
+  // The fow <img> element itself only loads at boot (or via the 404 retry
+  // below); fog refreshes go through reloadFow() so a mid-fetch swap never
+  // blanks the fog layer (see fowDraw above).
   tex.addEventListener('load', render);
-  if (fow) fow.addEventListener('load', render);
+  if (fow) fow.addEventListener('load', function () { fowDraw = fow; render(); });
+
+  var fowGen = 0;
+  function reloadFow() {
+    if (!fow) return;
+    var gen = ++fowGen;
+    var next = new Image();
+    // Stale guard: refreshes can complete out of order; only the newest wins.
+    next.onload = function () {
+      if (gen !== fowGen) return;
+      fowDraw = next;
+      render();
+    };
+    next.src = TSIC.runtimeImgUrl('fow') + '?t=' + Date.now();
+  }
 
   tsic.on('tsic.msg.UI.Map.Fow', function () {
     fowMsgs++;
-    if (fow) fow.src = TSIC.runtimeImgUrl('fow') + '?t=' + Date.now();
+    reloadFow();
   });
 
   // The world-map and fow image sources register only after their async
