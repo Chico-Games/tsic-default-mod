@@ -14,6 +14,7 @@
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,
+    "static_mesh": "/Game/Items/Consumables/UncookedFood/CannedSoup/Meshes/SM_Can_Meat.SM_Can_Meat",
     "casts_shadow": false,
     "collision_profile_name": {
       "name": "Furniture"
