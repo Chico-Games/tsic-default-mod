@@ -122,19 +122,13 @@
         "base": 0.0,
         "considerations": [
           {
-            "input": "target_visibility",
-            "curve": {
-              "preset": "step",
-              "invert": true,
-              "threshold": 0.5
-            }
-          },
-          {
             "id": "memory_window",
             "input": "search_elapsed",
             "curve": {
               "preset": "linear",
-              "invert": true
+              "invert": true,
+              "y_min": 0.0,
+              "y_max": 0.4
             },
             "in_min": 0,
             "in_max": 20
