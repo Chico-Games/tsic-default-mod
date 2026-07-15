@@ -27,13 +27,12 @@
         "nav_filter": "StoreStaff"
       }
     ],
-    "max_breakable_armour": 2,
     "token_cost": 1,
     "targeting": {
-      "switch_margin": 0.25,
-      "switch_cooldown": 4.0,
       "burst_override_pct": 0.15,
-      "grudge_decay": 0.1
+      "grudge_decay": 0.1,
+      "aggro_duration_seconds": 20.0,
+      "aggro_contagion_radius": 1500.0
     },
     "intents": [
       {
@@ -131,16 +130,8 @@
             }
           },
           {
-            "input": "awareness",
-            "curve": {
-              "preset": "linear"
-            },
-            "in_min": 0.2,
-            "in_max": 0.75
-          },
-          {
             "id": "memory_window",
-            "input": "time_since_seen",
+            "input": "search_elapsed",
             "curve": {
               "preset": "linear",
               "invert": true

@@ -14,13 +14,15 @@
         "ability": "AI.LivingMannequin.Attack.PowerSwing.Forward",
         "weight": 0.4,
         "min_range": 0,
-        "max_range": 250
+        "max_range": 250,
+        "min_combat_seconds": 5.0
       },
       {
         "ability": "AI.LivingMannequin.Attack.Grab",
         "weight": 0.3,
         "min_range": 0,
-        "max_range": 180
+        "max_range": 180,
+        "min_combat_seconds": 8.0
       }
     ],
     "intents": [

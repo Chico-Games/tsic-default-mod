@@ -15,7 +15,8 @@
       "stealth_range_multiplier": 0.6,
       "still_multiplier": 0.6,
       "sprint_multiplier": 1.5,
-      "auto_detect_radius": 150
+      "auto_detect_radius": 150,
+      "ghost_track_seconds": 5.0
     },
     "hearing": {
       "acuity": 1.0,

@@ -15,7 +15,8 @@
                 "do": "wander",
                 "ring_min": 800,
                 "ring_max": 2500,
-                "speed_profile": "walk"
+                "speed_profile": "walk",
+                "origin": "$Brain.PatrolAnchor"
               }
             ]
           }
@@ -44,7 +45,7 @@
             "actions": [
               {
                 "do": "move_to",
-                "target": "$Brain.PrimaryTarget",
+                "target": "$Brain.TargetLocation",
                 "acceptance": 250,
                 "speed_profile": "sprint",
                 "repath_if_moved": 150
@@ -116,11 +117,13 @@
         "intent": "AI.Behavior.Search",
         "actions": [
           {
-            "do": "run_skill",
-            "skill": "SKL_Investigate",
-            "params": {
-              "Spot": "$Brain.PointOfInterest"
-            }
+            "do": "wander",
+            "origin": "$Brain.PointOfInterest",
+            "ring_min": 100,
+            "ring_max": 1000,
+            "leg_seconds": 6,
+            "pause_seconds": 1.5,
+            "speed_profile": "hurry"
           }
         ]
       },
