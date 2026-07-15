@@ -61,6 +61,7 @@
     "max_ammo": 0,
     "display_name": "Rice",
     "description": "A consumable item.",
+    "thumbnail": "/Game/Items/Consumables/UncookedFood/Rice/Textures/T_Thumb_SM_Box_Rice.T_Thumb_SM_Box_Rice",
     "stackable": true,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_Rice_SI",

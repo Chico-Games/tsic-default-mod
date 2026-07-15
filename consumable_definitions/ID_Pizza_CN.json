@@ -61,6 +61,7 @@
     "max_ammo": 0,
     "display_name": "Pizza",
     "description": "A freshly baked pizza with cheese and toppings.",
+    "thumbnail": "/Game/Items/Consumables/CookedFood/Pizza/Textures/T_Thumb_Pizza.T_Thumb_Pizza",
     "stackable": true,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_Pizza_SI",

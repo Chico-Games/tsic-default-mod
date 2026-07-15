@@ -61,6 +61,7 @@
     "max_ammo": 0,
     "display_name": "Canned Dog Food",
     "description": "Canned dog food. Edible in desperate times.",
+    "thumbnail": "/Game/Items/Consumables/UncookedFood/DogFood/Textures/T_Thumb_SM_Can_DogMeat.T_Thumb_SM_Can_DogMeat",
     "stackable": true,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_DogFood_SI",

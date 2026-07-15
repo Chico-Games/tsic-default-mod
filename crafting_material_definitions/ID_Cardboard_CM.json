@@ -6,6 +6,7 @@
   "properties": {
     "display_name": "Cardboard",
     "description": "Cardboard sheets for storage and crafting.",
+    "thumbnail": "/Game/Items/CraftingMaterials/Cardboard/Textures/T_Thumb_SM_CartonBox2_05.T_Thumb_SM_CartonBox2_05",
     "stackable": true,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_Cardboard_SI",

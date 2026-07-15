@@ -61,6 +61,7 @@
     "max_ammo": 0,
     "display_name": "Canned Pineapple",
     "description": "Canned pineapple chunks in sweet syrup.",
+    "thumbnail": "/Game/Items/Consumables/UncookedFood/Pineapple/Textures/T_Thumb_SM_Can_Pineapple.T_Thumb_SM_Can_Pineapple",
     "stackable": true,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_Pineapple_SI",

@@ -61,6 +61,7 @@
     "max_ammo": 0,
     "display_name": "Onion",
     "description": "A fresh onion.",
+    "thumbnail": "/Game/Items/Consumables/UncookedFood/Onion/Textures/T_Thumb_SM_SM_OnionBasket.T_Thumb_SM_SM_OnionBasket",
     "stackable": true,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_Onion_SI",

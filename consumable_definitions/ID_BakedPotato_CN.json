@@ -59,7 +59,7 @@
     "has_durability": false,
     "has_ammo": false,
     "max_ammo": 13,
-    "display_name": "Test Potato",
+    "display_name": "Baked Potato",
     "description": "A scientifically-modified potato.",
     "stackable": false,
     "weight": 1.25,

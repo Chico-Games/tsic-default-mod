@@ -61,6 +61,7 @@
     "max_ammo": 0,
     "display_name": "First Aid Kit",
     "description": "A comprehensive medical kit for treating injuries. Provides instant healing and regeneration over time. Essential for survival in dangerous areas.",
+    "thumbnail": "/Game/Items/Consumables/Medical/FirstAidKit/Textures/T_Thumb_SM_Medical_Bag_02.T_Thumb_SM_Medical_Bag_02",
     "stackable": true,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_FirstAidKit_SI",

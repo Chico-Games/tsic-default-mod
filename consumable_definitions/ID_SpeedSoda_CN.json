@@ -61,6 +61,7 @@
     "max_ammo": 0,
     "display_name": "Speed Soda",
     "description": "A can of soda.",
+    "thumbnail": "/Game/Items/Consumables/UncookedFood/SpeedSoda/Textures/T_Thumb_SM_DrinkCan_1.T_Thumb_SM_DrinkCan_1",
     "stackable": true,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_SpeedSoda_SI",

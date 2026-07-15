@@ -61,6 +61,7 @@
     "max_ammo": 0,
     "display_name": "Sports Drink",
     "description": "Electrolyte-rich sports drink that boosts maximum stamina. Perfect for intense physical activity.",
+    "thumbnail": "/Game/Items/Consumables/UncookedFood/Soda3/Textures/T_Thumb_SM_DrinkCan_6.T_Thumb_SM_DrinkCan_6",
     "stackable": true,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_SportsDrink_SI",
