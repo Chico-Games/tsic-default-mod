@@ -61,6 +61,7 @@
     "max_ammo": 0,
     "display_name": "Grilled Vegetables",
     "description": "Assorted grilled vegetables.",
+    "thumbnail": "/Game/Items/Consumables/CookedFood/GrilledVegetables/Textures/T_Thumb_SM_VegetablesA_01.T_Thumb_SM_VegetablesA_01",
     "stackable": true,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_GrilledVegetables_SI",

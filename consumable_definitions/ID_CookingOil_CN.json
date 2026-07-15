@@ -61,6 +61,7 @@
     "max_ammo": 0,
     "display_name": "Cooking Oil",
     "description": "Bottle of vegetable oil. Essential for cooking many recipes.",
+    "thumbnail": "/Game/Items/Consumables/UncookedFood/CookingOil/Textures/T_Thumb_SM_Bottle_Oil.T_Thumb_SM_Bottle_Oil",
     "stackable": true,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_CookingOil_SI",

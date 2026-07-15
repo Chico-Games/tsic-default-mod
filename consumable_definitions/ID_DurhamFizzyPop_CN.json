@@ -61,6 +61,7 @@
     "max_ammo": 0,
     "display_name": "Durham Fizzy Pop",
     "description": "Own-brand cola. Flat-pack flavour, full-price fizz.",
+    "thumbnail": "/Game/Items/Consumables/UncookedFood/DurhamFizzyPop/Textures/T_Thumb_SM_DrinkCan_2.T_Thumb_SM_DrinkCan_2",
     "stackable": true,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_DurhamFizzyPop_SI",

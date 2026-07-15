@@ -61,6 +61,7 @@
     "max_ammo": 0,
     "display_name": "Instant Noodles",
     "description": "Pre-packaged instant ramen from the cafeteria display. Just add hot water.",
+    "thumbnail": "/Game/Items/Consumables/CookedFood/InstantNoodles/Textures/T_Thumb_SM_RamenA_01.T_Thumb_SM_RamenA_01",
     "stackable": true,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_InstantNoodles_SI",

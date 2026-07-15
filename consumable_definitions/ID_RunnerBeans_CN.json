@@ -61,6 +61,7 @@
     "max_ammo": 0,
     "display_name": "Runner Beans",
     "description": "A handful of crisp runner beans.",
+    "thumbnail": "/Game/Items/Consumables/UncookedFood/RunnerBeans/Textures/T_Thumb_SM_Can_Beans.T_Thumb_SM_Can_Beans",
     "stackable": true,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_RunnerBeans_SI",

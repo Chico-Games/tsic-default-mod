@@ -61,6 +61,7 @@
     "max_ammo": 0,
     "display_name": "Swedish Pancakes",
     "description": "Thin Swedish-style pancakes. Light and energizing breakfast.",
+    "thumbnail": "/Game/Items/Consumables/CookedFood/SwedishPancakes/Textures/T_Thumb_SM_PancakesA_01.T_Thumb_SM_PancakesA_01",
     "stackable": true,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_SwedishPancakes_SI",

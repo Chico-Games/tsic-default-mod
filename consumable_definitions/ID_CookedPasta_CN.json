@@ -61,6 +61,7 @@
     "max_ammo": 0,
     "display_name": "Cooked Pasta",
     "description": "Perfectly cooked pasta ready to eat.",
+    "thumbnail": "/Game/Items/Consumables/CookedFood/CookedPasta/Textures/T_Thumb_SM_RamenD_01.T_Thumb_SM_RamenD_01",
     "stackable": true,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_CookedPasta_SI",

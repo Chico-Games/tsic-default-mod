@@ -61,6 +61,7 @@
     "max_ammo": 0,
     "display_name": "Eye Drops",
     "description": "Lubricating eye drops. For tired eyes and long nights.",
+    "thumbnail": "/Game/Items/Consumables/Medical/EyeDrops/Textures/T_Thumb_SM_Medicines_07.T_Thumb_SM_Medicines_07",
     "stackable": true,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_EyeDrops_SI",

@@ -61,6 +61,7 @@
     "max_ammo": 0,
     "display_name": "Emergency Rations",
     "description": "A sealed ration pack. Complete nutrition, minimal joy.",
+    "thumbnail": "/Game/Items/Consumables/UncookedFood/SCPRations/Textures/T_Thumb_SM_Can_1.T_Thumb_SM_Can_1",
     "stackable": true,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_SCPRations_SI",

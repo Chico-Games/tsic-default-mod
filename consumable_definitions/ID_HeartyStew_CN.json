@@ -61,6 +61,7 @@
     "max_ammo": 0,
     "display_name": "Hearty Stew",
     "description": "A rich, hearty stew with vegetables and meat.",
+    "thumbnail": "/Game/Items/Consumables/CookedFood/HeartyStew/Textures/T_Thumb_SM_TomYamA_01.T_Thumb_SM_TomYamA_01",
     "stackable": true,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_HeartyStew_SI",

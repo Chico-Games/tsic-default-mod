@@ -61,6 +61,7 @@
     "max_ammo": 0,
     "display_name": "Vitamin Pills",
     "description": "Daily vitamin supplement that boosts maximum health and stamina regeneration. Lasts 3 minutes.",
+    "thumbnail": "/Game/Items/Consumables/Medical/VitaminPills/Textures/T_Thumb_SM_Medicines_08.T_Thumb_SM_Medicines_08",
     "stackable": true,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_VitaminPills_SI",

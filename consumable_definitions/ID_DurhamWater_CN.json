@@ -61,6 +61,7 @@
     "max_ammo": 0,
     "display_name": "Durham Spring Water",
     "description": "Bottled water from an undisclosed spring.",
+    "thumbnail": "/Game/Items/Consumables/UncookedFood/DurhamWater/Textures/T_Thumb_SM_Bottle_BigWater.T_Thumb_SM_Bottle_BigWater",
     "stackable": true,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_DurhamWater_SI",
