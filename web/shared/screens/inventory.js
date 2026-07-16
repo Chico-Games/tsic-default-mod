@@ -94,7 +94,7 @@
     [data-screen="Inventory"] .equip-slot[data-equip="Weapon"] { grid-column:1; grid-row:2; }
     [data-screen="Inventory"] .equip-slot[data-equip="Gloves"] { grid-column:1; grid-row:3; }
     [data-screen="Inventory"] #inv-info { padding:12px; background: rgba(241,229,207,0.88); border:1px solid var(--tsic-border); min-height: 140px; flex: 1 1 auto; overflow:auto; }
-    [data-screen="Inventory"] #inv-info img { width:72px !important; height:72px !important; margin:0 auto 8px !important; }
+    [data-screen="Inventory"] #inv-info img { width:100% !important; height:50% !important; min-height:160px; object-fit:contain; margin:0 auto 8px !important; }
     [data-screen="Inventory"] #inv-info h3 { font-size: 16px; }
     [data-screen="Inventory"] #inv-info p { margin: 4px 0; }
     [data-screen="Inventory"] #inv-equip-row { display:flex; gap:6px; padding:6px; background: rgba(184,170,145,0.35); border:1px solid var(--tsic-border); flex-wrap: wrap; flex: 0 0 auto; }
