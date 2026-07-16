@@ -39,8 +39,6 @@
 
     // Verified-working, test asserts old structure:
     NS.QUARANTINE = {
-        'Inventory: equipment payload renders slots in the equip row':
-            'equip row is now a fixed paper-doll grid; test expects the old per-payload slot count',
         'Settings: renders tab strip with one button per page':
             'settings boots a STATIC catalog that defaults the active tab; test expects the injected pages[0] active',
         'Settings: clicking a tab switches the visible page':
@@ -50,12 +48,6 @@
             'closer than the row\'s own centre, so spatial nav always lands on the child and the ' +
             'row itself is never visited — needs parent/child disambiguation in pickNeighbor',
         // Presumed-working per maintainer; test asserts a stale interaction/selector:
-        'Drag/Inventory: dropping slot A onto slot B publishes Transfer':
-            'jsdom drag emulation against the current inventory row drag handlers — re-verify if touched',
-        'Inventory: dblclick on equipment row publishes UI.Cmd.Equipment.Equip':
-            'equip is driven by confirm/context-menu now, not raw dblclick — re-verify if touched',
-        'E2E/Inventory: equippable hover → dblclick → Equip; equipment list reflects update':
-            'same equip-interaction drift — re-verify if touched',
         'E2E/ActionBar: re-broadcast with new status redraws rows':
             'behavior-bar (hud-behavior-bar.js) selectors/flow — re-verify if touched',
         'Perf/ActionBar: 50 rows render in < 250ms':

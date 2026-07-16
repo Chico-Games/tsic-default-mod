@@ -152,7 +152,7 @@ TSICTestHarness.register({
         ctx.inject('tsic.msg.UI.Inventory.Updated', {
             OwnerId: 'Player', Items: [{ ItemId: 'ID_Wheat', Count: 5, SlotIndex: 0 }], MaxSlots: 32,
         });
-        await ctx.waitFor(() => ctx.doc.querySelector('#inv-list .tsic-list-row[data-slot="0"]'));
+        await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid .tsic-slot[data-slot="0"]'));
         // Server processes craft (2 wheat → 1 bread).
         ctx.inject('tsic.msg.UI.Inventory.Updated', {
             OwnerId: 'Player', Items: [
@@ -160,11 +160,11 @@ TSICTestHarness.register({
                 { ItemId: 'ID_Bread', Count: 1, SlotIndex: 1 },
             ], MaxSlots: 32,
         });
-        await ctx.waitFor(() => ctx.doc.querySelector('#inv-list .tsic-list-row[data-slot="1"]'));
+        await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid .tsic-slot[data-slot="1"]'));
         // Both rows present, count text reflects new state.
-        ctx.expect(ctx.assert.domCount(ctx.doc, '#inv-list .tsic-list-row', 2));
-        const wheatRow = ctx.doc.querySelector('#inv-list .tsic-list-row[data-slot="0"]');
-        ctx.expect(ctx.assert.truthy(/×3/.test(wheatRow.textContent || ''),
-            `expected ×3 wheat in row, got: ${wheatRow.textContent}`));
+        ctx.expect(ctx.assert.domCount(ctx.doc, '#inv-grid .tsic-slot[data-slot]', 2));
+        const wheatCell = ctx.doc.querySelector('#inv-grid .tsic-slot[data-slot="0"] .count');
+        ctx.expect(ctx.assert.truthy(wheatCell && wheatCell.textContent === '3',
+            `expected count badge 3 on the wheat cell, got: ${wheatCell && wheatCell.textContent}`));
     },
 });

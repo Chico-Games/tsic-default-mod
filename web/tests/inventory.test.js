@@ -1,4 +1,4 @@
-// Inventory scenarios.
+// Inventory scenarios (grid-based — items land in persistent GridSlot cells).
 
 // Helper: find a .tsic-context-item by visible label text. Returns null if missing.
 function findContextMenuEntry(doc, label) {
@@ -22,17 +22,40 @@ function dispatchDragOn(win, target, type, dataTransfer) {
 }
 
 TSICTestHarness.register({
-    name: 'Inventory: renders items in list',
+    name: 'Inventory: renders items in grid cells',
     file: '/screens/inventory.html',
     async run(ctx) {
         ctx.setItemCatalog({ ID_Bread: { Name: 'Bread', Category: 'Consumable', Weight: 0.2 } });
         ctx.inject('tsic.msg.UI.Inventory.Updated', {
             OwnerId: 'Player',
-            Items: [{ ItemId: 'ID_Bread', Count: 3, SlotIndex: 0 }],
-            MaxSlots: 32, MaxWeight: 50, CurrentWeight: 0.6,
+            Items: [{ ItemId: 'ID_Bread', Count: 3, SlotIndex: 0, InstanceId: 1, GridSlot: 0 }],
+            MaxSlots: 48, GridWidth: 8, GridHeight: 6, MaxWeight: 50, CurrentWeight: 0.6,
         });
-        await ctx.waitFor(() => ctx.doc.querySelectorAll('#inv-list .tsic-list-row').length === 1);
+        await ctx.waitFor(() => ctx.doc.querySelectorAll('#inv-grid .tsic-slot').length === 48);
+        ctx.expect(ctx.assert.domExists(ctx.doc, '#inv-grid .tsic-slot[data-grid="0"][data-slot="0"] img'));
         ctx.expect(ctx.assert.domText(ctx.doc, '#inv-capacity-text', /CAPACITY: 1 items · 0\.60/));
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Inventory: GridSlot places items, legacy items flow into free cells',
+    file: '/screens/inventory.html',
+    async run(ctx) {
+        ctx.setItemCatalog({
+            ID_A: { Name: 'A', Category: 'CraftingMaterial' },
+            ID_B: { Name: 'B', Category: 'CraftingMaterial' },
+        });
+        ctx.inject('tsic.msg.UI.Inventory.Updated', {
+            OwnerId: 'Player',
+            Items: [
+                { ItemId: 'ID_A', Count: 1, SlotIndex: 0, InstanceId: 1, GridSlot: 10 },
+                { ItemId: 'ID_B', Count: 1, SlotIndex: 1, InstanceId: 2, GridSlot: -1 },
+            ],
+            MaxSlots: 48, GridWidth: 8, GridHeight: 6, MaxWeight: 50, CurrentWeight: 0.2,
+        });
+        await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid .tsic-slot[data-grid="10"][data-instance="1"]'));
+        // The unassigned item flows into the first free cell (cell 0).
+        ctx.expect(ctx.assert.domExists(ctx.doc, '#inv-grid .tsic-slot[data-grid="0"][data-instance="2"]'));
     },
 });
 
@@ -66,11 +89,11 @@ TSICTestHarness.register({
     async run(ctx) {
         ctx.setItemCatalog({ ID_Axe: { Name: 'Axe', Category: 'Equipment' } });
         ctx.inject('tsic.msg.UI.Inventory.Updated', {
-            OwnerId: 'Player', Items: [{ ItemId: 'ID_Axe', Count: 1, SlotIndex: 0 }],
+            OwnerId: 'Player', Items: [{ ItemId: 'ID_Axe', Count: 1, SlotIndex: 0, InstanceId: 5, GridSlot: 0 }],
             MaxSlots: 32, MaxWeight: 50, CurrentWeight: 5,
         });
-        await ctx.waitFor(() => ctx.doc.querySelector('#inv-list .tsic-list-row[data-slot="0"]'));
-        const slot = ctx.doc.querySelector('#inv-list .tsic-list-row[data-slot="0"]');
+        await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid .tsic-slot[data-slot="0"]'));
+        const slot = ctx.doc.querySelector('#inv-grid .tsic-slot[data-slot="0"]');
         slot.dispatchEvent(new ctx.win.MouseEvent('mouseenter', { bubbles: true }));
         await new Promise(r => setTimeout(r, 30));
         ctx.clearPublishes();
@@ -85,22 +108,22 @@ TSICTestHarness.register({
     },
 });
 
-// ---- Single-click on Equipment publishes Equip (row IS the action) -----
+// ---- Single-click on Equipment publishes Equip (cell IS the action) -----
 TSICTestHarness.register({
     name: 'Inventory/Click: equipment click publishes UI.Cmd.Equipment.Equip',
     file: '/screens/inventory.html',
     async run(ctx) {
         ctx.setItemCatalog({ ID_Axe: { Name: 'Axe', Category: 'Equipment' } });
         ctx.inject('tsic.msg.UI.Inventory.Updated', {
-            OwnerId: 'Player', Items: [{ ItemId: 'ID_Axe', Count: 1, SlotIndex: 3 }],
+            OwnerId: 'Player', Items: [{ ItemId: 'ID_Axe', Count: 1, SlotIndex: 3, InstanceId: 3, GridSlot: 3 }],
             MaxSlots: 32, MaxWeight: 50, CurrentWeight: 1,
         });
-        await ctx.waitFor(() => ctx.doc.querySelector('#inv-list .tsic-list-row[data-slot="3"]'));
+        await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid .tsic-slot[data-slot="3"]'));
         ctx.clearPublishes();
-        ctx.doc.querySelector('#inv-list .tsic-list-row[data-slot="3"]').click();
+        ctx.doc.querySelector('#inv-grid .tsic-slot[data-slot="3"]').click();
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Equipment.Equip',
             { where: p => p.ItemId === '3' }));
-        ctx.expect(ctx.assert.domExists(ctx.doc, '#inv-list .tsic-list-row[data-slot="3"].is-selected'));
+        ctx.expect(ctx.assert.domExists(ctx.doc, '#inv-grid .tsic-slot[data-slot="3"].is-selected'));
     },
 });
 
@@ -111,12 +134,12 @@ TSICTestHarness.register({
     async run(ctx) {
         ctx.setItemCatalog({ ID_Bread: { Name: 'Bread', Category: 'Consumable' } });
         ctx.inject('tsic.msg.UI.Inventory.Updated', {
-            OwnerId: 'Player', Items: [{ ItemId: 'ID_Bread', Count: 1, SlotIndex: 0 }],
+            OwnerId: 'Player', Items: [{ ItemId: 'ID_Bread', Count: 1, SlotIndex: 0, InstanceId: 1, GridSlot: 0 }],
             MaxSlots: 32, MaxWeight: 50, CurrentWeight: 0.2,
         });
-        await ctx.waitFor(() => ctx.doc.querySelector('#inv-list .tsic-list-row[data-slot="0"]'));
+        await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid .tsic-slot[data-slot="0"]'));
         ctx.clearPublishes();
-        ctx.doc.querySelector('#inv-list .tsic-list-row[data-slot="0"]').click();
+        ctx.doc.querySelector('#inv-grid .tsic-slot[data-slot="0"]').click();
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Inventory.Use',
             { where: p => p.SlotIndex === 0 }));
     },
@@ -129,16 +152,71 @@ TSICTestHarness.register({
     async run(ctx) {
         ctx.setItemCatalog({ ID_W: { Name: 'Wood', Category: 'CraftingMaterial' } });
         ctx.inject('tsic.msg.UI.Inventory.Updated', {
-            OwnerId: 'Player', Items: [{ ItemId: 'ID_W', Count: 5, SlotIndex: 0 }],
+            OwnerId: 'Player', Items: [{ ItemId: 'ID_W', Count: 5, SlotIndex: 0, InstanceId: 1, GridSlot: 0 }],
             MaxSlots: 32, MaxWeight: 50, CurrentWeight: 0.5,
         });
-        await ctx.waitFor(() => ctx.doc.querySelector('#inv-list .tsic-list-row[data-slot="0"]'));
+        await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid .tsic-slot[data-slot="0"]'));
         ctx.clearPublishes();
-        ctx.doc.querySelector('#inv-list .tsic-list-row[data-slot="0"]').click();
+        ctx.doc.querySelector('#inv-grid .tsic-slot[data-slot="0"]').click();
         await new Promise(r => setTimeout(r, 30));
         ctx.expect(ctx.assert.notPublished(ctx.handle, 'UI.Cmd.Inventory.Use'));
         ctx.expect(ctx.assert.notPublished(ctx.handle, 'UI.Cmd.Equipment.Equip'));
-        ctx.expect(ctx.assert.domExists(ctx.doc, '#inv-list .tsic-list-row[data-slot="0"].is-selected'));
+        ctx.expect(ctx.assert.domExists(ctx.doc, '#inv-grid .tsic-slot[data-slot="0"].is-selected'));
+    },
+});
+
+// ---- Drag cell → cell publishes UI.Cmd.Inventory.Move -------------------
+TSICTestHarness.register({
+    name: 'Inventory/Drag: dropping cell A onto cell B publishes UI.Cmd.Inventory.Move',
+    file: '/screens/inventory.html',
+    async run(ctx) {
+        ctx.setItemCatalog({ ID_W: { Name: 'Wood', Category: 'CraftingMaterial' } });
+        ctx.inject('tsic.msg.UI.Inventory.Updated', {
+            OwnerId: 'Player',
+            Items: [{ ItemId: 'ID_W', Count: 5, SlotIndex: 0, InstanceId: 1, GridSlot: 2 }],
+            MaxSlots: 48, GridWidth: 8, GridHeight: 6, MaxWeight: 50, CurrentWeight: 0.5,
+        });
+        await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid .tsic-slot[data-grid="2"][data-instance="1"]'));
+        ctx.clearPublishes();
+        const dt = makeDataTransferStub({
+            'application/tsic-item': JSON.stringify({ slot: 0, gridSlot: 2, instanceId: 1, itemId: 'ID_W', ownerId: 'Player' }),
+        });
+        const target = ctx.doc.querySelector('#inv-grid .tsic-slot[data-grid="9"]');
+        dispatchDragOn(ctx.win, target, 'dragover', dt);
+        dispatchDragOn(ctx.win, target, 'drop',     dt);
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Inventory.Move', {
+            where: p => p.FromOwnerId === 'Player' && p.ToOwnerId === 'Player'
+                && p.FromSlot === 2 && p.ToSlot === 9,
+        }));
+    },
+});
+
+// ---- Tab filter dims non-matching items in place ------------------------
+TSICTestHarness.register({
+    name: 'Inventory/Tabs: filter dims non-matching cells without moving them',
+    file: '/screens/inventory.html',
+    async run(ctx) {
+        ctx.setItemCatalog({
+            ID_Axe:   { Name: 'Axe',   Category: 'Equipment' },
+            ID_Wheat: { Name: 'Wheat', Category: 'CraftingMaterial' },
+        });
+        ctx.inject('tsic.msg.UI.Inventory.Updated', {
+            OwnerId: 'Player',
+            Items: [
+                { ItemId: 'ID_Axe',   Count: 1, SlotIndex: 0, InstanceId: 1, GridSlot: 0 },
+                { ItemId: 'ID_Wheat', Count: 5, SlotIndex: 1, InstanceId: 2, GridSlot: 1 },
+            ],
+            MaxSlots: 48, GridWidth: 8, GridHeight: 6, MaxWeight: 50, CurrentWeight: 1,
+        });
+        await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid .tsic-slot[data-instance="2"]'));
+        const equipTab = Array.from(ctx.doc.querySelectorAll('.tsic-tab'))
+            .find(t => (t.textContent || '').trim() === 'Equipment');
+        ctx.expect(ctx.assert.truthy(equipTab, 'Equipment tab exists'));
+        equipTab.click();
+        await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid .tsic-slot[data-instance="2"].is-filtered'));
+        // Both items still occupy their cells — the non-matching one is dimmed.
+        ctx.expect(ctx.assert.domExists(ctx.doc, '#inv-grid .tsic-slot[data-grid="0"][data-instance="1"]:not(.is-filtered)'));
+        ctx.expect(ctx.assert.domExists(ctx.doc, '#inv-grid .tsic-slot[data-grid="1"][data-instance="2"].is-filtered'));
     },
 });
 
@@ -149,12 +227,12 @@ TSICTestHarness.register({
     async run(ctx) {
         ctx.setItemCatalog({ ID_Bread: { Name: 'Bread', Category: 'Consumable', Weight: 0.2 } });
         ctx.inject('tsic.msg.UI.Inventory.Updated', {
-            OwnerId: 'Player', Items: [{ ItemId: 'ID_Bread', Count: 1, SlotIndex: 0 }],
+            OwnerId: 'Player', Items: [{ ItemId: 'ID_Bread', Count: 1, SlotIndex: 0, InstanceId: 1, GridSlot: 0 }],
             MaxSlots: 32, MaxWeight: 30, CurrentWeight: 0.2,
         });
-        await ctx.waitFor(() => ctx.doc.querySelector('#inv-list .tsic-list-row[data-slot="0"]'));
+        await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid .tsic-slot[data-slot="0"]'));
         ctx.clearPublishes();
-        ctx.doc.querySelector('#inv-list .tsic-list-row[data-slot="0"]')
+        ctx.doc.querySelector('#inv-grid .tsic-slot[data-slot="0"]')
             .dispatchEvent(new ctx.win.MouseEvent('contextmenu', { bubbles: true, cancelable: true }));
         await ctx.waitFor(() => findContextMenuEntry(ctx.doc, 'Drop…'));
         findContextMenuEntry(ctx.doc, 'Drop…').click();
@@ -172,11 +250,11 @@ TSICTestHarness.register({
     async run(ctx) {
         ctx.setItemCatalog({ ID_W: { Name: 'Wheat', Category: 'CraftingMaterial' } });
         ctx.inject('tsic.msg.UI.Inventory.Updated', {
-            OwnerId: 'Player', Items: [{ ItemId: 'ID_W', Count: 8, SlotIndex: 0 }],
+            OwnerId: 'Player', Items: [{ ItemId: 'ID_W', Count: 8, SlotIndex: 0, InstanceId: 1, GridSlot: 0 }],
             MaxSlots: 32, MaxWeight: 30, CurrentWeight: 0.4,
         });
-        await ctx.waitFor(() => ctx.doc.querySelector('#inv-list .tsic-list-row[data-slot="0"]'));
-        ctx.doc.querySelector('#inv-list .tsic-list-row[data-slot="0"]')
+        await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid .tsic-slot[data-slot="0"]'));
+        ctx.doc.querySelector('#inv-grid .tsic-slot[data-slot="0"]')
             .dispatchEvent(new ctx.win.MouseEvent('contextmenu', { bubbles: true, cancelable: true }));
         await ctx.waitFor(() => findContextMenuEntry(ctx.doc, 'Drop…'));
         findContextMenuEntry(ctx.doc, 'Drop…').click();
@@ -195,21 +273,22 @@ TSICTestHarness.register({
     },
 });
 
-// ---- New: right-click on a row opens the context menu ----
+// ---- Right-click on a cell opens the context menu ----
 TSICTestHarness.register({
     name: 'Inventory/Context: right-click opens context menu with category-appropriate entries',
     file: '/screens/inventory.html',
     async run(ctx) {
         ctx.setItemCatalog({ ID_Axe: { Name: 'Axe', Category: 'Equipment' } });
         ctx.inject('tsic.msg.UI.Inventory.Updated', {
-            OwnerId: 'Player', Items: [{ ItemId: 'ID_Axe', Count: 1, SlotIndex: 0 }],
+            OwnerId: 'Player', Items: [{ ItemId: 'ID_Axe', Count: 1, SlotIndex: 0, InstanceId: 1, GridSlot: 0 }],
             MaxSlots: 32, MaxWeight: 50, CurrentWeight: 1,
         });
-        await ctx.waitFor(() => ctx.doc.querySelector('#inv-list .tsic-list-row[data-slot="0"]'));
-        ctx.doc.querySelector('#inv-list .tsic-list-row[data-slot="0"]')
+        await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid .tsic-slot[data-slot="0"]'));
+        ctx.doc.querySelector('#inv-grid .tsic-slot[data-slot="0"]')
             .dispatchEvent(new ctx.win.MouseEvent('contextmenu', { bubbles: true, cancelable: true }));
         await ctx.waitFor(() => ctx.doc.querySelector('.tsic-context-menu'));
         ctx.expect(ctx.assert.truthy(findContextMenuEntry(ctx.doc, 'Equip'), 'Equip entry'));
+        ctx.expect(ctx.assert.truthy(findContextMenuEntry(ctx.doc, 'Move…'), 'Move entry'));
         ctx.expect(ctx.assert.truthy(findContextMenuEntry(ctx.doc, 'Assign to Hotbar…'), 'Assign to Hotbar entry'));
         ctx.expect(ctx.assert.truthy(findContextMenuEntry(ctx.doc, 'Drop…'), 'Drop entry'));
         // Storage isn't open in plain inventory, so no Transfer entry.
@@ -219,8 +298,7 @@ TSICTestHarness.register({
 
 // ---- Context menu: Equip vs. Unequip depends on whether the item is worn ----
 // These hit the shared buildItemContextMenu directly (the live runtime code that
-// the in-game overlay uses), hosted by test-fixtures.html — the inventory screen
-// page is a dead duplicate, so its render path isn't the one shipped.
+// the in-game overlay uses), hosted by test-fixtures.html.
 TSICTestHarness.register({
     name: 'Inventory/Context: unworn equipment offers Equip (publishes Equip by InstanceId)',
     file: '/screens/test-fixtures.html',
@@ -259,23 +337,45 @@ TSICTestHarness.register({
     },
 });
 
-// ---- New: drag inventory row → equipment slot publishes Equip ----
+// ---- Context menu: Move… arms the gamepad move for grid items ----
+TSICTestHarness.register({
+    name: 'Inventory/Context: Move… arms a payload that the next cell activation consumes',
+    file: '/screens/test-fixtures.html',
+    async run(ctx) {
+        ctx.win.TSICInventory.disarmMove();
+        const entries = ctx.win.TSICInventory.buildItemContextMenu({
+            it: { ItemId: 'ID_W', InstanceId: 4, SlotIndex: 0, Count: 5, GridSlot: 2 },
+            desc: { Name: 'Wood', Category: 'CraftingMaterial' },
+        });
+        const move = entries.find(e => e.label === 'Move…');
+        ctx.expect(ctx.assert.truthy(move, 'expected a Move entry'));
+        move.onClick();
+        const armed = ctx.win.TSICInventory._armedMove;
+        ctx.expect(ctx.assert.truthy(armed, 'armed payload set'));
+        ctx.expect(ctx.assert.eq(armed.gridSlot, 2));
+        ctx.win.TSICInventory.disarmMove();
+    },
+});
+
+// ---- Drag inventory cell → equipment slot publishes Equip ----
 TSICTestHarness.register({
     name: 'Inventory/Drag: drop on equipment slot publishes UI.Cmd.Equipment.Equip',
     file: '/screens/inventory.html',
     async run(ctx) {
         ctx.setItemCatalog({ ID_Axe: { Name: 'Axe', Category: 'Equipment' } });
         ctx.inject('tsic.msg.UI.Inventory.Updated', {
-            OwnerId: 'Player', Items: [{ ItemId: 'ID_Axe', Count: 1, SlotIndex: 7 }],
+            OwnerId: 'Player', Items: [{ ItemId: 'ID_Axe', Count: 1, SlotIndex: 7, InstanceId: 7, GridSlot: 7 }],
             MaxSlots: 32, MaxWeight: 50, CurrentWeight: 1,
         });
         ctx.inject('tsic.msg.UI.Equipment.Updated', {
             OwnerId: 'Player',
             Slots: [{ SlotTag: 'Equipment.Slot.Torso', ItemId: '' }],
         });
-        await ctx.waitFor(() => ctx.doc.querySelector('#inv-equip-row .equip-slot'));
-        const dt = makeDataTransferStub({ 'application/tsic-item': JSON.stringify({ slot: 7, itemId: 'ID_Axe' }) });
-        const equipSlot = ctx.doc.querySelector('#inv-equip-row .equip-slot');
+        await ctx.waitFor(() => ctx.doc.querySelector('#inv-doll .equip-slot'));
+        const dt = makeDataTransferStub({
+            'application/tsic-item': JSON.stringify({ slot: 7, gridSlot: 7, instanceId: 7, itemId: 'ID_Axe', ownerId: 'Player' }),
+        });
+        const equipSlot = ctx.doc.querySelector('#inv-doll .equip-slot');
         dispatchDragOn(ctx.win, equipSlot, 'dragover', dt);
         dispatchDragOn(ctx.win, equipSlot, 'drop',     dt);
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Equipment.Equip',
@@ -283,43 +383,47 @@ TSICTestHarness.register({
     },
 });
 
-// ---- Pickup: a fresh item arriving via Inventory.Updated renders the row ---
+// ---- Pickup: a fresh item arriving via Inventory.Updated renders its cell ---
 TSICTestHarness.register({
-    name: 'Inventory/Pickup: new item appears as a list row and capacity updates',
+    name: 'Inventory/Pickup: new item appears in its cell and capacity updates',
     file: '/screens/inventory.html',
     async run(ctx) {
         ctx.setItemCatalog({ ID_Axe: { Name: 'Axe', Category: 'Equipment', Weight: 1.2 } });
         ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', Items: [], MaxSlots: 32, MaxWeight: 30, CurrentWeight: 0 });
-        await ctx.waitFor(() => ctx.doc.querySelector('#inv-list .tsic-empty'));
+        await ctx.waitFor(() => ctx.doc.querySelectorAll('#inv-grid .tsic-slot').length > 0);
+        ctx.expect(ctx.assert.eq(ctx.doc.querySelector('#inv-grid .tsic-slot[data-slot]'), null));
         ctx.expect(ctx.assert.domText(ctx.doc, '#inv-capacity-text', /CAPACITY: 0 items/));
         ctx.inject('tsic.msg.UI.Inventory.Updated', {
             OwnerId: 'Player',
-            Items: [{ ItemId: 'ID_Axe', Count: 1, SlotIndex: 5 }],
+            Items: [{ ItemId: 'ID_Axe', Count: 1, SlotIndex: 0, InstanceId: 9, GridSlot: 5 }],
             MaxSlots: 32, MaxWeight: 30, CurrentWeight: 1.2,
         });
-        await ctx.waitFor(() => ctx.doc.querySelector('#inv-list .tsic-list-row[data-slot="5"]'));
-        ctx.expect(ctx.assert.domExists(ctx.doc, '#inv-list .tsic-list-row[data-slot="5"] img'));
+        await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid .tsic-slot[data-grid="5"][data-instance="9"]'));
+        ctx.expect(ctx.assert.domExists(ctx.doc, '#inv-grid .tsic-slot[data-grid="5"] img'));
         ctx.expect(ctx.assert.domText(ctx.doc, '#inv-capacity-text', /CAPACITY: 1 items · 1\.20/));
     },
 });
 
-// ---- Scroll: many stacks render and grid stays scrollable ---------------
+// ---- Density: 80 stacks render into a large grid -------------------------
 TSICTestHarness.register({
-    name: 'Inventory/Scroll: 80 stacks render, hotbar quick-assign still works for last row',
+    name: 'Inventory/Scroll: 80 stacks render, hotbar quick-assign still works for last cell',
     file: '/screens/inventory.html',
     async run(ctx) {
         const items = [];
         const catalog = {};
         for (let i = 0; i < 80; i++) {
-            items.push({ ItemId: `ID_${i}`, Count: 1, SlotIndex: i });
+            items.push({ ItemId: `ID_${i}`, Count: 1, SlotIndex: i, InstanceId: i, GridSlot: i });
             catalog[`ID_${i}`] = { Name: `Item ${i}`, Category: 'Equipment' };
         }
         ctx.setItemCatalog(catalog);
-        ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', Items: items, MaxSlots: 128, MaxWeight: 200, CurrentWeight: 10 });
-        await ctx.waitFor(() => ctx.doc.querySelectorAll('#inv-list .tsic-list-row').length === 80);
-        ctx.expect(ctx.assert.domCount(ctx.doc, '#inv-list .tsic-list-row', 80));
-        const lastRow = ctx.doc.querySelector('#inv-list .tsic-list-row[data-slot="79"]');
-        lastRow.dispatchEvent(new ctx.win.MouseEvent('mouseenter', { bubbles: true }));
+        ctx.inject('tsic.msg.UI.Inventory.Updated', {
+            OwnerId: 'Player', Items: items,
+            MaxSlots: 128, GridWidth: 8, GridHeight: 16, MaxWeight: 200, CurrentWeight: 10,
+        });
+        await ctx.waitFor(() => ctx.doc.querySelectorAll('#inv-grid .tsic-slot[data-slot]').length === 80);
+        ctx.expect(ctx.assert.domCount(ctx.doc, '#inv-grid .tsic-slot[data-slot]', 80));
+        const lastCell = ctx.doc.querySelector('#inv-grid .tsic-slot[data-slot="79"]');
+        lastCell.dispatchEvent(new ctx.win.MouseEvent('mouseenter', { bubbles: true }));
         await new Promise(r => setTimeout(r, 30));
         ctx.clearPublishes();
         ctx.events.key(ctx.doc, '5');
@@ -334,14 +438,14 @@ TSICTestHarness.register({
     file: '/screens/storage.html',
     async run(ctx) {
         ctx.setItemCatalog({ ID_Wood: { Name: 'Wood', Category: 'CraftingMaterial' } });
-        ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Storage:42', Items: [{ ItemId: 'ID_Wood', Count: 5, SlotIndex: 0 }], MaxSlots: 32 });
+        ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Storage:42', Items: [{ ItemId: 'ID_Wood', Count: 5, SlotIndex: 0, InstanceId: 1, GridSlot: 0 }], MaxSlots: 32 });
         ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', Items: [], MaxSlots: 32 });
-        await ctx.waitFor(() => ctx.doc.querySelector('#ss-container-list .tsic-list-row[data-slot="0"]'));
+        await ctx.waitFor(() => ctx.doc.querySelector('#ss-container-list .tsic-slot[data-slot="0"]'));
         ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Storage:42', Items: [], MaxSlots: 32 });
-        ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', Items: [{ ItemId: 'ID_Wood', Count: 5, SlotIndex: 0 }], MaxSlots: 32 });
-        await ctx.waitFor(() => ctx.doc.querySelector('#ss-player-list .tsic-list-row[data-slot="0"]'));
-        ctx.expect(ctx.assert.domExists(ctx.doc, '#ss-container-list .tsic-empty'));
-        ctx.expect(ctx.assert.domExists(ctx.doc, '#ss-player-list .tsic-list-row[data-slot="0"]'));
+        ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', Items: [{ ItemId: 'ID_Wood', Count: 5, SlotIndex: 0, InstanceId: 1, GridSlot: 0 }], MaxSlots: 32 });
+        await ctx.waitFor(() => ctx.doc.querySelector('#ss-player-list .tsic-slot[data-slot="0"]'));
+        ctx.expect(ctx.assert.eq(ctx.doc.querySelector('#ss-container-list .tsic-slot[data-slot]'), null));
+        ctx.expect(ctx.assert.domExists(ctx.doc, '#ss-player-list .tsic-slot[data-slot="0"]'));
     },
 });
 
@@ -351,27 +455,50 @@ TSICTestHarness.register({
     file: '/screens/storage.html',
     async run(ctx) {
         ctx.setItemCatalog({ ID_W: { Name: 'Wood', Category: 'CraftingMaterial' } });
-        ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Storage:7', Items: [{ ItemId: 'ID_W', Count: 12, SlotIndex: 0 }], MaxSlots: 32 });
+        ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Storage:7', Items: [{ ItemId: 'ID_W', Count: 12, SlotIndex: 0, InstanceId: 1, GridSlot: 0 }], MaxSlots: 32 });
         ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', Items: [], MaxSlots: 32 });
-        await ctx.waitFor(() => ctx.doc.querySelector('#ss-container-list .tsic-list-row[data-slot="0"]'));
+        await ctx.waitFor(() => ctx.doc.querySelector('#ss-container-list .tsic-slot[data-slot="0"]'));
         ctx.clearPublishes();
-        ctx.doc.querySelector('#ss-container-list .tsic-list-row[data-slot="0"]')
+        ctx.doc.querySelector('#ss-container-list .tsic-slot[data-slot="0"]')
             .dispatchEvent(new ctx.win.MouseEvent('dblclick', { bubbles: true }));
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Inventory.Transfer',
             { where: p => p.FromOwnerId === 'Storage:7' && p.ToOwnerId === 'Player' && p.Count === 12 && p.FromSlot === 0 }));
     },
 });
 
-// ---- Storage right-click menu includes Transfer… -----------------------
+// ---- Storage cross-pane drag publishes Move with both owners -------------
 TSICTestHarness.register({
-    name: 'Storage/Context: right-click on a row offers Transfer… entry',
+    name: 'Storage/Drag: container cell dropped on player cell publishes cross-owner Move',
     file: '/screens/storage.html',
     async run(ctx) {
         ctx.setItemCatalog({ ID_W: { Name: 'Wood', Category: 'CraftingMaterial' } });
-        ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Storage:7', Items: [{ ItemId: 'ID_W', Count: 4, SlotIndex: 0 }], MaxSlots: 32 });
+        ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Storage:7', Items: [{ ItemId: 'ID_W', Count: 12, SlotIndex: 0, InstanceId: 1, GridSlot: 3 }], MaxSlots: 32, GridWidth: 8, GridHeight: 4 });
+        ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', Items: [], MaxSlots: 48, GridWidth: 8, GridHeight: 6 });
+        await ctx.waitFor(() => ctx.doc.querySelector('#ss-container-list .tsic-slot[data-grid="3"][data-instance="1"]'));
+        ctx.clearPublishes();
+        const dt = makeDataTransferStub({
+            'application/tsic-item': JSON.stringify({ slot: 0, gridSlot: 3, instanceId: 1, itemId: 'ID_W', ownerId: 'Storage:7' }),
+        });
+        const target = ctx.doc.querySelector('#ss-player-list .tsic-slot[data-grid="5"]');
+        dispatchDragOn(ctx.win, target, 'dragover', dt);
+        dispatchDragOn(ctx.win, target, 'drop',     dt);
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Inventory.Move', {
+            where: p => p.FromOwnerId === 'Storage:7' && p.ToOwnerId === 'Player'
+                && p.FromSlot === 3 && p.ToSlot === 5,
+        }));
+    },
+});
+
+// ---- Storage right-click menu includes Transfer… -----------------------
+TSICTestHarness.register({
+    name: 'Storage/Context: right-click on a cell offers Transfer… entry',
+    file: '/screens/storage.html',
+    async run(ctx) {
+        ctx.setItemCatalog({ ID_W: { Name: 'Wood', Category: 'CraftingMaterial' } });
+        ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Storage:7', Items: [{ ItemId: 'ID_W', Count: 4, SlotIndex: 0, InstanceId: 1, GridSlot: 0 }], MaxSlots: 32 });
         ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', Items: [], MaxSlots: 32 });
-        await ctx.waitFor(() => ctx.doc.querySelector('#ss-container-list .tsic-list-row[data-slot="0"]'));
-        ctx.doc.querySelector('#ss-container-list .tsic-list-row[data-slot="0"]')
+        await ctx.waitFor(() => ctx.doc.querySelector('#ss-container-list .tsic-slot[data-slot="0"]'));
+        ctx.doc.querySelector('#ss-container-list .tsic-slot[data-slot="0"]')
             .dispatchEvent(new ctx.win.MouseEvent('contextmenu', { bubbles: true, cancelable: true }));
         await ctx.waitFor(() => ctx.doc.querySelector('.tsic-context-menu'));
         ctx.expect(ctx.assert.truthy(findContextMenuEntry(ctx.doc, 'Transfer…'), 'Transfer entry'));

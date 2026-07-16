@@ -2,21 +2,21 @@
 
 // ---- Inventory drag-drop ---------------------------------------------
 TSICTestHarness.register({
-    name: 'Drag/Inventory: dropping slot A onto slot B publishes Transfer',
+    name: 'Drag/Inventory: dropping cell A onto cell B publishes Move',
     file: '/screens/inventory.html',
     async run(ctx) {
         ctx.setItemCatalog({ ID_X: { Name: 'X', Category: 'Equipment' }, ID_Y: { Name: 'Y', Category: 'Equipment' } });
         ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', MaxSlots: 32, Items: [
-            { ItemId: 'ID_X', Count: 1, SlotIndex: 0 },
-            { ItemId: 'ID_Y', Count: 1, SlotIndex: 5 },
+            { ItemId: 'ID_X', Count: 1, SlotIndex: 0, InstanceId: 1, GridSlot: 0 },
+            { ItemId: 'ID_Y', Count: 1, SlotIndex: 1, InstanceId: 2, GridSlot: 5 },
         ]});
-        await ctx.waitFor(() => ctx.doc.querySelector('#inv-list .tsic-list-row[data-slot="0"]')
-                              && ctx.doc.querySelector('#inv-list .tsic-list-row[data-slot="5"]'));
-        const src = ctx.doc.querySelector('#inv-list .tsic-list-row[data-slot="0"]');
-        const dst = ctx.doc.querySelector('#inv-list .tsic-list-row[data-slot="5"]');
+        await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid .tsic-slot[data-grid="0"][data-instance="1"]')
+                              && ctx.doc.querySelector('#inv-grid .tsic-slot[data-grid="5"][data-instance="2"]'));
+        const src = ctx.doc.querySelector('#inv-grid .tsic-slot[data-grid="0"]');
+        const dst = ctx.doc.querySelector('#inv-grid .tsic-slot[data-grid="5"]');
         ctx.expect(ctx.assert.truthy(src && dst));
-        // jsdom-friendly drag emulation: dispatch dragstart on source, then dragover
-        // + drop on the destination with a hand-built DataTransfer-style stub.
+        // jsdom-friendly drag emulation: dispatch dragstart on source (the live
+        // handler fills the stub), then dragover + drop on the destination.
         const stub = { _data: {}, setData(k,v){ this._data[k]=v; }, getData(k){ return this._data[k] || ''; } };
         const ds = new ctx.win.Event('dragstart', { bubbles: true });
         ds.dataTransfer = stub;
@@ -28,7 +28,7 @@ TSICTestHarness.register({
         dr.dataTransfer = stub;
         ctx.clearPublishes();
         dst.dispatchEvent(dr);
-        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Inventory.Transfer',
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Inventory.Move',
             { where: p => p.FromOwnerId === 'Player' && p.ToOwnerId === 'Player' && p.FromSlot === 0 && p.ToSlot === 5 }));
     },
 });
@@ -342,9 +342,9 @@ TSICTestHarness.register({
     file: '/screens/inventory.html',
     async run(ctx) {
         ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', MaxSlots: 32, Items: [] });
-        await ctx.waitFor(() => ctx.doc.querySelector('#inv-list .tsic-empty'));
-        // No populated rows means nothing to hover, so no Equip/Drop context entries.
-        ctx.expect(ctx.assert.eq(ctx.doc.querySelectorAll('#inv-list .tsic-list-row').length, 0));
+        await ctx.waitFor(() => ctx.doc.querySelectorAll('#inv-grid .tsic-slot').length > 0);
+        // No occupied cells means nothing to hover, so no Equip/Drop context entries.
+        ctx.expect(ctx.assert.eq(ctx.doc.querySelectorAll('#inv-grid .tsic-slot[data-slot]').length, 0));
     },
 });
 
@@ -401,9 +401,9 @@ TSICTestHarness.register({
     file: '/screens/universal-storage.html',
     async run(ctx) {
         ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Universal', MaxSlots: 64, Items: [{ ItemId: 'X', Count: 12, SlotIndex: 0 }] });
-        await ctx.waitFor(() => ctx.doc.querySelector('#ss-container-list .tsic-list-row[data-slot="0"]'));
+        await ctx.waitFor(() => ctx.doc.querySelector('#ss-container-list .tsic-slot[data-slot="0"]'));
         ctx.clearPublishes();
-        ctx.doc.querySelector('#ss-container-list .tsic-list-row[data-slot="0"]')
+        ctx.doc.querySelector('#ss-container-list .tsic-slot[data-slot="0"]')
             .dispatchEvent(new ctx.win.MouseEvent('dblclick', { bubbles: true }));
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Inventory.Transfer'));
     },

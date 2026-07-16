@@ -73,15 +73,15 @@ TSICTestHarness.register({
         ctx.setItemCatalog({ ID_Tomato: { Name: 'Tomato', Category: 'Consumable', Weight: 0.1 } });
         // Before harvest: empty.
         ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', Items: [], MaxSlots: 32, MaxWeight: 30, CurrentWeight: 0 });
-        await ctx.waitFor(() => ctx.doc.querySelector('#inv-list .tsic-empty'));
+        await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid .tsic-slot:not([data-slot])'));
         // Harvest fires: 3 tomatoes appear.
         ctx.inject('tsic.msg.UI.Inventory.Updated', {
             OwnerId: 'Player',
             Items: [{ ItemId: 'ID_Tomato', Count: 3, SlotIndex: 0 }],
             MaxSlots: 32, MaxWeight: 30, CurrentWeight: 0.3,
         });
-        await ctx.waitFor(() => ctx.doc.querySelector('#inv-list .tsic-list-row[data-slot="0"]'));
-        const row = ctx.doc.querySelector('#inv-list .tsic-list-row[data-slot="0"]');
+        await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid .tsic-slot[data-slot="0"]'));
+        const row = ctx.doc.querySelector('#inv-grid .tsic-slot[data-slot="0"]');
         ctx.expect(ctx.assert.truthy(/×3/.test(row.textContent || ''),
             `expected ×3 in harvested row, got: ${row.textContent}`));
     },

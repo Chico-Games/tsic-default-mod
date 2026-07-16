@@ -8,8 +8,8 @@ TSICTestHarness.register({
         const items = [];
         for (let i = 0; i < 200; i++) items.push({ ItemId: `ID_${i}`, Count: 1, SlotIndex: i });
         ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', Items: items, MaxSlots: 256 });
-        await ctx.waitFor(() => ctx.doc.querySelectorAll('#inv-list .tsic-list-row').length === 200, { timeout: 3000 });
-        ctx.expect(ctx.assert.domCount(ctx.doc, '#inv-list .tsic-list-row', 200));
+        await ctx.waitFor(() => ctx.doc.querySelectorAll('#inv-grid .tsic-slot[data-slot]').length === 200, { timeout: 3000 });
+        ctx.expect(ctx.assert.domCount(ctx.doc, '#inv-grid .tsic-slot[data-slot]', 200));
     },
 });
 
@@ -127,8 +127,8 @@ TSICTestHarness.register({
     file: '/screens/storage.html',
     async run(ctx) {
         ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Storage:1', Items: [{ ItemId: 'ID_X', Count: 99999, SlotIndex: 0 }], MaxSlots: 32 });
-        await ctx.waitFor(() => ctx.doc.querySelector('#ss-container-list .tsic-list-row[data-slot="0"]'));
-        const row = ctx.doc.querySelector('#ss-container-list .tsic-list-row[data-slot="0"]');
+        await ctx.waitFor(() => ctx.doc.querySelector('#ss-container-list .tsic-slot[data-slot="0"]'));
+        const row = ctx.doc.querySelector('#ss-container-list .tsic-slot[data-slot="0"]');
         ctx.expect(ctx.assert.truthy(/×99999/.test(row.textContent || ''),
             `expected stack count ×99999 in row text, got: ${row.textContent}`));
     },
@@ -167,8 +167,8 @@ TSICTestHarness.register({
     file: '/screens/inventory.html',
     async run(ctx) {
         ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', Items: [] });
-        await ctx.waitFor(() => ctx.doc.querySelector('#inv-list .tsic-empty'), { timeout: 2000 });
-        ctx.expect(ctx.assert.eq(ctx.doc.querySelectorAll('#inv-list .tsic-list-row').length, 0));
+        await ctx.waitFor(() => ctx.doc.querySelectorAll('#inv-grid .tsic-slot').length > 0, { timeout: 2000 });
+        ctx.expect(ctx.assert.eq(ctx.doc.querySelectorAll('#inv-grid .tsic-slot[data-slot]').length, 0));
     },
 });
 

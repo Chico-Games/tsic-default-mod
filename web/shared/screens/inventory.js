@@ -25,10 +25,48 @@
     [data-screen="Inventory"] #inv-capacity[data-state="overburdened"] #inv-capacity-fill { background:#b91c1c; }
     [data-screen="Inventory"] #inv-capacity[data-state="overburdened"] #inv-capacity-overburdened { display:block; }
     [data-screen="Inventory"] #inv-capacity-overburdened { display:none; color:#b91c1c; font-weight:600; letter-spacing:1px; }
-    [data-screen="Inventory"] #inv-list .tsic-list-row { padding: 2px 8px; gap: 8px; font-size: 11px; line-height: 1.2; }
-    [data-screen="Inventory"] #inv-list .tsic-list-row .icon { width: 20px; height: 20px; }
-    [data-screen="Inventory"] #inv-list .tsic-list-row .right { display:flex; gap:8px; font-size:10px; }
-    [data-screen="Inventory"] #inv-list { gap: 2px; }
+    [data-screen="Inventory"] #inv-grid {
+      display:grid; grid-template-columns: repeat(var(--grid-cols, 8), 48px);
+      gap:4px; align-content:start; overflow:auto; padding:6px;
+      background: rgba(184,170,145,0.25); border:1px solid var(--tsic-border);
+    }
+    [data-screen="Inventory"] .tsic-slot {
+      width:48px; height:48px; position:relative; cursor:pointer;
+      background: rgba(241,229,207,0.45); border:1px solid var(--tsic-border);
+    }
+    [data-screen="Inventory"] .tsic-slot:hover { background: rgba(241,229,207,0.88); }
+    [data-screen="Inventory"] .tsic-slot.is-selected { outline:2px solid var(--cat-ink-soft); outline-offset:-2px; }
+    [data-screen="Inventory"] .tsic-slot.is-dragging { opacity:0.35; }
+    [data-screen="Inventory"] .tsic-slot.is-drop-target { outline:2px solid var(--cat-green, #3f7d4f); outline-offset:-2px; }
+    [data-screen="Inventory"] .tsic-slot.is-filtered { opacity:0.22; }
+    [data-screen="Inventory"] .tsic-slot.is-equipped {
+      outline:1px solid var(--cat-green, #3f7d4f); outline-offset:-1px;
+      background: rgba(63,125,79,0.10);
+    }
+    [data-screen="Inventory"] .tsic-slot .count {
+      position:absolute; right:2px; bottom:1px; font-size:10px; font-weight:600;
+      color:#f6efdf; text-shadow:0 1px 2px rgba(0,0,0,0.8); pointer-events:none;
+    }
+    [data-screen="Inventory"] .tsic-slot .equip-badge {
+      position:absolute; top:-3px; right:-3px;
+      min-width:11px; height:11px; line-height:11px;
+      padding:0 1px; font-size:8px; text-align:center;
+      color:#f6efdf; background: var(--cat-green, #3f7d4f);
+      border-radius:6px; pointer-events:none;
+    }
+    [data-screen="Inventory"] #inv-doll {
+      display:grid; gap:6px; padding:8px; flex:0 0 auto;
+      grid-template-columns: 56px 1fr 56px;
+      grid-template-rows: 56px 56px 56px 56px;
+      background: rgba(184,170,145,0.35); border:1px solid var(--tsic-border);
+    }
+    [data-screen="Inventory"] #inv-doll #inv-char-preview { grid-column:2; grid-row:1 / span 4; min-height:0; }
+    [data-screen="Inventory"] .equip-slot[data-equip="Head"]   { grid-column:3; grid-row:1; }
+    [data-screen="Inventory"] .equip-slot[data-equip="Body"]   { grid-column:3; grid-row:2; }
+    [data-screen="Inventory"] .equip-slot[data-equip="Legs"]   { grid-column:3; grid-row:3; }
+    [data-screen="Inventory"] .equip-slot[data-equip="Shoes"]  { grid-column:3; grid-row:4; }
+    [data-screen="Inventory"] .equip-slot[data-equip="Weapon"] { grid-column:1; grid-row:2; }
+    [data-screen="Inventory"] .equip-slot[data-equip="Gloves"] { grid-column:1; grid-row:3; }
     [data-screen="Inventory"] #inv-info { padding:10px; background: rgba(241,229,207,0.88); border:1px solid var(--tsic-border); min-height: 140px; flex: 0 0 auto; max-height: 50%; overflow:auto; }
     [data-screen="Inventory"] #inv-info img { width:56px !important; height:56px !important; margin:0 auto 6px !important; }
     [data-screen="Inventory"] #inv-info h3 { font-size: 14px; }
@@ -54,23 +92,8 @@
     [data-screen="Inventory"] .equip-slot.is-empty:hover { background: rgba(241,229,207,0.45); color: var(--cat-ink-muted, var(--cat-ink-soft)); border-color: var(--cat-border); }
     [data-screen="Inventory"] .equip-slot img { width:100%; height:100%; object-fit:contain; pointer-events:none; }
     [data-screen="Inventory"] .equip-slot.is-drop-target { outline: 2px solid var(--cat-green); outline-offset: -2px; }
-    [data-screen="Inventory"] #inv-char-preview { flex: 1 1 auto; min-height: 120px; background: rgba(241,229,207,0.92); border:1px solid var(--tsic-border); display:flex; align-items:center; justify-content:center; }
+    [data-screen="Inventory"] #inv-char-preview { min-height: 120px; background: rgba(241,229,207,0.92); border:1px solid var(--tsic-border); display:flex; align-items:center; justify-content:center; }
     [data-screen="Inventory"] #inv-char-preview img { width:100%; height:100%; object-fit:contain; }
-    [data-screen="Inventory"] #inv-list .tsic-list-row .icon { position: relative; }
-    [data-screen="Inventory"] #inv-list .tsic-list-row.is-equipped {
-      outline: 1px solid var(--cat-green, #3f7d4f);
-      outline-offset: -1px;
-      background: rgba(63,125,79,0.10);
-    }
-    [data-screen="Inventory"] #inv-list .tsic-list-row.is-equipped.is-selected { background: rgba(63,125,79,0.18); }
-    [data-screen="Inventory"] #inv-list .tsic-list-row.is-equipped .name { font-weight: 600; }
-    [data-screen="Inventory"] #inv-list .tsic-list-row .equip-badge {
-      position: absolute; top: -3px; right: -3px;
-      min-width: 11px; height: 11px; line-height: 11px;
-      padding: 0 1px; font-size: 8px; text-align: center;
-      color: #f6efdf; background: var(--cat-green, #3f7d4f);
-      border-radius: 6px; pointer-events: none;
-    }
   `;
 
   const TEMPLATE = `
@@ -92,14 +115,13 @@
         <div class="tsic-split">
           <div class="tsic-split-col">
             <div class="tsic-eyebrow">Items</div>
-            <div id="inv-list" class="tsic-list-pane"></div>
+            <div id="inv-grid"></div>
           </div>
           <div class="tsic-split-col">
-            <div class="tsic-eyebrow">Selected</div>
+            <div class="tsic-eyebrow">Character</div>
+            <div id="inv-doll"><div id="inv-char-preview"><img id="inv-char-img" alt=""></div></div>
+            <div class="tsic-eyebrow" style="margin-top:6px;">Selected</div>
             <div id="inv-info" class="tsic-empty">Hover an item to see details</div>
-            <div class="tsic-eyebrow" style="margin-top:6px;">Equipped</div>
-            <div id="inv-equip-row"></div>
-            <div id="inv-char-preview"><img id="inv-char-img" alt=""></div>
           </div>
         </div>
 
@@ -110,12 +132,15 @@
     </div>
   `;
 
+  // Tabs FILTER the grid in place: non-matching items dim (.is-filtered) but
+  // never move — hand-placed positions are sacred.
   const TAB_FILTERS = {
-    'All':   null,
-    'Tools': (i) => i.Category === 'Equipment',
-    'Cons.': (i) => i.Category === 'Consumable',
-    'Mats':  (i) => i.Category === 'CraftingMaterial',
-    'Other': (i) => !['Equipment', 'Consumable', 'CraftingMaterial'].includes(i.Category),
+    'All':           null,
+    'Equipment':     (d) => d.Category === 'Equipment',
+    'Consumables':   (d) => d.Category === 'Consumable',
+    'Constructable': (d) => d.Category === 'Constructable',
+    'Ammo':          (d) => d.Category === 'Ammo',
+    'Materials':     (d) => d.Category === 'CraftingMaterial',
   };
   const TAB_DEFS = Object.keys(TAB_FILTERS).map((id) => ({ id, label: id }));
 
@@ -205,12 +230,7 @@
         const cat = window.tsic.itemCatalog || {};
         const activeTab = tabFilter ? tabFilter.getActive() : 'All';
         const filter = TAB_FILTERS[activeTab] || null;
-        const items = (lastUpdate.Items || []).filter((it) => {
-          if (!filter) return true;
-          const desc = cat[it.ItemId];
-          return desc ? filter(desc) : (activeTab === 'Other' || activeTab === 'All');
-        });
-        // Stable instance ids of currently-equipped items, so worn rows render an
+        // Stable instance ids of currently-equipped items, so worn cells render an
         // outline + badge. The equipment snapshot reports InternalInventoryId per slot.
         const equippedIds = new Set(
           ((lastEquipment && lastEquipment.Slots) || [])
@@ -220,18 +240,29 @@
         );
         const opts = {
           catalog: cat,
-          selectedIdx: selectedSlot,
+          gridWidth: lastUpdate.GridWidth > 0 ? lastUpdate.GridWidth : 8,
+          gridHeight: lastUpdate.GridHeight > 0 ? lastUpdate.GridHeight : 6,
+          ownerId: 'Player',
+          selectedGridSlot: selectedSlot,
           equippedIds,
-          emptyLabel: 'No items in this category.',
+          // Tabs dim non-matching items in place; unknown-category items only
+          // light up under All.
+          filterFn: filter ? (it) => {
+            const desc = cat[it.ItemId];
+            return desc ? filter(desc) : false;
+          } : null,
           onHover: (it) => {
-            hoveredItem = it;
-            renderInfo(it ? cat[it.ItemId] : null, it);
-            publishHoverContext(it);
+            hoveredItem = it || hoveredItem;
+            if (it) {
+              renderInfo(cat[it.ItemId] || null, it);
+              publishHoverContext(it);
+            }
           },
           onLeave: () => { /* sticky — keep last preview */ },
-          onClick: (it) => {
+          onClick: (it, cellIndex) => {
+            selectedSlot = cellIndex;
+            window.TSICInventory.updateSelectedSlot(root.querySelector('#inv-grid'), selectedSlot);
             if (!it) return;
-            selectedSlot = it.SlotIndex;
             const desc = cat[it.ItemId];
             if (desc && desc.Category === 'Equipment') {
               // Toggle: clicking a worn item takes it off, an unworn one puts it on.
@@ -246,14 +277,13 @@
             } else if (desc && desc.Category === 'Consumable') {
               ctx.publish('UI.Cmd.Inventory.Use', { OwnerId: 'Player', SlotIndex: it.SlotIndex });
             }
-            // Selection-only update — equip/use roundtrips back through
-            // Inventory.Updated / Equipment.Updated which refresh whatever changed.
-            window.TSICInventory.updateSelectedSlot(root.querySelector('#inv-list'), selectedSlot);
+            // Equip/use roundtrips back through Inventory.Updated /
+            // Equipment.Updated which refresh whatever changed.
           },
-          onRMB: (it, e) => {
+          onRMB: (it, cellIndex, e) => {
             if (!it) return;
-            selectedSlot = it.SlotIndex;
-            window.TSICInventory.updateSelectedSlot(root.querySelector('#inv-list'), selectedSlot);
+            selectedSlot = cellIndex;
+            window.TSICInventory.updateSelectedSlot(root.querySelector('#inv-grid'), selectedSlot);
             if (!window.TSICContextMenu) return;
             const entries = window.TSICInventory.buildItemContextMenu({
               it,
@@ -264,8 +294,31 @@
             });
             window.TSICContextMenu.open({ x: e.clientX, y: e.clientY, entries });
           },
+          onDrop: (src, cellIndex) => {
+            // Paper-doll slot dragged into the grid: take it off, then place it.
+            if (src.equipSlotTag) {
+              ctx.publish('UI.Cmd.Equipment.Unequip', { ItemId: '', SlotTag: src.equipSlotTag });
+              const worn = (lastUpdate.Items || []).find(
+                (i) => String(i.InstanceId) === String(src.instanceId));
+              if (worn && worn.GridSlot >= 0 && worn.GridSlot !== cellIndex) {
+                ctx.publish('UI.Cmd.Inventory.Move', {
+                  FromOwnerId: 'Player', ToOwnerId: 'Player',
+                  FromSlot: worn.GridSlot, ToSlot: cellIndex,
+                });
+              }
+              return;
+            }
+            if (src.gridSlot == null || src.gridSlot < 0) return;
+            const fromOwner = src.ownerId || 'Player';
+            if (fromOwner === 'Player' && src.gridSlot === cellIndex) return;
+            ctx.publish('UI.Cmd.Inventory.Move', {
+              FromOwnerId: fromOwner, ToOwnerId: 'Player',
+              FromSlot: src.gridSlot, ToSlot: cellIndex,
+            });
+            tsic.playSound('Inventory.Transfer');
+          },
         };
-        window.TSICInventory.renderList(root.querySelector('#inv-list'), items, opts);
+        window.TSICInventory.renderGrid(root.querySelector('#inv-grid'), lastUpdate.Items || [], opts);
 
         const used = (lastUpdate.Items || []).length;
         const cur = lastUpdate.CurrentWeight || 0;
@@ -282,8 +335,10 @@
       }
 
       function renderEquipment() {
-        const host = root.querySelector('#inv-equip-row');
-        host.innerHTML = '';
+        const host = root.querySelector('#inv-doll');
+        // Rebuild only the equip slots — the char preview (and its streaming
+        // <img>) stays put so the stream isn't torn down on every update.
+        for (const old of host.querySelectorAll('.equip-slot')) old.remove();
         const byTag = new Map();
         const serverSlots = (lastEquipment && lastEquipment.Slots) || [];
         for (const s of serverSlots) if (s && s.SlotTag) byTag.set(s.SlotTag, s);
@@ -297,15 +352,29 @@
           const isEmpty = !s.ItemId;
           div.className = 'equip-slot' + (isEmpty ? ' is-empty' : '');
           const label = (s.SlotTag || '').split('.').pop();
+          // Anchors the paper-doll grid position (see [data-equip] CSS).
+          div.dataset.equip = label;
+          div.setAttribute('data-tsic-focusable', '');
+          div.tabIndex = -1;
           if (!isEmpty) {
             // iconImg retries the cold-cache 404 and serves the in-data fallback
             // on miss, so equipment slots no longer show the broken-image glyph.
             const img = TSIC.iconImg(TSIC.itemIconUrl(s.ItemId));
             div.appendChild(img);
-            div.title = `${label} — click to unequip`;
+            div.title = `${label} — click to unequip, drag into the grid to stow`;
             div.addEventListener('click', () => {
               ctx.publish('UI.Cmd.Equipment.Unequip', { ItemId: '', SlotTag: s.SlotTag });
             });
+            // Drag a worn item off the doll: the grid's onDrop unequips and
+            // places it in the release cell.
+            div.draggable = true;
+            div.addEventListener('dragstart', (e) => {
+              e.dataTransfer.setData('application/tsic-item', JSON.stringify({
+                equipSlotTag: s.SlotTag, instanceId: s.ItemId, ownerId: 'Player',
+              }));
+              div.classList.add('is-dragging');
+            });
+            div.addEventListener('dragend', () => div.classList.remove('is-dragging'));
           } else {
             div.textContent = label;
             div.title = `${label} (empty)`;
@@ -319,8 +388,8 @@
             if (!raw) return;
             try {
               const src = JSON.parse(raw);
-              // Equip by stable InstanceId, not the dragged row's array position.
-              if (src.instanceId == null) return;
+              // Equip by stable InstanceId, not the dragged cell's position.
+              if (src.instanceId == null || src.equipSlotTag) return;
               ctx.publish('UI.Cmd.Equipment.Equip', { ItemId: String(src.instanceId), SlotTag: '' });
             } catch (_) { /* ignore */ }
           });
@@ -371,9 +440,9 @@
             .filter((id) => id != null && id !== '')
             .map((id) => String(id))
         );
-        const listHost = root.querySelector('#inv-list');
+        const gridHost = root.querySelector('#inv-grid');
         if (window.TSICInventory && typeof window.TSICInventory.updateEquippedClasses === 'function') {
-          window.TSICInventory.updateEquippedClasses(listHost, eqIds);
+          window.TSICInventory.updateEquippedClasses(gridHost, eqIds);
         } else if (window.TSICInventory) {
           refresh();
         }
@@ -392,8 +461,11 @@
       ctx.on('tsic.msg.UI.Behavior.ItemOptions', (e) => {
         if (!ctx.isVisible() || e.Phase !== 'Started' || !hoveredItem || !window.TSICInventory || !window.TSICContextMenu) return;
         const it = hoveredItem;
-        selectedSlot = it.SlotIndex;
-        window.TSICInventory.updateSelectedSlot(root.querySelector('#inv-list'), selectedSlot);
+        const cellEl = root.querySelector(`#inv-grid .tsic-slot[data-instance="${it.InstanceId}"]`);
+        if (cellEl) {
+          selectedSlot = parseInt(cellEl.dataset.grid, 10);
+          window.TSICInventory.updateSelectedSlot(root.querySelector('#inv-grid'), selectedSlot);
+        }
         const entries = window.TSICInventory.buildItemContextMenu({
           it, desc: (window.tsic.itemCatalog || {})[it.ItemId], storageOpen: false, fromOwnerId: 'Player',
           equippedSlotTag: equippedSlotTagFor(it.InstanceId),

@@ -14,9 +14,16 @@
 
     function closeMenu() {
         if (!openMenu) return;
-        openMenu.remove();
+        // Null the handle BEFORE popping the focus scope: popScope fires our
+        // onPop, which re-enters closeMenu — the null handle makes that a no-op.
+        const panel = openMenu;
         openMenu = null;
         teardown();
+        if (panel._tsicScope && window.tsic && window.tsic.focus && window.tsic.focus.popScope) {
+            panel._tsicScope = null;
+            try { window.tsic.focus.popScope(); } catch (_) { /* already popped */ }
+        }
+        panel.remove();
     }
 
     function onKey(e) {
@@ -48,21 +55,41 @@
         if (entries.length === 0) return;
         const panel = document.createElement('div');
         panel.className = 'tsic-panel tsic-context-menu';
+        let firstItem = null;
         for (const e of entries) {
-            const item = document.createElement('div');
+            // Real buttons + data-tsic-focusable so the focus engine can walk
+            // the menu on gamepad (Confirm activates via click()).
+            const item = document.createElement('button');
+            item.type = 'button';
             item.className = 'tsic-context-item' + (e.disabled ? ' is-disabled' : '');
             item.textContent = e.label;
+            item.setAttribute('data-tsic-focusable', '');
             if (!e.disabled) {
+                if (!firstItem) firstItem = item;
                 item.addEventListener('click', () => {
                     closeMenu();
                     try { e.onClick && e.onClick(); } catch (err) { console.warn('[context-menu] entry threw:', err); }
                 });
+            } else {
+                item.disabled = true;
             }
             panel.appendChild(item);
         }
         document.body.appendChild(panel);
         openMenu = panel;
         clampToViewport(panel, opts.x || 0, opts.y || 0);
+        // Modal focus scope: gamepad nav stays inside the menu and Back closes
+        // it (screen-manager checks backHandled before closing the screen).
+        if (window.tsic && window.tsic.focus && window.tsic.focus.pushScope) {
+            try {
+                window.tsic.focus.pushScope(panel, firstItem, { onPop: () => {
+                    // Back consumed the scope directly — close without re-popping.
+                    panel._tsicScope = null;
+                    if (openMenu === panel) closeMenu();
+                } });
+                panel._tsicScope = true;
+            } catch (_) { /* focus engine dormant (mouse mode) */ }
+        }
         window.addEventListener('keydown', onKey, true);
         window.addEventListener('mousedown', onOutside, true);
         window.addEventListener('blur', closeMenu);

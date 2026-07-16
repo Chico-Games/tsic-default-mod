@@ -20,8 +20,8 @@ TSICTestHarness.register({
     async run(ctx) {
         ctx.setItemCatalog({ ID_Axe: { Name: 'Axe', Category: 'Equipment' } });
         ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', MaxSlots: 32, MaxWeight: 50, CurrentWeight: 1, Items: [{ ItemId: 'ID_Axe', Count: 1, SlotIndex: 0 }] });
-        await ctx.waitFor(() => ctx.doc.querySelector('#inv-list .tsic-list-row[data-slot="0"] img'));
-        const slot = ctx.doc.querySelector('#inv-list .tsic-list-row[data-slot="0"]');
+        await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid .tsic-slot[data-slot="0"] img'));
+        const slot = ctx.doc.querySelector('#inv-grid .tsic-slot[data-slot="0"]');
         ctx.clearPublishes();
         slot.dispatchEvent(new ctx.win.MouseEvent('mouseenter', { bubbles: true }));
         slot.dispatchEvent(new ctx.win.MouseEvent('mouseleave', { bubbles: true }));
@@ -116,14 +116,14 @@ TSICTestHarness.register({
         ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', MaxSlots: 32, MaxWeight: 50, CurrentWeight: 1, Items: [
             { ItemId: 'ID_Late', Count: 1, SlotIndex: 0 },
         ]});
-        await ctx.waitFor(() => ctx.doc.querySelector('#inv-list .tsic-list-row[data-slot="0"] img'));
+        await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid .tsic-slot[data-slot="0"] img'));
         // Catalog arrives later — categorisation should reroute the item into Tools.
         ctx.setItemCatalog({ ID_Late: { Name: 'Late', Category: 'Equipment' } });
         await new Promise(r => setTimeout(r, 60));
         // Click the Tools tab; item should still be there.
         Array.from(ctx.doc.querySelectorAll('.tsic-tab')).find(e => e.textContent === 'Tools').click();
         await new Promise(r => setTimeout(r, 30));
-        ctx.expect(ctx.assert.domExists(ctx.doc, '#inv-list .tsic-list-row[data-slot="0"] img'));
+        ctx.expect(ctx.assert.domExists(ctx.doc, '#inv-grid .tsic-slot[data-slot="0"] img'));
     },
 });
 

@@ -50,12 +50,12 @@ TSICTestHarness.register({
     async run(ctx) {
         ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Storage:42', MaxSlots: 32, Items: [{ ItemId: 'X', Count: 1, SlotIndex: 0 }] });
         ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player',     MaxSlots: 32, Items: [{ ItemId: 'Y', Count: 1, SlotIndex: 3 }] });
-        await ctx.waitFor(() => ctx.doc.querySelector('#ss-container-list .tsic-list-row[data-slot="0"] img')
-                              && ctx.doc.querySelector('#ss-player-list .tsic-list-row[data-slot="3"] img'));
+        await ctx.waitFor(() => ctx.doc.querySelector('#ss-container-list .tsic-slot[data-slot="0"] img')
+                              && ctx.doc.querySelector('#ss-player-list .tsic-slot[data-slot="3"] img'));
         ctx.clearPublishes();
-        ctx.doc.querySelector('#ss-container-list .tsic-list-row[data-slot="0"]')
+        ctx.doc.querySelector('#ss-container-list .tsic-slot[data-slot="0"]')
             .dispatchEvent(new ctx.win.MouseEvent('dblclick', { bubbles: true }));
-        ctx.doc.querySelector('#ss-player-list .tsic-list-row[data-slot="3"]')
+        ctx.doc.querySelector('#ss-player-list .tsic-slot[data-slot="3"]')
             .dispatchEvent(new ctx.win.MouseEvent('dblclick', { bubbles: true }));
         const pubs = ctx.publishes().filter(p => p.channel === 'UI.Cmd.Inventory.Transfer');
         ctx.expect(ctx.assert.eq(pubs.length, 2));

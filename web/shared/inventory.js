@@ -80,6 +80,10 @@
             for (const row of host.querySelectorAll('.tsic-list-row')) {
                 row.classList.toggle('is-selected', row.dataset.slot === target);
             }
+            // Grid cells select by CELL index (dataset.grid), not array index.
+            for (const cell of host.querySelectorAll('.tsic-slot')) {
+                cell.classList.toggle('is-selected', cell.dataset.grid === target && target !== '');
+            }
         },
         // Partial-update path for the equipped outline + corner badge: walks
         // the existing rows already rendered by renderList() and toggles the
@@ -90,55 +94,108 @@
         updateEquippedClasses(host, equippedIds) {
             if (!host) return;
             const eq = equippedIds || new Set();
-            const rows = host.querySelectorAll('.tsic-list-row');
+            const rows = host.querySelectorAll('.tsic-list-row, .tsic-slot');
             for (const row of rows) {
                 const id = row.dataset.instance;
                 const isEq = !!(id != null && id !== '' && eq.has(String(id)));
                 row.classList.toggle('is-equipped', isEq);
-                const iconWrap = row.querySelector('.icon');
-                if (!iconWrap) continue;
-                const badge = iconWrap.querySelector('.equip-badge');
+                // List rows badge inside .icon; grid cells badge on the cell itself.
+                const badgeHost = row.querySelector('.icon') || row;
+                const badge = badgeHost.querySelector('.equip-badge');
                 if (isEq && !badge) {
-                    iconWrap.appendChild(el('span', { class: 'equip-badge', title: 'Equipped' }, '✦'));
+                    badgeHost.appendChild(el('span', { class: 'equip-badge', title: 'Equipped' }, '✦'));
                 } else if (!isEq && badge) {
                     badge.remove();
                 }
             }
         },
+        // Slot grid. Cells are laid out gridWidth × gridHeight; items land in
+        // their persistent GridSlot, and legacy items without one (-1) flow
+        // into the remaining free cells in list order. Every cell is a drop
+        // target; occupied cells are drag sources carrying
+        // application/tsic-item { slot, gridSlot, instanceId, itemId, ownerId }.
+        // opts.filterFn(it) dims non-matching items (.is-filtered) in place —
+        // positions never change. Cells are gamepad-focusable; a pending
+        // gamepad "Move" (armMove) turns the next cell click into a drop.
         renderGrid(host, items, opts) {
-            const totalSlots = opts.maxSlots > 0 ? opts.maxSlots : 32;
+            const cat = (opts && opts.catalog) || (window.tsic && window.tsic.itemCatalog) || {};
+            const cols = opts.gridWidth > 0 ? opts.gridWidth : 8;
+            const rows = opts.gridHeight > 0 ? opts.gridHeight
+                : Math.ceil((opts.maxSlots > 0 ? opts.maxSlots : 32) / cols);
+            const totalSlots = cols * rows;
             host.innerHTML = '';
-            const indexed = new Map();
-            for (const it of (items || [])) indexed.set(it.SlotIndex, it);
+            host.style.setProperty('--grid-cols', String(cols));
+
+            // GridSlot placement first, then flow the unassigned into free cells.
+            const byCell = new Map();
+            const overflow = [];
+            for (const it of (items || [])) {
+                if (it.GridSlot >= 0 && it.GridSlot < totalSlots && !byCell.has(it.GridSlot)) {
+                    byCell.set(it.GridSlot, it);
+                } else {
+                    overflow.push(it);
+                }
+            }
+            for (let cell = 0; cell < totalSlots && overflow.length; cell++) {
+                if (!byCell.has(cell)) byCell.set(cell, overflow.shift());
+            }
+
+            const equippedIds = (opts && opts.equippedIds) || null;
             for (let i = 0; i < totalSlots; i++) {
-                const it = indexed.get(i);
-                const slot = el('div', { class: 'tsic-slot' + (opts.selectedIdx === i ? ' selected' : '') });
-                slot.dataset.slot = i;
+                const it = byCell.get(i);
+                const slot = el('div', { class: 'tsic-slot' });
+                slot.dataset.grid = i;
+                slot.setAttribute('data-tsic-focusable', '');
+                slot.tabIndex = -1;
+                if (opts.selectedGridSlot === i) slot.classList.add('is-selected');
                 if (it) {
+                    slot.dataset.slot = it.SlotIndex;
+                    if (it.InstanceId != null) slot.dataset.instance = it.InstanceId;
+                    const isEquipped = !!(equippedIds && it.InstanceId != null && equippedIds.has(String(it.InstanceId)));
+                    if (isEquipped) slot.classList.add('is-equipped');
+                    if (opts.filterFn && !opts.filterFn(it)) slot.classList.add('is-filtered');
                     if (it.ItemId) {
                         const img = TSIC.iconImg(TSIC.itemIconUrl(it.ItemId));
                         img.style.cssText = 'width:100%;height:100%;object-fit:contain;pointer-events:none;';
                         slot.appendChild(img);
                     }
+                    if (isEquipped) {
+                        slot.appendChild(el('span', { class: 'equip-badge', title: 'Equipped' }, '✦'));
+                    }
                     if (it.Count > 1) {
                         slot.appendChild(el('span', { class: 'count' }, String(it.Count)));
                     }
+                    const desc = cat[it.ItemId] || {};
+                    slot.title = desc.Name || it.ItemId || '';
                 }
                 slot.addEventListener('mouseenter', () => opts.onHover && opts.onHover(it, i));
                 slot.addEventListener('mouseleave', () => opts.onLeave && opts.onLeave());
-                slot.addEventListener('click', () => opts.onClick && opts.onClick(it, i));
+                slot.addEventListener('click', () => {
+                    const armed = window.TSICInventory._armedMove;
+                    if (armed) {
+                        window.TSICInventory._armedMove = null;
+                        if (opts.onDrop) opts.onDrop(armed, i);
+                        return;
+                    }
+                    if (opts.onClick) opts.onClick(it, i);
+                });
                 slot.addEventListener('dblclick', () => opts.onDblClick && opts.onDblClick(it, i));
                 slot.addEventListener('contextmenu', (e) => { e.preventDefault(); opts.onRMB && opts.onRMB(it, i, e); });
                 slot.draggable = !!it;
                 slot.addEventListener('dragstart', (e) => {
                     if (!it) return;
-                    e.dataTransfer.setData('application/tsic-item', JSON.stringify({ slot: i, itemId: it.ItemId }));
+                    e.dataTransfer.setData('application/tsic-item', JSON.stringify({
+                        slot: it.SlotIndex, gridSlot: i, instanceId: it.InstanceId,
+                        itemId: it.ItemId, ownerId: opts.ownerId || 'Player',
+                    }));
                     slot.classList.add('is-dragging');
                 });
                 slot.addEventListener('dragend', () => slot.classList.remove('is-dragging'));
-                slot.addEventListener('dragover', (e) => e.preventDefault());
+                slot.addEventListener('dragover', (e) => { e.preventDefault(); slot.classList.add('is-drop-target'); });
+                slot.addEventListener('dragleave', () => slot.classList.remove('is-drop-target'));
                 slot.addEventListener('drop', (e) => {
                     e.preventDefault();
+                    slot.classList.remove('is-drop-target');
                     const raw = e.dataTransfer.getData('application/tsic-item');
                     if (!raw) return;
                     try { opts.onDrop && opts.onDrop(JSON.parse(raw), i); } catch {}
@@ -146,6 +203,11 @@
                 host.appendChild(slot);
             }
         },
+        // Gamepad path for rearranging: the context menu's "Move" entry arms a
+        // payload; the next cell activation anywhere becomes the drop target.
+        _armedMove: null,
+        armMove(payload) { this._armedMove = payload || null; },
+        disarmMove() { this._armedMove = null; },
         renderInfoPanel(host, itemDescriptor, itemInstance) {
             host.innerHTML = '';
             if (!itemDescriptor) return;
@@ -203,6 +265,17 @@
             } else if (cat === 'Consumable') {
                 entries.push({ label: 'Use', onClick: () => {
                     publish('UI.Cmd.Inventory.Use', { OwnerId: fromOwnerId, SlotIndex: it.SlotIndex });
+                }});
+            }
+            // Gamepad path for drag-and-drop: arm the move, then the next cell
+            // activation places the item there (renderGrid consumes the arm).
+            if (it.GridSlot != null && it.GridSlot >= 0) {
+                entries.push({ label: 'Move…', onClick: () => {
+                    window.TSICInventory.armMove({
+                        slot: it.SlotIndex, gridSlot: it.GridSlot,
+                        instanceId: it.InstanceId, itemId: it.ItemId,
+                        ownerId: fromOwnerId,
+                    });
                 }});
             }
             entries.push({ label: 'Assign to Hotbar…', onClick: () => {

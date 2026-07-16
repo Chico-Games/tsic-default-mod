@@ -10,9 +10,9 @@ TSICTestHarness.register({
     async run(ctx) {
         ctx.setItemCatalog({ ID_W: { Name: 'Wheat', Category: 'CraftingMaterial' } });
         ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', Items: [{ ItemId: 'ID_W', Count: 7, SlotIndex: 0 }], MaxSlots: 32, MaxWeight: 50, CurrentWeight: 1.4 });
-        await ctx.waitFor(() => ctx.doc.querySelector('#inv-list .tsic-list-row[data-slot="0"] img'));
+        await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid .tsic-slot[data-slot="0"] img'));
         // hover -> action bar gets contextual Drop entry
-        const slot = ctx.doc.querySelector('#inv-list .tsic-list-row[data-slot="0"]');
+        const slot = ctx.doc.querySelector('#inv-grid .tsic-slot[data-slot="0"]');
         slot.dispatchEvent(new ctx.win.MouseEvent('mouseenter', { bubbles: true }));
         await new Promise(r => setTimeout(r, 30));
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.BehaviorBar.SetMenuContext',
@@ -38,24 +38,24 @@ TSICTestHarness.register({
     },
 });
 
-// ---- Inventory → equip flow (dblclick) ----------------------------------
+// ---- Inventory → equip flow (click = quick action) -----------------------
 TSICTestHarness.register({
-    name: 'E2E/Inventory: equippable hover → dblclick → Equip; equipment list reflects update',
+    name: 'E2E/Inventory: equippable click → Equip; paper doll reflects update',
     file: '/screens/inventory.html',
     async run(ctx) {
         ctx.setItemCatalog({ ID_Axe: { Name: 'Axe', Category: 'Equipment' } });
-        ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', Items: [{ ItemId: 'ID_Axe', Count: 1, SlotIndex: 0 }], MaxSlots: 32, MaxWeight: 50, CurrentWeight: 5 });
+        ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', Items: [{ ItemId: 'ID_Axe', Count: 1, SlotIndex: 0, InstanceId: 4, GridSlot: 0 }], MaxSlots: 32, MaxWeight: 50, CurrentWeight: 5 });
         ctx.inject('tsic.msg.UI.Equipment.Updated', { OwnerId: 'Player', Slots: [{ SlotTag: 'Equip.Weapon', ItemId: '', IconUrl: '' }] });
-        await ctx.waitFor(() => ctx.doc.querySelector('#inv-list .tsic-list-row[data-slot="0"] img'));
-        const slot = ctx.doc.querySelector('#inv-list .tsic-list-row[data-slot="0"]');
-        slot.dispatchEvent(new ctx.win.MouseEvent('mouseenter', { bubbles: true }));
+        await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid .tsic-slot[data-slot="0"] img'));
+        const cell = ctx.doc.querySelector('#inv-grid .tsic-slot[data-slot="0"]');
+        cell.dispatchEvent(new ctx.win.MouseEvent('mouseenter', { bubbles: true }));
         ctx.clearPublishes();
-        slot.dispatchEvent(new ctx.win.MouseEvent('dblclick', { bubbles: true }));
-        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Equipment.Equip', { where: p => p.ItemId === '0' }));
+        cell.click();
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Equipment.Equip', { where: p => p.ItemId === '4' }));
         // Pretend C++ accepted and re-broadcasts equipment with the axe equipped.
         ctx.inject('tsic.msg.UI.Equipment.Updated', { OwnerId: 'Player', Slots: [{ SlotTag: 'Equip.Weapon', ItemId: 'ID_Axe', IconUrl: '' }] });
         await new Promise(r => setTimeout(r, 30));
-        ctx.expect(ctx.assert.truthy(ctx.doc.querySelector('#inv-equip-row .equip-slot img'), 'expected equipped slot to render an icon'));
+        ctx.expect(ctx.assert.truthy(ctx.doc.querySelector('#inv-doll .equip-slot img'), 'expected equipped slot to render an icon'));
     },
 });
 
@@ -127,9 +127,9 @@ TSICTestHarness.register({
         ctx.setItemCatalog({ ID_Wood: { Name: 'Wood', Category: 'CraftingMaterial' } });
         ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Storage:42', Items: [{ ItemId: 'ID_Wood', Count: 3, SlotIndex: 0 }], MaxSlots: 32 });
         ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', Items: [], MaxSlots: 32 });
-        await ctx.waitFor(() => ctx.doc.querySelector('#ss-container-list .tsic-list-row[data-slot="0"] img'));
+        await ctx.waitFor(() => ctx.doc.querySelector('#ss-container-list .tsic-slot[data-slot="0"] img'));
         ctx.clearPublishes();
-        ctx.doc.querySelector('#ss-container-list .tsic-list-row[data-slot="0"]')
+        ctx.doc.querySelector('#ss-container-list .tsic-slot[data-slot="0"]')
             .dispatchEvent(new ctx.win.MouseEvent('dblclick', { bubbles: true }));
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Inventory.Transfer',
             { where: p => p.FromOwnerId === 'Storage:42' && p.ToOwnerId === 'Player' && p.FromSlot === 0 }));
@@ -138,7 +138,7 @@ TSICTestHarness.register({
         ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Storage:42', Items: [], MaxSlots: 32 });
         ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', Items: [{ ItemId: 'ID_Wood', Count: 3, SlotIndex: 0 }], MaxSlots: 32 });
         await new Promise(r => setTimeout(r, 30));
-        ctx.expect(ctx.assert.domExists(ctx.doc, '#ss-player-list .tsic-list-row[data-slot="0"] img'));
+        ctx.expect(ctx.assert.domExists(ctx.doc, '#ss-player-list .tsic-slot[data-slot="0"] img'));
     },
 });
 
@@ -225,9 +225,9 @@ TSICTestHarness.register({
     async run(ctx) {
         ctx.setItemCatalog({ ID_Axe: { Name: 'Axe', Category: 'Equipment' } });
         ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', Items: [{ ItemId: 'ID_Axe', Count: 1, SlotIndex: 0 }], MaxSlots: 32, MaxWeight: 50, CurrentWeight: 5 });
-        await ctx.waitFor(() => ctx.doc.querySelector('#inv-list .tsic-list-row[data-slot="0"] img'));
+        await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid .tsic-slot[data-slot="0"] img'));
         ctx.clearPublishes();
-        ctx.doc.querySelector('#inv-list .tsic-list-row[data-slot="0"]').dispatchEvent(new ctx.win.MouseEvent('mouseenter', { bubbles: true }));
+        ctx.doc.querySelector('#inv-grid .tsic-slot[data-slot="0"]').dispatchEvent(new ctx.win.MouseEvent('mouseenter', { bubbles: true }));
         await new Promise(r => setTimeout(r, 30));
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.BehaviorBar.SetMenuContext',
             { where: p => p.Entries.find(e => e.Label === 'Equip')
@@ -242,9 +242,9 @@ TSICTestHarness.register({
     async run(ctx) {
         ctx.setItemCatalog({ ID_Bread: { Name: 'Bread', Category: 'Consumable' } });
         ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', Items: [{ ItemId: 'ID_Bread', Count: 2, SlotIndex: 0 }], MaxSlots: 32, MaxWeight: 50, CurrentWeight: 0.4 });
-        await ctx.waitFor(() => ctx.doc.querySelector('#inv-list .tsic-list-row[data-slot="0"] img'));
+        await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid .tsic-slot[data-slot="0"] img'));
         ctx.clearPublishes();
-        ctx.doc.querySelector('#inv-list .tsic-list-row[data-slot="0"]').dispatchEvent(new ctx.win.MouseEvent('mouseenter', { bubbles: true }));
+        ctx.doc.querySelector('#inv-grid .tsic-slot[data-slot="0"]').dispatchEvent(new ctx.win.MouseEvent('mouseenter', { bubbles: true }));
         await new Promise(r => setTimeout(r, 30));
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.BehaviorBar.SetMenuContext',
             { where: p => p.Entries.find(e => e.Label === 'Use')
@@ -259,9 +259,9 @@ TSICTestHarness.register({
     async run(ctx) {
         ctx.setItemCatalog({ ID_R: { Name: 'Rock', Category: 'CraftingMaterial' } });
         ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', Items: [{ ItemId: 'ID_R', Count: 5, SlotIndex: 0 }], MaxSlots: 32, MaxWeight: 50, CurrentWeight: 1 });
-        await ctx.waitFor(() => ctx.doc.querySelector('#inv-list .tsic-list-row[data-slot="0"] img'));
+        await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid .tsic-slot[data-slot="0"] img'));
         ctx.clearPublishes();
-        ctx.doc.querySelector('#inv-list .tsic-list-row[data-slot="0"]').dispatchEvent(new ctx.win.MouseEvent('mouseenter', { bubbles: true }));
+        ctx.doc.querySelector('#inv-grid .tsic-slot[data-slot="0"]').dispatchEvent(new ctx.win.MouseEvent('mouseenter', { bubbles: true }));
         await new Promise(r => setTimeout(r, 30));
         const last = ctx.publishes().filter(p => p.channel === 'UI.Cmd.BehaviorBar.SetMenuContext').slice(-1)[0];
         const labels = last.payload.Entries.map(e => e.Label).filter(l => l !== 'Back');
