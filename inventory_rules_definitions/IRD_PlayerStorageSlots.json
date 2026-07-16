@@ -12,7 +12,7 @@
       "capacity": 200.0,
       "b_can_exceed_capacity": true,
       "grid_width": 8,
-      "grid_height": 6
+      "grid_height": 8
     }
   }
 }

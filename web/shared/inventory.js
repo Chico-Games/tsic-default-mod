@@ -218,6 +218,7 @@
             const totalSlots = cols * rows;
             host.innerHTML = '';
             host.style.setProperty('--grid-cols', String(cols));
+            host.style.setProperty('--grid-rows', String(rows));
             // The pointer-drag router resolves release targets back to this
             // host's drop handler (see beginPointerDrag).
             host.setAttribute('data-tsic-grid-host', '');
@@ -302,8 +303,8 @@
             infoImg.style.cssText = 'width:96px;height:96px;object-fit:contain;display:block;margin:0 auto 8px;';
             host.appendChild(infoImg);
             host.appendChild(el('h3', { style: 'margin:0 0 4px;' }, itemDescriptor.Name));
-            host.appendChild(el('p', { style: 'font-size:12px;color:rgba(37,33,25,0.75);' }, itemDescriptor.Description || ''));
-            const meta = el('div', { style: 'margin-top:8px;font-size:11px;color:rgba(37,33,25,0.65);' });
+            host.appendChild(el('p', { style: 'font-size:13px;color:rgba(37,33,25,0.78);' }, itemDescriptor.Description || ''));
+            const meta = el('div', { style: 'margin-top:8px;font-size:12px;color:rgba(37,33,25,0.68);' });
             meta.innerHTML = `<div>Category: ${itemDescriptor.Category || 'Other'}</div>`
                 + `<div>Weight: ${(itemDescriptor.Weight || 0).toFixed(2)}</div>`
                 + (itemInstance && itemInstance.Count > 1 ? `<div>Stack: ${itemInstance.Count}</div>` : '');
