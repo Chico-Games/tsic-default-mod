@@ -15,19 +15,16 @@ TSICTestHarness.register({
         const src = ctx.doc.querySelector('#inv-grid .tsic-slot[data-grid="0"]');
         const dst = ctx.doc.querySelector('#inv-grid .tsic-slot[data-grid="5"]');
         ctx.expect(ctx.assert.truthy(src && dst));
-        // jsdom-friendly drag emulation: dispatch dragstart on source (the live
-        // handler fills the stub), then dragover + drop on the destination.
-        const stub = { _data: {}, setData(k,v){ this._data[k]=v; }, getData(k){ return this._data[k] || ''; } };
-        const ds = new ctx.win.Event('dragstart', { bubbles: true });
-        ds.dataTransfer = stub;
-        src.dispatchEvent(ds);
-        const dv = new ctx.win.Event('dragover', { bubbles: true, cancelable: true });
-        dv.dataTransfer = stub;
-        dst.dispatchEvent(dv);
-        const dr = new ctx.win.Event('drop', { bubbles: true, cancelable: true });
-        dr.dataTransfer = stub;
+        // Pointer-based drag (CEF renders no native HTML5 drag ghost): real
+        // pointerdown → pointermove past the threshold → pointerup on target.
+        const f = src.getBoundingClientRect();
+        const t = dst.getBoundingClientRect();
+        const opt = (x, y) => ({ bubbles: true, cancelable: true, clientX: x, clientY: y, button: 0 });
         ctx.clearPublishes();
-        dst.dispatchEvent(dr);
+        src.dispatchEvent(new ctx.win.PointerEvent('pointerdown', opt(f.x + f.width / 2, f.y + f.height / 2)));
+        ctx.doc.dispatchEvent(new ctx.win.PointerEvent('pointermove', opt(f.x + f.width / 2 + 12, f.y + f.height / 2 + 12)));
+        ctx.doc.dispatchEvent(new ctx.win.PointerEvent('pointermove', opt(t.x + t.width / 2, t.y + t.height / 2)));
+        ctx.doc.dispatchEvent(new ctx.win.PointerEvent('pointerup', opt(t.x + t.width / 2, t.y + t.height / 2)));
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Inventory.Move',
             { where: p => p.FromOwnerId === 'Player' && p.ToOwnerId === 'Player' && p.FromSlot === 0 && p.ToSlot === 5 }));
     },

@@ -336,6 +336,7 @@ button.tsic-list-row {
     position: fixed;
     z-index: 1100;
     min-width: 200px;
+    max-width: 320px;
     padding: 4px;
     background: var(--paper-cream);
     border: 3px solid var(--ink-night);
@@ -346,8 +347,37 @@ button.tsic-list-row {
     text-transform: uppercase;
     color: var(--ink-night);
     user-select: none;
+    transform-origin: top left;
+    animation: tsic-menu-in 120ms ease-out;
+}
+@keyframes tsic-menu-in {
+    from { opacity: 0; transform: scale(0.92) translateY(-4px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* Shared pop-in for transient chrome (quantity/hotbar modals, pickers). */
+.tsic-anim-overlay { animation: tsic-fade-in 120ms ease-out; }
+.tsic-anim-pop     { animation: tsic-pop-in 140ms cubic-bezier(0.2, 0.9, 0.3, 1.15); }
+@keyframes tsic-fade-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+@keyframes tsic-pop-in {
+    from { opacity: 0; transform: scale(0.94) translateY(6px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
 }
 .tsic-context-item {
+    /* Entries are <button>s (gamepad-focusable) — reset chrome and force
+       one-per-row block flow so the menu stays a vertical list. */
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    font: inherit;
+    color: inherit;
+    letter-spacing: inherit;
+    text-transform: inherit;
     padding: 6px 10px;
     cursor: pointer;
     transition: background-color 80ms ease, color 80ms ease, padding-left 120ms ease;

@@ -5,7 +5,100 @@
 (function(){
     var el = TSIC.el;
 
+    // ---- Pointer-based drag ------------------------------------------------
+    // CEF's offscreen renderer never paints native HTML5 drag images, so grid
+    // drags use pointer events with a hand-drawn ghost that follows the cursor.
+    // Targets resolve via elementFromPoint: grid cells route to their host's
+    // onDrop (host._tsicGridDrop, set by renderGrid); equipment slots route to
+    // their own _tsicEquipDrop. Release anywhere else cancels.
+    var DRAG_THRESHOLD_PX = 6;
+    var suppressClickUntil = 0;
+
+    function injectDragStyleOnce() {
+        if (document.getElementById('tsic-grid-drag-style')) return;
+        var s = document.createElement('style');
+        s.id = 'tsic-grid-drag-style';
+        s.textContent = [
+            '.tsic-drag-ghost {',
+            '  position:fixed; width:48px; height:48px; z-index:2000;',
+            '  pointer-events:none; opacity:0.9; padding:4px;',
+            '  background: rgba(241,229,207,0.92); border:1px solid rgba(37,33,25,0.65);',
+            '  box-shadow: 0 4px 10px rgba(0,0,0,0.35);',
+            '}',
+        ].join('\n');
+        document.head.appendChild(s);
+    }
+
+    function dropTargetUnder(x, y) {
+        var target = document.elementFromPoint(x, y);
+        return target ? target.closest('.tsic-slot, .equip-slot') : null;
+    }
+
+    function beginPointerDrag(sourceEl, payload, iconUrl, e) {
+        if (e.button !== 0) return;
+        injectDragStyleOnce();
+        var startX = e.clientX;
+        var startY = e.clientY;
+        var ghost = null;
+        var lastTarget = null;
+
+        function positionGhost(ev) {
+            ghost.style.left = (ev.clientX - 24) + 'px';
+            ghost.style.top  = (ev.clientY - 24) + 'px';
+        }
+        function onMove(ev) {
+            if (!ghost) {
+                var dx = ev.clientX - startX;
+                var dy = ev.clientY - startY;
+                if ((dx * dx + dy * dy) < DRAG_THRESHOLD_PX * DRAG_THRESHOLD_PX) return;
+                sourceEl.classList.add('is-dragging');
+                ghost = document.createElement('div');
+                ghost.className = 'tsic-drag-ghost';
+                if (iconUrl) {
+                    var img = TSIC.iconImg(iconUrl);
+                    img.style.cssText = 'width:100%;height:100%;object-fit:contain;pointer-events:none;';
+                    ghost.appendChild(img);
+                }
+                document.body.appendChild(ghost);
+            }
+            positionGhost(ev);
+            var t = dropTargetUnder(ev.clientX, ev.clientY);
+            if (lastTarget && lastTarget !== t) lastTarget.classList.remove('is-drop-target');
+            if (t && t !== sourceEl) t.classList.add('is-drop-target');
+            lastTarget = t;
+        }
+        function onUp(ev) {
+            document.removeEventListener('pointermove', onMove, true);
+            document.removeEventListener('pointerup', onUp, true);
+            if (lastTarget) lastTarget.classList.remove('is-drop-target');
+            if (!ghost) return; // never crossed the threshold — a plain click
+            sourceEl.classList.remove('is-dragging');
+            ghost.remove();
+            // Swallow the click browsers fire right after a drag's pointerup.
+            suppressClickUntil = Date.now() + 150;
+            var t = dropTargetUnder(ev.clientX, ev.clientY);
+            if (!t) return; // release outside anything droppable = cancel
+            if (t.classList.contains('equip-slot')) {
+                if (t._tsicEquipDrop) t._tsicEquipDrop(payload);
+                return;
+            }
+            var host = t.closest('[data-tsic-grid-host]');
+            var cellIndex = t.dataset ? parseInt(t.dataset.grid, 10) : NaN;
+            if (host && host._tsicGridDrop && !Number.isNaN(cellIndex)) {
+                host._tsicGridDrop(payload, cellIndex);
+            }
+        }
+        document.addEventListener('pointermove', onMove, true);
+        document.addEventListener('pointerup', onUp, true);
+    }
+
+    function clickSuppressed() {
+        return Date.now() < suppressClickUntil;
+    }
+
     window.TSICInventory = {
+        beginPointerDrag: beginPointerDrag,
+        clickSuppressed: clickSuppressed,
         // Vertical scrollable item list. Renders one .tsic-list-row per stack
         // (RE-style — no slot grid, no reorder; SlotIndex is just an identity).
         // Each row is a real <button> so gamepad Confirm + mouse click both
@@ -125,6 +218,10 @@
             const totalSlots = cols * rows;
             host.innerHTML = '';
             host.style.setProperty('--grid-cols', String(cols));
+            // The pointer-drag router resolves release targets back to this
+            // host's drop handler (see beginPointerDrag).
+            host.setAttribute('data-tsic-grid-host', '');
+            host._tsicGridDrop = opts.onDrop || null;
 
             // GridSlot placement first, then flow the unassigned into free cells.
             const byCell = new Map();
@@ -171,6 +268,7 @@
                 slot.addEventListener('mouseenter', () => opts.onHover && opts.onHover(it, i));
                 slot.addEventListener('mouseleave', () => opts.onLeave && opts.onLeave());
                 slot.addEventListener('click', () => {
+                    if (clickSuppressed()) return; // tail end of a drag, not a click
                     const armed = window.TSICInventory._armedMove;
                     if (armed) {
                         window.TSICInventory._armedMove = null;
@@ -181,25 +279,14 @@
                 });
                 slot.addEventListener('dblclick', () => opts.onDblClick && opts.onDblClick(it, i));
                 slot.addEventListener('contextmenu', (e) => { e.preventDefault(); opts.onRMB && opts.onRMB(it, i, e); });
-                slot.draggable = !!it;
-                slot.addEventListener('dragstart', (e) => {
-                    if (!it) return;
-                    e.dataTransfer.setData('application/tsic-item', JSON.stringify({
-                        slot: it.SlotIndex, gridSlot: i, instanceId: it.InstanceId,
-                        itemId: it.ItemId, ownerId: opts.ownerId || 'Player',
-                    }));
-                    slot.classList.add('is-dragging');
-                });
-                slot.addEventListener('dragend', () => slot.classList.remove('is-dragging'));
-                slot.addEventListener('dragover', (e) => { e.preventDefault(); slot.classList.add('is-drop-target'); });
-                slot.addEventListener('dragleave', () => slot.classList.remove('is-drop-target'));
-                slot.addEventListener('drop', (e) => {
-                    e.preventDefault();
-                    slot.classList.remove('is-drop-target');
-                    const raw = e.dataTransfer.getData('application/tsic-item');
-                    if (!raw) return;
-                    try { opts.onDrop && opts.onDrop(JSON.parse(raw), i); } catch {}
-                });
+                if (it) {
+                    slot.addEventListener('pointerdown', (e) => {
+                        beginPointerDrag(slot, {
+                            slot: it.SlotIndex, gridSlot: i, instanceId: it.InstanceId,
+                            itemId: it.ItemId, ownerId: opts.ownerId || 'Player',
+                        }, it.ItemId ? TSIC.itemIconUrl(it.ItemId) : null, e);
+                    });
+                }
                 host.appendChild(slot);
             }
         },
@@ -225,8 +312,8 @@
         openQuantityModal(maxCount, onConfirm, opts) {
             const title = (opts && opts.title) || 'Drop how many?';
             const confirmLabel = (opts && opts.confirmLabel) || 'Drop';
-            const overlay = el('div', { style: 'position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:1000;' });
-            const panel = el('div', { class: 'tsic-panel', style: 'width:300px;padding:16px;' });
+            const overlay = el('div', { class: 'tsic-anim-overlay', style: 'position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:1000;' });
+            const panel = el('div', { class: 'tsic-panel tsic-anim-pop', style: 'width:300px;padding:16px;' });
             panel.appendChild(el('h3', { style: 'margin:0 0 12px;' }, title));
             const slider = el('input', { type: 'range', min: '1', max: String(maxCount), value: String(maxCount), style: 'width:100%;' });
             const num = el('div', { style: 'text-align:center;font-size:18px;margin:8px 0;' }, String(maxCount));
@@ -321,8 +408,8 @@
         openHotbarSlotModal(itemId, onPick) {
             // C++ NumHotbarSlots == 10. Slot index space is 0..9; the modal's
             // visible labels follow the keyboard convention (1..9, 0).
-            const overlay = el('div', { style: 'position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:1000;' });
-            const panel = el('div', { class: 'tsic-panel', style: 'padding:16px;' });
+            const overlay = el('div', { class: 'tsic-anim-overlay', style: 'position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:1000;' });
+            const panel = el('div', { class: 'tsic-panel tsic-anim-pop', style: 'padding:16px;' });
             panel.appendChild(el('h3', { style: 'margin:0 0 12px;' }, 'Pick hotbar slot (1-9 or 0)'));
             const row = el('div', { style: 'display:flex;gap:6px;' });
             const buttons = [];

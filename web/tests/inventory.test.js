@@ -6,19 +6,16 @@ function findContextMenuEntry(doc, label) {
     return items.find(el => (el.textContent || '').trim() === label) || null;
 }
 
-// jsdom doesn't expose a DragEvent / DataTransfer constructor — emulate via a plain stub.
-function makeDataTransferStub(initialMap) {
-    const data = Object.assign({}, initialMap || {});
-    return {
-        _data: data,
-        setData(k, v) { data[k] = v; },
-        getData(k) { return data[k] || ''; },
-    };
-}
-function dispatchDragOn(win, target, type, dataTransfer) {
-    const ev = new win.Event(type, { bubbles: true, cancelable: true });
-    ev.dataTransfer = dataTransfer;
-    target.dispatchEvent(ev);
+// Grid drags are pointer-based (CEF renders no native HTML5 drag ghost), so
+// tests drive the real pointerdown → pointermove → pointerup sequence.
+function pointerDrag(ctx, fromEl, toEl) {
+    const f = fromEl.getBoundingClientRect();
+    const t = toEl.getBoundingClientRect();
+    const opts = (x, y) => ({ bubbles: true, cancelable: true, clientX: x, clientY: y, button: 0 });
+    fromEl.dispatchEvent(new ctx.win.PointerEvent('pointerdown', opts(f.x + f.width / 2, f.y + f.height / 2)));
+    ctx.doc.dispatchEvent(new ctx.win.PointerEvent('pointermove', opts(f.x + f.width / 2 + 12, f.y + f.height / 2 + 12)));
+    ctx.doc.dispatchEvent(new ctx.win.PointerEvent('pointermove', opts(t.x + t.width / 2, t.y + t.height / 2)));
+    ctx.doc.dispatchEvent(new ctx.win.PointerEvent('pointerup', opts(t.x + t.width / 2, t.y + t.height / 2)));
 }
 
 TSICTestHarness.register({
@@ -178,12 +175,9 @@ TSICTestHarness.register({
         });
         await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid .tsic-slot[data-grid="2"][data-instance="1"]'));
         ctx.clearPublishes();
-        const dt = makeDataTransferStub({
-            'application/tsic-item': JSON.stringify({ slot: 0, gridSlot: 2, instanceId: 1, itemId: 'ID_W', ownerId: 'Player' }),
-        });
+        const src = ctx.doc.querySelector('#inv-grid .tsic-slot[data-grid="2"]');
         const target = ctx.doc.querySelector('#inv-grid .tsic-slot[data-grid="9"]');
-        dispatchDragOn(ctx.win, target, 'dragover', dt);
-        dispatchDragOn(ctx.win, target, 'drop',     dt);
+        pointerDrag(ctx, src, target);
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Inventory.Move', {
             where: p => p.FromOwnerId === 'Player' && p.ToOwnerId === 'Player'
                 && p.FromSlot === 2 && p.ToSlot === 9,
@@ -371,13 +365,12 @@ TSICTestHarness.register({
             OwnerId: 'Player',
             Slots: [{ SlotTag: 'Equipment.Slot.Torso', ItemId: '' }],
         });
-        await ctx.waitFor(() => ctx.doc.querySelector('#inv-doll .equip-slot'));
-        const dt = makeDataTransferStub({
-            'application/tsic-item': JSON.stringify({ slot: 7, gridSlot: 7, instanceId: 7, itemId: 'ID_Axe', ownerId: 'Player' }),
-        });
+        await ctx.waitFor(() => ctx.doc.querySelector('#inv-doll .equip-slot')
+                             && ctx.doc.querySelector('#inv-grid .tsic-slot[data-instance="7"]'));
+        ctx.clearPublishes();
+        const src = ctx.doc.querySelector('#inv-grid .tsic-slot[data-instance="7"]');
         const equipSlot = ctx.doc.querySelector('#inv-doll .equip-slot');
-        dispatchDragOn(ctx.win, equipSlot, 'dragover', dt);
-        dispatchDragOn(ctx.win, equipSlot, 'drop',     dt);
+        pointerDrag(ctx, src, equipSlot);
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Equipment.Equip',
             { where: p => p.ItemId === '7' }));
     },
@@ -476,12 +469,9 @@ TSICTestHarness.register({
         ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', Items: [], MaxSlots: 48, GridWidth: 8, GridHeight: 6 });
         await ctx.waitFor(() => ctx.doc.querySelector('#ss-container-list .tsic-slot[data-grid="3"][data-instance="1"]'));
         ctx.clearPublishes();
-        const dt = makeDataTransferStub({
-            'application/tsic-item': JSON.stringify({ slot: 0, gridSlot: 3, instanceId: 1, itemId: 'ID_W', ownerId: 'Storage:7' }),
-        });
+        const src = ctx.doc.querySelector('#ss-container-list .tsic-slot[data-grid="3"]');
         const target = ctx.doc.querySelector('#ss-player-list .tsic-slot[data-grid="5"]');
-        dispatchDragOn(ctx.win, target, 'dragover', dt);
-        dispatchDragOn(ctx.win, target, 'drop',     dt);
+        pointerDrag(ctx, src, target);
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Inventory.Move', {
             where: p => p.FromOwnerId === 'Storage:7' && p.ToOwnerId === 'Player'
                 && p.FromSlot === 3 && p.ToSlot === 5,

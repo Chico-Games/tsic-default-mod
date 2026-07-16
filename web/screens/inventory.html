@@ -36,41 +36,64 @@
     #inv-capacity-overburdened { display:none; color:#b91c1c; font-weight:600; letter-spacing:1px; }
 
     /* Slot grid — mirrors shared/screens/inventory.js (the live SPA screen). */
+    #inv-panel {
+      width:80vw; height:82vh; max-width:1360px; max-height:940px;
+    }
+    .tsic-split {
+      grid-template-columns: minmax(0, 1.75fr) minmax(0, 1fr);
+    }
     #inv-grid {
-      display:grid; grid-template-columns: repeat(var(--grid-cols, 8), 48px);
-      gap:4px; align-content:start; overflow:auto; padding:6px;
-      background: rgba(184,170,145,0.25); border:1px solid var(--tsic-border);
+      display:grid; grid-template-columns: repeat(var(--grid-cols, 8), minmax(0, 1fr));
+      gap:6px; align-content:start; overflow:auto; padding:10px;
+      background: rgba(184,170,145,0.30); border:1px solid var(--tsic-border);
+      box-shadow: inset 0 1px 4px rgba(37,33,25,0.18);
     }
     .tsic-slot {
-      width:48px; height:48px; position:relative; cursor:pointer;
-      background: rgba(241,229,207,0.45); border:1px solid var(--tsic-border);
+      width:100%; aspect-ratio:1; min-width:44px; position:relative; cursor:pointer; padding:5px;
+      background: rgba(241,229,207,0.55); border:1px solid rgba(37,33,25,0.28);
+      box-shadow: inset 0 1px 2px rgba(37,33,25,0.14);
+      transition: background-color 90ms ease, border-color 90ms ease,
+                  opacity 160ms ease, filter 160ms ease, transform 90ms ease;
     }
-    .tsic-slot:hover { background: rgba(241,229,207,0.88); }
-    .tsic-slot.is-selected { outline:2px solid var(--cat-ink-soft); outline-offset:-2px; }
+    .tsic-slot:hover,
+    .tsic-slot[data-tsic-focused] {
+      background: rgba(241,229,207,0.95);
+      border-color: rgba(37,33,25,0.55);
+      transform: translateY(-1px);
+    }
+    .tsic-slot.is-selected { outline:2px solid var(--cat-ink-soft, #514739); outline-offset:-2px; }
     .tsic-slot.is-dragging { opacity:0.35; }
-    .tsic-slot.is-drop-target { outline:2px solid var(--cat-green, #3f7d4f); outline-offset:-2px; }
-    .tsic-slot.is-filtered { opacity:0.22; }
+    .tsic-slot.is-drop-target {
+      outline:2px solid var(--cat-green, #3f7d4f); outline-offset:-2px;
+      background: rgba(63,125,79,0.18);
+    }
+    .tsic-slot.is-filtered { opacity:0.18; filter:grayscale(0.8); }
     .tsic-slot.is-equipped {
       outline:1px solid var(--cat-green, #3f7d4f); outline-offset:-1px;
-      background: rgba(63,125,79,0.10);
+      background: rgba(63,125,79,0.12);
     }
     .tsic-slot .count {
-      position:absolute; right:2px; bottom:1px; font-size:10px; font-weight:600;
-      color:#f6efdf; text-shadow:0 1px 2px rgba(0,0,0,0.8); pointer-events:none;
+      position:absolute; right:2px; bottom:2px; min-width:14px; height:14px;
+      line-height:14px; padding:0 3px; font-size:10px; font-weight:700;
+      text-align:center; color:#f6efdf; background:rgba(37,33,25,0.82);
+      border-radius:7px; pointer-events:none;
     }
     .tsic-slot .equip-badge {
-      position:absolute; top:-3px; right:-3px;
-      min-width:11px; height:11px; line-height:11px;
-      padding:0 1px; font-size:8px; text-align:center;
+      position:absolute; top:-4px; right:-4px;
+      min-width:13px; height:13px; line-height:13px;
+      padding:0 1px; font-size:9px; text-align:center;
       color:#f6efdf; background: var(--cat-green, #3f7d4f);
-      border-radius:6px; pointer-events:none;
+      border-radius:7px; pointer-events:none;
+      box-shadow:0 1px 2px rgba(0,0,0,0.35);
     }
     #inv-doll {
-      display:grid; gap:6px; padding:8px; flex:0 0 auto;
-      grid-template-columns: 56px 1fr 56px;
-      grid-template-rows: 56px 56px 56px 56px;
+      display:grid; gap:8px; padding:10px; flex:0 0 auto;
+      grid-template-columns: 60px 1fr 60px;
+      grid-template-rows: 60px 60px 60px 60px;
       background: rgba(184,170,145,0.35); border:1px solid var(--tsic-border);
+      box-shadow: inset 0 1px 4px rgba(37,33,25,0.18);
     }
+    #inv-doll .equip-slot { width:auto; height:auto; }
     #inv-doll #inv-char-preview { grid-column:2; grid-row:1 / span 4; min-height:0; }
     .equip-slot[data-equip="Head"]   { grid-column:3; grid-row:1; }
     .equip-slot[data-equip="Body"]   { grid-column:3; grid-row:2; }
@@ -330,40 +353,24 @@
                 div.appendChild(img);
                 div.title = `${label} — click to unequip, drag into the grid to stow`;
                 div.addEventListener('click', () => {
+                    if (window.TSICInventory.clickSuppressed()) return;
                     tsic.publishMessage('UI.Cmd.Equipment.Unequip', { ItemId: '', SlotTag: s.SlotTag });
                 });
-                div.draggable = true;
-                div.addEventListener('dragstart', (e) => {
-                    e.dataTransfer.setData('application/tsic-item', JSON.stringify({
+                div.addEventListener('pointerdown', (e) => {
+                    window.TSICInventory.beginPointerDrag(div, {
                         equipSlotTag: s.SlotTag, instanceId: s.ItemId, ownerId: 'Player',
-                    }));
-                    div.classList.add('is-dragging');
+                    }, TSIC.itemIconUrl(s.ItemId), e);
                 });
-                div.addEventListener('dragend', () => div.classList.remove('is-dragging'));
             } else {
                 div.textContent = label;
                 div.title = `${label} (empty)`;
             }
-            // Every equipment slot accepts an inventory-cell drop. The backend's
-            // RequestEquip routes the item to the slot that matches its type, so
-            // we don't pass SlotTag here — any slot drop = "try to equip".
-            div.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                div.classList.add('is-drop-target');
-            });
-            div.addEventListener('dragleave', () => div.classList.remove('is-drop-target'));
-            div.addEventListener('drop', (e) => {
-                e.preventDefault();
-                div.classList.remove('is-drop-target');
-                const raw = e.dataTransfer.getData('application/tsic-item');
-                if (!raw) return;
-                try {
-                    const src = JSON.parse(raw);
-                    // Equip by stable InstanceId, not array position.
-                    if (src.instanceId == null || src.equipSlotTag) return;
-                    tsic.publishMessage('UI.Cmd.Equipment.Equip', { ItemId: String(src.instanceId), SlotTag: '' });
-                } catch {}
-            });
+            // Pointer-drag release target: any doll slot drop = "try to equip"
+            // (the backend routes the item to its matching slot).
+            div._tsicEquipDrop = (src) => {
+                if (src.instanceId == null || src.equipSlotTag) return;
+                tsic.publishMessage('UI.Cmd.Equipment.Equip', { ItemId: String(src.instanceId), SlotTag: '' });
+            };
             host.appendChild(div);
         }
     }
