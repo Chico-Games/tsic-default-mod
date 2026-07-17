@@ -12,7 +12,10 @@
     "fallback_item_thumbnail": "/Game/Items/CraftingMaterials/Cardboard/Textures/T_Thumb_SM_CartonBox2_05.T_Thumb_SM_CartonBox2_05",
     "death_box_definition": "FD_DeathBox_DB",
     "item_pickup_visual_actor_class": "/Game/Items/Shared/BP_ItemPickupVisual.BP_ItemPickupVisual_C",
-    "default_item_pickup_sounds": {},
+    "default_item_pickup_sounds": {
+      "pickup_start_sound": "/Game/Shared/Audio/Wavs/Swing/SW_Swing_04.SW_Swing_04",
+      "pickup_end_sound": "/Game/Shared/Audio/Wavs/Slap/SW_Slap_03.SW_Slap_03"
+    },
     "default_footstep_cue_tags": [],
     "default_furniture_shake_data": "/Game/Furniture/Shared/FurnitureShake/DA_DefaultFurnitureShake.DA_DefaultFurnitureShake",
     "menu_input_actions": [

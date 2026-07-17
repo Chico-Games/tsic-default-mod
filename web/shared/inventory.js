@@ -75,8 +75,6 @@
                 var dy = ev.clientY - startY;
                 if ((dx * dx + dy * dy) < DRAG_THRESHOLD_PX * DRAG_THRESHOLD_PX) return;
                 sourceEl.classList.add('is-dragging');
-                // Soft grab tick the moment the press becomes a real drag.
-                if (window.tsic && tsic.playSound) tsic.playSound('Inventory.Pickup', 0.35);
                 ghost = document.createElement('div');
                 ghost.className = 'tsic-drag-ghost';
                 if (iconUrl) {
@@ -246,7 +244,6 @@
             const cols = opts.gridWidth > 0 ? opts.gridWidth : 8;
             const rows = opts.gridHeight > 0 ? opts.gridHeight
                 : Math.ceil((opts.maxSlots > 0 ? opts.maxSlots : 32) / cols);
-            const totalSlots = cols * rows;
             host.innerHTML = '';
             host.style.setProperty('--grid-cols', String(cols));
             host.style.setProperty('--grid-rows', String(rows));
@@ -254,6 +251,15 @@
             // host's drop handler (see beginPointerDrag).
             host.setAttribute('data-tsic-grid-host', '');
             host._tsicGridDrop = opts.onDrop || null;
+
+            // The nominal grid is only the baseline: cells past it (a full
+            // inventory keeps accepting pickups) grow the grid by whole rows —
+            // the extra rows land in implicit tracks and the host scrolls.
+            const roundUpToRow = (cell) => (Math.floor(cell / cols) + 1) * cols;
+            let totalSlots = cols * rows;
+            for (const it of (items || [])) {
+                if (it.GridSlot >= totalSlots) totalSlots = roundUpToRow(it.GridSlot);
+            }
 
             // GridSlot placement first, then flow the unassigned into free cells.
             const byCell = new Map();
@@ -265,9 +271,13 @@
                     overflow.push(it);
                 }
             }
-            for (let cell = 0; cell < totalSlots && overflow.length; cell++) {
+            for (let cell = 0; overflow.length; cell++) {
                 if (!byCell.has(cell)) byCell.set(cell, overflow.shift());
+                if (cell >= totalSlots - 1) totalSlots = roundUpToRow(cell);
             }
+            // Out of slots entirely: append one empty row so there is always
+            // somewhere visible to drag or land the next pickup.
+            if (byCell.size >= totalSlots) totalSlots += cols;
 
             const equippedIds = (opts && opts.equippedIds) || null;
             for (let i = 0; i < totalSlots; i++) {

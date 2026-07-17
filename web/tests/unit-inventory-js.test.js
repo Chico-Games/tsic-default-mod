@@ -29,6 +29,37 @@ TSICTestHarness.register({
 });
 
 TSICTestHarness.register({
+    name: 'Unit/InventoryJs: renderGrid grows overflow rows for cells past the nominal grid',
+    file: '/screens/test-fixtures.html',
+    async run(ctx) {
+        const host = ctx.doc.getElementById('host');
+        host.innerHTML = '';
+        ctx.win.TSICInventory.renderGrid(host, [
+            { ItemId: 'ID_A', Count: 1, SlotIndex: 0, GridSlot: 0 },
+            { ItemId: 'ID_B', Count: 1, SlotIndex: 1, GridSlot: 9 },
+        ], { gridWidth: 4, gridHeight: 2 });
+        // Base 8 cells grow by whole rows to cover cell 9 → 12 cells.
+        ctx.expect(ctx.assert.domCount(ctx.doc, '#host .tsic-slot', 12));
+        ctx.expect(ctx.assert.domExists(ctx.doc, '#host .tsic-slot[data-grid="9"][data-slot="1"]'));
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Unit/InventoryJs: renderGrid appends an empty row when every cell is occupied',
+    file: '/screens/test-fixtures.html',
+    async run(ctx) {
+        const host = ctx.doc.getElementById('host');
+        host.innerHTML = '';
+        const items = [];
+        for (let i = 0; i < 8; i++) items.push({ ItemId: 'ID_' + i, Count: 1, SlotIndex: i, GridSlot: i });
+        ctx.win.TSICInventory.renderGrid(host, items, { gridWidth: 4, gridHeight: 2 });
+        // Full 8-cell grid → one extra empty row so there is somewhere to drag.
+        ctx.expect(ctx.assert.domCount(ctx.doc, '#host .tsic-slot', 12));
+        ctx.expect(ctx.assert.eq(ctx.doc.querySelectorAll('#host .tsic-slot[data-slot]').length, 8));
+    },
+});
+
+TSICTestHarness.register({
     name: 'Unit/InventoryJs: onHover / onClick / onRMB callbacks fire',
     file: '/screens/test-fixtures.html',
     async run(ctx) {

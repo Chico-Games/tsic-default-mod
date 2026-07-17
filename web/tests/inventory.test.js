@@ -294,6 +294,50 @@ TSICTestHarness.register({
     },
 });
 
+// ---- Full-inventory edge: overflow cells render extra rows + scrollbar ----
+TSICTestHarness.register({
+    name: 'Inventory/Overflow: items past the nominal grid render extra rows with a scrollbar',
+    file: '/screens/inventory.html',
+    async run(ctx) {
+        ctx.setItemCatalog({ ID_W: { Name: 'Wheat', Category: 'CraftingMaterial' } });
+        // 65 items on an 8x6 (48-cell) grid: cells 48..64 overflow into rows 7-9.
+        const items = [];
+        for (let i = 0; i < 65; i++) {
+            items.push({ ItemId: 'ID_W', Count: 1, SlotIndex: i, InstanceId: i + 1, GridSlot: i });
+        }
+        ctx.inject('tsic.msg.UI.Inventory.Updated', {
+            OwnerId: 'Player', Items: items,
+            MaxSlots: 48, GridWidth: 8, GridHeight: 6, MaxWeight: 500, CurrentWeight: 6.5,
+        });
+        await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid .tsic-slot[data-grid="64"][data-slot="64"]'));
+        // 9 rows of 8 cover the furthest cell.
+        ctx.expect(ctx.assert.domCount(ctx.doc, '#inv-grid .tsic-slot', 72));
+        const grid = ctx.doc.getElementById('inv-grid');
+        ctx.expect(ctx.assert.truthy(grid.scrollHeight > grid.clientHeight,
+            `grid scrolls (scrollHeight ${grid.scrollHeight} > clientHeight ${grid.clientHeight})`));
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Inventory/Overflow: exactly-full grid renders one extra empty row',
+    file: '/screens/inventory.html',
+    async run(ctx) {
+        ctx.setItemCatalog({ ID_W: { Name: 'Wheat', Category: 'CraftingMaterial' } });
+        const items = [];
+        for (let i = 0; i < 48; i++) {
+            items.push({ ItemId: 'ID_W', Count: 1, SlotIndex: i, InstanceId: i + 1, GridSlot: i });
+        }
+        ctx.inject('tsic.msg.UI.Inventory.Updated', {
+            OwnerId: 'Player', Items: items,
+            MaxSlots: 48, GridWidth: 8, GridHeight: 6, MaxWeight: 500, CurrentWeight: 4.8,
+        });
+        await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid .tsic-slot[data-grid="47"][data-slot="47"]'));
+        // 48 occupied cells + one appended empty row of 8.
+        ctx.expect(ctx.assert.domCount(ctx.doc, '#inv-grid .tsic-slot', 56));
+        ctx.expect(ctx.assert.eq(ctx.doc.querySelectorAll('#inv-grid .tsic-slot[data-slot]').length, 48));
+    },
+});
+
 // ---- Split via context menu → modal → publishes UI.Cmd.Inventory.Split ----
 TSICTestHarness.register({
     name: 'Inventory/Split: context-menu Split… opens modal and publishes Split with chosen count',
