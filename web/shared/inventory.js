@@ -75,6 +75,8 @@
                 var dy = ev.clientY - startY;
                 if ((dx * dx + dy * dy) < DRAG_THRESHOLD_PX * DRAG_THRESHOLD_PX) return;
                 sourceEl.classList.add('is-dragging');
+                // Soft grab tick the moment the press becomes a real drag.
+                if (window.tsic && tsic.playSound) tsic.playSound('Inventory.Pickup', 0.35);
                 ghost = document.createElement('div');
                 ghost.className = 'tsic-drag-ghost';
                 if (iconUrl) {
@@ -407,7 +409,7 @@
                         publish('UI.Cmd.Inventory.Split', {
                             OwnerId: fromOwnerId, FromSlot: it.GridSlot, ToSlot: -1, Count: count,
                         });
-                        tsic.playSound('Inventory.Transfer');
+                        tsic.playSound('Inventory.Transfer', 0.33);
                     }, { title: 'Split how many off?', confirmLabel: 'Split', initial: Math.floor(it.Count / 2) });
                 }});
             }
@@ -425,7 +427,7 @@
                             FromOwnerId: fromOwnerId, ToOwnerId: toOwnerId,
                             FromSlot: it.SlotIndex, ToSlot: -1, Count: 1
                         });
-                        tsic.playSound('Inventory.Transfer');
+                        tsic.playSound('Inventory.Transfer', 0.33);
                         return;
                     }
                     window.TSICInventory.openQuantityModal(max, (count) => {
@@ -433,7 +435,7 @@
                             FromOwnerId: fromOwnerId, ToOwnerId: toOwnerId,
                             FromSlot: it.SlotIndex, ToSlot: -1, Count: count
                         });
-                        tsic.playSound('Inventory.Transfer');
+                        tsic.playSound('Inventory.Transfer', 0.33);
                     }, { title: 'Transfer how many?', confirmLabel: 'Transfer' });
                 }});
             }

@@ -77,7 +77,7 @@
         document.head.appendChild(s);
     }
     function playTransferSound() {
-        try { tsic.playSound('Inventory.Transfer'); } catch {}
+        try { tsic.playSound('Inventory.Transfer', 0.33); } catch {}
     }
 
     function describe(it) {

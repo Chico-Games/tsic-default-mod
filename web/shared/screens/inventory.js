@@ -351,7 +351,7 @@
               FromOwnerId: fromOwner, ToOwnerId: 'Player',
               FromSlot: src.gridSlot, ToSlot: cellIndex,
             });
-            tsic.playSound('Inventory.Transfer');
+            tsic.playSound('Inventory.Transfer', 0.33);
           },
         };
         window.TSICInventory.renderGrid(root.querySelector('#inv-grid'), lastUpdate.Items || [], opts);
