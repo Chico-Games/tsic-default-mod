@@ -3,32 +3,46 @@
   "class": "ScpBrainConfigDefinition",
   "properties": {
     "extends": "BCD_BaseHostile",
+    "evaluation_interval": 0.05,
+    "targeting": {
+      "aggro_duration_seconds": 15.0
+    },
     "attacks": [
       {
         "ability": "AI.LivingMannequin.Attack.Regular",
-        "weight": 1.0,
-        "min_range": 0,
-        "max_range": 220
+        "weight": 1.0
       },
       {
         "ability": "AI.LivingMannequin.Attack.PowerSwing.Forward",
-        "weight": 0.4,
-        "min_range": 0,
-        "max_range": 250,
-        "min_combat_seconds": 5.0
+        "weight": 0.4
       },
       {
         "ability": "AI.LivingMannequin.Attack.Grab",
-        "weight": 0.3,
-        "min_range": 0,
-        "max_range": 180,
-        "min_combat_seconds": 8.0
+        "weight": 0.3
       }
     ],
     "intents": [
       {
-        "intent": "AI.Behavior.Patrol",
-        "base": 0.2
+        "intent": "AI.Behavior.Freeze",
+        "base": 0.2,
+        "considerations": [
+          {
+            "input": "engaged",
+            "curve": {
+              "preset": "step",
+              "invert": true,
+              "threshold": 0.5
+            }
+          },
+          {
+            "input": "being_observed",
+            "curve": {
+              "preset": "step",
+              "threshold": 0.5,
+              "y_max": 1.5
+            }
+          }
+        ]
       },
       {
         "intent": "AI.Behavior.Investigate",
@@ -55,6 +69,7 @@
       },
       {
         "intent": "AI.Behavior.Chase",
+        "nav_policy": "breach",
         "base": 0.0,
         "hysteresis": 0.1,
         "considerations": [
@@ -62,7 +77,7 @@
             "input": "awareness",
             "curve": {
               "preset": "step",
-              "threshold": 0.75
+              "threshold": 0.6
             }
           },
           {
@@ -87,6 +102,7 @@
       },
       {
         "intent": "AI.Behavior.Combat",
+        "nav_policy": "breach",
         "base": 0.0,
         "hysteresis": 0.15,
         "considerations": [
@@ -94,7 +110,7 @@
             "input": "awareness",
             "curve": {
               "preset": "step",
-              "threshold": 0.75
+              "threshold": 0.6
             }
           },
           {
@@ -113,27 +129,13 @@
         "base": 0.0,
         "considerations": [
           {
-            "input": "target_visibility",
-            "curve": {
-              "preset": "step",
-              "invert": true,
-              "threshold": 0.5
-            }
-          },
-          {
-            "input": "awareness",
-            "curve": {
-              "preset": "linear"
-            },
-            "in_min": 0.2,
-            "in_max": 0.75
-          },
-          {
             "id": "memory_window",
-            "input": "time_since_seen",
+            "input": "search_elapsed",
             "curve": {
               "preset": "linear",
-              "invert": true
+              "invert": true,
+              "y_min": 0.0,
+              "y_max": 0.4
             },
             "in_min": 0,
             "in_max": 20
@@ -142,6 +144,7 @@
       },
       {
         "intent": "AI.Behavior.AttackNuisance",
+        "nav_policy": "breach",
         "base": 0.0,
         "considerations": [
           {
@@ -168,20 +171,6 @@
             }
           }
         ]
-      },
-      {
-        "intent": "AI.Behavior.Freeze",
-        "base": 0.0,
-        "considerations": [
-          {
-            "input": "being_observed",
-            "curve": {
-              "preset": "step",
-              "threshold": 0.5,
-              "y_max": 1.5
-            }
-          }
-        ]
       }
     ],
     "movement_profiles": [
@@ -189,22 +178,29 @@
         "name": "walk",
         "max_speed": 250,
         "accel": 1000,
-        "rotation_rate": 220,
-        "nav_filter": "Sneaky"
+        "rotation_rate": 220
+
+      },
+      {
+        "name": "walk_medium",
+        "max_speed": 330,
+        "accel": 1250,
+        "rotation_rate": 260
+
       },
       {
         "name": "hurry",
         "max_speed": 450,
         "accel": 1600,
-        "rotation_rate": 320,
-        "nav_filter": "Sneaky"
+        "rotation_rate": 320
+
       },
       {
         "name": "sprint",
         "max_speed": 700,
         "accel": 2600,
-        "rotation_rate": 420,
-        "nav_filter": "Sneaky"
+        "rotation_rate": 420
+
       }
     ],
     "modifiers": [
@@ -226,7 +222,7 @@
           {
             "path": "intents.AI.Behavior.Search.considerations.memory_window.in_max",
             "op": "set",
-            "value": 120
+            "value": 30
           },
           {
             "path": "attack_failure_cooldown",

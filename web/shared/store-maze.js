@@ -57,7 +57,10 @@
     trailLen: 14,          // footprint dots kept per shopper
     trailSpacing: 7,       // px between footprint dots
     dotRadius: 2.4,        // shopper head radius (footprints are smaller)
-    maxFps: 30,            // backdrop frame cap
+    // Frame cap. Keep this >= 60: CEF's off-screen capture samples the WHOLE
+    // page at the dominant animation's cadence, so a 30fps backdrop makes the
+    // cursor and every hover/transition on the page render at 30fps too.
+    maxFps: 60,
     renderScale: 0.75,     // canvas backing-store scale; upscaled via CSS —
                            // the soft ink look tolerates sub-native res and
                            // it cuts raster cost quadratically

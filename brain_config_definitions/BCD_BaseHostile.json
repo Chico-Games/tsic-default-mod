@@ -9,22 +9,25 @@
         "name": "walk",
         "max_speed": 220,
         "accel": 800,
-        "rotation_rate": 180,
-        "nav_filter": "StoreStaff"
+        "rotation_rate": 180
+      },
+      {
+        "name": "walk_medium",
+        "max_speed": 290,
+        "accel": 950,
+        "rotation_rate": 220
       },
       {
         "name": "hurry",
         "max_speed": 380,
         "accel": 1200,
-        "rotation_rate": 270,
-        "nav_filter": "StoreStaff"
+        "rotation_rate": 270
       },
       {
         "name": "sprint",
         "max_speed": 560,
         "accel": 2000,
-        "rotation_rate": 360,
-        "nav_filter": "StoreStaff"
+        "rotation_rate": 360
       }
     ],
     "token_cost": 1,
@@ -64,6 +67,7 @@
       },
       {
         "intent": "AI.Behavior.Chase",
+        "nav_policy": "breach",
         "base": 0.0,
         "hysteresis": 0.1,
         "considerations": [
@@ -95,7 +99,24 @@
         ]
       },
       {
+        "intent": "AI.Behavior.Chase",
+        "nav_policy": "breach",
+        "base": 0.0,
+        "hysteresis": 0.1,
+        "considerations": [
+          {
+            "id": "active_damage",
+            "input": "grudge",
+            "curve": {
+              "preset": "step",
+              "threshold": 15
+            }
+          }
+        ]
+      },
+      {
         "intent": "AI.Behavior.Combat",
+        "nav_policy": "breach",
         "base": 0.0,
         "hysteresis": 0.15,
         "considerations": [
@@ -109,11 +130,11 @@
           {
             "input": "target_distance",
             "curve": {
-              "preset": "linear",
-              "invert": true
+              "preset": "step",
+              "invert": true,
+              "threshold": 300
             },
-            "in_min": 0,
-            "in_max": 300
+            "id": "proximity_gate"
           }
         ]
       },
@@ -131,12 +152,13 @@
               "y_max": 0.4
             },
             "in_min": 0,
-            "in_max": 20
+            "in_max": 30
           }
         ]
       },
       {
         "intent": "AI.Behavior.AttackNuisance",
+        "nav_policy": "breach",
         "base": 0.0,
         "considerations": [
           {

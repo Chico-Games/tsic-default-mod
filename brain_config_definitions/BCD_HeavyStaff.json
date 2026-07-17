@@ -6,16 +6,11 @@
     "attacks": [
       {
         "ability": "AI.HeavyStaff.Attack.Melee",
-        "weight": 1.0,
-        "min_range": 0,
-        "max_range": 250
+        "weight": 1.0
       },
       {
         "ability": "AI.HeavyStaff.Attack.GroundPound",
-        "weight": 0.4,
-        "min_range": 0,
-        "max_range": 400,
-        "min_combat_seconds": 5.0
+        "weight": 0.4
       }
     ],
     "token_cost": 2,
@@ -24,22 +19,29 @@
         "name": "walk",
         "max_speed": 180,
         "accel": 600,
-        "rotation_rate": 150,
-        "nav_filter": "Brute"
+        "rotation_rate": 150
+
+      },
+      {
+        "name": "walk_medium",
+        "max_speed": 235,
+        "accel": 750,
+        "rotation_rate": 180
+
       },
       {
         "name": "hurry",
         "max_speed": 300,
         "accel": 900,
-        "rotation_rate": 220,
-        "nav_filter": "Brute"
+        "rotation_rate": 220
+
       },
       {
         "name": "sprint",
         "max_speed": 420,
         "accel": 1400,
-        "rotation_rate": 280,
-        "nav_filter": "Brute"
+        "rotation_rate": 280
+
       }
     ]
   }

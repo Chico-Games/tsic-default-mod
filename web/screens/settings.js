@@ -25,6 +25,18 @@
                 ] },
             ] },
             { Id: 'VideoCollection', Title: 'Video', Groups: [
+                { Id: 'Graphics', Title: 'Graphics', Settings: [
+                    // graphics.* (not video.*) on purpose: video.* keys open the
+                    // keep/revert countdown, which is for display-mode changes
+                    // that can strand the player — a GI change can't.
+                    { Key: 'graphics.lumen', Label: 'Lumen quality', Type: 'enum',
+                      Options: [
+                          { Value: 'low',    Label: 'Low (Lumen Lite)' },
+                          { Value: 'medium', Label: 'Medium (Software)' },
+                          { Value: 'high',   Label: 'High (Hardware Ray Tracing)' },
+                      ],
+                      Value: 'medium' },
+                ] },
                 { Id: 'Display', Title: 'Display', Settings: [
                     { Key: 'video.fullscreen', Label: 'Fullscreen', Type: 'bool', Value: true },
                     { Key: 'video.resolution', Label: 'Resolution', Type: 'enum',

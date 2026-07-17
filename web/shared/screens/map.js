@@ -389,12 +389,29 @@
         ];
         return p.map((xy) => (cx + xy[0]).toFixed(2) + ',' + (cy + xy[1]).toFixed(2)).join(' ');
       }
+      // Landmarks are POI-biome markers: hash the POI's label onto a shape set
+      // so each POI type keeps its own silhouette. An empty label hashes to 0
+      // (circle), which is also what the legend glyph shows for the category.
+      function landmarkShape(cx, cy, r, label) {
+        const s = String(label || '');
+        let h = 0;
+        for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
+        switch (Math.abs(h) % 7) {
+          case 0: return svgEl('circle', { cx: cx, cy: cy, r: r });
+          case 1: return svgEl('polygon', { points: regularPoints(cx, cy, r * 1.2, 3, -90) });
+          case 2: return svgEl('polygon', { points: regularPoints(cx, cy, r * 1.2, 3, 90) });
+          case 3: return svgEl('polygon', { points: regularPoints(cx, cy, r * 1.1, 5, -90) });
+          case 4: return svgEl('polygon', { points: regularPoints(cx, cy, r * 1.05, 6, 0) });
+          case 5: return svgEl('polygon', { points: starPoints(cx, cy, r * 1.3, r * 0.6, 6, -90) });
+          default: return svgEl('polygon', { points: starPoints(cx, cy, r * 1.3, r * 0.55, 4, -90) });
+        }
+      }
       // A distinct shape per icon category so type reads without relying on colour.
-      // spawn = star, teleporter = diamond, deathbox = cross, landmark = circle,
-      // other = square.
-      function markerShape(category, cx, cy, r) {
+      // spawn = star, teleporter = diamond, deathbox = cross, other = square;
+      // landmarks get a per-POI shape from their label.
+      function markerShape(category, cx, cy, r, label) {
         const c = (category || '').toLowerCase();
-        if (c === 'landmark') return svgEl('circle', { cx: cx, cy: cy, r: r });
+        if (c === 'landmark') return landmarkShape(cx, cy, r, label);
         if (c === 'spawn' || c === 'spawnpoint') return svgEl('polygon', { points: starPoints(cx, cy, r * 1.25, r * 0.55, 5, -90) });
         if (c === 'fasttravel' || c === 'teleporter') return svgEl('polygon', { points: regularPoints(cx, cy, r * 1.2, 4, -90) });
         if (c === 'deathbox') return svgEl('polygon', { points: crossPoints(cx, cy, r * 1.15, r * 0.38) });
@@ -471,7 +488,18 @@
               cx += (g.Position && g.Position.X) || 0;
               cy += (g.Position && g.Position.Y) || 0;
             }
-            clusters.push({ x: cx / group.length, y: cy / group.length, count: group.length });
+            cx /= group.length;
+            cy /= group.length;
+            // Represent the cluster with its centre-most REAL member (not the
+            // centroid) so zooming in on the group marker lands on an actual POI.
+            let rep = group[0];
+            let best = Infinity;
+            for (const g of group) {
+              const d = Math.hypot(((g.Position && g.Position.X) || 0) - cx,
+                                   ((g.Position && g.Position.Y) || 0) - cy);
+              if (d < best) { best = d; rep = g; }
+            }
+            clusters.push({ rep: rep, count: group.length });
           }
         }
         return { clusters, singletons };
@@ -488,21 +516,27 @@
         const visible = (icons || []).filter((ic) =>
           iconVisibleInFog((ic.Position && ic.Position.X) || 0, (ic.Position && ic.Position.Y) || 0));
         const { clusters, singletons } = clusterIcons(visible);
-        for (const ic of singletons) {
+        // Marker for one icon at its world position: category/POI shape, dark
+        // outline, and the biome map-tile colour as fill for landmarks (POI
+        // markers match the colour of the POI tile they stand on).
+        function buildMarker(ic, baseClass) {
           const wx = (ic.Position && ic.Position.X) || 0;
           const wy = (ic.Position && ic.Position.Y) || 0;
           const pos = worldToLocal(wx, wy);
-          const c = (ic.Category || '').toLowerCase();
-          const isClickable = c === 'fasttravel' && (ic.EntityId | 0) > 0;
-          const shape = markerShape(ic.Category, pos.x, pos.y, r);
-          shape.setAttribute('class', `ic ${categoryClass(ic.Category)}${isClickable ? ' clickable' : ''}`);
+          const shape = markerShape(ic.Category, pos.x, pos.y, r, ic.Label);
+          shape.setAttribute('class', `${baseClass} ${categoryClass(ic.Category)}`);
           shape.setAttribute('stroke', '#231f18');
           shape.setAttribute('stroke-width', sw);
-          // Landmarks are POI-biome markers — tint them with the biome's map colour.
-          if (c === 'landmark') {
+          if ((ic.Category || '').toLowerCase() === 'landmark') {
             const biomeCol = biomeColorAt(wx, wy);
             if (biomeCol) shape.setAttribute('fill', biomeCol);
           }
+          return { shape, pos };
+        }
+        for (const ic of singletons) {
+          const c = (ic.Category || '').toLowerCase();
+          const isClickable = c === 'fasttravel' && (ic.EntityId | 0) > 0;
+          const { shape } = buildMarker(ic, `ic${isClickable ? ' clickable' : ''}`);
           if (isClickable) {
             shape.setAttribute('data-entity-id', String(ic.EntityId | 0));
             shape.addEventListener('click', (ev) => {
@@ -517,24 +551,30 @@
           shape.appendChild(title);
           g.appendChild(shape);
         }
-        const clusterR = ICON_PX * 1.5 * inv;
+        // Clusters draw as their centre-most member's real marker (so the group
+        // keeps a truthful position, shape, and biome colour) plus a count badge.
+        const badgeR = ICON_PX * 0.9 * inv;
+        const badgeOff = ICON_PX * 1.5 * inv;
         for (const cl of clusters) {
-          const pos = worldToLocal(cl.x, cl.y);
-          const circle = svgEl('circle', {
-            cx: pos.x, cy: pos.y, r: clusterR,
+          const rep = cl.rep;
+          const { shape, pos } = buildMarker(rep, 'ic-cluster-rep');
+          const title = svgEl('title');
+          const repName = rep.Label || rep.Category || rep.IconId || '';
+          title.textContent = `${repName ? repName + ' • ' : ''}${cl.count} POIs (zoom in to expand)`;
+          shape.appendChild(title);
+          const badge = svgEl('circle', {
+            cx: pos.x + badgeOff, cy: pos.y - badgeOff, r: badgeR,
             class: 'ic-cluster', 'stroke-width': sw,
           });
           const text = svgEl('text', {
-            x: pos.x, y: pos.y + 5 * inv,
+            x: pos.x + badgeOff, y: pos.y - badgeOff + 3.5 * inv,
             'text-anchor': 'middle', class: 'ic-cluster-text',
-            'font-size': 14 * inv,
+            'font-size': 10 * inv,
           });
           text.textContent = String(cl.count);
-          const title = svgEl('title');
-          title.textContent = `${cl.count} POIs (zoom in to expand)`;
-          g.appendChild(circle);
+          g.appendChild(shape);
+          g.appendChild(badge);
           g.appendChild(text);
-          circle.appendChild(title);
         }
       }
 

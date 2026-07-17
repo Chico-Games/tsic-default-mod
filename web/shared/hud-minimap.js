@@ -13,14 +13,18 @@
 // the software-rendered CEF surface every frame, costing ~1.6ms/frame of
 // game-thread time in FWebBrowserSingleton::Tick (2026-07-13 walk-soak trace,
 // p50 4.5ms -> 6.4ms regression). Canvas damage is 180px and redraws are
-// capped at ~30Hz, which keeps the browser tick at noise level.
+// capped at ~60Hz, which keeps the browser tick at noise level.
 (function () {
   var SIZE = 180;
   var HALF = SIZE / 2;
   var PX_PER_CM = 1;
   var ZOOM_FRACTION = 0.03;
   var LERP_SPEED = 12;
-  var REDRAW_MS = 33; // min interval between canvas redraws while animating (~30Hz)
+  // Min interval between canvas redraws while animating (~60Hz). Keep this
+  // <= 16ms: CEF's off-screen capture samples the WHOLE page at the dominant
+  // animation's cadence, so a 30Hz minimap made every HUD/screen update
+  // (cursor, hovers, hit flashes) render at 30fps while the player moved.
+  var REDRAW_MS = 16;
 
   var container = document.getElementById('hud-minimap');
   var tex = document.getElementById('minimap-tex');

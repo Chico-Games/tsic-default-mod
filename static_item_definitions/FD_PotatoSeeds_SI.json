@@ -17,7 +17,7 @@
     "static_mesh": "/Game/Items/Seeds/PotatoSeeds/Meshes/SM_PotatoSeeds.SM_PotatoSeeds",
     "casts_shadow": false,
     "collision_profile_name": {
-      "name": "Furniture"
+      "name": "ItemStatic"
     },
     "random_material_overrides": [],
     "loot_positions": [],

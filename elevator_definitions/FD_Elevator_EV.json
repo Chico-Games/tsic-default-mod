@@ -156,7 +156,7 @@
     "destruction_impulse_strength": 0.0,
     "door_anim_duration": 0.800000011920929,
     "door_timeout_duration": 2.5,
-    "drag_angular_damping": 5.0,
+    "drag_angular_damping": 1.25,
     "drag_linear_damping": 5.0,
     "drag_mass": 1.0,
     "drag_max_angular_velocity": 90.0,

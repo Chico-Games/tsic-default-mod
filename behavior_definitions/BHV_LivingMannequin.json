@@ -4,25 +4,6 @@
   "properties": {
     "roots": [
       {
-        "name": "Patrol",
-        "intent": "AI.Behavior.Patrol",
-        "states": [
-          {
-            "name": "Wander",
-            "initial": true,
-            "actions": [
-              {
-                "do": "wander",
-                "ring_min": 800,
-                "ring_max": 2500,
-                "speed_profile": "walk",
-                "origin": "$Brain.PatrolAnchor"
-              }
-            ]
-          }
-        ]
-      },
-      {
         "name": "Investigate",
         "intent": "AI.Behavior.Investigate",
         "actions": [
@@ -123,7 +104,7 @@
             "ring_max": 1000,
             "leg_seconds": 6,
             "pause_seconds": 1.5,
-            "speed_profile": "hurry"
+            "speed_profile": "walk_medium"
           }
         ]
       },
@@ -155,6 +136,12 @@
               {
                 "do": "wait",
                 "seconds": 3600
+              }
+            ],
+            "transitions": [
+              {
+                "on": "actions_succeeded",
+                "to": "HoldStill"
               }
             ]
           }

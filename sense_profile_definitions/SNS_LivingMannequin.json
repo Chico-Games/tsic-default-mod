@@ -4,6 +4,7 @@
   "properties": {
     "extends": "SNS_BaseStaff",
     "sight": {
+      "primary_cone_half_angle": 180,
       "primary_range": 3500,
       "acquire_rate": 1.2,
       "lose_rate": 0.15

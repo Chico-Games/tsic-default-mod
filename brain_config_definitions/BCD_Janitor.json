@@ -6,24 +6,15 @@
     "attacks": [
       {
         "ability": "AI.Janitor.Attack.Melee",
-        "weight": 1.0,
-        "min_range": 0,
-        "max_range": 220
+        "weight": 1.0
       },
       {
         "ability": "AI.Janitor.Attack.Acid.Melee",
-        "weight": 0.4,
-        "min_range": 0,
-        "max_range": 250,
-        "min_combat_seconds": 4.0
+        "weight": 0.4
       },
       {
         "ability": "AI.Janitor.Attack.Acid.Ranged",
-        "weight": 0.3,
-        "min_range": 400,
-        "max_range": 1200,
-        "requires_los": true,
-        "min_combat_seconds": 8.0
+        "weight": 0.3
       }
     ]
   }

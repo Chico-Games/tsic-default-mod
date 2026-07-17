@@ -6,9 +6,7 @@
     "attacks": [
       {
         "ability": "AI.TVHead.Attack.Melee",
-        "weight": 1.0,
-        "min_range": 0,
-        "max_range": 230
+        "weight": 1.0
       }
     ]
   }

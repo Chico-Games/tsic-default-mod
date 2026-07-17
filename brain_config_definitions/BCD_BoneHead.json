@@ -6,25 +6,15 @@
     "attacks": [
       {
         "ability": "AI.BoneHead.Attack.Melee",
-        "weight": 1.0,
-        "min_range": 0,
-        "max_range": 220
+        "weight": 1.0
       },
       {
         "ability": "AI.BoneHead.Attack.Charge",
-        "weight": 0.5,
-        "min_range": 600,
-        "max_range": 2500,
-        "requires_los": true,
-        "min_combat_seconds": 6.0
+        "weight": 0.5
       },
       {
         "ability": "AI.BoneHead.Attack.Throw",
-        "weight": 0.3,
-        "min_range": 800,
-        "max_range": 2000,
-        "requires_los": true,
-        "min_combat_seconds": 10.0
+        "weight": 0.3
       }
     ]
   }
