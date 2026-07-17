@@ -27,14 +27,6 @@
         "base": 0.2,
         "considerations": [
           {
-            "input": "engaged",
-            "curve": {
-              "preset": "step",
-              "invert": true,
-              "threshold": 0.5
-            }
-          },
-          {
             "input": "being_observed",
             "curve": {
               "preset": "step",
