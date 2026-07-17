@@ -94,3 +94,78 @@ TSICTestHarness.register({
         ctx.expect(ctx.assert.eq(count, 3));
     },
 });
+
+TSICTestHarness.register({
+    name: 'Unit/InventoryJs: openQuantityModal honors opts.initial and clamps it',
+    file: '/screens/test-fixtures.html',
+    async run(ctx) {
+        ctx.win.TSICInventory.openQuantityModal(9, () => {}, { initial: 4 });
+        let slider = ctx.doc.querySelector('input[type="range"]');
+        ctx.expect(ctx.assert.eq(slider.value, '4'));
+        Array.from(ctx.doc.querySelectorAll('button')).find(b => /cancel/i.test(b.textContent || '')).click();
+        // Out-of-range initial clamps to the max.
+        ctx.win.TSICInventory.openQuantityModal(3, () => {}, { initial: 99 });
+        slider = ctx.doc.querySelector('input[type="range"]');
+        ctx.expect(ctx.assert.eq(slider.value, '3'));
+        Array.from(ctx.doc.querySelectorAll('button')).find(b => /cancel/i.test(b.textContent || '')).click();
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Unit/InventoryJs: context menu on a stack offers Split…, Drop, and Drop X…',
+    file: '/screens/test-fixtures.html',
+    async run(ctx) {
+        const entries = ctx.win.TSICInventory.buildItemContextMenu({
+            it: { ItemId: 'ID_W', InstanceId: 4, SlotIndex: 0, Count: 6, GridSlot: 2 },
+            desc: { Name: 'Wood', Category: 'CraftingMaterial' },
+        });
+        const labels = entries.map(e => e.label);
+        ctx.expect(ctx.assert.eq(labels.includes('Split…'), true, 'Split entry on a stack'));
+        ctx.expect(ctx.assert.eq(labels.includes('Drop'), true, 'whole-stack Drop entry'));
+        ctx.expect(ctx.assert.eq(labels.includes('Drop X…'), true, 'amount-picker Drop X entry'));
+
+        const single = ctx.win.TSICInventory.buildItemContextMenu({
+            it: { ItemId: 'ID_W', InstanceId: 5, SlotIndex: 1, Count: 1, GridSlot: 3 },
+            desc: { Name: 'Wood', Category: 'CraftingMaterial' },
+        }).map(e => e.label);
+        ctx.expect(ctx.assert.eq(single.includes('Split…'), false, 'no Split on a single item'));
+        ctx.expect(ctx.assert.eq(single.includes('Drop'), true, 'Drop still offered'));
+        ctx.expect(ctx.assert.eq(single.includes('Drop X…'), false, 'no Drop X on a single item'));
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Unit/InventoryJs: Drop entry publishes a whole-stack Drop (Count 0)',
+    file: '/screens/test-fixtures.html',
+    async run(ctx) {
+        ctx.clearPublishes();
+        const entries = ctx.win.TSICInventory.buildItemContextMenu({
+            it: { ItemId: 'ID_W', InstanceId: 4, SlotIndex: 7, Count: 6, GridSlot: 2 },
+            desc: { Name: 'Wood', Category: 'CraftingMaterial' },
+        });
+        entries.find(e => e.label === 'Drop').onClick();
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Inventory.Drop',
+            { where: p => p.SlotIndex === 7 && p.Count === 0 }));
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Unit/InventoryJs: Split… modal maxes at Count-1 and publishes UI.Cmd.Inventory.Split',
+    file: '/screens/test-fixtures.html',
+    async run(ctx) {
+        ctx.clearPublishes();
+        const entries = ctx.win.TSICInventory.buildItemContextMenu({
+            it: { ItemId: 'ID_W', InstanceId: 4, SlotIndex: 0, Count: 6, GridSlot: 2 },
+            desc: { Name: 'Wood', Category: 'CraftingMaterial' },
+        });
+        entries.find(e => e.label === 'Split…').onClick();
+        const slider = ctx.doc.querySelector('input[type="range"]');
+        ctx.expect(ctx.assert.truthy(slider, 'quantity modal opened'));
+        ctx.expect(ctx.assert.eq(slider.max, '5'));
+        ctx.expect(ctx.assert.eq(slider.value, '3'));
+        const ok = Array.from(ctx.doc.querySelectorAll('button')).find(b => /^split$/i.test((b.textContent || '').trim()));
+        ok && ok.click();
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Inventory.Split',
+            { where: p => p.FromSlot === 2 && p.ToSlot === -1 && p.Count === 3 }));
+    },
+});

@@ -214,9 +214,9 @@ TSICTestHarness.register({
     },
 });
 
-// ---- Drop end-to-end via context menu: stack=1 publishes Drop ----
+// ---- Drop end-to-end via context menu: Drop publishes the whole stack ----
 TSICTestHarness.register({
-    name: 'Inventory/Drop: context-menu Drop on stack=1 publishes UI.Cmd.Inventory.Drop',
+    name: 'Inventory/Drop: context-menu Drop publishes UI.Cmd.Inventory.Drop for the whole stack',
     file: '/screens/inventory.html',
     async run(ctx) {
         ctx.setItemCatalog({ ID_Bread: { Name: 'Bread', Category: 'Consumable', Weight: 0.2 } });
@@ -228,18 +228,19 @@ TSICTestHarness.register({
         ctx.clearPublishes();
         ctx.doc.querySelector('#inv-grid .tsic-slot[data-slot="0"]')
             .dispatchEvent(new ctx.win.MouseEvent('contextmenu', { bubbles: true, cancelable: true }));
-        await ctx.waitFor(() => findContextMenuEntry(ctx.doc, 'Drop…'));
-        findContextMenuEntry(ctx.doc, 'Drop…').click();
+        await ctx.waitFor(() => findContextMenuEntry(ctx.doc, 'Drop'));
+        findContextMenuEntry(ctx.doc, 'Drop').click();
+        // Count 0 = whole stack on the C++ side.
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Inventory.Drop',
-            { where: p => p.SlotIndex === 0 && p.Count === 1 }));
+            { where: p => p.SlotIndex === 0 && p.Count === 0 }));
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Sound.Play',
             { where: p => p.SoundKey === 'Inventory.Drop' }));
     },
 });
 
-// ---- Drop quantity flow via context menu: stack>1 opens modal ----
+// ---- Drop quantity flow via context menu: Drop X… opens the modal ----
 TSICTestHarness.register({
-    name: 'Inventory/Drop: context-menu Drop on stack>1 opens modal, publishes selected Count',
+    name: 'Inventory/Drop: context-menu Drop X… on stack>1 opens modal, publishes selected Count',
     file: '/screens/inventory.html',
     async run(ctx) {
         ctx.setItemCatalog({ ID_W: { Name: 'Wheat', Category: 'CraftingMaterial' } });
@@ -250,8 +251,8 @@ TSICTestHarness.register({
         await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid .tsic-slot[data-slot="0"]'));
         ctx.doc.querySelector('#inv-grid .tsic-slot[data-slot="0"]')
             .dispatchEvent(new ctx.win.MouseEvent('contextmenu', { bubbles: true, cancelable: true }));
-        await ctx.waitFor(() => findContextMenuEntry(ctx.doc, 'Drop…'));
-        findContextMenuEntry(ctx.doc, 'Drop…').click();
+        await ctx.waitFor(() => findContextMenuEntry(ctx.doc, 'Drop X…'));
+        findContextMenuEntry(ctx.doc, 'Drop X…').click();
         await ctx.waitFor(() => ctx.doc.querySelector('input[type="range"]'));
         const slider = ctx.doc.querySelector('input[type="range"]');
         slider.value = '5';
@@ -284,9 +285,124 @@ TSICTestHarness.register({
         ctx.expect(ctx.assert.truthy(findContextMenuEntry(ctx.doc, 'Equip'), 'Equip entry'));
         ctx.expect(ctx.assert.truthy(findContextMenuEntry(ctx.doc, 'Move…'), 'Move entry'));
         ctx.expect(ctx.assert.truthy(findContextMenuEntry(ctx.doc, 'Assign to Hotbar…'), 'Assign to Hotbar entry'));
-        ctx.expect(ctx.assert.truthy(findContextMenuEntry(ctx.doc, 'Drop…'), 'Drop entry'));
-        // Storage isn't open in plain inventory, so no Transfer entry.
+        ctx.expect(ctx.assert.truthy(findContextMenuEntry(ctx.doc, 'Drop'), 'Drop entry'));
+        // Storage isn't open in plain inventory, so no Transfer entry; single
+        // items offer neither the amount picker nor a split.
         ctx.expect(ctx.assert.eq(findContextMenuEntry(ctx.doc, 'Transfer…'), null));
+        ctx.expect(ctx.assert.eq(findContextMenuEntry(ctx.doc, 'Drop X…'), null));
+        ctx.expect(ctx.assert.eq(findContextMenuEntry(ctx.doc, 'Split…'), null));
+    },
+});
+
+// ---- Split via context menu → modal → publishes UI.Cmd.Inventory.Split ----
+TSICTestHarness.register({
+    name: 'Inventory/Split: context-menu Split… opens modal and publishes Split with chosen count',
+    file: '/screens/inventory.html',
+    async run(ctx) {
+        ctx.setItemCatalog({ ID_W: { Name: 'Wheat', Category: 'CraftingMaterial' } });
+        ctx.inject('tsic.msg.UI.Inventory.Updated', {
+            OwnerId: 'Player', Items: [{ ItemId: 'ID_W', Count: 8, SlotIndex: 0, InstanceId: 1, GridSlot: 2 }],
+            MaxSlots: 48, GridWidth: 8, GridHeight: 6, MaxWeight: 50, CurrentWeight: 0.4,
+        });
+        await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid .tsic-slot[data-slot="0"]'));
+        ctx.doc.querySelector('#inv-grid .tsic-slot[data-slot="0"]')
+            .dispatchEvent(new ctx.win.MouseEvent('contextmenu', { bubbles: true, cancelable: true }));
+        await ctx.waitFor(() => findContextMenuEntry(ctx.doc, 'Split…'));
+        findContextMenuEntry(ctx.doc, 'Split…').click();
+        await ctx.waitFor(() => ctx.doc.querySelector('input[type="range"]'));
+        const slider = ctx.doc.querySelector('input[type="range"]');
+        // Both halves must stay non-empty: max is Count-1, default is half.
+        ctx.expect(ctx.assert.eq(slider.max, '7'));
+        ctx.expect(ctx.assert.eq(slider.value, '4'));
+        slider.value = '3';
+        slider.dispatchEvent(new ctx.win.Event('input', { bubbles: true }));
+        ctx.clearPublishes();
+        const confirm = Array.from(ctx.doc.querySelectorAll('button')).find(b => /^split$/i.test((b.textContent || '').trim()));
+        ctx.expect(ctx.assert.truthy(confirm, 'expected a Split confirm button'));
+        confirm && confirm.click();
+        // FromSlot is the GRID cell; ToSlot -1 lets the server pick the first free cell.
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Inventory.Split',
+            { where: p => p.OwnerId === 'Player' && p.FromSlot === 2 && p.ToSlot === -1 && p.Count === 3 }));
+    },
+});
+
+// ---- Drag one stack onto another: publishes Move (the server merges) ----
+TSICTestHarness.register({
+    name: 'Inventory/Drag: drop onto an occupied cell publishes Move (same-item cells merge server-side)',
+    file: '/screens/inventory.html',
+    async run(ctx) {
+        ctx.setItemCatalog({ ID_W: { Name: 'Wheat', Category: 'CraftingMaterial' } });
+        ctx.inject('tsic.msg.UI.Inventory.Updated', {
+            OwnerId: 'Player', Items: [
+                { ItemId: 'ID_W', Count: 4, SlotIndex: 0, InstanceId: 1, GridSlot: 0 },
+                { ItemId: 'ID_W', Count: 3, SlotIndex: 1, InstanceId: 2, GridSlot: 5 },
+            ],
+            MaxSlots: 48, GridWidth: 8, GridHeight: 6, MaxWeight: 50, CurrentWeight: 0.35,
+        });
+        await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid .tsic-slot[data-grid="5"][data-instance="2"]'));
+        ctx.clearPublishes();
+        pointerDrag(ctx,
+            ctx.doc.querySelector('#inv-grid .tsic-slot[data-grid="0"]'),
+            ctx.doc.querySelector('#inv-grid .tsic-slot[data-grid="5"]'));
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Inventory.Move',
+            { where: p => p.FromSlot === 0 && p.ToSlot === 5 }));
+    },
+});
+
+// ---- Drag out of the inventory panel drops the whole stack ----
+TSICTestHarness.register({
+    name: 'Inventory/Drag: release outside the panel publishes a whole-stack Drop',
+    file: '/screens/inventory.html',
+    async run(ctx) {
+        ctx.setItemCatalog({ ID_W: { Name: 'Wheat', Category: 'CraftingMaterial' } });
+        ctx.inject('tsic.msg.UI.Inventory.Updated', {
+            OwnerId: 'Player', Items: [{ ItemId: 'ID_W', Count: 6, SlotIndex: 0, InstanceId: 1, GridSlot: 0 }],
+            MaxSlots: 48, GridWidth: 8, GridHeight: 6, MaxWeight: 50, CurrentWeight: 0.3,
+        });
+        await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid .tsic-slot[data-slot="0"] img'));
+        ctx.clearPublishes();
+        const slot = ctx.doc.querySelector('#inv-grid .tsic-slot[data-slot="0"]');
+        const r = slot.getBoundingClientRect();
+        const opts = (x, y) => ({ bubbles: true, cancelable: true, clientX: x, clientY: y, button: 0 });
+        slot.dispatchEvent(new ctx.win.PointerEvent('pointerdown', opts(r.x + r.width / 2, r.y + r.height / 2)));
+        ctx.doc.dispatchEvent(new ctx.win.PointerEvent('pointermove', opts(r.x + r.width / 2 + 12, r.y + r.height / 2 + 12)));
+        // (2,2) is on the scrim — outside the centered panel bounds.
+        ctx.doc.dispatchEvent(new ctx.win.PointerEvent('pointermove', opts(2, 2)));
+        // The ghost signals the pending world-drop while outside the panel.
+        ctx.expect(ctx.assert.truthy(ctx.doc.querySelector('.tsic-drag-ghost--out'), 'ghost shows the drop-out cue'));
+        ctx.doc.dispatchEvent(new ctx.win.PointerEvent('pointerup', opts(2, 2)));
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Inventory.Drop',
+            { where: p => p.SlotIndex === 0 && p.Count === 0 }));
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Sound.Play',
+            { where: p => p.SoundKey === 'Inventory.Drop' }));
+    },
+});
+
+// ---- Drag released inside the panel (but not on a slot) still cancels ----
+TSICTestHarness.register({
+    name: 'Inventory/Drag: release inside the panel off any slot cancels (no Drop, no Move)',
+    file: '/screens/inventory.html',
+    async run(ctx) {
+        ctx.setItemCatalog({ ID_W: { Name: 'Wheat', Category: 'CraftingMaterial' } });
+        ctx.inject('tsic.msg.UI.Inventory.Updated', {
+            OwnerId: 'Player', Items: [{ ItemId: 'ID_W', Count: 6, SlotIndex: 0, InstanceId: 1, GridSlot: 0 }],
+            MaxSlots: 48, GridWidth: 8, GridHeight: 6, MaxWeight: 50, CurrentWeight: 0.3,
+        });
+        await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid .tsic-slot[data-slot="0"] img'));
+        ctx.clearPublishes();
+        const slot = ctx.doc.querySelector('#inv-grid .tsic-slot[data-slot="0"]');
+        // The header sits inside the panel but hosts no drop targets.
+        const header = ctx.doc.getElementById('inv-header');
+        const r = slot.getBoundingClientRect();
+        const h = header.getBoundingClientRect();
+        const opts = (x, y) => ({ bubbles: true, cancelable: true, clientX: x, clientY: y, button: 0 });
+        slot.dispatchEvent(new ctx.win.PointerEvent('pointerdown', opts(r.x + r.width / 2, r.y + r.height / 2)));
+        ctx.doc.dispatchEvent(new ctx.win.PointerEvent('pointermove', opts(r.x + r.width / 2 + 12, r.y + r.height / 2 + 12)));
+        ctx.doc.dispatchEvent(new ctx.win.PointerEvent('pointermove', opts(h.x + h.width / 2, h.y + h.height / 2)));
+        ctx.doc.dispatchEvent(new ctx.win.PointerEvent('pointerup', opts(h.x + h.width / 2, h.y + h.height / 2)));
+        const channels = ctx.publishes().map(p => p.channel);
+        ctx.expect(ctx.assert.eq(channels.includes('UI.Cmd.Inventory.Drop'), false, 'no Drop on in-panel cancel'));
+        ctx.expect(ctx.assert.eq(channels.includes('UI.Cmd.Inventory.Move'), false, 'no Move on in-panel cancel'));
     },
 });
 
@@ -492,6 +608,6 @@ TSICTestHarness.register({
             .dispatchEvent(new ctx.win.MouseEvent('contextmenu', { bubbles: true, cancelable: true }));
         await ctx.waitFor(() => ctx.doc.querySelector('.tsic-context-menu'));
         ctx.expect(ctx.assert.truthy(findContextMenuEntry(ctx.doc, 'Transfer…'), 'Transfer entry'));
-        ctx.expect(ctx.assert.truthy(findContextMenuEntry(ctx.doc, 'Drop…'), 'Drop entry'));
+        ctx.expect(ctx.assert.truthy(findContextMenuEntry(ctx.doc, 'Drop'), 'Drop entry'));
     },
 });

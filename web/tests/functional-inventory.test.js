@@ -90,7 +90,7 @@ TSICTestHarness.register({
 });
 
 TSICTestHarness.register({
-    name: 'Inventory: stack > 1 RMB → context menu → Drop entry → opens drop quantity modal',
+    name: 'Inventory: stack > 1 RMB → context menu → Drop X… entry → opens drop quantity modal',
     file: '/screens/inventory.html',
     async run(ctx) {
         ctx.setItemCatalog({ ID_W: { Name: 'Wheat', Category: 'CraftingMaterial' } });
@@ -98,9 +98,9 @@ TSICTestHarness.register({
         await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid .tsic-slot[data-slot="0"]'));
         ctx.doc.querySelector('#inv-grid .tsic-slot[data-slot="0"]')
             .dispatchEvent(new ctx.win.MouseEvent('contextmenu', { bubbles: true, cancelable: true }));
-        await ctx.waitFor(() => Array.from(ctx.doc.querySelectorAll('.tsic-context-menu .tsic-context-item')).some(e => (e.textContent || '').trim() === 'Drop…'));
+        await ctx.waitFor(() => Array.from(ctx.doc.querySelectorAll('.tsic-context-menu .tsic-context-item')).some(e => (e.textContent || '').trim() === 'Drop X…'));
         Array.from(ctx.doc.querySelectorAll('.tsic-context-menu .tsic-context-item'))
-            .find(e => (e.textContent || '').trim() === 'Drop…').click();
+            .find(e => (e.textContent || '').trim() === 'Drop X…').click();
         await new Promise(r => setTimeout(r, 30));
         ctx.expect(ctx.assert.domExists(ctx.doc, 'input[type="range"]'));
     },

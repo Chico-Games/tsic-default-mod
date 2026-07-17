@@ -10,7 +10,9 @@
     // drags use pointer events with a hand-drawn ghost that follows the cursor.
     // Targets resolve via elementFromPoint: grid cells route to their host's
     // onDrop (host._tsicGridDrop, set by renderGrid); equipment slots route to
-    // their own _tsicEquipDrop. Release anywhere else cancels.
+    // their own _tsicEquipDrop. Release anywhere else cancels — unless the
+    // caller armed opts.onDragOut and the release lands outside opts.dragOutEl,
+    // which drops the payload into the world (see the inventory screen).
     var DRAG_THRESHOLD_PX = 6;
     var suppressClickUntil = 0;
 
@@ -25,6 +27,18 @@
             '  background: rgba(241,229,207,0.92); border:1px solid rgba(37,33,25,0.65);',
             '  box-shadow: 0 4px 10px rgba(0,0,0,0.35);',
             '}',
+            // Outside the screen panel with a drag-out handler armed: releasing
+            // here drops the stack into the world.
+            '.tsic-drag-ghost--out {',
+            '  border-color:#b91c1c;',
+            '  box-shadow: 0 4px 10px rgba(185,28,28,0.5);',
+            '}',
+            '.tsic-drag-ghost--out::after {',
+            '  content:"DROP"; position:absolute; left:50%; bottom:-16px;',
+            '  transform:translateX(-50%); font-size:9px; font-weight:700;',
+            '  letter-spacing:1px; color:#f6efdf; background:rgba(185,28,28,0.92);',
+            '  padding:1px 5px; border-radius:6px;',
+            '}',
         ].join('\n');
         document.head.appendChild(s);
     }
@@ -34,7 +48,7 @@
         return target ? target.closest('.tsic-slot, .equip-slot') : null;
     }
 
-    function beginPointerDrag(sourceEl, payload, iconUrl, e) {
+    function beginPointerDrag(sourceEl, payload, iconUrl, e, opts) {
         if (e.button !== 0) return;
         injectDragStyleOnce();
         var startX = e.clientX;
@@ -42,6 +56,15 @@
         var ghost = null;
         var lastTarget = null;
 
+        // With opts.onDragOut armed, releasing outside opts.dragOutEl's bounds
+        // (the screen panel) drops the payload into the world instead of
+        // cancelling the drag.
+        function outsideDragBounds(ev) {
+            if (!opts || !opts.onDragOut || !opts.dragOutEl) return false;
+            var r = opts.dragOutEl.getBoundingClientRect();
+            return ev.clientX < r.left || ev.clientX > r.right
+                || ev.clientY < r.top  || ev.clientY > r.bottom;
+        }
         function positionGhost(ev) {
             ghost.style.left = (ev.clientX - 24) + 'px';
             ghost.style.top  = (ev.clientY - 24) + 'px';
@@ -66,6 +89,7 @@
             if (lastTarget && lastTarget !== t) lastTarget.classList.remove('is-drop-target');
             if (t && t !== sourceEl) t.classList.add('is-drop-target');
             lastTarget = t;
+            ghost.classList.toggle('tsic-drag-ghost--out', !t && outsideDragBounds(ev));
         }
         function onUp(ev) {
             document.removeEventListener('pointermove', onMove, true);
@@ -77,7 +101,12 @@
             // Swallow the click browsers fire right after a drag's pointerup.
             suppressClickUntil = Date.now() + 150;
             var t = dropTargetUnder(ev.clientX, ev.clientY);
-            if (!t) return; // release outside anything droppable = cancel
+            if (!t) {
+                // Release outside anything droppable: off the screen panel =
+                // drop into the world, inside it = cancel.
+                if (outsideDragBounds(ev)) opts.onDragOut(payload);
+                return;
+            }
             if (t.classList.contains('equip-slot')) {
                 if (t._tsicEquipDrop) t._tsicEquipDrop(payload);
                 return;
@@ -285,7 +314,9 @@
                         beginPointerDrag(slot, {
                             slot: it.SlotIndex, gridSlot: i, instanceId: it.InstanceId,
                             itemId: it.ItemId, ownerId: opts.ownerId || 'Player',
-                        }, it.ItemId ? TSIC.itemIconUrl(it.ItemId) : null, e);
+                        }, it.ItemId ? TSIC.itemIconUrl(it.ItemId) : null, e, {
+                            dragOutEl: opts.dragOutEl, onDragOut: opts.onDragOut,
+                        });
                     });
                 }
                 host.appendChild(slot);
@@ -313,11 +344,12 @@
         openQuantityModal(maxCount, onConfirm, opts) {
             const title = (opts && opts.title) || 'Drop how many?';
             const confirmLabel = (opts && opts.confirmLabel) || 'Drop';
+            const initial = Math.max(1, Math.min(maxCount, (opts && opts.initial) || maxCount));
             const overlay = el('div', { class: 'tsic-anim-overlay', style: 'position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:1000;' });
             const panel = el('div', { class: 'tsic-panel tsic-anim-pop', style: 'width:300px;padding:16px;' });
             panel.appendChild(el('h3', { style: 'margin:0 0 12px;' }, title));
-            const slider = el('input', { type: 'range', min: '1', max: String(maxCount), value: String(maxCount), style: 'width:100%;' });
-            const num = el('div', { style: 'text-align:center;font-size:18px;margin:8px 0;' }, String(maxCount));
+            const slider = el('input', { type: 'range', min: '1', max: String(maxCount), value: String(initial), style: 'width:100%;' });
+            const num = el('div', { style: 'text-align:center;font-size:18px;margin:8px 0;' }, String(initial));
             slider.addEventListener('input', () => num.textContent = slider.value);
             const buttons = el('div', { style: 'display:flex;gap:8px;justify-content:flex-end;' });
             const cancel = el('button', { class: 'tsic-button' }, 'Cancel');
@@ -366,6 +398,19 @@
                     });
                 }});
             }
+            // Carve part of a stack off into a free cell (server picks the
+            // first free cell for ToSlot -1). Only stacks placed in a grid can
+            // split, and both halves must end up non-empty.
+            if ((it.Count || 1) > 1 && it.GridSlot != null && it.GridSlot >= 0) {
+                entries.push({ label: 'Split…', onClick: () => {
+                    window.TSICInventory.openQuantityModal(it.Count - 1, (count) => {
+                        publish('UI.Cmd.Inventory.Split', {
+                            OwnerId: fromOwnerId, FromSlot: it.GridSlot, ToSlot: -1, Count: count,
+                        });
+                        tsic.playSound('Inventory.Transfer');
+                    }, { title: 'Split how many off?', confirmLabel: 'Split', initial: Math.floor(it.Count / 2) });
+                }});
+            }
             entries.push({ label: 'Assign to Hotbar…', onClick: () => {
                 window.TSICInventory.openHotbarSlotModal(it.ItemId, (slotIndex) => {
                     publish('UI.Cmd.Hotbar.Assign', { SlotIndex: slotIndex, ItemId: String(it.InstanceId) });
@@ -392,18 +437,20 @@
                     }, { title: 'Transfer how many?', confirmLabel: 'Transfer' });
                 }});
             }
-            entries.push({ label: 'Drop…', onClick: () => {
-                const max = it.Count || 1;
-                if (max <= 1) {
-                    publish('UI.Cmd.Inventory.Drop', { OwnerId: fromOwnerId, SlotIndex: it.SlotIndex, Count: 1 });
-                    tsic.playSound('Inventory.Drop');
-                    return;
-                }
-                window.TSICInventory.openQuantityModal(max, (count) => {
-                    publish('UI.Cmd.Inventory.Drop', { OwnerId: fromOwnerId, SlotIndex: it.SlotIndex, Count: count });
-                    tsic.playSound('Inventory.Drop');
-                });
+            // Drop is the whole stack in one click; the amount picker lives
+            // under Drop X… (Count 0 = whole stack on the C++ side).
+            entries.push({ label: 'Drop', onClick: () => {
+                publish('UI.Cmd.Inventory.Drop', { OwnerId: fromOwnerId, SlotIndex: it.SlotIndex, Count: 0 });
+                tsic.playSound('Inventory.Drop');
             }});
+            if ((it.Count || 1) > 1) {
+                entries.push({ label: 'Drop X…', onClick: () => {
+                    window.TSICInventory.openQuantityModal(it.Count, (count) => {
+                        publish('UI.Cmd.Inventory.Drop', { OwnerId: fromOwnerId, SlotIndex: it.SlotIndex, Count: count });
+                        tsic.playSound('Inventory.Drop');
+                    }, { initial: 1 });
+                }});
+            }
             return entries;
         },
         openHotbarSlotModal(itemId, onPick) {

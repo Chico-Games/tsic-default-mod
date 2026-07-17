@@ -320,6 +320,16 @@
             });
             window.TSICContextMenu.open({ x: e.clientX, y: e.clientY, entries });
           },
+          // Releasing a drag outside the inventory panel drops the whole stack
+          // into the world (Count 0 = whole stack on the C++ side).
+          dragOutEl: root.querySelector('#inv-panel'),
+          onDragOut: (src) => {
+            if (src.gridSlot == null || src.gridSlot < 0) return;
+            ctx.publish('UI.Cmd.Inventory.Drop', {
+              OwnerId: src.ownerId || 'Player', SlotIndex: src.slot, Count: 0,
+            });
+            tsic.playSound('Inventory.Drop');
+          },
           onDrop: (src, cellIndex) => {
             // Paper-doll slot dragged into the grid: take it off, then place it.
             if (src.equipSlotTag) {

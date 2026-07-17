@@ -5,7 +5,7 @@
 
 // ---- Inventory → drop item → context menu → quantity modal → publish Drop ----
 TSICTestHarness.register({
-    name: 'E2E/Inventory: hover stack → RMB → context menu → Drop entry → modal → Drop publishes',
+    name: 'E2E/Inventory: hover stack → RMB → context menu → Drop X entry → modal → Drop publishes',
     file: '/screens/inventory.html',
     async run(ctx) {
         ctx.setItemCatalog({ ID_W: { Name: 'Wheat', Category: 'CraftingMaterial' } });
@@ -17,10 +17,10 @@ TSICTestHarness.register({
         await new Promise(r => setTimeout(r, 30));
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.BehaviorBar.SetMenuContext',
             { where: p => p.Entries.find(e => e.Label === 'Drop') }));
-        // RMB opens the context menu; click Drop… to open the modal.
+        // RMB opens the context menu; click Drop X… to open the modal.
         slot.dispatchEvent(new ctx.win.MouseEvent('contextmenu', { bubbles: true, cancelable: true }));
-        await ctx.waitFor(() => Array.from(ctx.doc.querySelectorAll('.tsic-context-menu .tsic-context-item')).some(e => (e.textContent || '').trim() === 'Drop…'));
-        const dropEntry = Array.from(ctx.doc.querySelectorAll('.tsic-context-menu .tsic-context-item')).find(e => (e.textContent || '').trim() === 'Drop…');
+        await ctx.waitFor(() => Array.from(ctx.doc.querySelectorAll('.tsic-context-menu .tsic-context-item')).some(e => (e.textContent || '').trim() === 'Drop X…'));
+        const dropEntry = Array.from(ctx.doc.querySelectorAll('.tsic-context-menu .tsic-context-item')).find(e => (e.textContent || '').trim() === 'Drop X…');
         dropEntry.click();
         await new Promise(r => setTimeout(r, 30));
         ctx.expect(ctx.assert.domExists(ctx.doc, 'input[type="range"]'));
