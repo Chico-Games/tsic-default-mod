@@ -222,6 +222,17 @@
         return null;
       }
 
+      // Definition id for a worn item instance. The equipment snapshot's ItemId
+      // is the InternalInventoryId, which /tex/item-icon knows nothing about —
+      // icons must be requested by the definition id from the inventory row.
+      function defIdForInstance(instanceId) {
+        if (instanceId == null || instanceId === '') return null;
+        const target = String(instanceId);
+        const row = ((lastUpdate && lastUpdate.Items) || []).find(
+          (i) => i && i.InstanceId != null && String(i.InstanceId) === target);
+        return row ? row.ItemId : null;
+      }
+
       function publishHoverContext(it) {
         if (!window.tsic || !window.tsic.setMenuActionContext) return;
         const cat = window.tsic.itemCatalog || {};
@@ -399,7 +410,8 @@
           if (!isEmpty) {
             // iconImg retries the cold-cache 404 and serves the in-data fallback
             // on miss, so equipment slots no longer show the broken-image glyph.
-            const img = TSIC.iconImg(TSIC.itemIconUrl(s.ItemId));
+            const iconUrl = TSIC.itemIconUrl(defIdForInstance(s.ItemId) || s.ItemId);
+            const img = TSIC.iconImg(iconUrl);
             div.appendChild(img);
             div.title = `${label} — click to unequip, drag into the grid to stow`;
             div.addEventListener('click', () => {
@@ -411,7 +423,7 @@
             div.addEventListener('pointerdown', (e) => {
               window.TSICInventory.beginPointerDrag(div, {
                 equipSlotTag: s.SlotTag, instanceId: s.ItemId, ownerId: 'Player',
-              }, TSIC.itemIconUrl(s.ItemId), e);
+              }, iconUrl, e);
             });
           } else {
             div.textContent = label;
@@ -454,7 +466,11 @@
       ctx.on('tsic.msg.UI.Inventory.Updated', (p) => {
         if (!p || p.OwnerId !== 'Player') return;
         lastUpdate = p;
-        if (ctx.isVisible()) refresh();
+        if (!ctx.isVisible()) return;
+        refresh();
+        // Doll icons resolve instance -> definition id through this snapshot,
+        // so a doll drawn before the first Inventory.Updated must re-render.
+        renderEquipment();
       });
       ctx.on('tsic.msg.UI.Equipment.Updated', (p) => {
         if (!p || p.OwnerId !== 'Player') return;
