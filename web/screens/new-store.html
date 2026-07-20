@@ -209,9 +209,21 @@
       let order = [];
       let selectedLayout = null;
 
+      // Map registry iteration order is arbitrary — impose ours: the flagship
+      // "Durham Furniture" store first (it becomes the default selection), then
+      // regular maps A→Z, with Dev* maps at the bottom.
+      function layoutName(L) { return String(L.DisplayName || L.LayoutId || ''); }
+      function layoutRank(L) {
+        const name = layoutName(L);
+        if (name.toLowerCase() === 'durham furniture') return 0;
+        return name.startsWith('Dev') ? 2 : 1;
+      }
+
       function refreshLayoutDD() {
         const dd = document.getElementById('layout-dd');
-        const opts = layouts.map(L => ({ value: L.LayoutId, label: L.DisplayName }));
+        const sorted = layouts.slice().sort((a, b) =>
+          layoutRank(a) - layoutRank(b) || layoutName(a).localeCompare(layoutName(b)));
+        const opts = sorted.map(L => ({ value: L.LayoutId, label: L.DisplayName }));
         dd.setAttribute('data-tsic-options', JSON.stringify(opts));
         if (window.tsic && tsic.dropdown && tsic.dropdown.options) {
           tsic.dropdown.options(dd, opts);

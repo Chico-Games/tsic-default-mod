@@ -148,7 +148,7 @@
             "curve": {
               "preset": "step",
               "invert": true,
-              "threshold": 250
+              "threshold": 420
             }
           }
         ]

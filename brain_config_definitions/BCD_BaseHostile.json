@@ -132,7 +132,7 @@
             "curve": {
               "preset": "step",
               "invert": true,
-              "threshold": 300
+              "threshold": 420
             },
             "id": "proximity_gate"
           }

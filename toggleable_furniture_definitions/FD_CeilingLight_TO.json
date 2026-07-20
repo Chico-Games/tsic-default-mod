@@ -93,8 +93,8 @@
               "z": 1
             }
           },
-          "intensity": 5000,
-          "attenuation_radius": 1068.601318359375,
+          "intensity": 10000,
+          "attenuation_radius": 2137.20263671875,
           "casts_shadows": true,
           "light_color": {
             "b": 233,
@@ -104,7 +104,7 @@
           },
           "source_radius": 11.03358268737793,
           "soft_source_radius": 6.601322174072266,
-          "source_length": 239.52749633789062,
+          "source_length": 479.05499267578125,
           "max_draw_distance": 0,
           "max_distance_fade_range": 0,
           "inner_cone_angle": 51.95856475830078,

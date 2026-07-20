@@ -108,11 +108,11 @@
           {
             "input": "target_distance",
             "curve": {
-              "preset": "linear",
-              "invert": true
+              "preset": "step",
+              "invert": true,
+              "threshold": 420
             },
-            "in_min": 0,
-            "in_max": 300
+            "id": "proximity_gate"
           }
         ]
       },

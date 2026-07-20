@@ -12,6 +12,24 @@ TSICTestHarness.register({
 });
 
 TSICTestHarness.register({
+    name: 'NewStore: Durham Furniture is pinned first and preselected, Dev maps last',
+    file: '/screens/new-store.html',
+    async run(ctx) {
+        ctx.inject('tsic.msg.UI.Menu.Layouts', { Layouts: [
+            { LayoutId: 'DevBlankFloor',    DisplayName: 'DevBlankFloor',    ThumbnailUrl: '' },
+            { LayoutId: 'Abandoned Mall',   DisplayName: 'Abandoned Mall',   ThumbnailUrl: '' },
+            { LayoutId: 'Durham Furniture', DisplayName: 'Durham Furniture', ThumbnailUrl: '' },
+        ]});
+        await new Promise(r => setTimeout(r, 120));
+        const dd = ctx.doc.getElementById('layout-dd');
+        const opts = JSON.parse(dd.getAttribute('data-tsic-options') || '[]');
+        ctx.expect(ctx.assert.eq(opts.map(o => o.value).join('|'),
+            'Durham Furniture|Abandoned Mall|DevBlankFloor'));
+        ctx.expect(ctx.assert.eq(dd.getAttribute('data-tsic-value'), 'Durham Furniture'));
+    },
+});
+
+TSICTestHarness.register({
     name: 'MainMenu: Exit publishes Menu.Exit',
     file: '/screens/main-menu.html',
     async run(ctx) {
