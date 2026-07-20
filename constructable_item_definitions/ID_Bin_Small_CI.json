@@ -4,6 +4,7 @@
   "class": "UConstructableItemDefinition",
   "schema_version": 2,
   "properties": {
+    "thumbnail": "mod:icons/id_bin_small_ci",
     "furniture_to_construct": "FD_Bin_Small_DF",
     "display_name": "Rubbish Bin",
     "description": "Store furniture.",

@@ -4,6 +4,7 @@
   "class": "UConstructableItemDefinition",
   "schema_version": 2,
   "properties": {
+    "thumbnail": "mod:icons/id_storeposter_4_ci",
     "furniture_to_construct": "FD_StorePoster_4_DF",
     "display_name": "Store Poster",
     "description": "Store furniture.",
