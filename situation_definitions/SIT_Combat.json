@@ -17,6 +17,7 @@
       "BH_OpenInventory",
       "BH_OpenCrafting",
       "BH_OpenMap",
+      "BH_OpenChat",
       "BH_ToggleConstruction",
       "BH_HUDToggle",
       "BH_Pause",
@@ -33,7 +34,8 @@
       "BH_HotbarNext",
       "BH_HotbarPrevious",
       "BH_EquipToggle",
-      "BH_DropSelected"
+      "BH_DropSelected",
+      "BH_PushToTalk"
     ]
   }
 }

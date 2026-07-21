@@ -16,6 +16,7 @@
 //   hud-chunk-debug.js  — chunk debug overlay (dev)
 //   hud-hotbar.js       — bottom-centre hotbar shelf
 //   hud-screen-fade.js  — full-screen black fade (death sequence)
+//   hud-chat.js         — multiplayer text chat (bottom-left, above the vials)
 //
 // The HUD toggle (body.hud-hidden) stays here — it's orchestrator-level
 // since it hides ALL chrome elements at once.
@@ -49,7 +50,7 @@
     '#hud-crosshair.draggable { box-shadow:0 0 0 3px rgba(255,255,255,0.30); }',
     '#hud-crosshair.dragging { transform:scale(1.4); box-shadow:0 0 0 3px rgba(255,255,255,0.65); }',
     '#hud-crosshair.hidden { display:none; }',
-    'body.hud-hidden #hud-chrome, body.hud-hidden #hud-health, body.hud-hidden #hud-stamina, body.hud-hidden #hud-stomach, body.hud-hidden #hud-crosshair, body.hud-hidden #bb-shell-gameplay, body.hud-hidden #hud-minimap, body.hud-hidden #hud-chunk-debug, body.hud-hidden #hud-hotbar, body.hud-hidden #ping-shell, body.hud-hidden #hud-low-health, body.hud-hidden #hud-hit-reaction, body.hud-hidden #hud-stealth { display:none !important; }',
+    'body.hud-hidden #hud-chrome, body.hud-hidden #hud-health, body.hud-hidden #hud-stamina, body.hud-hidden #hud-stomach, body.hud-hidden #hud-crosshair, body.hud-hidden #bb-shell-gameplay, body.hud-hidden #hud-minimap, body.hud-hidden #hud-chunk-debug, body.hud-hidden #hud-hotbar, body.hud-hidden #ping-shell, body.hud-hidden #hud-low-health, body.hud-hidden #hud-hit-reaction, body.hud-hidden #hud-stealth, body.hud-hidden #hud-chat, body.hud-hidden #hud-voice { display:none !important; }',
     'body.hud-hide-health #hud-health, body.hud-hide-stamina #hud-stamina, body.hud-hide-stomach #hud-stomach, body.hud-hide-crosshair #hud-crosshair, body.hud-hide-minimap #hud-minimap, body.hud-hide-actionbar #bb-shell-gameplay, body.hud-hide-interaction #interaction-prompt, body.hud-hide-hotbar #hud-hotbar, body.hud-hide-lowhealth #hud-low-health, body.hud-hide-hitreaction #hud-hit-reaction, body.hud-hide-stealth #hud-stealth { display:none !important; }',
     '#bb-shell-gameplay { position:fixed; bottom:18px; right:24px; min-width:240px; max-width:calc(100vw - 48px); padding:8px 12px; color:#fff; pointer-events:none; z-index:20; font-family:Georgia,"Libre Baskerville",serif; text-shadow:0 1px 2px rgba(0,0,0,0.75); }',
     '#bb-shell-gameplay.hidden { display:none; }',
@@ -159,6 +160,12 @@
 
     // Ping composer overlay — hud-ping.js builds the wheel inside it.
     document.body.appendChild(el('div', { id: 'ping-shell' }));
+
+    // Text chat shell — hud-chat.js builds the log + input row inside it.
+    document.body.appendChild(el('div', { id: 'hud-chat' }));
+
+    // Voice chat speaking indicator — hud-voice.js builds the chip + rows inside it.
+    document.body.appendChild(el('div', { id: 'hud-voice' }));
   }
 
   // ---- Dynamic script loading ----
@@ -234,5 +241,7 @@
     loadScript('/shared/hud-hit-reaction.js');
     loadScript('/shared/hud-ping.js');
     loadScript('/shared/hud-screen-fade.js');
+    loadScript('/shared/hud-chat.js');
+    loadScript('/shared/hud-voice.js');
   });
 })();

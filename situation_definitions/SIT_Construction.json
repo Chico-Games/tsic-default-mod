@@ -21,7 +21,8 @@
       "BH_ConChangeAxis",
       "BH_ConResetRotation",
       "BH_Back",
-      "BH_ToggleConstruction"
+      "BH_ToggleConstruction",
+      "BH_PushToTalk"
     ]
   }
 }

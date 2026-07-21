@@ -1,9 +1,9 @@
-// /screens/voice-chat.html subscribes to:
+// shared/hud-voice.js (mounted by hud.js in the in-game shell) subscribes to:
 //   tsic.msg.UI.VoiceChat.State  { bSelfPushToTalk, Speaking:[string] }
 TSICPlayground.register({
     id: 'voice-chat',
     label: 'Voice Chat',
-    screen: '/screens/voice-chat.html',
+    screen: '/screens/in-game.html',
     initialState() { return { bSelfPushToTalk: false, Speaking: [] }; },
     project(s) { return [['tsic.msg.UI.VoiceChat.State', s]]; },
     scenarios: [

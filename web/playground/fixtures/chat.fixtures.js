@@ -1,17 +1,29 @@
-// /screens/chat.html subscribes to:
-//   tsic.msg.UI.Chat.History  { Messages:[{SenderName, Text}] }
+// Text chat HUD component (shared/hud-chat.js, mounted by hud.js in the
+// in-game shell). Subscribes to:
+//   tsic.msg.UI.Chat.History      { Messages:[{SenderName, Text}] }
+//   tsic.msg.UI.Behavior.OpenChat { Phase:'Started' }  (opens the input row)
 // Outgoing:
-//   UI.Cmd.Chat.Send  { Channel, Text }
+//   UI.Cmd.Chat.Send      { Channel, Text }
+//   UI.Cmd.Overlay.Push/Pop { Name:'ChatInput' }
 TSICPlayground.register({
     id: 'chat',
     label: 'Chat',
-    screen: '/screens/chat.html',
+    screen: '/screens/in-game.html',
     initialState() { return { messages: [
         { SenderName: 'System', Text: 'Welcome to the server.' },
         { SenderName: 'Ziggy',  Text: 'hey' },
         { SenderName: 'Friend', Text: 'sup' },
-    ] }; },
-    project(state) { return [['tsic.msg.UI.Chat.History', { Messages: state.messages }]]; },
+    ], openSeq: 0 }; },
+    project(state) {
+        const out = [['tsic.msg.UI.Chat.History', { Messages: state.messages }]];
+        if (state.openSeq > 0) {
+            out.push(['tsic.msg.UI.Behavior.OpenChat', { Phase: 'Started', _id: state.openSeq }]);
+        }
+        return out;
+    },
+    controls: [
+        { type: 'button', label: 'Open input (Enter)', apply(s) { s.openSeq = (s.openSeq || 0) + 1; } },
+    ],
     scenarios: [
         { label: 'Empty',          apply(s) { s.messages = []; } },
         { label: 'System only',    apply(s) { s.messages = [

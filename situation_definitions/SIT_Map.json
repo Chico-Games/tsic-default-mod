@@ -13,7 +13,8 @@
       "BH_MapResetView",
       "BH_OpenInventory",
       "BH_OpenCrafting",
-      "BH_OpenMap"
+      "BH_OpenMap",
+      "BH_PushToTalk"
     ],
     "gamepad_behaviors": [
       "BH_Back",

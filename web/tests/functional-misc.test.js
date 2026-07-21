@@ -42,8 +42,9 @@ TSICTestHarness.register({
 // ---- VoiceChat ----------------------------------------------------------
 TSICTestHarness.register({
     name: 'VoiceChat: empty speaker list yields zero rows',
-    file: '/screens/voice-chat.html',
+    file: '/screens/in-game.html',
     async run(ctx) {
+        await ctx.waitFor(() => ctx.doc.querySelector('#vc-list'));
         ctx.inject('tsic.msg.UI.VoiceChat.State', { Speaking: [], bSelfPushToTalk: false });
         await new Promise(r => setTimeout(r, 60));
         ctx.expect(ctx.assert.domCount(ctx.doc, '#vc-list .vc-row', 0));
