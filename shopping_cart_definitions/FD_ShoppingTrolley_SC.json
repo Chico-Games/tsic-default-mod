@@ -66,6 +66,32 @@
     "release_linear_damping": 0.0,
     "restitution": 0.20000000298023224,
     "tip_over_angle": 45.0,
-    "upright_friction": 0.10000000149011612
+    "upright_friction": 0.10000000149011612,
+    "handle_local_direction": {
+      "x": -1.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "mount_hold_time": 0.6,
+    "ride_prompt_text": "Ride",
+    "drive_prompt_text": "Drive",
+    "ride_seat_offset": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 110.0
+    },
+    "drive_handle_offset": {
+      "x": -85.0,
+      "y": 0.0,
+      "z": 90.0
+    },
+    "push_force": 1200.0,
+    "max_push_speed": 500.0,
+    "sprint_push_multiplier": 1.5,
+    "steer_torque_strength": 8.0,
+    "steer_torque_damping": 2.0,
+    "upright_stabilization_strength": 30.0,
+    "upright_stabilization_damping": 11.0,
+    "drive_stamina_drain_per_tick": 2.0
   }
 }

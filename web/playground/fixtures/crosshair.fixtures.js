@@ -1,17 +1,19 @@
 // /screens/test-crosshair.html subscribes to:
 //   tsic.msg.UI.Input.Mode.Changed   { Mode, Device, Focus }
 //   tsic.msg.UI.Interaction.Targets  { Targets, bDraggable, bDragging }
-// Hides dot when Device==='mouse' && Focus==='ui'. Faint ring while looking at
-// a draggable target, solid ring while dragging.
+// Hides dot when Device==='mouse' && Focus==='ui'. The look target's Category
+// drives a subtle halo animation (data-cat); a slightly transparent hand icon
+// shows beside the dot while the target is draggable, solid ring while dragging.
 TSICPlayground.register({
     id: 'crosshair',
     label: 'Crosshair',
     screen: '/screens/test-crosshair.html',
-    initialState() { return { mode: 'MouseAndKeyboard', device: 'mouse', focus: 'game', draggable: false, dragging: false }; },
+    initialState() { return { mode: 'MouseAndKeyboard', device: 'mouse', focus: 'game', draggable: false, dragging: false, category: '' }; },
     project(s) {
+        var targets = s.category ? [{ EntityId: 1, Label: 'Interact', Category: s.category }] : [];
         return [
             ['tsic.msg.UI.Input.Mode.Changed', { Mode: s.mode, Device: s.device, Focus: s.focus }],
-            ['tsic.msg.UI.Interaction.Targets', { Targets: [], bDraggable: s.draggable, bDragging: s.dragging }],
+            ['tsic.msg.UI.Interaction.Targets', { Targets: targets, bDraggable: s.draggable, bDragging: s.dragging }],
         ];
     },
     // Crosshair page only visually changes on the (mouse,ui) combo — all other
@@ -28,5 +30,9 @@ TSICPlayground.register({
         { label: 'Looking at draggable', apply(s) { s.draggable = true;  s.dragging = false; }, expect: { visualChange: true } },
         { label: 'Dragging',             apply(s) { s.draggable = true;  s.dragging = true; },  expect: { visualChange: true } },
         { label: 'Dropped / looked away', apply(s) { s.draggable = false; s.dragging = false; }, expect: { visualChange: true } },
+        { label: 'Looking at crafting',   apply(s) { s.category = 'crafting'; },   expect: { visualChange: true } },
+        { label: 'Looking at production', apply(s) { s.category = 'production'; }, expect: { visualChange: true } },
+        { label: 'Looking at plantable',  apply(s) { s.category = 'plantable'; },  expect: { visualChange: true } },
+        { label: 'Looking at nothing',    apply(s) { s.category = ''; },           expect: { visualChange: true } },
     ],
 });

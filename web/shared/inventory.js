@@ -91,7 +91,7 @@
         if (!ghostEl) return;
         ghostEl.style.left = (ev.clientX - 24) + 'px';
         ghostEl.style.top = (ev.clientY - 24) + 'px';
-        var overCell = !!cellUnder(ev.clientX, ev.clientY);
+        var overCell = !!cellUnder(ev.clientX, ev.clientY) || !!hotbarSlotUnder(ev.clientX, ev.clientY);
         ghostEl.classList.toggle('tsic-drag-ghost--out', !overCell && outsideEveryPane(ev));
     }
     function ghostHide() {
@@ -118,6 +118,36 @@
     function cellUnder(x, y) {
         var target = document.elementFromPoint(x, y);
         return target ? target.closest('.tsic-slot, .equip-slot') : null;
+    }
+
+    // Hotbar drop targets: the inventory screen's mirror (.inv-hotbar .hslot,
+    // indexed by data-hotbar) and the HUD row (#hotbar-row .tsic-slot, indexed
+    // by data-slot).
+    function hotbarSlotUnder(x, y) {
+        var target = document.elementFromPoint(x, y);
+        var slotEl = target ? target.closest('.inv-hotbar .hslot, #hotbar-row .tsic-slot') : null;
+        if (!slotEl) return null;
+        var raw = slotEl.dataset.hotbar != null ? slotEl.dataset.hotbar : slotEl.dataset.slot;
+        var index = parseInt(raw, 10);
+        return Number.isNaN(index) ? null : { el: slotEl, index: index };
+    }
+
+    // Release over a hotbar slot: assign the held stack's instance to that
+    // slot (id-based — the stack never leaves its grid cell). Non-assignable
+    // categories just return home; a hotbar release never falls through to
+    // the drop-in-world path.
+    function tryCommitHeldToHotbar(x, y) {
+        if (!held) return false;
+        var slot = hotbarSlotUnder(x, y);
+        if (!slot) return false;
+        if (window.TSICInventory.canAssignToHotbar(held.itemId)) {
+            publish('UI.Cmd.Hotbar.Assign', { SlotIndex: slot.index, ItemId: String(held.instanceId) });
+            sound('Inventory.Transfer', 0.33);
+        }
+        distributeTrail = null;
+        suppressClickUntil = Date.now() + 200;
+        cancelHeld();
+        return true;
     }
 
     function refreshHeldSourceVisual() {
@@ -311,6 +341,9 @@
         if (!heldRelease) return;
         heldRelease = null;
         if (!held || e.button !== 0) return;
+        // A hotbar release wins over drag-distribute: releasing on a slot
+        // means "assign", even when the drag swept valid cells on the way.
+        if (tryCommitHeldToHotbar(e.clientX, e.clientY)) return;
         if (tryDistributeRelease()) return;
         var t = cellUnder(e.clientX, e.clientY);
         if (t && t.classList.contains('equip-slot')) {
@@ -321,9 +354,6 @@
                 t._tsicEquipDrop(payload);
             }
             return;
-        }
-        if (t && t.closest('.inv-hotbar, #hotbar-row')) {
-            return; // the hotbar slot's own click handler assigns the held stack
         }
         var hostEl = t && t.closest('[data-tsic-grid-host]');
         var targetPane = hostEl && hostEl._tsicPane;
@@ -737,6 +767,9 @@
                     document.removeEventListener('pointerup', onUp, true);
                     if (!dragging) return; // plain click — the click listener handles it
                     suppressClickUntil = Date.now() + 150;
+                    // A hotbar release wins over drag-distribute: releasing on
+                    // a slot means "assign", even when the drag swept cells.
+                    if (tryCommitHeldToHotbar(ev.clientX, ev.clientY)) return;
                     if (tryDistributeRelease()) return;
                     var t = cellUnder(ev.clientX, ev.clientY);
                     if (t && t.classList.contains('equip-slot')) {

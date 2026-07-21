@@ -60,6 +60,59 @@ TSICTestHarness.register({
 });
 
 TSICTestHarness.register({
+    name: 'Interaction: category tints the prompt and shows a symbol',
+    file: '/screens/test-interaction.html',
+    async run(ctx) {
+        ctx.inject('tsic.msg.UI.Interaction.Targets', {
+            Targets: [{ EntityId: 5, Label: 'Craft', Category: 'crafting' }],
+        });
+        await ctx.waitFor(() => (ctx.doc.getElementById('interaction-prompt') || { classList: { contains: () => false } }).classList.contains('cat-crafting'));
+        const prompt = ctx.doc.getElementById('interaction-prompt');
+        ctx.expect(ctx.assert.truthy(prompt.classList.contains('cat-crafting'), 'expected .cat-crafting tint class'));
+        ctx.expect(ctx.assert.truthy(prompt.querySelector('.cat-icon svg'), 'expected inline SVG category symbol'));
+        ctx.expect(ctx.assert.truthy(/Craft/.test(prompt.textContent), 'label text preserved next to the symbol'));
+        // Category class resets when the next target is uncategorised.
+        ctx.inject('tsic.msg.UI.Interaction.Targets', { Targets: [{ EntityId: 6, Label: 'Use' }] });
+        await ctx.waitFor(() => !ctx.doc.getElementById('interaction-prompt').classList.contains('cat-crafting'));
+        ctx.expect(ctx.assert.truthy(!ctx.doc.getElementById('interaction-prompt').querySelector('.cat-icon'), 'symbol removed for uncategorised target'));
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Crosshair: look-target category stamps data-cat for the halo animation',
+    file: '/screens/test-crosshair.html',
+    async run(ctx) {
+        ctx.inject('tsic.msg.UI.Interaction.Targets', {
+            Targets: [{ EntityId: 11, Label: 'Use Assembler', Category: 'production' }],
+        });
+        await ctx.waitFor(() => ctx.doc.getElementById('hud-crosshair').getAttribute('data-cat') === 'production');
+        ctx.inject('tsic.msg.UI.Interaction.Targets', { Targets: [] });
+        await ctx.waitFor(() => !ctx.doc.getElementById('hud-crosshair').hasAttribute('data-cat'));
+        ctx.expect(ctx.assert.truthy(!ctx.doc.getElementById('hud-crosshair').hasAttribute('data-cat'), 'data-cat cleared when looking away'));
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Crosshair: hand icon appears for draggable targets and tightens while dragging',
+    file: '/screens/test-crosshair.html',
+    async run(ctx) {
+        ctx.inject('tsic.msg.UI.Interaction.Targets', { Targets: [], bDraggable: true, bDragging: false });
+        await ctx.waitFor(() => {
+            const hand = ctx.doc.getElementById('hud-crosshair-hand');
+            return hand && hand.classList.contains('visible');
+        });
+        const hand = ctx.doc.getElementById('hud-crosshair-hand');
+        ctx.expect(ctx.assert.truthy(hand.querySelector('svg'), 'hand SVG built'));
+        ctx.expect(ctx.assert.truthy(!hand.classList.contains('dragging'), 'not dragging yet'));
+        ctx.inject('tsic.msg.UI.Interaction.Targets', { Targets: [], bDraggable: true, bDragging: true });
+        await ctx.waitFor(() => hand.classList.contains('dragging'));
+        ctx.inject('tsic.msg.UI.Interaction.Targets', { Targets: [], bDraggable: false, bDragging: false });
+        await ctx.waitFor(() => !hand.classList.contains('visible'));
+        ctx.expect(ctx.assert.truthy(!hand.classList.contains('visible') && !hand.classList.contains('dragging'), 'hand cleared'));
+    },
+});
+
+TSICTestHarness.register({
     name: 'Interaction: target without a Label falls back to "Interact"',
     file: '/screens/test-interaction.html',
     async run(ctx) {

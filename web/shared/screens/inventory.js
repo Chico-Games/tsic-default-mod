@@ -466,6 +466,10 @@
             }
           }
           hslot.addEventListener('click', () => {
+            // A pointerup-committed hotbar assign suppresses this click so it
+            // can't double up as a Select. The held branch stays for the
+            // gamepad path (focus + A synthesizes a click, no pointerup).
+            if (window.TSICInventory.clickSuppressed()) return;
             const heldStack = window.TSICInventory.getHeld();
             if (heldStack) {
               // Click with a held stack = assign it to this hotbar slot; the
@@ -520,6 +524,11 @@
         renderHints();
         if (window.TSICInventory) refresh();
       };
+
+      // Cold start: a fresh page with an unchanged inventory has no snapshot to
+      // replay, leaving the grid unrendered. Ask C++ to re-broadcast the player
+      // inventory/equipment/hotbar state.
+      ctx.publish('UI.Cmd.Inventory.RequestSync', {});
 
       ctx.on('tsic.msg.UI.Inventory.Updated', (p) => {
         if (!p || p.OwnerId !== 'Player') return;

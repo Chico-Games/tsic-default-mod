@@ -359,6 +359,97 @@ TSICTestHarness.register({
     },
 });
 
+// ---- Hotbar assignment via the cursor engine --------------------------------
+
+// Fixture hotbars, pinned away from the grid so elementFromPoint resolves
+// unambiguously: the inventory screen's mirror (.inv-hotbar .hslot) and the
+// HUD row (#hotbar-row .tsic-slot).
+function ensureHotbarFixture(ctx) {
+    let mirror = ctx.doc.getElementById('zz-inv-hotbar');
+    if (mirror) return;
+    mirror = ctx.doc.createElement('div');
+    mirror.id = 'zz-inv-hotbar';
+    mirror.className = 'inv-hotbar';
+    mirror.style.cssText = 'position:fixed;left:420px;top:8px;display:flex;gap:4px;';
+    const hud = ctx.doc.createElement('div');
+    hud.id = 'hotbar-row';
+    hud.style.cssText = 'position:fixed;left:420px;top:80px;display:flex;gap:4px;';
+    for (let i = 0; i < 10; i++) {
+        const hslot = ctx.doc.createElement('div');
+        hslot.className = 'hslot';
+        hslot.style.cssText = 'width:48px;height:48px;';
+        hslot.dataset.hotbar = i;
+        mirror.appendChild(hslot);
+        const hudSlot = ctx.doc.createElement('div');
+        hudSlot.className = 'tsic-slot';
+        hudSlot.style.cssText = 'width:48px;height:48px;';
+        hudSlot.dataset.slot = i;
+        hud.appendChild(hudSlot);
+    }
+    ctx.doc.body.appendChild(mirror);
+    ctx.doc.body.appendChild(hud);
+}
+function mirrorSlot(ctx, i) { return ctx.doc.querySelector('#zz-inv-hotbar .hslot[data-hotbar="' + i + '"]'); }
+function hudSlot(ctx, i) { return ctx.doc.querySelector('#hotbar-row .tsic-slot[data-slot="' + i + '"]'); }
+
+TSICTestHarness.register({
+    name: 'Unit/InventoryJs: press-drag-release onto the hotbar mirror publishes Hotbar.Assign, never Move/Drop',
+    file: '/screens/test-fixtures.html',
+    async run(ctx) {
+        ctx.clearPublishes();
+        ctx.handle.setItemCatalog({ ID_Axe: { Category: 'Equipment' } });
+        ensureHotbarFixture(ctx);
+        renderHost(ctx, [{ ItemId: 'ID_Axe', Count: 1, InstanceId: 9, GridSlot: 0 }]);
+        // Low slot index: the test iframe viewport is narrow, and slots past
+        // ~x600 fall outside elementFromPoint's reach.
+        pointerAt(ctx, cellAt(ctx, 0), 'pointerdown', 1, 0);
+        pointerAt(ctx, mirrorSlot(ctx, 2), 'pointermove', 1);
+        pointerAt(ctx, mirrorSlot(ctx, 2), 'pointerup', 0, 0);
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Hotbar.Assign', {
+            where: p => p.SlotIndex === 2 && p.ItemId === '9',
+        }));
+        ctx.expect(ctx.assert.notPublished(ctx.handle, 'UI.Cmd.Inventory.Move'));
+        ctx.expect(ctx.assert.notPublished(ctx.handle, 'UI.Cmd.Inventory.DropFromSlot'));
+        ctx.expect(ctx.assert.eq(ctx.win.TSICInventory.getHeld(), null, 'gesture completed'));
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Unit/InventoryJs: click-move-click onto the HUD hotbar row assigns instead of dropping in the world',
+    file: '/screens/test-fixtures.html',
+    async run(ctx) {
+        ctx.clearPublishes();
+        ctx.handle.setItemCatalog({ ID_Bread: { Category: 'Consumable' } });
+        ensureHotbarFixture(ctx);
+        renderHost(ctx, [{ ItemId: 'ID_Bread', Count: 3, InstanceId: 5, GridSlot: 1 }]);
+        click(ctx, cellAt(ctx, 1)); // pick up
+        pressReleaseOn(ctx, hudSlot(ctx, 2));
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Hotbar.Assign', {
+            where: p => p.SlotIndex === 2 && p.ItemId === '5',
+        }));
+        ctx.expect(ctx.assert.notPublished(ctx.handle, 'UI.Cmd.Inventory.DropFromSlot'));
+        ctx.expect(ctx.assert.eq(ctx.win.TSICInventory.getHeld(), null, 'gesture completed'));
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Unit/InventoryJs: non-assignable categories released on the hotbar return home silently',
+    file: '/screens/test-fixtures.html',
+    async run(ctx) {
+        ctx.clearPublishes();
+        ctx.handle.setItemCatalog({ ID_Scrap: { Category: 'CraftingMaterial' } });
+        ensureHotbarFixture(ctx);
+        renderHost(ctx, [{ ItemId: 'ID_Scrap', Count: 4, InstanceId: 7, GridSlot: 0 }]);
+        pointerAt(ctx, cellAt(ctx, 0), 'pointerdown', 1, 0);
+        pointerAt(ctx, mirrorSlot(ctx, 1), 'pointermove', 1);
+        pointerAt(ctx, mirrorSlot(ctx, 1), 'pointerup', 0, 0);
+        ctx.expect(ctx.assert.notPublished(ctx.handle, 'UI.Cmd.Hotbar.Assign'));
+        ctx.expect(ctx.assert.notPublished(ctx.handle, 'UI.Cmd.Inventory.Move'));
+        ctx.expect(ctx.assert.notPublished(ctx.handle, 'UI.Cmd.Inventory.DropFromSlot'));
+        ctx.expect(ctx.assert.eq(ctx.win.TSICInventory.getHeld(), null, 'stack returned home'));
+    },
+});
+
 TSICTestHarness.register({
     name: 'Unit/InventoryJs: RMB drag places ONE per swept cell without doubling on release',
     file: '/screens/test-fixtures.html',

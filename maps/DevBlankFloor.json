@@ -1,889 +1,889 @@
 {
- "metadata": {
-  "name": "DevBlankFloor",
-  "description": "Dev/testing world: a 64x64-tile blank floor arena in an empty void. Generated for nav/AI scenario testing.",
-  "world_size": 256,
-  "maze_generation_seed": 20260716
- },
- "layers": [
-  {
-   "layer_type": "Height",
-   "palette": [
-    "#525d6b"
-   ],
-   "color_data": [
-    [
-     0,
-     65536
-    ]
-   ]
+  "metadata": {
+    "name": "DevBlankFloor",
+    "description": "Dev/testing world: a 64x64-tile blank floor arena in an empty void. Generated for nav/AI scenario testing.",
+    "world_size": 256,
+    "maze_generation_seed": 20260716
   },
-  {
-   "layer_type": "Difficulty",
-   "palette": [
-    "#90ee90"
-   ],
-   "color_data": [
-    [
-     0,
-     65536
-    ]
-   ]
+  "layers": [
+    {
+      "layer_type": "Height",
+      "palette": [
+        "#1a1a2e"
+      ],
+      "color_data": [
+        [
+          0,
+          65536
+        ]
+      ]
+    },
+    {
+      "layer_type": "Difficulty",
+      "palette": [
+        "#90ee90"
+      ],
+      "color_data": [
+        [
+          0,
+          65536
+        ]
+      ]
+    },
+    {
+      "layer_type": "Hazard",
+      "palette": [
+        "#1a1a1a"
+      ],
+      "color_data": [
+        [
+          0,
+          65536
+        ]
+      ]
+    },
+    {
+      "layer_type": "Sky",
+      "palette": [
+        "#ffffff"
+      ],
+      "color_data": [
+        [
+          0,
+          65536
+        ]
+      ]
+    },
+    {
+      "layer_type": "Floor",
+      "palette": [
+        "#ffffff",
+        "#d1d1d1",
+        "#00ff7f"
+      ],
+      "color_data": [
+        [
+          0,
+          24672
+        ],
+        [
+          1,
+          64
+        ],
+        [
+          0,
+          192
+        ],
+        [
+          1,
+          64
+        ],
+        [
+          0,
+          192
+        ],
+        [
+          1,
+          64
+        ],
+        [
+          0,
+          192
+        ],
+        [
+          1,
+          64
+        ],
+        [
+          0,
+          192
+        ],
+        [
+          1,
+          64
+        ],
+        [
+          0,
+          192
+        ],
+        [
+          1,
+          64
+        ],
+        [
+          0,
+          192
+        ],
+        [
+          1,
+          64
+        ],
+        [
+          0,
+          192
+        ],
+        [
+          1,
+          64
+        ],
+        [
+          0,
+          192
+        ],
+        [
+          1,
+          64
+        ],
+        [
+          0,
+          192
+        ],
+        [
+          1,
+          64
+        ],
+        [
+          0,
+          192
+        ],
+        [
+          1,
+          64
+        ],
+        [
+          0,
+          192
+        ],
+        [
+          1,
+          64
+        ],
+        [
+          0,
+          192
+        ],
+        [
+          1,
+          64
+        ],
+        [
+          0,
+          192
+        ],
+        [
+          1,
+          64
+        ],
+        [
+          0,
+          192
+        ],
+        [
+          1,
+          64
+        ],
+        [
+          0,
+          192
+        ],
+        [
+          1,
+          64
+        ],
+        [
+          0,
+          192
+        ],
+        [
+          1,
+          64
+        ],
+        [
+          0,
+          192
+        ],
+        [
+          1,
+          64
+        ],
+        [
+          0,
+          192
+        ],
+        [
+          1,
+          64
+        ],
+        [
+          0,
+          192
+        ],
+        [
+          1,
+          64
+        ],
+        [
+          0,
+          192
+        ],
+        [
+          1,
+          64
+        ],
+        [
+          0,
+          192
+        ],
+        [
+          1,
+          64
+        ],
+        [
+          0,
+          192
+        ],
+        [
+          1,
+          64
+        ],
+        [
+          0,
+          192
+        ],
+        [
+          1,
+          64
+        ],
+        [
+          0,
+          192
+        ],
+        [
+          1,
+          64
+        ],
+        [
+          0,
+          192
+        ],
+        [
+          1,
+          64
+        ],
+        [
+          0,
+          192
+        ],
+        [
+          1,
+          64
+        ],
+        [
+          0,
+          192
+        ],
+        [
+          1,
+          64
+        ],
+        [
+          0,
+          192
+        ],
+        [
+          1,
+          64
+        ],
+        [
+          0,
+          192
+        ],
+        [
+          1,
+          64
+        ],
+        [
+          0,
+          192
+        ],
+        [
+          1,
+          64
+        ],
+        [
+          0,
+          192
+        ],
+        [
+          1,
+          64
+        ],
+        [
+          0,
+          192
+        ],
+        [
+          1,
+          32
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          1,
+          31
+        ],
+        [
+          0,
+          192
+        ],
+        [
+          1,
+          64
+        ],
+        [
+          0,
+          192
+        ],
+        [
+          1,
+          64
+        ],
+        [
+          0,
+          192
+        ],
+        [
+          1,
+          64
+        ],
+        [
+          0,
+          192
+        ],
+        [
+          1,
+          64
+        ],
+        [
+          0,
+          192
+        ],
+        [
+          1,
+          64
+        ],
+        [
+          0,
+          192
+        ],
+        [
+          1,
+          64
+        ],
+        [
+          0,
+          192
+        ],
+        [
+          1,
+          64
+        ],
+        [
+          0,
+          192
+        ],
+        [
+          1,
+          64
+        ],
+        [
+          0,
+          192
+        ],
+        [
+          1,
+          64
+        ],
+        [
+          0,
+          192
+        ],
+        [
+          1,
+          64
+        ],
+        [
+          0,
+          192
+        ],
+        [
+          1,
+          64
+        ],
+        [
+          0,
+          192
+        ],
+        [
+          1,
+          64
+        ],
+        [
+          0,
+          192
+        ],
+        [
+          1,
+          64
+        ],
+        [
+          0,
+          192
+        ],
+        [
+          1,
+          64
+        ],
+        [
+          0,
+          192
+        ],
+        [
+          1,
+          64
+        ],
+        [
+          0,
+          192
+        ],
+        [
+          1,
+          64
+        ],
+        [
+          0,
+          192
+        ],
+        [
+          1,
+          64
+        ],
+        [
+          0,
+          192
+        ],
+        [
+          1,
+          64
+        ],
+        [
+          0,
+          192
+        ],
+        [
+          1,
+          64
+        ],
+        [
+          0,
+          192
+        ],
+        [
+          1,
+          64
+        ],
+        [
+          0,
+          192
+        ],
+        [
+          1,
+          64
+        ],
+        [
+          0,
+          192
+        ],
+        [
+          1,
+          64
+        ],
+        [
+          0,
+          192
+        ],
+        [
+          1,
+          64
+        ],
+        [
+          0,
+          192
+        ],
+        [
+          1,
+          64
+        ],
+        [
+          0,
+          192
+        ],
+        [
+          1,
+          64
+        ],
+        [
+          0,
+          192
+        ],
+        [
+          1,
+          64
+        ],
+        [
+          0,
+          192
+        ],
+        [
+          1,
+          64
+        ],
+        [
+          0,
+          192
+        ],
+        [
+          1,
+          64
+        ],
+        [
+          0,
+          192
+        ],
+        [
+          1,
+          64
+        ],
+        [
+          0,
+          192
+        ],
+        [
+          1,
+          64
+        ],
+        [
+          0,
+          192
+        ],
+        [
+          1,
+          64
+        ],
+        [
+          0,
+          24672
+        ]
+      ]
+    },
+    {
+      "layer_type": "Underground",
+      "palette": [
+        "#ffffff"
+      ],
+      "color_data": [
+        [
+          0,
+          65536
+        ]
+      ]
+    },
+    {
+      "layer_type": "SkyHeightOffset",
+      "palette": [
+        "#0a0a0a"
+      ],
+      "color_data": [
+        [
+          0,
+          65536
+        ]
+      ]
+    },
+    {
+      "layer_type": "UndergroundHeightOffset",
+      "palette": [
+        "#0a0a0a"
+      ],
+      "color_data": [
+        [
+          0,
+          65536
+        ]
+      ]
+    }
+  ],
+  "color_mappings": {
+    "biomes": {
+      "#ffffff": {
+        "value": 0,
+        "name": "Tile.Biome.Empty",
+        "description": "Empty tile (for Sky, Floor, Underground)"
+      },
+      "#ff6b6b": {
+        "value": 1,
+        "name": "Tile.Biome.ShowFloor",
+        "description": "Store showroom floor"
+      },
+      "#f7dc6f": {
+        "value": 2,
+        "name": "Tile.Biome.Restaurant",
+        "description": "Food court/restaurant area"
+      },
+      "#4ecdc4": {
+        "value": 3,
+        "name": "Tile.Biome.Warehouse",
+        "description": "Storage/loading dock"
+      },
+      "#aed6f1": {
+        "value": 4,
+        "name": "Tile.Biome.SCPBase",
+        "description": "Main SCP base area"
+      },
+      "#3b82f6": {
+        "value": 5,
+        "name": "Tile.Biome.SCPBaseEntrance",
+        "description": "Entry point to SCP base"
+      },
+      "#f59e0b": {
+        "value": 6,
+        "name": "Tile.Biome.Map",
+        "description": "Map kiosk location"
+      },
+      "#bb8fce": {
+        "value": 7,
+        "name": "Tile.Biome.HelpPoint",
+        "description": "Player assistance location"
+      },
+      "#1e40af": {
+        "value": 8,
+        "name": "Tile.Biome.SCPBaseExit",
+        "description": "Exit point from SCP base"
+      },
+      "#fbbf24": {
+        "value": 9,
+        "name": "Tile.Biome.SCPBasePower",
+        "description": "SCP base power room"
+      },
+      "#8b4513": {
+        "value": 10,
+        "name": "Tile.Biome.AbandonedCamp",
+        "description": "Previous survivor camp"
+      },
+      "#ff69b4": {
+        "value": 11,
+        "name": "Tile.Biome.Kids",
+        "description": "Children's store/play area"
+      },
+      "#22c55e": {
+        "value": 12,
+        "name": "Tile.Biome.Gardening",
+        "description": "Garden center"
+      },
+      "#b8b8b8": {
+        "value": 13,
+        "name": "Tile.Biome.SkyEmpty",
+        "description": "Empty sky/void tiles"
+      },
+      "#87ceeb": {
+        "value": 14,
+        "name": "Tile.Biome.SkyCeiling",
+        "description": "Ceiling tiles (skybox)"
+      },
+      "#2563eb": {
+        "value": 15,
+        "name": "Tile.Biome.Bathroom",
+        "description": "Restroom facilities"
+      },
+      "#6b7280": {
+        "value": 16,
+        "name": "Tile.Biome.CarPark",
+        "description": "Main parking area"
+      },
+      "#9ca3af": {
+        "value": 17,
+        "name": "Tile.Biome.CarParkEntrance",
+        "description": "Entry point to car park"
+      },
+      "#4b5563": {
+        "value": 18,
+        "name": "Tile.Biome.CarParkExit",
+        "description": "Exit point from car park"
+      },
+      "#deb887": {
+        "value": 19,
+        "name": "Tile.Biome.StaffRoom",
+        "description": "Employee break room"
+      },
+      "#2f2f2f": {
+        "value": 20,
+        "name": "Tile.Biome.Blocked",
+        "description": "Permanently blocked tile"
+      },
+      "#2f1b0c": {
+        "value": 21,
+        "name": "Tile.Biome.Pit",
+        "description": "Dangerous pit/hole"
+      },
+      "#9370db": {
+        "value": 22,
+        "name": "Tile.Biome.LostAndFound",
+        "description": "Lost and found area"
+      },
+      "#00ff7f": {
+        "value": 23,
+        "name": "Tile.Biome.Spawn",
+        "description": "Player spawn point"
+      },
+      "#5c4033": {
+        "value": 24,
+        "name": "Tile.Biome.BrokenEmpty",
+        "description": "Broken/damaged empty area"
+      },
+      "#000000": {
+        "value": 0,
+        "name": "Tile.Biome.Empty",
+        "description": "Empty/default tile"
+      },
+      "#d1d1d1": {
+        "value": 25,
+        "name": "Tile.Biome.BlankFloor",
+        "description": "Dev blank floor arena"
+      }
+    },
+    "heights": {
+      "#0a0a0a": {
+        "value": 0,
+        "name": "Height_0",
+        "description": "Height level 0"
+      },
+      "#1a1a2e": {
+        "value": 1,
+        "name": "Height_1",
+        "description": "Height level 1"
+      },
+      "#525d6b": {
+        "value": 2,
+        "name": "Height_2",
+        "description": "Height level 2"
+      },
+      "#778994": {
+        "value": 3,
+        "name": "Height_3",
+        "description": "Height level 3"
+      },
+      "#9db5bd": {
+        "value": 4,
+        "name": "Height_4",
+        "description": "Height level 4"
+      },
+      "#b0cbd1": {
+        "value": 5,
+        "name": "Height_5",
+        "description": "Height level 5"
+      },
+      "#c3e1e6": {
+        "value": 6,
+        "name": "Height_6",
+        "description": "Height level 6"
+      },
+      "#d6f5fa": {
+        "value": 7,
+        "name": "Height_7",
+        "description": "Height level 7"
+      },
+      "#e8f7fa": {
+        "value": 8,
+        "name": "Height_8",
+        "description": "Height level 8"
+      },
+      "#ffffff": {
+        "value": 9,
+        "name": "Height_9",
+        "description": "Height level 9"
+      },
+      "#000000": {
+        "value": 0,
+        "name": "Empty",
+        "description": "Empty/default tile"
+      }
+    },
+    "difficulty": {
+      "#90ee90": {
+        "value": 0,
+        "name": "Difficulty_Easy",
+        "description": "Low enemy density, weaker enemies"
+      },
+      "#ffd700": {
+        "value": 1,
+        "name": "Difficulty_Normal",
+        "description": "Moderate enemy presence"
+      },
+      "#ff8c00": {
+        "value": 2,
+        "name": "Difficulty_Hard",
+        "description": "High enemy density, stronger enemies"
+      },
+      "#ff6347": {
+        "value": 3,
+        "name": "Difficulty_Nightmare",
+        "description": "Very dangerous, elite enemies"
+      },
+      "#8b0000": {
+        "value": 4,
+        "name": "Difficulty_Apocalypse",
+        "description": "Maximum difficulty, overwhelming enemies"
+      },
+      "#000000": {
+        "value": 0,
+        "name": "Empty",
+        "description": "Empty/default tile"
+      }
+    },
+    "hazards": {
+      "#1a1a1a": {
+        "value": 0,
+        "name": "Hazard_None",
+        "description": "No environmental hazard"
+      },
+      "#39ff14": {
+        "value": 1,
+        "name": "Hazard_Radiation",
+        "description": "Gradual radiation damage"
+      },
+      "#87cfec": {
+        "value": 2,
+        "name": "Hazard_Freezing",
+        "description": "Cold damage, slows movement"
+      },
+      "#000000": {
+        "value": 0,
+        "name": "Empty",
+        "description": "Empty/default tile"
+      }
+    }
   },
-  {
-   "layer_type": "Hazard",
-   "palette": [
-    "#1a1a1a"
-   ],
-   "color_data": [
-    [
-     0,
-     65536
-    ]
-   ]
-  },
-  {
-   "layer_type": "Sky",
-   "palette": [
-    "#ffffff"
-   ],
-   "color_data": [
-    [
-     0,
-     65536
-    ]
-   ]
-  },
-  {
-   "layer_type": "Floor",
-   "palette": [
-    "#ffffff",
-    "#d1d1d1",
-    "#00ff7f"
-   ],
-   "color_data": [
-    [
-     0,
-     24672
-    ],
-    [
-     1,
-     64
-    ],
-    [
-     0,
-     192
-    ],
-    [
-     1,
-     64
-    ],
-    [
-     0,
-     192
-    ],
-    [
-     1,
-     64
-    ],
-    [
-     0,
-     192
-    ],
-    [
-     1,
-     64
-    ],
-    [
-     0,
-     192
-    ],
-    [
-     1,
-     64
-    ],
-    [
-     0,
-     192
-    ],
-    [
-     1,
-     64
-    ],
-    [
-     0,
-     192
-    ],
-    [
-     1,
-     64
-    ],
-    [
-     0,
-     192
-    ],
-    [
-     1,
-     64
-    ],
-    [
-     0,
-     192
-    ],
-    [
-     1,
-     64
-    ],
-    [
-     0,
-     192
-    ],
-    [
-     1,
-     64
-    ],
-    [
-     0,
-     192
-    ],
-    [
-     1,
-     64
-    ],
-    [
-     0,
-     192
-    ],
-    [
-     1,
-     64
-    ],
-    [
-     0,
-     192
-    ],
-    [
-     1,
-     64
-    ],
-    [
-     0,
-     192
-    ],
-    [
-     1,
-     64
-    ],
-    [
-     0,
-     192
-    ],
-    [
-     1,
-     64
-    ],
-    [
-     0,
-     192
-    ],
-    [
-     1,
-     64
-    ],
-    [
-     0,
-     192
-    ],
-    [
-     1,
-     64
-    ],
-    [
-     0,
-     192
-    ],
-    [
-     1,
-     64
-    ],
-    [
-     0,
-     192
-    ],
-    [
-     1,
-     64
-    ],
-    [
-     0,
-     192
-    ],
-    [
-     1,
-     64
-    ],
-    [
-     0,
-     192
-    ],
-    [
-     1,
-     64
-    ],
-    [
-     0,
-     192
-    ],
-    [
-     1,
-     64
-    ],
-    [
-     0,
-     192
-    ],
-    [
-     1,
-     64
-    ],
-    [
-     0,
-     192
-    ],
-    [
-     1,
-     64
-    ],
-    [
-     0,
-     192
-    ],
-    [
-     1,
-     64
-    ],
-    [
-     0,
-     192
-    ],
-    [
-     1,
-     64
-    ],
-    [
-     0,
-     192
-    ],
-    [
-     1,
-     64
-    ],
-    [
-     0,
-     192
-    ],
-    [
-     1,
-     64
-    ],
-    [
-     0,
-     192
-    ],
-    [
-     1,
-     64
-    ],
-    [
-     0,
-     192
-    ],
-    [
-     1,
-     64
-    ],
-    [
-     0,
-     192
-    ],
-    [
-     1,
-     64
-    ],
-    [
-     0,
-     192
-    ],
-    [
-     1,
-     64
-    ],
-    [
-     0,
-     192
-    ],
-    [
-     1,
-     32
-    ],
-    [
-     2,
-     1
-    ],
-    [
-     1,
-     31
-    ],
-    [
-     0,
-     192
-    ],
-    [
-     1,
-     64
-    ],
-    [
-     0,
-     192
-    ],
-    [
-     1,
-     64
-    ],
-    [
-     0,
-     192
-    ],
-    [
-     1,
-     64
-    ],
-    [
-     0,
-     192
-    ],
-    [
-     1,
-     64
-    ],
-    [
-     0,
-     192
-    ],
-    [
-     1,
-     64
-    ],
-    [
-     0,
-     192
-    ],
-    [
-     1,
-     64
-    ],
-    [
-     0,
-     192
-    ],
-    [
-     1,
-     64
-    ],
-    [
-     0,
-     192
-    ],
-    [
-     1,
-     64
-    ],
-    [
-     0,
-     192
-    ],
-    [
-     1,
-     64
-    ],
-    [
-     0,
-     192
-    ],
-    [
-     1,
-     64
-    ],
-    [
-     0,
-     192
-    ],
-    [
-     1,
-     64
-    ],
-    [
-     0,
-     192
-    ],
-    [
-     1,
-     64
-    ],
-    [
-     0,
-     192
-    ],
-    [
-     1,
-     64
-    ],
-    [
-     0,
-     192
-    ],
-    [
-     1,
-     64
-    ],
-    [
-     0,
-     192
-    ],
-    [
-     1,
-     64
-    ],
-    [
-     0,
-     192
-    ],
-    [
-     1,
-     64
-    ],
-    [
-     0,
-     192
-    ],
-    [
-     1,
-     64
-    ],
-    [
-     0,
-     192
-    ],
-    [
-     1,
-     64
-    ],
-    [
-     0,
-     192
-    ],
-    [
-     1,
-     64
-    ],
-    [
-     0,
-     192
-    ],
-    [
-     1,
-     64
-    ],
-    [
-     0,
-     192
-    ],
-    [
-     1,
-     64
-    ],
-    [
-     0,
-     192
-    ],
-    [
-     1,
-     64
-    ],
-    [
-     0,
-     192
-    ],
-    [
-     1,
-     64
-    ],
-    [
-     0,
-     192
-    ],
-    [
-     1,
-     64
-    ],
-    [
-     0,
-     192
-    ],
-    [
-     1,
-     64
-    ],
-    [
-     0,
-     192
-    ],
-    [
-     1,
-     64
-    ],
-    [
-     0,
-     192
-    ],
-    [
-     1,
-     64
-    ],
-    [
-     0,
-     192
-    ],
-    [
-     1,
-     64
-    ],
-    [
-     0,
-     192
-    ],
-    [
-     1,
-     64
-    ],
-    [
-     0,
-     192
-    ],
-    [
-     1,
-     64
-    ],
-    [
-     0,
-     192
-    ],
-    [
-     1,
-     64
-    ],
-    [
-     0,
-     24672
-    ]
-   ]
-  },
-  {
-   "layer_type": "Underground",
-   "palette": [
-    "#ffffff"
-   ],
-   "color_data": [
-    [
-     0,
-     65536
-    ]
-   ]
-  },
-  {
-   "layer_type": "SkyHeightOffset",
-   "palette": [
-    "#0a0a0a"
-   ],
-   "color_data": [
-    [
-     0,
-     65536
-    ]
-   ]
-  },
-  {
-   "layer_type": "UndergroundHeightOffset",
-   "palette": [
-    "#0a0a0a"
-   ],
-   "color_data": [
-    [
-     0,
-     65536
-    ]
-   ]
+  "format_info": {
+    "description": "JSON-RLE (Run-Length Encoding) format for TSIC world generation",
+    "version": "1.0",
+    "how_to_read": {
+      "step_1": "Each layer has a 'palette' (array of colors) and 'color_data' (RLE compressed data)",
+      "step_2": "RLE format: [[paletteIndex, count], ...] where paletteIndex references palette array",
+      "step_3": "Decompress: for each [index, count], repeat palette[index] for count tiles",
+      "step_4": "Tiles are stored in row-major order: index = y * world_size + x",
+      "step_5": "Use color_mappings below to convert colors to enum values for each layer type"
+    }
   }
- ],
- "color_mappings": {
-  "biomes": {
-   "#ffffff": {
-    "value": 0,
-    "name": "Tile.Biome.Empty",
-    "description": "Empty tile (for Sky, Floor, Underground)"
-   },
-   "#ff6b6b": {
-    "value": 1,
-    "name": "Tile.Biome.ShowFloor",
-    "description": "Store showroom floor"
-   },
-   "#f7dc6f": {
-    "value": 2,
-    "name": "Tile.Biome.Restaurant",
-    "description": "Food court/restaurant area"
-   },
-   "#4ecdc4": {
-    "value": 3,
-    "name": "Tile.Biome.Warehouse",
-    "description": "Storage/loading dock"
-   },
-   "#aed6f1": {
-    "value": 4,
-    "name": "Tile.Biome.SCPBase",
-    "description": "Main SCP base area"
-   },
-   "#3b82f6": {
-    "value": 5,
-    "name": "Tile.Biome.SCPBaseEntrance",
-    "description": "Entry point to SCP base"
-   },
-   "#f59e0b": {
-    "value": 6,
-    "name": "Tile.Biome.Map",
-    "description": "Map kiosk location"
-   },
-   "#bb8fce": {
-    "value": 7,
-    "name": "Tile.Biome.HelpPoint",
-    "description": "Player assistance location"
-   },
-   "#1e40af": {
-    "value": 8,
-    "name": "Tile.Biome.SCPBaseExit",
-    "description": "Exit point from SCP base"
-   },
-   "#fbbf24": {
-    "value": 9,
-    "name": "Tile.Biome.SCPBasePower",
-    "description": "SCP base power room"
-   },
-   "#8b4513": {
-    "value": 10,
-    "name": "Tile.Biome.AbandonedCamp",
-    "description": "Previous survivor camp"
-   },
-   "#ff69b4": {
-    "value": 11,
-    "name": "Tile.Biome.Kids",
-    "description": "Children's store/play area"
-   },
-   "#22c55e": {
-    "value": 12,
-    "name": "Tile.Biome.Gardening",
-    "description": "Garden center"
-   },
-   "#b8b8b8": {
-    "value": 13,
-    "name": "Tile.Biome.SkyEmpty",
-    "description": "Empty sky/void tiles"
-   },
-   "#87ceeb": {
-    "value": 14,
-    "name": "Tile.Biome.SkyCeiling",
-    "description": "Ceiling tiles (skybox)"
-   },
-   "#2563eb": {
-    "value": 15,
-    "name": "Tile.Biome.Bathroom",
-    "description": "Restroom facilities"
-   },
-   "#6b7280": {
-    "value": 16,
-    "name": "Tile.Biome.CarPark",
-    "description": "Main parking area"
-   },
-   "#9ca3af": {
-    "value": 17,
-    "name": "Tile.Biome.CarParkEntrance",
-    "description": "Entry point to car park"
-   },
-   "#4b5563": {
-    "value": 18,
-    "name": "Tile.Biome.CarParkExit",
-    "description": "Exit point from car park"
-   },
-   "#deb887": {
-    "value": 19,
-    "name": "Tile.Biome.StaffRoom",
-    "description": "Employee break room"
-   },
-   "#2f2f2f": {
-    "value": 20,
-    "name": "Tile.Biome.Blocked",
-    "description": "Permanently blocked tile"
-   },
-   "#2f1b0c": {
-    "value": 21,
-    "name": "Tile.Biome.Pit",
-    "description": "Dangerous pit/hole"
-   },
-   "#9370db": {
-    "value": 22,
-    "name": "Tile.Biome.LostAndFound",
-    "description": "Lost and found area"
-   },
-   "#00ff7f": {
-    "value": 23,
-    "name": "Tile.Biome.Spawn",
-    "description": "Player spawn point"
-   },
-   "#5c4033": {
-    "value": 24,
-    "name": "Tile.Biome.BrokenEmpty",
-    "description": "Broken/damaged empty area"
-   },
-   "#000000": {
-    "value": 0,
-    "name": "Tile.Biome.Empty",
-    "description": "Empty/default tile"
-   },
-   "#d1d1d1": {
-    "value": 25,
-    "name": "Tile.Biome.BlankFloor",
-    "description": "Dev blank floor arena"
-   }
-  },
-  "heights": {
-   "#0a0a0a": {
-    "value": 0,
-    "name": "Height_0",
-    "description": "Height level 0"
-   },
-   "#1a1a2e": {
-    "value": 1,
-    "name": "Height_1",
-    "description": "Height level 1"
-   },
-   "#525d6b": {
-    "value": 2,
-    "name": "Height_2",
-    "description": "Height level 2"
-   },
-   "#778994": {
-    "value": 3,
-    "name": "Height_3",
-    "description": "Height level 3"
-   },
-   "#9db5bd": {
-    "value": 4,
-    "name": "Height_4",
-    "description": "Height level 4"
-   },
-   "#b0cbd1": {
-    "value": 5,
-    "name": "Height_5",
-    "description": "Height level 5"
-   },
-   "#c3e1e6": {
-    "value": 6,
-    "name": "Height_6",
-    "description": "Height level 6"
-   },
-   "#d6f5fa": {
-    "value": 7,
-    "name": "Height_7",
-    "description": "Height level 7"
-   },
-   "#e8f7fa": {
-    "value": 8,
-    "name": "Height_8",
-    "description": "Height level 8"
-   },
-   "#ffffff": {
-    "value": 9,
-    "name": "Height_9",
-    "description": "Height level 9"
-   },
-   "#000000": {
-    "value": 0,
-    "name": "Empty",
-    "description": "Empty/default tile"
-   }
-  },
-  "difficulty": {
-   "#90ee90": {
-    "value": 0,
-    "name": "Difficulty_Easy",
-    "description": "Low enemy density, weaker enemies"
-   },
-   "#ffd700": {
-    "value": 1,
-    "name": "Difficulty_Normal",
-    "description": "Moderate enemy presence"
-   },
-   "#ff8c00": {
-    "value": 2,
-    "name": "Difficulty_Hard",
-    "description": "High enemy density, stronger enemies"
-   },
-   "#ff6347": {
-    "value": 3,
-    "name": "Difficulty_Nightmare",
-    "description": "Very dangerous, elite enemies"
-   },
-   "#8b0000": {
-    "value": 4,
-    "name": "Difficulty_Apocalypse",
-    "description": "Maximum difficulty, overwhelming enemies"
-   },
-   "#000000": {
-    "value": 0,
-    "name": "Empty",
-    "description": "Empty/default tile"
-   }
-  },
-  "hazards": {
-   "#1a1a1a": {
-    "value": 0,
-    "name": "Hazard_None",
-    "description": "No environmental hazard"
-   },
-   "#39ff14": {
-    "value": 1,
-    "name": "Hazard_Radiation",
-    "description": "Gradual radiation damage"
-   },
-   "#87cfec": {
-    "value": 2,
-    "name": "Hazard_Freezing",
-    "description": "Cold damage, slows movement"
-   },
-   "#000000": {
-    "value": 0,
-    "name": "Empty",
-    "description": "Empty/default tile"
-   }
-  }
- },
- "format_info": {
-  "description": "JSON-RLE (Run-Length Encoding) format for TSIC world generation",
-  "version": "1.0",
-  "how_to_read": {
-   "step_1": "Each layer has a 'palette' (array of colors) and 'color_data' (RLE compressed data)",
-   "step_2": "RLE format: [[paletteIndex, count], ...] where paletteIndex references palette array",
-   "step_3": "Decompress: for each [index, count], repeat palette[index] for count tiles",
-   "step_4": "Tiles are stored in row-major order: index = y * world_size + x",
-   "step_5": "Use color_mappings below to convert colors to enum values for each layer type"
-  }
- }
 }

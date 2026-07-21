@@ -176,7 +176,13 @@
         idxLabel.className = 'key';
         idxLabel.textContent = i === 9 ? '0' : String(i + 1);
         slot.appendChild(idxLabel);
-        slot.onclick = function () { publish('UI.Cmd.Hotbar.Select', { SlotIndex: i }); };
+        slot.onclick = function () {
+          // A pointerup-committed hotbar assign (grid drag onto this slot)
+          // suppresses the click so it can't double up as a Select.
+          var inv = window.TSICInventory;
+          if (inv && inv.clickSuppressed && inv.clickSuppressed()) return;
+          publish('UI.Cmd.Hotbar.Select', { SlotIndex: i });
+        };
 
         // Drag source — only assigned slots can be dragged.
         slot.draggable = slotHasItem;
@@ -198,7 +204,9 @@
           });
         }
 
-        // Drop target — accepts inventory rows (assign) and hotbar slots (swap).
+        // Drop target — accepts other hotbar slots (swap). Inventory-grid
+        // items arrive through the pointer-based cursor engine
+        // (shared/inventory.js tryCommitHeldToHotbar), not HTML5 drag.
         slot.addEventListener('dragover', function (e) {
           e.preventDefault();
           slot.classList.add('is-drop-target');
@@ -207,19 +215,6 @@
         slot.addEventListener('drop', function (e) {
           e.preventDefault();
           slot.classList.remove('is-drop-target');
-
-          var itemData = e.dataTransfer.getData('application/tsic-item');
-          if (itemData) {
-            try {
-              var src = JSON.parse(itemData);
-              // Assign by the stable instance id, not the array position — hotbar slots are keyed by
-              // InstanceId (see the inventory listener), and src.slot would point at the wrong item
-              // the moment the inventory reorders.
-              var assignId = (src.instanceId != null) ? src.instanceId : src.slot;
-              publish('UI.Cmd.Hotbar.Assign', { SlotIndex: i, ItemId: String(assignId) });
-            } catch (err) { console.warn('[hotbar] bad item drag payload', err); }
-            return;
-          }
           var slotData = e.dataTransfer.getData('application/tsic-slot');
           if (slotData) {
             try {
