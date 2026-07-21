@@ -63,7 +63,13 @@ TSICTestHarness.register({
         ctx.clearPublishes();
         ctx.doc.querySelector('#ss-container-list .tsic-slot[data-instance="9"]').click();
         ctx.expect(ctx.assert.truthy(ctx.win.TSICInventory.getHeld(), 'stack held'));
-        ctx.doc.querySelector('#ss-player-list .tsic-slot[data-grid="5"]').click();
+        // Commits ride the global pointer tracker — press/release at the
+        // target cell's real coordinates.
+        const dst = ctx.doc.querySelector('#ss-player-list .tsic-slot[data-grid="5"]');
+        const r = dst.getBoundingClientRect();
+        const o = { bubbles: true, cancelable: true, clientX: r.x + r.width / 2, clientY: r.y + r.height / 2, button: 0 };
+        dst.dispatchEvent(new ctx.win.PointerEvent('pointerdown', o));
+        dst.dispatchEvent(new ctx.win.PointerEvent('pointerup', o));
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Inventory.Move', {
             where: p => p.FromOwnerId === 'Storage:42' && p.ToOwnerId === 'Player' &&
                 p.ItemId === 9 && p.FromSlot === 0 && p.ToSlot === 5,
@@ -94,5 +100,31 @@ TSICTestHarness.register({
         await new Promise(r => setTimeout(r, 30));
         ctx.expect(ctx.assert.domExists(ctx.doc, '#ss-player-list .tsic-slot[data-instance="2"]:not(.is-filtered)'));
         ctx.expect(ctx.assert.domExists(ctx.doc, '#ss-player-list .tsic-slot[data-instance="1"].is-filtered'));
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Storage: Tab and NextPage switch focus to the other pane',
+    file: '/screens/storage.html',
+    async run(ctx) {
+        ctx.setItemCatalog({ ID_Wood: { Name: 'Wood', Category: 'CraftingMaterial' } });
+        ctx.inject('tsic.msg.UI.Inventory.Updated', {
+            OwnerId: 'Storage:42', GridWidth: 8,
+            Items: [{ ItemId: 'ID_Wood', Count: 4, InstanceId: 1, GridSlot: 0 }], MaxSlots: 32,
+        });
+        ctx.inject('tsic.msg.UI.Inventory.Updated', {
+            OwnerId: 'Player', GridWidth: 8, Items: [], MaxSlots: 32,
+        });
+        await ctx.waitFor(() => ctx.doc.querySelector('#ss-container-list .tsic-slot'));
+        ctx.doc.dispatchEvent(new ctx.win.KeyboardEvent('keydown', { key: 'Tab', bubbles: true }));
+        await new Promise(r => setTimeout(r, 50));
+        const focused1 = ctx.doc.querySelector('.tsic-slot[data-tsic-focused]');
+        ctx.expect(ctx.assert.truthy(focused1 && focused1.closest('#ss-container-list'),
+            'Tab lands in the container pane'));
+        ctx.inject('tsic.msg.UI.Behavior.NextPage', { Phase: 'Started' });
+        await new Promise(r => setTimeout(r, 50));
+        const focused2 = ctx.doc.querySelector('.tsic-slot[data-tsic-focused]');
+        ctx.expect(ctx.assert.truthy(focused2 && focused2.closest('#ss-player-list'),
+            'NextPage jumps back to the player pane'));
     },
 });

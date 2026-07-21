@@ -7,6 +7,7 @@ function cellAt(ctx, grid) {
     return ctx.doc.querySelector('#host .tsic-slot[data-grid="' + grid + '"]');
 }
 function renderHost(ctx, items, extra) {
+    ensureLayout(ctx);
     const host = ctx.doc.getElementById('host');
     host.innerHTML = '';
     ctx.win.TSICInventory.cancelHeld();
@@ -17,6 +18,24 @@ function renderHost(ctx, items, extra) {
 }
 function click(ctx, el, opts) {
     el.dispatchEvent(new ctx.win.MouseEvent('click', Object.assign({ bubbles: true, cancelable: true }, opts || {})));
+}
+// Held commits ride the global pointerdown/pointerup tracker, which resolves
+// the RELEASE POINT via elementFromPoint — so tests must press at real
+// coordinates over the target cell.
+function pressReleaseOn(ctx, el) {
+    const r = el.getBoundingClientRect();
+    const o = { bubbles: true, cancelable: true, clientX: r.x + r.width / 2, clientY: r.y + r.height / 2, button: 0 };
+    el.dispatchEvent(new ctx.win.PointerEvent('pointerdown', o));
+    el.dispatchEvent(new ctx.win.PointerEvent('pointerup', o));
+}
+// The fixture page has no screen CSS; give the grid real cell geometry so
+// elementFromPoint-based commits resolve.
+function ensureLayout(ctx) {
+    if (ctx.doc.getElementById('zz-grid-style')) return;
+    const s = ctx.doc.createElement('style');
+    s.id = 'zz-grid-style';
+    s.textContent = '#host,#host2{display:grid;grid-template-columns:repeat(4,48px);grid-auto-rows:48px;gap:4px;width:max-content;} .tsic-slot{width:48px;height:48px;}';
+    ctx.doc.head.appendChild(s);
 }
 function rmb(ctx, el) {
     el.dispatchEvent(new ctx.win.MouseEvent('contextmenu', { bubbles: true, cancelable: true, button: 2 }));
@@ -94,8 +113,14 @@ TSICTestHarness.register({
         ctx.expect(ctx.assert.eq(held.count, 6));
         ctx.expect(ctx.assert.eq(held.fromSlot, 2));
         ctx.expect(ctx.assert.truthy(ctx.doc.querySelector('.tsic-drag-ghost'), 'ghost follows the cursor'));
-        // Rule 11: releasing over the source cancels — nothing is ever sent.
-        click(ctx, cellAt(ctx, 2));
+        // Rule 11: releasing over the source returns the stack (after the
+        // double-click grace window) — nothing is ever sent.
+        const cell2 = cellAt(ctx, 2);
+        const r2 = cell2.getBoundingClientRect();
+        const pOpts = { bubbles: true, cancelable: true, clientX: r2.x + 4, clientY: r2.y + 4, button: 0 };
+        cell2.dispatchEvent(new ctx.win.PointerEvent('pointerdown', pOpts));
+        cell2.dispatchEvent(new ctx.win.PointerEvent('pointerup', pOpts));
+        await ctx.waitFor(() => ctx.win.TSICInventory.getHeld() === null);
         ctx.expect(ctx.assert.eq(ctx.win.TSICInventory.getHeld(), null, 'same-cell click returns the stack'));
         ctx.expect(ctx.assert.notPublished(ctx.handle, 'UI.Cmd.Inventory.Move'));
     },
@@ -108,7 +133,7 @@ TSICTestHarness.register({
         ctx.clearPublishes();
         renderHost(ctx, [{ ItemId: 'ID_A', Count: 6, InstanceId: 7, GridSlot: 0 }]);
         click(ctx, cellAt(ctx, 0));
-        click(ctx, cellAt(ctx, 3));
+        pressReleaseOn(ctx, cellAt(ctx, 3));
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Inventory.Move', {
             where: p => p.ItemId === 7 && p.FromSlot === 0 && p.ToSlot === 3 &&
                 p.Count === 0 && p.FromOwnerId === 'Player' && p.ToOwnerId === 'Player',
@@ -154,7 +179,7 @@ TSICTestHarness.register({
         ctx.clearPublishes();
         renderHost(ctx, [{ ItemId: 'ID_A', Count: 7, InstanceId: 1, GridSlot: 0 }]);
         rmb(ctx, cellAt(ctx, 0));  // hold 4 of 7
-        click(ctx, cellAt(ctx, 3));
+        pressReleaseOn(ctx, cellAt(ctx, 3));
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Inventory.Move', {
             where: p => p.ItemId === 1 && p.FromSlot === 0 && p.ToSlot === 3 && p.Count === 4,
         }));
@@ -241,10 +266,13 @@ TSICTestHarness.register({
         // Second pane in the same fixture doc.
         const host2 = ctx.doc.createElement('div');
         host2.id = 'host2';
+        // Pin the second pane away from the first so elementFromPoint-based
+        // release resolution can't land on the wrong grid.
+        host2.style.cssText = 'position:fixed;left:420px;top:8px;';
         ctx.doc.body.appendChild(host2);
         ctx.win.TSICInventory.renderGrid(host2, [], { gridWidth: 4, slotCount: 4, ownerId: 'Storage:9' });
         click(ctx, host.querySelector('.tsic-slot[data-grid="0"]'));
-        click(ctx, host2.querySelector('.tsic-slot[data-grid="1"]'));
+        pressReleaseOn(ctx, host2.querySelector('.tsic-slot[data-grid="1"]'));
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Inventory.Move', {
             where: p => p.FromOwnerId === 'Player' && p.ToOwnerId === 'Storage:9' &&
                 p.ItemId === 1 && p.ToSlot === 1,

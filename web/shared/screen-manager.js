@@ -144,6 +144,9 @@
       if (f && f.backHandled && f.backHandled()) return;
       const entry = MOUNTED.get(activeName);
       if (!entry) return;
+      // A module can consume one Back press (e.g. the inventory returns a
+      // held stack first; the next press closes the screen).
+      if (typeof entry.module.onCancel === 'function' && entry.module.onCancel() === true) return;
       // Modules that handle cancel themselves (e.g. Construction, whose
       // ability listens to the Back behaviour) opt out by setting cancelCmd
       // to null/'' — we then skip the auto-publish so the action only fires once.

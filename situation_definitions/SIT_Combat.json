@@ -32,7 +32,8 @@
       "BH_Hotbar10",
       "BH_HotbarNext",
       "BH_HotbarPrevious",
-      "BH_EquipToggle"
+      "BH_EquipToggle",
+      "BH_DropSelected"
     ]
   }
 }

@@ -137,7 +137,27 @@
         }
     }
 
+    // Screens re-render their hint rows (and anything else held-dependent)
+    // through this hook — fired on every pickup, commit, and cancel.
+    var heldChangedCallbacks = [];
+    function notifyHeldChanged() {
+        for (var cb of heldChangedCallbacks) {
+            try { cb(held); } catch (e) { /* listener errors never break gestures */ }
+        }
+    }
+
+    // Same-cell release returns the stack — but DELAYED, so the second click
+    // of a double-click (collect) can rescue the hold first.
+    var pendingSameCellCancel = null;
+    function clearPendingCancel() {
+        if (pendingSameCellCancel) {
+            clearTimeout(pendingSameCellCancel);
+            pendingSameCellCancel = null;
+        }
+    }
+
     function pickUp(pane, item, cellIndex, count, ev) {
+        clearPendingCancel();
         held = {
             ownerId: pane.ownerId,
             instanceId: item.InstanceId,
@@ -149,13 +169,16 @@
         ghostShow(ev && ev.clientX, ev && ev.clientY);
         refreshHeldSourceVisual();
         sound('Inventory.Transfer', 0.2);
+        notifyHeldChanged();
     }
 
     function cancelHeld() {
+        clearPendingCancel();
         if (!held) return;
         held = null;
         ghostHide();
         refreshHeldSourceVisual();
+        notifyHeldChanged();
     }
 
     function heldCountArg() {
@@ -168,7 +191,13 @@
     function commitHeldToCell(targetPane, cellIndex) {
         if (!held) return;
         if (targetPane.ownerId === held.ownerId && cellIndex === held.fromSlot) {
-            cancelHeld(); // release over the source = cancel
+            // Release over the source = return the stack — delayed so a
+            // double-click (collect) can rescue the hold first.
+            clearPendingCancel();
+            pendingSameCellCancel = setTimeout(function () {
+                pendingSameCellCancel = null;
+                cancelHeld();
+            }, 300);
             return;
         }
         publish('UI.Cmd.Inventory.Move', {
@@ -179,6 +208,59 @@
         sound('Inventory.Transfer', 0.33);
         cancelHeld();
     }
+
+    // ---- Global held-gesture tracker ---------------------------------------
+    // Once a stack is held, EVERY left press-release commits at the release
+    // point — cell, doll slot, hotbar (via its own click handler), or the
+    // world (outside every pane). This is what makes click-move-click and
+    // press-drag-release the same gesture even when the pickup happened on an
+    // earlier click; without it a press-drag while holding dead-ends (the
+    // browser fires no click when press and release land on different cells).
+    var heldRelease = null; // armed by pointerdown while holding
+    document.addEventListener('pointerdown', function (e) {
+        if (!held || e.button !== 0) return;
+        heldRelease = { x: e.clientX, y: e.clientY };
+    }, true);
+    document.addEventListener('pointerup', function (e) {
+        if (!heldRelease) return;
+        heldRelease = null;
+        if (!held || e.button !== 0) return;
+        var t = cellUnder(e.clientX, e.clientY);
+        if (t && t.classList.contains('equip-slot')) {
+            if (t._tsicEquipDrop) {
+                var payload = { instanceId: held.instanceId, ownerId: held.ownerId };
+                cancelHeld();
+                suppressClickUntil = Date.now() + 200;
+                t._tsicEquipDrop(payload);
+            }
+            return;
+        }
+        if (t && t.closest('.inv-hotbar, #hotbar-row')) {
+            return; // the hotbar slot's own click handler assigns the held stack
+        }
+        var hostEl = t && t.closest('[data-tsic-grid-host]');
+        var targetPane = hostEl && hostEl._tsicPane;
+        var targetIndex = t && t.dataset ? parseInt(t.dataset.grid, 10) : NaN;
+        if (targetPane && !Number.isNaN(targetIndex) && !t.classList.contains('is-locked')) {
+            commitHeldToCell(targetPane, targetIndex);
+            suppressClickUntil = Date.now() + 200;
+            return;
+        }
+        if (outsideEveryPane(e)) {
+            dropHeldAtPlayer(true);
+            suppressClickUntil = Date.now() + 200;
+        }
+        // Inside a panel but not on anything droppable: keep holding.
+    }, true);
+    // RMB outside every pane while holding drops ONE (rule 31); on cells the
+    // cell's own contextmenu handler places one.
+    document.addEventListener('contextmenu', function (e) {
+        if (!held) return;
+        if (!cellUnder(e.clientX, e.clientY) && outsideEveryPane(e)) {
+            e.preventDefault();
+            dropHeldAtPlayer(false);
+        }
+    }, true);
 
     // RMB with a held stack: place ONE (independent atomic op per click).
     function placeOneToCell(targetPane, cellIndex) {
@@ -194,6 +276,7 @@
         if (held.count <= 0) { cancelHeld(); return; }
         ghostShow();
         refreshHeldSourceVisual();
+        notifyHeldChanged();
     }
 
     function dropHeldAtPlayer(all) {
@@ -208,6 +291,7 @@
         held.count -= 1;
         ghostShow();
         refreshHeldSourceVisual();
+        notifyHeldChanged();
     }
 
     // Rule 40: a broadcast arriving mid-gesture re-renders the grid but keeps
@@ -234,20 +318,6 @@
             }
         }
         cancelHeld(); // source entry moved or vanished — gesture dissolves
-    }
-
-    // Click on the screen scrim/background while holding: LMB drops the whole
-    // held count at the pawn, RMB drops one (rule 31 — addressed against the
-    // SOURCE slot, so a stale source safely no-ops).
-    function handleBackgroundClick(ev) {
-        if (!held) return false;
-        if (cellUnder(ev.clientX, ev.clientY)) return false;
-        if (!outsideEveryPane(ev)) {
-            // Inside the panel but not on a cell: ignore (not a drop zone).
-            return false;
-        }
-        dropHeldAtPlayer(ev.button !== 2);
-        return true;
     }
 
     function clickSuppressed() {
@@ -312,8 +382,16 @@
         clickSuppressed: clickSuppressed,
         cancelHeld: cancelHeld,
         reconcileHeld: reconcileHeld,
-        handleBackgroundClick: handleBackgroundClick,
         getHeld() { return held; },
+        /** Subscribe to held-stack changes (hint rows re-render off this). */
+        onHeldChanged(cb) { if (typeof cb === 'function') heldChangedCallbacks.push(cb); },
+        /** Only equipment and consumables belong on the hotbar. */
+        canAssignToHotbar(itemDefId) {
+            var cat = (window.tsic && window.tsic.itemCatalog) || {};
+            var desc = cat[itemDefId];
+            var category = desc && desc.Category;
+            return category === 'Equipment' || category === 'Consumable';
+        },
 
         /**
          * Gamepad grid actions (§8.2), keyed on the FOCUSED cell: 'split' (Y —
@@ -372,7 +450,7 @@
          * ones ("Requires backpack" — UI-only, never a target).
          *
          * paneCtx: { ownerId, panelEl, publish?, quickMove(item), otherOwnerId(),
-         *            onHover(it, cell), onLeave(), onSelect(it, cell),
+         *            onHover(it, cell), onLeave(),
          *            onDollDrop(payload, cell) }
          */
         renderGrid(host, items, opts) {
@@ -404,7 +482,6 @@
                 quickMove: opts.onQuickMove || null,
                 onHover: opts.onHover || null,
                 onLeave: opts.onLeave || null,
-                onSelect: opts.onSelect || null,
                 onDollDrop: opts.onDollDrop || null,
                 otherOwnerId: opts.otherOwnerId || null,
             };
@@ -437,8 +514,8 @@
                     continue;
                 }
                 cell.setAttribute('data-tsic-focusable', '');
+                if (opts.focusGroup) cell.setAttribute('data-tsic-focus-group', opts.focusGroup);
                 cell.tabIndex = -1;
-                if (opts.selectedGridSlot === i) cell.classList.add('is-selected');
                 if (item) {
                     cell.dataset.instance = item.InstanceId;
                     var isEquipped = !!(equippedIds && item.InstanceId != null && equippedIds.has(String(item.InstanceId)));
@@ -485,14 +562,6 @@
                 }
             }
         },
-        updateSelectedSlot(host, selectedIdx) {
-            if (!host) return;
-            var target = (selectedIdx == null) ? '' : String(selectedIdx);
-            for (var cell of host.querySelectorAll('.tsic-slot')) {
-                cell.classList.toggle('is-selected', cell.dataset.grid === target && target !== '');
-            }
-        },
-
         renderInfoPanel(host, itemDescriptor, itemInstance) {
             host.innerHTML = '';
             if (!itemDescriptor) return;
@@ -521,22 +590,23 @@
 
         cell.addEventListener('click', function (e) {
             if (clickSuppressed()) return;
-            if (held) { commitHeldToCell(pane, cellIndex); return; }
-            if (!item) { pane.onSelect && pane.onSelect(null, cellIndex); return; }
+            if (held) return; // commits ride the global pointerup tracker
+            if (!item) return;
             if (e.shiftKey) {
                 // Shift+LMB quick-move (§7.4); destination resolved by the pane.
                 pane.quickMove && pane.quickMove(item, cellIndex);
                 return;
             }
-            pane.onSelect && pane.onSelect(item, cellIndex);
             pickUp(pane, item, cellIndex, item.Count || 1, e);
         });
 
         cell.addEventListener('dblclick', function () {
-            // Double LMB: the first click picked the stack up; the second pulls
-            // every matching mergeable stack from all open panes into it.
+            // Double LMB: the first click picked the stack up; the second's
+            // same-cell release scheduled a delayed return — rescue the hold
+            // and pull every matching mergeable stack from all open panes.
             if (!held || !item || held.instanceId !== item.InstanceId) return;
             if (held.count < held.sourceCount) return; // partial holds don't collect
+            clearPendingCancel();
             publish('UI.Cmd.Inventory.Collect', {
                 OwnerId: pane.ownerId,
                 OtherOwnerId: (pane.otherOwnerId && pane.otherOwnerId()) || '',
@@ -551,7 +621,6 @@
             if (!item) return;
             // RMB empty cursor: pick up the LARGER half (stack of 7 -> hold 4).
             var half = Math.ceil((item.Count || 1) / 2);
-            pane.onSelect && pane.onSelect(item, cellIndex);
             pickUp(pane, item, cellIndex, half, e);
         });
 
@@ -588,6 +657,10 @@
                     var target = hostEl && hostEl._tsicPane;
                     var targetIndex = t && t.dataset ? parseInt(t.dataset.grid, 10) : NaN;
                     if (target && !Number.isNaN(targetIndex) && !t.classList.contains('is-locked')) {
+                        if (target.ownerId === pane.ownerId && targetIndex === cellIndex) {
+                            cancelHeld(); // a drag that returned home cancels immediately
+                            return;
+                        }
                         commitHeldToCell(target, targetIndex);
                         return;
                     }

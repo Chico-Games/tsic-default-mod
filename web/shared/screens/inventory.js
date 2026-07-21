@@ -21,8 +21,9 @@
     [data-screen="Inventory"] #inv-band h2 { margin:0; }
     [data-screen="Inventory"] #inv-band .spacer { flex:1; }
     [data-screen="Inventory"] #inv-band .slots-text { font-size:14px; letter-spacing:0.08em; color:rgba(37,33,25,0.65); }
-    [data-screen="Inventory"] .inv-cols { display:grid; gap:10px; grid-template-columns:auto 236px; align-items:start; }
+    [data-screen="Inventory"] .inv-cols { display:grid; gap:12px; grid-template-columns:max-content 216px; align-items:stretch; }
     [data-screen="Inventory"] #inv-tabs { display:flex; gap:0; margin-bottom:8px; }
+    [data-screen="Inventory"] #inv-tabs .tsic-tab { font-size:11px; padding:3px 8px; }
 
     [data-screen="Inventory"] .inv-grid {
       display:grid; grid-template-columns: repeat(var(--grid-cols, 8), 50px);
@@ -38,10 +39,6 @@
     [data-screen="Inventory"] .tsic-slot.is-empty { background: rgba(237,228,203,0.85); border-color: rgba(10,10,10,0.45); }
     [data-screen="Inventory"] .tsic-slot:hover:not(.is-locked),
     [data-screen="Inventory"] .tsic-slot[data-tsic-focused] { border-color: rgba(10,10,10,1); background: #fffdf3; }
-    [data-screen="Inventory"] .tsic-slot.is-selected {
-      background:#ffedb0; transform:translate(-2px,-2px);
-      box-shadow:4px 4px 0 rgba(10,10,10,0.85); z-index:1;
-    }
     [data-screen="Inventory"] .tsic-slot.is-held-source img { opacity:0.35; }
     [data-screen="Inventory"] .tsic-slot.is-drop-target { outline:2px solid var(--buff-green, #1e8f3e); outline-offset:-2px; }
     [data-screen="Inventory"] .tsic-slot.is-filtered { opacity:0.2; filter:grayscale(0.8); }
@@ -182,7 +179,11 @@
     'Ammo':          (d) => d.Category === 'Ammo',
     'Materials':     (d) => d.Category === 'CraftingMaterial',
   };
-  const TAB_DEFS = Object.keys(TAB_FILTERS).map((id) => ({ id, label: id }));
+  const TAB_LABELS = {
+    'All': 'All', 'Equipment': 'Equip', 'Consumables': 'Cons.',
+    'Constructable': 'Constr.', 'Ammo': 'Ammo', 'Materials': 'Mat.',
+  };
+  const TAB_DEFS = Object.keys(TAB_FILTERS).map((id) => ({ id, label: TAB_LABELS[id] || id }));
 
   // The doll is ARMOR-ONLY + Backpack: the Weapon slot stays in data but is
   // represented by the hotbar's selection frame, not a doll cell (§10.1).
@@ -226,7 +227,6 @@
       let lastEquipment = null;
       let lastHotbar = null;
       let hoveredItem = null;
-      let selected = null; // { instanceId, cell }
       this._state = { get hoveredItem() { return hoveredItem; } };
 
       function equippedSlotTagFor(instanceId) {
@@ -277,13 +277,12 @@
         meter.dataset.state = max > 0 && cur > max ? 'overburdened'
           : ratio >= 0.75 ? 'warning' : 'normal';
 
-        // Selected-stack readout: yellow chip (space ALWAYS reserved) + a
-        // zero-layout overlay segment at the fill's right end. Only for
-        // player-grid selections.
+        // Hovered-stack readout: yellow chip (space ALWAYS reserved) + a
+        // zero-layout overlay segment at the fill's right end.
         const chip = root.querySelector('#inv-stackw');
         const seg = root.querySelector('#inv-weight-sel');
         const cat = window.tsic.itemCatalog || {};
-        const sel = selected ? itemByInstance(selected.instanceId) : null;
+        const sel = hoveredItem;
         const desc = sel ? cat[sel.ItemId] : null;
         if (sel && desc && max > 0) {
           const stackKg = (desc.Weight || 0) * (sel.Count || 1);
@@ -329,8 +328,8 @@
           slotCount,
           lockedPreviewCells: lockedPreview,
           ownerId: 'Player',
+          focusGroup: 'inv-grid',
           panelEl: root.querySelector('#inv-panel'),
-          selectedGridSlot: selected ? selected.cell : -1,
           equippedIds,
           hotbarNumbersByInstance: hotbarNumbersByInstance(),
           filterFn: filter ? (it) => {
@@ -340,14 +339,9 @@
           onHover: (it) => {
             hoveredItem = it || null;
             if (it) renderInfo(it);
-          },
-          onLeave: () => { hoveredItem = null; /* info stays sticky */ },
-          onSelect: (it, cell) => {
-            selected = it ? { instanceId: it.InstanceId, cell } : null;
-            window.TSICInventory.updateSelectedSlot(root.querySelector('#inv-grid'), selected ? cell : null);
-            if (it) renderInfo(it);
             renderMeter();
           },
+          onLeave: () => { hoveredItem = null; renderMeter(); /* info stays sticky */ },
           // Shift-click quick-move on the inventory screen: equippables equip
           // (armor shift-click parity); everything else is a no-op (§7.4).
           onQuickMove: (it) => {
@@ -414,7 +408,6 @@
                 }, iconUrl, e);
               });
             } else {
-              div.textContent = label === 'Backpack' ? 'PACK' : label;
               div.title = `${label} (empty)`;
             }
             div.appendChild(TSIC.el('span', { class: 'tag' }, label.toUpperCase()));
@@ -441,6 +434,11 @@
         for (let i = 0; i < 10; i++) {
           const hslot = TSIC.el('div', { class: 'hslot' + (i === sel ? ' sel' : '') });
           hslot.dataset.hotbar = i;
+          // Controller path for hotbar assignment: pick a stack up (A), walk
+          // focus down to the hotbar, A again assigns (the click handler).
+          hslot.setAttribute('data-tsic-focusable', '');
+          hslot.setAttribute('data-tsic-focus-group', 'inv-hotbar');
+          hslot.tabIndex = -1;
           hslot.appendChild(TSIC.el('span', { class: 'num' }, String((i + 1) % 10)));
           const item = itemByInstance(slots[i]);
           if (item && item.ItemId) {
@@ -454,7 +452,10 @@
             if (heldStack) {
               // Click with a held stack = assign it to this hotbar slot; the
               // stack itself stays in its grid cell (id-based assignment).
-              ctx.publish('UI.Cmd.Hotbar.Assign', { SlotIndex: i, ItemId: String(heldStack.instanceId) });
+              // Only equipment and consumables belong on the hotbar.
+              if (window.TSICInventory.canAssignToHotbar(heldStack.itemId)) {
+                ctx.publish('UI.Cmd.Hotbar.Assign', { SlotIndex: i, ItemId: String(heldStack.instanceId) });
+              }
               window.TSICInventory.cancelHeld();
               return;
             }
@@ -476,8 +477,8 @@
           host.appendChild(hintChip(['LMB'], 'Take'));
           host.appendChild(hintChip(['RMB'], 'Split'));
           host.appendChild(hintChip(['SHIFT', 'LMB'], 'Equip'));
-          host.appendChild(hintChip(['Q'], 'Drop 1'));
-          host.appendChild(hintChip(['CTRL', 'Q'], 'Drop stack'));
+          host.appendChild(hintChip(['G'], 'Drop 1'));
+          host.appendChild(hintChip(['CTRL', 'G'], 'Drop stack'));
           host.appendChild(hintChip(['1', '0'], 'Hotbar'));
         }
       }
@@ -555,16 +556,9 @@
 
       window.addEventListener('tsic-item-catalog', () => { if (ctx.isVisible()) refresh(); });
 
-      // Click on the scrim while holding: LMB drops the whole held count at
-      // the player, RMB drops one (rule 31). Cells stop propagation upstream.
-      root.querySelector('#inv-root').addEventListener('pointerdown', (e) => {
-        if (!ctx.isVisible()) return;
-        if (window.TSICInventory.handleBackgroundClick(e)) {
-          e.stopPropagation();
-          e.preventDefault();
-        }
-        renderHints();
-      });
+      // Held commits and outside-drops ride the engine's global gesture
+      // tracker; the hint row follows the held state.
+      window.TSICInventory.onHeldChanged(() => { if (ctx.isVisible()) renderHints(); });
       root.querySelector('#inv-root').addEventListener('contextmenu', (e) => {
         // RMB never opens a context menu on this screen (no context menu by
         // design §7.6); background RMB with a held stack drops one instead.
@@ -576,6 +570,8 @@
       document.addEventListener('keydown', (e) => {
         if (!ctx.isVisible()) return;
         if (/^[0-9]$/.test(e.key) && hoveredItem) {
+          // Only equipment and consumables belong on the hotbar.
+          if (!window.TSICInventory.canAssignToHotbar(hoveredItem.ItemId)) return;
           const slotIndex = e.key === '0' ? 9 : (parseInt(e.key, 10) - 1);
           ctx.publish('UI.Cmd.Hotbar.Assign', {
             SlotIndex: slotIndex,
@@ -583,7 +579,7 @@
           });
           return;
         }
-        if ((e.key === 'q' || e.key === 'Q') && hoveredItem && !window.TSICInventory.getHeld()) {
+        if ((e.key === 'g' || e.key === 'G') && hoveredItem && !window.TSICInventory.getHeld()) {
           window.TSICInventory.dropHovered({ ownerId: 'Player' }, hoveredItem, e.ctrlKey);
           return;
         }
@@ -593,6 +589,15 @@
           renderHints();
         }
       });
+    },
+
+    // Gamepad B / Esc: a held stack returns first; the next press closes.
+    onCancel() {
+      if (window.TSICInventory && window.TSICInventory.getHeld()) {
+        window.TSICInventory.cancelHeld();
+        return true;
+      }
+      return false;
     },
 
     onShow(/* params, ctx */) {

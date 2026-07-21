@@ -59,7 +59,6 @@
         '#ss-panel .tsic-slot.is-empty { background: rgba(237,228,203,0.85); border-color: rgba(10,10,10,0.45); }',
         '#ss-panel .tsic-slot:hover:not(.is-locked),',
         '#ss-panel .tsic-slot[data-tsic-focused] { border-color: rgba(10,10,10,1); background:#fffdf3; }',
-        '#ss-panel .tsic-slot.is-selected { background:#ffedb0; transform:translate(-2px,-2px); box-shadow:4px 4px 0 rgba(10,10,10,0.85); z-index:1; }',
         '#ss-panel .tsic-slot.is-held-source img { opacity:0.35; }',
         '#ss-panel .tsic-slot.is-drop-target { outline:2px solid var(--buff-green, #1e8f3e); outline-offset:-2px; }',
         '#ss-panel .tsic-slot.is-filtered { opacity:0.2; filter:grayscale(0.8); }',
@@ -174,7 +173,6 @@
             playerMaxWeight: 0,
             // Active pane for the >> header marker (last pointer interaction).
             activePane: 'player',
-            selected: null, // { side, instanceId, cell }
             hovered: null,  // { side, it }
         };
 
@@ -227,8 +225,8 @@
                 gridWidth: isPlayer ? state.playerGridW : state.containerGridW,
                 slotCount: isPlayer ? state.playerMaxSlots : state.containerMaxSlots,
                 ownerId: ownerId || (isPlayer ? 'Player' : ''),
+                focusGroup: isPlayer ? 'ss-player' : 'ss-container',
                 panelEl: panel,
-                selectedGridSlot: (state.selected && state.selected.side === side) ? state.selected.cell : -1,
                 filterFn: isPlayer ? filterFnFor(state.playerTab) : null,
                 onHover: (it) => {
                     state.hovered = it ? { side, it } : null;
@@ -236,14 +234,6 @@
                     if (it) renderInfo(it);
                 },
                 onLeave: () => { state.hovered = null; },
-                onSelect: (it, cellIndex) => {
-                    state.selected = it ? { side, instanceId: it.InstanceId, cell: cellIndex } : null;
-                    setActivePane(side);
-                    const updater = window.TSICInventory.updateSelectedSlot;
-                    updater(panel.querySelector('#ss-player-list'), state.selected && side === 'player' ? cellIndex : null);
-                    updater(panel.querySelector('#ss-container-list'), state.selected && side === 'container' ? cellIndex : null);
-                    if (it) renderInfo(it);
-                },
                 // Shift-click quick-move: into the OTHER pane, auto-placed
                 // (stack-fill then empty cells), partial allowed (§7.4).
                 onQuickMove: (it) => {
@@ -279,7 +269,7 @@
                 hintChip(host, ['RMB'], 'Split');
                 hintChip(host, ['SHIFT', 'LMB'], 'Quick-move');
                 hintChip(host, ['LMB', 'LMB'], 'Collect');
-                hintChip(host, ['Q'], 'Drop 1');
+                hintChip(host, ['G'], 'Drop 1');
             }
         }
 
@@ -345,20 +335,38 @@
             if (e && e.Phase === 'Started') window.TSICInventory.behaviorOnFocused('drop');
         });
 
-        // Click outside the panel while holding: drop at the pawn (rule 31).
-        document.addEventListener('pointerdown', (e) => {
-            if (window.TSICInventory.handleBackgroundClick(e)) {
-                e.stopPropagation();
-                e.preventDefault();
-            }
-            renderHints();
-        });
+        // Held commits and outside-drops ride the engine's global gesture
+        // tracker; the hint row follows the held state.
+        window.TSICInventory.onHeldChanged(() => renderHints());
         document.addEventListener('contextmenu', (e) => {
             if (window.TSICInventory.getHeld()) e.preventDefault();
         });
 
+        // Pane switching (§8.1 adaptation): Tab and PageUp/PageDown (gamepad
+        // LT/RT via Prev/NextPage) jump focus to the other pane's first cell;
+        // per-pane focus memory comes from the focus groups on the cells.
+        function switchPane() {
+            const focused = panel.querySelector('.tsic-slot[data-tsic-focused]');
+            const inContainer = !!(focused && focused.closest('#ss-container-list'));
+            const targetHost = panel.querySelector(inContainer ? '#ss-player-list' : '#ss-container-list');
+            const cell = targetHost && targetHost.querySelector('.tsic-slot[data-tsic-focusable]');
+            if (cell && window.tsic.focus && window.tsic.focus.focus) {
+                window.tsic.focus.focus(cell);
+            } else if (cell && cell.focus) {
+                cell.focus();
+            }
+            setActivePane(inContainer ? 'player' : 'container');
+        }
+        tsic.on('tsic.msg.UI.Behavior.NextPage', (e) => { if (e && e.Phase === 'Started') switchPane(); });
+        tsic.on('tsic.msg.UI.Behavior.PrevPage', (e) => { if (e && e.Phase === 'Started') switchPane(); });
+
         // Keyboard (hover-based, §7.3).
         document.addEventListener('keydown', (e) => {
+            if (e.key === 'Tab') {
+                e.preventDefault();
+                switchPane();
+                return;
+            }
             if (e.key === 'Escape') {
                 if (window.TSICInventory.getHeld()) {
                     window.TSICInventory.cancelHeld();
@@ -369,7 +377,7 @@
                 return;
             }
             const hovered = state.hovered;
-            if ((e.key === 'q' || e.key === 'Q') && hovered && hovered.it && !window.TSICInventory.getHeld()) {
+            if ((e.key === 'g' || e.key === 'G') && hovered && hovered.it && !window.TSICInventory.getHeld()) {
                 const ownerId = hovered.side === 'player' ? state.playerOwnerId : state.containerOwnerId;
                 window.TSICInventory.dropHovered({ ownerId }, hovered.it, e.ctrlKey);
             }
