@@ -23,6 +23,22 @@
                     { Key: 'audio.music',  Label: 'Music volume',  Type: 'range', Min: 0, Max: 1, Step: 0.01, Value: 0.5 },
                     { Key: 'audio.sfx',    Label: 'SFX volume',    Type: 'range', Min: 0, Max: 1, Step: 0.01, Value: 0.7 },
                 ] },
+                { Id: 'Voice', Title: 'Voice chat', Settings: [
+                    { Key: 'voice.enabled', Label: 'Voice chat', Type: 'bool', Value: true },
+                    { Key: 'voice.mode', Label: 'Microphone mode', Type: 'enum',
+                      Options: [
+                          { Value: 'ptt',    Label: 'Push to talk' },
+                          { Value: 'toggle', Label: 'Toggle mute' },
+                      ],
+                      Value: 'ptt' },
+                    // Voice volume is 0..2 (1 = normal) so quiet teammates can be boosted.
+                    { Key: 'voice.output_volume', Label: 'Voice volume', Type: 'range', Min: 0, Max: 2, Step: 0.05, Value: 1 },
+                    // Options are replaced by the C++-enumerated device list
+                    // (UI.Settings.VoiceDevices) when it arrives.
+                    { Key: 'voice.input_device', Label: 'Microphone', Type: 'enum',
+                      Options: [ { Value: '', Label: 'System default' } ],
+                      Value: '' },
+                ] },
             ] },
             { Id: 'VideoCollection', Title: 'Video', Groups: [
                 { Id: 'Graphics', Title: 'Graphics', Settings: [
@@ -203,6 +219,7 @@
             const dd = document.createElement('button');
             dd.type = 'button';
             dd.className = 'tsic-dropdown';
+            dd.dataset.key = s.Key; // stable hook for tests / debugging
             dd.disabled = isDisabled;
             dd.setAttribute('data-tsic-focusable', '');
             dd.setAttribute('data-tsic-options', JSON.stringify(opts));
@@ -386,7 +403,7 @@
 
     // Category headers render in a fixed canonical order; anything unrecognized
     // (e.g. a modded hotkey with its own category) lands after them, Other last.
-    const CATEGORY_ORDER = ['Movement', 'Interaction', 'Combat', 'Building', 'Map', 'Hotbar', 'Interface'];
+    const CATEGORY_ORDER = ['Movement', 'Interaction', 'Combat', 'Building', 'Map', 'Hotbar', 'Communication', 'Interface'];
 
     // Search text survives re-renders — every applied rebind refreshes ControlsState,
     // which rebuilds the page, and losing the filter mid-search would be jarring.
@@ -903,6 +920,31 @@
     // subscribing first would let the placeholder build wipe them.
     onCatalog({ Json: JSON.stringify(STATIC_CATALOG) });
     tsic.on('tsic.msg.UI.Settings.Catalog', onCatalog);
+    // Microphone list is enumerated by C++ (sticky). Swap the placeholder
+    // Options into the static catalog and rebuild; structSig treats an
+    // unchanged list as a no-op value patch, so this is safe to re-run.
+    tsic.on('tsic.msg.UI.Settings.VoiceDevices', (p) => {
+        const devices = (p && p.Devices) || [];
+        if (!devices.length) return;
+        for (const page of STATIC_CATALOG.Pages) {
+            for (const g of (page.Groups || [])) {
+                for (const s of (g.Settings || [])) {
+                    if (s.Key === 'voice.input_device') {
+                        s.Options = devices.map(d => ({ Value: d.Value || '', Label: d.Label || d.Value || 'Unknown device' }));
+                    }
+                }
+            }
+        }
+        // A changed Options list forces a full rebuild, which wipes localState
+        // (the echoed saved values). This message can arrive after the sticky
+        // Value replays, so carry the values across the rebuild by hand.
+        const saved = Object.assign({}, localState);
+        onCatalog({ Json: JSON.stringify(STATIC_CATALOG) });
+        for (const k of Object.keys(saved)) {
+            localState[k] = saved[k];
+            if (controlUpdaters[k]) controlUpdaters[k](saved[k]);
+        }
+    });
     tsic.on('tsic.msg.UI.Settings.ControlsState', onControlsState);
     tsic.on('tsic.msg.UI.Settings.RebindCapture', onRebindCapture);
     tsic.on('tsic.msg.UI.Settings.Value', onValue);

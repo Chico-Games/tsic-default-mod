@@ -347,3 +347,17 @@ TSICTestHarness.register({
         ctx.win.TSICInventory.cancelHeld();
     },
 });
+
+TSICTestHarness.register({
+    name: 'Inventory: SORT button publishes UI.Cmd.Inventory.Sort for the player pane',
+    file: '/screens/inventory.html',
+    async run(ctx) {
+        await showInventory(ctx, {});
+        ctx.clearPublishes();
+        ctx.doc.getElementById('inv-sort').dispatchEvent(
+            new ctx.win.MouseEvent('click', { bubbles: true, cancelable: true }));
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Inventory.Sort', {
+            where: p => p.OwnerId === 'Player',
+        }));
+    },
+});

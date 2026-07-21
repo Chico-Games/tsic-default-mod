@@ -43,6 +43,7 @@
         '#ss-panel .ss-band h2 { margin:0; }',
         '#ss-panel .ss-band .spacer { flex:1; }',
         '#ss-panel .ss-band .slots-text { font-size:14px; letter-spacing:0.08em; color:rgba(37,33,25,0.65); }',
+        '#ss-panel .ss-sort-mini { font-size:11px; padding:1px 8px; }',
         '#ss-panel .ss-cols { display:grid; gap:10px; grid-template-columns:auto 236px auto; align-items:start; }',
         '#ss-panel .ss-tabs { display:flex; gap:0; margin-bottom:8px; }',
         '#ss-panel .ss-grid {',
@@ -104,6 +105,7 @@
                 <h2 class="tsic-title">${opts.title}</h2>
                 <span class="spacer"></span>
                 <span class="slots-text" id="ss-player-slots">—</span>
+                <button class="tsic-button cancel" id="ss-sort-player" type="button">Sort</button>
                 <button class="tsic-button cancel" id="ss-take-all" type="button">Take All</button>
             </div>
             <div class="ss-cols">
@@ -124,6 +126,7 @@
                 <div data-tsic-tab-context="container">
                     <div class="ss-panehdr" id="ss-container-hdr">
                         <h4 id="ss-container-eyebrow">${opts.containerEyebrow || 'Container'}</h4>
+                        <button class="tsic-button cancel ss-sort-mini" id="ss-sort-container" type="button">Sort</button>
                         <span class="cnt" id="ss-container-slots">—</span>
                     </div>
                     <div id="ss-container-list" class="ss-grid"></div>
@@ -320,6 +323,18 @@
             tsic.publishMessage('UI.Cmd.Pause.Resume', {});
         });
         panel.querySelector('#ss-take-all').addEventListener('click', takeAll);
+        // §5 P2 SortInventory — per pane.
+        panel.querySelector('#ss-sort-player').addEventListener('click', () => {
+            window.TSICInventory.cancelHeld();
+            tsic.publishMessage('UI.Cmd.Inventory.Sort', { OwnerId: 'Player' });
+            tsic.playSound('Inventory.Transfer');
+        });
+        panel.querySelector('#ss-sort-container').addEventListener('click', () => {
+            if (!state.containerOwnerId) return;
+            window.TSICInventory.cancelHeld();
+            tsic.publishMessage('UI.Cmd.Inventory.Sort', { OwnerId: state.containerOwnerId });
+            tsic.playSound('Inventory.Transfer');
+        });
         // BH_TakeAll — same effect as the button.
         tsic.on('tsic.msg.UI.Behavior.TakeAll', (e) => {
             if (e && e.Phase === 'Started') takeAll();
@@ -342,14 +357,24 @@
             if (window.TSICInventory.getHeld()) e.preventDefault();
         });
 
-        // Pane switching (§8.1 adaptation): Tab and PageUp/PageDown (gamepad
-        // LT/RT via Prev/NextPage) jump focus to the other pane's first cell;
-        // per-pane focus memory comes from the focus groups on the cells.
+        // Pane switching (§8.1): Tab and PageUp/PageDown (gamepad LT/RT via
+        // Prev/NextPage) jump focus to the other pane, landing on the cell it
+        // last had focused (per-pane focus memory, P2) or its first cell.
+        const paneFocusMemory = { player: null, container: null };
         function switchPane() {
             const focused = panel.querySelector('.tsic-slot[data-tsic-focused]');
             const inContainer = !!(focused && focused.closest('#ss-container-list'));
+            if (focused && focused.dataset && focused.dataset.grid != null) {
+                paneFocusMemory[inContainer ? 'container' : 'player'] = focused.dataset.grid;
+            }
+            const targetSide = inContainer ? 'player' : 'container';
             const targetHost = panel.querySelector(inContainer ? '#ss-player-list' : '#ss-container-list');
-            const cell = targetHost && targetHost.querySelector('.tsic-slot[data-tsic-focusable]');
+            let cell = null;
+            if (targetHost && paneFocusMemory[targetSide] != null) {
+                cell = targetHost.querySelector(
+                    '.tsic-slot[data-tsic-focusable][data-grid="' + paneFocusMemory[targetSide] + '"]');
+            }
+            if (!cell) cell = targetHost && targetHost.querySelector('.tsic-slot[data-tsic-focusable]');
             if (cell && window.tsic.focus && window.tsic.focus.focus) {
                 window.tsic.focus.focus(cell);
             } else if (cell && cell.focus) {

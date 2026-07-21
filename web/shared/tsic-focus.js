@@ -166,6 +166,18 @@
 
         function pickNeighbor(from, dir, candidates) {
             if (!from) return null;
+            // Parent-first disambiguation for NESTED focusables (a delete
+            // button inside a focusable slot row): from OUTSIDE the pair,
+            // navigation lands on the container; the inner control is only
+            // reachable once focus is inside that container. Without this the
+            // child's centre often sits marginally closer and the row itself
+            // is never visited.
+            candidates = candidates.filter((c) => {
+                for (const p of candidates) {
+                    if (p !== c && p !== from && p.contains(c) && !p.contains(from)) return false;
+                }
+                return true;
+            });
             const fr = from.getBoundingClientRect();
             const fc = centre(fr);
             // Two-pass scoring. Pass A (overlap): only candidates whose
@@ -443,12 +455,16 @@
             setKbnav(false);
             if (!State.enabled) return;
             if (mode === 'Gamepad') {
-                try { t.setInteractiveRects && t.setInteractiveRects([]); } catch (e) {}
+                // Route through the LIVE global — the test playground swaps
+                // window.tsic after load (in production it IS `t`).
+                var liveT = window.tsic || t;
+                try { liveT.setInteractiveRects && liveT.setInteractiveRects([]); } catch (e) {}
                 applyInitialFocus();
             } else {
                 // Restore default (whole-view interactive) for the page's mouse
                 // mode. Pages that maintain their own rects re-publish them.
-                try { t.setInteractiveRects && t.setInteractiveRects([{ x: 0, y: 0, w: 99999, h: 99999 }]); } catch (e) {}
+                var liveT2 = window.tsic || t;
+                try { liveT2.setInteractiveRects && liveT2.setInteractiveRects([{ x: 0, y: 0, w: 99999, h: 99999 }]); } catch (e) {}
                 // Strip every focused marker — mouse users get the existing
                 // :hover styling, the focused-state CSS should never apply.
                 for (const stale of document.querySelectorAll('[data-tsic-focused]')) {
@@ -456,6 +472,19 @@
                 }
             }
         });
+
+        // Right-stick focus flick (grid design §8.2, P2): a stick deflection
+        // jumps focus 4 steps in that direction — a fast row/column hop across
+        // large grids. The stick keys act as digital presses (Started phase).
+        for (const flickDir of ['Up', 'Down', 'Left', 'Right']) {
+            t.on('tsic.msg.UI.Behavior.FocusFlick' + flickDir, (e) => {
+                if (!e || e.Phase !== 'Started' || !State.enabled) return;
+                const dir = flickDir.toLowerCase();
+                for (let i = 0; i < 4; i++) {
+                    if (!api.step(dir)) break;
+                }
+            });
+        }
 
         // Returns the element gamepad nav should treat as "current" —
         // activeElement if it's a real focus, else the engine's own marker

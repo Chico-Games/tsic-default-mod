@@ -2,6 +2,7 @@ TSICTestHarness.register({
     name: 'Production: renders recipes + queue',
     file: '/screens/production.html',
     async run(ctx) {
+        ctx.screen('Production');
         ctx.inject('tsic.msg.UI.Recipe.StationOpened', {
             Kind: 'Production',
             Recipes: [{ RecipeId: 'R_Plank', Name: 'Plank', bDiscovered: true, bStationLevelSufficient: true,
@@ -22,6 +23,7 @@ TSICTestHarness.register({
     name: 'Production: progress updates do not crash',
     file: '/screens/production.html',
     async run(ctx) {
+        ctx.screen('Production');
         ctx.inject('tsic.msg.UI.Recipe.StationOpened', {
             Kind: 'Production', Recipes: [], MaterialCounts: {},
         });
@@ -36,6 +38,7 @@ TSICTestHarness.register({
     name: 'Production/Visuals: progress bar widths reflect 0 / 50% / 100% Progress',
     file: '/screens/production.html',
     async run(ctx) {
+        ctx.screen('Production');
         ctx.inject('tsic.msg.UI.Recipe.StationOpened', { Kind: 'Production', Recipes: [], MaterialCounts: {} });
         ctx.inject('tsic.msg.UI.Recipe.QueueChanged', { Kind: 'Production', Entries: [
             { RecipeId: 'A', QueueIndex: 0, Progress: 0,   bIsActive: false },
@@ -57,6 +60,7 @@ TSICTestHarness.register({
     name: 'Production/Visuals: active entry gets .active class (green), queued does not',
     file: '/screens/production.html',
     async run(ctx) {
+        ctx.screen('Production');
         ctx.inject('tsic.msg.UI.Recipe.StationOpened', { Kind: 'Production', Recipes: [], MaterialCounts: {} });
         ctx.inject('tsic.msg.UI.Recipe.QueueChanged', { Kind: 'Production', Entries: [
             { RecipeId: 'A', QueueIndex: 0, Progress: 0.6, bIsActive: true  },
@@ -74,6 +78,7 @@ TSICTestHarness.register({
     name: 'Production/Visuals: PRODUCING throb on when queue has active entry, off otherwise',
     file: '/screens/production.html',
     async run(ctx) {
+        ctx.screen('Production');
         ctx.inject('tsic.msg.UI.Recipe.StationOpened', { Kind: 'Production', Recipes: [], MaterialCounts: {} });
         ctx.inject('tsic.msg.UI.Recipe.QueueChanged', { Kind: 'Production', Entries: [] });
         await new Promise(r => setTimeout(r, 50));
@@ -95,6 +100,7 @@ TSICTestHarness.register({
     name: 'Production/E2E: Add to Queue publishes Recipe.Start Kind=Production + Recipe.Added sound',
     file: '/screens/production.html',
     async run(ctx) {
+        ctx.screen('Production');
         ctx.setItemCatalog({ ID_Plank: { Name: 'Plank' } });
         ctx.inject('tsic.msg.UI.Recipe.StationOpened', {
             Kind: 'Production',
@@ -118,6 +124,7 @@ TSICTestHarness.register({
     name: 'Production/E2E: Cancel on QueueIndex 2 publishes Recipe.Cancel with that index + Recipe.Removed sound',
     file: '/screens/production.html',
     async run(ctx) {
+        ctx.screen('Production');
         ctx.inject('tsic.msg.UI.Recipe.StationOpened', {
             Kind: 'Production',
             StationId: 'S_Sawmill',
@@ -146,6 +153,7 @@ TSICTestHarness.register({
     name: 'Production/E2E: after mid-queue cancel, remaining entries render in QueueIndex order',
     file: '/screens/production.html',
     async run(ctx) {
+        ctx.screen('Production');
         ctx.setItemCatalog({ ID_A: { Name: 'Alpha' }, ID_B: { Name: 'Beta' }, ID_C: { Name: 'Charlie' } });
         ctx.inject('tsic.msg.UI.Recipe.StationOpened', {
             Kind: 'Production',
@@ -181,6 +189,7 @@ TSICTestHarness.register({
     name: 'Production/Visuals: long-duration recipe at 1% progress still renders bar correctly',
     file: '/screens/production.html',
     async run(ctx) {
+        ctx.screen('Production');
         ctx.inject('tsic.msg.UI.Recipe.StationOpened', { Kind: 'Production', Recipes: [], MaterialCounts: {} });
         ctx.inject('tsic.msg.UI.Recipe.QueueChanged', { Kind: 'Production', Entries: [
             { RecipeId: 'R_Long', QueueIndex: 0, Progress: 0.01, bIsActive: true },
@@ -198,6 +207,7 @@ TSICTestHarness.register({
     name: 'Production/E2E: Recipe.Completed Kind=Production plays Recipe.Completed sound',
     file: '/screens/production.html',
     async run(ctx) {
+        ctx.screen('Production');
         ctx.inject('tsic.msg.UI.Recipe.StationOpened', { Kind: 'Production', Recipes: [], MaterialCounts: {} });
         ctx.clearPublishes();
         ctx.inject('tsic.msg.UI.Recipe.Completed', { Kind: 'Production', RecipeId: 'R' });
@@ -211,6 +221,7 @@ TSICTestHarness.register({
     name: 'Production/E2E: insufficient materials → Add to Queue disabled',
     file: '/screens/production.html',
     async run(ctx) {
+        ctx.screen('Production');
         ctx.setItemCatalog({ ID_Wood: { Name: 'Wood', Category: 'CraftingMaterial' } });
         ctx.inject('tsic.msg.UI.Recipe.StationOpened', {
             Kind: 'Production',
@@ -228,6 +239,7 @@ TSICTestHarness.register({
     name: 'Production: empty recipe list shows empty-state hint',
     file: '/screens/production.html',
     async run(ctx) {
+        ctx.screen('Production');
         ctx.inject('tsic.msg.UI.Recipe.StationOpened', { Kind: 'Production', Recipes: [], MaterialCounts: {} });
         await ctx.waitFor(() => ctx.doc.querySelector('#p-list .tsic-empty'));
         ctx.expect(ctx.assert.eq(ctx.doc.querySelectorAll('#p-list .tsic-list-row').length, 0));
@@ -239,6 +251,7 @@ TSICTestHarness.register({
     name: 'Production: empty queue shows empty-state hint',
     file: '/screens/production.html',
     async run(ctx) {
+        ctx.screen('Production');
         ctx.inject('tsic.msg.UI.Recipe.StationOpened', { Kind: 'Production', Recipes: [], MaterialCounts: {} });
         ctx.inject('tsic.msg.UI.Recipe.QueueChanged', { Kind: 'Production', Entries: [] });
         await ctx.waitFor(() => ctx.doc.querySelector('#p-queue .tsic-empty'));
@@ -251,6 +264,7 @@ TSICTestHarness.register({
     name: 'Production/Reorder: drag queue row 1 → row 2 publishes UI.Cmd.Recipe.Reorder',
     file: '/screens/production.html',
     async run(ctx) {
+        ctx.screen('Production');
         ctx.inject('tsic.msg.UI.Recipe.StationOpened', {
             Kind: 'Production',
             StationId: 'S_Sawmill',
@@ -283,6 +297,7 @@ TSICTestHarness.register({
     name: 'Production/Reorder: active row (QueueIndex 0) is not draggable',
     file: '/screens/production.html',
     async run(ctx) {
+        ctx.screen('Production');
         ctx.inject('tsic.msg.UI.Recipe.StationOpened', { Kind: 'Production', StationId: 'S', Recipes: [], MaterialCounts: {} });
         ctx.inject('tsic.msg.UI.Recipe.QueueChanged', { Kind: 'Production', StationId: 'S', Entries: [
             { RecipeId: 'R', QueueIndex: 0, Progress: 0.5, bIsActive: true  },
@@ -300,6 +315,7 @@ TSICTestHarness.register({
     name: 'Production: ignores StationOpened with non-Production Kind',
     file: '/screens/production.html',
     async run(ctx) {
+        ctx.screen('Production');
         ctx.inject('tsic.msg.UI.Recipe.StationOpened', {
             Kind: 'Crafting',  // wrong kind for production page
             Recipes: [{ RecipeId: 'R_Wrong', Name: 'Wrong', bDiscovered: true, bStationLevelSufficient: true, Ingredients: [], Outputs: [] }],

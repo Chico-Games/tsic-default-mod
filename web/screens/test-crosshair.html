@@ -21,9 +21,10 @@
     #hud-crosshair.dragging { transform:scale(1.4); box-shadow:0 0 0 3px rgba(255,255,255,0.65); }
     #hud-crosshair.hidden { display:none; }
   </style>
-  <!-- No tsic-bridge.js / tsic-runtime.js: in the spa-test-runner the harness
-       stamps a mock window.tsic in beforeParse, and tsic-bridge.js would
-       overwrite it. -->
+  <!-- Bridge first: components subscribe on window.tsic at defer time; the
+       playground migrates those subs into its mock on iframe load. -->
+  <script src="/shared/tsic-bridge.js" defer></script>
+  <script src="/shared/tsic-runtime.js" defer></script>
   <script src="/shared/hud-crosshair.js" defer></script>
 </head><body>
   <div id="hud-crosshair"></div>

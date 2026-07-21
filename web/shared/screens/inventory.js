@@ -21,6 +21,11 @@
     [data-screen="Inventory"] #inv-band h2 { margin:0; }
     [data-screen="Inventory"] #inv-band .spacer { flex:1; }
     [data-screen="Inventory"] #inv-band .slots-text { font-size:14px; letter-spacing:0.08em; color:rgba(37,33,25,0.65); }
+    [data-screen="Inventory"] .sort-btn {
+      font: inherit; font-size:12px; letter-spacing:0.1em; cursor:pointer; padding:2px 10px;
+      background: rgba(255,253,243,0.96); border:2px solid rgba(10,10,10,0.85); color:inherit;
+    }
+    [data-screen="Inventory"] .sort-btn:hover, [data-screen="Inventory"] .sort-btn[data-tsic-focused] { background: var(--mag-red, #e60000); color:#fff; }
     [data-screen="Inventory"] .inv-cols { display:grid; gap:12px; grid-template-columns:max-content 216px; align-items:stretch; }
     [data-screen="Inventory"] #inv-tabs { display:flex; gap:0; margin-bottom:8px; }
     [data-screen="Inventory"] #inv-tabs .tsic-tab { font-size:11px; padding:3px 8px; }
@@ -145,6 +150,7 @@
         <div id="inv-band">
           <h2 class="tsic-title">Inventory</h2>
           <span class="spacer"></span>
+          <button id="inv-sort" class="sort-btn" data-tsic-focusable>SORT</button>
           <span class="slots-text" id="inv-slots-text">—</span>
         </div>
         <div class="inv-cols">
@@ -221,6 +227,13 @@
 
     mount(root, ctx) {
       injectStyleOnce();
+
+      // §5 P2 SortInventory: merge mergeable stacks, re-place by category/name.
+      root.querySelector('#inv-sort').addEventListener('click', () => {
+        window.TSICInventory.cancelHeld();
+        ctx.publish('UI.Cmd.Inventory.Sort', { OwnerId: 'Player' });
+        tsic.playSound('Inventory.Transfer');
+      });
 
       let tabFilter = null;
       let lastUpdate = null;
@@ -371,6 +384,11 @@
             }
           },
         });
+
+        // Gamepad landing: opening the screen puts focus on the first grid
+        // cell (§8.1). Re-stamped on every re-render.
+        const firstCell = root.querySelector('#inv-grid .tsic-slot[data-tsic-focusable]');
+        if (firstCell) firstCell.setAttribute('data-tsic-initial-focus', '');
 
         const used = (lastUpdate.Items || []).length;
         root.querySelector('#inv-slots-text').textContent = `${used}/${slotCount} SLOTS`;

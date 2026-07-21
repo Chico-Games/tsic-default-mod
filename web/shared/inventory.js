@@ -217,14 +217,101 @@
     // earlier click; without it a press-drag while holding dead-ends (the
     // browser fires no click when press and release land on different cells).
     var heldRelease = null; // armed by pointerdown while holding
+
+    // ---- Drag-distribute (§6 P2) -------------------------------------------
+    // While holding, an LMB press-drag sweeps up valid cells (empty or same
+    // item, never the source) and the release splits the held count EVENLY
+    // across them (remainder stays on the cursor). An RMB drag places ONE per
+    // new cell swept — the same op as right-click place-one, per cell.
+    var distributeTrail = null; // ordered unique sweep cells while LMB is down
+    var rmbSweepPlaced = null;  // keys given one this RMB sweep (contextmenu dedup)
+
+    function distributeTargetAt(x, y) {
+        var t = cellUnder(x, y);
+        if (!t || !t.classList.contains('tsic-slot') || t.classList.contains('is-locked')) return null;
+        var hostEl = t.closest('[data-tsic-grid-host]');
+        var pane = hostEl && hostEl._tsicPane;
+        var index = t.dataset ? parseInt(t.dataset.grid, 10) : NaN;
+        if (!pane || Number.isNaN(index)) return null;
+        if (pane.ownerId === held.ownerId && index === held.fromSlot) return null;
+        var item = pane.itemAt ? pane.itemAt(index) : null;
+        if (item && item.ItemId !== held.itemId) return null;
+        return { pane: pane, index: index, key: pane.ownerId + ':' + index };
+    }
+
+    /** Consume an RMB-sweep placement so the release's contextmenu doesn't
+     *  place a second unit on the same cell. */
+    function rmbSweepTake(pane, cellIndex) {
+        if (!rmbSweepPlaced) return false;
+        var key = pane.ownerId + ':' + cellIndex;
+        if (!rmbSweepPlaced[key]) return false;
+        delete rmbSweepPlaced[key];
+        return true;
+    }
+
     document.addEventListener('pointerdown', function (e) {
-        if (!held || e.button !== 0) return;
+        if (!held) return;
+        if (e.button === 2) {
+            rmbSweepPlaced = {};
+            return;
+        }
+        if (e.button !== 0) return;
         heldRelease = { x: e.clientX, y: e.clientY };
+        distributeTrail = [];
+        var first = distributeTargetAt(e.clientX, e.clientY);
+        if (first) distributeTrail.push(first);
     }, true);
+    document.addEventListener('pointermove', function (e) {
+        if (!held) return;
+        if (distributeTrail && (e.buttons & 1)) {
+            var t = distributeTargetAt(e.clientX, e.clientY);
+            if (t && !distributeTrail.some(function (c) { return c.key === t.key; })) {
+                distributeTrail.push(t);
+            }
+        }
+        if (e.buttons & 2) {
+            if (!rmbSweepPlaced) rmbSweepPlaced = {};
+            var r = distributeTargetAt(e.clientX, e.clientY);
+            if (r && !rmbSweepPlaced[r.key]) {
+                rmbSweepPlaced[r.key] = 1;
+                placeOneToCell(r.pane, r.index);
+            }
+        }
+    }, true);
+    /** Release half of drag-distribute: split the held count evenly across the
+     *  swept cells. Returns true when the release was consumed. */
+    function tryDistributeRelease() {
+        var trail = distributeTrail;
+        distributeTrail = null;
+        if (!held || !trail || trail.length < 2) return false;
+        var share = Math.floor(held.count / trail.length);
+        if (share < 1) return false;
+        for (var c of trail) {
+            publish('UI.Cmd.Inventory.Move', {
+                FromOwnerId: held.ownerId, ToOwnerId: c.pane.ownerId,
+                ItemId: held.instanceId, FromSlot: held.fromSlot,
+                ToSlot: c.index, Count: share,
+            });
+        }
+        sound('Inventory.Transfer', 0.33);
+        suppressClickUntil = Date.now() + 200;
+        var remainder = held.count - share * trail.length;
+        if (remainder <= 0) {
+            cancelHeld();
+        } else {
+            held.count = remainder;
+            ghostShow();
+            refreshHeldSourceVisual();
+            notifyHeldChanged();
+        }
+        return true;
+    }
+
     document.addEventListener('pointerup', function (e) {
         if (!heldRelease) return;
         heldRelease = null;
         if (!held || e.button !== 0) return;
+        if (tryDistributeRelease()) return;
         var t = cellUnder(e.clientX, e.clientY);
         if (t && t.classList.contains('equip-slot')) {
             if (t._tsicEquipDrop) {
@@ -617,7 +704,11 @@
 
         cell.addEventListener('contextmenu', function (e) {
             e.preventDefault();
-            if (held) { placeOneToCell(pane, cellIndex); return; }
+            if (held) {
+                // An RMB sweep already placed here — the release must not double.
+                if (!rmbSweepTake(pane, cellIndex)) placeOneToCell(pane, cellIndex);
+                return;
+            }
             if (!item) return;
             // RMB empty cursor: pick up the LARGER half (stack of 7 -> hold 4).
             var half = Math.ceil((item.Count || 1) / 2);
@@ -637,12 +728,16 @@
                     if ((dx * dx + dy * dy) < DRAG_THRESHOLD_PX * DRAG_THRESHOLD_PX) return;
                     dragging = true;
                     pickUp(pane, item, cellIndex, item.Count || 1, ev);
+                    // Single-gesture paint: the global pointermove sweeps cells
+                    // from here on, and the release distributes across them.
+                    distributeTrail = [];
                 }
                 function onUp(ev) {
                     document.removeEventListener('pointermove', onMove, true);
                     document.removeEventListener('pointerup', onUp, true);
                     if (!dragging) return; // plain click — the click listener handles it
                     suppressClickUntil = Date.now() + 150;
+                    if (tryDistributeRelease()) return;
                     var t = cellUnder(ev.clientX, ev.clientY);
                     if (t && t.classList.contains('equip-slot')) {
                         // Grid -> doll: equip; the item keeps its cell (§7.4).

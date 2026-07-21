@@ -171,6 +171,7 @@
           row.className = 'save-slot';
           row.setAttribute('role', 'button');
           row.setAttribute('data-tsic-focusable', '');
+          row.tabIndex = -1; // divs are not DOM-focusable without this — gamepad steps anchor on document.activeElement
           row.setAttribute('aria-label', `Load save from ${formatOpened(s.TimestampIso)}`);
 
           const thumb = document.createElement('div');

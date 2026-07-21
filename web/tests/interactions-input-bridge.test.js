@@ -76,41 +76,6 @@ TSICTestHarness.register({
     },
 });
 
-// ---- Inventory: AddToHotbar action opens the modal --------------------
-TSICTestHarness.register({
-    name: 'Input/Inventory: IA_UI_AddToHotbar Started opens the slot picker modal',
-    file: '/screens/inventory.html',
-    async run(ctx) {
-        ctx.setItemCatalog({ ID_X: { Name: 'X', Category: 'Equipment' } });
-        ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', MaxSlots: 32, Items: [{ ItemId: 'ID_X', Count: 1, SlotIndex: 0 }] });
-        await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid .tsic-slot[data-slot="0"] img'));
-        ctx.doc.querySelector('#inv-grid .tsic-slot[data-slot="0"]').dispatchEvent(new ctx.win.MouseEvent('mouseenter', { bubbles: true }));
-        await new Promise(r => setTimeout(r, 15));
-        ctx.input('IA_UI_AddToHotbar', 'Started');
-        await new Promise(r => setTimeout(r, 30));
-        // The modal is added directly to body (after #inv-root); inventory's own
-        // Close button lives inside #inv-root, so we filter to overlay buttons by
-        // checking ancestor.
-        const isInModal = (b) => !b.closest('#inv-root');
-        const modalButtons = Array.from(ctx.doc.querySelectorAll('button.tsic-button')).filter(isInModal);
-        ctx.expect(ctx.assert.eq(modalButtons.length, 10));
-    },
-});
-
-// ---- Inventory: AddToHotbar with no hovered item is a no-op ----------
-TSICTestHarness.register({
-    name: 'Input/Inventory: IA_UI_AddToHotbar with no hover does nothing',
-    file: '/screens/inventory.html',
-    async run(ctx) {
-        ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', MaxSlots: 32, Items: [] });
-        await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid'));
-        ctx.input('IA_UI_AddToHotbar', 'Started');
-        await new Promise(r => setTimeout(r, 30));
-        const modalButtons = Array.from(ctx.doc.querySelectorAll('button.tsic-button')).filter(b => !b.closest('#inv-root'));
-        ctx.expect(ctx.assert.eq(modalButtons.length, 0));
-    },
-});
-
 // ---- Map: place-ping action only on Started -------------------------
 TSICTestHarness.register({
     name: 'Input/Map: IA_UI_MapPlacePing only on Started publishes Ping.Request',

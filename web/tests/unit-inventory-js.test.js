@@ -294,3 +294,89 @@ TSICTestHarness.register({
         ctx.expect(ctx.assert.eq(cell.classList.contains('is-held-source'), false, 'restored on cancel'));
     },
 });
+
+// ---- Drag-distribute (§6 P2) -----------------------------------------------
+
+function pointerAt(ctx, el, type, buttons, button) {
+    const r = el.getBoundingClientRect();
+    el.dispatchEvent(new ctx.win.PointerEvent(type, {
+        bubbles: true, cancelable: true,
+        clientX: r.x + r.width / 2, clientY: r.y + r.height / 2,
+        button: button == null ? 0 : button, buttons: buttons || 0,
+    }));
+}
+
+TSICTestHarness.register({
+    name: 'Unit/InventoryJs: LMB drag-distribute splits the held count evenly, remainder stays on the cursor',
+    file: '/screens/test-fixtures.html',
+    async run(ctx) {
+        ctx.clearPublishes();
+        renderHost(ctx, [{ ItemId: 'ID_A', Count: 25, InstanceId: 9, GridSlot: 0 }]);
+        click(ctx, cellAt(ctx, 0)); // hold 25
+        // Press on cell 1, sweep 2 and 3 with LMB down, release.
+        pointerAt(ctx, cellAt(ctx, 1), 'pointerdown', 1, 0);
+        pointerAt(ctx, cellAt(ctx, 2), 'pointermove', 1);
+        pointerAt(ctx, cellAt(ctx, 3), 'pointermove', 1);
+        pointerAt(ctx, cellAt(ctx, 3), 'pointerup', 0, 0);
+        // 25 across 3 cells → 8 each, 1 stays held.
+        for (const slot of [1, 2, 3]) {
+            ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Inventory.Move', {
+                where: p => p.ItemId === 9 && p.FromSlot === 0 && p.ToSlot === slot && p.Count === 8,
+            }));
+        }
+        const held = ctx.win.TSICInventory.getHeld();
+        ctx.expect(ctx.assert.truthy(held, 'remainder stays held'));
+        ctx.expect(ctx.assert.eq(held && held.count, 1, 'remainder is 1'));
+        ctx.win.TSICInventory.cancelHeld();
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Unit/InventoryJs: drag-distribute skips the source cell and foreign-item cells',
+    file: '/screens/test-fixtures.html',
+    async run(ctx) {
+        ctx.clearPublishes();
+        renderHost(ctx, [
+            { ItemId: 'ID_A', Count: 10, InstanceId: 9, GridSlot: 0 },
+            { ItemId: 'ID_B', Count: 1, InstanceId: 5, GridSlot: 2 },
+        ]);
+        click(ctx, cellAt(ctx, 0)); // hold 10
+        pointerAt(ctx, cellAt(ctx, 1), 'pointerdown', 1, 0);
+        pointerAt(ctx, cellAt(ctx, 0), 'pointermove', 1); // source — skipped
+        pointerAt(ctx, cellAt(ctx, 2), 'pointermove', 1); // foreign item — skipped
+        pointerAt(ctx, cellAt(ctx, 3), 'pointermove', 1);
+        pointerAt(ctx, cellAt(ctx, 3), 'pointerup', 0, 0);
+        // Valid targets: 1 and 3 → 5 each, nothing held.
+        for (const slot of [1, 3]) {
+            ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Inventory.Move', {
+                where: p => p.ToSlot === slot && p.Count === 5,
+            }));
+        }
+        const bad = ctx.handle.publishes().filter(p =>
+            p.channel === 'UI.Cmd.Inventory.Move' && (p.payload.ToSlot === 2 || p.payload.ToSlot === 0));
+        ctx.expect(ctx.assert.eq(bad.length, 0, 'source and foreign cells never targeted'));
+        ctx.expect(ctx.assert.eq(ctx.win.TSICInventory.getHeld(), null, 'nothing left held'));
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Unit/InventoryJs: RMB drag places ONE per swept cell without doubling on release',
+    file: '/screens/test-fixtures.html',
+    async run(ctx) {
+        ctx.clearPublishes();
+        renderHost(ctx, [{ ItemId: 'ID_A', Count: 6, InstanceId: 9, GridSlot: 0 }]);
+        click(ctx, cellAt(ctx, 0)); // hold 6
+        pointerAt(ctx, cellAt(ctx, 1), 'pointerdown', 2, 2);
+        pointerAt(ctx, cellAt(ctx, 1), 'pointermove', 2);
+        pointerAt(ctx, cellAt(ctx, 2), 'pointermove', 2);
+        pointerAt(ctx, cellAt(ctx, 3), 'pointermove', 2);
+        pointerAt(ctx, cellAt(ctx, 3), 'pointerup', 0, 2);
+        rmb(ctx, cellAt(ctx, 3)); // release contextmenu must NOT double-place
+        const ones = ctx.handle.publishes().filter(p =>
+            p.channel === 'UI.Cmd.Inventory.Move' && p.payload.Count === 1);
+        ctx.expect(ctx.assert.eq(ones.length, 3, 'exactly one unit per swept cell'));
+        const held = ctx.win.TSICInventory.getHeld();
+        ctx.expect(ctx.assert.eq(held && held.count, 3, 'ghost decremented per placement'));
+        ctx.win.TSICInventory.cancelHeld();
+    },
+});

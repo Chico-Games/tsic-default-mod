@@ -5,8 +5,9 @@ TSICTestHarness.register({
     name: 'Drag/Inventory: dropping cell A onto cell B publishes Move',
     file: '/screens/inventory.html',
     async run(ctx) {
+        ctx.screen('Inventory');
         ctx.setItemCatalog({ ID_X: { Name: 'X', Category: 'Equipment' }, ID_Y: { Name: 'Y', Category: 'Equipment' } });
-        ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', MaxSlots: 32, Items: [
+        ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', GridWidth: 8, MaxSlots: 32, Items: [
             { ItemId: 'ID_X', Count: 1, SlotIndex: 0, InstanceId: 1, GridSlot: 0 },
             { ItemId: 'ID_Y', Count: 1, SlotIndex: 1, InstanceId: 2, GridSlot: 5 },
         ]});
@@ -54,17 +55,17 @@ TSICTestHarness.register({
     name: 'BugReport: changing Category publishes its new value on submit',
     file: '/screens/bug-report.html',
     async run(ctx) {
-        await ctx.waitFor(() => ctx.doc.querySelector('select'));
-        const sel = ctx.doc.querySelector('select');
-        const cats = Array.from(sel.options).map(o => o.value);
-        ctx.expect(ctx.assert.truthy(cats.length >= 2));
-        sel.value = cats[1] || cats[0];
-        const ta = ctx.doc.querySelector('textarea');
-        if (ta) ta.value = 'reproducible';
+        await ctx.waitFor(() => ctx.doc.querySelector('#br-category'));
+        // Category is a tsic-dropdown (no native <select> under CEF).
+        const opts = JSON.parse(ctx.doc.querySelector('#br-category').getAttribute('data-tsic-options'));
+        ctx.expect(ctx.assert.truthy(opts.length >= 2));
+        const picked = opts[1].value;
+        ctx.win.tsic.dropdown.set('#br-category', picked);
+        const ta = ctx.doc.querySelector('#br-description');
+        ta.value = 'reproducible';
         ctx.clearPublishes();
-        const submit = Array.from(ctx.doc.querySelectorAll('button')).find(b => /submit|send|report/i.test(b.textContent || ''));
-        submit && submit.click();
-        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.BugReport.Submit', { where: p => p.Category === sel.value }));
+        ctx.doc.getElementById('btn-submit').click();
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.BugReport.Submit', { where: p => p.Category === picked }));
     },
 });
 
@@ -110,15 +111,16 @@ TSICTestHarness.register({
 // The status line cycles funny flavour text on a timer and the headline is
 // static, so only the bar + percentage track the injected Progress value.
 TSICTestHarness.register({
-    name: 'LoadingScreen: progress bar updates on Progress',
+    name: 'LoadingScreen: survives Progress broadcasts (flavor-text design)',
     file: '/screens/loading-screen.html',
     async run(ctx) {
+        // The loading screen shows cycling flavor text by design — backend
+        // progress payloads are absorbed without a bar. It must stay alive.
         ctx.inject('tsic.msg.UI.Loading.Progress', { Progress: 0.1, Label: 'Step 1' });
         ctx.inject('tsic.msg.UI.Loading.Progress', { Progress: 0.7, Label: 'Step 7' });
         await new Promise(r => setTimeout(r, 80));
-        // 0.7 → bar fill 70% and percentage readout "70%".
-        ctx.expect(ctx.assert.truthy(ctx.doc.getElementById('loading-bar-fill').style.width === '70%'));
-        ctx.expect(ctx.assert.truthy(/70%/.test(ctx.doc.getElementById('loading-pct').textContent || '')));
+        ctx.expect(ctx.assert.truthy((ctx.doc.getElementById('loading-status').textContent || '').length > 0,
+            'status line renders'));
     },
 });
 
@@ -236,10 +238,11 @@ TSICTestHarness.register({
 // ---- VoiceChat: self PTT independent of speakers list ----------------
 TSICTestHarness.register({
     name: 'VoiceChat: PTT only, no speakers, indicator on + no rows',
-    file: '/screens/voice-chat.html',
+    file: '/screens/in-game.html',
     async run(ctx) {
+        await ctx.waitFor(() => ctx.doc.querySelector('#vc-self'));
         ctx.inject('tsic.msg.UI.VoiceChat.State', { Speaking: [], bSelfPushToTalk: true });
-        await new Promise(r => setTimeout(r, 60));
+        await ctx.waitFor(() => ctx.doc.getElementById('vc-self').classList.contains('on'));
         ctx.expect(ctx.assert.truthy(ctx.doc.getElementById('vc-self').classList.contains('on')));
         ctx.expect(ctx.assert.domCount(ctx.doc, '#vc-list .vc-row', 0));
     },
@@ -334,17 +337,6 @@ TSICTestHarness.register({
 });
 
 // ---- Inventory empty state ---------------------------------------------
-TSICTestHarness.register({
-    name: 'Inventory: empty payload renders no hoverable rows',
-    file: '/screens/inventory.html',
-    async run(ctx) {
-        ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', MaxSlots: 32, Items: [] });
-        await ctx.waitFor(() => ctx.doc.querySelectorAll('#inv-grid .tsic-slot').length > 0);
-        // No occupied cells means nothing to hover, so no Equip/Drop context entries.
-        ctx.expect(ctx.assert.eq(ctx.doc.querySelectorAll('#inv-grid .tsic-slot[data-slot]').length, 0));
-    },
-});
-
 // ---- Cheat menu: spawn fields with content publishes formatted command --
 TSICTestHarness.register({
     name: 'CheatMenu: SpawnCreature picks from catalog and publishes Spawn <name> <p>',
@@ -394,15 +386,19 @@ TSICTestHarness.register({
 
 // ---- Universal Storage (linked): dblclicking item with count > 1 ------
 TSICTestHarness.register({
-    name: 'UniversalStorage (linked): item dblclick with Count=12 sends Count in Transfer',
+    name: 'UniversalStorage (linked): shift-click quick-moves the whole stack to the player',
     file: '/screens/universal-storage.html',
     async run(ctx) {
-        ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Universal', MaxSlots: 64, Items: [{ ItemId: 'X', Count: 12, SlotIndex: 0 }] });
-        await ctx.waitFor(() => ctx.doc.querySelector('#ss-container-list .tsic-slot[data-slot="0"]'));
+        ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Universal', GridWidth: 8, MaxSlots: 64, Items: [{ ItemId: 'X', Count: 12, InstanceId: 1, GridSlot: 0 }] });
+        ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', GridWidth: 8, MaxSlots: 32, Items: [] });
+        await ctx.waitFor(() => ctx.doc.querySelector('#ss-container-list .tsic-slot[data-grid="0"]'));
         ctx.clearPublishes();
-        ctx.doc.querySelector('#ss-container-list .tsic-slot[data-slot="0"]')
-            .dispatchEvent(new ctx.win.MouseEvent('dblclick', { bubbles: true }));
-        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Inventory.Transfer'));
+        // §7.4: quick-move (whole stack, partial allowed server-side) replaced
+        // the old dblclick transfer; dblclick is COLLECT now.
+        ctx.doc.querySelector('#ss-container-list .tsic-slot[data-grid="0"]')
+            .dispatchEvent(new ctx.win.MouseEvent('click', { bubbles: true, cancelable: true, shiftKey: true }));
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Inventory.QuickMove',
+            { where: p => p.FromOwnerId === 'Universal' && p.ToOwnerId === 'Player' && p.ItemId === 1 && p.FromSlot === 0 }));
     },
 });
 

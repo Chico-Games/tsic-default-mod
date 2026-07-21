@@ -39,21 +39,6 @@
 
     // Verified-working, test asserts old structure:
     NS.QUARANTINE = {
-        'Settings: renders tab strip with one button per page':
-            'settings boots a STATIC catalog that defaults the active tab; test expects the injected pages[0] active',
-        'Settings: clicking a tab switches the visible page':
-            'same STATIC-catalog default; tab switching itself works',
-        'Focus/SaveLoad: reachable + groups mutually reachable':
-            'nested-focusable engine gap: each slot row\'s inner delete button centre sits ~1px ' +
-            'closer than the row\'s own centre, so spatial nav always lands on the child and the ' +
-            'row itself is never visited — needs parent/child disambiguation in pickNeighbor',
-        // Presumed-working per maintainer; test asserts a stale interaction/selector:
-        'E2E/ActionBar: re-broadcast with new status redraws rows':
-            'behavior-bar (hud-behavior-bar.js) selectors/flow — re-verify if touched',
-        'Perf/ActionBar: 50 rows render in < 250ms':
-            'behavior-bar render path — re-verify if touched',
-        'Stress/ActionBar: 50 visible rows all render':
-            'behavior-bar render path — re-verify if touched',
     };
 
     NS.installMockTsic = function (win, options) {
@@ -172,6 +157,11 @@
         if (prior && prior !== fake) {
             if (prior.focus) fake.focus = prior.focus;
             if (prior.dropdown) fake.dropdown = prior.dropdown;
+            // behavior-bar.js installs these on the bridge object; they publish
+            // through the LIVE window.tsic, so carrying them over routes their
+            // SetMenuContext publishes into this mock's log.
+            if (prior.setMenuActionContext) fake.setMenuActionContext = prior.setMenuActionContext;
+            if (prior.clearMenuActionContext) fake.clearMenuActionContext = prior.clearMenuActionContext;
         }
 
         // Install on the iframe's window so the page's `if (window.tsic)` checks pass.

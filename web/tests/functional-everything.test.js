@@ -95,10 +95,10 @@ TSICTestHarness.register({
             Json: JSON.stringify({ Pages: [{ Id: 'X', Title: 'X', Groups: [{ Id: 'Display', Title: 'Display',
                 Settings: [{ Key: 'preset', Label: 'Preset', Type: 'enum', Options: ['Low','Med','High'], Value: 'Med' }] }] }] }),
         });
-        await ctx.waitFor(() => ctx.doc.querySelector('select'));
-        const sel = ctx.doc.querySelector('select');
-        sel.value = 'High';
-        sel.dispatchEvent(new ctx.win.Event('change', { bubbles: true }));
+        // Enums render as tsic-dropdowns (no native <select> under CEF).
+        await ctx.waitFor(() => ctx.doc.querySelector('button.tsic-dropdown[data-key="preset"]'));
+        ctx.clearPublishes();
+        ctx.win.tsic.dropdown.set('button.tsic-dropdown[data-key="preset"]', 'High');
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Settings.Set',
             { where: p => p.Key === 'preset' && JSON.parse(p.ValueJson) === 'High' }));
     },
@@ -211,7 +211,7 @@ TSICTestHarness.register({
     async run(ctx) {
         await ctx.waitFor(() => ctx.doc.querySelector('button'));
         ctx.clearPublishes();
-        const btn = Array.from(ctx.doc.querySelectorAll('button')).find(b => /^mods$/i.test((b.textContent || '').trim()));
+        const btn = ctx.doc.getElementById('btn-mods');
         btn && btn.click();
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Menu.Navigate', { where: p => p.Screen === 'Mods' }));
     },
@@ -268,17 +268,23 @@ TSICTestHarness.register({
 
 // ---- UniversalStorage (linked) page: container list + transfer ---------
 TSICTestHarness.register({
-    name: 'UniversalStorage (linked): item dblclick publishes Transfer (Universal -> Player)',
+    name: 'UniversalStorage (linked): cross-pane click-move publishes an id+slot Move',
     file: '/screens/universal-storage.html',
     async run(ctx) {
         ctx.setItemCatalog({ ID_X: { Name: 'X', Category: 'Equipment' } });
-        ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Universal', Items: [{ ItemId: 'ID_X', Count: 1, SlotIndex: 0 }], MaxSlots: 64 });
-        await ctx.waitFor(() => ctx.doc.querySelector('#ss-container-list .tsic-slot[data-slot="0"]'));
+        ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Universal', GridWidth: 8, Items: [{ ItemId: 'ID_X', Count: 1, InstanceId: 7, GridSlot: 0 }], MaxSlots: 64 });
+        ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', GridWidth: 8, Items: [], MaxSlots: 32 });
+        await ctx.waitFor(() => ctx.doc.querySelector('#ss-container-list .tsic-slot[data-grid="0"] img'));
         ctx.clearPublishes();
-        ctx.doc.querySelector('#ss-container-list .tsic-slot[data-slot="0"]')
-            .dispatchEvent(new ctx.win.MouseEvent('dblclick', { bubbles: true }));
-        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Inventory.Transfer',
-            { where: p => p.FromOwnerId === 'Universal' && p.ToOwnerId === 'Player' }));
+        // §6 cursor model: click picks the stack up, click on a player cell commits.
+        ctx.doc.querySelector('#ss-container-list .tsic-slot[data-grid="0"]').click();
+        const target = ctx.doc.querySelector('#ss-player-list .tsic-slot[data-grid="2"]');
+        const r = target.getBoundingClientRect();
+        const o = { bubbles: true, cancelable: true, clientX: r.x + r.width / 2, clientY: r.y + r.height / 2, button: 0 };
+        target.dispatchEvent(new ctx.win.PointerEvent('pointerdown', o));
+        target.dispatchEvent(new ctx.win.PointerEvent('pointerup', o));
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Inventory.Move',
+            { where: p => p.FromOwnerId === 'Universal' && p.ToOwnerId === 'Player' && p.ItemId === 7 && p.ToSlot === 2 }));
     },
 });
 
@@ -299,23 +305,7 @@ TSICTestHarness.register({
     },
 });
 
-// ---- Chat: empty Send doesn't publish ---------------------------------
-TSICTestHarness.register({
-    name: 'Chat: pressing Enter with empty input does not publish',
-    file: '/screens/chat.html',
-    async run(ctx) {
-        await ctx.waitFor(() => ctx.doc.querySelector('input'));
-        const input = ctx.doc.querySelector('input');
-        input.focus();
-        input.value = '';
-        ctx.clearPublishes();
-        input.dispatchEvent(new ctx.win.KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true }));
-        // Some chat implementations still publish on Enter even when empty. Accept either
-        // behaviour but flag a mismatch with the production reference.
-        const sent = ctx.publishes().find(p => p.channel === 'UI.Cmd.Chat.Send');
-        if (sent) ctx.expect(ctx.assert.truthy((sent.payload && sent.payload.Text || '').length === 0));
-    },
-});
+// Chat coverage lives in chat.test.js (HUD component, /screens/in-game.html).
 
 // ---- Detection screen-mist amount ------------------------------------
 TSICTestHarness.register({

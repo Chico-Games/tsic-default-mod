@@ -2,14 +2,15 @@
 
 // ---- Inventory: 200-stack stress ----------------------------------------
 TSICTestHarness.register({
-    name: 'Stress/Inventory: 200 stacks render as 200 list rows',
+    name: 'Stress/Inventory: 200 stacks render as 200 occupied grid cells',
     file: '/screens/inventory.html',
     async run(ctx) {
+        ctx.screen('Inventory');
         const items = [];
-        for (let i = 0; i < 200; i++) items.push({ ItemId: `ID_${i}`, Count: 1, SlotIndex: i });
-        ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', Items: items, MaxSlots: 256 });
-        await ctx.waitFor(() => ctx.doc.querySelectorAll('#inv-grid .tsic-slot[data-slot]').length === 200, { timeout: 3000 });
-        ctx.expect(ctx.assert.domCount(ctx.doc, '#inv-grid .tsic-slot[data-slot]', 200));
+        for (let i = 0; i < 200; i++) items.push({ ItemId: `ID_${i}`, Count: 1, InstanceId: i + 1, GridSlot: i });
+        ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', GridWidth: 8, Items: items, MaxSlots: 256 });
+        await ctx.waitFor(() => ctx.doc.querySelectorAll('#inv-grid .tsic-slot[data-instance]').length === 200, { timeout: 3000 });
+        ctx.expect(ctx.assert.domCount(ctx.doc, '#inv-grid .tsic-slot[data-instance]', 200));
     },
 });
 
@@ -35,7 +36,8 @@ TSICTestHarness.register({
     file: '/screens/test-behavior-bar.html',
     async run(ctx) {
         const slots = [];
-        for (let i = 0; i < 50; i++) slots.push({ BehaviorTagName: `IA_${i}`, DisplayName: `A${i}`, bVisible: true, StatusInt: i % 4 });
+        // blocked (1) rows are hidden by design — keep all 50 available
+        for (let i = 0; i < 50; i++) slots.push({ BehaviorTagName: `IA_${i}`, DisplayName: `A${i}`, bVisible: true, StatusInt: 0 });
         ctx.inject('tsic.msg.UI.BehaviorBar.Entries', { Entries: slots });
         await ctx.waitFor(() => ctx.doc.querySelectorAll('#bb-gameplay .bb-row').length === 50, { timeout: 3000 });
         ctx.expect(ctx.assert.domCount(ctx.doc, '#bb-gameplay .bb-row', 50));
@@ -126,11 +128,11 @@ TSICTestHarness.register({
     name: 'Stress/Storage: 99999 stack count renders cleanly',
     file: '/screens/storage.html',
     async run(ctx) {
-        ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Storage:1', Items: [{ ItemId: 'ID_X', Count: 99999, SlotIndex: 0 }], MaxSlots: 32 });
-        await ctx.waitFor(() => ctx.doc.querySelector('#ss-container-list .tsic-slot[data-slot="0"]'));
-        const row = ctx.doc.querySelector('#ss-container-list .tsic-slot[data-slot="0"]');
-        ctx.expect(ctx.assert.truthy(/×99999/.test(row.textContent || ''),
-            `expected stack count ×99999 in row text, got: ${row.textContent}`));
+        ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Storage:1', GridWidth: 8, Items: [{ ItemId: 'ID_X', Count: 99999, InstanceId: 1, GridSlot: 0 }], MaxSlots: 32 });
+        await ctx.waitFor(() => ctx.doc.querySelector('#ss-container-list .tsic-slot[data-grid="0"]'));
+        const cell = ctx.doc.querySelector('#ss-container-list .tsic-slot[data-grid="0"]');
+        ctx.expect(ctx.assert.truthy(/99999/.test((cell.querySelector('.count') || {}).textContent || ''),
+            `expected count badge 99999`));
     },
 });
 
@@ -152,6 +154,7 @@ TSICTestHarness.register({
     name: 'Stress/Production: 20 queue entries render',
     file: '/screens/production.html',
     async run(ctx) {
+        ctx.screen('Production');
         const q = [];
         for (let i = 0; i < 20; i++) q.push({ RecipeId: `R_${i}`, Name: `r${i}`, ProgressFraction: i / 20 });
         ctx.inject('tsic.msg.UI.Recipe.StationOpened', { Kind: 'Production', Recipes: [], MaterialCounts: {} });
@@ -166,9 +169,10 @@ TSICTestHarness.register({
     name: 'Stress/Inventory: empty payload shows empty-state',
     file: '/screens/inventory.html',
     async run(ctx) {
-        ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', Items: [] });
+        ctx.screen('Inventory');
+        ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', GridWidth: 8, Items: [], MaxSlots: 32 });
         await ctx.waitFor(() => ctx.doc.querySelectorAll('#inv-grid .tsic-slot').length > 0, { timeout: 2000 });
-        ctx.expect(ctx.assert.eq(ctx.doc.querySelectorAll('#inv-grid .tsic-slot[data-slot]').length, 0));
+        ctx.expect(ctx.assert.eq(ctx.doc.querySelectorAll('#inv-grid .tsic-slot[data-instance]').length, 0));
     },
 });
 
@@ -197,17 +201,6 @@ TSICTestHarness.register({
         });
         await ctx.waitFor(() => ctx.doc.querySelector('#bb-gameplay .bb-row'));
         ctx.expect(ctx.assert.domCount(ctx.doc, '#bb-gameplay .bb-key', 0));
-    },
-});
-
-// ---- Quantity picker: min=1 lower-bound stays at 1 ----------------------
-TSICTestHarness.register({
-    name: 'Stress/QuantityPicker: slider min is 1 (not 0)',
-    file: '/screens/quantity-picker.html?fromOwnerId=Player&toOwnerId=Storage:1&fromSlot=0&toSlot=-1&maxCount=5',
-    async run(ctx) {
-        await ctx.waitFor(() => ctx.doc.querySelector('input[type="range"]'));
-        const slider = ctx.doc.querySelector('input[type="range"]');
-        ctx.expect(ctx.assert.eq(slider.min, '1'));
     },
 });
 

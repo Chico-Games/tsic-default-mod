@@ -42,6 +42,7 @@ TSICTestHarness.register({
     tags: ['channel', 'recipe'],
     file: '/screens/production.html',
     async run(ctx) {
+        ctx.screen('Production');
         ctx.inject('tsic.msg.UI.Recipe.StationOpened', { Kind: 'Production', Recipes: [], MaterialCounts: {} });
         ctx.inject('tsic.msg.UI.Recipe.QueueChanged', { Queue: [{ RecipeId: 'R_X', Name: 'X' }] });
         await new Promise(r => setTimeout(r, 80));
@@ -138,6 +139,9 @@ TSICTestHarness.register({
     tags: ['channel', 'input-bridge'],
     file: '/screens/inventory.html',
     async run(ctx) {
+        // The mode tag is appended when the screen MOUNTS (screen-manager),
+        // not at page load — the fixture page carries no tsic-input-mode meta.
+        ctx.screen('Inventory');
         await ctx.waitFor(() => ctx.publishes().some(p => p.channel === 'UI.Cmd.Input.AppendModeTag'), { timeout: 2000 });
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Input.AppendModeTag',
             { where: p => p.Tag === 'InputMode.Menu.Inventory' }));
@@ -160,6 +164,8 @@ TSICTestHarness.register({
     tags: ['channel', 'inventory'],
     file: '/screens/inventory.html',
     async run(ctx) {
+        ctx.screen('Inventory');
+        await ctx.waitFor(() => ctx.doc.getElementById('inv-char-img'));
         ctx.inject('tsic.msg.UI.CharacterPreview.Ready', { bReady: true, ResolutionPx: 512 });
         await new Promise(r => setTimeout(r, 150));
         const img = ctx.doc.getElementById('inv-char-img');

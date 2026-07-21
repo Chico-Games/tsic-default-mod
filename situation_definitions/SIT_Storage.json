@@ -22,7 +22,12 @@
       "BH_TakeAll",
       "BH_InvSplit",
       "BH_InvQuickMove",
-      "BH_InvDrop"
+      "BH_InvDrop",
+      "BH_FocusFlickUp",
+      "BH_FocusFlickDown",
+      "BH_FocusFlickLeft",
+      "BH_FocusFlickRight",
+      "BH_PushToTalk"
     ]
   }
 }

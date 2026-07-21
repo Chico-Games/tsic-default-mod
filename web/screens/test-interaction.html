@@ -18,9 +18,10 @@
     #bb-divider.hidden { display:none; }
     #interaction-prompt.hidden { display:none; }
   </style>
-  <!-- No tsic-bridge.js / tsic-runtime.js: in the spa-test-runner the harness
-       stamps a mock window.tsic in beforeParse, and tsic-bridge.js would
-       overwrite it. -->
+  <!-- Bridge first: components subscribe on window.tsic at defer time; the
+       playground migrates those subs into its mock on iframe load. -->
+  <script src="/shared/tsic-bridge.js" defer></script>
+  <script src="/shared/tsic-runtime.js" defer></script>
   <script src="/shared/hud-interaction.js" defer></script>
 </head><body>
   <div id="bb-shell-gameplay" class="bb-shell">

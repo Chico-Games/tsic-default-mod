@@ -16,9 +16,10 @@
        hidden/visible assertions work. */
     #bb-shell-gameplay.hidden { display: none; }
   </style>
-  <!-- No tsic-bridge.js / tsic-runtime.js: in the spa-test-runner the harness
-       stamps a mock window.tsic in beforeParse, and tsic-bridge.js would
-       overwrite it. icons.js + the mock are all hud-behavior-bar.js needs. -->
+  <!-- Bridge first: components subscribe on window.tsic at defer time; the
+       playground migrates those subs into its mock on iframe load. -->
+  <script src="/shared/tsic-bridge.js" defer></script>
+  <script src="/shared/tsic-runtime.js" defer></script>
   <script src="/shared/dom.js" defer></script>
   <script src="/shared/icons.js" defer></script>
   <script src="/shared/hud-behavior-bar.js" defer></script>

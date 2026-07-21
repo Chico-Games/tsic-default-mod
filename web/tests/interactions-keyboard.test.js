@@ -3,14 +3,17 @@
 
 // ---- Inventory keyboard ----------------------------------------------
 TSICTestHarness.register({
-    name: 'Keys/Inventory: Escape resumes + hides character preview',
+    name: 'Keys/Inventory: Back resumes; unmount hides the character preview',
     file: '/screens/inventory.html',
     async run(ctx) {
-        ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', Items: [], MaxSlots: 32 });
+        ctx.screen('Inventory');
+        ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', GridWidth: 8, Items: [], MaxSlots: 32 });
         await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid'));
         ctx.clearPublishes();
-        ctx.doc.dispatchEvent(new ctx.win.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+        ctx.inject('tsic.msg.UI.Behavior.Back', { Phase: 'Started' });
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Pause.Resume'));
+        ctx.screen('None');
+        await new Promise(r => setTimeout(r, 30));
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.CharacterPreview.Hide'));
     },
 });
@@ -19,7 +22,8 @@ TSICTestHarness.register({
     name: 'Keys/Inventory: number key with no hovered item is a no-op',
     file: '/screens/inventory.html',
     async run(ctx) {
-        ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', Items: [], MaxSlots: 32 });
+        ctx.screen('Inventory');
+        ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', GridWidth: 8, Items: [], MaxSlots: 32 });
         await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid'));
         ctx.clearPublishes();
         ctx.doc.dispatchEvent(new ctx.win.KeyboardEvent('keydown', { key: '3', bubbles: true }));
@@ -31,10 +35,11 @@ TSICTestHarness.register({
     name: 'Keys/Inventory: letter key is ignored by the hotbar shortcut',
     file: '/screens/inventory.html',
     async run(ctx) {
+        ctx.screen('Inventory');
         ctx.setItemCatalog({ ID_X: { Name: 'X', Category: 'Equipment' } });
-        ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', Items: [{ ItemId: 'ID_X', Count: 1, SlotIndex: 0 }], MaxSlots: 32 });
-        await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid .tsic-slot[data-slot="0"] img'));
-        ctx.doc.querySelector('#inv-grid .tsic-slot[data-slot="0"]').dispatchEvent(new ctx.win.MouseEvent('mouseenter', { bubbles: true }));
+        ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', GridWidth: 8, Items: [{ ItemId: 'ID_X', Count: 1, InstanceId: 1, GridSlot: 0 }], MaxSlots: 32 });
+        await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid .tsic-slot[data-grid="0"] img'));
+        ctx.doc.querySelector('#inv-grid .tsic-slot[data-grid="0"]').dispatchEvent(new ctx.win.MouseEvent('mouseenter', { bubbles: true }));
         ctx.clearPublishes();
         ctx.doc.dispatchEvent(new ctx.win.KeyboardEvent('keydown', { key: 'h', bubbles: true }));
         ctx.expect(ctx.assert.notPublished(ctx.handle, 'UI.Cmd.Hotbar.Assign'));
@@ -72,13 +77,14 @@ TSICTestHarness.register({
 
 // ---- Chat keyboard ----------------------------------------------------
 TSICTestHarness.register({
-    name: 'Keys/Chat: Enter on the input publishes Chat.Send',
-    file: '/screens/chat.html',
+    name: 'Keys/Chat: Enter on the HUD chat input publishes Chat.Send',
+    file: '/screens/in-game.html',
     async run(ctx) {
-        await ctx.waitFor(() => ctx.doc.querySelector('input'));
-        const input = ctx.doc.querySelector('input');
+        await ctx.waitFor(() => ctx.doc.querySelector('#hud-chat-input'));
+        ctx.inject('tsic.msg.UI.Behavior.OpenChat', { Phase: 'Started' });
+        await ctx.waitFor(() => ctx.doc.getElementById('hud-chat').classList.contains('open'));
+        const input = ctx.doc.getElementById('hud-chat-input');
         input.value = 'hello';
-        input.focus();
         ctx.clearPublishes();
         input.dispatchEvent(new ctx.win.KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true }));
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Chat.Send'));
@@ -123,10 +129,11 @@ TSICTestHarness.register({
     name: 'Keys/Inventory: 1..9 keys map to slots 0..8',
     file: '/screens/inventory.html',
     async run(ctx) {
+        ctx.screen('Inventory');
         ctx.setItemCatalog({ ID_X: { Name: 'X', Category: 'Equipment' } });
-        ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', Items: [{ ItemId: 'ID_X', Count: 1, SlotIndex: 0 }], MaxSlots: 32 });
-        await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid .tsic-slot[data-slot="0"] img'));
-        ctx.doc.querySelector('#inv-grid .tsic-slot[data-slot="0"]').dispatchEvent(new ctx.win.MouseEvent('mouseenter', { bubbles: true }));
+        ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', GridWidth: 8, Items: [{ ItemId: 'ID_X', Count: 1, InstanceId: 1, GridSlot: 0 }], MaxSlots: 32 });
+        await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid .tsic-slot[data-grid="0"] img'));
+        ctx.doc.querySelector('#inv-grid .tsic-slot[data-grid="0"]').dispatchEvent(new ctx.win.MouseEvent('mouseenter', { bubbles: true }));
         await new Promise(r => setTimeout(r, 15));
         for (let n = 1; n <= 9; n++) {
             ctx.clearPublishes();

@@ -69,8 +69,10 @@ TSICTestHarness.register({
         ctx.expect(ctx.doc.getElementById('settings-popover') ? 'saved values must not open the countdown' : null);
         // The video value applies when its tab first renders.
         Array.from(ctx.doc.querySelectorAll('.tsic-tab')).find(b => b.textContent === 'Video').click();
-        await ctx.waitFor(() => ctx.doc.querySelector('button.tsic-dropdown'));
-        ctx.expect(ctx.assert.eq(ctx.win.tsic.dropdown.get(ctx.doc.querySelector('button.tsic-dropdown')), '2560x1440'));
+        await ctx.waitFor(() => ctx.doc.querySelector('button.tsic-dropdown[data-key="video.resolution"]'));
+        ctx.expect(ctx.assert.eq(
+            ctx.win.tsic.dropdown.get(ctx.doc.querySelector('button.tsic-dropdown[data-key="video.resolution"]')),
+            '2560x1440'));
     },
 });
 

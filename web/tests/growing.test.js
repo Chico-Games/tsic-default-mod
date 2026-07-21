@@ -7,6 +7,7 @@ TSICTestHarness.register({
     name: 'Growing: plant recipe renders in production recipe list',
     file: '/screens/production.html',
     async run(ctx) {
+        ctx.screen('Production');
         ctx.setItemCatalog({ ID_Tomato: { Name: 'Tomato', Category: 'Consumable' }, ID_TomatoSeed: { Name: 'Tomato Seed', Category: 'CraftingMaterial' } });
         ctx.inject('tsic.msg.UI.Recipe.StationOpened', {
             Kind: 'Production',
@@ -35,6 +36,7 @@ TSICTestHarness.register({
     name: 'Growing: plant recipe in queue at 30% progress renders bar at 30%',
     file: '/screens/production.html',
     async run(ctx) {
+        ctx.screen('Production');
         ctx.setItemCatalog({ ID_Tomato: { Name: 'Tomato' } });
         ctx.inject('tsic.msg.UI.Recipe.StationOpened', {
             Kind: 'Production',
@@ -58,6 +60,7 @@ TSICTestHarness.register({
     name: 'Growing: plant completion plays Recipe.Completed sound',
     file: '/screens/production.html',
     async run(ctx) {
+        ctx.screen('Production');
         ctx.inject('tsic.msg.UI.Recipe.StationOpened', { Kind: 'Production', Recipes: [], MaterialCounts: {} });
         ctx.clearPublishes();
         ctx.inject('tsic.msg.UI.Recipe.Completed', { Kind: 'Production', RecipeId: 'R_Plant_Tomato' });
@@ -70,20 +73,21 @@ TSICTestHarness.register({
     name: 'Growing: post-harvest Inventory.Updated shows harvested crop in player inventory',
     file: '/screens/inventory.html',
     async run(ctx) {
+        ctx.screen('Inventory');
         ctx.setItemCatalog({ ID_Tomato: { Name: 'Tomato', Category: 'Consumable', Weight: 0.1 } });
         // Before harvest: empty.
-        ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', Items: [], MaxSlots: 32, MaxWeight: 30, CurrentWeight: 0 });
-        await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid .tsic-slot:not([data-slot])'));
-        // Harvest fires: 3 tomatoes appear.
+        ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', GridWidth: 8, Items: [], MaxSlots: 32, MaxWeight: 30, CurrentWeight: 0 });
+        await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid .tsic-slot'));
+        // Harvest fires: 3 tomatoes appear as a stack with a count badge.
         ctx.inject('tsic.msg.UI.Inventory.Updated', {
-            OwnerId: 'Player',
-            Items: [{ ItemId: 'ID_Tomato', Count: 3, SlotIndex: 0 }],
+            OwnerId: 'Player', GridWidth: 8,
+            Items: [{ ItemId: 'ID_Tomato', Count: 3, InstanceId: 1, GridSlot: 0 }],
             MaxSlots: 32, MaxWeight: 30, CurrentWeight: 0.3,
         });
-        await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid .tsic-slot[data-slot="0"]'));
-        const row = ctx.doc.querySelector('#inv-grid .tsic-slot[data-slot="0"]');
-        ctx.expect(ctx.assert.truthy(/×3/.test(row.textContent || ''),
-            `expected ×3 in harvested row, got: ${row.textContent}`));
+        await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid .tsic-slot[data-instance="1"]'));
+        const cell = ctx.doc.querySelector('#inv-grid .tsic-slot[data-grid="0"]');
+        ctx.expect(ctx.assert.truthy(/3/.test((cell.querySelector('.count') || {}).textContent || ''),
+            `expected count badge 3 in harvested cell`));
     },
 });
 
@@ -91,6 +95,7 @@ TSICTestHarness.register({
     name: 'Growing: long-duration plant recipe at 0.001 progress still renders bar without layout glitch',
     file: '/screens/production.html',
     async run(ctx) {
+        ctx.screen('Production');
         ctx.inject('tsic.msg.UI.Recipe.StationOpened', { Kind: 'Production', Recipes: [], MaterialCounts: {} });
         ctx.inject('tsic.msg.UI.Recipe.QueueChanged', { Kind: 'Production', Entries: [
             { RecipeId: 'R_LongPlant', QueueIndex: 0, Progress: 0.001, bIsActive: true },

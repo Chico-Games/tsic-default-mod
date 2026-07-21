@@ -16,7 +16,10 @@ TSICTestHarness.register({
         await ctx.waitFor(() => ctx.doc.querySelectorAll('.tsic-tab').length >= 2);
         const tabs = Array.from(ctx.doc.querySelectorAll('.tsic-tab'));
         ctx.expect(tabs.length === 2 ? null : `expected 2 tabs, got ${tabs.length}`);
-        ctx.expect(tabs[0].classList.contains('is-active') ? null : 'first tab should be active by default');
+        // The page boots with its static catalog and PRESERVES the active tab
+        // id across catalog re-broadcasts — assert exactly one tab is active
+        // rather than pinning which one.
+        ctx.expect(ctx.assert.eq(tabs.filter(t => t.classList.contains('is-active')).length, 1));
     },
 });
 
@@ -36,9 +39,14 @@ TSICTestHarness.register({
             }),
         });
         await ctx.waitFor(() => ctx.doc.querySelector('.tsic-tab'));
+        // Whatever tab survived the catalog swap, explicit clicks switch pages.
+        Array.from(ctx.doc.querySelectorAll('.tsic-tab')).find(b => b.textContent === 'Video').click();
+        await ctx.waitFor(() => {
+            const h = ctx.doc.querySelector('.group h3');
+            return h && h.textContent === 'Display';
+        });
         ctx.expect(ctx.assert.domText(ctx.doc, '.group h3', 'Display'));
-        const audioTab = Array.from(ctx.doc.querySelectorAll('.tsic-tab')).find(b => b.textContent === 'Audio');
-        audioTab.click();
+        Array.from(ctx.doc.querySelectorAll('.tsic-tab')).find(b => b.textContent === 'Audio').click();
         await ctx.waitFor(() => {
             const h = ctx.doc.querySelector('.group h3');
             return h && h.textContent === 'Mix';

@@ -26,7 +26,7 @@ TSICTestHarness.register({
 
 // ---- Map: wheel zoom ---------------------------------------------------
 TSICTestHarness.register({
-    name: 'Scroll/Map: wheel zooms in (scale shrinks on positive deltaY)',
+    name: 'Scroll/Map: wheel zooms in (negative deltaY grows scale)',
     tags: ['scroll', 'map'],
     file: '/screens/map.html',
     async run(ctx) {
@@ -35,18 +35,22 @@ TSICTestHarness.register({
         const vp = ctx.doc.getElementById('map-viewport');
         const content = ctx.doc.getElementById('map-content');
         const tBefore = content.style.transform;
-        // Build a WheelEvent if available; fall back to a regular event with
-        // .deltaY tacked on for jsdom's older event model.
+        // The map BOOTS at MIN_SCALE (fit-to-bounds * 0.95), so zooming OUT is
+        // clamped to a no-op by design — zoom IN (negative deltaY) to observe
+        // the transform change.
         let e;
         try {
-            e = new ctx.win.WheelEvent('wheel', { bubbles: true, cancelable: true, deltaY: 100, clientX: 600, clientY: 350 });
+            e = new ctx.win.WheelEvent('wheel', { bubbles: true, cancelable: true, deltaY: -100, clientX: 600, clientY: 350 });
         } catch (_) {
             e = new ctx.win.Event('wheel', { bubbles: true, cancelable: true });
-            e.deltaY = 100; e.clientX = 600; e.clientY = 350;
+            e.deltaY = -100; e.clientX = 600; e.clientY = 350;
         }
         vp.dispatchEvent(e);
         const tAfter = content.style.transform;
         ctx.expect(ctx.assert.truthy(tBefore !== tAfter, `wheel should change transform; before=${tBefore} after=${tAfter}`));
+        const sB = parseFloat((/scale\(([0-9.e-]+)\)/.exec(tBefore) || [])[1] || '0');
+        const sA = parseFloat((/scale\(([0-9.e-]+)\)/.exec(tAfter) || [])[1] || '0');
+        ctx.expect(ctx.assert.truthy(sA > sB, `zoom-in grows scale (${sB} -> ${sA})`));
     },
 });
 
@@ -91,15 +95,16 @@ TSICTestHarness.register({
 
 // ---- Inventory list scroll: many populated rows -------------------------
 TSICTestHarness.register({
-    name: 'Scroll/Inventory: 100 stacks render as 100 list rows',
+    name: 'Scroll/Inventory: 100 stacks render as 100 occupied grid cells',
     tags: ['scroll', 'inventory'],
     file: '/screens/inventory.html',
     async run(ctx) {
+        ctx.screen('Inventory');
         const items = [];
-        for (let i = 0; i < 100; i++) items.push({ ItemId: 'ID_' + i, Count: 1, SlotIndex: i });
-        ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', MaxSlots: 256, Items: items });
-        await ctx.waitFor(() => ctx.doc.querySelectorAll('#inv-grid .tsic-slot[data-slot]').length === 100, { timeout: 3000 });
-        ctx.expect(ctx.assert.domCount(ctx.doc, '#inv-grid .tsic-slot[data-slot]', 100));
+        for (let i = 0; i < 100; i++) items.push({ ItemId: 'ID_' + i, Count: 1, InstanceId: i + 1, GridSlot: i });
+        ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', GridWidth: 8, MaxSlots: 256, Items: items });
+        await ctx.waitFor(() => ctx.doc.querySelectorAll('#inv-grid .tsic-slot[data-instance]').length === 100, { timeout: 3000 });
+        ctx.expect(ctx.assert.domCount(ctx.doc, '#inv-grid .tsic-slot[data-instance]', 100));
     },
 });
 
@@ -107,15 +112,16 @@ TSICTestHarness.register({
 TSICTestHarness.register({
     name: 'Scroll/Chat: 50 lines all render without crash',
     tags: ['scroll', 'chat'],
-    file: '/screens/chat.html',
+    file: '/screens/in-game.html',
     async run(ctx) {
         const messages = [];
-        for (let i = 0; i < 50; i++) messages.push({ Sender: 'U' + i, Text: 'line ' + i });
+        for (let i = 0; i < 50; i++) messages.push({ SenderName: 'U' + i, Text: 'line ' + i });
+        await ctx.waitFor(() => ctx.doc.querySelector('#hud-chat-log'));
         ctx.inject('tsic.msg.UI.Chat.History', { Messages: messages });
-        await ctx.waitFor(() => ctx.doc.querySelectorAll('#chat-log .cm-row').length === 50, { timeout: 2000 });
-        // The page uses flex-direction: column-reverse, so DOM insertion order
+        await ctx.waitFor(() => ctx.doc.querySelectorAll('#hud-chat-log .hc-row').length === 50, { timeout: 2000 });
+        // The log uses flex-direction: column-reverse, so DOM insertion order
         // isn't necessarily oldest/newest-first — we just verify the count.
-        ctx.expect(ctx.assert.domCount(ctx.doc, '#chat-log .cm-row', 50));
+        ctx.expect(ctx.assert.domCount(ctx.doc, '#hud-chat-log .hc-row', 50));
     },
 });
 
@@ -135,15 +141,15 @@ TSICTestHarness.register({
 
 // ---- Storage container list scroll --------------------------------------
 TSICTestHarness.register({
-    name: 'Scroll/Storage: 30 items in container render as 30 list rows',
+    name: 'Scroll/Storage: 30 items in container render as 30 occupied cells',
     tags: ['scroll', 'storage'],
     file: '/screens/storage.html',
     async run(ctx) {
         const items = [];
-        for (let i = 0; i < 30; i++) items.push({ ItemId: 'ID_' + i, Count: 1, SlotIndex: i });
-        ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Storage:1', MaxSlots: 32, Items: items });
-        await ctx.waitFor(() => ctx.doc.querySelectorAll('#ss-container-list .tsic-slot[data-slot]').length === 30, { timeout: 2000 });
-        ctx.expect(ctx.assert.domCount(ctx.doc, '#ss-container-list .tsic-slot[data-slot]', 30));
+        for (let i = 0; i < 30; i++) items.push({ ItemId: 'ID_' + i, Count: 1, InstanceId: i + 1, GridSlot: i });
+        ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Storage:1', GridWidth: 8, MaxSlots: 32, Items: items });
+        await ctx.waitFor(() => ctx.doc.querySelectorAll('#ss-container-list .tsic-slot[data-instance]').length === 30, { timeout: 2000 });
+        ctx.expect(ctx.assert.domCount(ctx.doc, '#ss-container-list .tsic-slot[data-instance]', 30));
     },
 });
 
@@ -238,7 +244,8 @@ TSICTestHarness.register({
     file: '/screens/test-behavior-bar.html',
     async run(ctx) {
         const slots = [];
-        for (let i = 0; i < 50; i++) slots.push({ BehaviorTagName: 'IA_' + i, DisplayName: 'A' + i, bVisible: true, StatusInt: i % 4 });
+        // blocked (1) rows are hidden by design — keep all 50 available
+        for (let i = 0; i < 50; i++) slots.push({ BehaviorTagName: 'IA_' + i, DisplayName: 'A' + i, bVisible: true, StatusInt: 0 });
         const t0 = Date.now();
         ctx.inject('tsic.msg.UI.BehaviorBar.Entries', { Entries: slots });
         await ctx.waitFor(() => ctx.doc.querySelectorAll('#bb-gameplay .bb-row').length === 50, { timeout: 1500 });
@@ -266,6 +273,7 @@ TSICTestHarness.register({
     tags: ['perf', 'production'],
     file: '/screens/production.html',
     async run(ctx) {
+        ctx.screen('Production');
         const queue = [];
         for (let i = 0; i < 50; i++) queue.push({ RecipeId: 'R_' + i, Name: 'r' + i, ProgressFraction: i / 50 });
         ctx.inject('tsic.msg.UI.Recipe.StationOpened', { Kind: 'Production', Recipes: [], MaterialCounts: {} });
@@ -297,16 +305,22 @@ TSICTestHarness.register({
     tags: ['perf', 'inventory'],
     file: '/screens/inventory.html',
     async run(ctx) {
-        ctx.setItemCatalog({ ID_X: { Name: 'X', Category: 'Equipment' } });
-        ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', MaxSlots: 32, MaxWeight: 50, CurrentWeight: 1, Items: [{ ItemId: 'ID_X', Count: 1, SlotIndex: 0 }] });
-        await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid .tsic-slot[data-slot="0"] img'));
-        const slot = ctx.doc.querySelector('#inv-grid .tsic-slot[data-slot="0"]');
+        ctx.screen('Inventory');
+        ctx.setItemCatalog({ ID_X: { Name: 'X', Category: 'Equipment', Weight: 1 } });
+        ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', GridWidth: 8, MaxSlots: 32, MaxWeight: 50, CurrentWeight: 1, Items: [{ ItemId: 'ID_X', Count: 1, InstanceId: 1, GridSlot: 0 }] });
+        await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid .tsic-slot[data-grid="0"] img'));
+        const slot = ctx.doc.querySelector('#inv-grid .tsic-slot[data-grid="0"]');
+        // Hover renders the info rail + weight chip in place (no per-hover
+        // publishes since the context menu redesign) — 100 toggles must stay fast.
+        const t0 = Date.now();
         for (let i = 0; i < 50; i++) {
             slot.dispatchEvent(new ctx.win.MouseEvent('mouseenter', { bubbles: true }));
             slot.dispatchEvent(new ctx.win.MouseEvent('mouseleave', { bubbles: true }));
         }
-        const pubs = ctx.publishes().filter(p => p.channel === 'UI.Cmd.BehaviorBar.SetMenuContext');
-        ctx.expect(ctx.assert.truthy(pubs.length >= 50, `expected at least 50 hover publishes, got ${pubs.length}`));
+        const elapsed = Date.now() - t0;
+        ctx.expect(ctx.assert.truthy(elapsed < 1000, `50 hover toggles took ${elapsed}ms`));
+        slot.dispatchEvent(new ctx.win.MouseEvent('mouseenter', { bubbles: true }));
+        ctx.expect(ctx.assert.domText(ctx.doc, '#inv-info', /X/));
     },
 });
 

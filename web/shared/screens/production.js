@@ -125,7 +125,20 @@
           if (locked) right.textContent = !r.bDiscovered ? 'undiscovered' : 'station Lv. ↑';
           row.appendChild(right);
 
-          const selectRecipe = () => { selectedRecipeId = r.RecipeId; renderAll(); };
+          const selectRecipe = () => {
+            // No-op when already selected — a gamepad focusin on the selected
+            // row must NOT re-render (the rebuild would destroy the focused
+            // node and drop controller focus to <body>).
+            if (selectedRecipeId === r.RecipeId) return;
+            const hadFocus = document.activeElement === row || row.hasAttribute('data-tsic-focused');
+            selectedRecipeId = r.RecipeId;
+            renderAll();
+            if (hadFocus) {
+              const fresh = host.querySelector('.tsic-list-row.is-selected');
+              if (fresh && window.tsic.focus && window.tsic.focus.focus) window.tsic.focus.focus(fresh);
+              else if (fresh) fresh.focus();
+            }
+          };
           const commitRecipe = () => {
             selectRecipe();
             const add = root.querySelector('#p-add');
