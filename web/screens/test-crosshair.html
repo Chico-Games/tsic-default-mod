@@ -4,15 +4,17 @@
   <meta name="tsic-screen" content="TestCrosshair">
   <meta name="tsic-debug" content="true">
   <title>Test: crosshair</title>
-  <!-- Test-only host for the LIVE crosshair component
-       (shared/hud-crosshair.js). In production hud.js creates the
-       #hud-crosshair dot and injects its styles; here we provide the minimal
-       shell so the component can be exercised in isolation. Also subscribes to
-       tsic.msg.UI.Interaction.Targets { bDraggable, bDragging } for the drag
-       affordance ring.
+  <!-- Test-only host for the LIVE crosshair components
+       (shared/hud-crosshair.js + shared/hud-circular-progress.js). In
+       production hud.js creates the #hud-crosshair dot and
+       #hud-circular-progress ring and injects their styles; here we provide
+       the minimal shell so the components can be exercised in isolation. Also
+       subscribes to tsic.msg.UI.Interaction.Targets { bDraggable, bDragging }
+       for the drag affordance ring and tsic.msg.UI.CircularProgress.State for
+       the charge/progress ring.
 
-       DO NOT add rendering logic to this file. Crosshair visibility is driven
-       by shared/hud-crosshair.js — this page only hosts it. -->
+       DO NOT add rendering logic to this file. Rendering is driven by the
+       shared components — this page only hosts them. -->
   <style>
     /* Mirror the rules hud.js injects, so getComputedStyle()-based
        hidden/visible assertions work. */
@@ -20,12 +22,16 @@
     #hud-crosshair.draggable { box-shadow:0 0 0 3px rgba(255,255,255,0.30); }
     #hud-crosshair.dragging { transform:scale(1.4); box-shadow:0 0 0 3px rgba(255,255,255,0.65); }
     #hud-crosshair.hidden { display:none; }
+    #hud-circular-progress { display:none; position:fixed; left:50%; top:50%; width:56px; height:56px; margin-left:-28px; margin-top:-28px; border-radius:50%; background:conic-gradient(var(--cp-color,#fff) calc(var(--cp-p,0) * 1%), rgba(241,229,207,0.35) 0); mask:radial-gradient(circle, transparent 23px, #000 24px); -webkit-mask:radial-gradient(circle, transparent 23px, #000 24px); pointer-events:none; z-index:20; }
+    #hud-circular-progress.active { display:block; }
   </style>
   <!-- Bridge first: components subscribe on window.tsic at defer time; the
        playground migrates those subs into its mock on iframe load. -->
   <script src="/shared/tsic-bridge.js" defer></script>
   <script src="/shared/tsic-runtime.js" defer></script>
   <script src="/shared/hud-crosshair.js" defer></script>
+  <script src="/shared/hud-circular-progress.js" defer></script>
 </head><body>
   <div id="hud-crosshair"></div>
+  <div id="hud-circular-progress"></div>
 </body></html>

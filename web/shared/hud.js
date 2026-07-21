@@ -9,6 +9,7 @@
 //   hud-health.js       — health vial (mounts hud-liquid-bar)
 //   hud-stamina.js      — stamina vial (mounts hud-liquid-bar)
 //   hud-crosshair.js    — crosshair visibility
+//   hud-circular-progress.js — throw-charge / timed-ability progress ring
 //   hud-interaction.js  — interaction prompt label
 //   hud-behavior-bar.js — gameplay behavior bar (System A)
 //   hud-construction-carousel.js — construction build strip (bottom-centre)
@@ -17,6 +18,7 @@
 //   hud-hotbar.js       — bottom-centre hotbar shelf
 //   hud-screen-fade.js  — full-screen black fade (death sequence)
 //   hud-chat.js         — multiplayer text chat (bottom-left, above the vials)
+//   hud-tutorial.js     — tutorial objectives box (top-right, below the minimap)
 //
 // The HUD toggle (body.hud-hidden) stays here — it's orchestrator-level
 // since it hides ALL chrome elements at once.
@@ -50,8 +52,12 @@
     '#hud-crosshair.draggable { box-shadow:0 0 0 3px rgba(255,255,255,0.30); }',
     '#hud-crosshair.dragging { transform:scale(1.4); box-shadow:0 0 0 3px rgba(255,255,255,0.65); }',
     '#hud-crosshair.hidden { display:none; }',
-    'body.hud-hidden #hud-chrome, body.hud-hidden #hud-health, body.hud-hidden #hud-stamina, body.hud-hidden #hud-stomach, body.hud-hidden #hud-crosshair, body.hud-hidden #bb-shell-gameplay, body.hud-hidden #hud-minimap, body.hud-hidden #hud-chunk-debug, body.hud-hidden #hud-hotbar, body.hud-hidden #ping-shell, body.hud-hidden #hud-low-health, body.hud-hidden #hud-hit-reaction, body.hud-hidden #hud-stealth, body.hud-hidden #hud-chat, body.hud-hidden #hud-voice { display:none !important; }',
-    'body.hud-hide-health #hud-health, body.hud-hide-stamina #hud-stamina, body.hud-hide-stomach #hud-stomach, body.hud-hide-crosshair #hud-crosshair, body.hud-hide-minimap #hud-minimap, body.hud-hide-actionbar #bb-shell-gameplay, body.hud-hide-interaction #interaction-prompt, body.hud-hide-hotbar #hud-hotbar, body.hud-hide-lowhealth #hud-low-health, body.hud-hide-hitreaction #hud-hit-reaction, body.hud-hide-stealth #hud-stealth { display:none !important; }',
+    // Circular progress ring — throw charge / timed-ability progress, centred on
+    // the crosshair. Fill percent + colour come from hud-circular-progress.js.
+    '#hud-circular-progress { display:none; position:fixed; left:50%; top:50%; width:56px; height:56px; margin-left:-28px; margin-top:-28px; border-radius:50%; background:conic-gradient(var(--cp-color,#fff) calc(var(--cp-p,0) * 1%), rgba(241,229,207,0.35) 0); mask:radial-gradient(circle, transparent 23px, #000 24px); -webkit-mask:radial-gradient(circle, transparent 23px, #000 24px); pointer-events:none; z-index:20; }',
+    '#hud-circular-progress.active { display:block; }',
+    'body.hud-hidden #hud-chrome, body.hud-hidden #hud-health, body.hud-hidden #hud-stamina, body.hud-hidden #hud-stomach, body.hud-hidden #hud-crosshair, body.hud-hidden #hud-circular-progress, body.hud-hidden #bb-shell-gameplay, body.hud-hidden #hud-minimap, body.hud-hidden #hud-chunk-debug, body.hud-hidden #hud-hotbar, body.hud-hidden #ping-shell, body.hud-hidden #hud-low-health, body.hud-hidden #hud-hit-reaction, body.hud-hidden #hud-stealth, body.hud-hidden #hud-chat, body.hud-hidden #hud-voice, body.hud-hidden #hud-tutorial { display:none !important; }',
+    'body.hud-hide-health #hud-health, body.hud-hide-stamina #hud-stamina, body.hud-hide-stomach #hud-stomach, body.hud-hide-crosshair #hud-crosshair, body.hud-hide-minimap #hud-minimap, body.hud-hide-actionbar #bb-shell-gameplay, body.hud-hide-interaction #interaction-prompt, body.hud-hide-hotbar #hud-hotbar, body.hud-hide-lowhealth #hud-low-health, body.hud-hide-hitreaction #hud-hit-reaction, body.hud-hide-stealth #hud-stealth, body.hud-hide-tutorial #hud-tutorial { display:none !important; }',
     '#bb-shell-gameplay { position:fixed; bottom:18px; right:24px; min-width:240px; max-width:calc(100vw - 48px); padding:8px 12px; color:#fff; pointer-events:none; z-index:20; font-family:Georgia,"Libre Baskerville",serif; text-shadow:0 1px 2px rgba(0,0,0,0.75); }',
     '#bb-shell-gameplay.hidden { display:none; }',
     '#bb-gameplay { display:flex; flex-direction:column; align-items:stretch; gap:0; }',
@@ -125,6 +131,7 @@
     document.body.appendChild(el('div', { id: 'hud-stomach' }));
 
     document.body.appendChild(el('div', { id: 'hud-crosshair' }));
+    document.body.appendChild(el('div', { id: 'hud-circular-progress' }));
 
     var minimap = el('div', { id: 'hud-minimap' });
     minimap.appendChild(el('img', { id: 'minimap-tex', src: '/runtime/world-map.imgsrc' }));
@@ -166,6 +173,9 @@
 
     // Voice chat speaking indicator — hud-voice.js builds the chip + rows inside it.
     document.body.appendChild(el('div', { id: 'hud-voice' }));
+
+    // Tutorial objectives box — hud-tutorial.js builds the list inside it.
+    document.body.appendChild(el('div', { id: 'hud-tutorial' }));
   }
 
   // ---- Dynamic script loading ----
@@ -230,6 +240,7 @@
     loadScript('/shared/hud-stamina.js');
     loadScript('/shared/hud-stomach.js');
     loadScript('/shared/hud-crosshair.js');
+    loadScript('/shared/hud-circular-progress.js');
     loadScript('/shared/hud-interaction.js');
     loadScript('/shared/hud-behavior-bar.js');
     loadScript('/shared/hud-construction-carousel.js');
@@ -243,5 +254,6 @@
     loadScript('/shared/hud-screen-fade.js');
     loadScript('/shared/hud-chat.js');
     loadScript('/shared/hud-voice.js');
+    loadScript('/shared/hud-tutorial.js');
   });
 })();

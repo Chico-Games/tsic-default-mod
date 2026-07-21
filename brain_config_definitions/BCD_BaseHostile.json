@@ -7,7 +7,7 @@
     "movement_profiles": [
       {
         "name": "walk",
-        "max_speed": 220,
+        "max_speed": 140,
         "accel": 800,
         "rotation_rate": 180
       },

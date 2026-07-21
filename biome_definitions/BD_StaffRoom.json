@@ -92888,7 +92888,6 @@
       "LYD_StaffRoom_UpRightDown",
       "LYD_StaffRoom_All_Decrease"
     ],
-    "environmental_effects": [],
     "ambient_audio": {
       "volume": 1.0,
       "fade_in_duration": 3.0,

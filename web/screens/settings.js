@@ -76,6 +76,9 @@
                 { Id: 'Camera', Title: 'Camera', Settings: [
                     { Key: 'gameplay.fov', Label: 'Field of view', Type: 'range', Min: 60, Max: 120, Step: 1, Value: 90 },
                 ] },
+                { Id: 'Interface', Title: 'Interface', Settings: [
+                    { Key: 'gameplay.show_tutorial', Label: 'Show tutorial objectives', Type: 'bool', Value: true },
+                ] },
             ] },
         ],
         Footer: { bRestartRequired: false },

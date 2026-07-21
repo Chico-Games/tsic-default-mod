@@ -107,13 +107,6 @@
             "class": "LayoutDefinition"
           }
         },
-        "environmental_effects": {
-          "kind": "array",
-          "element": {
-            "kind": "soft_class",
-            "class": "GameplayEffect"
-          }
-        },
         "ambient_audio": {
           "kind": "struct",
           "name": "AmbientAudioConfig"

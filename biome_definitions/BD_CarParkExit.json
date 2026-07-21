@@ -92883,7 +92883,6 @@
       "LYD_CarParkExit_All_Decrease",
       "LYD_Quarter_CarParkExit"
     ],
-    "environmental_effects": [],
     "ambient_audio": {
       "volume": 1.0,
       "fade_in_duration": 3.0,
