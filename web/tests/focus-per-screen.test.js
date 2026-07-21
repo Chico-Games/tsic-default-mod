@@ -87,12 +87,6 @@ TSICTestHarness.register(Object.assign({
 }, focusOpts()));
 
 TSICTestHarness.register(Object.assign({
-    name: 'Focus/QuantityPicker: reachable + groups mutually reachable',
-    file: '/screens/quantity-picker.html',
-    async run(ctx) { await TSICTestHarness.fx.runReachability(ctx); },
-}, focusOpts()));
-
-TSICTestHarness.register(Object.assign({
     name: 'Focus/BugReport: reachable + groups mutually reachable',
     file: '/screens/bug-report.html',
     async run(ctx) { await TSICTestHarness.fx.runReachability(ctx); },

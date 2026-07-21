@@ -10,6 +10,7 @@
     "description": "Basic armor crafting bench. Create light armor and basic protection gear.",
     "stackable": true,
     "weight": 0.10000000149011612,
-    "static_item_definition": "FD_ArmorBenchTier1_SI"
+    "static_item_definition": "FD_ArmorBenchTier1_SI",
+    "max_stack_size": 20
   }
 }

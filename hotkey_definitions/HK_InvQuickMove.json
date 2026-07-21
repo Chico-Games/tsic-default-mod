@@ -1,12 +1,9 @@
 {
-  "id": "HK_ItemOptions",
+  "id": "HK_InvQuickMove",
   "class": "HotkeyDefinition",
   "properties": {
-    "display_name": "Item Options",
+    "display_name": "Quick-move",
     "category": "Interaction",
-    "keyboard_key": {
-      "key_name": "RightMouseButton"
-    },
     "gamepad_key": {
       "key_name": "Gamepad_FaceButton_Left"
     }

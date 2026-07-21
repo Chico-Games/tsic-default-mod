@@ -8,6 +8,7 @@
     "description": "A compact battery pack. Recharges the taser.",
     "stackable": true,
     "weight": 0.0,
-    "item_category_tag": "Entity.Inventory.Item.Category.Ammo"
+    "item_category_tag": "Entity.Inventory.Item.Category.Ammo",
+    "max_stack_size": 100
   }
 }

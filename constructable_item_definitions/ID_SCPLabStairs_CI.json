@@ -9,6 +9,7 @@
     "display_name": "Lab Stairs",
     "description": "A heavy metal staircase from the lab.",
     "stackable": true,
-    "weight": 0.10000000149011612
+    "weight": 0.10000000149011612,
+    "max_stack_size": 20
   }
 }

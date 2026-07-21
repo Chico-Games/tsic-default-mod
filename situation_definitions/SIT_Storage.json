@@ -19,7 +19,10 @@
       "BH_OpenCrafting",
       "BH_OpenMap",
       "BH_TransferAmount",
-      "BH_TakeAll"
+      "BH_TakeAll",
+      "BH_InvSplit",
+      "BH_InvQuickMove",
+      "BH_InvDrop"
     ]
   }
 }

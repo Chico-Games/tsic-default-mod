@@ -65,6 +65,7 @@
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_PancakesWithJam_SI",
     "equipment_slot": "Entity.Inventory.Item.Equipment.Slot.Weapon",
-    "item_category_tag": "Entity.Inventory.Item.Category.Consumable"
+    "item_category_tag": "Entity.Inventory.Item.Category.Consumable",
+    "max_stack_size": 10
   }
 }

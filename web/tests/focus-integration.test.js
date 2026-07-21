@@ -63,23 +63,6 @@ TSICTestHarness.register({
 });
 
 TSICTestHarness.register({
-    name: 'Focus/Integration/QuantityPicker: confirm publishes Transfer with chosen count',
-    file: '/screens/quantity-picker.html',
-    async run(ctx) {
-        ctx.focus.disableSmoothScroll();
-        ctx.focus.resetMemory();
-        ctx.mode('Gamepad');
-        await TSICTestHarness.fx.awaitInitialFocus(ctx);
-        ctx.expect(ctx.assert.eq(ctx.doc.activeElement.id, 'btn-confirm'));
-        ctx.clearPublishes();
-        ctx.focus.confirm();
-        await new Promise(r => setTimeout(r, 30));
-        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Inventory.Transfer'));
-        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Pause.Resume'));
-    },
-});
-
-TSICTestHarness.register({
     name: 'Focus/Integration/Teleporter: confirm on a destination publishes Travel',
     file: '/screens/teleporter.html',
     async run(ctx) {

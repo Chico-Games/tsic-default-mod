@@ -69,6 +69,7 @@
     "stackable": true,
     "weight": 0.10000000149011612,
     "capture_radius": 300.0,
-    "deployed_lifetime_seconds": 60.0
+    "deployed_lifetime_seconds": 60.0,
+    "max_stack_size": 10
   }
 }

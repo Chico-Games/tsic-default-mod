@@ -51,7 +51,7 @@ const { chromium } = require('playwright');
             const total = window.TSICTestHarness.scenarios.length;
             const done = document.querySelectorAll('.scn.pass, .scn.fail, .scn.skip').length;
             return done >= total;
-        }, { timeout: 120000 });
+        }, null, { timeout: 420000 });
         await page.evaluate(() => {
             window.__results = [];
             const scns = window.TSICTestHarness.scenarios;

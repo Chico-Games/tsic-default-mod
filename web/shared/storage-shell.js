@@ -1,14 +1,17 @@
-// Shared two-pane inventory-transfer view used by both /screens/storage.html
-// (regular storage containers) and /screens/universal-storage.html (universal
-// inventory). Mirrors the UMG UStorageScreen widget: PlayerInventoryList +
-// StorageInventoryList side-by-side, each with its own category tabs and
-// capacity bar, plus a shared item-info strip for the hovered selection.
+// Shared storage view (grid design §10.2): THE INVENTORY SCREEN PLUS A
+// CONTAINER COLUMN. The player column (tabs + grid + weight bar) and the
+// info rail keep the inventory screen's layout; the container pane (header +
+// slot-count + grid) is appended to the right. Containers show no weight
+// (§3.4 — slots are their only limit). Both grids render with the same
+// component and every interaction rides the shared cursor engine
+// (shared/inventory.js): pickup, RMB half/place-one, shift-click quick-move
+// across panes, double-click collect across both panes, Q / Ctrl+Q drops.
 //
-// Mount it from a page body once tsic + TSICInventory are ready:
+// Used by /screens/storage.html and /screens/universal-storage.html:
 //   TSICStorageShell.mount({
 //     title: 'Storage',
 //     containerEyebrow: 'Container',
-//     containerOwnerIdMatch: id => typeof id === 'string' && id.indexOf('Storage:') === 0,
+//     containerOwnerIdMatch: id => id.indexOf('Storage:') === 0,
 //     containerInitialOwnerId: null,
 //     containerMaxSlots: 32,
 //   });
@@ -27,53 +30,64 @@
         const desc = cat[itemId];
         return desc ? desc.Category : null;
     }
-    // Tabs dim non-matching items in place (renderGrid .is-filtered) — grid
-    // positions never change under a filter.
+    // Tabs dim non-matching items in place — a filter never changes slot
+    // geometry (rule 48).
     function filterFnFor(tabId) {
         const tab = TABS.find(t => t.id === tabId);
         if (!tab || !tab.filter) return null;
         return (it) => tab.filter(categoryFor(it.ItemId));
     }
 
-    const GRID_STYLE = [
+    const STYLE = [
+        '#ss-panel .ss-band { display:flex; align-items:baseline; gap:12px; border-bottom:3px solid rgba(10,10,10,0.85); margin-bottom:10px; padding-bottom:5px; }',
+        '#ss-panel .ss-band h2 { margin:0; }',
+        '#ss-panel .ss-band .spacer { flex:1; }',
+        '#ss-panel .ss-band .slots-text { font-size:14px; letter-spacing:0.08em; color:rgba(37,33,25,0.65); }',
+        '#ss-panel .ss-cols { display:grid; gap:10px; grid-template-columns:auto 236px auto; align-items:start; }',
+        '#ss-panel .ss-tabs { display:flex; gap:0; margin-bottom:8px; }',
         '#ss-panel .ss-grid {',
         '  display:grid; grid-template-columns: repeat(var(--grid-cols, 8), 46px);',
-        '  gap:5px; align-content:start; overflow:auto; padding:8px;',
-        '  background: rgba(184,170,145,0.30); border:1px solid var(--tsic-border);',
-        '  box-shadow: inset 0 1px 4px rgba(37,33,25,0.18);',
+        '  grid-auto-rows: 46px; gap:4px; width:max-content;',
+        '  max-height: calc(6 * 50px); overflow-y:auto;',
         '}',
         '#ss-panel .tsic-slot {',
         '  width:46px; height:46px; position:relative; cursor:pointer; padding:3px;',
-        '  background: rgba(241,229,207,0.55); border:1px solid rgba(37,33,25,0.28);',
-        '  box-shadow: inset 0 1px 2px rgba(37,33,25,0.14);',
-        '  transition: background-color 90ms ease, border-color 90ms ease,',
-        '              opacity 160ms ease, filter 160ms ease, transform 90ms ease;',
+        '  background: rgba(255,253,243,0.96); border:2px solid rgba(10,10,10,0.85);',
+        '  display:flex; align-items:center; justify-content:center;',
+        '  transition: background-color 90ms ease, opacity 160ms ease, filter 160ms ease, transform 90ms ease, box-shadow 90ms ease;',
         '}',
-        '#ss-panel .tsic-slot:hover,',
-        '#ss-panel .tsic-slot[data-tsic-focused] {',
-        '  background: rgba(241,229,207,0.95);',
-        '  border-color: rgba(37,33,25,0.55);',
-        '}',
-        '#ss-panel .tsic-slot.is-selected { outline:2px solid var(--cat-ink-soft, #514739); outline-offset:-2px; }',
-        '#ss-panel .tsic-slot.is-dragging { opacity:0.35; }',
-        '#ss-panel .tsic-slot.is-drop-target {',
-        '  outline:2px solid var(--cat-green, #3f7d4f); outline-offset:-2px;',
-        '  background: rgba(63,125,79,0.18);',
-        '}',
-        '#ss-panel .tsic-slot.is-filtered { opacity:0.18; filter:grayscale(0.8); }',
-        '#ss-panel .tsic-slot .count {',
-        '  position:absolute; right:2px; bottom:2px; min-width:14px; height:14px;',
-        '  line-height:14px; padding:0 3px; font-size:10px; font-weight:700;',
-        '  text-align:center; color:#f6efdf; background:rgba(37,33,25,0.82);',
-        '  border-radius:7px; pointer-events:none;',
-        '}',
+        '#ss-panel .tsic-slot.is-empty { background: rgba(237,228,203,0.85); border-color: rgba(10,10,10,0.45); }',
+        '#ss-panel .tsic-slot:hover:not(.is-locked),',
+        '#ss-panel .tsic-slot[data-tsic-focused] { border-color: rgba(10,10,10,1); background:#fffdf3; }',
+        '#ss-panel .tsic-slot.is-selected { background:#ffedb0; transform:translate(-2px,-2px); box-shadow:4px 4px 0 rgba(10,10,10,0.85); z-index:1; }',
+        '#ss-panel .tsic-slot.is-held-source img { opacity:0.35; }',
+        '#ss-panel .tsic-slot.is-drop-target { outline:2px solid var(--buff-green, #1e8f3e); outline-offset:-2px; }',
+        '#ss-panel .tsic-slot.is-filtered { opacity:0.2; filter:grayscale(0.8); }',
+        '#ss-panel .tsic-slot.is-locked { background: rgba(227,216,184,0.7); border-style:dashed; border-color: rgba(10,10,10,0.35); cursor:default; opacity:0.75; }',
+        '#ss-panel .tsic-slot .count { position:absolute; bottom:1px; right:2px; padding:1px 3px; line-height:1; font-size:10px; font-weight:700; color:#1a1612; background:var(--mag-yellow, #ffcc00); border:1px solid rgba(10,10,10,0.85); pointer-events:none; }',
+        '#ss-panel .tsic-slot .equip-badge { position:absolute; top:1px; left:2px; padding:1px 3px; line-height:1; font-size:9px; font-weight:700; color:#fff; background:var(--mag-red, #e60000); border:1px solid rgba(10,10,10,0.85); pointer-events:none; }',
+        '#ss-panel .tsic-slot .hotbar-badge { position:absolute; top:1px; right:2px; padding:1px 3px; line-height:1; font-size:9px; font-weight:700; color:var(--mag-yellow, #ffcc00); background:rgba(10,10,10,0.9); border:1px solid rgba(10,10,10,0.85); pointer-events:none; }',
+        '#ss-panel .ss-panehdr { display:flex; align-items:baseline; gap:8px; border-bottom:2px solid rgba(10,10,10,0.85); margin-bottom:6px; padding-bottom:3px; }',
+        '#ss-panel .ss-panehdr h4 { margin:0; font-size:16px; letter-spacing:0.06em; text-transform:uppercase; }',
+        '#ss-panel .ss-panehdr .cnt { font-size:12px; color:rgba(108,99,87,0.95); }',
+        '#ss-panel .ss-panehdr.on h4::before { content:">> "; color:var(--mag-red, #e60000); font-weight:900; }',
+        '#ss-panel .ss-meter { margin-top:8px; min-width:200px; }',
+        '#ss-panel .ss-meter .lab { display:flex; justify-content:space-between; font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:rgba(37,33,25,0.8); }',
+        '#ss-panel .ss-meter .track { height:14px; border:2px solid rgba(10,10,10,0.85); background:rgba(227,216,184,0.9); position:relative; overflow:hidden; }',
+        '#ss-panel .ss-meter .fill { height:100%; background:var(--mag-red, #e60000); transition:width 120ms linear; }',
+        '#ss-panel .ss-info { padding:9px 11px; background:#fffdf3; border:2px solid rgba(10,10,10,0.85); min-height:120px; overflow:auto; font-size:13px; }',
+        '#ss-panel .ss-info .info-eyebrow { font-size:10px; letter-spacing:0.18em; color:var(--mag-red, #e60000); text-transform:uppercase; }',
+        '#ss-panel .ss-info .statline { display:flex; justify-content:space-between; border-top:1px dashed rgba(10,10,10,0.3); padding:2px 0; }',
+        '#ss-panel .ss-hints { display:flex; gap:14px; justify-content:flex-start; margin-top:10px; border-top:2px dashed rgba(10,10,10,0.3); padding-top:8px; flex-wrap:wrap; }',
+        '#ss-panel .ss-hints .hint { display:flex; align-items:center; gap:5px; font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:rgba(74,66,57,0.9); }',
+        '#ss-panel .ss-hints .kbd { display:inline-flex; align-items:center; justify-content:center; min-width:20px; height:20px; padding:0 4px; background:#fffdf3; border:2px solid rgba(10,10,10,0.85); box-shadow:2px 2px 0 rgba(10,10,10,0.85); font-size:9px; font-weight:700; color:#1a1612; }',
     ].join('\n');
 
-    function injectGridStyleOnce() {
+    function injectStyleOnce() {
         if (document.getElementById('ss-grid-style')) return;
         const s = document.createElement('style');
         s.id = 'ss-grid-style';
-        s.textContent = GRID_STYLE;
+        s.textContent = STYLE;
         document.head.appendChild(s);
     }
     function playTransferSound() {
@@ -85,52 +99,53 @@
         return cat[it && it.ItemId] || null;
     }
 
-    function totalWeight(items) {
-        const cat = (window.tsic && window.tsic.itemCatalog) || {};
-        let w = 0;
-        for (const it of (items || [])) {
-            const d = cat[it.ItemId];
-            if (d && typeof d.Weight === 'number') w += d.Weight * (it.Count || 1);
-        }
-        return w;
-    }
-
     function buildLayout(host, opts) {
         host.innerHTML = `
-            <div id="ss-header">
-                <h2 class="tsic-title" style="margin:0;">${opts.title}</h2>
-                <div class="spacer"></div>
+            <div class="ss-band">
+                <h2 class="tsic-title">${opts.title}</h2>
+                <span class="spacer"></span>
+                <span class="slots-text" id="ss-player-slots">—</span>
                 <button class="tsic-button cancel" id="ss-take-all" type="button">Take All</button>
             </div>
-            <div class="tsic-split">
-                <div class="tsic-split-col" data-tsic-tab-context="player">
-                    <div class="ss-col-head">
-                        <div class="tsic-eyebrow">Your Inventory</div>
-                        <div class="ss-tabs" data-side="player" data-tsic-tab-bar></div>
-                    </div>
+            <div class="ss-cols">
+                <div data-tsic-tab-context="player">
+                    <div class="ss-tabs" data-side="player" data-tsic-tab-bar></div>
                     <div id="ss-player-list" class="ss-grid"></div>
-                    <div class="ss-capacity" data-side="player">
-                        <div class="ss-capacity-line"><span class="ss-capacity-text">—</span></div>
-                        <div class="ss-capacity-bar"><div class="ss-capacity-fill"></div></div>
+                    <div class="ss-meter">
+                        <div class="lab"><span>Weight</span><span class="val" id="ss-weight-text">—</span></div>
+                        <div class="track"><div class="fill" id="ss-weight-fill"></div></div>
                     </div>
                 </div>
-                <div class="tsic-split-col" data-tsic-tab-context="container">
-                    <div class="ss-col-head">
-                        <div class="tsic-eyebrow" id="ss-container-eyebrow">${opts.containerEyebrow || 'Container'}</div>
-                        <div class="ss-tabs" data-side="container" data-tsic-tab-bar></div>
+                <div style="display:flex;flex-direction:column;gap:8px;">
+                    <div id="ss-info" class="ss-info tsic-empty">Hover an item to see details</div>
+                    <div class="tsic-close-row" style="margin:0;">
+                        <button class="tsic-button" id="ss-close" type="button" data-tsic-initial-focus>Close (Esc)</button>
+                    </div>
+                </div>
+                <div data-tsic-tab-context="container">
+                    <div class="ss-panehdr" id="ss-container-hdr">
+                        <h4 id="ss-container-eyebrow">${opts.containerEyebrow || 'Container'}</h4>
+                        <span class="cnt" id="ss-container-slots">—</span>
                     </div>
                     <div id="ss-container-list" class="ss-grid"></div>
-                    <div class="ss-capacity" data-side="container">
-                        <div class="ss-capacity-line"><span class="ss-capacity-text">—</span></div>
-                        <div class="ss-capacity-bar"><div class="ss-capacity-fill"></div></div>
-                    </div>
                 </div>
             </div>
-            <div id="ss-info" class="tsic-empty">Hover an item to see details</div>
-            <div class="tsic-close-row">
-                <button class="tsic-button" id="ss-close" type="button" data-tsic-initial-focus>Close (Esc)</button>
-            </div>
+            <div class="ss-hints" id="ss-hints"></div>
         `;
+    }
+
+    function hintChip(parent, keys, label) {
+        const hint = document.createElement('span');
+        hint.className = 'hint';
+        keys.forEach((k, i) => {
+            if (i > 0) hint.appendChild(document.createTextNode('+'));
+            const kbd = document.createElement('span');
+            kbd.className = 'kbd';
+            kbd.textContent = k;
+            hint.appendChild(kbd);
+        });
+        hint.appendChild(document.createTextNode(' ' + label));
+        parent.appendChild(hint);
     }
 
     function mount(opts) {
@@ -138,7 +153,7 @@
         const root = document.getElementById(opts.rootId || 'ss-root');
         if (!root) return null;
 
-        injectGridStyleOnce();
+        injectStyleOnce();
         const panel = document.createElement('div');
         panel.className = 'tsic-panel tsic-panel--screen';
         panel.id = 'ss-panel';
@@ -151,60 +166,17 @@
             playerOwnerId: opts.playerOwnerId || 'Player',
             containerOwnerId: opts.containerInitialOwnerId || null,
             playerTab: 'All',
-            containerTab: 'All',
             playerMaxSlots: opts.playerMaxSlots || 32,
             containerMaxSlots: opts.containerMaxSlots || 32,
-            playerGrid: { w: 8, h: 6 },
-            containerGrid: { w: 8, h: Math.ceil((opts.containerMaxSlots || 32) / 8) },
-            playerMaxWeight: 0,
+            playerGridW: 8,
+            containerGridW: 8,
             playerWeight: 0,
-            containerMaxWeight: 0,
-            containerWeight: 0,
-            // Selection is { cell, it } per side — cells are grid positions.
-            playerSelected: null,
-            containerSelected: null,
+            playerMaxWeight: 0,
+            // Active pane for the >> header marker (last pointer interaction).
+            activePane: 'player',
+            selected: null, // { side, instanceId, cell }
+            hovered: null,  // { side, it }
         };
-
-        function transfer(it, fromOwnerId, toOwnerId, count) {
-            if (!toOwnerId) return;
-            const num = (typeof count === 'number') ? count : (it.Count || 1);
-            tsic.publishMessage('UI.Cmd.Inventory.Transfer', {
-                FromOwnerId: fromOwnerId,
-                ToOwnerId: toOwnerId,
-                FromSlot: it.SlotIndex,
-                ToSlot: -1,
-                Count: num
-            });
-            playTransferSound();
-        }
-
-        // Drag/drop between cells — same pane re-places, cross-pane moves the
-        // whole stack into the release cell.
-        function moveTo(src, toOwnerId, cellIndex) {
-            if (!toOwnerId || src.gridSlot == null || src.gridSlot < 0) return;
-            const fromOwnerId = src.ownerId || state.playerOwnerId;
-            if (fromOwnerId === toOwnerId && src.gridSlot === cellIndex) return;
-            tsic.publishMessage('UI.Cmd.Inventory.Move', {
-                FromOwnerId: fromOwnerId,
-                ToOwnerId: toOwnerId,
-                FromSlot: src.gridSlot,
-                ToSlot: cellIndex,
-            });
-            if (fromOwnerId !== toOwnerId) playTransferSound();
-        }
-
-        function openContextMenuFor(side, it, e) {
-            if (!window.TSICContextMenu || !window.TSICInventory) return;
-            const fromOwnerId = side === 'player' ? state.playerOwnerId : state.containerOwnerId;
-            const toOwnerId   = side === 'player' ? state.containerOwnerId : state.playerOwnerId;
-            const desc = describe(it);
-            const entries = window.TSICInventory.buildItemContextMenu({
-                it, desc,
-                storageOpen: true,
-                fromOwnerId, toOwnerId,
-            });
-            window.TSICContextMenu.open({ x: e.clientX, y: e.clientY, entries });
-        }
 
         const tabDefs = TABS.map(t => ({ id: t.id, label: t.id }));
         const playerTabFilter = TSIC.TabFilter.create(
@@ -212,45 +184,6 @@
             tabDefs,
             function (id) { state.playerTab = id; renderAll(); }
         );
-        const containerTabFilter = TSIC.TabFilter.create(
-            panel.querySelector('.ss-tabs[data-side="container"]'),
-            tabDefs,
-            function (id) { state.containerTab = id; renderAll(); }
-        );
-        function syncTabs() {
-            playerTabFilter.setActive(state.playerTab);
-            containerTabFilter.setActive(state.containerTab);
-        }
-
-        function renderCapacity(side) {
-            const host = panel.querySelector(`.ss-capacity[data-side="${side}"]`);
-            const text = host.querySelector('.ss-capacity-text');
-            const fill = host.querySelector('.ss-capacity-fill');
-            let used, max, weight, maxWeight;
-            if (side === 'player') {
-                used = state.playerItems.length;
-                max  = state.playerMaxSlots;
-                weight = state.playerWeight || totalWeight(state.playerItems);
-                maxWeight = state.playerMaxWeight;
-            } else {
-                used = state.containerItems.length;
-                max  = state.containerMaxSlots;
-                weight = state.containerWeight || totalWeight(state.containerItems);
-                maxWeight = state.containerMaxWeight;
-            }
-            const slotRatio   = max > 0 ? used / max : 0;
-            const weightRatio = maxWeight > 0 ? weight / maxWeight : 0;
-            const ratio = Math.max(slotRatio, weightRatio);
-            const weightStr = maxWeight > 0
-                ? ` · ${weight.toFixed(2)}/${maxWeight.toFixed(2)} kg`
-                : (weight > 0 ? ` · ${weight.toFixed(2)} kg` : '');
-            text.textContent = `${used}/${max} slots${weightStr}`;
-            fill.style.width = `${Math.max(0, Math.min(100, ratio * 100))}%`;
-            host.dataset.state = ratio >= 1.05 ? 'overburdened'
-                               : ratio >= 1.0  ? 'full'
-                               : ratio >= 0.75 ? 'warning'
-                               : 'normal';
-        }
 
         function renderInfo(it) {
             const host = panel.querySelector('#ss-info');
@@ -262,112 +195,104 @@
                 host.textContent = 'Hover an item to see details';
                 return;
             }
-            const head = document.createElement('div');
-            head.style.cssText = 'display:flex;align-items:center;gap:10px;';
-            const icon = document.createElement('div');
-            icon.style.cssText = 'width:42px;height:42px;background:rgba(241,229,207,0.55);border:1px solid var(--tsic-border);display:flex;align-items:center;justify-content:center;flex:0 0 auto;';
-            const img = TSIC.iconImg(TSIC.itemIconUrl(desc.ItemId));
-            img.style.cssText = 'width:100%;height:100%;object-fit:contain;';
-            icon.appendChild(img);
-            head.appendChild(icon);
-            const meta = document.createElement('div');
-            meta.style.cssText = 'flex:1 1 auto;min-width:0;';
-            const name = document.createElement('div');
-            name.style.cssText = 'font-weight:700;font-size:13px;';
-            name.textContent = desc.Name || it.ItemId;
-            const sub = document.createElement('div');
-            sub.style.cssText = 'font-size:11px;color:rgba(37,33,25,0.75);';
-            const parts = [];
-            if (desc.Category) parts.push(desc.Category);
-            if (typeof desc.Weight === 'number') parts.push(`${desc.Weight.toFixed(2)} kg`);
-            if (it.Count > 1) parts.push(`stack ×${it.Count}`);
-            sub.textContent = parts.join(' · ');
-            meta.appendChild(name);
-            meta.appendChild(sub);
-            if (desc.Description) {
-                const body = document.createElement('div');
-                body.style.cssText = 'font-size:11px;color:rgba(37,33,25,0.85);margin-top:2px;';
-                body.textContent = desc.Description;
-                meta.appendChild(body);
-            }
-            head.appendChild(meta);
-            host.appendChild(head);
+            window.TSICInventory.renderInfoPanel(host, Object.assign({ ItemId: it.ItemId }, desc), it);
         }
 
-        // Selection-only update: writes the selected/deselected marker to both
-        // grids without re-rendering either side. Used by click/RMB; the full
-        // rebuild only fires when item data, tab filter, or weight changes.
-        function syncSelectionClasses() {
-            const playerHost    = panel.querySelector('#ss-player-list');
-            const containerHost = panel.querySelector('#ss-container-list');
-            const updater = window.TSICInventory && window.TSICInventory.updateSelectedSlot;
-            if (!updater) { renderAll(); return; }
-            updater(playerHost,    state.playerSelected ? state.playerSelected.cell : null);
-            updater(containerHost, state.containerSelected ? state.containerSelected.cell : null);
+        function renderMeterAndCounts() {
+            const cur = state.playerWeight || 0;
+            const max = state.playerMaxWeight || 0;
+            panel.querySelector('#ss-weight-text').textContent = max > 0
+                ? `${cur.toFixed(1)}/${max.toFixed(0)} kg` : `${cur.toFixed(1)} kg`;
+            const ratio = max > 0 ? Math.min(1, cur / max) : 0;
+            panel.querySelector('#ss-weight-fill').style.width = `${(ratio * 100).toFixed(1)}%`;
+            panel.querySelector('#ss-player-slots').textContent =
+                `${state.playerItems.length}/${state.playerMaxSlots} SLOTS`;
+            panel.querySelector('#ss-container-slots').textContent =
+                `${state.containerItems.length}/${state.containerMaxSlots}`;
+            panel.querySelector('#ss-container-hdr').classList.toggle('on', state.activePane === 'container');
+        }
+
+        function setActivePane(side) {
+            if (state.activePane === side) return;
+            state.activePane = side;
+            renderMeterAndCounts();
         }
 
         function paneOpts(side) {
             const isPlayer = side === 'player';
             const ownerId = isPlayer ? state.playerOwnerId : state.containerOwnerId;
-            const grid    = isPlayer ? state.playerGrid : state.containerGrid;
-            const other   = isPlayer ? state.containerOwnerId : state.playerOwnerId;
+            const otherId = isPlayer ? state.containerOwnerId : state.playerOwnerId;
             return {
                 catalog: (window.tsic && window.tsic.itemCatalog) || {},
-                gridWidth: grid.w,
-                gridHeight: grid.h,
+                gridWidth: isPlayer ? state.playerGridW : state.containerGridW,
+                slotCount: isPlayer ? state.playerMaxSlots : state.containerMaxSlots,
                 ownerId: ownerId || (isPlayer ? 'Player' : ''),
-                selectedGridSlot: (isPlayer ? state.playerSelected : state.containerSelected)?.cell,
-                filterFn: filterFnFor(isPlayer ? state.playerTab : state.containerTab),
-                onHover: (it) => { if (it) renderInfo(it); },
-                onClick: (it, cellIndex) => {
-                    if (isPlayer) {
-                        state.playerSelected = it ? { cell: cellIndex, it } : null;
-                        state.containerSelected = null;
-                    } else {
-                        state.containerSelected = it ? { cell: cellIndex, it } : null;
-                        state.playerSelected = null;
-                    }
-                    syncSelectionClasses();
+                panelEl: panel,
+                selectedGridSlot: (state.selected && state.selected.side === side) ? state.selected.cell : -1,
+                filterFn: isPlayer ? filterFnFor(state.playerTab) : null,
+                onHover: (it) => {
+                    state.hovered = it ? { side, it } : null;
+                    setActivePane(side);
+                    if (it) renderInfo(it);
                 },
-                onDblClick: (it) => {
-                    if (!it) return;
-                    transfer(it, ownerId, other, it.Count || 1);
+                onLeave: () => { state.hovered = null; },
+                onSelect: (it, cellIndex) => {
+                    state.selected = it ? { side, instanceId: it.InstanceId, cell: cellIndex } : null;
+                    setActivePane(side);
+                    const updater = window.TSICInventory.updateSelectedSlot;
+                    updater(panel.querySelector('#ss-player-list'), state.selected && side === 'player' ? cellIndex : null);
+                    updater(panel.querySelector('#ss-container-list'), state.selected && side === 'container' ? cellIndex : null);
+                    if (it) renderInfo(it);
                 },
-                onRMB: (it, cellIndex, e) => {
-                    if (!it) return;
-                    if (isPlayer) {
-                        state.playerSelected = { cell: cellIndex, it };
-                        state.containerSelected = null;
-                    } else {
-                        state.containerSelected = { cell: cellIndex, it };
-                        state.playerSelected = null;
-                    }
-                    syncSelectionClasses();
-                    openContextMenuFor(side, it, e);
+                // Shift-click quick-move: into the OTHER pane, auto-placed
+                // (stack-fill then empty cells), partial allowed (§7.4).
+                onQuickMove: (it) => {
+                    if (!otherId || it.GridSlot == null || it.GridSlot < 0) return;
+                    tsic.publishMessage('UI.Cmd.Inventory.QuickMove', {
+                        FromOwnerId: ownerId, ToOwnerId: otherId,
+                        ItemId: it.InstanceId, FromSlot: it.GridSlot,
+                    });
+                    playTransferSound();
                 },
-                onDrop: (src, cellIndex) => moveTo(src, ownerId, cellIndex),
+                otherOwnerId: () => otherId || '',
             };
         }
 
         function renderAll() {
-            syncTabs();
-            renderCapacity('player');
-            renderCapacity('container');
-            const playerHost    = panel.querySelector('#ss-player-list');
-            const containerHost = panel.querySelector('#ss-container-list');
-            window.TSICInventory.renderGrid(playerHost, state.playerItems, paneOpts('player'));
-            window.TSICInventory.renderGrid(containerHost, state.containerItems, paneOpts('container'));
+            playerTabFilter.setActive(state.playerTab);
+            renderMeterAndCounts();
+            window.TSICInventory.renderGrid(panel.querySelector('#ss-player-list'), state.playerItems, paneOpts('player'));
+            window.TSICInventory.renderGrid(panel.querySelector('#ss-container-list'), state.containerItems, paneOpts('container'));
+            renderHints();
         }
 
+        function renderHints() {
+            const host = panel.querySelector('#ss-hints');
+            host.innerHTML = '';
+            const held = window.TSICInventory.getHeld();
+            if (held) {
+                hintChip(host, ['LMB'], 'Place');
+                hintChip(host, ['RMB'], 'Place one');
+                hintChip(host, ['ESC'], 'Return');
+            } else {
+                hintChip(host, ['LMB'], 'Take');
+                hintChip(host, ['RMB'], 'Split');
+                hintChip(host, ['SHIFT', 'LMB'], 'Quick-move');
+                hintChip(host, ['LMB', 'LMB'], 'Collect');
+                hintChip(host, ['Q'], 'Drop 1');
+            }
+        }
+
+        // Take All: quick-move every container stack into the player grid —
+        // auto-placed with partials allowed; what doesn't fit stays put.
         function takeAll() {
             if (!state.containerOwnerId) return;
             for (const it of state.containerItems) {
-                tsic.publishMessage('UI.Cmd.Inventory.Transfer', {
+                if (it.GridSlot == null || it.GridSlot < 0) continue;
+                tsic.publishMessage('UI.Cmd.Inventory.QuickMove', {
                     FromOwnerId: state.containerOwnerId,
-                    ToOwnerId:   state.playerOwnerId,
-                    FromSlot:    it.SlotIndex,
-                    ToSlot:      -1,
-                    Count:       it.Count || 1,
+                    ToOwnerId: state.playerOwnerId,
+                    ItemId: it.InstanceId, FromSlot: it.GridSlot,
                 });
             }
             if (state.containerItems.length > 0) playTransferSound();
@@ -379,25 +304,21 @@
                 ? opts.containerOwnerIdMatch(p.OwnerId)
                 : false;
             if (isContainer) {
-                state.containerOwnerId  = p.OwnerId;
-                state.containerItems    = p.Items || [];
+                state.containerOwnerId = p.OwnerId;
+                state.containerItems = p.Items || [];
                 state.containerMaxSlots = p.MaxSlots || state.containerMaxSlots;
-                state.containerWeight   = typeof p.CurrentWeight === 'number' ? p.CurrentWeight : 0;
-                state.containerMaxWeight = typeof p.MaxWeight === 'number' ? p.MaxWeight : 0;
-                if (p.GridWidth > 0 && p.GridHeight > 0) {
-                    state.containerGrid = { w: p.GridWidth, h: p.GridHeight };
-                }
+                if (p.GridWidth > 0) state.containerGridW = p.GridWidth;
             } else if (p.OwnerId === state.playerOwnerId) {
-                state.playerItems    = p.Items || [];
+                state.playerItems = p.Items || [];
                 state.playerMaxSlots = p.MaxSlots || state.playerMaxSlots;
-                state.playerWeight   = typeof p.CurrentWeight === 'number' ? p.CurrentWeight : 0;
+                state.playerWeight = typeof p.CurrentWeight === 'number' ? p.CurrentWeight : 0;
                 state.playerMaxWeight = typeof p.MaxWeight === 'number' ? p.MaxWeight : 0;
-                if (p.GridWidth > 0 && p.GridHeight > 0) {
-                    state.playerGrid = { w: p.GridWidth, h: p.GridHeight };
-                }
+                if (p.GridWidth > 0) state.playerGridW = p.GridWidth;
             } else {
                 return;
             }
+            // Rule 40: keep the held ghost only while its source still matches.
+            if (window.TSICInventory) window.TSICInventory.reconcileHeld(p.OwnerId, p.Items);
             renderAll();
         }
 
@@ -405,40 +326,53 @@
         window.addEventListener('tsic-item-catalog', renderAll);
 
         panel.querySelector('#ss-close').addEventListener('click', () => {
+            window.TSICInventory.cancelHeld();
             tsic.publishMessage('UI.Cmd.Pause.Resume', {});
         });
-        // The currently-selected item + its transfer direction (player<->container).
-        function selectedTransfer() {
-            if (state.playerSelected && state.playerSelected.it) {
-                return { it: state.playerSelected.it, from: state.playerOwnerId, to: state.containerOwnerId };
-            }
-            if (state.containerSelected && state.containerSelected.it) {
-                return { it: state.containerSelected.it, from: state.containerOwnerId, to: state.playerOwnerId };
-            }
-            return null;
-        }
-
         panel.querySelector('#ss-take-all').addEventListener('click', takeAll);
         // BH_TakeAll — same effect as the button.
         tsic.on('tsic.msg.UI.Behavior.TakeAll', (e) => {
             if (e && e.Phase === 'Started') takeAll();
         });
-        // BH_TransferAmount — open the quantity slider for the selected item, then transfer.
-        tsic.on('tsic.msg.UI.Behavior.TransferAmount', (e) => {
-            if (!e || e.Phase !== 'Started') return;
-            const sel = selectedTransfer();
-            if (!sel || !sel.to) return;
-            const max = sel.it.Count || 1;
-            if (max > 1 && window.TSICInventory && window.TSICInventory.openQuantityModal) {
-                window.TSICInventory.openQuantityModal(max,
-                    (count) => transfer(sel.it, sel.from, sel.to, count),
-                    { title: 'Transfer amount', confirmLabel: 'Transfer' });
-            } else {
-                transfer(sel.it, sel.from, sel.to, 1);
-            }
+        // Gamepad grid actions (§8.2) on the focused cell.
+        tsic.on('tsic.msg.UI.Behavior.InvSplit', (e) => {
+            if (e && e.Phase === 'Started') { window.TSICInventory.behaviorOnFocused('split'); renderHints(); }
         });
+        tsic.on('tsic.msg.UI.Behavior.InvQuickMove', (e) => {
+            if (e && e.Phase === 'Started') window.TSICInventory.behaviorOnFocused('quickmove');
+        });
+        tsic.on('tsic.msg.UI.Behavior.InvDrop', (e) => {
+            if (e && e.Phase === 'Started') window.TSICInventory.behaviorOnFocused('drop');
+        });
+
+        // Click outside the panel while holding: drop at the pawn (rule 31).
+        document.addEventListener('pointerdown', (e) => {
+            if (window.TSICInventory.handleBackgroundClick(e)) {
+                e.stopPropagation();
+                e.preventDefault();
+            }
+            renderHints();
+        });
+        document.addEventListener('contextmenu', (e) => {
+            if (window.TSICInventory.getHeld()) e.preventDefault();
+        });
+
+        // Keyboard (hover-based, §7.3).
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') panel.querySelector('#ss-close').click();
+            if (e.key === 'Escape') {
+                if (window.TSICInventory.getHeld()) {
+                    window.TSICInventory.cancelHeld();
+                    renderHints();
+                    return;
+                }
+                panel.querySelector('#ss-close').click();
+                return;
+            }
+            const hovered = state.hovered;
+            if ((e.key === 'q' || e.key === 'Q') && hovered && hovered.it && !window.TSICInventory.getHeld()) {
+                const ownerId = hovered.side === 'player' ? state.playerOwnerId : state.containerOwnerId;
+                window.TSICInventory.dropHovered({ ownerId }, hovered.it, e.ctrlKey);
+            }
         });
 
         renderAll();

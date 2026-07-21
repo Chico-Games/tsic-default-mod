@@ -15,7 +15,7 @@
 const FOCUS_SCREENS = [
     'main-menu','new-store','credits','pause-menu','settings','save-load',
     'universal-storage-setup','boss-summoner','construction',
-    'teleporter','cage','selection','bug-report','quantity-picker',
+    'teleporter','cage','selection','bug-report',
 ];
 
 for (const sname of FOCUS_SCREENS) {

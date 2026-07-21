@@ -9,6 +9,7 @@
     "display_name": "Sewing Machine",
     "description": "A sturdy sewing machine for processing fabric. Turns scrap fabric into processed fabric suitable for clothing and equipment.",
     "stackable": true,
-    "weight": 0.10000000149011612
+    "weight": 0.10000000149011612,
+    "max_stack_size": 20
   }
 }

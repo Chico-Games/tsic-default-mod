@@ -1,202 +1,268 @@
-// Unit tests for shared/inventory.js (window.TSICInventory namespace).
+// Unit tests for shared/inventory.js — grid renderer v2 + the Minecraft-style
+// cursor ("held stack") engine. Covers §9: 1-3 (half pickup / place-one), 11
+// (no-op moves never sent), 40 (mid-gesture reconcile), §14.5 cursor-model
+// publishes. The deleted context menu / quantity modal must STAY deleted.
+
+function cellAt(ctx, grid) {
+    return ctx.doc.querySelector('#host .tsic-slot[data-grid="' + grid + '"]');
+}
+function renderHost(ctx, items, extra) {
+    const host = ctx.doc.getElementById('host');
+    host.innerHTML = '';
+    ctx.win.TSICInventory.cancelHeld();
+    ctx.win.TSICInventory.renderGrid(host, items, Object.assign({
+        gridWidth: 4, slotCount: 8, ownerId: 'Player',
+    }, extra || {}));
+    return host;
+}
+function click(ctx, el, opts) {
+    el.dispatchEvent(new ctx.win.MouseEvent('click', Object.assign({ bubbles: true, cancelable: true }, opts || {})));
+}
+function rmb(ctx, el) {
+    el.dispatchEvent(new ctx.win.MouseEvent('contextmenu', { bubbles: true, cancelable: true, button: 2 }));
+}
+
 TSICTestHarness.register({
-    name: 'Unit/InventoryJs: TSICInventory namespace is installed',
+    name: 'Unit/InventoryJs: TSICInventory v2 namespace — cursor engine installed, legacy widgets gone',
     file: '/screens/test-fixtures.html',
     async run(ctx) {
-        ctx.expect(ctx.assert.truthy(ctx.win.TSICInventory, 'expected window.TSICInventory'));
-        ctx.expect(ctx.assert.truthy(typeof ctx.win.TSICInventory.renderGrid === 'function'));
-        ctx.expect(ctx.assert.truthy(typeof ctx.win.TSICInventory.renderInfoPanel === 'function'));
-        ctx.expect(ctx.assert.truthy(typeof ctx.win.TSICInventory.openQuantityModal === 'function'));
-        ctx.expect(ctx.assert.truthy(typeof ctx.win.TSICInventory.openHotbarSlotModal === 'function'));
+        const inv = ctx.win.TSICInventory;
+        ctx.expect(ctx.assert.truthy(inv, 'expected window.TSICInventory'));
+        ctx.expect(ctx.assert.truthy(typeof inv.renderGrid === 'function'));
+        ctx.expect(ctx.assert.truthy(typeof inv.renderInfoPanel === 'function'));
+        ctx.expect(ctx.assert.truthy(typeof inv.cancelHeld === 'function'));
+        ctx.expect(ctx.assert.truthy(typeof inv.reconcileHeld === 'function'));
+        // §7.6: no context menu, no quantity modal, no armed-move path.
+        ctx.expect(ctx.assert.eq(typeof inv.openQuantityModal, 'undefined', 'quantity modal deleted'));
+        ctx.expect(ctx.assert.eq(typeof inv.buildItemContextMenu, 'undefined', 'context menu deleted'));
+        ctx.expect(ctx.assert.eq(typeof inv.armMove, 'undefined', 'armMove deleted'));
+        ctx.expect(ctx.assert.eq(typeof ctx.win.TSICContextMenu, 'undefined', 'context-menu module deleted'));
     },
 });
 
 TSICTestHarness.register({
-    name: 'Unit/InventoryJs: renderGrid lays out N slots and places items by SlotIndex',
+    name: 'Unit/InventoryJs: renderGrid lays out slotCount cells and places items by GridSlot',
     file: '/screens/test-fixtures.html',
     async run(ctx) {
-        const host = ctx.doc.getElementById('host');
-        host.innerHTML = '';
-        ctx.win.TSICInventory.renderGrid(host, [
-            { ItemId: 'ID_A', Count: 2, SlotIndex: 0 },
-            { ItemId: 'ID_B', Count: 7, SlotIndex: 5 },
-        ], { maxSlots: 8 });
+        renderHost(ctx, [
+            { ItemId: 'ID_A', Count: 2, InstanceId: 1, GridSlot: 0 },
+            { ItemId: 'ID_B', Count: 7, InstanceId: 2, GridSlot: 5 },
+        ]);
         ctx.expect(ctx.assert.domCount(ctx.doc, '#host .tsic-slot', 8));
-        // Counts appear when Count > 1
-        const counts = ctx.doc.querySelectorAll('#host .count');
-        ctx.expect(ctx.assert.eq(counts.length, 2));
+        ctx.expect(ctx.assert.domExists(ctx.doc, '#host .tsic-slot[data-grid="0"][data-instance="1"] img'));
+        ctx.expect(ctx.assert.domExists(ctx.doc, '#host .tsic-slot[data-grid="5"][data-instance="2"]'));
+        ctx.expect(ctx.assert.eq(ctx.doc.querySelectorAll('#host .count').length, 2));
     },
 });
 
 TSICTestHarness.register({
-    name: 'Unit/InventoryJs: renderGrid grows overflow rows for cells past the nominal grid',
+    name: 'Unit/InventoryJs: locked preview cells render greyed and are never targets',
     file: '/screens/test-fixtures.html',
     async run(ctx) {
-        const host = ctx.doc.getElementById('host');
-        host.innerHTML = '';
-        ctx.win.TSICInventory.renderGrid(host, [
-            { ItemId: 'ID_A', Count: 1, SlotIndex: 0, GridSlot: 0 },
-            { ItemId: 'ID_B', Count: 1, SlotIndex: 1, GridSlot: 9 },
-        ], { gridWidth: 4, gridHeight: 2 });
-        // Base 8 cells grow by whole rows to cover cell 9 → 12 cells.
+        renderHost(ctx, [], { slotCount: 8, lockedPreviewCells: 4 });
         ctx.expect(ctx.assert.domCount(ctx.doc, '#host .tsic-slot', 12));
-        ctx.expect(ctx.assert.domExists(ctx.doc, '#host .tsic-slot[data-grid="9"][data-slot="1"]'));
+        ctx.expect(ctx.assert.domCount(ctx.doc, '#host .tsic-slot.is-locked', 4));
+        // Locked cells are not focusable and carry the hover explanation.
+        const locked = cellAt(ctx, 8);
+        ctx.expect(ctx.assert.eq(locked.hasAttribute('data-tsic-focusable'), false));
+        ctx.expect(ctx.assert.eq(locked.title, 'Requires backpack'));
     },
 });
 
 TSICTestHarness.register({
-    name: 'Unit/InventoryJs: renderGrid appends an empty row when every cell is occupied',
+    name: 'Unit/InventoryJs: parked overflow items extend the grid by whole rows',
     file: '/screens/test-fixtures.html',
     async run(ctx) {
-        const host = ctx.doc.getElementById('host');
-        host.innerHTML = '';
-        const items = [];
-        for (let i = 0; i < 8; i++) items.push({ ItemId: 'ID_' + i, Count: 1, SlotIndex: i, GridSlot: i });
-        ctx.win.TSICInventory.renderGrid(host, items, { gridWidth: 4, gridHeight: 2 });
-        // Full 8-cell grid → one extra empty row so there is somewhere to drag.
+        renderHost(ctx, [
+            { ItemId: 'ID_A', Count: 1, InstanceId: 1, GridSlot: 9 }, // past slotCount 8
+        ]);
+        // Cell 9 needs row 3 → 12 cells (4 wide).
         ctx.expect(ctx.assert.domCount(ctx.doc, '#host .tsic-slot', 12));
-        ctx.expect(ctx.assert.eq(ctx.doc.querySelectorAll('#host .tsic-slot[data-slot]').length, 8));
+        ctx.expect(ctx.assert.domExists(ctx.doc, '#host .tsic-slot[data-grid="9"][data-instance="1"]'));
     },
 });
 
 TSICTestHarness.register({
-    name: 'Unit/InventoryJs: onHover / onClick / onRMB callbacks fire',
-    file: '/screens/test-fixtures.html',
-    async run(ctx) {
-        const host = ctx.doc.getElementById('host');
-        host.innerHTML = '';
-        let hovered = null, clicked = null, rmb = null;
-        ctx.win.TSICInventory.renderGrid(host, [{ ItemId: 'ID_X', Count: 1, SlotIndex: 0 }], {
-            maxSlots: 4,
-            onHover: (it) => { hovered = it; },
-            onClick: (it) => { clicked = it; },
-            onRMB:   (it) => { rmb = it; },
-        });
-        const slot = ctx.doc.querySelector('#host .tsic-slot[data-slot="0"]');
-        slot.dispatchEvent(new ctx.win.MouseEvent('mouseenter', { bubbles: true }));
-        slot.click();
-        slot.dispatchEvent(new ctx.win.MouseEvent('contextmenu', { bubbles: true, cancelable: true }));
-        ctx.expect(ctx.assert.eq(hovered && hovered.ItemId, 'ID_X'));
-        ctx.expect(ctx.assert.eq(clicked && clicked.ItemId, 'ID_X'));
-        ctx.expect(ctx.assert.eq(rmb && rmb.ItemId, 'ID_X'));
-    },
-});
-
-TSICTestHarness.register({
-    name: 'Unit/InventoryJs: openHotbarSlotModal renders 10 buttons + Esc dismisses without picking',
-    file: '/screens/test-fixtures.html',
-    async run(ctx) {
-        let picked = null;
-        ctx.win.TSICInventory.openHotbarSlotModal('ID_X', (slotIndex) => { picked = slotIndex; });
-        // Modal renders 10 buttons in an overlay.
-        const buttons = ctx.doc.querySelectorAll('body > div button.tsic-button');
-        ctx.expect(ctx.assert.eq(buttons.length, 10));
-        // Esc dismisses
-        ctx.win.dispatchEvent(new ctx.win.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
-        await new Promise(r => setTimeout(r, 30));
-        ctx.expect(ctx.assert.eq(picked, null));
-        ctx.expect(ctx.assert.eq(ctx.doc.querySelectorAll('body > div button.tsic-button').length, 0));
-    },
-});
-
-TSICTestHarness.register({
-    name: 'Unit/InventoryJs: openHotbarSlotModal accepts 0-9 keypress',
-    file: '/screens/test-fixtures.html',
-    async run(ctx) {
-        let picked = null;
-        ctx.win.TSICInventory.openHotbarSlotModal('ID_X', (slotIndex) => { picked = slotIndex; });
-        ctx.win.dispatchEvent(new ctx.win.KeyboardEvent('keydown', { key: '0', bubbles: true }));
-        await new Promise(r => setTimeout(r, 30));
-        ctx.expect(ctx.assert.eq(picked, 9));
-    },
-});
-
-TSICTestHarness.register({
-    name: 'Unit/InventoryJs: openQuantityModal slider + Drop calls onConfirm',
-    file: '/screens/test-fixtures.html',
-    async run(ctx) {
-        let count = null;
-        ctx.win.TSICInventory.openQuantityModal(5, (n) => { count = n; });
-        const slider = ctx.doc.querySelector('input[type="range"]');
-        slider.value = '3';
-        slider.dispatchEvent(new ctx.win.Event('input', { bubbles: true }));
-        const ok = Array.from(ctx.doc.querySelectorAll('button')).find(b => /drop/i.test(b.textContent || ''));
-        ok && ok.click();
-        ctx.expect(ctx.assert.eq(count, 3));
-    },
-});
-
-TSICTestHarness.register({
-    name: 'Unit/InventoryJs: openQuantityModal honors opts.initial and clamps it',
-    file: '/screens/test-fixtures.html',
-    async run(ctx) {
-        ctx.win.TSICInventory.openQuantityModal(9, () => {}, { initial: 4 });
-        let slider = ctx.doc.querySelector('input[type="range"]');
-        ctx.expect(ctx.assert.eq(slider.value, '4'));
-        Array.from(ctx.doc.querySelectorAll('button')).find(b => /cancel/i.test(b.textContent || '')).click();
-        // Out-of-range initial clamps to the max.
-        ctx.win.TSICInventory.openQuantityModal(3, () => {}, { initial: 99 });
-        slider = ctx.doc.querySelector('input[type="range"]');
-        ctx.expect(ctx.assert.eq(slider.value, '3'));
-        Array.from(ctx.doc.querySelectorAll('button')).find(b => /cancel/i.test(b.textContent || '')).click();
-    },
-});
-
-TSICTestHarness.register({
-    name: 'Unit/InventoryJs: context menu on a stack offers Split…, Drop, and Drop X…',
-    file: '/screens/test-fixtures.html',
-    async run(ctx) {
-        const entries = ctx.win.TSICInventory.buildItemContextMenu({
-            it: { ItemId: 'ID_W', InstanceId: 4, SlotIndex: 0, Count: 6, GridSlot: 2 },
-            desc: { Name: 'Wood', Category: 'CraftingMaterial' },
-        });
-        const labels = entries.map(e => e.label);
-        ctx.expect(ctx.assert.eq(labels.includes('Split…'), true, 'Split entry on a stack'));
-        ctx.expect(ctx.assert.eq(labels.includes('Drop'), true, 'whole-stack Drop entry'));
-        ctx.expect(ctx.assert.eq(labels.includes('Drop X…'), true, 'amount-picker Drop X entry'));
-
-        const single = ctx.win.TSICInventory.buildItemContextMenu({
-            it: { ItemId: 'ID_W', InstanceId: 5, SlotIndex: 1, Count: 1, GridSlot: 3 },
-            desc: { Name: 'Wood', Category: 'CraftingMaterial' },
-        }).map(e => e.label);
-        ctx.expect(ctx.assert.eq(single.includes('Split…'), false, 'no Split on a single item'));
-        ctx.expect(ctx.assert.eq(single.includes('Drop'), true, 'Drop still offered'));
-        ctx.expect(ctx.assert.eq(single.includes('Drop X…'), false, 'no Drop X on a single item'));
-    },
-});
-
-TSICTestHarness.register({
-    name: 'Unit/InventoryJs: Drop entry publishes a whole-stack Drop (Count 0)',
+    name: 'Unit/InventoryJs: LMB click picks up the whole stack; same-cell click returns it',
     file: '/screens/test-fixtures.html',
     async run(ctx) {
         ctx.clearPublishes();
-        const entries = ctx.win.TSICInventory.buildItemContextMenu({
-            it: { ItemId: 'ID_W', InstanceId: 4, SlotIndex: 7, Count: 6, GridSlot: 2 },
-            desc: { Name: 'Wood', Category: 'CraftingMaterial' },
-        });
-        entries.find(e => e.label === 'Drop').onClick();
-        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Inventory.Drop',
-            { where: p => p.SlotIndex === 7 && p.Count === 0 }));
+        renderHost(ctx, [{ ItemId: 'ID_A', Count: 6, InstanceId: 1, GridSlot: 2 }]);
+        click(ctx, cellAt(ctx, 2));
+        const held = ctx.win.TSICInventory.getHeld();
+        ctx.expect(ctx.assert.truthy(held, 'stack held after click'));
+        ctx.expect(ctx.assert.eq(held.count, 6));
+        ctx.expect(ctx.assert.eq(held.fromSlot, 2));
+        ctx.expect(ctx.assert.truthy(ctx.doc.querySelector('.tsic-drag-ghost'), 'ghost follows the cursor'));
+        // Rule 11: releasing over the source cancels — nothing is ever sent.
+        click(ctx, cellAt(ctx, 2));
+        ctx.expect(ctx.assert.eq(ctx.win.TSICInventory.getHeld(), null, 'same-cell click returns the stack'));
+        ctx.expect(ctx.assert.notPublished(ctx.handle, 'UI.Cmd.Inventory.Move'));
     },
 });
 
 TSICTestHarness.register({
-    name: 'Unit/InventoryJs: Split… modal maxes at Count-1 and publishes UI.Cmd.Inventory.Split',
+    name: 'Unit/InventoryJs: click-move-click commits ONE atomic id+slot-addressed Move',
     file: '/screens/test-fixtures.html',
     async run(ctx) {
         ctx.clearPublishes();
-        const entries = ctx.win.TSICInventory.buildItemContextMenu({
-            it: { ItemId: 'ID_W', InstanceId: 4, SlotIndex: 0, Count: 6, GridSlot: 2 },
-            desc: { Name: 'Wood', Category: 'CraftingMaterial' },
+        renderHost(ctx, [{ ItemId: 'ID_A', Count: 6, InstanceId: 7, GridSlot: 0 }]);
+        click(ctx, cellAt(ctx, 0));
+        click(ctx, cellAt(ctx, 3));
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Inventory.Move', {
+            where: p => p.ItemId === 7 && p.FromSlot === 0 && p.ToSlot === 3 &&
+                p.Count === 0 && p.FromOwnerId === 'Player' && p.ToOwnerId === 'Player',
+        }));
+        ctx.expect(ctx.assert.eq(ctx.win.TSICInventory.getHeld(), null, 'gesture completed'));
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Unit/InventoryJs: RMB picks up the larger half (7 -> hold 4, leave 3)',
+    file: '/screens/test-fixtures.html',
+    async run(ctx) {
+        renderHost(ctx, [{ ItemId: 'ID_A', Count: 7, InstanceId: 1, GridSlot: 0 }]);
+        rmb(ctx, cellAt(ctx, 0));
+        const held = ctx.win.TSICInventory.getHeld();
+        ctx.expect(ctx.assert.truthy(held, 'half-stack held'));
+        ctx.expect(ctx.assert.eq(held.count, 4, 'larger half held (rule 1)'));
+        ctx.expect(ctx.assert.eq(held.sourceCount, 7));
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Unit/InventoryJs: RMB with a held stack places ONE per click and decrements the ghost',
+    file: '/screens/test-fixtures.html',
+    async run(ctx) {
+        ctx.clearPublishes();
+        renderHost(ctx, [{ ItemId: 'ID_A', Count: 5, InstanceId: 1, GridSlot: 0 }]);
+        click(ctx, cellAt(ctx, 0)); // hold all 5
+        rmb(ctx, cellAt(ctx, 2));   // place one
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Inventory.Move', {
+            where: p => p.ItemId === 1 && p.ToSlot === 2 && p.Count === 1,
+        }));
+        const held = ctx.win.TSICInventory.getHeld();
+        ctx.expect(ctx.assert.truthy(held, 'still holding the remainder'));
+        ctx.expect(ctx.assert.eq(held.count, 4, 'held count decremented'));
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Unit/InventoryJs: partial hold commits with its exact count (split semantics)',
+    file: '/screens/test-fixtures.html',
+    async run(ctx) {
+        ctx.clearPublishes();
+        renderHost(ctx, [{ ItemId: 'ID_A', Count: 7, InstanceId: 1, GridSlot: 0 }]);
+        rmb(ctx, cellAt(ctx, 0));  // hold 4 of 7
+        click(ctx, cellAt(ctx, 3));
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Inventory.Move', {
+            where: p => p.ItemId === 1 && p.FromSlot === 0 && p.ToSlot === 3 && p.Count === 4,
+        }));
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Unit/InventoryJs: shift-click routes to the pane quick-move handler',
+    file: '/screens/test-fixtures.html',
+    async run(ctx) {
+        let quick = null;
+        renderHost(ctx, [{ ItemId: 'ID_A', Count: 3, InstanceId: 1, GridSlot: 1 }], {
+            onQuickMove: (it) => { quick = it; },
         });
-        entries.find(e => e.label === 'Split…').onClick();
-        const slider = ctx.doc.querySelector('input[type="range"]');
-        ctx.expect(ctx.assert.truthy(slider, 'quantity modal opened'));
-        ctx.expect(ctx.assert.eq(slider.max, '5'));
-        ctx.expect(ctx.assert.eq(slider.value, '3'));
-        const ok = Array.from(ctx.doc.querySelectorAll('button')).find(b => /^split$/i.test((b.textContent || '').trim()));
-        ok && ok.click();
-        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Inventory.Split',
-            { where: p => p.FromSlot === 2 && p.ToSlot === -1 && p.Count === 3 }));
+        click(ctx, cellAt(ctx, 1), { shiftKey: true });
+        ctx.expect(ctx.assert.eq(quick && quick.InstanceId, 1, 'quick-move fired'));
+        ctx.expect(ctx.assert.eq(ctx.win.TSICInventory.getHeld(), null, 'shift-click never holds'));
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Unit/InventoryJs: double-click publishes Collect for the held full stack',
+    file: '/screens/test-fixtures.html',
+    async run(ctx) {
+        ctx.clearPublishes();
+        renderHost(ctx, [{ ItemId: 'ID_A', Count: 3, InstanceId: 9, GridSlot: 1 }], {
+            otherOwnerId: () => 'Storage:5',
+        });
+        const cell = cellAt(ctx, 1);
+        click(ctx, cell); // first click of the double-click picks up
+        cell.dispatchEvent(new ctx.win.MouseEvent('dblclick', { bubbles: true }));
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Inventory.Collect', {
+            where: p => p.ItemId === 9 && p.Slot === 1 && p.OwnerId === 'Player' && p.OtherOwnerId === 'Storage:5',
+        }));
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Unit/InventoryJs: dropHovered publishes DropFromSlot (Q = one, Ctrl+Q = stack)',
+    file: '/screens/test-fixtures.html',
+    async run(ctx) {
+        ctx.clearPublishes();
+        const item = { ItemId: 'ID_A', Count: 5, InstanceId: 3, GridSlot: 2 };
+        ctx.win.TSICInventory.dropHovered({ ownerId: 'Player' }, item, false);
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Inventory.DropFromSlot', {
+            where: p => p.ItemId === 3 && p.Slot === 2 && p.Count === 1,
+        }));
+        ctx.clearPublishes();
+        ctx.win.TSICInventory.dropHovered({ ownerId: 'Storage:4' }, item, true);
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Inventory.DropFromSlot', {
+            where: p => p.OwnerId === 'Storage:4' && p.Count === 0,
+        }));
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Unit/InventoryJs: reconcileHeld keeps a matching gesture, cancels a stale one (rule 40)',
+    file: '/screens/test-fixtures.html',
+    async run(ctx) {
+        renderHost(ctx, [{ ItemId: 'ID_A', Count: 6, InstanceId: 1, GridSlot: 2 }]);
+        click(ctx, cellAt(ctx, 2)); // hold all 6
+        // Matching broadcast (co-op partner added elsewhere): ghost survives,
+        // full-stack hold tracks the entry's count.
+        ctx.win.TSICInventory.reconcileHeld('Player', [
+            { ItemId: 'ID_A', Count: 8, InstanceId: 1, GridSlot: 2 },
+        ]);
+        let held = ctx.win.TSICInventory.getHeld();
+        ctx.expect(ctx.assert.truthy(held, 'ghost preserved'));
+        ctx.expect(ctx.assert.eq(held.count, 8, 'full-stack hold tracks the new count'));
+        // The source entry moved cells — the gesture dissolves.
+        ctx.win.TSICInventory.reconcileHeld('Player', [
+            { ItemId: 'ID_A', Count: 8, InstanceId: 1, GridSlot: 5 },
+        ]);
+        ctx.expect(ctx.assert.eq(ctx.win.TSICInventory.getHeld(), null, 'stale gesture cancelled'));
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Unit/InventoryJs: cross-pane commit publishes Move with both owner ids',
+    file: '/screens/test-fixtures.html',
+    async run(ctx) {
+        ctx.clearPublishes();
+        const host = renderHost(ctx, [{ ItemId: 'ID_A', Count: 2, InstanceId: 1, GridSlot: 0 }]);
+        // Second pane in the same fixture doc.
+        const host2 = ctx.doc.createElement('div');
+        host2.id = 'host2';
+        ctx.doc.body.appendChild(host2);
+        ctx.win.TSICInventory.renderGrid(host2, [], { gridWidth: 4, slotCount: 4, ownerId: 'Storage:9' });
+        click(ctx, host.querySelector('.tsic-slot[data-grid="0"]'));
+        click(ctx, host2.querySelector('.tsic-slot[data-grid="1"]'));
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Inventory.Move', {
+            where: p => p.FromOwnerId === 'Player' && p.ToOwnerId === 'Storage:9' &&
+                p.ItemId === 1 && p.ToSlot === 1,
+        }));
+        host2.remove();
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Unit/InventoryJs: held source cell dims and shows the remaining count',
+    file: '/screens/test-fixtures.html',
+    async run(ctx) {
+        renderHost(ctx, [{ ItemId: 'ID_A', Count: 7, InstanceId: 1, GridSlot: 0 }]);
+        rmb(ctx, cellAt(ctx, 0)); // hold 4, leave 3
+        const cell = cellAt(ctx, 0);
+        ctx.expect(ctx.assert.truthy(cell.classList.contains('is-held-source'), 'source dimmed'));
+        ctx.expect(ctx.assert.eq(cell.querySelector('.count').textContent, '3', 'badge shows the remainder'));
+        ctx.win.TSICInventory.cancelHeld();
+        ctx.expect(ctx.assert.eq(cell.classList.contains('is-held-source'), false, 'restored on cancel'));
     },
 });

@@ -72,7 +72,6 @@
     Equipment: 'equipment',
     Wardrobe: 'wardrobe',
     Hotbar: 'hotbar',
-    QuantityPicker: 'quantity-picker',
     Ping: 'ping',
     Detection: 'detection',
     Stomach: 'stomach',

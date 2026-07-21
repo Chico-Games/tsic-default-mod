@@ -148,22 +148,23 @@ TSICTestHarness.register({
     file: '/screens/inventory.html',
     async run(ctx) {
         ctx.setItemCatalog({ ID_Wheat: { Name: 'Wheat', Category: 'CraftingMaterial' }, ID_Bread: { Name: 'Bread', Category: 'Consumable' } });
-        // Pre-craft: 5 wheat at slot 0.
+        ctx.screen('Inventory');
+        // Pre-craft: 5 wheat in cell 0.
         ctx.inject('tsic.msg.UI.Inventory.Updated', {
-            OwnerId: 'Player', Items: [{ ItemId: 'ID_Wheat', Count: 5, SlotIndex: 0 }], MaxSlots: 32,
+            OwnerId: 'Player', GridWidth: 8,
+            Items: [{ ItemId: 'ID_Wheat', Count: 5, InstanceId: 1, GridSlot: 0 }], MaxSlots: 32,
         });
-        await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid .tsic-slot[data-slot="0"]'));
+        await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid .tsic-slot[data-instance="1"]'));
         // Server processes craft (2 wheat → 1 bread).
         ctx.inject('tsic.msg.UI.Inventory.Updated', {
-            OwnerId: 'Player', Items: [
-                { ItemId: 'ID_Wheat', Count: 3, SlotIndex: 0 },
-                { ItemId: 'ID_Bread', Count: 1, SlotIndex: 1 },
+            OwnerId: 'Player', GridWidth: 8, Items: [
+                { ItemId: 'ID_Wheat', Count: 3, InstanceId: 1, GridSlot: 0 },
+                { ItemId: 'ID_Bread', Count: 1, InstanceId: 2, GridSlot: 1 },
             ], MaxSlots: 32,
         });
-        await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid .tsic-slot[data-slot="1"]'));
-        // Both rows present, count text reflects new state.
-        ctx.expect(ctx.assert.domCount(ctx.doc, '#inv-grid .tsic-slot[data-slot]', 2));
-        const wheatCell = ctx.doc.querySelector('#inv-grid .tsic-slot[data-slot="0"] .count');
+        await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid .tsic-slot[data-instance="2"]'));
+        ctx.expect(ctx.assert.domCount(ctx.doc, '#inv-grid .tsic-slot[data-instance]', 2));
+        const wheatCell = ctx.doc.querySelector('#inv-grid .tsic-slot[data-instance="1"] .count');
         ctx.expect(ctx.assert.truthy(wheatCell && wheatCell.textContent === '3',
             `expected count badge 3 on the wheat cell, got: ${wheatCell && wheatCell.textContent}`));
     },

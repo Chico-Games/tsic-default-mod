@@ -6,9 +6,6 @@
     "category": "Interaction",
     "keyboard_key": {
       "key_name": "R"
-    },
-    "gamepad_key": {
-      "key_name": "Gamepad_FaceButton_Left"
     }
   }
 }

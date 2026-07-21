@@ -10,6 +10,7 @@
     "description": "A store shelving unit for storage.",
     "stackable": true,
     "weight": 0.10000000149011612,
-    "static_item_definition": "FD_TVShelf_SI"
+    "static_item_definition": "FD_TVShelf_SI",
+    "max_stack_size": 20
   }
 }
