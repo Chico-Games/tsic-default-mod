@@ -867,7 +867,8 @@
     "weighted_chance": 1000,
     "world_gen_priority": 1000,
     "gameplay_tags": [
-      "Layout.Type.Half",
+      "Entity.RandomGeneration.Size.Medium",
+      "Layout.Type.Quarter",
       "Tile.Biome.SCPBase"
     ]
   }

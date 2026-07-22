@@ -354,6 +354,19 @@
         return (typeof col === 'string' && col.length >= 4) ? col : null;
       }
 
+      // Fill colour for a landmark marker: the same MapColor its POI pixels use
+      // on the map texture. Landmark labels and the TileGrid palette names both
+      // derive from the biome's DisplayName, so match by name first; fall back
+      // to sampling the tile under the icon (the icon sits on its POI cluster).
+      function landmarkColor(ic, wx, wy) {
+        if (tileGrid && Array.isArray(tileGrid.palette) && Array.isArray(tileGrid.colors)) {
+          const idx = tileGrid.palette.indexOf(String(ic.Label || ''));
+          const col = idx >= 0 ? tileGrid.colors[idx] : null;
+          if (typeof col === 'string' && col.length >= 4) return col;
+        }
+        return biomeColorAt(wx, wy);
+      }
+
       // Fog gate for markers: hide icons over unexplored fog, mirroring the hover
       // panel. Fail-open when there's no fog data or the fog overlay is hidden.
       function iconVisibleInFog(wx, wy) {
@@ -460,8 +473,31 @@
       }
 
       const CLUSTER_SCREEN_PX = 32;
+      // Clustering is per POI type: only markers that share a category (and,
+      // for landmarks, the same POI label) merge into one group marker, so the
+      // group can honestly wear its members' shape and colour.
+      function iconTypeKey(ic) {
+        const c = (ic.Category || '').toLowerCase();
+        return c === 'landmark' ? c + '|' + String(ic.Label || '') : c;
+      }
       function clusterIcons(icons) {
         if (state.scale >= 0.5) return { clusters: [], singletons: icons || [] };
+        const byType = new Map();
+        for (const ic of icons || []) {
+          const key = iconTypeKey(ic);
+          if (!byType.has(key)) byType.set(key, []);
+          byType.get(key).push(ic);
+        }
+        const clusters = [];
+        const singletons = [];
+        for (const bucket of byType.values()) {
+          const part = clusterIconBucket(bucket);
+          clusters.push(...part.clusters);
+          singletons.push(...part.singletons);
+        }
+        return { clusters, singletons };
+      }
+      function clusterIconBucket(icons) {
         const radiusLocal = CLUSTER_SCREEN_PX / state.scale;
         const remaining = (icons || []).slice();
         const clusters = [];
@@ -517,8 +553,9 @@
           iconVisibleInFog((ic.Position && ic.Position.X) || 0, (ic.Position && ic.Position.Y) || 0));
         const { clusters, singletons } = clusterIcons(visible);
         // Marker for one icon at its world position: category/POI shape, dark
-        // outline, and the biome map-tile colour as fill for landmarks (POI
-        // markers match the colour of the POI tile they stand on).
+        // outline, and the POI's map-pixel colour as fill for landmarks. The
+        // fill goes on style (not the attribute) so it wins over the .ic-land
+        // CSS fallback — presentation attributes lose to any CSS rule.
         function buildMarker(ic, baseClass) {
           const wx = (ic.Position && ic.Position.X) || 0;
           const wy = (ic.Position && ic.Position.Y) || 0;
@@ -528,8 +565,8 @@
           shape.setAttribute('stroke', '#231f18');
           shape.setAttribute('stroke-width', sw);
           if ((ic.Category || '').toLowerCase() === 'landmark') {
-            const biomeCol = biomeColorAt(wx, wy);
-            if (biomeCol) shape.setAttribute('fill', biomeCol);
+            const col = landmarkColor(ic, wx, wy);
+            if (col) shape.style.fill = col;
           }
           return { shape, pos };
         }
@@ -551,8 +588,9 @@
           shape.appendChild(title);
           g.appendChild(shape);
         }
-        // Clusters draw as their centre-most member's real marker (so the group
-        // keeps a truthful position, shape, and biome colour) plus a count badge.
+        // Clusters are same-type by construction and draw as their centre-most
+        // member's real marker (truthful position, shape, and POI colour —
+        // zooming in on the group lands on an actual POI) plus a count badge.
         const badgeR = ICON_PX * 0.9 * inv;
         const badgeOff = ICON_PX * 1.5 * inv;
         for (const cl of clusters) {
@@ -560,7 +598,7 @@
           const { shape, pos } = buildMarker(rep, 'ic-cluster-rep');
           const title = svgEl('title');
           const repName = rep.Label || rep.Category || rep.IconId || '';
-          title.textContent = `${repName ? repName + ' • ' : ''}${cl.count} POIs (zoom in to expand)`;
+          title.textContent = `${repName || 'POIs'} ×${cl.count} (zoom in to expand)`;
           shape.appendChild(title);
           const badge = svgEl('circle', {
             cx: pos.x + badgeOff, cy: pos.y - badgeOff, r: badgeR,
