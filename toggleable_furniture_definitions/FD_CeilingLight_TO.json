@@ -93,13 +93,13 @@
               "z": 1
             }
           },
-          "intensity": 10000,
-          "attenuation_radius": 2137.20263671875,
+          "intensity": 200000,
+          "attenuation_radius": 4000,
           "casts_shadows": true,
           "light_color": {
-            "b": 233,
-            "g": 251,
-            "r": 255,
+            "b": 255,
+            "g": 214,
+            "r": 185,
             "a": 255
           },
           "source_radius": 11.03358268737793,
