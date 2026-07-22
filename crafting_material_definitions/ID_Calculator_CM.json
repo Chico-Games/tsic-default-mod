@@ -4,7 +4,8 @@
   "class": "UCraftingMaterialDefinition",
   "schema_version": 2,
   "properties": {
-    "display_name": "Calculator",
+    "thumbnail": "mod:icons/id_calculator_cm",
+    "display_name": "Calculator (Placeholder)",
     "description": "A pocket calculator. The solar strip still works.",
     "stackable": true,
     "weight": 0.10000000149011612,

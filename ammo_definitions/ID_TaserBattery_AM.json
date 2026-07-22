@@ -4,7 +4,8 @@
   "class": "UAmmoDefinition",
   "schema_version": 2,
   "properties": {
-    "display_name": "Taser Battery",
+    "thumbnail": "mod:icons/id_taserbattery_am",
+    "display_name": "Taser Battery (Placeholder)",
     "description": "A compact battery pack. Recharges the taser.",
     "stackable": true,
     "weight": 0.0,
