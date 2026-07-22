@@ -141,10 +141,11 @@ TSICTestHarness.register({
                 { SlotTag: 'Entity.Inventory.Item.Equipment.Slot.Body', ItemId: '',          IconUrl: '' },
             ],
         });
-        // The doll always shows the six canonical armor+backpack slots.
-        await ctx.waitFor(() => ctx.doc.querySelectorAll('#inv-doll .equip-slot').length >= 6);
-        ctx.expect(ctx.assert.domCount(ctx.doc, '#inv-doll .equip-slot', 6));
+        // The doll always shows the seven canonical armor+outfit+backpack slots.
+        await ctx.waitFor(() => ctx.doc.querySelectorAll('#inv-doll .equip-slot').length >= 7);
+        ctx.expect(ctx.assert.domCount(ctx.doc, '#inv-doll .equip-slot', 7));
         ctx.expect(ctx.assert.domExists(ctx.doc, '#inv-doll .equip-slot[data-equip="Head"] img'));
         ctx.expect(ctx.assert.domExists(ctx.doc, '#inv-doll .equip-slot[data-equip="Body"]:not(.is-full)'));
+        ctx.expect(ctx.assert.domExists(ctx.doc, '#inv-doll .equip-slot[data-equip="Outfit"]:not(.is-full)'));
     },
 });

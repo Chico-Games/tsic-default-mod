@@ -191,9 +191,9 @@
   };
   const TAB_DEFS = Object.keys(TAB_FILTERS).map((id) => ({ id, label: TAB_LABELS[id] || id }));
 
-  // The doll is ARMOR-ONLY + Backpack: the Weapon slot stays in data but is
+  // The doll is armor + Outfit + Backpack: the Weapon slot stays in data but is
   // represented by the hotbar's selection frame, not a doll cell (§10.1).
-  const DOLL_LEFT  = ['Head', 'Body', 'Backpack'];
+  const DOLL_LEFT  = ['Head', 'Body', 'Outfit', 'Backpack'];
   const DOLL_RIGHT = ['Gloves', 'Legs', 'Shoes'];
   const DOLL_TAG_PREFIX = 'Entity.Inventory.Item.Equipment.Slot.';
 
