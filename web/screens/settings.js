@@ -52,6 +52,22 @@
                           { Value: 'high',   Label: 'High (Hardware Ray Tracing)' },
                       ],
                       Value: 'medium' },
+                    // Upscaler rows only offer modes whose plugins exist (native/TSR);
+                    // the C++ handler rejects anything else.
+                    { Key: 'graphics.upscaler', Label: 'Upscaling', Type: 'enum',
+                      Options: [
+                          { Value: 'tsr',    Label: 'TSR (recommended)' },
+                          { Value: 'native', Label: 'Native resolution' },
+                      ],
+                      Value: 'tsr' },
+                    { Key: 'graphics.upscaler_quality', Label: 'Upscaling quality', Type: 'enum',
+                      Options: [
+                          { Value: 'performance', Label: 'Performance (50% render scale)' },
+                          { Value: 'balanced',    Label: 'Balanced (67% render scale)' },
+                          { Value: 'quality',     Label: 'Quality (77% render scale)' },
+                          { Value: 'ultra',       Label: 'Ultra (100% render scale)' },
+                      ],
+                      Value: 'balanced' },
                 ] },
                 { Id: 'Display', Title: 'Display', Settings: [
                     { Key: 'video.fullscreen', Label: 'Fullscreen', Type: 'bool', Value: true },
