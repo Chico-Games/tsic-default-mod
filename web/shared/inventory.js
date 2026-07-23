@@ -30,12 +30,17 @@
         var s = document.createElement('style');
         s.id = 'tsic-grid-drag-style';
         s.textContent = [
+            // Sits just under a grid slot. The ghost lives on <body>, outside
+            // any screen, so the storage rule below re-scopes it to that
+            // screen's smaller slot while its panel is mounted.
             '.tsic-drag-ghost {',
-            '  position:fixed; width:48px; height:48px; z-index:2000;',
+            '  position:fixed; z-index:2000;',
+            '  width:calc(var(--tsic-slot) - 4px); height:calc(var(--tsic-slot) - 4px);',
             '  pointer-events:none; opacity:0.92; padding:4px;',
             '  background: rgba(241,229,207,0.92); border:2px solid rgba(10,10,10,0.85);',
             '  box-shadow: 3px 3px 0 rgba(10,10,10,0.85);',
             '}',
+            'body:has(#ss-panel) .tsic-drag-ghost { --tsic-slot:54px; }',
             '.tsic-drag-ghost .held-count {',
             '  position:absolute; right:1px; bottom:1px; padding:1px 3px; line-height:1;',
             '  font-size:10px; font-weight:700; color:#1a1612; background:#ffcc00;',

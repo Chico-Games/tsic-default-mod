@@ -39,6 +39,12 @@
     }
 
     const STYLE = [
+        // Two grids side by side + the middle rail, so slots run smaller than
+        // the inventory screen's — at the full --tsic-slot the pair overflows
+        // even a wide panel. Panel hugs its content (like #inv-panel) instead
+        // of the inherited 60vw, which clipped the container grid on narrower
+        // displays.
+        '#ss-panel { --tsic-slot:54px; --tsic-slot-gap:5px; width:auto; height:auto; max-width:94vw; max-height:92vh; overflow:auto; }',
         '#ss-panel .ss-band { display:flex; align-items:baseline; gap:12px; border-bottom:3px solid rgba(10,10,10,0.85); margin-bottom:10px; padding-bottom:5px; }',
         '#ss-panel .ss-band h2 { margin:0; }',
         '#ss-panel .ss-band .spacer { flex:1; }',
@@ -47,12 +53,12 @@
         '#ss-panel .ss-cols { display:grid; gap:10px; grid-template-columns:auto 236px auto; align-items:start; }',
         '#ss-panel .ss-tabs { display:flex; gap:0; margin-bottom:8px; }',
         '#ss-panel .ss-grid {',
-        '  display:grid; grid-template-columns: repeat(var(--grid-cols, 8), 46px);',
-        '  grid-auto-rows: 46px; gap:4px; width:max-content;',
-        '  max-height: calc(6 * 50px); overflow-y:auto;',
+        '  display:grid; grid-template-columns: repeat(var(--grid-cols, 8), var(--tsic-slot));',
+        '  grid-auto-rows: var(--tsic-slot); gap:var(--tsic-slot-gap); width:max-content;',
+        '  max-height: calc(var(--tsic-slot-rows) * (var(--tsic-slot) + var(--tsic-slot-gap))); overflow-y:auto;',
         '}',
         '#ss-panel .tsic-slot {',
-        '  width:46px; height:46px; position:relative; cursor:pointer; padding:3px;',
+        '  width:var(--tsic-slot); height:var(--tsic-slot); position:relative; cursor:pointer; padding:3px;',
         '  background: rgba(255,253,243,0.96); border:2px solid rgba(10,10,10,0.85);',
         '  display:flex; align-items:center; justify-content:center;',
         '  transition: background-color 90ms ease, opacity 160ms ease, filter 160ms ease, transform 90ms ease, box-shadow 90ms ease;',
