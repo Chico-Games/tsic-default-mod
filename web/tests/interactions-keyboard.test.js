@@ -126,7 +126,7 @@ TSICTestHarness.register({
 
 // ---- Inventory: numeric 1, 9 boundary mapping ---------------------------
 TSICTestHarness.register({
-    name: 'Keys/Inventory: 1..9 keys map to slots 0..8',
+    name: 'Keys/Inventory: 2..9 keys map to slots 1..8; 1 is the reserved fists slot',
     file: '/screens/inventory.html',
     async run(ctx) {
         ctx.screen('Inventory');
@@ -135,7 +135,11 @@ TSICTestHarness.register({
         await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid .tsic-slot[data-grid="0"] img'));
         ctx.doc.querySelector('#inv-grid .tsic-slot[data-grid="0"]').dispatchEvent(new ctx.win.MouseEvent('mouseenter', { bubbles: true }));
         await new Promise(r => setTimeout(r, 15));
-        for (let n = 1; n <= 9; n++) {
+        // Key 1 addresses slot 0 — the reserved fists slot, which takes nothing.
+        ctx.clearPublishes();
+        ctx.doc.dispatchEvent(new ctx.win.KeyboardEvent('keydown', { key: '1', bubbles: true }));
+        ctx.expect(ctx.assert.notPublished(ctx.handle, 'UI.Cmd.Hotbar.Assign'));
+        for (let n = 2; n <= 9; n++) {
             ctx.clearPublishes();
             ctx.doc.dispatchEvent(new ctx.win.KeyboardEvent('keydown', { key: String(n), bubbles: true }));
             ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Hotbar.Assign', { where: p => p.SlotIndex === n - 1 }));

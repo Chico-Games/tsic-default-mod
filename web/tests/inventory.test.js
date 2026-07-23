@@ -113,10 +113,13 @@ TSICTestHarness.register({
         cell.dispatchEvent(new ctx.win.MouseEvent('mouseenter', { bubbles: true }));
         await new Promise(r => setTimeout(r, 30));
         ctx.clearPublishes();
+        // "1" is the reserved fists slot and assigns nothing; "2" and "0" do.
         ctx.events.key(ctx.doc, '1');
+        ctx.expect(ctx.assert.notPublished(ctx.handle, 'UI.Cmd.Hotbar.Assign'));
+        ctx.events.key(ctx.doc, '2');
         ctx.events.key(ctx.doc, '0');
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Hotbar.Assign', {
-            where: p => p.SlotIndex === 0 && p.ItemId === '5',
+            where: p => p.SlotIndex === 1 && p.ItemId === '5',
         }));
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Hotbar.Assign', {
             where: p => p.SlotIndex === 9,
@@ -198,6 +201,39 @@ TSICTestHarness.register({
             where: p => p.SlotIndex === 2 && p.ItemId === '7',
         }));
         ctx.expect(ctx.assert.eq(ctx.win.TSICInventory.getHeld(), null, 'assignment releases the hold'));
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Inventory: hotbar slot 1 is the reserved fists slot — selectable, never assignable',
+    file: '/screens/inventory.html',
+    async run(ctx) {
+        ctx.setItemCatalog({ ID_Bread: { Name: 'Bread', Category: 'Consumable' } });
+        await showInventory(ctx, {
+            Items: [{ ItemId: 'ID_Bread', Count: 3, InstanceId: 7, GridSlot: 0 }],
+        });
+        ctx.inject('tsic.msg.UI.Hotbar.Changed', { SlotIndices: [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1], SelectedSlot: -1 });
+        await ctx.waitFor(() => ctx.doc.querySelectorAll('#inv-hotbar .hslot').length === 10);
+
+        const fists = ctx.doc.querySelectorAll('#inv-hotbar .hslot')[0];
+        ctx.expect(ctx.assert.eq(fists.classList.contains('fists'), true, 'slot 1 is the fists slot'));
+        ctx.expect(ctx.assert.truthy(fists.querySelector('.fists-glyph'), 'fists slot draws the fists icon'));
+        ctx.expect(ctx.assert.eq(fists.dataset.hotbar, '0', 'fists slot is hotbar index 0'));
+        ctx.expect(ctx.assert.truthy(ctx.doc.querySelector('#inv-hotbar .hb-sep'),
+            'a rule separates the fists slot from the item slots'));
+
+        // Held stack clicked onto it: no assignment, and the stack returns home.
+        ctx.doc.querySelector('#inv-grid .tsic-slot[data-grid="0"]').click();
+        ctx.expect(ctx.assert.truthy(ctx.win.TSICInventory.getHeld(), 'stack picked up'));
+        ctx.clearPublishes();
+        fists.click();
+        ctx.expect(ctx.assert.notPublished(ctx.handle, 'UI.Cmd.Hotbar.Assign'));
+        ctx.expect(ctx.assert.eq(ctx.win.TSICInventory.getHeld(), null, 'refusal releases the hold'));
+
+        // With nothing held it still selects — that's how you go bare-handed.
+        ctx.clearPublishes();
+        fists.click();
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Hotbar.Select', { where: p => p.SlotIndex === 0 }));
     },
 });
 

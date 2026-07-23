@@ -18,6 +18,12 @@
     var DRAG_THRESHOLD_PX = 6;
     var suppressClickUntil = 0;
 
+    // Hotbar slot 0 is the reserved FISTS slot — selecting it stows whatever is
+    // out and leaves the player bare-handed. It holds no item and never can:
+    // C++ (UEquipmentControllerComponent) refuses assignments to it, and every
+    // UI assign path checks here first so a rejected drop never round-trips.
+    var FISTS_HOTBAR_SLOT = 0;
+
     function publish(tag, payload) {
         if (window.tsic && window.tsic.publishMessage) window.tsic.publishMessage(tag, payload);
     }
@@ -57,6 +63,50 @@
             '  letter-spacing:1px; color:#f6efdf; background:rgba(185,28,28,0.92);',
             '  padding:1px 5px; border-radius:6px;',
             '}',
+
+            // ---- Per-cell overlays (shared by every pane that renders a grid) ----
+            // Wear bar sits flush along the cell's bottom edge so it reads as a
+            // property of the item rather than another badge competing for a corner.
+            '.tsic-slot .wear {',
+            '  position:absolute; left:2px; right:2px; bottom:1px; height:3px;',
+            '  background:rgba(10,10,10,0.35); pointer-events:none;',
+            '}',
+            '.tsic-slot .wear i { display:block; height:100%; background:#1e8f3e; }',
+            '.tsic-slot .wear.warn i { background:#ffcc00; }',
+            '.tsic-slot .wear.crit i { background:#e60000; }',
+            // Locked (favourited): a padlock in the bottom-left, plus a warm rim so
+            // a locked stack is identifiable at a glance while scanning the grid.
+            '.tsic-slot.is-locked-item { box-shadow: inset 0 0 0 2px rgba(224,168,42,0.85); }',
+            '.tsic-slot .lock-badge {',
+            '  position:absolute; bottom:1px; left:2px; font-size:9px; line-height:1;',
+            '  pointer-events:none; text-shadow:0 1px 2px rgba(0,0,0,0.6);',
+            '}',
+            // "New since you last looked" — cleared when the stack is hovered.
+            '.tsic-slot .new-badge {',
+            '  position:absolute; top:1px; left:2px; padding:1px 3px; line-height:1;',
+            '  font-size:8px; font-weight:700; letter-spacing:0.06em; color:#1a1612;',
+            '  background:#7fd4a2; border:1px solid rgba(10,10,10,0.85); pointer-events:none;',
+            '}',
+
+            // ---- Split dialog ----
+            '.tsic-split {',
+            '  position:fixed; z-index:2100; min-width:190px; padding:9px 11px;',
+            '  background:#fffdf3; border:2px solid rgba(10,10,10,0.85);',
+            '  box-shadow:4px 4px 0 rgba(10,10,10,0.85); font-size:12px; color:#1a1612;',
+            '}',
+            '.tsic-split .row { display:flex; align-items:center; gap:6px; margin-top:6px; }',
+            '.tsic-split .lab { font-size:10px; letter-spacing:0.12em; text-transform:uppercase; opacity:0.7; }',
+            '.tsic-split input[type=range] { flex:1; min-width:0; accent-color:#e60000; }',
+            '.tsic-split input[type=number] {',
+            '  width:58px; font:inherit; padding:1px 4px; text-align:center;',
+            '  background:#fffdf3; border:2px solid rgba(10,10,10,0.85); color:inherit;',
+            '}',
+            '.tsic-split button {',
+            '  font:inherit; font-size:11px; letter-spacing:0.08em; cursor:pointer; padding:2px 9px;',
+            '  background:#fffdf3; border:2px solid rgba(10,10,10,0.85); color:inherit;',
+            '}',
+            '.tsic-split button.go { background:var(--mag-red,#e60000); color:#fff; }',
+            '.tsic-split button:hover { filter:brightness(1.08); }',
         ].join('\n');
         document.head.appendChild(s);
     }
@@ -145,7 +195,9 @@
         if (!held) return false;
         var slot = hotbarSlotUnder(x, y);
         if (!slot) return false;
-        if (window.TSICInventory.canAssignToHotbar(held.itemId)) {
+        // The fists slot still swallows the release (the stack returns home
+        // rather than dropping into the world) — it just never takes the item.
+        if (slot.index !== FISTS_HOTBAR_SLOT && window.TSICInventory.canAssignToHotbar(held.itemId)) {
             publish('UI.Cmd.Hotbar.Assign', { SlotIndex: slot.index, ItemId: String(held.instanceId) });
             sound('Inventory.Transfer', 0.33);
         }
@@ -507,6 +559,10 @@
         getHeld() { return held; },
         /** Subscribe to held-stack changes (hint rows re-render off this). */
         onHeldChanged(cb) { if (typeof cb === 'function') heldChangedCallbacks.push(cb); },
+        /** Reserved fists slot index — nothing can be assigned to it. */
+        FISTS_HOTBAR_SLOT: FISTS_HOTBAR_SLOT,
+        /** False for the fists slot, which permanently holds no item. */
+        isHotbarSlotAssignable(slotIndex) { return slotIndex !== FISTS_HOTBAR_SLOT; },
         /** Only equipment and consumables belong on the hotbar. */
         canAssignToHotbar(itemDefId) {
             var cat = (window.tsic && window.tsic.itemCatalog) || {};

@@ -115,25 +115,78 @@
     [data-screen="Inventory"] #inv-info .statline { display:flex; justify-content:space-between; border-top:1px dashed rgba(10,10,10,0.3); padding:2px 0; }
     [data-screen="Inventory"] #inv-info .statline b { letter-spacing:0.06em; font-size:12px; }
 
-    [data-screen="Inventory"] .inv-hotbar { display:flex; gap:5px; margin-top:12px; justify-content:center; }
+    /* The in-screen mirror takes the HUD hotbar's SHAPE — rounded plinths, key
+       top-left, count bottom-right, selection that scales up and lifts — but
+       paper-and-ink colouring so it belongs to this screen rather than looking
+       like the HUD dropped into a panel. Slot fills, border weights and the
+       accent colours are the same values the grid above it uses.
+       --mag/--lift are registered here too so the grow/shrink still
+       interpolates when this screen renders without the HUD loaded. */
+    @property --mag { syntax: "<number>"; inherits: false; initial-value: 1; }
+    @property --lift { syntax: "<length>"; inherits: false; initial-value: 0px; }
+    [data-screen="Inventory"] .inv-hotbar {
+      display:flex; align-items:flex-end; gap:8px; justify-content:center;
+      margin-top:26px; padding:16px 4px 10px;
+    }
     [data-screen="Inventory"] .inv-hotbar .hslot {
-      width:56px; height:56px; position:relative; cursor:pointer;
-      background:#fffdf3; border:2px solid rgba(10,10,10,0.85);
+      width:64px; height:64px; position:relative; cursor:pointer;
+      background: rgba(255,253,243,0.96);
+      border:2px solid rgba(10,10,10,0.85); border-radius:11px;
+      --mag:1; --lift:0px; transform-origin:bottom center;
+      transform: translateY(var(--lift)) scale(var(--mag));
+      box-shadow: var(--shadow-block-sm);
+      transition: --mag 230ms cubic-bezier(0.34,1.56,0.64,1), --lift 230ms cubic-bezier(0.34,1.56,0.64,1),
+        border-color 150ms ease, background-color 90ms ease, box-shadow 150ms ease;
       display:flex; align-items:center; justify-content:center;
     }
-    [data-screen="Inventory"] .inv-hotbar .hslot img { width:100%; height:100%; object-fit:contain; pointer-events:none; }
+    /* Empty slots sit back, exactly as they do in the grid above. */
+    [data-screen="Inventory"] .inv-hotbar .hslot.is-empty {
+      background: rgba(237,228,203,0.85); border-color: rgba(10,10,10,0.45); box-shadow:none;
+    }
+    [data-screen="Inventory"] .inv-hotbar .hslot img {
+      position:relative; width:100%; height:100%; object-fit:contain; padding:9px; pointer-events:none;
+    }
+    /* Key number wears the grid's hotbar-badge idiom — yellow on ink, already
+       the screen's vocabulary for "this is a hotbar number". */
     [data-screen="Inventory"] .inv-hotbar .hslot .num {
-      position:absolute; top:-8px; left:-5px; padding:1px 3px; line-height:1;
-      font-size:8px; font-weight:700; background: rgba(10,10,10,0.9); color: var(--mag-yellow, #ffcc00);
-      border:1px solid rgba(10,10,10,0.85); pointer-events:none;
+      position:absolute; top:3px; left:4px; min-width:16px; padding:0 4px; pointer-events:none;
+      font-family:var(--font-display); font-size:14px; font-weight:700; line-height:1.35; letter-spacing:0.02em;
+      text-align:center; color: var(--mag-yellow, #ffcc00); background: rgba(10,10,10,0.9);
+      border:1px solid rgba(10,10,10,0.85); border-radius:5px;
     }
     [data-screen="Inventory"] .inv-hotbar .hslot .count {
-      position:absolute; bottom:1px; right:2px; padding:1px 2px; line-height:1;
-      font-size:8px; font-weight:700; color:#1a1612; background: var(--mag-yellow, #ffcc00);
-      border:1px solid rgba(10,10,10,0.85); pointer-events:none;
+      position:absolute; bottom:3px; right:4px; padding:1px 4px; line-height:1; pointer-events:none;
+      font-size:12px; font-weight:700; color:#1a1612; background: var(--mag-yellow, #ffcc00);
+      border:1px solid rgba(10,10,10,0.85); border-radius:4px;
     }
-    [data-screen="Inventory"] .inv-hotbar .hslot.sel { background: var(--mag-red, #e60000); box-shadow: 3px 3px 0 rgba(10,10,10,0.85); }
-    [data-screen="Inventory"] .inv-hotbar .hslot.is-drop-target { outline:2px solid var(--buff-green, #1e8f3e); outline-offset:-2px; }
+    /* Selection keeps the HUD's scale + lift, but reads in the screen's red
+       accent and a heavier offset block instead of a gold glow. */
+    [data-screen="Inventory"] .inv-hotbar .hslot.sel {
+      --mag:1.16; --lift:-5px;
+      background:#fffdf3; border-color: var(--mag-red, #e60000); box-shadow: var(--shadow-block);
+    }
+    [data-screen="Inventory"] .inv-hotbar .hslot.sel .num { color:#fff; background: var(--mag-red, #e60000); }
+    [data-screen="Inventory"] .inv-hotbar .hslot:hover,
+    [data-screen="Inventory"] .inv-hotbar .hslot[data-tsic-focused] {
+      border-color: rgba(10,10,10,1); background:#fffdf3;
+    }
+    [data-screen="Inventory"] .inv-hotbar .hslot.is-drop-target {
+      outline:2px solid var(--buff-green, #1e8f3e); outline-offset:-2px;
+    }
+
+    /* Fists: reserved slot 1, set apart from the item slots by a rule so it
+       reads as a fixture rather than something you loaded. It's never empty —
+       the fists are always there — so it keeps the filled paper fill. Nothing
+       can be dropped here, so it takes no drop-target styling. */
+    [data-screen="Inventory"] .inv-hotbar .hslot.fists .fists-glyph {
+      position:relative; width:100%; height:100%; padding:11px;
+      color: rgba(37,33,25,0.85); pointer-events:none;
+    }
+    [data-screen="Inventory"] .inv-hotbar .hslot.fists.sel .fists-glyph { color: var(--mag-red, #e60000); }
+    [data-screen="Inventory"] .inv-hotbar .hb-sep {
+      width:0; align-self:stretch; margin:2px 5px 0;
+      border-left:2px dashed rgba(10,10,10,0.45); pointer-events:none;
+    }
 
     [data-screen="Inventory"] .inv-hints { display:flex; gap:14px; justify-content:center; margin-top:10px; border-top:2px dashed rgba(10,10,10,0.3); padding-top:8px; flex-wrap:wrap; }
     [data-screen="Inventory"] .inv-hints .hint { display:flex; align-items:center; gap:5px; font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:rgba(74,66,57,0.9); }
@@ -443,14 +496,20 @@
       }
 
       // In-screen 10-slot hotbar mirror: visible destination for hover+number
-      // assignment and drag/held-click assignment (§10.1).
+      // assignment and drag/held-click assignment (§10.1). Slot 0 is the
+      // reserved fists slot — selectable (stows whatever is out), never
+      // assignable, and set apart from the item slots by a rule.
       function renderHotbar() {
         const host = root.querySelector('#inv-hotbar');
         host.innerHTML = '';
         const slots = (lastHotbar && lastHotbar.SlotIndices) || new Array(10).fill(-1);
         const sel = lastHotbar && typeof lastHotbar.SelectedSlot === 'number' ? lastHotbar.SelectedSlot : -1;
+        const fistsSlot = window.TSICInventory.FISTS_HOTBAR_SLOT;
         for (let i = 0; i < 10; i++) {
-          const hslot = TSIC.el('div', { class: 'hslot' + (i === sel ? ' sel' : '') });
+          const isFists = i === fistsSlot;
+          const hslot = TSIC.el('div', {
+            class: 'hslot' + (i === sel ? ' sel' : '') + (isFists ? ' fists' : ''),
+          });
           hslot.dataset.hotbar = i;
           // Controller path for hotbar assignment: pick a stack up (A), walk
           // focus down to the hotbar, A again assigns (the click handler).
@@ -458,11 +517,19 @@
           hslot.setAttribute('data-tsic-focus-group', 'inv-hotbar');
           hslot.tabIndex = -1;
           hslot.appendChild(TSIC.el('span', { class: 'num' }, String((i + 1) % 10)));
-          const item = itemByInstance(slots[i]);
-          if (item && item.ItemId) {
-            hslot.appendChild(TSIC.iconImg(TSIC.itemIconUrl(item.ItemId)));
-            if ((item.Count || 1) > 1) {
-              hslot.appendChild(TSIC.el('span', { class: 'count' }, String(item.Count)));
+          if (isFists) {
+            hslot.title = 'Fists — bare hands';
+            hslot.appendChild(TSIC.fistsIcon({ class: 'fists-glyph' }));
+          } else {
+            const item = itemByInstance(slots[i]);
+            if (item && item.ItemId) {
+              hslot.appendChild(TSIC.iconImg(TSIC.itemIconUrl(item.ItemId)));
+              if ((item.Count || 1) > 1) {
+                hslot.appendChild(TSIC.el('span', { class: 'count' }, String(item.Count)));
+              }
+            } else {
+              // Same empty treatment the grid uses, so the two read as one screen.
+              hslot.classList.add('is-empty');
             }
           }
           hslot.addEventListener('click', () => {
@@ -474,8 +541,10 @@
             if (heldStack) {
               // Click with a held stack = assign it to this hotbar slot; the
               // stack itself stays in its grid cell (id-based assignment).
-              // Only equipment and consumables belong on the hotbar.
-              if (window.TSICInventory.canAssignToHotbar(heldStack.itemId)) {
+              // Only equipment and consumables belong on the hotbar, and the
+              // fists slot takes nothing at all — both refusals return the
+              // stack home rather than assigning, same as a drag release.
+              if (!isFists && window.TSICInventory.canAssignToHotbar(heldStack.itemId)) {
                 ctx.publish('UI.Cmd.Hotbar.Assign', { SlotIndex: i, ItemId: String(heldStack.instanceId) });
               }
               window.TSICInventory.cancelHeld();
@@ -484,6 +553,7 @@
             ctx.publish('UI.Cmd.Hotbar.Select', { SlotIndex: i });
           });
           host.appendChild(hslot);
+          if (isFists) host.appendChild(TSIC.el('div', { class: 'hb-sep' }));
         }
       }
 
@@ -600,6 +670,8 @@
           // Only equipment and consumables belong on the hotbar.
           if (!window.TSICInventory.canAssignToHotbar(hoveredItem.ItemId)) return;
           const slotIndex = e.key === '0' ? 9 : (parseInt(e.key, 10) - 1);
+          // "1" is the fists slot — it takes nothing, so the key does nothing.
+          if (!window.TSICInventory.isHotbarSlotAssignable(slotIndex)) return;
           ctx.publish('UI.Cmd.Hotbar.Assign', {
             SlotIndex: slotIndex,
             ItemId: String(hoveredItem.InstanceId),

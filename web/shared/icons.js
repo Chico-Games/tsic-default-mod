@@ -236,10 +236,57 @@
     };
   }
 
+  // Fists — the reserved first hotbar slot (bare hands, nothing equipped).
+  // Drawn inline rather than served as an item icon: fists are not an item, so
+  // there is no ItemId to resolve and no PNG in the mod's icons/ folder.
+  // currentColor lets each hotbar tint it to match its own slot styling — ink
+  // on the inventory's paper slots, cream on the HUD's dark plinths.
+  //
+  // Artwork: "hand-fist" (bold weight) from Phosphor Icons
+  // <https://phosphoricons.com> — https://github.com/phosphor-icons/core
+  // Bold matches this UI's heavy ink borders; the regular weight goes thin
+  // against them and the fill weight loses the knuckle detail at 56px.
+  //
+  //   MIT License. Copyright (c) 2023 Phosphor Icons
+  //
+  //   Permission is hereby granted, free of charge, to any person obtaining a
+  //   copy of this software and associated documentation files (the
+  //   "Software"), to deal in the Software without restriction, including
+  //   without limitation the rights to use, copy, modify, merge, publish,
+  //   distribute, sublicense, and/or sell copies of the Software, and to
+  //   permit persons to whom the Software is furnished to do so, subject to
+  //   the following conditions:
+  //
+  //   The above copyright notice and this permission notice shall be included
+  //   in all copies or substantial portions of the Software.
+  //
+  //   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+  //   OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+  //   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+  //   IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+  //   CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+  //   TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+  //   SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+  var FISTS_PATH = 'M200,76H188V64a36,36,0,0,0-60-26.8A36,36,0,0,0,69.27,54.54,36,36,0,0,0,20,88v40'
+    + 'a108,108,0,0,0,216,0V112A36,36,0,0,0,200,76ZM140,64a12,12,0,0,1,24,0V76H140ZM92,64a12,12,0,0,1,'
+    + '24,0v40a12,12,0,0,1-24,0ZM44,88a12,12,0,0,1,24,0v16a12,12,0,0,1-24,0Zm168,40A84,84,0,0,1,44.61,'
+    + '138.15,35.93,35.93,0,0,0,80,130.8a35.89,35.89,0,0,0,43.65,3.34A36.23,36.23,0,0,0,130,140.5,'
+    + '51.82,51.82,0,0,0,116,176a12,12,0,0,0,24,0,28,28,0,0,1,28-28,12,12,0,0,0,0-24H152a12,12,0,0,1-'
+    + '12-12V100h60a12,12,0,0,1,12,12Z';
+
+  function fistsIcon(attrs) {
+    var s = TSIC.svg('svg', Object.assign({
+      viewBox: '0 0 256 256', fill: 'currentColor',
+    }, attrs || {}));
+    s.appendChild(TSIC.svg('path', { d: FISTS_PATH }));
+    return s;
+  }
+
   window.TSIC = window.TSIC || {};
   window.TSIC.keyIconUrl = keyIconUrl;
   window.TSIC.itemIconUrl = itemIconUrl;
   window.TSIC.iconImg = iconImg;
+  window.TSIC.fistsIcon = fistsIcon;
   window.TSIC.attachIconRetry = attachIconRetry;
   window.TSIC.runtimeImgUrl = runtimeImgUrl;
   window.TSIC.runtimeImg = runtimeImg;
