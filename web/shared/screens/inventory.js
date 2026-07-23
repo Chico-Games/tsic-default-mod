@@ -26,6 +26,12 @@
       background: rgba(255,253,243,0.96); border:2px solid rgba(10,10,10,0.85); color:inherit;
     }
     [data-screen="Inventory"] .sort-btn:hover, [data-screen="Inventory"] .sort-btn[data-tsic-focused] { background: var(--mag-red, #e60000); color:#fff; }
+    [data-screen="Inventory"] #inv-search {
+      font: inherit; font-size:12px; width:132px; padding:2px 7px;
+      background: rgba(255,253,243,0.96); border:2px solid rgba(10,10,10,0.85); color:inherit;
+    }
+    [data-screen="Inventory"] #inv-search::placeholder { color:rgba(37,33,25,0.45); letter-spacing:0.06em; }
+    [data-screen="Inventory"] #inv-search:focus { outline:2px solid var(--mag-red, #e60000); outline-offset:-2px; }
     [data-screen="Inventory"] .inv-cols { display:grid; gap:12px; grid-template-columns:max-content 300px; align-items:stretch; }
     [data-screen="Inventory"] #inv-tabs { display:flex; gap:0; margin-bottom:8px; }
     [data-screen="Inventory"] #inv-tabs .tsic-tab { font-size:11px; padding:3px 8px; }
@@ -203,6 +209,7 @@
         <div id="inv-band">
           <h2 class="tsic-title">Inventory</h2>
           <span class="spacer"></span>
+          <input id="inv-search" type="search" placeholder="Search…" autocomplete="off" spellcheck="false">
           <button id="inv-sort" class="sort-btn" data-tsic-focusable>SORT</button>
           <span class="slots-text" id="inv-slots-text">—</span>
         </div>
@@ -293,7 +300,22 @@
       let lastEquipment = null;
       let lastHotbar = null;
       let hoveredItem = null;
+      let searchTerm = '';
       this._state = { get hoveredItem() { return hoveredItem; } };
+
+      // Search DIMS like the tabs do rather than reflowing the grid — a filter
+      // must never change slot geometry (rule 48), or muscle memory breaks and
+      // a drag mid-type would land in the wrong cell.
+      const searchBox = root.querySelector('#inv-search');
+      searchBox.addEventListener('input', () => {
+        searchTerm = searchBox.value.trim().toLowerCase();
+        refresh();
+      });
+      // Typing must not leak to gameplay/menu bindings (Escape still closes the
+      // screen, so it is deliberately left to bubble).
+      searchBox.addEventListener('keydown', (e) => {
+        if (e.key !== 'Escape') e.stopPropagation();
+      });
 
       function equippedSlotTagFor(instanceId) {
         if (instanceId == null) return null;
@@ -317,6 +339,23 @@
           (i) => i && i.InstanceId != null && String(i.InstanceId) === target) || null;
       }
 
+      // Catalog entry for whatever is worn in the same equipment slot as `desc`,
+      // so the info card can show upgrade/downgrade deltas. Null when the item
+      // isn't equippable, the slot is empty, or it IS the equipped item.
+      function equippedRivalFor(desc, item) {
+        if (!desc || !desc.EquipmentSlot) return null;
+        const cat = window.tsic.itemCatalog || {};
+        for (const s of ((lastEquipment && lastEquipment.Slots) || [])) {
+          if (!s || s.SlotTag !== desc.EquipmentSlot) continue;
+          if (s.ItemId == null || s.ItemId === '') return null;
+          if (item && String(s.ItemId) === String(item.InstanceId)) return null; // this one is worn
+          const wornDefId = defIdForInstance(s.ItemId);
+          const wornDesc = wornDefId ? cat[wornDefId] : null;
+          return wornDesc ? Object.assign({ ItemId: wornDefId }, wornDesc) : null;
+        }
+        return null;
+      }
+
       function renderInfo(item) {
         const host = root.querySelector('#inv-info');
         const cat = window.tsic.itemCatalog || {};
@@ -328,7 +367,8 @@
           host.textContent = 'Hover an item to see details';
           return;
         }
-        window.TSICInventory.renderInfoPanel(host, Object.assign({ ItemId: item.ItemId }, desc), item);
+        const full = Object.assign({ ItemId: item.ItemId }, desc);
+        window.TSICInventory.renderInfoPanel(host, full, item, equippedRivalFor(desc, item));
       }
 
       function renderMeter() {
@@ -398,9 +438,17 @@
           panelEl: root.querySelector('#inv-panel'),
           equippedIds,
           hotbarNumbersByInstance: hotbarNumbersByInstance(),
-          filterFn: filter ? (it) => {
+          // Tab AND search must both pass — they compose rather than override,
+          // so "Materials" + "iron" narrows instead of one silently winning.
+          filterFn: (filter || searchTerm) ? (it) => {
             const desc = cat[it.ItemId];
-            return desc ? filter(desc) : false;
+            if (!desc) return false;
+            if (filter && !filter(desc)) return false;
+            if (searchTerm) {
+              const haystack = ((desc.Name || '') + ' ' + (it.ItemId || '')).toLowerCase();
+              if (haystack.indexOf(searchTerm) === -1) return false;
+            }
+            return true;
           } : null,
           onHover: (it) => {
             hoveredItem = it || null;
@@ -567,8 +615,10 @@
           host.appendChild(hintChip(['ESC'], 'Return'));
         } else {
           host.appendChild(hintChip(['LMB'], 'Take'));
-          host.appendChild(hintChip(['RMB'], 'Split'));
+          host.appendChild(hintChip(['RMB'], 'Half'));
+          host.appendChild(hintChip(['SHIFT', 'RMB'], 'Split…'));
           host.appendChild(hintChip(['SHIFT', 'LMB'], 'Equip'));
+          host.appendChild(hintChip(['L'], 'Lock'));
           host.appendChild(hintChip(['G'], 'Drop 1'));
           host.appendChild(hintChip(['CTRL', 'G'], 'Drop stack'));
           host.appendChild(hintChip(['1', '0'], 'Hotbar'));
@@ -603,6 +653,8 @@
       ctx.on('tsic.msg.UI.Inventory.Updated', (p) => {
         if (!p || p.OwnerId !== 'Player') return;
         lastUpdate = p;
+        // Diff against the previous snapshot so arrivals can wear a NEW badge.
+        if (window.TSICInventory) window.TSICInventory.noteSnapshot('Player', p.Items);
         // Rule 40: a broadcast mid-gesture preserves the ghost only while its
         // source entry still matches.
         if (window.TSICInventory) window.TSICInventory.reconcileHeld('Player', p.Items);
@@ -682,8 +734,16 @@
           window.TSICInventory.dropHovered({ ownerId: 'Player' }, hoveredItem, e.ctrlKey);
           return;
         }
+        // L locks/unlocks the hovered stack (protects it from deposit-all,
+        // quick-move and drop). Escape-hatch for the "I just quick-stacked my
+        // good pickaxe into a chest" problem.
+        if ((e.key === 'l' || e.key === 'L') && !window.TSICInventory.getHeld()) {
+          if (window.TSICInventory.toggleLockOnTarget()) renderHints();
+          return;
+        }
         if (e.key === 'Escape') {
           // bindEscape closes the screen; a held stack visually returns first.
+          window.TSICInventory.closeSplit();
           window.TSICInventory.cancelHeld();
           renderHints();
         }

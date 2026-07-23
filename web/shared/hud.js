@@ -16,6 +16,7 @@
 //   hud-minimap.js      — minimap (fixed-zoom, player-tracking)
 //   hud-chunk-debug.js  — chunk debug overlay (dev)
 //   hud-hotbar.js       — bottom-centre hotbar shelf
+//   hud-hotbar-wheel.js — hold-to-open radial hotbar selector (gamepad + Q)
 //   hud-screen-fade.js  — full-screen black fade (death sequence)
 //   hud-chat.js         — multiplayer text chat (bottom-left, above the vials)
 //   hud-tutorial.js     — tutorial objectives box (top-right, below the minimap)
@@ -196,6 +197,9 @@
     hotbar.appendChild(el('div', { id: 'hotbar-row' }));
     document.body.appendChild(hotbar);
 
+    // Radial hotbar selector — hud-hotbar-wheel.js fills it while held open.
+    document.body.appendChild(el('div', { id: 'hud-hotbar-wheel' }));
+
     // Full-screen overlays — components build their own contents inside.
     // Stealth shroud lowest (z17), low-health surround above it (z18),
     // hit-reaction on top (z19).
@@ -285,6 +289,7 @@
     loadScript('/shared/hud-minimap.js');
     loadScript('/shared/hud-chunk-debug.js');
     loadScript('/shared/hud-hotbar.js');
+    loadScript('/shared/hud-hotbar-wheel.js');
     loadScript('/shared/hud-low-health.js');
     loadScript('/shared/hud-stealth.js');
     loadScript('/shared/hud-hit-reaction.js');

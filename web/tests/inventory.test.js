@@ -174,7 +174,9 @@ TSICTestHarness.register({
     file: '/screens/inventory.html',
     async run(ctx) {
         await showInventory(ctx, {});
-        await ctx.waitFor(() => ctx.doc.querySelectorAll('#inv-doll .equip-slot').length === 6);
+        // Head/Body/Outfit/Backpack + Gloves/Legs/Shoes. Outfit joined the doll
+        // in ff76517; this count was left at the old 6.
+        await ctx.waitFor(() => ctx.doc.querySelectorAll('#inv-doll .equip-slot').length === 7);
         const labels = Array.from(ctx.doc.querySelectorAll('#inv-doll .equip-slot'))
             .map(d => d.dataset.equip);
         ctx.expect(ctx.assert.eq(labels.includes('Backpack'), true, 'Backpack doll cell present'));

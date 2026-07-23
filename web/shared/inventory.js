@@ -82,9 +82,12 @@
             '  pointer-events:none; text-shadow:0 1px 2px rgba(0,0,0,0.6);',
             '}',
             // "New since you last looked" — cleared when the stack is hovered.
+            // Top-CENTRE: the four corners are already taken (equipped, hotbar
+            // number, stack count, lock) and an item can be new and equipped at once.
             '.tsic-slot .new-badge {',
-            '  position:absolute; top:1px; left:2px; padding:1px 3px; line-height:1;',
-            '  font-size:8px; font-weight:700; letter-spacing:0.06em; color:#1a1612;',
+            '  position:absolute; top:1px; left:50%; transform:translateX(-50%);',
+            '  padding:1px 3px; line-height:1; font-size:8px; font-weight:700;',
+            '  letter-spacing:0.06em; color:#1a1612;',
             '  background:#7fd4a2; border:1px solid rgba(10,10,10,0.85); pointer-events:none;',
             '}',
 
@@ -109,6 +112,40 @@
             '.tsic-split button:hover { filter:brightness(1.08); }',
         ].join('\n');
         document.head.appendChild(s);
+    }
+
+    // ---- Freshly-arrived stacks -------------------------------------------
+    // Instance ids seen in the last snapshot per owner. Anything in a new
+    // snapshot that wasn't in the previous one is "new" until the player hovers
+    // it, which is the cheap version of a pickup log: you can tell at a glance
+    // what the last container actually gave you.
+    var seenByOwner = new Map();   // ownerId -> Set(instanceId)
+    var freshByOwner = new Map();  // ownerId -> Set(instanceId)
+
+    function noteSnapshot(ownerId, items) {
+        var current = new Set();
+        for (var i = 0; i < (items || []).length; i++) {
+            var it = items[i];
+            if (it && it.InstanceId != null) current.add(String(it.InstanceId));
+        }
+        var previous = seenByOwner.get(ownerId);
+        var fresh = freshByOwner.get(ownerId) || new Set();
+        // First snapshot of a pane is the baseline, not a pile of new items.
+        if (previous) {
+            current.forEach(function (id) { if (!previous.has(id)) fresh.add(id); });
+        }
+        // Stop tracking ids that have left.
+        fresh.forEach(function (id) { if (!current.has(id)) fresh.delete(id); });
+        seenByOwner.set(ownerId, current);
+        freshByOwner.set(ownerId, fresh);
+    }
+    function isFresh(ownerId, instanceId) {
+        var fresh = freshByOwner.get(ownerId);
+        return !!(fresh && instanceId != null && fresh.has(String(instanceId)));
+    }
+    function clearFresh(ownerId, instanceId) {
+        var fresh = freshByOwner.get(ownerId);
+        if (fresh && instanceId != null) fresh.delete(String(instanceId));
     }
 
     // ---- Held-stack state --------------------------------------------------
@@ -498,6 +535,130 @@
         return Date.now() < suppressClickUntil;
     }
 
+    // ---- Split dialog -----------------------------------------------------
+    // RMB half-pickup handles the common case; this covers the one it can't —
+    // peeling an exact amount off a large stack without repeated halving.
+    // Publishes UI.Cmd.Inventory.Split (ToSlot -1 = first free cell).
+    var splitEl = null;
+
+    function closeSplit() {
+        if (!splitEl) return;
+        splitEl.remove();
+        splitEl = null;
+        document.removeEventListener('pointerdown', onSplitOutside, true);
+        document.removeEventListener('keydown', onSplitKey, true);
+    }
+    function onSplitOutside(ev) {
+        if (splitEl && !splitEl.contains(ev.target)) closeSplit();
+    }
+    function onSplitKey(ev) {
+        if (!splitEl) return;
+        if (ev.key === 'Escape') { ev.stopPropagation(); ev.preventDefault(); closeSplit(); return; }
+        if (ev.key === 'Enter') { ev.stopPropagation(); ev.preventDefault(); splitEl._commit(); }
+    }
+
+    function openSplitDialog(pane, item, cellIndex, anchorEl) {
+        var total = item.Count || 1;
+        if (total < 2) return;
+        closeSplit();
+        cancelHeld();
+        injectCursorStyleOnce();
+
+        var start = Math.floor(total / 2);
+        var box = el('div', { class: 'tsic-split' });
+        var cat = (window.tsic && window.tsic.itemCatalog) || {};
+        var name = (cat[item.ItemId] && cat[item.ItemId].Name) || item.ItemId || 'Stack';
+        box.appendChild(el('div', { class: 'lab' }, 'Split ' + name));
+
+        var range = el('input', { type: 'range', min: '1', max: String(total - 1), value: String(start) });
+        var num = el('input', { type: 'number', min: '1', max: String(total - 1), value: String(start) });
+        var rowA = el('div', { class: 'row' });
+        rowA.appendChild(range);
+        rowA.appendChild(num);
+        box.appendChild(rowA);
+
+        var keepLabel = el('span', { class: 'lab' }, '');
+        var rowB = el('div', { class: 'row' });
+        rowB.appendChild(keepLabel);
+        box.appendChild(rowB);
+
+        function clamp(v) {
+            v = parseInt(v, 10);
+            if (!Number.isFinite(v)) v = 1;
+            return Math.max(1, Math.min(total - 1, v));
+        }
+        function sync(v, fromRange) {
+            var c = clamp(v);
+            if (fromRange) num.value = String(c); else range.value = String(c);
+            keepLabel.textContent = 'Take ' + c + ' · leave ' + (total - c);
+        }
+        range.addEventListener('input', function () { sync(range.value, true); });
+        num.addEventListener('input', function () { sync(num.value, false); });
+        sync(start, true);
+
+        box._commit = function () {
+            var count = clamp(num.value);
+            publish('UI.Cmd.Inventory.Split', {
+                OwnerId: pane.ownerId, FromSlot: cellIndex, ToSlot: -1, Count: count,
+            });
+            sound('Inventory.Transfer', 0.33);
+            closeSplit();
+        };
+
+        var rowC = el('div', { class: 'row' });
+        var cancel = el('button', { type: 'button' }, 'Cancel');
+        var go = el('button', { class: 'go', type: 'button' }, 'Split');
+        cancel.addEventListener('click', closeSplit);
+        go.addEventListener('click', function () { box._commit(); });
+        rowC.appendChild(cancel);
+        rowC.appendChild(go);
+        box.appendChild(rowC);
+
+        document.body.appendChild(box);
+        splitEl = box;
+
+        // Anchor to the cell, then pull back inside the viewport.
+        var rect = anchorEl.getBoundingClientRect();
+        var w = box.offsetWidth, h = box.offsetHeight;
+        box.style.left = Math.max(6, Math.min(window.innerWidth - w - 6, rect.right + 8)) + 'px';
+        box.style.top = Math.max(6, Math.min(window.innerHeight - h - 6, rect.top)) + 'px';
+
+        num.focus();
+        num.select();
+        // Deferred so the opening gesture's own pointerdown doesn't close it.
+        setTimeout(function () {
+            document.addEventListener('pointerdown', onSplitOutside, true);
+            document.addEventListener('keydown', onSplitKey, true);
+        }, 0);
+    }
+
+    // ---- Lock (favourite) --------------------------------------------------
+    // Only the player inventory carries locks; C++ ignores the command for any
+    // other holder, so the guard here is purely to avoid pointless traffic.
+    // hoverTarget is the mouse's current cell; gamepad falls back to focus.
+    var hoverTarget = null;
+
+    function lockTarget() {
+        if (hoverTarget && hoverTarget.item) return hoverTarget;
+        var cell = document.querySelector('.tsic-slot[data-tsic-focused]');
+        if (!cell || cell.classList.contains('is-locked')) return null;
+        var host = cell.closest('[data-tsic-grid-host]');
+        var pane = host && host._tsicPane;
+        var cellIndex = cell.dataset ? parseInt(cell.dataset.grid, 10) : NaN;
+        if (!pane || Number.isNaN(cellIndex)) return null;
+        var item = pane.itemAt ? pane.itemAt(cellIndex) : null;
+        return item ? { pane: pane, item: item, cellIndex: cellIndex, cell: cell } : null;
+    }
+
+    function toggleLock(pane, item) {
+        if (!item || pane.ownerId !== 'Player') return false;
+        publish('UI.Cmd.Inventory.SetLocked', {
+            ItemId: item.InstanceId, bLocked: !item.bLocked,
+        });
+        sound('Inventory.Transfer', 0.25);
+        return true;
+    }
+
     // ---- Doll drag (equipment paper doll -> grid) --------------------------
     // The doll keeps the simple pointer-drag: dragging a worn item into a grid
     // cell unequips + places it. Grid cells route through the cursor engine.
@@ -570,6 +731,26 @@
             var category = desc && desc.Category;
             return category === 'Equipment' || category === 'Consumable';
         },
+
+        /** Diff a snapshot against the previous one to mark freshly-arrived stacks. */
+        noteSnapshot: noteSnapshot,
+
+        /** Toggle the lock on the hovered cell, else the focused one. */
+        toggleLockOnTarget() {
+            var t = lockTarget();
+            return !!(t && toggleLock(t.pane, t.item));
+        },
+
+        /** Open the exact-amount split dialog on the hovered/focused cell. */
+        splitOnTarget() {
+            var t = lockTarget();
+            if (!t || (t.item.Count || 1) < 2) return false;
+            openSplitDialog(t.pane, t.item, t.cellIndex, t.cell);
+            return true;
+        },
+
+        /** Close the split dialog (screens call this on unmount / Escape). */
+        closeSplit: closeSplit,
 
         /**
          * Gamepad grid actions (§8.2), keyed on the FOCUSED cell: 'split' (Y —
@@ -698,11 +879,28 @@
                     cell.dataset.instance = item.InstanceId;
                     var isEquipped = !!(equippedIds && item.InstanceId != null && equippedIds.has(String(item.InstanceId)));
                     if (isEquipped) cell.classList.add('is-equipped');
+                    if (item.bLocked) cell.classList.add('is-locked-item');
                     if (opts.filterFn && !opts.filterFn(item)) cell.classList.add('is-filtered');
                     if (item.ItemId) {
                         var img = TSIC.iconImg(TSIC.itemIconUrl(item.ItemId));
                         img.style.cssText = 'width:100%;height:100%;object-fit:contain;pointer-events:none;';
                         cell.appendChild(img);
+                    }
+                    // Condition bar for gear that wears; C++ sends -1 for the rest.
+                    if (typeof item.Durability === 'number' && item.Durability >= 0 && item.MaxDurability > 0) {
+                        var wearRatio = Math.max(0, Math.min(1, item.Durability / item.MaxDurability));
+                        var wear = el('div', {
+                            class: 'wear' + (wearRatio <= 0.15 ? ' crit' : (wearRatio <= 0.4 ? ' warn' : '')),
+                            title: 'Condition ' + Math.round(wearRatio * 100) + '%',
+                        });
+                        wear.appendChild(el('i', { style: 'width:' + (wearRatio * 100).toFixed(1) + '%;' }));
+                        cell.appendChild(wear);
+                    }
+                    if (item.bLocked) {
+                        cell.appendChild(el('span', { class: 'lock-badge', title: 'Locked — protected from deposit/drop' }, '🔒'));
+                    }
+                    if (isFresh(pane.ownerId, item.InstanceId)) {
+                        cell.appendChild(el('span', { class: 'new-badge' }, 'NEW'));
                     }
                     if (isEquipped) {
                         cell.appendChild(el('span', { class: 'equip-badge', title: 'Equipped' }, 'E'));
@@ -740,7 +938,15 @@
                 }
             }
         },
-        renderInfoPanel(host, itemDescriptor, itemInstance) {
+        /**
+         * Item detail card. `compareDescriptor` is the catalog entry for whatever
+         * is currently worn in the SAME equipment slot — when present, every
+         * comparable stat gains a coloured delta so the card answers "is this an
+         * upgrade?" without the player equipping it to find out. Only stats
+         * authored on the definition are comparable; weapon/armour damage lives
+         * in gameplay effects and is deliberately not guessed at here.
+         */
+        renderInfoPanel(host, itemDescriptor, itemInstance, compareDescriptor) {
             host.innerHTML = '';
             if (!itemDescriptor) return;
             var eyebrow = el('div', { class: 'info-eyebrow' }, itemDescriptor.Category || 'Item');
@@ -750,21 +956,80 @@
                 host.appendChild(el('p', { style: 'font-size:13px;margin:0 0 6px;color:rgba(37,33,25,0.78);' },
                     itemDescriptor.Description));
             }
-            var stat = function (label, value) {
+
+            var stat = function (label, value, delta, higherIsBetter) {
                 var row = el('div', { class: 'statline' });
                 row.appendChild(el('b', {}, label));
-                row.appendChild(el('span', {}, value));
+                var right = el('span', {});
+                right.appendChild(document.createTextNode(value));
+                if (typeof delta === 'number' && Math.abs(delta) > 0.0001) {
+                    var better = higherIsBetter === false ? delta < 0 : delta > 0;
+                    var sign = delta > 0 ? '+' : '';
+                    // Trim a trailing ".00" so integer stats read as integers.
+                    var text = sign + (Math.round(delta * 100) / 100);
+                    right.appendChild(el('span', {
+                        style: 'margin-left:6px;font-weight:700;color:' + (better ? '#1e8f3e' : '#c11818') + ';',
+                    }, '(' + text + ')'));
+                }
+                row.appendChild(right);
                 host.appendChild(row);
             };
+
+            var cmp = compareDescriptor || null;
+            var deltaOf = function (key) { return cmp ? ((itemDescriptor[key] || 0) - (cmp[key] || 0)) : undefined; };
+
             if (itemInstance && (itemInstance.Count || 1) > 1) stat('STACK', String(itemInstance.Count));
-            stat('WEIGHT', (itemDescriptor.Weight || 0).toFixed(2) + ' kg' + ((itemInstance && itemInstance.Count > 1) ? ' ea.' : ''));
+            // Lighter is better, hence higherIsBetter=false.
+            stat('WEIGHT', (itemDescriptor.Weight || 0).toFixed(2) + ' kg' + ((itemInstance && itemInstance.Count > 1) ? ' ea.' : ''),
+                deltaOf('Weight'), false);
+
+            if (itemInstance && typeof itemInstance.Durability === 'number'
+                && itemInstance.Durability >= 0 && itemInstance.MaxDurability > 0) {
+                stat('CONDITION', Math.round((itemInstance.Durability / itemInstance.MaxDurability) * 100) + '%');
+            }
+            if (itemDescriptor.BonusInventorySlots > 0 || (cmp && cmp.BonusInventorySlots > 0)) {
+                stat('SLOTS', String(itemDescriptor.BonusInventorySlots || 0), deltaOf('BonusInventorySlots'));
+            }
+            if (itemDescriptor.MaxAmmo > 0 || (cmp && cmp.MaxAmmo > 0)) {
+                stat('AMMO CAP', String(itemDescriptor.MaxAmmo || 0), deltaOf('MaxAmmo'));
+            }
+            if (itemDescriptor.BonusEntityDamage > 0 || (cmp && cmp.BonusEntityDamage > 0)) {
+                stat('VS FURNITURE', '+' + (itemDescriptor.BonusEntityDamage || 0), deltaOf('BonusEntityDamage'));
+            }
+            if ((itemDescriptor.EntityDamageMultiplier || 0) !== 1 || (cmp && (cmp.EntityDamageMultiplier || 0) !== 1)) {
+                stat('DEMOLITION', (itemDescriptor.EntityDamageMultiplier || 0).toFixed(2) + '×',
+                    deltaOf('EntityDamageMultiplier'));
+            }
+
+            if (cmp) {
+                host.appendChild(el('div', {
+                    style: 'margin-top:7px;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(37,33,25,0.6);',
+                }, 'vs equipped: ' + (cmp.Name || cmp.ItemId || '')));
+            }
+            if (itemInstance && itemInstance.bLocked) {
+                host.appendChild(el('div', {
+                    style: 'margin-top:7px;font-size:11px;font-weight:700;color:#8a6a12;',
+                }, '🔒 Locked — protected from deposit, quick-move and drop'));
+            }
         },
     };
 
     // ---- Cell interaction wiring ------------------------------------------
     function wireCell(cell, pane, item, cellIndex) {
-        cell.addEventListener('mouseenter', function () { pane.onHover && pane.onHover(item, cellIndex); });
-        cell.addEventListener('mouseleave', function () { pane.onLeave && pane.onLeave(); });
+        cell.addEventListener('mouseenter', function () {
+            hoverTarget = item ? { pane: pane, item: item, cellIndex: cellIndex, cell: cell } : null;
+            // Looking at it counts as acknowledging it.
+            if (item && isFresh(pane.ownerId, item.InstanceId)) {
+                clearFresh(pane.ownerId, item.InstanceId);
+                var badge = cell.querySelector('.new-badge');
+                if (badge) badge.remove();
+            }
+            pane.onHover && pane.onHover(item, cellIndex);
+        });
+        cell.addEventListener('mouseleave', function () {
+            if (hoverTarget && hoverTarget.cell === cell) hoverTarget = null;
+            pane.onLeave && pane.onLeave();
+        });
 
         cell.addEventListener('click', function (e) {
             if (clickSuppressed()) return;
@@ -801,6 +1066,12 @@
                 return;
             }
             if (!item) return;
+            // Shift+RMB opens the exact-amount dialog; plain RMB keeps the fast
+            // half-pickup, which is the right default for most stacks.
+            if (e.shiftKey && (item.Count || 1) > 1) {
+                openSplitDialog(pane, item, cellIndex, cell);
+                return;
+            }
             // RMB empty cursor: pick up the LARGER half (stack of 7 -> hold 4).
             var half = Math.ceil((item.Count || 1) / 2);
             pickUp(pane, item, cellIndex, half, e);
