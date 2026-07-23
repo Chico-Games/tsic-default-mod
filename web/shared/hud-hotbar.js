@@ -200,6 +200,15 @@
           publish('UI.Cmd.Hotbar.Select', { SlotIndex: i });
         };
 
+        // RMB clears the slot — the item stays in the inventory, only the
+        // hotbar reference goes. Nothing to clear on the fists slot or an
+        // empty one, and preventDefault stops CEF's own context menu.
+        slot.addEventListener('contextmenu', function (e) {
+          e.preventDefault();
+          if (isFists || !slotHasItem) return;
+          clearSlot(i);
+        });
+
         // Drag source — only assigned slots can be dragged.
         slot.draggable = slotHasItem;
         if (slotHasItem) {

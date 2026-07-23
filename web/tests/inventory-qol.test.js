@@ -1,10 +1,10 @@
-// Tests for the inventory quality-of-life layer: exact-amount split, stack
-// locking (favourites), durability/NEW cell overlays, comparison deltas in the
-// info card, and the storage shell's bulk ops + container capacity meter.
+// Tests for the inventory quality-of-life layer: exact-amount split,
+// durability/NEW cell overlays, comparison deltas in the info card, and the
+// storage shell's bulk ops + container capacity meter.
 //
 // These cover the gaps that made the inventory feel dated next to the genre:
-// no way to split an exact count, nothing protecting a good tool from a bulk
-// deposit, no visible reason for a container refusing an item.
+// no way to split an exact count, no visible reason for a container refusing
+// an item.
 
 function qolCell(ctx, grid) {
     return ctx.doc.querySelector('#host .tsic-slot[data-grid="' + grid + '"]');
@@ -50,21 +50,6 @@ TSICTestHarness.register({
         const bar = ctx.doc.querySelector('#host .tsic-slot[data-grid="0"] .wear');
         ctx.expect(ctx.assert.truthy(bar.classList.contains('warn') || bar.classList.contains('crit'),
             'low durability should be flagged'));
-    },
-});
-
-TSICTestHarness.register({
-    name: 'QoL/Cells: a locked stack shows the padlock and the locked-item rim',
-    file: '/screens/test-fixtures.html',
-    async run(ctx) {
-        qolRender(ctx, [
-            { ItemId: 'ID_A', Count: 1, InstanceId: 1, GridSlot: 0, bLocked: true },
-            { ItemId: 'ID_B', Count: 1, InstanceId: 2, GridSlot: 1, bLocked: false },
-        ]);
-        ctx.expect(ctx.assert.domCount(ctx.doc, '#host .tsic-slot[data-grid="0"] .lock-badge', 1));
-        ctx.expect(ctx.assert.truthy(
-            qolCell(ctx, 0).classList.contains('is-locked-item'), 'locked cell keeps its rim class'));
-        ctx.expect(ctx.assert.domCount(ctx.doc, '#host .tsic-slot[data-grid="1"] .lock-badge', 0));
     },
 });
 
@@ -146,44 +131,6 @@ TSICTestHarness.register({
     },
 });
 
-// ---- Locking -------------------------------------------------------------
-
-TSICTestHarness.register({
-    name: 'QoL/Lock: toggling the hovered stack publishes SetLocked with the inverted state',
-    file: '/screens/test-fixtures.html',
-    async run(ctx) {
-        ctx.clearPublishes();
-        qolRender(ctx, [{ ItemId: 'ID_A', Count: 1, InstanceId: 42, GridSlot: 0, bLocked: false }]);
-        qolHover(ctx, qolCell(ctx, 0));
-        ctx.expect(ctx.assert.truthy(ctx.win.TSICInventory.toggleLockOnTarget(), 'toggle should act'));
-        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Inventory.SetLocked', {
-            where: p => p.ItemId === 42 && p.bLocked === true,
-        }));
-
-        // An already-locked stack toggles back off.
-        ctx.clearPublishes();
-        qolRender(ctx, [{ ItemId: 'ID_A', Count: 1, InstanceId: 42, GridSlot: 0, bLocked: true }]);
-        qolHover(ctx, qolCell(ctx, 0));
-        ctx.win.TSICInventory.toggleLockOnTarget();
-        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Inventory.SetLocked', {
-            where: p => p.ItemId === 42 && p.bLocked === false,
-        }));
-    },
-});
-
-TSICTestHarness.register({
-    name: 'QoL/Lock: container stacks are not lockable (player inventory only)',
-    file: '/screens/test-fixtures.html',
-    async run(ctx) {
-        ctx.clearPublishes();
-        qolRender(ctx, [{ ItemId: 'ID_A', Count: 1, InstanceId: 5, GridSlot: 0 }],
-            { ownerId: 'Storage:12' });
-        qolHover(ctx, qolCell(ctx, 0));
-        ctx.expect(ctx.assert.eq(ctx.win.TSICInventory.toggleLockOnTarget(), false, 'refused'));
-        ctx.expect(ctx.assert.notPublished(ctx.handle, 'UI.Cmd.Inventory.SetLocked'));
-    },
-});
-
 // ---- Info card comparison ------------------------------------------------
 
 TSICTestHarness.register({
@@ -219,17 +166,16 @@ TSICTestHarness.register({
 });
 
 TSICTestHarness.register({
-    name: 'QoL/Info: a locked stack says so, and condition renders as a percentage',
+    name: 'QoL/Info: condition renders as a percentage',
     file: '/screens/test-fixtures.html',
     async run(ctx) {
         const host = ctx.doc.createElement('div');
         ctx.doc.body.appendChild(host);
         ctx.win.TSICInventory.renderInfoPanel(
             host, { ItemId: 'ID_Axe', Name: 'Axe', Weight: 2 },
-            { Count: 1, bLocked: true, Durability: 45, MaxDurability: 100 }, null);
+            { Count: 1, Durability: 45, MaxDurability: 100 }, null);
         ctx.expect(ctx.assert.truthy(host.textContent.includes('CONDITION'), 'condition row'));
         ctx.expect(ctx.assert.truthy(host.textContent.includes('45%'), 'condition percent'));
-        ctx.expect(ctx.assert.truthy(host.textContent.includes('Locked'), 'lock note'));
         host.remove();
     },
 });

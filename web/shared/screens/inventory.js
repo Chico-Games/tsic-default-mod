@@ -194,7 +194,19 @@
       border-left:2px dashed rgba(10,10,10,0.45); pointer-events:none;
     }
 
-    [data-screen="Inventory"] .inv-hints { display:flex; gap:14px; justify-content:center; margin-top:10px; border-top:2px dashed rgba(10,10,10,0.3); padding-top:8px; flex-wrap:wrap; }
+    /* The chip set changes when a stack is picked up, and the panel is
+       width:auto — so left to itself the hint row is the one child whose
+       content can resize the whole panel mid-drag. width:0 + min-width:100%
+       keeps it out of the panel's shrink-to-fit width (the grid and rail decide
+       that), so the chips wrap onto as many lines as they need instead of
+       stretching the panel to fit them on one. renderHints() then reserves the
+       tallest set's height so swapping sets can't change it either. */
+    [data-screen="Inventory"] .inv-hints {
+      display:flex; flex-wrap:wrap; align-content:flex-start;
+      gap:10px 14px; justify-content:center;
+      width:0; min-width:100%;
+      margin-top:10px; border-top:2px dashed rgba(10,10,10,0.3); padding-top:8px;
+    }
     [data-screen="Inventory"] .inv-hints .hint { display:flex; align-items:center; gap:5px; font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:rgba(74,66,57,0.9); }
     [data-screen="Inventory"] .inv-hints .kbd {
       display:inline-flex; align-items:center; justify-content:center; min-width:20px; height:20px; padding:0 4px;
@@ -600,6 +612,17 @@
             }
             ctx.publish('UI.Cmd.Hotbar.Select', { SlotIndex: i });
           });
+          // RMB clears the slot. An empty ItemId is the established "unassign"
+          // payload (see hud-hotbar.js). The item itself is untouched — it stays
+          // in the grid; only the hotbar reference goes. The fists slot has
+          // nothing to clear, and an already-empty slot publishes nothing.
+          hslot.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (isFists || slots[i] == null || slots[i] < 0) return;
+            ctx.publish('UI.Cmd.Hotbar.Assign', { SlotIndex: i, ItemId: '' });
+            tsic.playSound('Inventory.Transfer', 0.33);
+          });
           host.appendChild(hslot);
           if (isFists) host.appendChild(TSIC.el('div', { class: 'hb-sep' }));
         }
@@ -618,10 +641,19 @@
           host.appendChild(hintChip(['RMB'], 'Half'));
           host.appendChild(hintChip(['SHIFT', 'RMB'], 'Split…'));
           host.appendChild(hintChip(['SHIFT', 'LMB'], 'Equip'));
-          host.appendChild(hintChip(['L'], 'Lock'));
           host.appendChild(hintChip(['G'], 'Drop 1'));
           host.appendChild(hintChip(['CTRL', 'G'], 'Drop stack'));
           host.appendChild(hintChip(['1', '0'], 'Hotbar'));
+          host.appendChild(hintChip(['RMB'], 'Clear hotbar slot'));
+        }
+        // Holding a stack swaps in a shorter chip set, which would otherwise
+        // shed a wrapped line and shrink the panel out from under the drag.
+        // The idle set is always the tallest, so measure it and hold that
+        // height for the held set. Clearing first re-measures at the current
+        // width, so a grid-width change (new bag tier) re-reserves correctly.
+        if (!heldStack) {
+          host.style.minHeight = '';
+          host.style.minHeight = host.offsetHeight + 'px';
         }
       }
 
@@ -732,13 +764,6 @@
         }
         if ((e.key === 'g' || e.key === 'G') && hoveredItem && !window.TSICInventory.getHeld()) {
           window.TSICInventory.dropHovered({ ownerId: 'Player' }, hoveredItem, e.ctrlKey);
-          return;
-        }
-        // L locks/unlocks the hovered stack (protects it from deposit-all,
-        // quick-move and drop). Escape-hatch for the "I just quick-stacked my
-        // good pickaxe into a chest" problem.
-        if ((e.key === 'l' || e.key === 'L') && !window.TSICInventory.getHeld()) {
-          if (window.TSICInventory.toggleLockOnTarget()) renderHints();
           return;
         }
         if (e.key === 'Escape') {

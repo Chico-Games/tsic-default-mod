@@ -74,13 +74,6 @@
             '.tsic-slot .wear i { display:block; height:100%; background:#1e8f3e; }',
             '.tsic-slot .wear.warn i { background:#ffcc00; }',
             '.tsic-slot .wear.crit i { background:#e60000; }',
-            // Locked (favourited): a padlock in the bottom-left, plus a warm rim so
-            // a locked stack is identifiable at a glance while scanning the grid.
-            '.tsic-slot.is-locked-item { box-shadow: inset 0 0 0 2px rgba(224,168,42,0.85); }',
-            '.tsic-slot .lock-badge {',
-            '  position:absolute; bottom:1px; left:2px; font-size:9px; line-height:1;',
-            '  pointer-events:none; text-shadow:0 1px 2px rgba(0,0,0,0.6);',
-            '}',
             // "New since you last looked" — cleared when the stack is hovered.
             // Top-CENTRE: the four corners are already taken (equipped, hotbar
             // number, stack count, lock) and an item can be new and equipped at once.
@@ -632,13 +625,11 @@
         }, 0);
     }
 
-    // ---- Lock (favourite) --------------------------------------------------
-    // Only the player inventory carries locks; C++ ignores the command for any
-    // other holder, so the guard here is purely to avoid pointless traffic.
+    // ---- Hovered/focused cell ----------------------------------------------
     // hoverTarget is the mouse's current cell; gamepad falls back to focus.
     var hoverTarget = null;
 
-    function lockTarget() {
+    function targetCell() {
         if (hoverTarget && hoverTarget.item) return hoverTarget;
         var cell = document.querySelector('.tsic-slot[data-tsic-focused]');
         if (!cell || cell.classList.contains('is-locked')) return null;
@@ -648,15 +639,6 @@
         if (!pane || Number.isNaN(cellIndex)) return null;
         var item = pane.itemAt ? pane.itemAt(cellIndex) : null;
         return item ? { pane: pane, item: item, cellIndex: cellIndex, cell: cell } : null;
-    }
-
-    function toggleLock(pane, item) {
-        if (!item || pane.ownerId !== 'Player') return false;
-        publish('UI.Cmd.Inventory.SetLocked', {
-            ItemId: item.InstanceId, bLocked: !item.bLocked,
-        });
-        sound('Inventory.Transfer', 0.25);
-        return true;
     }
 
     // ---- Doll drag (equipment paper doll -> grid) --------------------------
@@ -735,15 +717,9 @@
         /** Diff a snapshot against the previous one to mark freshly-arrived stacks. */
         noteSnapshot: noteSnapshot,
 
-        /** Toggle the lock on the hovered cell, else the focused one. */
-        toggleLockOnTarget() {
-            var t = lockTarget();
-            return !!(t && toggleLock(t.pane, t.item));
-        },
-
         /** Open the exact-amount split dialog on the hovered/focused cell. */
         splitOnTarget() {
-            var t = lockTarget();
+            var t = targetCell();
             if (!t || (t.item.Count || 1) < 2) return false;
             openSplitDialog(t.pane, t.item, t.cellIndex, t.cell);
             return true;
@@ -879,7 +855,6 @@
                     cell.dataset.instance = item.InstanceId;
                     var isEquipped = !!(equippedIds && item.InstanceId != null && equippedIds.has(String(item.InstanceId)));
                     if (isEquipped) cell.classList.add('is-equipped');
-                    if (item.bLocked) cell.classList.add('is-locked-item');
                     if (opts.filterFn && !opts.filterFn(item)) cell.classList.add('is-filtered');
                     if (item.ItemId) {
                         var img = TSIC.iconImg(TSIC.itemIconUrl(item.ItemId));
@@ -895,9 +870,6 @@
                         });
                         wear.appendChild(el('i', { style: 'width:' + (wearRatio * 100).toFixed(1) + '%;' }));
                         cell.appendChild(wear);
-                    }
-                    if (item.bLocked) {
-                        cell.appendChild(el('span', { class: 'lock-badge', title: 'Locked — protected from deposit/drop' }, '🔒'));
                     }
                     if (isFresh(pane.ownerId, item.InstanceId)) {
                         cell.appendChild(el('span', { class: 'new-badge' }, 'NEW'));
@@ -1005,11 +977,6 @@
                 host.appendChild(el('div', {
                     style: 'margin-top:7px;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(37,33,25,0.6);',
                 }, 'vs equipped: ' + (cmp.Name || cmp.ItemId || '')));
-            }
-            if (itemInstance && itemInstance.bLocked) {
-                host.appendChild(el('div', {
-                    style: 'margin-top:7px;font-size:11px;font-weight:700;color:#8a6a12;',
-                }, '🔒 Locked — protected from deposit, quick-move and drop'));
             }
         },
     };

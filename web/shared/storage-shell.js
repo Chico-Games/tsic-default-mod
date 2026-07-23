@@ -103,7 +103,17 @@
         '#ss-panel .ss-info { padding:9px 11px; background:#fffdf3; border:2px solid rgba(10,10,10,0.85); min-height:120px; overflow:auto; font-size:13px; }',
         '#ss-panel .ss-info .info-eyebrow { font-size:10px; letter-spacing:0.18em; color:var(--mag-red, #e60000); text-transform:uppercase; }',
         '#ss-panel .ss-info .statline { display:flex; justify-content:space-between; border-top:1px dashed rgba(10,10,10,0.3); padding:2px 0; }',
-        '#ss-panel .ss-hints { display:flex; gap:14px; justify-content:flex-start; margin-top:10px; border-top:2px dashed rgba(10,10,10,0.3); padding-top:8px; flex-wrap:wrap; }',
+        // Same reserve as the inventory screen: the chip set shrinks while a
+        // stack is held, and this panel is width:auto — so left alone the hint
+        // row resizes the whole panel mid-drag. width:0 + min-width:100% keeps
+        // it out of the shrink-to-fit width so chips wrap instead of stretching
+        // the panel; renderHints() reserves the tallest set's height.
+        '#ss-panel .ss-hints {',
+        '  display:flex; flex-wrap:wrap; align-content:flex-start;',
+        '  gap:10px 14px; justify-content:flex-start;',
+        '  width:0; min-width:100%;',
+        '  margin-top:10px; border-top:2px dashed rgba(10,10,10,0.3); padding-top:8px;',
+        '}',
         '#ss-panel .ss-hints .hint { display:flex; align-items:center; gap:5px; font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:rgba(74,66,57,0.9); }',
         '#ss-panel .ss-hints .kbd { display:inline-flex; align-items:center; justify-content:center; min-width:20px; height:20px; padding:0 4px; background:#fffdf3; border:2px solid rgba(10,10,10,0.85); box-shadow:2px 2px 0 rgba(10,10,10,0.85); font-size:9px; font-weight:700; color:#1a1612; }',
     ].join('\n');
@@ -392,8 +402,13 @@
                 hintChip(host, ['SHIFT', 'RMB'], 'Split…');
                 hintChip(host, ['SHIFT', 'LMB'], 'Quick-move');
                 hintChip(host, ['LMB', 'LMB'], 'Collect');
-                hintChip(host, ['L'], 'Lock');
                 hintChip(host, ['G'], 'Drop 1');
+            }
+            // The idle set is always the taller one — measure it and hold that
+            // height so picking a stack up cannot shed a wrapped line.
+            if (!held) {
+                host.style.minHeight = '';
+                host.style.minHeight = host.offsetHeight + 'px';
             }
         }
 
@@ -615,10 +630,6 @@
                 const ownerId = hovered.side === 'player' ? state.playerOwnerId : state.containerOwnerId;
                 window.TSICInventory.dropHovered({ ownerId }, hovered.it, e.ctrlKey);
                 return;
-            }
-            // L locks the hovered player stack so Store All / Quick Stack skip it.
-            if ((e.key === 'l' || e.key === 'L') && !window.TSICInventory.getHeld()) {
-                window.TSICInventory.toggleLockOnTarget();
             }
         });
 

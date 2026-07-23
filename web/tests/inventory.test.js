@@ -240,6 +240,82 @@ TSICTestHarness.register({
 });
 
 TSICTestHarness.register({
+    name: 'Inventory: picking a stack up does not resize the panel (hint row reserves its height)',
+    file: '/screens/inventory.html',
+    async run(ctx) {
+        ctx.setItemCatalog({ ID_Bread: { Name: 'Bread', Category: 'Consumable' } });
+        await showInventory(ctx, {
+            Items: [{ ItemId: 'ID_Bread', Count: 3, InstanceId: 7, GridSlot: 0 }],
+        });
+        const panel = ctx.doc.getElementById('inv-panel');
+        const hints = ctx.doc.getElementById('inv-hints');
+        const size = () => {
+            const r = panel.getBoundingClientRect();
+            return Math.round(r.width) + 'x' + Math.round(r.height);
+        };
+        const hintH = () => Math.round(hints.getBoundingClientRect().height);
+
+        // The idle render measures itself and pins that height. Asserting the
+        // reserve exists is what makes this test bite: at a wide enough width
+        // the idle chips fit on one line, so comparing heights alone would pass
+        // even with the reserve removed.
+        const reserved = hints.style.minHeight;
+        ctx.expect(ctx.assert.truthy(reserved, 'idle render reserves the hint-row height'));
+        const idle = size();
+        const idleHints = hintH();
+
+        // Pick the stack up — the hint row swaps to the shorter held set.
+        ctx.doc.querySelector('#inv-grid .tsic-slot[data-grid="0"]').click();
+        ctx.expect(ctx.assert.truthy(ctx.win.TSICInventory.getHeld(), 'stack held'));
+        await new Promise(r => setTimeout(r, 30));
+        ctx.expect(ctx.assert.eq(hints.style.minHeight, reserved, 'reserve survives the held render'));
+        ctx.expect(ctx.assert.eq(hintH(), idleHints, 'hint row keeps its height while dragging'));
+        ctx.expect(ctx.assert.eq(size(), idle, 'panel must not resize while dragging'));
+
+        // And back again when the stack is returned.
+        ctx.win.TSICInventory.cancelHeld();
+        await new Promise(r => setTimeout(r, 30));
+        ctx.expect(ctx.assert.eq(size(), idle, 'panel returns to the same size'));
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Inventory: RMB on a hotbar slot clears it; fists and empty slots publish nothing',
+    file: '/screens/inventory.html',
+    async run(ctx) {
+        ctx.setItemCatalog({ ID_Bread: { Name: 'Bread', Category: 'Consumable' } });
+        await showInventory(ctx, {
+            Items: [{ ItemId: 'ID_Bread', Count: 3, InstanceId: 7, GridSlot: 0 }],
+        });
+        ctx.inject('tsic.msg.UI.Hotbar.Changed', {
+            SlotIndices: [-1, 7, -1, -1, -1, -1, -1, -1, -1, -1], SelectedSlot: -1,
+        });
+        await ctx.waitFor(() => ctx.doc.querySelectorAll('#inv-hotbar .hslot').length === 10);
+        const slots = ctx.doc.querySelectorAll('#inv-hotbar .hslot');
+        const rmb = (el) => el.dispatchEvent(new ctx.win.MouseEvent('contextmenu', { bubbles: true, cancelable: true }));
+
+        // Assigned slot 2 clears with an empty ItemId (the unassign payload).
+        ctx.clearPublishes();
+        rmb(slots[1]);
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Hotbar.Assign', {
+            where: p => p.SlotIndex === 1 && p.ItemId === '',
+        }));
+        // It must not double as a Select.
+        ctx.expect(ctx.assert.notPublished(ctx.handle, 'UI.Cmd.Hotbar.Select'));
+
+        // The fists slot has nothing to clear.
+        ctx.clearPublishes();
+        rmb(slots[0]);
+        ctx.expect(ctx.assert.notPublished(ctx.handle, 'UI.Cmd.Hotbar.Assign'));
+
+        // Neither does an already-empty slot.
+        ctx.clearPublishes();
+        rmb(slots[4]);
+        ctx.expect(ctx.assert.notPublished(ctx.handle, 'UI.Cmd.Hotbar.Assign'));
+    },
+});
+
+TSICTestHarness.register({
     name: 'Inventory: no context menu — RMB on a stack picks up half instead (§7.6)',
     file: '/screens/inventory.html',
     async run(ctx) {
