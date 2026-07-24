@@ -125,6 +125,7 @@ TSICTestHarness.register({
     async run(ctx) {
         await TSICTestHarness.waitFor(() => ctx.win.TSICTerminal && ctx.win.TSICTerminal.shells && ctx.win.TSICTerminal.shells.tier2);
         ctx.win.TSICTerminal.shells.tier2.charDelayMs = 0; // instant output
+        ctx.win.TSICTerminal.shells.tier2.instantBoot = true;
         ctx.inject('tsic.msg.UI.Terminal.Catalog', { Programs: [
             { id: 'com.tsic.hello',   name: 'HELLO',    minTier: 1, entry: 'main.js' },
             { id: 'com.tsic.scphint', name: 'SCP-HINT', minTier: 3, entry: 'main.js' },
@@ -183,6 +184,7 @@ TSICTestHarness.register({
     async run(ctx) {
         await TSICTestHarness.waitFor(() => ctx.win.TSICTerminal && ctx.win.TSICTerminal.shells && ctx.win.TSICTerminal.shells.tier2);
         ctx.win.TSICTerminal.shells.tier2.charDelayMs = 0; // instant console boot
+        ctx.win.TSICTerminal.shells.tier2.instantBoot = true;
         ctx.inject('tsic.msg.UI.Terminal.Catalog', { Programs: [
             { id: 'com.tsic.logs2', name: 'LOGS_V2', minTier: 2, entry: 'main.js', capabilities: ['gfx.canvas'] },
             { id: 'com.tsic.logs',  name: 'LOGS',    minTier: 1, entry: 'main.js', folder: 'V1', capabilities: ['term.print', 'term.input'] },
@@ -221,6 +223,7 @@ TSICTestHarness.register({
     async run(ctx) {
         await TSICTestHarness.waitFor(() => ctx.win.TSICTerminal && ctx.win.TSICTerminal.shells && ctx.win.TSICTerminal.shells.tier2);
         ctx.win.TSICTerminal.shells.tier2.charDelayMs = 0;
+        ctx.win.TSICTerminal.shells.tier2.instantBoot = true;
         ctx.inject('tsic.msg.UI.Terminal.Catalog', { Programs: [
             { id: 'com.tsic.logs2', name: 'LOGS_V2', minTier: 2, entry: 'main.js', capabilities: ['gfx.canvas'] },
             { id: 'com.tsic.logs',  name: 'LOGS',    minTier: 1, entry: 'main.js', folder: 'V1', capabilities: ['term.print', 'term.input'] },
@@ -261,6 +264,7 @@ TSICTestHarness.register({
     async run(ctx) {
         await TSICTestHarness.waitFor(() => ctx.win.TSICTerminal && ctx.win.TSICTerminal.shells && ctx.win.TSICTerminal.shells.tier2);
         ctx.win.TSICTerminal.shells.tier2.charDelayMs = 0;
+        ctx.win.TSICTerminal.shells.tier2.instantBoot = true;
         ctx.inject('tsic.msg.UI.Terminal.Catalog', { Programs: [{ id: 'com.tsic.hello', name: 'HELLO', minTier: 1, entry: 'main.js' }] });
         ctx.inject('tsic.msg.UI.Terminal.UnlockedList', { ProgramIds: ['com.tsic.hello'] });
         ctx.inject('tsic.msg.UI.Terminal.Open', { TerminalId: 't2', Tier: 2 });
@@ -280,6 +284,128 @@ TSICTestHarness.register({
         ctx.inject('tsic.msg.UI.Terminal.Open', { TerminalId: 't2', Tier: 1 });
         await TSICTestHarness.waitFor(() => ctx.doc.querySelector('.tsic-term--t1'));
         ctx.expect(ctx.assert.truthy(!ctx.doc.querySelector('.tsic-term--t2'), 'switching tier rebuilds into the new shell'));
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Terminal: a tier-3 SCiPnet terminal renders the network topology desktop',
+    file: termScreenFile(),
+    async run(ctx) {
+        await TSICTestHarness.waitFor(() => ctx.win.TSICTerminal && ctx.win.TSICTerminal.shells && ctx.win.TSICTerminal.shells.tier3);
+        ctx.win.TSICTerminal.shells.tier3.charDelayMs = 0;
+        ctx.win.TSICTerminal.shells.tier3.instantBoot = true;
+        ctx.inject('tsic.msg.UI.Terminal.Catalog', { Programs: [
+            { id: 'com.tsic.logs2', name: 'LOGS_V2', minTier: 2, entry: 'main.js', capabilities: ['gfx.canvas'] },
+            { id: 'com.tsic.logs',  name: 'LOGS',    minTier: 1, entry: 'main.js', folder: 'V1', capabilities: ['term.print', 'term.input'] },
+        ]});
+        ctx.inject('tsic.msg.UI.Terminal.UnlockedList', { ProgramIds: ['com.tsic.logs2', 'com.tsic.logs'] });
+        ctx.inject('tsic.msg.UI.Terminal.Open', { TerminalId: 't3', Tier: 3 });
+        await TSICTestHarness.waitFor(() => ctx.doc.querySelector('.tsic-term--t3 .t3-node'));
+        const labels = Array.from(ctx.doc.querySelectorAll('.tsic-term--t3 .t3-node-label')).map(function (n) { return n.textContent; });
+        ctx.expect(ctx.assert.truthy(labels.indexOf('ROOT_NODE') !== -1, 'the ROOT node anchors the topology'));
+        ctx.expect(ctx.assert.truthy(labels.indexOf('TERMINAL') !== -1, 'the SCiPnet shell is a TERMINAL node in the web'));
+        ctx.expect(ctx.assert.truthy(labels.indexOf('LOGS_V2') !== -1, 'unlocked programs appear as nodes (backwards compatible)'));
+        ctx.expect(ctx.assert.truthy(labels.indexOf('V1') !== -1, 'a folder appears as an anchor node'));
+        ctx.expect(ctx.assert.domExists(ctx.doc, '.tsic-term--t3 .t3-net-canvas'));   // topology links draw on the 3D canvas
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Terminal: a tier-3 program node opens its window; TERMINAL opens the console',
+    file: termScreenFile(),
+    async run(ctx) {
+        await TSICTestHarness.waitFor(() => ctx.win.TSICTerminal && ctx.win.TSICTerminal.shells && ctx.win.TSICTerminal.shells.tier3);
+        ctx.win.TSICTerminal.shells.tier3.charDelayMs = 0;
+        ctx.win.TSICTerminal.shells.tier3.instantBoot = true;
+        ctx.inject('tsic.msg.UI.Terminal.Catalog', { Programs: [{ id: 'com.tsic.hello', name: 'HELLO', minTier: 1, entry: 'main.js', capabilities: ['term.print', 'term.input'] }] });
+        ctx.inject('tsic.msg.UI.Terminal.UnlockedList', { ProgramIds: ['com.tsic.hello'] });
+        ctx.inject('tsic.msg.UI.Terminal.Open', { TerminalId: 't3', Tier: 3 });
+        await TSICTestHarness.waitFor(() => ctx.doc.querySelector('.tsic-term--t3 .t3-node'));
+        function nodeByLabel(label) {
+            return Array.from(ctx.doc.querySelectorAll('.tsic-term--t3 .t3-node')).find(function (n) {
+                const l = n.querySelector('.t3-node-label'); return l && l.textContent === label;
+            });
+        }
+        const winCount = () => ctx.doc.querySelectorAll('.tsic-term--t3 .t3-window').length;
+        // The TERMINAL node opens Katie's SCiPnet console.
+        nodeByLabel('TERMINAL').click();
+        await TSICTestHarness.waitFor(() => {
+            const c = ctx.doc.querySelector('.tsic-term--t3 .t3-console');
+            return c && /KATIE\/\/ROOT/.test(c.textContent);
+        });
+        ctx.expect(ctx.assert.truthy(winCount() === 1, 'TERMINAL opens the console window'));
+        // A program node opens that program in its own window.
+        nodeByLabel('HELLO').click();
+        await TSICTestHarness.waitFor(() => winCount() === 2);
+        ctx.expect(ctx.assert.truthy(winCount() === 2, 'a program node opens its own window (same programs as v2)'));
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Terminal: tier-3 windows maximize and close independently',
+    file: termScreenFile(),
+    async run(ctx) {
+        await TSICTestHarness.waitFor(() => ctx.win.TSICTerminal && ctx.win.TSICTerminal.shells && ctx.win.TSICTerminal.shells.tier3);
+        ctx.win.TSICTerminal.shells.tier3.charDelayMs = 0;
+        ctx.win.TSICTerminal.shells.tier3.instantBoot = true;
+        ctx.inject('tsic.msg.UI.Terminal.Catalog', { Programs: [{ id: 'com.tsic.hello', name: 'HELLO', minTier: 1, entry: 'main.js', capabilities: ['term.print', 'term.input'] }] });
+        ctx.inject('tsic.msg.UI.Terminal.UnlockedList', { ProgramIds: ['com.tsic.hello'] });
+        ctx.inject('tsic.msg.UI.Terminal.Open', { TerminalId: 't3', Tier: 3 });
+        await TSICTestHarness.waitFor(() => ctx.doc.querySelector('.tsic-term--t3 .t3-node'));
+        function nodeByLabel(label) {
+            return Array.from(ctx.doc.querySelectorAll('.tsic-term--t3 .t3-node')).find(function (n) {
+                const l = n.querySelector('.t3-node-label'); return l && l.textContent === label;
+            });
+        }
+        const wins = () => ctx.doc.querySelectorAll('.tsic-term--t3 .t3-window');
+        nodeByLabel('TERMINAL').click();
+        await TSICTestHarness.waitFor(() => wins().length === 1);
+        nodeByLabel('HELLO').click();
+        await TSICTestHarness.waitFor(() => wins().length === 2);
+
+        const w = wins()[1];
+        w.querySelector('.t3-zoom').click();
+        ctx.expect(ctx.assert.truthy(w.classList.contains('is-max'), 'zoom maximizes the window'));
+        w.querySelector('.t3-zoom').click();
+        ctx.expect(ctx.assert.truthy(!w.classList.contains('is-max'), 'zoom restores the window'));
+
+        w.querySelector('.t3-close').click();
+        await TSICTestHarness.waitFor(() => wins().length === 1);
+        ctx.expect(ctx.assert.truthy(wins().length === 1, 'closing one window leaves the other open'));
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Terminal: clicking a console body refocuses its input (tier 2 + tier 3)',
+    file: termScreenFile(),
+    async run(ctx) {
+        await TSICTestHarness.waitFor(() => ctx.win.TSICTerminal && ctx.win.TSICTerminal.shells && ctx.win.TSICTerminal.shells.tier2 && ctx.win.TSICTerminal.shells.tier3);
+        ctx.win.TSICTerminal.shells.tier2.charDelayMs = 0;
+        ctx.win.TSICTerminal.shells.tier2.instantBoot = true;
+        ctx.win.TSICTerminal.shells.tier3.charDelayMs = 0;
+        ctx.win.TSICTerminal.shells.tier3.instantBoot = true;
+
+        // Tier 2: open the console, blur the input, click the body → refocused.
+        ctx.inject('tsic.msg.UI.Terminal.Open', { TerminalId: 't2', Tier: 2 });
+        await TSICTestHarness.waitFor(() => ctx.doc.querySelector('.t2-icon-system'));
+        ctx.doc.querySelector('.t2-icon-system').click();
+        await TSICTestHarness.waitFor(() => ctx.doc.querySelector('.t2-console-input'));
+        const c2 = ctx.doc.querySelector('.t2-console-input');
+        c2.blur();
+        ctx.doc.querySelector('.t2-content.t2-console').dispatchEvent(new ctx.win.MouseEvent('mousedown', { bubbles: true, cancelable: true }));
+        ctx.expect(ctx.assert.truthy(ctx.doc.activeElement === c2, 'tier-2 console click refocuses its input'));
+
+        // Tier 3: same — open the TERMINAL console, blur, click body → refocused.
+        ctx.inject('tsic.msg.UI.Terminal.Open', { TerminalId: 't3', Tier: 3 });
+        await TSICTestHarness.waitFor(() => ctx.doc.querySelector('.tsic-term--t3 .t3-node'));
+        Array.from(ctx.doc.querySelectorAll('.tsic-term--t3 .t3-node')).find(function (n) {
+            const l = n.querySelector('.t3-node-label'); return l && l.textContent === 'TERMINAL';
+        }).click();
+        await TSICTestHarness.waitFor(() => ctx.doc.querySelector('.t3-console-input'));
+        const c3 = ctx.doc.querySelector('.t3-console-input');
+        c3.blur();
+        ctx.doc.querySelector('.t3-console').dispatchEvent(new ctx.win.MouseEvent('mousedown', { bubbles: true, cancelable: true }));
+        ctx.expect(ctx.assert.truthy(ctx.doc.activeElement === c3, 'tier-3 console click refocuses its input'));
     },
 });
 

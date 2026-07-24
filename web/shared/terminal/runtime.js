@@ -15,8 +15,9 @@
     '(function(){',
     '  var pending = new Map(); var seq = 0; var apiResolve;',
     '  function send(type, payload){ var id = ++seq; return new Promise(function(res){ pending.set(id, res); parent.postMessage({__tsicProgram:true, id:id, type:type, payload:payload}, "*"); }); }',
-    '  function makeApi(caps){ return {',
+    '  function makeApi(caps, skin){ return {',
     '    caps: caps,',
+    '    skin: skin,',
     '    print: function(t, opts){ parent.postMessage({__tsicProgram:true, type:"print", payload:{text:String(t), opts:opts||null}}, "*"); },',
     '    clear: function(){ parent.postMessage({__tsicProgram:true, type:"clear"}, "*"); },',
     '    reboot: function(){ parent.postMessage({__tsicProgram:true, type:"reboot"}, "*"); },',
@@ -29,7 +30,7 @@
     '  }; }',
     '  window.addEventListener("message", function(e){',
     '    var m = e.data; if(!m || !m.__tsicHost) return;',
-    '    if(m.type === "handshake"){ if(apiResolve){ apiResolve(makeApi(m.caps||[])); apiResolve=null; } return; }',
+    '    if(m.type === "handshake"){ if(apiResolve){ apiResolve(makeApi(m.caps||[], m.skin||"retro")); apiResolve=null; } return; }',
     '    if(m.id && pending.has(m.id)){ var r = pending.get(m.id); pending.delete(m.id); r(m.result); }',
     '  });',
     '  window.TSICProgram = { connect: function(){ return new Promise(function(res){ apiResolve = res; parent.postMessage({__tsicProgram:true, type:"hello"}, "*"); }); } };',
@@ -78,7 +79,7 @@
       const m = e.data;
       if (!m || !m.__tsicProgram) return;
       if (m.type === 'hello') {
-        iframe.contentWindow.postMessage({ __tsicHost: true, type: 'handshake', caps: granted }, '*');
+        iframe.contentWindow.postMessage({ __tsicHost: true, type: 'handshake', caps: granted, skin: opts.theme || 'retro' }, '*');
         return;
       }
       // print/theme/clear/reboot/exit reach nothing outside this iframe (they

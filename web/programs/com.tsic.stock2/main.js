@@ -5,7 +5,7 @@
 // the rows, and quantities tick up live (same absurd growth as the v1 STOCK).
 // Self-contained; the title bar + close box are the shell's window chrome.
 (async function () {
-  await TSICProgram.connect();   // handshake; the UI is self-rendered
+  const api = await TSICProgram.connect();   // handshake; the UI is self-rendered
 
   const EPOCH = Date.UTC(1984, 0, 1);
   const RATE = { big: [0.5, 2.0], med: [2.0, 3.5], small: [3.8, 5.5] };
@@ -40,30 +40,36 @@
   function commas(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
   function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
 
+  // Palette follows the host theme: 'dark' = SCiPnet amber/black (tier 3),
+  // otherwise the RetroOS red/white catalogue look (tier 2).
+  const P = (api.skin === 'dark')
+    ? { bg: '#080808', fg: '#ffb000', edge: '#5a4300', head: '#ffb000', headInk: '#000', soft: '#15100a', rowHover: '#1c1505', skuHover: '#241a08', dim: '#b98b00', bumpBg: '#ff2b2b', bumpInk: '#000', scroll: '#5a4300' }
+    : { bg: '#fff', fg: '#000', edge: '#000', head: '#e60000', headInk: '#fff', soft: '#eee', rowHover: '#ffe9e9', skuHover: '#f4d9d9', dim: '#555', bumpBg: '#e60000', bumpInk: '#fff', scroll: '#000' };
+
   const CSS =
     '*{box-sizing:border-box}' +
     'html,body{margin:0;height:100%}' +
-    'body{font-family:"VT323","Cascadia Mono","Courier New",monospace;font-size:18px;color:#000;background:#fff;display:flex;flex-direction:column}' +
-    '.bar{flex:0 0 auto;display:flex;align-items:center;gap:8px;padding:6px 8px;border-bottom:2px solid #000}' +
-    '.bar .t{color:#000;letter-spacing:1px}' +
-    '.bar .search{margin-left:auto;width:42%;min-width:120px;font:inherit;padding:1px 5px;border:2px solid #000;background:#fff;outline:none}' +
+    'body{font-family:"VT323","Cascadia Mono","Courier New",monospace;font-size:18px;color:' + P.fg + ';background:' + P.bg + ';display:flex;flex-direction:column}' +
+    '.bar{flex:0 0 auto;display:flex;align-items:center;gap:8px;padding:6px 8px;border-bottom:2px solid ' + P.edge + '}' +
+    '.bar .t{color:' + P.fg + ';letter-spacing:1px}' +
+    '.bar .search{margin-left:auto;width:42%;min-width:120px;font:inherit;padding:1px 5px;border:2px solid ' + P.edge + ';background:' + P.bg + ';color:' + P.fg + ';outline:none}' +
     '.wrap{flex:1;overflow:auto}' +
     'table{border-collapse:collapse;width:100%}' +
-    'th,td{border:2px dashed #000;padding:2px 8px;text-align:left;white-space:nowrap}' +
-    'th{position:sticky;top:0;background:#e60000;color:#fff;cursor:pointer;letter-spacing:1px;border-color:#000}' +
+    'th,td{border:2px dashed ' + P.edge + ';padding:2px 8px;text-align:left;white-space:nowrap}' +
+    'th{position:sticky;top:0;background:' + P.head + ';color:' + P.headInk + ';cursor:pointer;letter-spacing:1px;border-color:' + P.edge + '}' +
     'th .ar{float:right;margin-left:8px}' +
     'th.num,td.num{text-align:right}' +
     'td.num{position:relative;padding-left:20px}' +           /* reserved gutter for the arrow */
-    'td.sku{font-weight:bold;background:#eee}' +
-    'tbody tr:hover td{background:#ffe9e9}' +
-    'tbody tr:hover td.sku{background:#f4d9d9}' +
+    'td.sku{font-weight:bold;background:' + P.soft + '}' +
+    'tbody tr:hover td{background:' + P.rowHover + '}' +
+    'tbody tr:hover td.sku{background:' + P.skuHover + '}' +
     'td.num.bump{animation:stk-bump .8s ease-out}' +
     /* absolute → out of flow, so it never changes the column width or shifts the number */
     'td.num .up{position:absolute;left:5px;top:50%;transform:translateY(-50%);font-size:.85em;font-weight:bold}' +
-    '@keyframes stk-bump{from{background:#e60000;color:#fff}to{background:transparent;color:#000}}' +
+    '@keyframes stk-bump{from{background:' + P.bumpBg + ';color:' + P.bumpInk + '}to{background:transparent;color:' + P.fg + '}}' +
     '@media(prefers-reduced-motion:reduce){td.num.bump{animation:none}}' +
-    '.status{flex:0 0 auto;border-top:2px solid #000;padding:2px 8px;color:#555}' +
-    '::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:#000}';
+    '.status{flex:0 0 auto;border-top:2px solid ' + P.edge + ';padding:2px 8px;color:' + P.dim + '}' +
+    '::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:' + P.scroll + '}';
 
   document.head.insertAdjacentHTML('beforeend',
     '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=VT323&display=swap">' +

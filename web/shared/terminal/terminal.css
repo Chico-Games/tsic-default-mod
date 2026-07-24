@@ -380,6 +380,265 @@
   .tsic-term--t2::after { animation: tsic-crt-flicker 0.12s infinite; }
 }
 
-/* tier-3 stub: just enough to see the chrome swapped (designed in a later pass) */
-.tsic-term--t3 { background: #0c0c12; color: #cfd6e6; font-family: sans-serif; padding: 16px; height: 100%; box-sizing: border-box; }
-.tsic-term--t3 .tsic-term-clearance { color: #d2615b; font-weight: 700; letter-spacing: .1em; }
+/* ─────────────── Tier-3 "SCiPnet" — Katie's hacked OS ───────────────
+ * The next step up from the v2 desktop: same windows/console/programs, but the
+ * desktop is a NETWORK TOPOLOGY map. Amber-phosphor tactical CRT (grid, HUD
+ * bars, telemetry stream). 'theme-breach' flips the whole UI to alarm red. */
+.tsic-term--t3 {
+  --t3-fg: #ffb000;                 /* amber phosphor */
+  --t3-dim: #4a3400;
+  --t3-bg: #030405;
+  --t3-grid: #0a0e14;
+  --t3-glow: rgba(255,176,0,0.5);
+  --t3-danger: #ff2b2b;
+  --t3-win-bg: rgba(0,0,0,0.9);
+  position: relative; isolation: isolate; overflow: hidden;
+  height: 100%; box-sizing: border-box;
+  background: var(--t3-bg); color: var(--t3-fg);
+  font-family: "Courier New", "VT323", monospace; font-size: 13px;
+}
+.tsic-term--t3.theme-breach { --t3-fg: var(--t3-danger); --t3-dim: #4a0000; --t3-glow: rgba(255,43,43,0.6); --t3-grid: #1a0505; }
+
+/* Tactical grid background */
+.tsic-term--t3::before {
+  content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background-image:
+    linear-gradient(var(--t3-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--t3-grid) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+/* CRT scanlines + vignette */
+.tsic-term--t3 .t3-crt {
+  position: absolute; inset: 0; z-index: 9000; pointer-events: none;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.18) 50%, transparent 50%);
+  background-size: 100% 4px;
+  box-shadow: inset 0 0 120px rgba(0,0,0,0.9);
+}
+@media (prefers-reduced-motion: no-preference) { .tsic-term--t3 .t3-crt { animation: tsic-crt-flicker 0.15s infinite; } }
+
+/* HUD bars */
+.tsic-term--t3 .t3-hud {
+  position: absolute; left: 0; right: 0; height: 30px; z-index: 60;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 14px; background: #000; border: 1px solid var(--t3-dim);
+  font-weight: bold; letter-spacing: 2px;
+}
+.tsic-term--t3 .t3-hud--top { top: 0; border-left: 0; border-right: 0; border-top: 0; }
+.tsic-term--t3 .t3-hud--bottom { bottom: 0; border-left: 0; border-right: 0; border-bottom: 0; }
+.tsic-term--t3 .t3-sys { color: var(--t3-fg); }
+.tsic-term--t3.theme-breach .t3-sys { color: var(--t3-danger); }
+
+/* Telemetry stream */
+.tsic-term--t3 .t3-telemetry {
+  position: absolute; right: 0; top: 30px; bottom: 30px; width: 150px; z-index: 40;
+  border-left: 1px solid var(--t3-dim); background: rgba(0,0,0,0.5); padding: 8px;
+  font-size: 10px; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end;
+}
+.tsic-term--t3 .t3-tele-line { opacity: 0.7; margin-bottom: 2px; white-space: nowrap; }
+.tsic-term--t3 .t3-tele-line.is-warn { color: var(--t3-danger); opacity: 1; }
+
+/* ── Network topology (the desktop) ── */
+.tsic-term--t3 .t3-net { position: absolute; top: 30px; left: 0; right: 150px; bottom: 30px; z-index: 5; overflow: hidden; }
+.tsic-term--t3 .t3-nodes { position: absolute; inset: 0; }
+.tsic-term--t3 .t3-node {
+  position: absolute; transform: translate(-50%, -50%);
+  display: flex; align-items: center; cursor: pointer;
+}
+/* Whole node — icon + label box — reads as one clickable target. */
+.tsic-term--t3 .t3-node, .tsic-term--t3 .t3-node * { cursor: pointer; }
+.tsic-term--t3 .t3-node-core {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 26px; height: 26px; color: var(--t3-fg); transition: transform 0.15s, color 0.15s;
+}
+.tsic-term--t3 .t3-node-core svg { width: 22px; height: 22px; display: block; filter: drop-shadow(0 0 4px var(--t3-glow)); }
+.tsic-term--t3 .t3-node--file .t3-node-core { width: 22px; height: 22px; }
+.tsic-term--t3 .t3-node--file .t3-node-core svg { width: 18px; height: 18px; }
+.tsic-term--t3 .t3-node-label {
+  margin-left: 9px; white-space: nowrap; background: #000;
+  padding: 2px 6px; border: 1px solid var(--t3-dim); font-size: 11px; letter-spacing: 1px;
+}
+.tsic-term--t3 .t3-node:hover .t3-node-core,
+.tsic-term--t3 .t3-node.is-focus .t3-node-core { color: #fff; transform: scale(1.3); }
+.tsic-term--t3 .t3-node:hover .t3-node-core svg,
+.tsic-term--t3 .t3-node.is-focus .t3-node-core svg { filter: drop-shadow(0 0 10px var(--t3-fg)); }
+.tsic-term--t3 .t3-node:hover .t3-node-label,
+.tsic-term--t3 .t3-node.is-focus .t3-node-label { color: #000; background: var(--t3-fg); border-color: var(--t3-fg); font-weight: bold; }
+.tsic-term--t3 .t3-node.is-locked { opacity: 0.45; }
+.tsic-term--t3 .t3-node.is-fire .t3-node-core { color: #fff; }
+.tsic-term--t3 .t3-node.is-fire .t3-node-core svg { filter: drop-shadow(0 0 16px #fff); }
+.tsic-term--t3 .t3-node-new {
+  margin-left: 6px; font-size: 9px; font-weight: bold; letter-spacing: 1px;
+  color: #000; background: var(--t3-danger); padding: 1px 4px;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .tsic-term--t3 .t3-node.is-new .t3-node-core { animation: t3-pulse 1s steps(1, end) infinite; }
+  .tsic-term--t3 .t3-node.is-new .t3-node-new { animation: t3-pulse 1s steps(1, end) infinite; }
+}
+@keyframes t3-pulse { 50% { opacity: 0.35; } }
+
+/* ── Windows (amber, draggable) — workspace lets clicks fall through to nodes ── */
+.tsic-term--t3 .t3-workspace { position: absolute; top: 30px; left: 0; right: 150px; bottom: 30px; z-index: 20; pointer-events: none; }
+.tsic-term--t3 .t3-window {
+  position: absolute; pointer-events: auto;
+  min-width: 300px; max-width: calc(100% - 16px); max-height: calc(100% - 16px);
+  display: flex; flex-direction: column;
+  background: var(--t3-win-bg); color: var(--t3-fg);
+  border: 2px solid var(--t3-fg); box-shadow: 0 0 20px rgba(0,0,0,0.8), 0 0 6px var(--t3-glow);
+  backdrop-filter: blur(3px);
+}
+@media (prefers-reduced-motion: no-preference) { .tsic-term--t3 .t3-window { animation: t3-bootup 0.25s cubic-bezier(0.1,0.9,0.2,1); } }
+@keyframes t3-bootup { 0% { transform: scale(0.94) translateY(14px); opacity: 0; } 100% { transform: scale(1) translateY(0); opacity: 1; } }
+.tsic-term--t3 .t3-window:not(.is-focused) { border-color: var(--t3-dim); box-shadow: 0 0 14px rgba(0,0,0,0.7); }
+.tsic-term--t3 .t3-titlebar {
+  flex: 0 0 auto; display: flex; align-items: center; gap: 6px;
+  background: var(--t3-fg); color: #000; padding: 3px 8px; font-weight: bold; letter-spacing: 1px; cursor: grab;
+}
+.tsic-term--t3 .t3-window.is-dragging .t3-titlebar { cursor: grabbing; }
+.tsic-term--t3 .t3-window:not(.is-focused) .t3-titlebar { background: var(--t3-dim); color: #000; }
+.tsic-term--t3 .t3-title { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tsic-term--t3 .t3-zoom, .tsic-term--t3 .t3-close {
+  flex: 0 0 auto; width: 18px; height: 18px; display: grid; place-items: center;
+  background: #000; color: var(--t3-fg); border: 0; font: inherit; font-weight: bold; cursor: pointer; padding: 0;
+}
+.tsic-term--t3 .t3-zoom::before { content: ''; width: 9px; height: 8px; border: 2px solid currentColor; box-sizing: border-box; }
+.tsic-term--t3 .t3-zoom:hover { background: #000; color: #fff; }
+.tsic-term--t3 .t3-close:hover { background: var(--t3-danger); color: #fff; }
+/* Bottom-right grow box — amber diagonal hatch. */
+.tsic-term--t3 .t3-resize {
+  position: absolute; right: 0; bottom: 0; width: 16px; height: 16px; z-index: 2; cursor: nwse-resize;
+  background: repeating-linear-gradient(135deg, var(--t3-fg) 0 1.5px, transparent 1.5px 3px);
+}
+.tsic-term--t3 .t3-window.is-max .t3-resize { display: none; }
+.tsic-term--t3 .t3-window-body { flex: 1 1 auto; min-height: 0; display: flex; }
+.tsic-term--t3 .t3-content {
+  flex: 1 1 auto; min-height: 0; min-width: 0; overflow: auto; white-space: pre-wrap;
+  padding: 12px; color: var(--t3-fg); line-height: 1.5;
+}
+.tsic-term--t3 .t3-content--sized { max-height: none; }
+.tsic-term--t3 .t3-content--gui { padding: 0; overflow: hidden; }
+.tsic-term--t3 .t3-content--gui .tsic-term-program { display: block; width: 100%; height: 100%; border: 0; background: #000; }
+.tsic-term--t3 .t3-row { min-height: 1.2em; }
+.tsic-term--t3 .t3-echo { color: var(--t3-dim); }
+.tsic-term--t3 .t3-err { color: var(--t3-danger); }
+.tsic-term--t3 .t3-inputline { display: flex; gap: 6px; }
+.tsic-term--t3 .t3-input-field { flex: 1; background: #000; color: var(--t3-fg); border: 1px solid var(--t3-dim); font: inherit; outline: none; }
+.tsic-term--t3 .tsic-term-program { display: none; }   /* stray text-program iframes stay hidden */
+.tsic-term--t3 .t3-content--gui .tsic-term-program { display: block; }
+
+/* Console window */
+.tsic-term--t3 .t3-console { font-family: "VT323", "Courier New", monospace; font-size: 18px; }
+.tsic-term--t3 .t3-console-line { display: flex; align-items: baseline; position: relative; }
+.tsic-term--t3 .t3-console-prompt { margin-right: 0.5ch; }
+.tsic-term--t3 .t3-console-mirror { white-space: pre; }
+.tsic-term--t3 .t3-console-cursor { display: inline-block; width: 0.55em; height: 1em; background: var(--t3-fg); vertical-align: text-bottom; box-shadow: 0 0 5px var(--t3-glow); }
+.tsic-term--t3 .t3-console-input { position: absolute; left: 0; top: 0; width: 1px; height: 1px; padding: 0; border: 0; opacity: 0; outline: none; color: transparent; background: transparent; caret-color: transparent; font: inherit; }
+@media (prefers-reduced-motion: no-preference) { .tsic-term--t3 .t3-console-cursor { animation: tsic-term-blink 1s step-end infinite; } }
+
+.tsic-term--t3 ::-webkit-scrollbar { width: 10px; }
+.tsic-term--t3 ::-webkit-scrollbar-track { background: var(--t3-grid); }
+.tsic-term--t3 ::-webkit-scrollbar-thumb { background: var(--t3-dim); }
+.tsic-term--t3 ::-webkit-scrollbar-thumb:hover { background: var(--t3-fg); }
+
+/* ── Tier-2 boot splash ─────────────────────────────────────────────
+   GUI "Welcome to Durham OS": brand card over the dithered CGA desktop,
+   module icons marching in, a segmented progress bar. */
+.tsic-term--t2 .t2-boot {
+  position: absolute; inset: 0; z-index: 1000;
+  display: flex; align-items: center; justify-content: center;
+  background-color: var(--t2-bg);
+  background-image:
+    linear-gradient(45deg, var(--t2-bg-dither) 25%, transparent 25%, transparent 75%, var(--t2-bg-dither) 75%, var(--t2-bg-dither)),
+    linear-gradient(45deg, var(--t2-bg-dither) 25%, transparent 25%, transparent 75%, var(--t2-bg-dither) 75%, var(--t2-bg-dither));
+  background-size: 8px 8px; background-position: 0 0, 4px 4px;
+  transition: opacity 0.2s steps(2, end);
+}
+.tsic-term--t2 .t2-boot.is-done { opacity: 0; pointer-events: none; }
+.tsic-term--t2 .t2-boot-card {
+  background: var(--t2-win); border: 2px solid var(--t2-border);
+  box-shadow: var(--t2-shadow); min-width: 360px;
+}
+.tsic-term--t2 .t2-boot-titlebar {
+  background: var(--t2-accent); color: #fff;
+  border-bottom: 2px solid var(--t2-border);
+  padding: 4px 10px; font-size: 18px; letter-spacing: 1px;
+}
+.tsic-term--t2 .t2-boot-body { padding: 18px 22px; text-align: center; color: var(--t2-text); }
+.tsic-term--t2 .t2-boot-mark {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 40px; height: 40px; margin: 2px auto 12px;
+  background: var(--t2-accent); color: #fff;
+  border: 2px solid var(--t2-border); font-size: 22px; line-height: 1;
+}
+.tsic-term--t2 .t2-boot-welcome { font-size: 22px; }
+.tsic-term--t2 .t2-boot-ver { font-size: 16px; margin-top: 2px; }
+.tsic-term--t2 .t2-boot-copy { font-size: 14px; color: var(--t2-dim); margin-top: 2px; }
+.tsic-term--t2 .t2-boot-mods {
+  display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;
+  min-height: 48px; margin: 18px 0 10px;
+}
+.tsic-term--t2 .t2-boot-mod { display: flex; flex-direction: column; align-items: center; width: 46px; }
+.tsic-term--t2 .t2-boot-mod-tile {
+  width: 22px; height: 22px; background: var(--t2-win);
+  border: 2px solid var(--t2-border); box-shadow: var(--t2-shadow-sm);
+}
+.tsic-term--t2 .t2-boot-mod-label { font-size: 11px; margin-top: 4px; color: var(--t2-text); }
+.tsic-term--t2 .t2-boot-bar {
+  height: 16px; border: 2px solid var(--t2-border); background: var(--t2-win);
+  padding: 2px; margin-top: 6px;
+}
+.tsic-term--t2 .t2-boot-fill {
+  display: block; height: 100%; width: 0;
+  background: repeating-linear-gradient(90deg, var(--t2-accent) 0 8px, transparent 8px 10px);
+  transition: width 0.18s steps(6, end);
+}
+.tsic-term--t2 .t2-boot-status { font-size: 14px; margin-top: 12px; min-height: 18px; }
+.tsic-term--t2 .t2-disk-led.is-active { background: var(--t2-accent); box-shadow: 0 0 5px var(--t2-accent); }
+@media (prefers-reduced-motion: no-preference) {
+  .tsic-term--t2 .t2-boot-mod-tile { animation: t2-boot-pop 0.16s steps(2, end); }
+}
+@keyframes t2-boot-pop { from { transform: scale(0.4); } to { transform: scale(1); } }
+
+/* ── Tier-3 boot (secure login → hijack → online) ───────────────────
+   Amber-phosphor secure-shell log over near-black; a glitch beat for the
+   KATIE//ROOT hijack; the topology powers on node-by-node when it lifts. */
+.tsic-term--t3 .t3-boot {
+  position: absolute; inset: 0; z-index: 1000;
+  background: rgba(3, 4, 5, 0.94);
+  display: flex; flex-direction: column; justify-content: flex-end;
+  padding: 40px 160px 40px 40px; overflow: hidden;
+  transition: opacity 0.25s;
+}
+.tsic-term--t3 .t3-boot.is-done { opacity: 0; pointer-events: none; }
+.tsic-term--t3 .t3-boot-out { font-size: 14px; line-height: 1.55; }
+.tsic-term--t3 .t3-boot-line { color: var(--t3-fg); text-shadow: 0 0 4px var(--t3-glow); white-space: pre; }
+.tsic-term--t3 .t3-boot-line.is-danger { color: var(--t3-danger); text-shadow: 0 0 6px rgba(255, 43, 43, 0.6); }
+.tsic-term--t3 .t3-boot-line.is-ok { color: #7cfc8a; text-shadow: 0 0 6px rgba(124, 252, 138, 0.5); }
+/* Block caret on the line currently being typed (v1 BIOS feel). */
+.tsic-term--t3 .t3-boot-line.is-typing::after { content: '\2588'; margin-left: 1px; opacity: 0.85; }
+@media (prefers-reduced-motion: no-preference) {
+  .tsic-term--t3 .t3-boot.is-glitch { animation: t3-boot-glitch 0.18s steps(2, end) 2; }
+  .tsic-term--t3 .t3-boot-line.is-typing::after { animation: t3-boot-caret 0.6s steps(1, end) infinite; }
+}
+@keyframes t3-boot-caret { 0%, 50% { opacity: 0.85; } 50.01%, 100% { opacity: 0; } }
+@keyframes t3-boot-glitch {
+  0%   { transform: translateX(0); filter: none; }
+  25%  { transform: translateX(-3px) skewX(-2deg); filter: hue-rotate(-20deg); }
+  50%  { transform: translateX(3px); filter: contrast(1.4); }
+  75%  { transform: translateX(-2px) skewX(1deg); }
+  100% { transform: translateX(0); }
+}
+
+/* ── Tier-3 volumetric topology (3D turntable) ── */
+.tsic-term--t3 .t3-net-canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+.tsic-term--t3 .t3-nodes { z-index: 2; }
+.tsic-term--t3 .t3-node { will-change: transform, opacity; }
+.tsic-term--t3 .t3-rot { display: flex; align-items: center; gap: 8px; }
+.tsic-term--t3 .t3-rot-icon { color: var(--t3-fg); font-size: 13px; }
+.tsic-term--t3 .t3-rot-track {
+  position: relative; width: 220px; height: 10px;
+  border: 1px solid var(--t3-dim); background: rgba(0,0,0,0.5); cursor: ew-resize;
+}
+.tsic-term--t3 .t3-rot-thumb {
+  position: absolute; top: -2px; left: 0; width: 14px; height: 12px; margin-left: -7px;
+  background: var(--t3-fg); box-shadow: 0 0 8px var(--t3-glow); pointer-events: none;
+}
