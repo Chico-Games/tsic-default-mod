@@ -123,10 +123,19 @@
     '#hud-conditions .cond-chip.cond-expiring { animation: cond-pulse 1.15s ease-in-out infinite; }',
     '@keyframes cond-pulse { 0%,100% { opacity:1; } 50% { opacity:0.55; } }',
 
+    // Topped up — another consumable re-granted a buff already running. A single bright
+    // swell on the icon rather than a slide, so it reads as "this one, again" instead of
+    // being mistaken for a chip arriving.
+    '#hud-conditions .cond-chip.cond-refresh .cond-ico { animation: cond-bump 420ms cubic-bezier(0.34,1.56,0.64,1); }',
+    '@keyframes cond-bump { 0% { transform:scale(1); filter:none; }',
+    '                       45% { transform:scale(1.35); filter:brightness(1.9); }',
+    '                       100% { transform:scale(1); filter:none; } }',
+
     '@media (prefers-reduced-motion: reduce) {',
     '  #hud-conditions .cond-chip, #hud-conditions .cond-label { transition:none; }',
     '  #hud-conditions .cond-chip.cond-enter { animation:none; }',
     '  #hud-conditions .cond-chip.cond-expiring { animation:none; opacity:0.7; }',
+    '  #hud-conditions .cond-chip.cond-refresh .cond-ico { animation:none; }',
     '}',
   ].join('\n');
 
@@ -177,6 +186,18 @@
     }, LABEL_HOLD_MS);
   }
 
+  // Plays the top-up bump. Restarting a running CSS animation needs the class dropped and
+  // a reflow forced before re-adding, or a second top-up inside 420ms would do nothing.
+  function bumpChip(chip) {
+    clearTimeout(chip.bumpTimer);
+    chip.el.classList.remove('cond-refresh');
+    void chip.el.offsetWidth;
+    chip.el.classList.add('cond-refresh');
+    chip.bumpTimer = setTimeout(function () {
+      chip.el.classList.remove('cond-refresh');
+    }, 460);
+  }
+
   function addChip(id, kind) {
     // A condition can lapse and re-apply inside the exit animation (eating a second
     // helping the moment the first runs out). Drop the outgoing element rather than
@@ -188,7 +209,7 @@
       el('span', { class: 'cond-ico' }, buildIcon(id)),
       el('span', { class: 'cond-label' }, LABELS[id] || id));
 
-    var chip = { el: chipEl, kind: kind, expiring: false, holdTimer: 0, exitTimer: 0 };
+    var chip = { el: chipEl, kind: kind, expiring: false, refresh: 0, holdTimer: 0, exitTimer: 0, bumpTimer: 0 };
     chips[id] = chip;
     host.appendChild(chipEl);
 
@@ -206,8 +227,9 @@
     delete chips[id];
     clearTimeout(chip.holdTimer);
     clearTimeout(chip.exitTimer);
+    clearTimeout(chip.bumpTimer);
 
-    chip.el.classList.remove('cond-open', 'cond-expiring');
+    chip.el.classList.remove('cond-open', 'cond-expiring', 'cond-refresh');
     chip.el.classList.add('cond-exit');
     // Unmount after the collapse+fade. A timer rather than transitionend: a chip removed
     // while the HUD is hidden (display:none) fires no transition and would leak.
@@ -255,14 +277,26 @@
       var kind = c.Kind === 'Debuff' ? 'Debuff' : 'Buff';
       var remaining = Number(c.RemainingTime) || 0;
       var expiring = remaining > 0 && remaining <= EXPIRING_SECONDS;
+      var refresh = Number(c.RefreshCount) || 0;
 
       var chip = chips[id];
+      var mounted = !!chip;
       if (!chip) {
         chip = addChip(id, kind);
       } else if (chip.kind !== kind) {
         chip.kind = kind;
         chip.el.setAttribute('data-kind', kind);
       }
+
+      // Another consumable re-granted a buff already running. Nothing about the chip
+      // otherwise changes, so say so: bump the icon and show the name again, which is the
+      // whole point — confirming WHICH buff was topped up. Skipped on first mount, where
+      // the entry animation already introduces it.
+      if (mounted && refresh > chip.refresh) {
+        bumpChip(chip);
+        openLabel(chip, expiring);
+      }
+      chip.refresh = refresh;
 
       if (expiring !== chip.expiring) {
         chip.expiring = expiring;

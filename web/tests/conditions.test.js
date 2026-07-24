@@ -18,8 +18,9 @@ function send(ctx, conditions) {
     ctx.inject('tsic.msg.UI.Conditions.State', { Conditions: conditions });
 }
 
-const BUFF = (Id, RemainingTime = 0, Duration = 0) => ({ Id, Kind: 'Buff', Duration, RemainingTime });
-const DEBUFF = (Id) => ({ Id, Kind: 'Debuff', Duration: 0, RemainingTime: 0 });
+const BUFF = (Id, RemainingTime = 0, Duration = 0, RefreshCount = 0) =>
+    ({ Id, Kind: 'Buff', Duration, RemainingTime, RefreshCount });
+const DEBUFF = (Id) => ({ Id, Kind: 'Debuff', Duration: 0, RemainingTime: 0, RefreshCount: 0 });
 
 TSICTestHarness.register({
     name: 'Conditions: chips mount with icon and name',
@@ -212,6 +213,104 @@ TSICTestHarness.register({
         // Its non-expiring neighbour still collapses on the normal schedule.
         ctx.expect(ctx.assert.truthy(!chip(ctx, 'WellFed').classList.contains('cond-open'),
             'expected the untimed neighbour to have collapsed'));
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Conditions: eating another source of an active buff re-shows its name',
+    file: '/screens/conditions.html',
+    async run(ctx) {
+        // The point of the top-up feedback: the chip is already on screen and its Id has
+        // not changed, so without this you get no confirmation of WHICH buff you extended.
+        send(ctx, [BUFF('Swift', 30, 45, 0), BUFF('Energised', 30, 45, 0)]);
+        await new Promise(r => setTimeout(r, 3200));   // both settle to icon-only
+        ctx.expect(ctx.assert.truthy(!chip(ctx, 'Swift').classList.contains('cond-open'),
+            'precondition: Swift settled'));
+
+        // A second consumable re-grants Swift only.
+        send(ctx, [BUFF('Swift', 300, 300, 1), BUFF('Energised', 26, 45, 0)]);
+        await new Promise(r => setTimeout(r, 80));
+
+        ctx.expect(ctx.assert.truthy(chip(ctx, 'Swift').classList.contains('cond-open'),
+            'expected the topped-up buff to show its name again'));
+        ctx.expect(ctx.assert.truthy(chip(ctx, 'Swift').classList.contains('cond-refresh'),
+            'expected the top-up bump on the topped-up chip'));
+        // The untouched neighbour stays as it was.
+        ctx.expect(ctx.assert.truthy(!chip(ctx, 'Energised').classList.contains('cond-open'),
+            'the buff that was not re-granted should stay collapsed'));
+        ctx.expect(ctx.assert.truthy(!chip(ctx, 'Energised').classList.contains('cond-refresh'),
+            'the buff that was not re-granted should not bump'));
+
+        // The bump is a one-shot; the name then collapses on the normal hold.
+        await new Promise(r => setTimeout(r, 600));
+        ctx.expect(ctx.assert.truthy(!chip(ctx, 'Swift').classList.contains('cond-refresh'),
+            'expected the bump to clear itself'));
+        await new Promise(r => setTimeout(r, 3000));
+        ctx.expect(ctx.assert.truthy(!chip(ctx, 'Swift').classList.contains('cond-open'),
+            'expected the re-shown name to collapse again after the hold'));
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Conditions: an unchanged refresh count causes no bump',
+    file: '/screens/conditions.html',
+    async run(ctx) {
+        send(ctx, [BUFF('Hearty', 700, 900, 2)]);
+        await new Promise(r => setTimeout(r, 3200));
+
+        // Ordinary countdown updates carry the same RefreshCount — no re-show.
+        send(ctx, [BUFF('Hearty', 690, 900, 2)]);
+        await new Promise(r => setTimeout(r, 80));
+        ctx.expect(ctx.assert.truthy(!chip(ctx, 'Hearty').classList.contains('cond-refresh'),
+            'a plain countdown update must not bump'));
+        ctx.expect(ctx.assert.truthy(!chip(ctx, 'Hearty').classList.contains('cond-open'),
+            'a plain countdown update must not re-show the name'));
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Conditions: a chip mounting with a non-zero refresh count does not bump',
+    file: '/screens/conditions.html',
+    async run(ctx) {
+        // Sticky replay after a reload can deliver a buff already topped up twice. The
+        // entry animation introduces it — a bump on top would read as a second event.
+        send(ctx, [BUFF('Swift', 300, 300, 2)]);
+        await new Promise(r => setTimeout(r, 120));
+        ctx.expect(ctx.assert.truthy(!chip(ctx, 'Swift').classList.contains('cond-refresh'),
+            'a freshly mounted chip should not bump'));
+        ctx.expect(ctx.assert.truthy(chip(ctx, 'Swift').classList.contains('cond-open'),
+            'it should still enter with its name, as any new chip does'));
+
+        // A further top-up from there still registers.
+        send(ctx, [BUFF('Swift', 300, 300, 3)]);
+        await new Promise(r => setTimeout(r, 80));
+        ctx.expect(ctx.assert.truthy(chip(ctx, 'Swift').classList.contains('cond-refresh'),
+            'a later top-up should still bump'));
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Conditions: topping up an expiring buff clears the pulse and re-shows the name',
+    file: '/screens/conditions.html',
+    async run(ctx) {
+        send(ctx, [BUFF('Energised', 3, 45, 0)]);
+        await new Promise(r => setTimeout(r, 100));
+        ctx.expect(ctx.assert.truthy(chip(ctx, 'Energised').classList.contains('cond-expiring'),
+            'precondition: expiring'));
+
+        send(ctx, [BUFF('Energised', 45, 45, 1)]);
+        await new Promise(r => setTimeout(r, 80));
+        ctx.expect(ctx.assert.truthy(!chip(ctx, 'Energised').classList.contains('cond-expiring'),
+            'expected the pulse to stop'));
+        ctx.expect(ctx.assert.truthy(chip(ctx, 'Energised').classList.contains('cond-refresh'),
+            'expected the top-up bump'));
+        ctx.expect(ctx.assert.truthy(chip(ctx, 'Energised').classList.contains('cond-open'),
+            'expected the name shown again'));
+
+        // Un-pinned now, so it collapses on the normal hold rather than staying open.
+        await new Promise(r => setTimeout(r, 3400));
+        ctx.expect(ctx.assert.truthy(!chip(ctx, 'Energised').classList.contains('cond-open'),
+            'expected it to collapse once no longer expiring'));
     },
 });
 

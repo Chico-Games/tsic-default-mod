@@ -67,6 +67,19 @@
               apply(s) { s.conditions = pick(ORDER); } },
             { label: 'Tazed (stun)',
               apply(s) { s.conditions = pick(['Tazed']); } },
+            // Re-pick these two back to back: the rising RefreshCount is what a second
+            // consumable re-granting an active buff looks like, so Swift bumps and
+            // re-shows its name while Energised sits still.
+            { label: 'Top-up: before',
+              apply(s) { s.conditions = pick(['Swift', 'Energised'], {
+                  Swift:     { RemainingTime: 12, RefreshCount: 0 },
+                  Energised: { RemainingTime: 12, RefreshCount: 0 },
+              }); } },
+            { label: 'Top-up: after (Swift re-granted)',
+              apply(s) { s.conditions = pick(['Swift', 'Energised'], {
+                  Swift:     { RemainingTime: 300, Duration: 300, RefreshCount: 1 },
+                  Energised: { RemainingTime: 10,  RefreshCount: 0 },
+              }); } },
         ],
     });
 })();
