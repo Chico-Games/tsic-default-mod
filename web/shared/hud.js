@@ -8,6 +8,8 @@
 //   hud-liquid-bar.js   — shared liquid vial component (health + stamina)
 //   hud-health.js       — health vial (mounts hud-liquid-bar)
 //   hud-stamina.js      — stamina vial (mounts hud-liquid-bar)
+//   hud-stomach.js      — digesting-consumable slots (right of the vials)
+//   hud-conditions.js   — status-effect / consumable-buff chips (right of the stomach)
 //   hud-crosshair.js    — crosshair visibility
 //   hud-circular-progress.js — throw-charge / timed-ability progress ring
 //   hud-interaction.js  — interaction prompt label
@@ -48,6 +50,11 @@
     // with the bars. Left = stamina body end (128) + the 8px inter-bar gap + the
     // 4px the vial's block shadow overhangs to the right = 140. Slot styling: hud-stomach.js.
     '#hud-stomach { position:fixed; left:140px; bottom:30px; pointer-events:none; z-index:20; }',
+    // Conditions — status-effect / consumable-buff chips, immediately right of the
+    // stomach column and bottom-aligned with it. Left = stomach left (140) + its 42px
+    // slot + the 4px block-shadow overhang + a 4px gap = 190. Chip styling and the
+    // bottom-up stacking live in hud-conditions.js.
+    '#hud-conditions { position:fixed; left:190px; bottom:30px; pointer-events:none; z-index:20; }',
     // Crosshair dot — always fully opaque; affordances animate a halo around it.
     '#hud-crosshair { position:fixed; left:50%; top:50%; margin-left:-2px; margin-top:-2px; width:4px; height:4px; background:#fff; border-radius:50%; pointer-events:none; z-index:20; transition:box-shadow 120ms ease, transform 120ms ease; }',
     // Per-category halo breathing — same keyframes, subtly different cadence and
@@ -78,8 +85,8 @@
     // prompt), not on the crosshair. Fill percent + colour from hud-circular-progress.js.
     '#hud-circular-progress { display:none; width:26px; height:26px; margin:6px 0 0 auto; border-radius:50%; background:conic-gradient(var(--cp-color,#fff) calc(var(--cp-p,0) * 1%), rgba(241,229,207,0.35) 0); mask:radial-gradient(circle, transparent 9px, #000 10px); -webkit-mask:radial-gradient(circle, transparent 9px, #000 10px); pointer-events:none; }',
     '#hud-circular-progress.active { display:block; }',
-    'body.hud-hidden #hud-chrome, body.hud-hidden #hud-health, body.hud-hidden #hud-stamina, body.hud-hidden #hud-stomach, body.hud-hidden #hud-crosshair, body.hud-hidden #hud-crosshair-hand, body.hud-hidden #hud-circular-progress, body.hud-hidden #bb-shell-gameplay, body.hud-hidden #hud-minimap, body.hud-hidden #hud-chunk-debug, body.hud-hidden #hud-hotbar, body.hud-hidden #ping-shell, body.hud-hidden #hud-low-health, body.hud-hidden #hud-hit-reaction, body.hud-hidden #hud-stealth, body.hud-hidden #hud-chat, body.hud-hidden #hud-voice, body.hud-hidden #hud-tutorial { display:none !important; }',
-    'body.hud-hide-health #hud-health, body.hud-hide-stamina #hud-stamina, body.hud-hide-stomach #hud-stomach, body.hud-hide-crosshair #hud-crosshair, body.hud-hide-crosshair #hud-crosshair-hand, body.hud-hide-minimap #hud-minimap, body.hud-hide-actionbar #bb-shell-gameplay, body.hud-hide-interaction #interaction-prompt, body.hud-hide-hotbar #hud-hotbar, body.hud-hide-lowhealth #hud-low-health, body.hud-hide-hitreaction #hud-hit-reaction, body.hud-hide-stealth #hud-stealth, body.hud-hide-tutorial #hud-tutorial { display:none !important; }',
+    'body.hud-hidden #hud-chrome, body.hud-hidden #hud-health, body.hud-hidden #hud-stamina, body.hud-hidden #hud-stomach, body.hud-hidden #hud-conditions, body.hud-hidden #hud-crosshair, body.hud-hidden #hud-crosshair-hand, body.hud-hidden #hud-circular-progress, body.hud-hidden #bb-shell-gameplay, body.hud-hidden #hud-minimap, body.hud-hidden #hud-chunk-debug, body.hud-hidden #hud-hotbar, body.hud-hidden #ping-shell, body.hud-hidden #hud-low-health, body.hud-hidden #hud-hit-reaction, body.hud-hidden #hud-stealth, body.hud-hidden #hud-chat, body.hud-hidden #hud-voice, body.hud-hidden #hud-tutorial { display:none !important; }',
+    'body.hud-hide-health #hud-health, body.hud-hide-stamina #hud-stamina, body.hud-hide-stomach #hud-stomach, body.hud-hide-conditions #hud-conditions, body.hud-hide-crosshair #hud-crosshair, body.hud-hide-crosshair #hud-crosshair-hand, body.hud-hide-minimap #hud-minimap, body.hud-hide-actionbar #bb-shell-gameplay, body.hud-hide-interaction #interaction-prompt, body.hud-hide-hotbar #hud-hotbar, body.hud-hide-lowhealth #hud-low-health, body.hud-hide-hitreaction #hud-hit-reaction, body.hud-hide-stealth #hud-stealth, body.hud-hide-tutorial #hud-tutorial { display:none !important; }',
     '#bb-shell-gameplay { position:fixed; bottom:18px; right:24px; min-width:240px; max-width:calc(100vw - 48px); padding:8px 12px; color:#fff; pointer-events:none; z-index:20; font-family:Georgia,"Libre Baskerville",serif; text-shadow:0 1px 2px rgba(0,0,0,0.75); }',
     '#bb-shell-gameplay.hidden { display:none; }',
     '#bb-gameplay { display:flex; flex-direction:column; align-items:stretch; gap:0; }',
@@ -166,6 +173,7 @@
     document.body.appendChild(el('div', { id: 'hud-health' }));
     document.body.appendChild(el('div', { id: 'hud-stamina' }));
     document.body.appendChild(el('div', { id: 'hud-stomach' }));
+    document.body.appendChild(el('div', { id: 'hud-conditions' }));
 
     document.body.appendChild(el('div', { id: 'hud-crosshair' }));
     document.body.appendChild(el('div', { id: 'hud-crosshair-hand' }));
@@ -281,6 +289,7 @@
     loadScript('/shared/hud-health.js');
     loadScript('/shared/hud-stamina.js');
     loadScript('/shared/hud-stomach.js');
+    loadScript('/shared/hud-conditions.js');
     loadScript('/shared/hud-crosshair.js');
     loadScript('/shared/hud-circular-progress.js');
     loadScript('/shared/hud-interaction.js');
