@@ -52,5 +52,10 @@ TSICPlayground.register({
             { ItemId: 'ID_Stew',  IconUrl: '/tex/item-icon/ID_Stew',  Duration: 600, RemainingTime: 480 },
             {}, {}, {},
         ]; } },
+        { label: 'Selected match', apply(s) { s.slots = [
+            { ItemId: 'ID_Bread', IconUrl: '/tex/item-icon/ID_Bread', Duration: 60, RemainingTime: 45 },
+            { ItemId: 'ID_Apple', IconUrl: '/tex/item-icon/ID_Apple', Duration: 60, RemainingTime: 30, bSelected: true },
+            {}, {},
+        ]; } },
     ],
 });

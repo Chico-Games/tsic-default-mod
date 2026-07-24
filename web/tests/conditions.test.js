@@ -418,6 +418,37 @@ TSICTestHarness.register({
 });
 
 TSICTestHarness.register({
+    name: 'Conditions: the selected food\'s buffs get a gold highlight',
+    file: '/screens/conditions.html',
+    async run(ctx) {
+        // C++ sets bFromSelected on the buffs the selected hotbar food is driving; the
+        // component gold-tints exactly those chips — never a tag-driven condition.
+        const SEL = (Id, bFromSelected, RemainingTime = 30) =>
+            ({ Id, Kind: 'Buff', Duration: 45, RemainingTime, RefreshCount: 0, bFromSelected });
+        send(ctx, [BUFF('WellFed'), SEL('Swift', true), SEL('Energised', false)]);
+        await new Promise(r => setTimeout(r, 100));
+
+        ctx.expect(ctx.assert.truthy(chip(ctx, 'Swift').classList.contains('cond-from-selected'),
+            'expected the selected food\'s buff to be highlighted'));
+        ctx.expect(ctx.assert.truthy(!chip(ctx, 'Energised').classList.contains('cond-from-selected'),
+            'a buff the selected food does not drive stays un-highlighted'));
+        ctx.expect(ctx.assert.truthy(!chip(ctx, 'WellFed').classList.contains('cond-from-selected'),
+            'the shared Well Fed chip is never highlighted'));
+
+        // Switching selection moves the highlight without remounting the chips.
+        const swiftEl = chip(ctx, 'Swift');
+        send(ctx, [BUFF('WellFed'), SEL('Swift', false, 29), SEL('Energised', true, 29)]);
+        await new Promise(r => setTimeout(r, 80));
+        ctx.expect(ctx.assert.truthy(chip(ctx, 'Swift') === swiftEl,
+            'switching selection must not remount the chip'));
+        ctx.expect(ctx.assert.truthy(!chip(ctx, 'Swift').classList.contains('cond-from-selected'),
+            'the previously selected buff drops its highlight'));
+        ctx.expect(ctx.assert.truthy(chip(ctx, 'Energised').classList.contains('cond-from-selected'),
+            'the newly selected food\'s buff picks up the highlight'));
+    },
+});
+
+TSICTestHarness.register({
     name: 'Conditions: chips stay compact',
     file: '/screens/conditions.html',
     async run(ctx) {

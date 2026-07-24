@@ -80,6 +80,14 @@
                   Swift:     { RemainingTime: 300, Duration: 300, RefreshCount: 1 },
                   Energised: { RemainingTime: 10,  RefreshCount: 0 },
               }); } },
+            // Selecting a food on the hotbar gold-highlights the buffs it is driving
+            // (bFromSelected), tying them to the highlighted stomach slot. Well Fed, being
+            // shared, never lights up even when the selected food satiates.
+            { label: 'Selected food buffs',
+              apply(s) { s.conditions = pick(['WellFed', 'Swift', 'Energised'], {
+                  Swift:     { bFromSelected: true },
+                  Energised: { bFromSelected: true },
+              }); } },
         ],
     });
 })();

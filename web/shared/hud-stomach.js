@@ -24,6 +24,11 @@
     // /icons/stomach.svg) as a placeholder, dropped once an item fills the slot.
     '#hud-stomach .stomach-slot.empty { background-color: rgba(14,9,8,0.30); border-color: rgba(10,10,10,0.5); box-shadow:none;',
     '  background-image: url("/icons/stomach.svg"); background-repeat:no-repeat; background-position:center; background-size:60%; }',
+    // Selected — this slot holds the same food as the currently-selected hotbar slot.
+    // Warm-gold rim + glow, matching the hotbar's own selected-slot treatment, so the
+    // eye ties "what I have out" to "what it's doing to me".
+    '#hud-stomach .stomach-slot.selected { border-color: rgba(224,208,170,0.95);',
+    '  box-shadow: inset 0 1px 0 rgba(255,250,240,0.16), var(--shadow-block-sm), 0 0 12px rgba(240,220,170,0.55); }',
     '#hud-stomach .stomach-slot img { width:100%; height:100%; object-fit:contain; padding:5px; pointer-events:none;',
     '  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.6)); transition: opacity 200ms linear; }',
     // Digestion meter — a vertical fill over the icon (Overwatch-cooldown style,
@@ -63,7 +68,9 @@
       var rem = Number(s.RemainingTime) || 0;
       var progress = dur > 0 ? Math.max(0, Math.min(1, 1 - rem / dur)) : 0;  // digested fraction
       var slot = document.createElement('div');
-      slot.className = 'stomach-slot' + (occupied ? '' : ' empty');
+      // Gold-highlight the slot holding the same food as the selected hotbar slot.
+      var selected = occupied && !!s.bSelected;
+      slot.className = 'stomach-slot' + (occupied ? '' : ' empty') + (selected ? ' selected' : '');
       if (occupied) {
         var img = document.createElement('img');
         img.src = url;

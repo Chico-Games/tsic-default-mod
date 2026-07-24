@@ -86,7 +86,8 @@
     '  background: linear-gradient(180deg, rgba(58,40,34,0.62), rgba(14,9,8,0.70));',
     '  box-shadow: inset 0 1px 0 rgba(255,250,240,0.14), var(--shadow-block-sm);',
     '  transition: max-width 260ms cubic-bezier(0.22,0.8,0.3,1), opacity 200ms ease,',
-    '              transform 260ms cubic-bezier(0.22,0.8,0.3,1); }',
+    '              transform 260ms cubic-bezier(0.22,0.8,0.3,1),',
+    '              box-shadow 160ms ease, border-color 160ms ease; }',
     // Open — label visible. 148px is a ceiling, not a width: max-width can be animated
     // where width:auto cannot, and the chip only ever grows to its content.
     '#hud-conditions .cond-chip.cond-open { max-width:148px; }',
@@ -122,6 +123,13 @@
     // fading rather than as a new arrival.
     '#hud-conditions .cond-chip.cond-expiring { animation: cond-pulse 1.15s ease-in-out infinite; }',
     '@keyframes cond-pulse { 0%,100% { opacity:1; } 50% { opacity:0.55; } }',
+
+    // From-selected — a buff the food in the currently-selected hotbar slot is driving.
+    // Warm-gold rim + halo matching the highlighted stomach slot, so selecting a food
+    // lights up both the slot digesting it AND the effects it is granting. Declared after
+    // the kind tints so the gold border wins over the resting ink outline.
+    '#hud-conditions .cond-chip.cond-from-selected { border-color: rgba(224,208,170,0.95);',
+    '  box-shadow: inset 0 1px 0 rgba(255,250,240,0.14), var(--shadow-block-sm), 0 0 10px rgba(240,220,170,0.55); }',
 
     // Topped up — another consumable re-granted a buff already running. A single bright
     // swell on the icon rather than a slide, so it reads as "this one, again" instead of
@@ -209,7 +217,7 @@
       el('span', { class: 'cond-ico' }, buildIcon(id)),
       el('span', { class: 'cond-label' }, LABELS[id] || id));
 
-    var chip = { el: chipEl, kind: kind, expiring: false, refresh: 0, holdTimer: 0, exitTimer: 0, bumpTimer: 0 };
+    var chip = { el: chipEl, kind: kind, expiring: false, refresh: 0, fromSelected: false, holdTimer: 0, exitTimer: 0, bumpTimer: 0 };
     chips[id] = chip;
     host.appendChild(chipEl);
 
@@ -278,6 +286,7 @@
       var remaining = Number(c.RemainingTime) || 0;
       var expiring = remaining > 0 && remaining <= EXPIRING_SECONDS;
       var refresh = Number(c.RefreshCount) || 0;
+      var fromSelected = !!c.bFromSelected;
 
       var chip = chips[id];
       var mounted = !!chip;
@@ -297,6 +306,14 @@
         openLabel(chip, expiring);
       }
       chip.refresh = refresh;
+
+      // Gold-highlight the chip when the selected hotbar food is driving this buff.
+      // Applies on mount too (chip.fromSelected defaults false), so a chip that arrives
+      // already attributed to the selection lights up immediately.
+      if (fromSelected !== chip.fromSelected) {
+        chip.fromSelected = fromSelected;
+        chip.el.classList.toggle('cond-from-selected', fromSelected);
+      }
 
       if (expiring !== chip.expiring) {
         chip.expiring = expiring;
