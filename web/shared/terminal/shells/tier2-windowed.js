@@ -40,26 +40,9 @@
     return cls || '';
   }
 
-  // Monochrome RetroOS line-icons (stroke=currentColor so they dim when locked).
-  // GUI programs pick one via their manifest `icon`; text/v1 apps + the console
-  // all use `terminal`. Static literals — no user data in the markup.
-  const ICONS = {
-    terminal:
-      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter">' +
-      '<rect x="2" y="3" width="20" height="14"/>' +
-      '<path d="M6 7.5 l3 2.5 -3 2.5"/>' +
-      '<line x1="12" y1="12.5" x2="16" y2="12.5"/>' +
-      '<line x1="12" y1="17" x2="12" y2="20"/><line x1="8" y1="20" x2="16" y2="20"/></svg>',
-    logs:
-      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter">' +
-      '<path d="M5 2 h9 l5 5 v15 H5 Z"/><path d="M14 2 v5 h5"/>' +
-      '<line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="15" x2="16" y2="15"/><line x1="8" y1="18" x2="13" y2="18"/></svg>',
-    stock:
-      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter">' +
-      '<rect x="3" y="4" width="18" height="16"/>' +
-      '<line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="14.5" x2="21" y2="14.5"/>' +
-      '<line x1="11" y1="9" x2="11" y2="20"/></svg>',
-  };
+  // Monochrome line-icons (stroke=currentColor so they dim when locked), shared
+  // with the tier-3 topology — see shared/terminal/program-icons.js.
+  const ICONS = NS.programIcons;
 
   function create(container, host) {
     const doc = container.ownerDocument;
@@ -526,6 +509,13 @@
       const cInput = line.querySelector('.t2-console-input');
       function syncMirror() { mirror.textContent = cInput.value; }
       cInput.addEventListener('input', syncMirror);
+      // Clicking anywhere in the console refocuses the (invisible) input, so a
+      // click on the window body never strands the keyboard (cf. tier-1).
+      cContent.addEventListener('mousedown', function (ev) {
+        if (ev.target === cInput) return;
+        ev.preventDefault();
+        try { cInput.focus({ preventScroll: true }); } catch (e) {}
+      });
 
       const view = {
         appendRow: function (cls) {
@@ -593,10 +583,74 @@
       try { cInput.focus({ preventScroll: true }); } catch (e) {}
     }
 
-    // Auto-launch a program on first boot (deep-link / scripted entry).
-    if (host.autoRun) {
-      setTimeout(function () { if (!destroyed) launch(host.autoRun); }, 0);
+    // ── Boot splash overlay ────────────────────────────────────────
+    // A GUI "Welcome to Durham OS" splash: brand card, module icons marching in,
+    // a segmented progress bar. Implements the tier-2 boot `view` contract.
+    function buildBootOverlay() {
+      const ov = doc.createElement('div');
+      ov.className = 't2-boot';
+      ov.innerHTML =
+        '<div class="t2-boot-card">' +
+        '  <div class="t2-boot-titlebar">Durham OS</div>' +
+        '  <div class="t2-boot-body">' +
+        '    <div class="t2-boot-mark">▤</div>' +
+        '    <div class="t2-boot-welcome">Welcome to Durham OS</div>' +
+        '    <div class="t2-boot-ver">Version 2.0 — Experimental Build</div>' +
+        '    <div class="t2-boot-copy">© 1984 Durham Systems, Inc.</div>' +
+        '    <div class="t2-boot-mods" id="t2-boot-mods"></div>' +
+        '    <div class="t2-boot-bar"><span class="t2-boot-fill" id="t2-boot-fill"></span></div>' +
+        '    <div class="t2-boot-status" id="t2-boot-status"></div>' +
+        '  </div>' +
+        '</div>';
+      rootEl.appendChild(ov);
+      const modsEl = ov.querySelector('#t2-boot-mods');
+      const fillEl = ov.querySelector('#t2-boot-fill');
+      const statusEl = ov.querySelector('#t2-boot-status');
+      const led = container.querySelector('.t2-disk-led');
+      let ledTimer = null;
+      return {
+        el: ov,
+        line: function (t) { statusEl.textContent = t; },
+        addModule: function (name) {
+          const m = doc.createElement('span');
+          m.className = 't2-boot-mod';
+          m.innerHTML = '<span class="t2-boot-mod-tile"></span><span class="t2-boot-mod-label"></span>';
+          m.querySelector('.t2-boot-mod-label').textContent = name;
+          modsEl.appendChild(m);
+        },
+        setProgress: function (f) {
+          const pct = Math.round(Math.max(0, Math.min(1, f)) * 100);
+          fillEl.style.width = pct + '%';
+        },
+        blinkDisk: function () {
+          if (!led) return;
+          led.classList.add('is-active');
+          if (ledTimer) clearTimeout(ledTimer);
+          ledTimer = setTimeout(function () { led.classList.remove('is-active'); }, 140);
+        },
+        alive: function () { return !destroyed && ov.isConnected; },
+        done: function () {
+          if (ledTimer) clearTimeout(ledTimer);
+          ov.classList.add('is-done');
+          setTimeout(function () { if (ov.parentNode) ov.parentNode.removeChild(ov); }, 220);
+        },
+      };
     }
+
+    // Play the boot splash, THEN reveal the desktop and run any auto-launch.
+    // Any key / pointer fast-forwards (cf. tier-1 skipBoot).
+    const bootView = buildBootOverlay();
+    let bootSkipped = false;
+    function onBootKey() { bootSkipped = true; }
+    bootView.el.addEventListener('pointerdown', onBootKey);
+    doc.addEventListener('keydown', onBootKey, true);
+    const whenBooted = (NS.boot && NS.boot.tier2
+        ? NS.boot.tier2.run(bootView, { skip: function () { return bootSkipped; }, instant: !!NS.shells.tier2.instantBoot })
+        : Promise.resolve().then(function () { bootView.done(); }))
+      .then(function () {
+        doc.removeEventListener('keydown', onBootKey, true);
+        if (!destroyed && host.autoRun) launch(host.autoRun);
+      });
 
     // ── Shell contract consumed by shared/screens/terminal.js ──────
     return {
@@ -605,8 +659,10 @@
         renderIcons();
         if (consoleRef) consoleRef.onPrograms(programList);
       },
+      whenBooted: whenBooted,
       destroy: function () {
         destroyed = true;
+        doc.removeEventListener('keydown', onBootKey, true);
         clearInterval(clockTimer);
         closeAllWindows();
         container.innerHTML = '';
@@ -614,5 +670,5 @@
     };
   }
 
-  NS.shells.tier2 = { create: create, charDelayMs: 6, charsPerTick: 3 };
+  NS.shells.tier2 = { create: create, charDelayMs: 6, charsPerTick: 3, instantBoot: false };
 })(window);

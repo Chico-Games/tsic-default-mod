@@ -401,6 +401,7 @@
         'health-bar': 'HUD', 'stamina-bar': 'HUD', 'crosshair': 'HUD', 'behavior-bar': 'HUD',
         'hotbar': 'HUD', 'interaction': 'HUD', 'notifications': 'HUD', 'circular-progress': 'HUD',
         'detection': 'HUD', 'ping': 'HUD', 'ping-markers': 'HUD', 'stomach': 'HUD',
+        'conditions': 'HUD',
 
         'inventory': 'Inventory & Equipment', 'equipment': 'Inventory & Equipment',
         'wardrobe': 'Inventory & Equipment', 'quantity-picker': 'Inventory & Equipment',

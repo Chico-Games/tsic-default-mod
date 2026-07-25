@@ -85,6 +85,7 @@
               entrySrc: entrySrc,
               granted: granted,
               handlers: handlers,
+              theme: state.tier >= 3 ? 'dark' : 'retro',   // tier-3 programs render in the SCiPnet dark palette
               onPrint: function (txt, o) { sink.print(txt, o); },
               onTheme: function (name) { if (sink.setTheme) sink.setTheme(name); },
               onClear: function () { if (sink.clear) sink.clear(); },
@@ -108,6 +109,7 @@
           tier: tier,
           run: run,
           close: function () { ctx.publish(T.CHANNELS.Close); },
+          publish: function (channel, payload) { ctx.publish(channel, payload); },   // shells: SITE CONTROLS etc.
           autoRun: autoRun || null,   // program id to launch automatically once booted
         });
         refreshShellList();

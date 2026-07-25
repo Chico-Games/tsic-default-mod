@@ -25,6 +25,11 @@
   };
   var UPCOMING_COUNT = 3;   // incomplete objectives shown below the last-completed row
 
+  // Steps that tick off silently. Their completion fires in the middle of a
+  // physical action, where a chime reads as that action's own SFX rather than as
+  // an objective being checked off (grabbing furniture sounded like a pickup cue).
+  var SILENT_STEPS = { DragFurniture: true };
+
   // Transparent chrome: no plate behind the box — drop shadows carry legibility
   // (same treatment as the behavior bar, #bb-shell-gameplay).
   var CSS = [
@@ -160,7 +165,10 @@
 
     justDone = null;
     if (newly.length) {
-      try { tsic.playSound('Objective.Complete', 0.5); } catch (e) {}
+      var audible = newly.some(function (id) { return !SILENT_STEPS[id]; });
+      if (audible) {
+        try { tsic.playSound('Objective.Complete', 0.5); } catch (e) {}
+      }
       lastDone = newly[newly.length - 1];
       justDone = lastDone;   // plays the strike/tick animation this render only
     } else if (first) {

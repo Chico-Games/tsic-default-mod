@@ -52,34 +52,22 @@
                           { Value: 'high',   Label: 'High (Hardware Ray Tracing)' },
                       ],
                       Value: 'medium' },
-                    // NVIDIA-only options are pruned by the graphics.nvidia_caps
-                    // sticky value when the GPU can't use them.
+                    // Upscaler rows only offer modes whose plugins exist (native/TSR);
+                    // the C++ handler rejects anything else.
                     { Key: 'graphics.upscaler', Label: 'Upscaling', Type: 'enum',
                       Options: [
-                          { Value: 'tsr',                    Label: 'TSR (Default)' },
-                          { Value: 'dlaa',                   Label: 'DLAA (Native AA)' },
-                          { Value: 'dlss_quality',           Label: 'DLSS Quality' },
-                          { Value: 'dlss_balanced',          Label: 'DLSS Balanced' },
-                          { Value: 'dlss_performance',       Label: 'DLSS Performance' },
-                          { Value: 'dlss_ultra_performance', Label: 'DLSS Ultra Performance' },
+                          { Value: 'tsr',    Label: 'TSR (recommended)' },
+                          { Value: 'native', Label: 'Native resolution' },
                       ],
                       Value: 'tsr' },
-                    { Key: 'graphics.frame_gen', Label: 'DLSS frame generation', Type: 'enum',
+                    { Key: 'graphics.upscaler_quality', Label: 'Upscaling quality', Type: 'enum',
                       Options: [
-                          { Value: 'off',  Label: 'Off' },
-                          { Value: 'auto', Label: 'Auto' },
-                          { Value: '2x',   Label: '2X' },
-                          { Value: '3x',   Label: '3X' },
-                          { Value: '4x',   Label: '4X' },
+                          { Value: 'performance', Label: 'Performance (50% render scale)' },
+                          { Value: 'balanced',    Label: 'Balanced (67% render scale)' },
+                          { Value: 'quality',     Label: 'Quality (77% render scale)' },
+                          { Value: 'ultra',       Label: 'Ultra (100% render scale)' },
                       ],
-                      Value: 'off' },
-                    { Key: 'graphics.reflex', Label: 'NVIDIA Reflex low latency', Type: 'enum',
-                      Options: [
-                          { Value: 'off',   Label: 'Off' },
-                          { Value: 'on',    Label: 'On' },
-                          { Value: 'boost', Label: 'On + Boost' },
-                      ],
-                      Value: 'on' },
+                      Value: 'balanced' },
                 ] },
                 { Id: 'Display', Title: 'Display', Settings: [
                     { Key: 'video.fullscreen', Label: 'Fullscreen', Type: 'bool', Value: true },
@@ -906,36 +894,10 @@
         if (!payload || !payload.Key) return;
         let v;
         try { v = JSON.parse(payload.ValueJson || 'null'); } catch (e) { return; }
-        // Not a control value: GPU capability flags that prune NVIDIA-only options.
-        if (payload.Key === 'graphics.nvidia_caps') { applyNvidiaCaps(v); return; }
         // Authoritative saved value (per-key sticky replay when the screen
         // opens, or a later C++ echo): it moves the control.
         localState[payload.Key] = v;
         if (controlUpdaters[payload.Key]) controlUpdaters[payload.Key](v);
-    }
-
-    // GPU capability flags from C++ ({dlss, frame_gen, reflex}): strip the
-    // DLSS upscaler options and drop the frame-gen/Reflex rows entirely on
-    // hardware that can't use them. Same rebuild dance as the microphone list.
-    function applyNvidiaCaps(caps) {
-        if (!caps || (caps.dlss && caps.frame_gen && caps.reflex)) return;
-        for (const page of STATIC_CATALOG.Pages) {
-            for (const g of (page.Groups || [])) {
-                if (!caps.dlss) {
-                    const up = (g.Settings || []).find(s => s.Key === 'graphics.upscaler');
-                    if (up) up.Options = up.Options.filter(o => o.Value === 'tsr');
-                }
-                g.Settings = (g.Settings || []).filter(s =>
-                    !(s.Key === 'graphics.frame_gen' && !caps.frame_gen)
-                    && !(s.Key === 'graphics.reflex' && !caps.reflex));
-            }
-        }
-        const saved = Object.assign({}, localState);
-        onCatalog({ Json: JSON.stringify(STATIC_CATALOG) });
-        for (const k of Object.keys(saved)) {
-            localState[k] = saved[k];
-            if (controlUpdaters[k]) controlUpdaters[k](saved[k]);
-        }
     }
 
     function onFooter(payload) { renderFooter(payload); }

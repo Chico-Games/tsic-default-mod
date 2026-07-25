@@ -4,6 +4,7 @@
   "class": "USeedItemDefinition",
   "schema_version": 2,
   "properties": {
+    "thumbnail": "mod:icons/id_tomatoseeds_sd",
     "display_name": "Tomato Seeds",
     "description": "Plant these to grow tomatoes.",
     "stackable": true,

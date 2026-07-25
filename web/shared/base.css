@@ -84,6 +84,16 @@
   --tsic-border:       var(--border-black);
   --tsic-danger:       var(--mag-red);
 
+  /* ───── Item-grid sizing ─────
+   * Slot geometry for every item grid (inventory, storage). Screens derive
+   * columns, row height and the scroll cap from these, so resizing the grids
+   * is one number here instead of literals scattered per screen. Storage
+   * scopes --tsic-slot smaller on #ss-panel — it shows two grids side by
+   * side and can't afford the full size. */
+  --tsic-slot:      68px;
+  --tsic-slot-gap:   6px;
+  --tsic-slot-rows:    6;  /* visible rows before the grid scrolls */
+
   /* ───── Legacy --cat-* remap ─────
    * Screens still reference --cat-paper, --cat-ink, --cat-green, etc. Map
    * them onto the synthwave palette so old markup picks up the new look.

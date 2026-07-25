@@ -16,7 +16,7 @@
 
   const STYLE = `
     [data-screen="Inventory"] #inv-root { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:auto; }
-    [data-screen="Inventory"] #inv-panel { width:auto; max-width:92vw; max-height:92vh; overflow:auto; }
+    [data-screen="Inventory"] #inv-panel { width:auto; height:auto; max-width:92vw; max-height:92vh; overflow:auto; }
     [data-screen="Inventory"] #inv-band { display:flex; align-items:baseline; gap:12px; border-bottom:3px solid rgba(10,10,10,0.85); margin-bottom:10px; padding-bottom:5px; }
     [data-screen="Inventory"] #inv-band h2 { margin:0; }
     [data-screen="Inventory"] #inv-band .spacer { flex:1; }
@@ -26,17 +26,23 @@
       background: rgba(255,253,243,0.96); border:2px solid rgba(10,10,10,0.85); color:inherit;
     }
     [data-screen="Inventory"] .sort-btn:hover, [data-screen="Inventory"] .sort-btn[data-tsic-focused] { background: var(--mag-red, #e60000); color:#fff; }
-    [data-screen="Inventory"] .inv-cols { display:grid; gap:12px; grid-template-columns:max-content 216px; align-items:stretch; }
+    [data-screen="Inventory"] #inv-search {
+      font: inherit; font-size:12px; width:132px; padding:2px 7px;
+      background: rgba(255,253,243,0.96); border:2px solid rgba(10,10,10,0.85); color:inherit;
+    }
+    [data-screen="Inventory"] #inv-search::placeholder { color:rgba(37,33,25,0.45); letter-spacing:0.06em; }
+    [data-screen="Inventory"] #inv-search:focus { outline:2px solid var(--mag-red, #e60000); outline-offset:-2px; }
+    [data-screen="Inventory"] .inv-cols { display:grid; gap:12px; grid-template-columns:max-content 300px; align-items:stretch; }
     [data-screen="Inventory"] #inv-tabs { display:flex; gap:0; margin-bottom:8px; }
     [data-screen="Inventory"] #inv-tabs .tsic-tab { font-size:11px; padding:3px 8px; }
 
     [data-screen="Inventory"] .inv-grid {
-      display:grid; grid-template-columns: repeat(var(--grid-cols, 8), 50px);
-      grid-auto-rows: 50px; gap:4px; width:max-content;
-      max-height: calc(6 * 54px); overflow-y:auto;
+      display:grid; grid-template-columns: repeat(var(--grid-cols, 8), var(--tsic-slot));
+      grid-auto-rows: var(--tsic-slot); gap:var(--tsic-slot-gap); width:max-content;
+      max-height: calc(var(--tsic-slot-rows) * (var(--tsic-slot) + var(--tsic-slot-gap))); overflow-y:auto;
     }
     [data-screen="Inventory"] .tsic-slot {
-      width:50px; height:50px; position:relative; cursor:pointer; padding:3px;
+      width:var(--tsic-slot); height:var(--tsic-slot); position:relative; cursor:pointer; padding:4px;
       background: rgba(255,253,243,0.96); border:2px solid rgba(10,10,10,0.85);
       display:flex; align-items:center; justify-content:center;
       transition: background-color 90ms ease, opacity 160ms ease, filter 160ms ease, transform 90ms ease, box-shadow 90ms ease;
@@ -53,18 +59,18 @@
     }
     [data-screen="Inventory"] .tsic-slot .lock-glyph { opacity:0.35; pointer-events:none; }
     [data-screen="Inventory"] .tsic-slot .count {
-      position:absolute; bottom:1px; right:2px; padding:1px 3px; line-height:1;
-      font-size:10px; font-weight:700; color:#1a1612; background: var(--mag-yellow, #ffcc00);
+      position:absolute; bottom:1px; right:2px; padding:1px 4px; line-height:1;
+      font-size:12px; font-weight:700; color:#1a1612; background: var(--mag-yellow, #ffcc00);
       border:1px solid rgba(10,10,10,0.85); pointer-events:none;
     }
     [data-screen="Inventory"] .tsic-slot .equip-badge {
-      position:absolute; top:1px; left:2px; padding:1px 3px; line-height:1;
-      font-size:9px; font-weight:700; color:#fff; background: var(--mag-red, #e60000);
+      position:absolute; top:1px; left:2px; padding:1px 4px; line-height:1;
+      font-size:11px; font-weight:700; color:#fff; background: var(--mag-red, #e60000);
       border:1px solid rgba(10,10,10,0.85); pointer-events:none;
     }
     [data-screen="Inventory"] .tsic-slot .hotbar-badge {
-      position:absolute; top:1px; right:2px; padding:1px 3px; line-height:1;
-      font-size:9px; font-weight:700; color: var(--mag-yellow, #ffcc00); background: rgba(10,10,10,0.9);
+      position:absolute; top:1px; right:2px; padding:1px 4px; line-height:1;
+      font-size:11px; font-weight:700; color: var(--mag-yellow, #ffcc00); background: rgba(10,10,10,0.9);
       border:1px solid rgba(10,10,10,0.85); pointer-events:none;
     }
 
@@ -85,12 +91,12 @@
 
     [data-screen="Inventory"] .inv-rail { display:flex; flex-direction:column; gap:8px; }
     [data-screen="Inventory"] #inv-doll {
-      position:relative; display:grid; grid-template-columns:50px 1fr 50px; gap:4px; padding:8px;
-      min-height:190px; background: rgba(255,253,243,0.96); border:2px solid rgba(10,10,10,0.85);
+      position:relative; display:grid; grid-template-columns:var(--tsic-slot) 1fr var(--tsic-slot); gap:4px; padding:8px;
+      min-height:240px; background: rgba(255,253,243,0.96); border:2px solid rgba(10,10,10,0.85);
     }
     [data-screen="Inventory"] .doll-col { display:flex; flex-direction:column; justify-content:space-around; align-items:center; gap:14px; }
     [data-screen="Inventory"] .equip-slot {
-      width:50px; height:50px; position:relative;
+      width:var(--tsic-slot); height:var(--tsic-slot); position:relative;
       background: rgba(237,228,203,0.9); border:2px dashed rgba(10,10,10,0.5);
       display:flex; align-items:center; justify-content:center;
       font-size:9px; letter-spacing:1px; text-transform:uppercase; color: rgba(74,66,57,0.8);
@@ -115,27 +121,92 @@
     [data-screen="Inventory"] #inv-info .statline { display:flex; justify-content:space-between; border-top:1px dashed rgba(10,10,10,0.3); padding:2px 0; }
     [data-screen="Inventory"] #inv-info .statline b { letter-spacing:0.06em; font-size:12px; }
 
-    [data-screen="Inventory"] .inv-hotbar { display:flex; gap:5px; margin-top:12px; justify-content:center; }
+    /* The in-screen mirror takes the HUD hotbar's SHAPE — rounded plinths, key
+       top-left, count bottom-right, selection that scales up and lifts — but
+       paper-and-ink colouring so it belongs to this screen rather than looking
+       like the HUD dropped into a panel. Slot fills, border weights and the
+       accent colours are the same values the grid above it uses.
+       --mag/--lift are registered here too so the grow/shrink still
+       interpolates when this screen renders without the HUD loaded. */
+    @property --mag { syntax: "<number>"; inherits: false; initial-value: 1; }
+    @property --lift { syntax: "<length>"; inherits: false; initial-value: 0px; }
+    [data-screen="Inventory"] .inv-hotbar {
+      display:flex; align-items:flex-end; gap:8px; justify-content:center;
+      margin-top:26px; padding:16px 4px 10px;
+    }
     [data-screen="Inventory"] .inv-hotbar .hslot {
-      width:44px; height:44px; position:relative; cursor:pointer;
-      background:#fffdf3; border:2px solid rgba(10,10,10,0.85);
+      width:64px; height:64px; position:relative; cursor:pointer;
+      background: rgba(255,253,243,0.96);
+      border:2px solid rgba(10,10,10,0.85); border-radius:11px;
+      --mag:1; --lift:0px; transform-origin:bottom center;
+      transform: translateY(var(--lift)) scale(var(--mag));
+      box-shadow: var(--shadow-block-sm);
+      transition: --mag 230ms cubic-bezier(0.34,1.56,0.64,1), --lift 230ms cubic-bezier(0.34,1.56,0.64,1),
+        border-color 150ms ease, background-color 90ms ease, box-shadow 150ms ease;
       display:flex; align-items:center; justify-content:center;
     }
-    [data-screen="Inventory"] .inv-hotbar .hslot img { width:100%; height:100%; object-fit:contain; pointer-events:none; }
+    /* Empty slots sit back, exactly as they do in the grid above. */
+    [data-screen="Inventory"] .inv-hotbar .hslot.is-empty {
+      background: rgba(237,228,203,0.85); border-color: rgba(10,10,10,0.45); box-shadow:none;
+    }
+    [data-screen="Inventory"] .inv-hotbar .hslot img {
+      position:relative; width:100%; height:100%; object-fit:contain; padding:9px; pointer-events:none;
+    }
+    /* Key number wears the grid's hotbar-badge idiom — yellow on ink, already
+       the screen's vocabulary for "this is a hotbar number". */
     [data-screen="Inventory"] .inv-hotbar .hslot .num {
-      position:absolute; top:-8px; left:-5px; padding:1px 3px; line-height:1;
-      font-size:8px; font-weight:700; background: rgba(10,10,10,0.9); color: var(--mag-yellow, #ffcc00);
-      border:1px solid rgba(10,10,10,0.85); pointer-events:none;
+      position:absolute; top:3px; left:4px; min-width:16px; padding:0 4px; pointer-events:none;
+      font-family:var(--font-display); font-size:14px; font-weight:700; line-height:1.35; letter-spacing:0.02em;
+      text-align:center; color: var(--mag-yellow, #ffcc00); background: rgba(10,10,10,0.9);
+      border:1px solid rgba(10,10,10,0.85); border-radius:5px;
     }
     [data-screen="Inventory"] .inv-hotbar .hslot .count {
-      position:absolute; bottom:1px; right:2px; padding:1px 2px; line-height:1;
-      font-size:8px; font-weight:700; color:#1a1612; background: var(--mag-yellow, #ffcc00);
-      border:1px solid rgba(10,10,10,0.85); pointer-events:none;
+      position:absolute; bottom:3px; right:4px; padding:1px 4px; line-height:1; pointer-events:none;
+      font-size:12px; font-weight:700; color:#1a1612; background: var(--mag-yellow, #ffcc00);
+      border:1px solid rgba(10,10,10,0.85); border-radius:4px;
     }
-    [data-screen="Inventory"] .inv-hotbar .hslot.sel { background: var(--mag-red, #e60000); box-shadow: 3px 3px 0 rgba(10,10,10,0.85); }
-    [data-screen="Inventory"] .inv-hotbar .hslot.is-drop-target { outline:2px solid var(--buff-green, #1e8f3e); outline-offset:-2px; }
+    /* Selection keeps the HUD's scale + lift, but reads in the screen's red
+       accent and a heavier offset block instead of a gold glow. */
+    [data-screen="Inventory"] .inv-hotbar .hslot.sel {
+      --mag:1.16; --lift:-5px;
+      background:#fffdf3; border-color: var(--mag-red, #e60000); box-shadow: var(--shadow-block);
+    }
+    [data-screen="Inventory"] .inv-hotbar .hslot.sel .num { color:#fff; background: var(--mag-red, #e60000); }
+    [data-screen="Inventory"] .inv-hotbar .hslot:hover,
+    [data-screen="Inventory"] .inv-hotbar .hslot[data-tsic-focused] {
+      border-color: rgba(10,10,10,1); background:#fffdf3;
+    }
+    [data-screen="Inventory"] .inv-hotbar .hslot.is-drop-target {
+      outline:2px solid var(--buff-green, #1e8f3e); outline-offset:-2px;
+    }
 
-    [data-screen="Inventory"] .inv-hints { display:flex; gap:14px; justify-content:center; margin-top:10px; border-top:2px dashed rgba(10,10,10,0.3); padding-top:8px; flex-wrap:wrap; }
+    /* Fists: reserved slot 1, set apart from the item slots by a rule so it
+       reads as a fixture rather than something you loaded. It's never empty —
+       the fists are always there — so it keeps the filled paper fill. Nothing
+       can be dropped here, so it takes no drop-target styling. */
+    [data-screen="Inventory"] .inv-hotbar .hslot.fists .fists-glyph {
+      position:relative; width:100%; height:100%; padding:11px;
+      color: rgba(37,33,25,0.85); pointer-events:none;
+    }
+    [data-screen="Inventory"] .inv-hotbar .hslot.fists.sel .fists-glyph { color: var(--mag-red, #e60000); }
+    [data-screen="Inventory"] .inv-hotbar .hb-sep {
+      width:0; align-self:stretch; margin:2px 5px 0;
+      border-left:2px dashed rgba(10,10,10,0.45); pointer-events:none;
+    }
+
+    /* The chip set changes when a stack is picked up, and the panel is
+       width:auto — so left to itself the hint row is the one child whose
+       content can resize the whole panel mid-drag. width:0 + min-width:100%
+       keeps it out of the panel's shrink-to-fit width (the grid and rail decide
+       that), so the chips wrap onto as many lines as they need instead of
+       stretching the panel to fit them on one. renderHints() then reserves the
+       tallest set's height so swapping sets can't change it either. */
+    [data-screen="Inventory"] .inv-hints {
+      display:flex; flex-wrap:wrap; align-content:flex-start;
+      gap:10px 14px; justify-content:center;
+      width:0; min-width:100%;
+      margin-top:10px; border-top:2px dashed rgba(10,10,10,0.3); padding-top:8px;
+    }
     [data-screen="Inventory"] .inv-hints .hint { display:flex; align-items:center; gap:5px; font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:rgba(74,66,57,0.9); }
     [data-screen="Inventory"] .inv-hints .kbd {
       display:inline-flex; align-items:center; justify-content:center; min-width:20px; height:20px; padding:0 4px;
@@ -150,6 +221,7 @@
         <div id="inv-band">
           <h2 class="tsic-title">Inventory</h2>
           <span class="spacer"></span>
+          <input id="inv-search" type="search" placeholder="Search…" autocomplete="off" spellcheck="false">
           <button id="inv-sort" class="sort-btn" data-tsic-focusable>SORT</button>
           <span class="slots-text" id="inv-slots-text">—</span>
         </div>
@@ -240,7 +312,22 @@
       let lastEquipment = null;
       let lastHotbar = null;
       let hoveredItem = null;
+      let searchTerm = '';
       this._state = { get hoveredItem() { return hoveredItem; } };
+
+      // Search DIMS like the tabs do rather than reflowing the grid — a filter
+      // must never change slot geometry (rule 48), or muscle memory breaks and
+      // a drag mid-type would land in the wrong cell.
+      const searchBox = root.querySelector('#inv-search');
+      searchBox.addEventListener('input', () => {
+        searchTerm = searchBox.value.trim().toLowerCase();
+        refresh();
+      });
+      // Typing must not leak to gameplay/menu bindings (Escape still closes the
+      // screen, so it is deliberately left to bubble).
+      searchBox.addEventListener('keydown', (e) => {
+        if (e.key !== 'Escape') e.stopPropagation();
+      });
 
       function equippedSlotTagFor(instanceId) {
         if (instanceId == null) return null;
@@ -264,6 +351,23 @@
           (i) => i && i.InstanceId != null && String(i.InstanceId) === target) || null;
       }
 
+      // Catalog entry for whatever is worn in the same equipment slot as `desc`,
+      // so the info card can show upgrade/downgrade deltas. Null when the item
+      // isn't equippable, the slot is empty, or it IS the equipped item.
+      function equippedRivalFor(desc, item) {
+        if (!desc || !desc.EquipmentSlot) return null;
+        const cat = window.tsic.itemCatalog || {};
+        for (const s of ((lastEquipment && lastEquipment.Slots) || [])) {
+          if (!s || s.SlotTag !== desc.EquipmentSlot) continue;
+          if (s.ItemId == null || s.ItemId === '') return null;
+          if (item && String(s.ItemId) === String(item.InstanceId)) return null; // this one is worn
+          const wornDefId = defIdForInstance(s.ItemId);
+          const wornDesc = wornDefId ? cat[wornDefId] : null;
+          return wornDesc ? Object.assign({ ItemId: wornDefId }, wornDesc) : null;
+        }
+        return null;
+      }
+
       function renderInfo(item) {
         const host = root.querySelector('#inv-info');
         const cat = window.tsic.itemCatalog || {};
@@ -275,7 +379,8 @@
           host.textContent = 'Hover an item to see details';
           return;
         }
-        window.TSICInventory.renderInfoPanel(host, Object.assign({ ItemId: item.ItemId }, desc), item);
+        const full = Object.assign({ ItemId: item.ItemId }, desc);
+        window.TSICInventory.renderInfoPanel(host, full, item, equippedRivalFor(desc, item));
       }
 
       function renderMeter() {
@@ -345,9 +450,17 @@
           panelEl: root.querySelector('#inv-panel'),
           equippedIds,
           hotbarNumbersByInstance: hotbarNumbersByInstance(),
-          filterFn: filter ? (it) => {
+          // Tab AND search must both pass — they compose rather than override,
+          // so "Materials" + "iron" narrows instead of one silently winning.
+          filterFn: (filter || searchTerm) ? (it) => {
             const desc = cat[it.ItemId];
-            return desc ? filter(desc) : false;
+            if (!desc) return false;
+            if (filter && !filter(desc)) return false;
+            if (searchTerm) {
+              const haystack = ((desc.Name || '') + ' ' + (it.ItemId || '')).toLowerCase();
+              if (haystack.indexOf(searchTerm) === -1) return false;
+            }
+            return true;
           } : null,
           onHover: (it) => {
             hoveredItem = it || null;
@@ -443,14 +556,20 @@
       }
 
       // In-screen 10-slot hotbar mirror: visible destination for hover+number
-      // assignment and drag/held-click assignment (§10.1).
+      // assignment and drag/held-click assignment (§10.1). Slot 0 is the
+      // reserved fists slot — selectable (stows whatever is out), never
+      // assignable, and set apart from the item slots by a rule.
       function renderHotbar() {
         const host = root.querySelector('#inv-hotbar');
         host.innerHTML = '';
         const slots = (lastHotbar && lastHotbar.SlotIndices) || new Array(10).fill(-1);
         const sel = lastHotbar && typeof lastHotbar.SelectedSlot === 'number' ? lastHotbar.SelectedSlot : -1;
+        const fistsSlot = window.TSICInventory.FISTS_HOTBAR_SLOT;
         for (let i = 0; i < 10; i++) {
-          const hslot = TSIC.el('div', { class: 'hslot' + (i === sel ? ' sel' : '') });
+          const isFists = i === fistsSlot;
+          const hslot = TSIC.el('div', {
+            class: 'hslot' + (i === sel ? ' sel' : '') + (isFists ? ' fists' : ''),
+          });
           hslot.dataset.hotbar = i;
           // Controller path for hotbar assignment: pick a stack up (A), walk
           // focus down to the hotbar, A again assigns (the click handler).
@@ -458,11 +577,19 @@
           hslot.setAttribute('data-tsic-focus-group', 'inv-hotbar');
           hslot.tabIndex = -1;
           hslot.appendChild(TSIC.el('span', { class: 'num' }, String((i + 1) % 10)));
-          const item = itemByInstance(slots[i]);
-          if (item && item.ItemId) {
-            hslot.appendChild(TSIC.iconImg(TSIC.itemIconUrl(item.ItemId)));
-            if ((item.Count || 1) > 1) {
-              hslot.appendChild(TSIC.el('span', { class: 'count' }, String(item.Count)));
+          if (isFists) {
+            hslot.title = 'Fists — bare hands';
+            hslot.appendChild(TSIC.fistsIcon({ class: 'fists-glyph' }));
+          } else {
+            const item = itemByInstance(slots[i]);
+            if (item && item.ItemId) {
+              hslot.appendChild(TSIC.iconImg(TSIC.itemIconUrl(item.ItemId)));
+              if ((item.Count || 1) > 1) {
+                hslot.appendChild(TSIC.el('span', { class: 'count' }, String(item.Count)));
+              }
+            } else {
+              // Same empty treatment the grid uses, so the two read as one screen.
+              hslot.classList.add('is-empty');
             }
           }
           hslot.addEventListener('click', () => {
@@ -474,8 +601,10 @@
             if (heldStack) {
               // Click with a held stack = assign it to this hotbar slot; the
               // stack itself stays in its grid cell (id-based assignment).
-              // Only equipment and consumables belong on the hotbar.
-              if (window.TSICInventory.canAssignToHotbar(heldStack.itemId)) {
+              // Only equipment and consumables belong on the hotbar, and the
+              // fists slot takes nothing at all — both refusals return the
+              // stack home rather than assigning, same as a drag release.
+              if (!isFists && window.TSICInventory.canAssignToHotbar(heldStack.itemId)) {
                 ctx.publish('UI.Cmd.Hotbar.Assign', { SlotIndex: i, ItemId: String(heldStack.instanceId) });
               }
               window.TSICInventory.cancelHeld();
@@ -483,7 +612,19 @@
             }
             ctx.publish('UI.Cmd.Hotbar.Select', { SlotIndex: i });
           });
+          // RMB clears the slot. An empty ItemId is the established "unassign"
+          // payload (see hud-hotbar.js). The item itself is untouched — it stays
+          // in the grid; only the hotbar reference goes. The fists slot has
+          // nothing to clear, and an already-empty slot publishes nothing.
+          hslot.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (isFists || slots[i] == null || slots[i] < 0) return;
+            ctx.publish('UI.Cmd.Hotbar.Assign', { SlotIndex: i, ItemId: '' });
+            tsic.playSound('Inventory.Transfer', 0.33);
+          });
           host.appendChild(hslot);
+          if (isFists) host.appendChild(TSIC.el('div', { class: 'hb-sep' }));
         }
       }
 
@@ -497,11 +638,22 @@
           host.appendChild(hintChip(['ESC'], 'Return'));
         } else {
           host.appendChild(hintChip(['LMB'], 'Take'));
-          host.appendChild(hintChip(['RMB'], 'Split'));
+          host.appendChild(hintChip(['RMB'], 'Half'));
+          host.appendChild(hintChip(['SHIFT', 'RMB'], 'Split…'));
           host.appendChild(hintChip(['SHIFT', 'LMB'], 'Equip'));
           host.appendChild(hintChip(['G'], 'Drop 1'));
           host.appendChild(hintChip(['CTRL', 'G'], 'Drop stack'));
           host.appendChild(hintChip(['1', '0'], 'Hotbar'));
+          host.appendChild(hintChip(['RMB'], 'Clear hotbar slot'));
+        }
+        // Holding a stack swaps in a shorter chip set, which would otherwise
+        // shed a wrapped line and shrink the panel out from under the drag.
+        // The idle set is always the tallest, so measure it and hold that
+        // height for the held set. Clearing first re-measures at the current
+        // width, so a grid-width change (new bag tier) re-reserves correctly.
+        if (!heldStack) {
+          host.style.minHeight = '';
+          host.style.minHeight = host.offsetHeight + 'px';
         }
       }
 
@@ -533,6 +685,8 @@
       ctx.on('tsic.msg.UI.Inventory.Updated', (p) => {
         if (!p || p.OwnerId !== 'Player') return;
         lastUpdate = p;
+        // Diff against the previous snapshot so arrivals can wear a NEW badge.
+        if (window.TSICInventory) window.TSICInventory.noteSnapshot('Player', p.Items);
         // Rule 40: a broadcast mid-gesture preserves the ghost only while its
         // source entry still matches.
         if (window.TSICInventory) window.TSICInventory.reconcileHeld('Player', p.Items);
@@ -600,6 +754,8 @@
           // Only equipment and consumables belong on the hotbar.
           if (!window.TSICInventory.canAssignToHotbar(hoveredItem.ItemId)) return;
           const slotIndex = e.key === '0' ? 9 : (parseInt(e.key, 10) - 1);
+          // "1" is the fists slot — it takes nothing, so the key does nothing.
+          if (!window.TSICInventory.isHotbarSlotAssignable(slotIndex)) return;
           ctx.publish('UI.Cmd.Hotbar.Assign', {
             SlotIndex: slotIndex,
             ItemId: String(hoveredItem.InstanceId),
@@ -612,6 +768,7 @@
         }
         if (e.key === 'Escape') {
           // bindEscape closes the screen; a held stack visually returns first.
+          window.TSICInventory.closeSplit();
           window.TSICInventory.cancelHeld();
           renderHints();
         }

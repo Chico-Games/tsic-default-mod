@@ -57,7 +57,16 @@
     '  background:rgba(14,9,8,0.70); border:1px solid var(--ink-night); border-radius:5px; }',
     '#hotbar-row .tsic-slot.is-dragging { opacity:0.45; }',
     '#hotbar-row .tsic-slot.is-drop-target { border-color:rgba(224,208,170,0.95); box-shadow:0 0 0 2px rgba(224,208,170,0.55), inset 0 0 12px rgba(0,0,0,0.50); }',
+    /* Fists: reserved slot 1, held apart from the item slots by a rule so it
+       reads as a fixture. Never a drag source or a drop target. */
+    '#hotbar-row .tsic-slot .fists-glyph { position:relative; width:100%; height:100%; padding:11px; color:#e4d9c0;',
+    '  filter: drop-shadow(0 2px 3px rgba(0,0,0,0.6)); pointer-events:none; }',
+    '#hotbar-row .tsic-slot.selected .fists-glyph { color:#fffaf0; }',
+    '#hotbar-row .hb-sep { width:0; align-self:stretch; margin:6px 4px 4px; border-left:2px dashed rgba(240,232,212,0.30); pointer-events:none; }',
   ].join('\n');
+
+  // Hotbar slot 0 is the reserved fists slot — see shared/inventory.js.
+  var FISTS_SLOT = 0;
 
   function injectStyles() {
     if (document.getElementById('hud-hotbar-styles')) return;
@@ -120,7 +129,9 @@
     if (!host || !lastHotbar) return;
     var sel = (typeof lastHotbar.SelectedSlot === 'number') ? lastHotbar.SelectedSlot : -1;
     var pending = (typeof lastHotbar.SelectedSlotPending === 'number') ? lastHotbar.SelectedSlotPending : -1;
-    var kids = host.children;
+    // Query the slots rather than walking children — the fists separator is a
+    // child too, and would shift every index past it.
+    var kids = host.querySelectorAll('.tsic-slot');
     for (var i = 0; i < kids.length; i++) {
       kids[i].classList.toggle('selected', i === sel);
       kids[i].classList.toggle('selected-inactive', i === pending);
@@ -130,7 +141,7 @@
   // Animate the selection if only it changed; rebuild if the contents differ.
   function update() {
     var host = document.getElementById('hotbar-row');
-    if (host && host.children.length && contentKey() === lastContentKey) applySelection();
+    if (host && host.querySelector('.tsic-slot') && contentKey() === lastContentKey) applySelection();
     else render();
   }
 
@@ -150,10 +161,15 @@
         var selClass = (i === selected) ? ' selected' : (i === pending ? ' selected-inactive' : '');
         slot.className = 'tsic-slot' + selClass;
         slot.dataset.slot = String(i);
+        var isFists = (i === FISTS_SLOT);
         var inventorySlot = slots[i];
-        var slotHasItem = isAssigned(inventorySlot);
+        // The fists slot holds nothing by definition, whatever the layout says.
+        var slotHasItem = !isFists && isAssigned(inventorySlot);
         var item = slotHasItem ? playerItemsByInstance.get(inventorySlot) : null;
-        if (item && item.ItemId) {
+        if (isFists) {
+          slot.title = 'Fists — bare hands';
+          slot.appendChild(TSIC.fistsIcon({ class: 'fists-glyph' }));
+        } else if (item && item.ItemId) {
           var img = document.createElement('img');
           img.src = TSIC.itemIconUrl(item.ItemId);
           img.onerror = function () { img.style.visibility = 'hidden'; };
@@ -184,6 +200,15 @@
           publish('UI.Cmd.Hotbar.Select', { SlotIndex: i });
         };
 
+        // RMB clears the slot — the item stays in the inventory, only the
+        // hotbar reference goes. Nothing to clear on the fists slot or an
+        // empty one, and preventDefault stops CEF's own context menu.
+        slot.addEventListener('contextmenu', function (e) {
+          e.preventDefault();
+          if (isFists || !slotHasItem) return;
+          clearSlot(i);
+        });
+
         // Drag source — only assigned slots can be dragged.
         slot.draggable = slotHasItem;
         if (slotHasItem) {
@@ -207,28 +232,37 @@
         // Drop target — accepts other hotbar slots (swap). Inventory-grid
         // items arrive through the pointer-based cursor engine
         // (shared/inventory.js tryCommitHeldToHotbar), not HTML5 drag.
-        slot.addEventListener('dragover', function (e) {
-          e.preventDefault();
-          slot.classList.add('is-drop-target');
-        });
-        slot.addEventListener('dragleave', function () { slot.classList.remove('is-drop-target'); });
-        slot.addEventListener('drop', function (e) {
-          e.preventDefault();
-          slot.classList.remove('is-drop-target');
-          var slotData = e.dataTransfer.getData('application/tsic-slot');
-          if (slotData) {
-            try {
-              var s = JSON.parse(slotData);
-              if (s.slot === i) return;
-              // Swap: assign target to source's inv slot, source to target's inv slot.
-              var targetInv = isAssigned(slots[i]) ? String(slots[i]) : '';
-              publish('UI.Cmd.Hotbar.Assign', { SlotIndex: i,      ItemId: String(s.inventorySlot) });
-              publish('UI.Cmd.Hotbar.Assign', { SlotIndex: s.slot, ItemId: targetInv });
-            } catch (err) { console.warn('[hotbar] bad slot drag payload', err); }
-          }
-        });
+        // The fists slot registers neither, so a drag over it shows "no drop"
+        // and the source slot keeps its item.
+        if (!isFists) {
+          slot.addEventListener('dragover', function (e) {
+            e.preventDefault();
+            slot.classList.add('is-drop-target');
+          });
+          slot.addEventListener('dragleave', function () { slot.classList.remove('is-drop-target'); });
+          slot.addEventListener('drop', function (e) {
+            e.preventDefault();
+            slot.classList.remove('is-drop-target');
+            var slotData = e.dataTransfer.getData('application/tsic-slot');
+            if (slotData) {
+              try {
+                var s = JSON.parse(slotData);
+                if (s.slot === i) return;
+                // Swap: assign target to source's inv slot, source to target's inv slot.
+                var targetInv = isAssigned(slots[i]) ? String(slots[i]) : '';
+                publish('UI.Cmd.Hotbar.Assign', { SlotIndex: i,      ItemId: String(s.inventorySlot) });
+                publish('UI.Cmd.Hotbar.Assign', { SlotIndex: s.slot, ItemId: targetInv });
+              } catch (err) { console.warn('[hotbar] bad slot drag payload', err); }
+            }
+          });
+        }
 
         host.appendChild(slot);
+        if (isFists) {
+          var sep = document.createElement('div');
+          sep.className = 'hb-sep';
+          host.appendChild(sep);
+        }
       })(i);
     }
     lastContentKey = contentKey();

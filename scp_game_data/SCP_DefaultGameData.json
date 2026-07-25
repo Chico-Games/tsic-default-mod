@@ -9,6 +9,7 @@
     "ghost_material": "/Game/Furniture/Shared/Materials/ConstructionGhost/M_ConstructionGhost.M_ConstructionGhost",
     "post_process_stencil_material": "/Game/Fab/HandDrawingDemo/Materials/MI_Draw2.MI_Draw2",
     "fallback_static_mesh": "/Game/Items/CraftingMaterials/Cardboard/Meshes/SM_CartonBox2_05.SM_CartonBox2_05",
+    "cardboard_label_material": "/Game/Items/CraftingMaterials/Cardboard/Materials/M_CardboardLabel.M_CardboardLabel",
     "fallback_item_thumbnail": "/Game/Items/CraftingMaterials/Cardboard/Textures/T_Thumb_SM_CartonBox2_05.T_Thumb_SM_CartonBox2_05",
     "death_box_definition": "FD_DeathBox_DB",
     "item_pickup_visual_actor_class": "/Game/Items/Shared/BP_ItemPickupVisual.BP_ItemPickupVisual_C",
