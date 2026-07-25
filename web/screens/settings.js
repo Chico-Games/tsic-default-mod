@@ -52,22 +52,44 @@
                           { Value: 'high',   Label: 'High (Hardware Ray Tracing)' },
                       ],
                       Value: 'medium' },
-                    // Upscaler rows only offer modes whose plugins exist (native/TSR);
-                    // the C++ handler rejects anything else.
+                    // Upscaler options must match HandleCmdSettingsSet's allow-list
+                    // exactly — it drops anything else on the floor. The dlss_* and
+                    // dlaa entries are pruned on GPUs without DLSS (graphics.nvidia_caps),
+                    // so TSR is the only row every machine keeps.
                     { Key: 'graphics.upscaler', Label: 'Upscaling', Type: 'enum',
                       Options: [
-                          { Value: 'tsr',    Label: 'TSR (recommended)' },
-                          { Value: 'native', Label: 'Native resolution' },
+                          { Value: 'tsr',                   Label: 'TSR (recommended)' },
+                          { Value: 'dlaa',                  Label: 'DLAA (native res, best quality)' },
+                          { Value: 'dlss_quality',          Label: 'DLSS Quality' },
+                          { Value: 'dlss_balanced',         Label: 'DLSS Balanced' },
+                          { Value: 'dlss_performance',      Label: 'DLSS Performance' },
+                          { Value: 'dlss_ultra_performance',Label: 'DLSS Ultra Performance' },
                       ],
                       Value: 'tsr' },
-                    { Key: 'graphics.upscaler_quality', Label: 'Upscaling quality', Type: 'enum',
+                    // TSR's internal render percentage — the old "Upscaling quality"
+                    // tiers were just fixed points on this scale (performance 50 /
+                    // balanced 67 / quality 77 / ultra 100). Ignored while a DLSS mode
+                    // is selected: DLSS picks its own optimal percentage.
+                    { Key: 'graphics.resolution_scale', Label: 'Render resolution (TSR)',
+                      Type: 'range', Min: 50, Max: 100, Step: 1, Value: 67 },
+                    // Frame generation and Reflex are NVIDIA-only; both rows are removed
+                    // wholesale when graphics.nvidia_caps reports no support.
+                    { Key: 'graphics.frame_gen', Label: 'Frame generation', Type: 'enum',
                       Options: [
-                          { Value: 'performance', Label: 'Performance (50% render scale)' },
-                          { Value: 'balanced',    Label: 'Balanced (67% render scale)' },
-                          { Value: 'quality',     Label: 'Quality (77% render scale)' },
-                          { Value: 'ultra',       Label: 'Ultra (100% render scale)' },
+                          { Value: 'off',  Label: 'Off' },
+                          { Value: 'auto', Label: 'Auto' },
+                          { Value: '2x',   Label: '2x' },
+                          { Value: '3x',   Label: '3x' },
+                          { Value: '4x',   Label: '4x' },
                       ],
-                      Value: 'balanced' },
+                      Value: 'off' },
+                    { Key: 'graphics.reflex', Label: 'NVIDIA Reflex (low latency)', Type: 'enum',
+                      Options: [
+                          { Value: 'off',   Label: 'Off' },
+                          { Value: 'on',    Label: 'On' },
+                          { Value: 'boost', Label: 'On + Boost' },
+                      ],
+                      Value: 'on' },
                 ] },
                 { Id: 'Display', Title: 'Display', Settings: [
                     { Key: 'video.fullscreen', Label: 'Fullscreen', Type: 'bool', Value: true },
@@ -190,6 +212,7 @@
             slider.min = String(min); slider.max = String(max); slider.step = String(step);
             slider.value = String(v);
             slider.disabled = isDisabled;
+            slider.dataset.key = s.Key; // stable hook for tests / debugging, as with dropdowns
             const valueLabel = document.createElement('span');
             valueLabel.className = 'value-label';
             valueLabel.textContent = s.Display !== undefined ? s.Display : fmt2(v);
@@ -890,10 +913,55 @@
         restoreFocus(focused);
     }
 
+    // Rebuild from STATIC_CATALOG after its structure changed, carrying the echoed
+    // saved values across — a structural rebuild wipes localState, and the sticky
+    // UI.Settings.Value replays may already have arrived.
+    function rebuildPreservingValues() {
+        const saved = Object.assign({}, localState);
+        onCatalog({ Json: JSON.stringify(STATIC_CATALOG) });
+        for (const k of Object.keys(saved)) {
+            localState[k] = saved[k];
+            if (controlUpdaters[k]) controlUpdaters[k](saved[k]);
+        }
+    }
+
+    // graphics.nvidia_caps is a capability report, not a setting: strip the options
+    // and rows this GPU can't drive so the menu never offers a control that the C++
+    // handler would silently reject. Mutating STATIC_CATALOG makes this idempotent,
+    // which matters because the message replays stickily.
+    function applyNvidiaCaps(caps) {
+        if (!caps || typeof caps !== 'object') return false;
+        let changed = false;
+        for (const page of STATIC_CATALOG.Pages) {
+            for (const g of (page.Groups || [])) {
+                if (!g.Settings) continue;
+                if (!caps.dlss) {
+                    for (const s of g.Settings) {
+                        if (s.Key !== 'graphics.upscaler' || !s.Options) continue;
+                        const kept = s.Options.filter((o) => o.Value === 'tsr');
+                        if (kept.length !== s.Options.length) { s.Options = kept; changed = true; }
+                    }
+                }
+                const dropKeys = [];
+                if (!caps.frame_gen) dropKeys.push('graphics.frame_gen');
+                if (!caps.reflex)    dropKeys.push('graphics.reflex');
+                if (dropKeys.length) {
+                    const kept = g.Settings.filter((s) => dropKeys.indexOf(s.Key) === -1);
+                    if (kept.length !== g.Settings.length) { g.Settings = kept; changed = true; }
+                }
+            }
+        }
+        return changed;
+    }
+
     function onValue(payload) {
         if (!payload || !payload.Key) return;
         let v;
         try { v = JSON.parse(payload.ValueJson || 'null'); } catch (e) { return; }
+        if (payload.Key === 'graphics.nvidia_caps') {
+            if (applyNvidiaCaps(v)) rebuildPreservingValues();
+            return;
+        }
         // Authoritative saved value (per-key sticky replay when the screen
         // opens, or a later C++ echo): it moves the control.
         localState[payload.Key] = v;
@@ -956,13 +1024,8 @@
         }
         // A changed Options list forces a full rebuild, which wipes localState
         // (the echoed saved values). This message can arrive after the sticky
-        // Value replays, so carry the values across the rebuild by hand.
-        const saved = Object.assign({}, localState);
-        onCatalog({ Json: JSON.stringify(STATIC_CATALOG) });
-        for (const k of Object.keys(saved)) {
-            localState[k] = saved[k];
-            if (controlUpdaters[k]) controlUpdaters[k](saved[k]);
-        }
+        // Value replays, so carry the values across the rebuild.
+        rebuildPreservingValues();
     });
     tsic.on('tsic.msg.UI.Settings.ControlsState', onControlsState);
     tsic.on('tsic.msg.UI.Settings.RebindCapture', onRebindCapture);

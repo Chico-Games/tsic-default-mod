@@ -155,3 +155,111 @@ TSICTestHarness.register({
         ctx.expect(ctx.doc.getElementById('settings-popover') ? 'popover should close on Revert' : null);
     },
 });
+
+// ---- Graphics: NVIDIA upscaler / frame-gen / Reflex rows ----
+// These run against the page's REAL static catalog (no injected Catalog), so they
+// pin the shipped rows to the exact key/value vocabulary HandleCmdSettingsSet
+// accepts. A mismatch here is invisible at runtime: C++ drops the unknown value
+// and the control silently snaps back.
+
+async function openGraphicsTab(ctx) {
+    await ctx.waitFor(() => Array.from(ctx.doc.querySelectorAll('.tsic-tab')).some(b => b.textContent === 'Video'));
+    Array.from(ctx.doc.querySelectorAll('.tsic-tab')).find(b => b.textContent === 'Video').click();
+    await ctx.waitFor(() => ctx.doc.querySelector('button.tsic-dropdown[data-key="graphics.upscaler"]'));
+}
+
+TSICTestHarness.register({
+    name: 'Settings: graphics tab exposes upscaler / render-scale / frame-gen / reflex rows',
+    file: '/screens/settings.html',
+    async run(ctx) {
+        await openGraphicsTab(ctx);
+        ctx.expect(ctx.assert.domExists(ctx.doc, 'button.tsic-dropdown[data-key="graphics.upscaler"]'));
+        ctx.expect(ctx.assert.domExists(ctx.doc, 'input[type="range"][data-key="graphics.resolution_scale"]'));
+        ctx.expect(ctx.assert.domExists(ctx.doc, 'button.tsic-dropdown[data-key="graphics.frame_gen"]'));
+        ctx.expect(ctx.assert.domExists(ctx.doc, 'button.tsic-dropdown[data-key="graphics.reflex"]'));
+        // The int-era row is gone — C++ has no graphics.upscaler_quality handler.
+        ctx.expect(ctx.doc.querySelector('[data-key="graphics.upscaler_quality"]')
+            ? 'graphics.upscaler_quality has no C++ handler and must not be offered' : null);
+        // 'native' is likewise rejected by the handler's allow-list.
+        const opts = JSON.parse(ctx.doc.querySelector('button.tsic-dropdown[data-key="graphics.upscaler"]')
+            .getAttribute('data-tsic-options')).map(o => o.Value || o.value);
+        ctx.expect(opts.indexOf('native') === -1 ? null : '"native" is not in the C++ allow-list');
+        for (const want of ['tsr', 'dlaa', 'dlss_quality', 'dlss_balanced', 'dlss_performance', 'dlss_ultra_performance']) {
+            ctx.expect(opts.indexOf(want) !== -1 ? null : 'missing upscaler option ' + want);
+        }
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Settings: picking a DLSS mode publishes the exact C++ enum string',
+    file: '/screens/settings.html',
+    async run(ctx) {
+        await openGraphicsTab(ctx);
+        ctx.clearPublishes();
+        ctx.win.tsic.dropdown.set(ctx.doc.querySelector('button.tsic-dropdown[data-key="graphics.upscaler"]'), 'dlss_balanced');
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Settings.Set',
+            { where: p => p.Key === 'graphics.upscaler' && p.ValueJson === '"dlss_balanced"' }));
+        // graphics.* is not a display-mode change — no keep/revert countdown.
+        ctx.expect(ctx.doc.getElementById('settings-popover') ? 'graphics keys must not open the countdown' : null);
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Settings: render-scale slider publishes graphics.resolution_scale',
+    file: '/screens/settings.html',
+    async run(ctx) {
+        await openGraphicsTab(ctx);
+        const slider = ctx.doc.querySelector('input[type="range"][data-key="graphics.resolution_scale"]');
+        // Range must cover the old quality tiers (performance 50 .. ultra 100).
+        ctx.expect(ctx.assert.eq(slider.min, '50'));
+        ctx.expect(ctx.assert.eq(slider.max, '100'));
+        ctx.clearPublishes();
+        slider.value = '85';
+        slider.dispatchEvent(new ctx.win.Event('input', { bubbles: true }));
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Settings.Set',
+            { where: p => p.Key === 'graphics.resolution_scale' && p.ValueJson === '85' }));
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Settings: graphics.nvidia_caps prunes unsupported upscaler options and rows',
+    file: '/screens/settings.html',
+    async run(ctx) {
+        await openGraphicsTab(ctx);
+        ctx.inject('tsic.msg.UI.Settings.Value',
+            { Key: 'graphics.nvidia_caps', ValueJson: '{"dlss":false,"frame_gen":false,"reflex":false}' });
+        // Frame-gen and Reflex are NVIDIA-only: the whole rows go.
+        await ctx.waitFor(() => !ctx.doc.querySelector('[data-key="graphics.frame_gen"]'));
+        ctx.expect(ctx.doc.querySelector('[data-key="graphics.reflex"]')
+            ? 'reflex row must be pruned when unsupported' : null);
+        // The upscaler row stays, reduced to TSR — every GPU can run it.
+        const dd = ctx.doc.querySelector('button.tsic-dropdown[data-key="graphics.upscaler"]');
+        ctx.expect(dd ? null : 'upscaler row must survive: TSR works everywhere');
+        const opts = JSON.parse(dd.getAttribute('data-tsic-options')).map(o => o.Value || o.value);
+        ctx.expect(ctx.assert.eq(opts.length, 1));
+        ctx.expect(ctx.assert.eq(opts[0], 'tsr'));
+        // The render-scale row is not NVIDIA-gated.
+        ctx.expect(ctx.assert.domExists(ctx.doc, 'input[type="range"][data-key="graphics.resolution_scale"]'));
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Settings: nvidia_caps pruning keeps already-received saved values',
+    file: '/screens/settings.html',
+    async run(ctx) {
+        await openGraphicsTab(ctx);
+        // Saved value lands first (sticky replay order is not guaranteed)...
+        ctx.inject('tsic.msg.UI.Settings.Value', { Key: 'graphics.resolution_scale', ValueJson: '85' });
+        await ctx.waitFor(() =>
+            ctx.doc.querySelector('input[type="range"][data-key="graphics.resolution_scale"]').value === '85');
+        // ...then the caps report forces a structural rebuild, which wipes
+        // localState unless rebuildPreservingValues carries it across.
+        ctx.inject('tsic.msg.UI.Settings.Value',
+            { Key: 'graphics.nvidia_caps', ValueJson: '{"dlss":true,"frame_gen":false,"reflex":true}' });
+        await ctx.waitFor(() => !ctx.doc.querySelector('[data-key="graphics.frame_gen"]'));
+        ctx.expect(ctx.assert.eq(
+            ctx.doc.querySelector('input[type="range"][data-key="graphics.resolution_scale"]').value, '85'));
+        // A supported cap must not be pruned.
+        ctx.expect(ctx.assert.domExists(ctx.doc, 'button.tsic-dropdown[data-key="graphics.reflex"]'));
+    },
+});
