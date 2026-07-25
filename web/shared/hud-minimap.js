@@ -18,7 +18,7 @@
   var SIZE = 180;
   var HALF = SIZE / 2;
   var PX_PER_CM = 1;
-  var ZOOM_FRACTION = 0.03;
+  var ZOOM_FRACTION = 0.021;
   var LERP_SPEED = 12;
   // Min interval between canvas redraws while animating (~60Hz). Keep this
   // <= 16ms: CEF's off-screen capture samples the WHOLE page at the dominant

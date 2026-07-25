@@ -64,7 +64,7 @@
           },
           {
             "do": "wait",
-            "seconds": 4.0
+            "seconds": 4
           }
         ],
         "transitions": [

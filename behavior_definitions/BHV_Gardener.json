@@ -2,42 +2,46 @@
   "id": "BHV_Gardener",
   "class": "ScpBehaviorDefinition",
   "properties": {
+    "root_eval_interval": 0.2,
     "roots": [
       {
-        "name": "Patrol",
-        "intent": "AI.Behavior.Patrol",
-        "states": [
+        "name": "Combat",
+        "when": [
           {
-            "name": "Wander",
-            "initial": true,
-            "actions": [
-              {
-                "do": "wander",
-                "ring_min": 800,
-                "ring_max": 2500,
-                "speed_profile": "walk",
-                "origin": "$Brain.PatrolAnchor"
-              }
-            ]
+            "if": "has_target"
+          },
+          {
+            "if": "target_within",
+            "distance": 420
           }
-        ]
-      },
-      {
-        "name": "Investigate",
-        "intent": "AI.Behavior.Investigate",
+        ],
+        "hold_seconds": 1.5,
+        "nav_policy": "breach",
         "actions": [
           {
             "do": "run_skill",
-            "skill": "SKL_Investigate",
+            "skill": "SKL_Engage",
             "params": {
-              "Spot": "$Brain.PointOfInterest"
+              "Target": "$Perception.Target",
+              "Attack": "$Attack.Tag"
             }
           }
         ]
       },
       {
         "name": "Chase",
-        "intent": "AI.Behavior.Chase",
+        "when": [
+          {
+            "if": "has_target"
+          },
+          {
+            "if": "time_since_seen",
+            "under": 12
+          }
+        ],
+        "hold_seconds": 1,
+        "fail_cooldown": 6,
+        "nav_policy": "breach",
         "states": [
           {
             "name": "Pursue",
@@ -45,7 +49,7 @@
             "actions": [
               {
                 "do": "move_to",
-                "target": "$Brain.TargetLocation",
+                "target": "$Perception.TargetLocation",
                 "acceptance": 250,
                 "speed_profile": "sprint",
                 "repath_if_moved": 150
@@ -99,26 +103,16 @@
         ]
       },
       {
-        "name": "Combat",
-        "intent": "AI.Behavior.Combat",
-        "actions": [
-          {
-            "do": "run_skill",
-            "skill": "SKL_Engage",
-            "params": {
-              "Target": "$Brain.PrimaryTarget",
-              "Attack": "$Brain.AttackTag"
-            }
-          }
-        ]
-      },
-      {
         "name": "Search",
-        "intent": "AI.Behavior.Search",
+        "when": [
+          {
+            "if": "has_target"
+          }
+        ],
         "actions": [
           {
             "do": "wander",
-            "origin": "$Brain.PointOfInterest",
+            "origin": "$Perception.PointOfInterest",
             "ring_min": 100,
             "ring_max": 1000,
             "leg_seconds": 6,
@@ -128,29 +122,67 @@
         ]
       },
       {
+        "name": "Search",
+        "when": [
+          {
+            "if": "target_lost_within",
+            "seconds": 15
+          }
+        ]
+      },
+      {
         "name": "AttackNuisance",
-        "intent": "AI.Behavior.AttackNuisance",
+        "when": [
+          {
+            "if": "has_nuisance",
+            "min_damage": 5
+          }
+        ],
+        "nav_policy": "breach",
         "actions": [
           {
             "do": "run_skill",
             "skill": "SKL_DestroyEntity",
             "params": {
-              "Entity": "$Brain.NuisanceTarget",
+              "Entity": "$Perception.Nuisance",
               "Ability": "AI.Gardener.Attack.Melee"
             }
           }
         ]
       },
       {
-        "name": "Flee",
-        "intent": "AI.Behavior.Flee",
+        "name": "Investigate",
+        "when": [
+          {
+            "if": "heard_noise_within",
+            "seconds": 8
+          }
+        ],
         "actions": [
           {
             "do": "run_skill",
-            "skill": "SKL_FleeToSafety",
+            "skill": "SKL_Investigate",
             "params": {
-              "Threat": "$Brain.PrimaryTarget"
+              "Spot": "$Perception.PointOfInterest"
             }
+          }
+        ]
+      },
+      {
+        "name": "Patrol",
+        "states": [
+          {
+            "name": "Wander",
+            "initial": true,
+            "actions": [
+              {
+                "do": "wander",
+                "ring_min": 800,
+                "ring_max": 2500,
+                "speed_profile": "walk",
+                "origin": "$Perception.PatrolAnchor"
+              }
+            ]
           }
         ]
       }

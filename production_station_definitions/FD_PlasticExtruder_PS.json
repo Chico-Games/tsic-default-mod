@@ -21,7 +21,8 @@
     "starting_health": 100.0,
     "destructible_collection": "/Game/Furniture/SewingMachine/GeometryCollections/GCS_SewingMachine.GCS_SewingMachine",
     "loot_dropped_on_death": [],
-    "deconstruction_tier": 0,
+    "deconstruction_tier": 3,
+    "upgrade_recipe": "RD_PlasticExtruderTier2_CN",
     "building_base": {
       "rotation": {
         "x": 0.0,

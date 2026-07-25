@@ -44,10 +44,6 @@
         "name": "Smash",
         "actions": [
           {
-            "do": "face",
-            "target": "$In.Entity"
-          },
-          {
             "do": "activate_ability",
             "ability": "$In.Ability",
             "target": "$In.Entity"

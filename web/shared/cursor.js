@@ -236,7 +236,7 @@
             MainMenu: 1, NewStore: 1, LoadSave: 1, Mods: 1, Settings: 1,
             Credits: 1, DeathScreen: 1, PauseMenu: 1, Inventory: 1, Map: 1,
             Crafting: 1, Production: 1, CheatMenu: 1, HtmlGame: 1,
-            DebugScreen: 1, Construction: 1,
+            DebugScreen: 1, Construction: 1, BugReport: 1,
         };
         var currentScreen = '';
         var overlayCount = 0;

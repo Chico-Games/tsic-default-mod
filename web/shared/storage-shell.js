@@ -321,6 +321,7 @@
         panel.querySelector('#ss-close').addEventListener('click', () => {
             window.TSICInventory.cancelHeld();
             tsic.publishMessage('UI.Cmd.Pause.Resume', {});
+            tsic.playSound('Container.Close', 0.4);
         });
         panel.querySelector('#ss-take-all').addEventListener('click', takeAll);
         // §5 P2 SortInventory — per pane.
@@ -409,6 +410,7 @@
         });
 
         renderAll();
+        tsic.playSound('Container.Open', 0.4);
         return { state, refresh: renderAll };
     }
 

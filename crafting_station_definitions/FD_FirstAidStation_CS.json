@@ -21,7 +21,7 @@
     "loot_dropped_on_death": [
       "LD_CraftingBenchTierOneLoot"
     ],
-    "deconstruction_tier": 0,
+    "deconstruction_tier": 1,
     "building_base": {
       "rotation": {
         "x": 0.0,
@@ -69,6 +69,7 @@
     "release_linear_damping": 0.009999999776482582,
     "restitution": 0.30000001192092896,
     "available_recipe_rules_definition": "ARR_FirstAidStationRecipes",
-    "constructable_item_to_grant": "ID_FirstAidStation_CI"
+    "constructable_item_to_grant": "ID_FirstAidStation_CI",
+    "upgrade_recipe": "RD_FirstAidStationTier2_CN"
   }
 }

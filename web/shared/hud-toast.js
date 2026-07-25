@@ -24,10 +24,16 @@
     if (!container) return;
     var text = (payload && (payload.Text || payload.text)) || '';
     if (!text) return;
+    var sevClass = severityClass(extractSeverityTag(payload && payload.Severity));
     var div = document.createElement('div');
-    div.className = 'toast ' + severityClass(extractSeverityTag(payload && payload.Severity));
+    div.className = 'toast ' + sevClass;
     div.textContent = String(text);
     container.appendChild(div);
+    // Negative-feedback sting for warning/error toasts only — info toasts fire
+    // too often (every routine pickup/blocked-action message) to warrant one.
+    if (sevClass === 'toast--warning' || sevClass === 'toast--error') {
+      try { tsic.playSound('UI.Error', 0.4); } catch (e) {}
+    }
     setTimeout(function () {
       if (!div.parentNode) return;
       div.classList.add('toast--leaving');

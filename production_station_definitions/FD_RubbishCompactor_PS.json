@@ -20,7 +20,8 @@
     "has_toggled_off_vfx": false,
     "starting_health": 100.0,
     "loot_dropped_on_death": [],
-    "deconstruction_tier": 0,
+    "deconstruction_tier": 3,
+    "upgrade_recipe": "RD_RubbishCompactorTier2_CN",
     "building_base": {
       "rotation": {
         "x": 0.0,

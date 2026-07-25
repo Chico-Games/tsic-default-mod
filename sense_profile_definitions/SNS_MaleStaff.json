@@ -1,7 +1,0 @@
-{
-  "id": "SNS_MaleStaff",
-  "class": "ScpSenseProfileDefinition",
-  "properties": {
-    "extends": "SNS_BaseStaff"
-  }
-}

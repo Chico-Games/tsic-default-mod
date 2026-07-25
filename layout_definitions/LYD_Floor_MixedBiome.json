@@ -22,8 +22,8 @@
               },
               "tags": [
                 "Tile.Biome.Bathroom",
+                "Tile.Biome.BathroomExit",
                 "Tile.Biome.CarPark",
-                "Tile.Biome.CarParkEntrance",
                 "Tile.Biome.CarParkExit",
                 "Tile.Biome.Gardening",
                 "Tile.Biome.Kids",
@@ -79,7 +79,6 @@
               },
               "tags": [
                 "Tile.Biome.CarPark",
-                "Tile.Biome.CarParkEntrance",
                 "Tile.Biome.CarParkExit"
               ],
               "b_not": false
@@ -303,7 +302,8 @@
                 "value": 2
               },
               "tags": [
-                "Tile.Biome.Bathroom"
+                "Tile.Biome.Bathroom",
+                "Tile.Biome.BathroomExit"
               ],
               "b_not": false
             }

@@ -46,6 +46,7 @@
     }
     div.appendChild(body);
     host.appendChild(div);
+    try { tsic.playSound('Notification.Show', 0.35); } catch (e) {}
 
     var entry = { el: div };
     stack.push(entry);

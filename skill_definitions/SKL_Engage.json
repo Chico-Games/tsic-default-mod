@@ -1,90 +1,94 @@
 {
-  "id": "SKL_Engage",
-  "class": "ScpSkillDefinition",
-  "properties": {
-    "inputs": { "Target": "actor", "Attack": "tag" },
-    "vars": { "HoldSpot": "vector" },
-    "states": [
-      {
-        "name": "CloseIn",
-        "initial": true,
-        "actions": [
-          { "do": "claim_attack_token", "target": "$In.Target", "timeout": 4.0 },
-          { "do": "move_to", "target": "$In.Target", "acceptance": "$Brain.AttackMaxRange", "acceptance_scale": 0.9, "speed_profile": "sprint", "repath_if_moved": 100 }
-        ],
-        "transitions": [
-          { "on": "event", "event": "AI.Event.TokenLost", "to": "CloseIn" },
-          {
-            "on": "tick",
-            "conditions": [
-              { "if": "distance", "a": "$Self", "b": "$In.Target", "less_than": "$Brain.AttackMinRange" }
-            ],
-            "to": "BackOff"
-          },
-          { "on": "actions_succeeded", "conditions": [ { "if": "has_attack" } ], "to": "Aim" },
-          { "on": "actions_succeeded", "to": "HoldRange" },
-          { "on": "action_failed", "to": "HoldRange" }
-        ]
-      },
-      {
-        "name": "BackOff",
-        "actions": [
-          { "do": "flee_from", "target": "$In.Target", "distance": "$Brain.AttackMinRange", "speed_profile": "hurry" }
-        ],
-        "transitions": [
-          { "on": "actions_succeeded", "to": "CloseIn" },
-          { "on": "action_failed", "to": "CloseIn" }
-        ]
-      },
-      {
-        "name": "Aim",
-        "actions": [
-          { "do": "face", "target": "$In.Target" }
-        ],
-        "transitions": [
-          { "on": "actions_succeeded", "to": "Swing" },
-          { "on": "action_failed", "to": "CloseIn" }
-        ]
-      },
-      {
-        "name": "Swing",
-        "min_commit_seconds": 0.6,
-        "actions": [
-          { "do": "activate_ability", "ability": "$In.Attack" }
-        ],
-        "transitions": [
-          { "on": "tick", "conditions": [ { "if": "has_attack_token", "negate": true } ], "to": "CloseIn" },
-          { "on": "actions_succeeded", "to": "CloseIn" },
-          { "on": "action_failed", "to": "CloseIn" }
-        ]
-      },
-      {
-        "name": "HoldRange",
-        "actions": [
-          {
-            "do": "find_spot",
-            "out": "$Var.HoldSpot",
-            "query": {
-              "generator": { "ring": { "around": "$In.Target", "radius": 300, "radius_jitter": 100 } },
-              "scorers": {
-                "separation": 1.0,
-                "furniture_clearance": 0.6,
-                "los_to": { "target": "$In.Target", "weight": 0.8 },
-                "path_cost": 0.4,
-                "current_spot_bias": 0.5,
-                "noise": 0.15
-              }
-            }
-          },
-          { "do": "move_to", "target": "$Var.HoldSpot", "acceptance": 120, "speed_profile": "walk_medium" },
-          { "do": "face", "target": "$In.Target" },
-          { "do": "wait", "seconds": 1.5, "jitter": 1.0 }
-        ],
-        "transitions": [
-          { "on": "actions_succeeded", "to": "CloseIn" },
-          { "on": "action_failed", "to": "CloseIn" }
-        ]
-      }
+ "id": "SKL_Engage",
+ "class": "ScpSkillDefinition",
+ "properties": {
+  "inputs": {
+   "Target": "actor",
+   "Attack": "tag"
+  },
+  "states": [
+   {
+    "name": "CloseIn",
+    "initial": true,
+    "actions": [
+     {
+      "do": "claim_attack_token",
+      "target": "$In.Target",
+      "timeout": 4
+     },
+     {
+      "do": "move_to",
+      "target": "$In.Target",
+      "acceptance": "$Attack.MaxRange",
+      "acceptance_scale": 0.9,
+      "speed_profile": "sprint",
+      "repath_if_moved": 100
+     }
+    ],
+    "transitions": [
+     {
+      "on": "event",
+      "event": "AI.Event.TokenLost",
+      "to": "CloseIn"
+     },
+     {
+      "on": "actions_succeeded",
+      "conditions": [
+       {
+        "if": "has_attack"
+       }
+      ],
+      "to": "Swing"
+     },
+     {
+      "on": "actions_succeeded",
+      "to": "CloseIn"
+     },
+     {
+      "on": "action_failed",
+      "conditions": [
+       {
+        "if": "has_attack"
+       }
+      ],
+      "to": "Swing"
+     },
+     {
+      "on": "action_failed",
+      "to": "CloseIn"
+     }
     ]
-  }
+   },
+   {
+    "name": "Swing",
+    "min_commit_seconds": 0.6,
+    "actions": [
+     {
+      "do": "activate_ability",
+      "ability": "$In.Attack"
+     }
+    ],
+    "transitions": [
+     {
+      "on": "tick",
+      "conditions": [
+       {
+        "if": "has_attack_token",
+        "negate": true
+       }
+      ],
+      "to": "CloseIn"
+     },
+     {
+      "on": "actions_succeeded",
+      "to": "CloseIn"
+     },
+     {
+      "on": "action_failed",
+      "to": "CloseIn"
+     }
+    ]
+   }
+  ]
+ }
 }

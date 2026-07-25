@@ -55,6 +55,22 @@
           ],
           "spawn_chance": 0.3499999940395355
         }
+      },
+      {
+        "key": {
+          "name": "HARD",
+          "value": 2
+        },
+        "value": {
+          "loot_items": [
+            {
+              "item_entity": "FD_Coins_SI",
+              "count": 6,
+              "weight": 1
+            }
+          ],
+          "spawn_chance": 0.3499999940395355
+        }
       }
     ],
     "accumulate_previous_tiers": true,

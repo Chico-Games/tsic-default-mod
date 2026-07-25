@@ -39,6 +39,7 @@
           <button class="tsic-button" style="width:100%;" id="btn-resume" data-tsic-initial-focus>Resume</button>
           <button class="tsic-button" style="width:100%; margin-top:8px;" id="btn-settings">Settings</button>
           <button class="tsic-button" style="width:100%; margin-top:8px;" id="btn-bug-report">Report a Bug</button>
+          <button class="tsic-button" style="width:100%; margin-top:8px;" id="btn-teleport-spawn">I'm stuck (Teleport to spawn point)</button>
           <button class="tsic-button" style="width:100%; margin-top:8px;" id="btn-menu">Save and Return to Main Menu</button>
           <!-- Dev/testing only: revealed by the UI.State.DevMode flag in non-shipping builds. -->
           <button class="tsic-button" style="width:100%; margin-top:8px; display:none;" id="btn-dev-join">Join Game (Dev)</button>
@@ -192,6 +193,7 @@
       root.querySelector('#btn-resume').onclick     = () => ctx.publish('UI.Cmd.Pause.Resume');
       root.querySelector('#btn-settings').onclick   = () => ctx.publish('UI.Cmd.Pause.Settings');
       root.querySelector('#btn-bug-report').onclick = () => ctx.publish('UI.Cmd.Pause.BugReport');
+      root.querySelector('#btn-teleport-spawn').onclick = () => ctx.publish('UI.Cmd.Pause.TeleportToSpawn');
       root.querySelector('#btn-menu').onclick       = () => ctx.publish('UI.Cmd.Pause.QuitToMenu');
 
       // Dev/testing: reveal + wire the "Join Game (Dev)" button. Destroys this
@@ -205,8 +207,12 @@
       }
     },
 
-    // onShow / onHide intentionally omitted — there's no transient state to
-    // refresh or release beyond the input-mode tag + action-bar context the
-    // manager handles automatically.
+    onShow(/* params, ctx */) {
+      if (window.tsic && window.tsic.playSound) window.tsic.playSound('Pause.Open', 0.4);
+    },
+
+    onHide(/* ctx */) {
+      if (window.tsic && window.tsic.playSound) window.tsic.playSound('Pause.Close', 0.4);
+    },
   });
 })();

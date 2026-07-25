@@ -110,6 +110,9 @@
     '#interaction-prompt.cat-loot { color:#f2d3a4; }',
     '#interaction-prompt.cat-shop { color:#a3e2d2; }',
     '#interaction-prompt.cat-item { color:#e8e2d5; }',
+    // Non-available option (single-use already used / blocked / cooldown): dim + strike, overrides the category tint.
+    '#interaction-prompt.interaction-disabled { color:rgba(190,190,190,0.4) !important; text-decoration:line-through; }',
+    '#interaction-prompt.interaction-disabled .cat-icon { opacity:0.4; }',
     '#interaction-hold-prompt { text-align:right; font-size:10px; font-weight:600; color:rgba(255,255,255,0.75); letter-spacing:0.06em; text-transform:uppercase; }',
     '#interaction-hold-prompt.hidden { display:none; }',
     // Minimap — circular HUD badge. Frame matches the ping wheel: heavy ink ring

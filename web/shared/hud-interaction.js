@@ -67,6 +67,9 @@
     var target = p && p.Targets && p.Targets[0];
     if (target) {
       setLabel(label, target);
+      // Grey out single-use options that have already been used. (Status also
+      // carries Blocked/Cooldown/Active for future use; only SingleUseUsed greys today.)
+      label.classList.toggle('interaction-disabled', String(target.Status || '') === 'SingleUseUsed');
       label.classList.remove('hidden');
       divider.classList.remove('hidden');
       if (holdLabel) {

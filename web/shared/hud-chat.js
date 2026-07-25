@@ -68,6 +68,7 @@
     var isOpen = false;
     var fadeTimer = 0;
     var lastCount = -1;
+    var justSentAt = 0; // suppresses the receive sound for our own just-sent message
 
     function scheduleFade(ms) {
       clearTimeout(fadeTimer);
@@ -144,7 +145,11 @@
       if (e.key === 'Enter') {
         e.preventDefault();
         var text = (input.value || '').trim();
-        if (text) tsic.publishMessage('UI.Cmd.Chat.Send', { Channel: '', Text: text });
+        if (text) {
+          tsic.publishMessage('UI.Cmd.Chat.Send', { Channel: '', Text: text });
+          justSentAt = Date.now();
+          try { tsic.playSound('Chat.Send', 0.3); } catch (e2) {}
+        }
         close();
       } else if (e.key === 'Escape') {
         e.preventDefault();
@@ -191,7 +196,13 @@
     tsic.on('tsic.msg.UI.Chat.History', function (p) {
       var msgs = (p && p.Messages) || [];
       render(p);
-      if (msgs.length > 0 && msgs.length !== lastCount) reveal(IDLE_FADE_MS);
+      if (msgs.length > 0 && msgs.length !== lastCount) {
+        reveal(IDLE_FADE_MS);
+        // Own just-sent message already played Chat.Send above — don't double up.
+        if (Date.now() - justSentAt > 400) {
+          try { tsic.playSound('Chat.Receive', 0.3); } catch (e) {}
+        }
+      }
       lastCount = msgs.length;
     });
   }

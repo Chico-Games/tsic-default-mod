@@ -2,10 +2,153 @@
   "id": "BHV_MaleStaff",
   "class": "ScpBehaviorDefinition",
   "properties": {
+    "root_eval_interval": 0.2,
     "roots": [
       {
+        "name": "Combat",
+        "when": [
+          {
+            "if": "has_target"
+          },
+          {
+            "if": "provoked"
+          }
+        ],
+        "hold_seconds": 1.5,
+        "nav_policy": "breach",
+        "actions": [
+          {
+            "do": "run_skill",
+            "skill": "SKL_Engage",
+            "params": {
+              "Target": "$Perception.Target",
+              "Attack": "$Attack.Tag"
+            }
+          }
+        ]
+      },
+      {
+        "name": "Combat",
+        "when": [
+          {
+            "if": "has_target"
+          },
+          {
+            "if": "target_within",
+            "distance": 420
+          }
+        ]
+      },
+      {
+        "name": "Combat",
+        "when": [
+          {
+            "if": "has_target"
+          },
+          {
+            "if": "day_section",
+            "is": "Gameplay.DaySection.Night"
+          }
+        ]
+      },
+      {
+        "name": "Greet",
+        "when": [
+          {
+            "if": "has_target"
+          },
+          {
+            "if": "target_visible"
+          },
+          {
+            "if": "greeted_within",
+            "seconds": 90,
+            "invert": true
+          }
+        ],
+        "hold_seconds": 3,
+        "actions": [
+          {
+            "do": "run_skill",
+            "skill": "SKL_Greet",
+            "params": {
+              "Target": "$Perception.Target"
+            }
+          }
+        ]
+      },
+      {
+        "name": "Search",
+        "when": [
+          {
+            "if": "has_target"
+          },
+          {
+            "if": "time_since_seen",
+            "over": 12
+          }
+        ],
+        "actions": [
+          {
+            "do": "wander",
+            "origin": "$Perception.PointOfInterest",
+            "ring_min": 100,
+            "ring_max": 1000,
+            "leg_seconds": 6,
+            "pause_seconds": 1.5,
+            "speed_profile": "walk_medium"
+          }
+        ]
+      },
+      {
+        "name": "Search",
+        "when": [
+          {
+            "if": "target_lost_within",
+            "seconds": 35
+          }
+        ]
+      },
+      {
+        "name": "AttackNuisance",
+        "when": [
+          {
+            "if": "has_nuisance",
+            "min_damage": 5
+          }
+        ],
+        "nav_policy": "breach",
+        "actions": [
+          {
+            "do": "run_skill",
+            "skill": "SKL_DestroyEntity",
+            "params": {
+              "Entity": "$Perception.Nuisance",
+              "Ability": "AI.MaleStaff.Attack.Melee"
+            }
+          }
+        ]
+      },
+      {
+        "name": "Investigate",
+        "when": [
+          {
+            "if": "heard_noise_within",
+            "seconds": 8
+          }
+        ],
+        "actions": [
+          {
+            "do": "run_skill",
+            "skill": "SKL_Investigate",
+            "params": {
+              "Spot": "$Perception.PointOfInterest"
+            }
+          }
+        ]
+      },
+      {
         "name": "Patrol",
-        "intent": "AI.Behavior.Patrol",
         "states": [
           {
             "name": "Wander",
@@ -16,154 +159,9 @@
                 "ring_min": 800,
                 "ring_max": 2500,
                 "speed_profile": "walk",
-                "origin": "$Brain.PatrolAnchor"
+                "origin": "$Perception.PatrolAnchor"
               }
             ]
-          }
-        ]
-      },
-      {
-        "name": "Investigate",
-        "intent": "AI.Behavior.Investigate",
-        "actions": [
-          {
-            "do": "run_skill",
-            "skill": "SKL_Investigate",
-            "params": {
-              "Spot": "$Brain.PointOfInterest"
-            }
-          }
-        ]
-      },
-      {
-        "name": "Chase",
-        "intent": "AI.Behavior.Chase",
-        "states": [
-          {
-            "name": "Pursue",
-            "initial": true,
-            "actions": [
-              {
-                "do": "move_to",
-                "target": "$Brain.TargetLocation",
-                "acceptance": 250,
-                "speed_profile": "sprint",
-                "repath_if_moved": 150
-              }
-            ],
-            "transitions": [
-              {
-                "on": "event",
-                "event": "AI.Event.PathBlocked",
-                "to": "ClearPath",
-                "conditions": [
-                  {
-                    "if": "can_break_furniture",
-                    "entity": "$Path.BlockingEntity"
-                  }
-                ]
-              },
-              {
-                "on": "actions_succeeded",
-                "to": "Pursue"
-              },
-              {
-                "on": "action_failed",
-                "to": "Pursue"
-              }
-            ]
-          },
-          {
-            "name": "ClearPath",
-            "actions": [
-              {
-                "do": "run_skill",
-                "skill": "SKL_DestroyEntity",
-                "params": {
-                  "Entity": "$Path.BlockingEntity",
-                  "Ability": "AI.MaleStaff.Attack.Melee"
-                }
-              }
-            ],
-            "transitions": [
-              {
-                "on": "actions_succeeded",
-                "to": "Pursue"
-              },
-              {
-                "on": "action_failed",
-                "to": "Pursue"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "name": "Combat",
-        "intent": "AI.Behavior.Combat",
-        "actions": [
-          {
-            "do": "run_skill",
-            "skill": "SKL_Engage",
-            "params": {
-              "Target": "$Brain.PrimaryTarget",
-              "Attack": "$Brain.AttackTag"
-            }
-          }
-        ]
-      },
-      {
-        "name": "Search",
-        "intent": "AI.Behavior.Search",
-        "actions": [
-          {
-            "do": "wander",
-            "origin": "$Brain.PointOfInterest",
-            "ring_min": 100,
-            "ring_max": 1000,
-            "leg_seconds": 6,
-            "pause_seconds": 1.5,
-            "speed_profile": "walk_medium"
-          }
-        ]
-      },
-      {
-        "name": "AttackNuisance",
-        "intent": "AI.Behavior.AttackNuisance",
-        "actions": [
-          {
-            "do": "run_skill",
-            "skill": "SKL_DestroyEntity",
-            "params": {
-              "Entity": "$Brain.NuisanceTarget",
-              "Ability": "AI.MaleStaff.Attack.Melee"
-            }
-          }
-        ]
-      },
-      {
-        "name": "Flee",
-        "intent": "AI.Behavior.Flee",
-        "actions": [
-          {
-            "do": "run_skill",
-            "skill": "SKL_FleeToSafety",
-            "params": {
-              "Threat": "$Brain.PrimaryTarget"
-            }
-          }
-        ]
-      },
-      {
-        "name": "Greet",
-        "intent": "AI.Behavior.Greet",
-        "actions": [
-          {
-            "do": "run_skill",
-            "skill": "SKL_Greet",
-            "params": {
-              "Target": "$Brain.PrimaryTarget"
-            }
           }
         ]
       }

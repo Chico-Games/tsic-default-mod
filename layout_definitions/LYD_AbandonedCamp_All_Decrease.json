@@ -263,10 +263,10 @@
         "furniture_definition": "FD_Table_2_DF",
         "transform": {
           "rotation": {
-            "x": 0.4545194776720429,
+            "x": 0.45451947767204287,
             "y": -0.5416752204197026,
-            "z": 0.45451947767204304,
-            "w": 0.5416752204197026
+            "z": 0.4545194776720429,
+            "w": 0.5416752204197027
           },
           "translation": {
             "x": 102,
@@ -297,7 +297,7 @@
         "transform": {
           "rotation": {
             "x": -2.5139224917781625e-16,
-            "y": 2.2094370318085334e-16,
+            "y": 2.209437031808534e-16,
             "z": -0.9999999999999999,
             "w": 8.726640582549448e-09
           },
@@ -329,10 +329,10 @@
         "furniture_definition": "FD_Table_2_DF",
         "transform": {
           "rotation": {
-            "x": 0.45451948239905066,
-            "y": -0.5416752164532721,
-            "z": 0.45451948239905077,
-            "w": 0.5416752164532722
+            "x": 0.45451948239905055,
+            "y": -0.5416752164532722,
+            "z": 0.4545194823990506,
+            "w": 0.5416752164532723
           },
           "translation": {
             "x": -7.26599974404715,
@@ -416,6 +416,105 @@
             "x": 206,
             "y": -211,
             "z": 90
+          },
+          "scale3_d": {
+            "x": 1,
+            "y": 1,
+            "z": 1
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "LOOT_SPAWN_POINT",
+          "value": 3
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": 20,
+          "search_queries": [],
+          "tile_requirements": [],
+          "spawn_chance_over": 0,
+          "spawn_chance_under": 1
+        },
+        "loot_spawn_point_definition": "LSP_AbandonedCamp_Floor",
+        "transform": {
+          "rotation": {
+            "x": 0,
+            "y": 0,
+            "z": 0,
+            "w": 1
+          },
+          "translation": {
+            "x": 96,
+            "y": -27,
+            "z": 0
+          },
+          "scale3_d": {
+            "x": 1,
+            "y": 1,
+            "z": 1
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "LOOT_SPAWN_POINT",
+          "value": 3
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": 19,
+          "search_queries": [],
+          "tile_requirements": [],
+          "spawn_chance_over": 0,
+          "spawn_chance_under": 1
+        },
+        "loot_spawn_point_definition": "LSP_AbandonedCamp_Floor",
+        "transform": {
+          "rotation": {
+            "x": 0,
+            "y": 0,
+            "z": 0,
+            "w": 1
+          },
+          "translation": {
+            "x": -9,
+            "y": 107,
+            "z": 0
+          },
+          "scale3_d": {
+            "x": 1,
+            "y": 1,
+            "z": 1
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "LOOT_SPAWN_POINT",
+          "value": 3
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": 21,
+          "search_queries": [],
+          "tile_requirements": [],
+          "spawn_chance_over": 0,
+          "spawn_chance_under": 1
+        },
+        "loot_spawn_point_definition": "LSP_AbandonedCamp_Floor",
+        "transform": {
+          "rotation": {
+            "x": 0,
+            "y": 0,
+            "z": 0,
+            "w": 1
+          },
+          "translation": {
+            "x": 9,
+            "y": -189,
+            "z": 0
           },
           "scale3_d": {
             "x": 1,

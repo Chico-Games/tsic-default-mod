@@ -5,7 +5,9 @@
   "schema_version": 2,
   "properties": {
     "production_machine_rules": {
-      "recipes": []
+      "recipes": [
+        "RD_RecycleJunk_CR"
+      ]
     }
   }
 }

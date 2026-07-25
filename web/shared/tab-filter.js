@@ -36,6 +36,7 @@
                         if (_active === tabId) return;
                         _active = tabId;
                         render();
+                        if (window.tsic && window.tsic.playSound) window.tsic.playSound('UI.TabSwitch', 0.25);
                         if (typeof onChange === 'function') onChange(_active);
                     });
                 })(t.id);

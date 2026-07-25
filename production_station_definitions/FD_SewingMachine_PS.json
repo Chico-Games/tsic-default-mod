@@ -20,7 +20,7 @@
     "starting_health": 33.0,
     "loot_dropped_on_death": [],
     "constructable_item_to_grant": "ID_SewingMachine_CI",
-    "deconstruction_tier": 0,
+    "deconstruction_tier": 2,
     "building_base": {
       "rotation": {
         "x": 0.0,

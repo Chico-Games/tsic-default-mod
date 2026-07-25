@@ -103,6 +103,7 @@
     if (window.tsic && window.tsic.publishMessage) {
       tsic.publishMessage('UI.Cmd.Ping.Request', { PingType: type, Location: { X: 0, Y: 0, Z: 0 } });
     }
+    if (window.tsic && window.tsic.playSound) tsic.playSound('Ping.Confirm', 0.45);
   }
 
   function build(shell) {
@@ -153,6 +154,9 @@
   function setActive(idx) {
     if (idx === active) return;
     active = idx;
+    // Tick only when landing on a real wedge (not when sweeping back to the
+    // dead-zone hub) so the wheel doesn't chirp on every pointer move.
+    if (idx >= 0 && window.tsic && window.tsic.playSound) tsic.playSound('Ping.Hover', 0.2);
     const hub = document.getElementById('ping-hub');
     wedges.forEach((w, i) => {
       w.path.classList.toggle('is-active', i === idx);

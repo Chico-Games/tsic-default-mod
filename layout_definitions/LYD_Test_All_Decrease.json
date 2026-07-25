@@ -45,7 +45,6 @@
       "Layout.Type.Tile",
       "Tile.Biome.Test",
       "Tile.HandlesHeight.Decrease",
-      "Tile.Layer.Floor",
       "Tile.MazeDirection.All",
       "Tile.MazeDirection.Up",
       "Tile.MazeDirection.UpDown",

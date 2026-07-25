@@ -472,10 +472,12 @@
         }
       }
 
-      const CLUSTER_SCREEN_PX = 32;
       // Clustering is per POI type: only markers that share a category (and,
       // for landmarks, the same POI label) merge into one group marker, so the
-      // group can honestly wear its members' shape and colour.
+      // group can honestly wear its members' shape and colour. The radius is
+      // wider than the old mixed-type value (32) because worldgen spreads each
+      // POI type out — same-type neighbours sit farther apart than mixed ones.
+      const CLUSTER_SCREEN_PX = 48;
       function iconTypeKey(ic) {
         const c = (ic.Category || '').toLowerCase();
         return c === 'landmark' ? c + '|' + String(ic.Label || '') : c;
@@ -1025,7 +1027,10 @@
       // R = reset. Esc closes via screen-manager's cancelCmd (UI.Cmd.GameScreen.Close).
       window.addEventListener('keydown', (ev) => {
         if (!ctx.isVisible()) return;
-        if (ev.key === 'r' || ev.key === 'R') fitToBounds();
+        if (ev.key === 'r' || ev.key === 'R') {
+          fitToBounds();
+          if (window.tsic && window.tsic.playSound) window.tsic.playSound('Map.Reset', 0.35);
+        }
       });
 
       // Resize: refit while visible.
@@ -1083,6 +1088,7 @@
         const X = Math.max(bounds.minX, Math.min(bounds.maxX, wx));
         const Y = Math.max(bounds.minY, Math.min(bounds.maxY, wy));
         ctx.publish('UI.Cmd.Ping.Request', { PingType: 'Map', Location: { X, Y, Z: 0 } });
+        if (window.tsic && window.tsic.playSound) window.tsic.playSound('Map.Ping', 0.45);
       }
       function panBy(dx, dy) {
         state.panX += dx;
@@ -1108,7 +1114,11 @@
       ctx.on('tsic.msg.UI.Behavior.MapPlacePing',  (e) => { if (e.Phase === 'Started') placePingAtCursorOrCenter(); });
       // Same contract as keyboard 'R': fit the whole map. (This previously
       // guarded on an undefined `resetView` and silently no-oped on gamepad.)
-      ctx.on('tsic.msg.UI.Behavior.MapResetView',  (e) => { if (e.Phase === 'Started') fitToBounds(); });
+      ctx.on('tsic.msg.UI.Behavior.MapResetView',  (e) => {
+        if (e.Phase !== 'Started') return;
+        fitToBounds();
+        if (window.tsic && window.tsic.playSound) window.tsic.playSound('Map.Reset', 0.35);
+      });
       ctx.on('tsic.msg.UI.Behavior.MapMove', (e) => {
         if (!ctx.isVisible() || e.Phase !== 'Axis') return;
         const dt = (1 / 60);
@@ -1172,6 +1182,7 @@
     },
 
     onShow(/* params, ctx */) {
+      if (window.tsic && window.tsic.playSound) window.tsic.playSound('Map.Open', 0.4);
       // Force a refit on show so the map fills the viewport correctly after
       // any prior overlay's display:none changed layout dimensions.
       // Defer to next frame so the container has actual rect dimensions.
@@ -1182,6 +1193,10 @@
         if (vp) vp.dispatchEvent(new Event('resize'));
         window.dispatchEvent(new Event('resize'));
       });
+    },
+
+    onHide(/* ctx */) {
+      if (window.tsic && window.tsic.playSound) window.tsic.playSound('Map.Close', 0.4);
     },
   });
 })();

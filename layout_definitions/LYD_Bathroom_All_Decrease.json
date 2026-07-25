@@ -45,7 +45,6 @@
       "Layout.Type.Tile",
       "Tile.Biome.Bathroom",
       "Tile.HandlesHeight.Decrease",
-      "Tile.Layer.Sky",
       "Tile.MazeDirection.All",
       "Tile.MazeDirection.Up",
       "Tile.MazeDirection.UpDown",
