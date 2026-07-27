@@ -22,7 +22,7 @@
       "LD_CheckoutLoot"
     ],
     "constructable_item_to_grant": "ID_CashRegister_CI",
-    "deconstruction_tier": 0,
+    "deconstruction_tier": 2,
     "building_base": {
       "rotation": {
         "x": 0.0,
@@ -49,7 +49,7 @@
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,
-    "static_mesh": "/Game/Furniture/Checkout/Meshes/SM_Checkout_Computer_01a.SM_Checkout_Computer_01a",
+    "static_mesh": "/Game/Grocery/VOL1/Meshes/NN/SM_Register_Set_NN_01a.SM_Register_Set_NN_01a",
     "casts_shadow": true,
     "collision_profile_name": {
       "name": "Furniture"

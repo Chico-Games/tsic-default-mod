@@ -17,27 +17,11 @@
     "closed_sunday": false,
     "store_recipes": [
       {
-        "recipe": "RD_ShopTier2Screwdriver_CR",
-        "max_purchases": 2
-      },
-      {
-        "recipe": "RD_ShopHeavyGloves_CR",
-        "max_purchases": 2
-      },
-      {
         "recipe": "RD_ShopProteinBar_CR",
         "max_purchases": -1
       },
       {
-        "recipe": "RD_ShopVitaminPills_CR",
-        "max_purchases": -1
-      },
-      {
-        "recipe": "RD_ShopSwedishPancakeMix_CR",
-        "max_purchases": -1
-      },
-      {
-        "recipe": "RD_ShopFlatpackMealComponents_CR",
+        "recipe": "RD_ShopInstantNoodles_CR",
         "max_purchases": -1
       },
       {
@@ -49,14 +33,54 @@
         "max_purchases": -1
       },
       {
-        "recipe": "RD_ShopInstantNoodles_CR",
+        "recipe": "RD_ShopSwedishPancakeMix_CR",
+        "max_purchases": -1
+      },
+      {
+        "recipe": "RD_ShopFlatpackMealComponents_CR",
+        "max_purchases": -1
+      },
+      {
+        "recipe": "RD_ShopTeaBags_CR",
+        "max_purchases": -1
+      },
+      {
+        "recipe": "RD_ShopVitaminPills_CR",
+        "max_purchases": 5
+      },
+      {
+        "recipe": "RD_ShopOnionSeeds_CR",
+        "max_purchases": 4
+      },
+      {
+        "recipe": "RD_ShopPotatoSeeds_CR",
+        "max_purchases": 4
+      },
+      {
+        "recipe": "RD_ShopTomatoSeeds_CR",
+        "max_purchases": 4
+      },
+      {
+        "recipe": "RD_ShopWheatSeeds_CR",
+        "max_purchases": 4
+      },
+      {
+        "recipe": "RD_ShopMilk_CR",
+        "max_purchases": -1
+      },
+      {
+        "recipe": "RD_ShopPasta_CR",
+        "max_purchases": -1
+      },
+      {
+        "recipe": "RD_ShopRice_CR",
         "max_purchases": -1
       }
     ],
     "restock_period_days": 2,
-    "gameplay_event_tag": "UI.GameScreen.Crafting",
+    "gameplay_event_tag": "UI.GameScreen.Shop",
     "interaction_hold_time": 0.0,
-    "interaction_prompt_text": "Shop",
+    "interaction_prompt_text": "Buy",
     "has_static_audio": false,
     "has_toggled_on_audio": false,
     "has_toggled_off_audio": false,
@@ -71,7 +95,8 @@
     "loot_dropped_on_death": [
       "LD_VendingMachine"
     ],
-    "deconstruction_tier": 0,
+    "deconstruction_tier": 2,
+    "constructable_item_to_grant": "ID_ShopNormal_CI",
     "building_base": {
       "rotation": {
         "x": 0.0,
@@ -91,13 +116,13 @@
       }
     },
     "is_draggable": true,
-    "display_name": "General Store",
-    "description": "A well-stocked vending unit selling mid-tier gear and hearty rations.",
+    "display_name": "Supply Vending Machine",
+    "description": "A staff supply machine. Gloves, tools and rations behind the glass.",
     "level": 2,
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,
-    "static_mesh": "/Game/Furniture/CarPark/Meshes/SM_VendingMachine_01a.SM_VendingMachine_01a",
+    "static_mesh": "/Game/SUBURBS/VOL28_Vending/Meshes/NN/SM_Vending_Soda_NN_17a.SM_Vending_Soda_NN_17a",
     "casts_shadow": true,
     "collision_profile_name": {
       "name": "Furniture"

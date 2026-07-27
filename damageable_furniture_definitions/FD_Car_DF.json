@@ -12,7 +12,7 @@
       "LD_Car"
     ],
     "constructable_item_to_grant": "ID_Car_CI",
-    "deconstruction_tier": 0,
+    "deconstruction_tier": 2,
     "blocking_collision_boxes": [
       {
         "offset": {
@@ -106,7 +106,7 @@
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,
-    "static_mesh": "/Game/Furniture/CarPark/Meshes/SM_TarpaulinSim_01a.SM_TarpaulinSim_01a",
+    "static_mesh": "/Game/Vehicles/VOL3_RetroCars/Meshes/SM_Car_02a.SM_Car_02a",
     "casts_shadow": true,
     "collision_profile_name": {
       "name": "Furniture"

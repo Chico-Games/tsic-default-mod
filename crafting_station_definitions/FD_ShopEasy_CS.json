@@ -17,27 +17,19 @@
     "closed_sunday": false,
     "store_recipes": [
       {
-        "recipe": "RD_ShopBandage_CR",
-        "max_purchases": 3
-      },
-      {
-        "recipe": "RD_ShopFirstAidKit_CR",
-        "max_purchases": 3
-      },
-      {
-        "recipe": "RD_ShopWorkGloves_CR",
-        "max_purchases": 3
+        "recipe": "RD_ShopCrisps_CR",
+        "max_purchases": -1
       },
       {
         "recipe": "RD_ShopCereal_CR",
         "max_purchases": -1
       },
       {
-        "recipe": "RD_ShopCrisps_CR",
+        "recipe": "RD_ShopChewingGum_CR",
         "max_purchases": -1
       },
       {
-        "recipe": "RD_ShopDogFood_CR",
+        "recipe": "RD_ShopBottleWater_CR",
         "max_purchases": -1
       },
       {
@@ -45,18 +37,46 @@
         "max_purchases": -1
       },
       {
-        "recipe": "RD_ShopPineapple_CR",
+        "recipe": "RD_ShopDurhamFizzyPop_CR",
+        "max_purchases": -1
+      },
+      {
+        "recipe": "RD_ShopCandyBar_CR",
         "max_purchases": -1
       },
       {
         "recipe": "RD_ShopSandwich_CR",
         "max_purchases": -1
+      },
+      {
+        "recipe": "RD_ShopDogFood_CR",
+        "max_purchases": -1
+      },
+      {
+        "recipe": "RD_ShopPineapple_CR",
+        "max_purchases": -1
+      },
+      {
+        "recipe": "RD_ShopPlasters_CR",
+        "max_purchases": 5
+      },
+      {
+        "recipe": "RD_ShopCannedSoup_CR",
+        "max_purchases": -1
+      },
+      {
+        "recipe": "RD_ShopReusableBag_CR",
+        "max_purchases": 2
+      },
+      {
+        "recipe": "RD_ShopShoppingBasket_CR",
+        "max_purchases": 2
       }
     ],
     "restock_period_days": 3,
-    "gameplay_event_tag": "UI.GameScreen.Crafting",
+    "gameplay_event_tag": "UI.GameScreen.Shop",
     "interaction_hold_time": 0.0,
-    "interaction_prompt_text": "Shop",
+    "interaction_prompt_text": "Buy",
     "has_static_audio": false,
     "has_toggled_on_audio": false,
     "has_toggled_off_audio": false,
@@ -71,7 +91,8 @@
     "loot_dropped_on_death": [
       "LD_VendingMachine"
     ],
-    "deconstruction_tier": 0,
+    "deconstruction_tier": 2,
+    "constructable_item_to_grant": "ID_ShopEasy_CI",
     "building_base": {
       "rotation": {
         "x": 0.0,
@@ -91,13 +112,13 @@
       }
     },
     "is_draggable": true,
-    "display_name": "Corner Store",
-    "description": "A small vending kiosk stocked with everyday essentials and snacks.",
+    "display_name": "Snack Vending Machine",
+    "description": "A battered snack machine. Still lit, still humming, still takes coins.",
     "level": 1,
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,
-    "static_mesh": "/Game/Furniture/CarPark/Meshes/SM_VendingMachine_01a.SM_VendingMachine_01a",
+    "static_mesh": "/Game/SUBURBS/VOL28_Vending/Meshes/NN/SM_Vending_Machine_NN_16a.SM_Vending_Machine_NN_16a",
     "casts_shadow": true,
     "collision_profile_name": {
       "name": "Furniture"

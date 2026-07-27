@@ -14,6 +14,7 @@
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,
+    "static_mesh": "/Game/ChildrenRoomPack/Meshes/SM_toy_dog.SM_toy_dog",
     "casts_shadow": false,
     "collision_profile_name": {
       "name": "ItemStatic"

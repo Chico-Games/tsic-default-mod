@@ -4,9 +4,10 @@
   "class": "UEquippableDefinition",
   "schema_version": 2,
   "properties": {
+    "thumbnail": "mod:icons/id_tier3screwdriver_eq",
     "equipment_actors_and_meshes": [
       {
-        "mesh": "/Game/Items/Equipment/Tools/Tier1Screwdriver/Meshes/SM_Screwdriver_02.SM_Screwdriver_02",
+        "mesh": "/Game/Items/Equipment/Tools/Tier3Screwdriver/Meshes/SM_Screwdriver_03.SM_Screwdriver_03",
         "attach_socket": "Hand_R",
         "attach_transform": {
           "rotation": {
@@ -83,6 +84,7 @@
     "has_durability": true,
     "has_ammo": false,
     "max_ammo": 0,
+    "tool_tier": 3,
     "display_name": "Heavy-Duty Screwdriver",
     "description": "A reinforced screwdriver capable of dismantling even the heaviest machinery.",
     "stackable": false,

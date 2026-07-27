@@ -4,7 +4,7 @@
   "class": "UCraftingStationDefinition",
   "schema_version": 2,
   "properties": {
-    "available_recipe_rules_definition": "ARR_CheckoutCounterTier2Recipes",
+    "available_recipe_rules_definition": "ARR_CraftingTableTierTwoRecipes",
     "gameplay_event_tag": "UI.GameScreen.Crafting",
     "interaction_hold_time": 0.0,
     "interaction_prompt_text": "Craft",
@@ -22,7 +22,8 @@
     "loot_dropped_on_death": [
       "LD_MetalRailingLoot"
     ],
-    "deconstruction_tier": 1,
+    "deconstruction_tier": 2,
+    "constructable_item_to_grant": "ID_CheckoutCounterTier2_CI",
     "building_base": {
       "rotation": {
         "x": 0.0,
@@ -41,14 +42,14 @@
         "z": 1.0
       }
     },
-    "is_draggable": false,
+    "is_draggable": true,
     "display_name": "Advanced Checkout Counter",
     "description": "An upgraded store counter with expanded crafting capabilities.",
-    "level": 1,
+    "level": 2,
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,
-    "static_mesh": "/Game/Furniture/Checkout/Meshes/SM_Checkout_Counter_01a.SM_Checkout_Counter_01a",
+    "static_mesh": "/Game/Grocery/VOL1/Meshes/NN/SM_Grocery_Checkout_NN_04a.SM_Grocery_Checkout_NN_04a",
     "casts_shadow": true,
     "collision_profile_name": {
       "name": "Furniture"
@@ -62,7 +63,7 @@
     "drag_linear_damping": 5.0,
     "drag_mass": 1.0,
     "drag_max_angular_velocity": 90.0,
-    "drag_tier": 0,
+    "drag_tier": 2,
     "friction": 0.699999988079071,
     "furniture_armour": 3,
     "gameplay_tags": [

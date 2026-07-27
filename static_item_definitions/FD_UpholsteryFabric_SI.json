@@ -6,15 +6,15 @@
   "properties": {
     "item_definition": "ID_UpholsteryFabric_CM",
     "loot_mesh_size": {
-      "name": "SMALL",
-      "value": 0
+      "name": "MEDIUM",
+      "value": 1
     },
     "display_name": "Cardboard",
     "level": 1,
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,
-    "static_mesh": "/Game/Items/CraftingMaterials/Cardboard/Meshes/SM_CartonBox2_05.SM_CartonBox2_05",
+    "static_mesh": "/Game/Underground/Meshes/Props/SM_Tarp_Wall03.SM_Tarp_Wall03",
     "casts_shadow": false,
     "collision_profile_name": {
       "name": "ItemStatic"

@@ -13,6 +13,7 @@
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,
+    "static_mesh": "/Game/Furniture/ScientificDevices/Meshes/SM_GlassContainment.SM_GlassContainment",
     "casts_shadow": true,
     "collision_profile_name": {
       "name": "Furniture"

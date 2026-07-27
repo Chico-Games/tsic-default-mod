@@ -49,7 +49,7 @@
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,
-    "static_mesh": "/Game/Furniture/SewingMachine/Meshes/SM_SewingMachine.SM_SewingMachine",
+    "static_mesh": "/Game/Fab/Wardrobe_Closet__subdivision_/Wardrobe.Wardrobe",
     "casts_shadow": false,
     "collision_profile_name": {
       "name": "Furniture"

@@ -6,14 +6,15 @@
   "properties": {
     "item_definition": "ID_Pillow_CM",
     "loot_mesh_size": {
-      "name": "SMALL",
-      "value": 0
+      "name": "MEDIUM",
+      "value": 1
     },
     "display_name": "Pillow",
     "level": 1,
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,
+    "static_mesh": "/Game/ArchInterior05/Meshes/SM_Pillow01.SM_Pillow01",
     "casts_shadow": false,
     "collision_profile_name": {
       "name": "ItemStatic"

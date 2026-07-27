@@ -17,14 +17,6 @@
     "closed_sunday": false,
     "store_recipes": [
       {
-        "recipe": "RD_ShopPowerGloves_CR",
-        "max_purchases": 1
-      },
-      {
-        "recipe": "RD_ShopCandyBar_CR",
-        "max_purchases": -1
-      },
-      {
         "recipe": "RD_ShopSpeedSoda_CR",
         "max_purchases": -1
       },
@@ -35,12 +27,44 @@
       {
         "recipe": "RD_ShopSportsDrink_CR",
         "max_purchases": -1
+      },
+      {
+        "recipe": "RD_ShopSCPEnergyPaste_CR",
+        "max_purchases": 3
+      },
+      {
+        "recipe": "RD_ShopPainkiller_CR",
+        "max_purchases": 3
+      },
+      {
+        "recipe": "RD_ShopLemonSeeds_CR",
+        "max_purchases": 2
+      },
+      {
+        "recipe": "RD_ShopMarrowSeeds_CR",
+        "max_purchases": 2
+      },
+      {
+        "recipe": "RD_ShopBananaSeeds_CR",
+        "max_purchases": 2
+      },
+      {
+        "recipe": "RD_ShopRunnerBeansSeeds_CR",
+        "max_purchases": 2
+      },
+      {
+        "recipe": "RD_ShopLemongrassSeeds_CR",
+        "max_purchases": 2
+      },
+      {
+        "recipe": "RD_ShopAloeVeraSeeds_CR",
+        "max_purchases": 2
       }
     ],
     "restock_period_days": 1,
-    "gameplay_event_tag": "UI.GameScreen.Crafting",
+    "gameplay_event_tag": "UI.GameScreen.Shop",
     "interaction_hold_time": 0.0,
-    "interaction_prompt_text": "Shop",
+    "interaction_prompt_text": "Buy",
     "has_static_audio": false,
     "has_toggled_on_audio": false,
     "has_toggled_off_audio": false,
@@ -55,7 +79,8 @@
     "loot_dropped_on_death": [
       "LD_VendingMachine"
     ],
-    "deconstruction_tier": 0,
+    "deconstruction_tier": 2,
+    "constructable_item_to_grant": "ID_ShopHard_CI",
     "building_base": {
       "rotation": {
         "x": 0.0,
@@ -75,13 +100,13 @@
       }
     },
     "is_draggable": true,
-    "display_name": "Black Market",
-    "description": "An illicit vending unit selling premium gear and stimulants at a steep price.",
+    "display_name": "Black Market Vending Machine",
+    "description": "Somebody rewired this one. No branding, no prices on the front, steep either way.",
     "level": 3,
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,
-    "static_mesh": "/Game/Furniture/CarPark/Meshes/SM_VendingMachine_01a.SM_VendingMachine_01a",
+    "static_mesh": "/Game/SUBURBS/VOL28_Vending/Meshes/NN/SM_Toy_Machines_NN_11a.SM_Toy_Machines_NN_11a",
     "casts_shadow": true,
     "collision_profile_name": {
       "name": "Furniture"
