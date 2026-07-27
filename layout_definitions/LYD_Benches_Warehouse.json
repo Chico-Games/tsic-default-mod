@@ -16,19 +16,19 @@
           "search_queries": [],
           "tile_requirements": [],
           "spawn_chance_over": 0.0,
-          "spawn_chance_under": 0.333
+          "spawn_chance_under": 0.20
         },
         "furniture_definition": "FD_SawBench_PS",
         "transform": {
           "rotation": {
             "x": 0.0,
             "y": 0.0,
-            "z": 0.0,
-            "w": 1.0
+            "z": 1.0,
+            "w": 6.123233995736766e-17
           },
           "translation": {
-            "x": 0.0,
-            "y": 300.0,
+            "x": -430.0,
+            "y": 430.0,
             "z": 0.0
           },
           "scale3_d": {
@@ -48,20 +48,20 @@
           "seed_offset": 1,
           "search_queries": [],
           "tile_requirements": [],
-          "spawn_chance_over": 0.333,
-          "spawn_chance_under": 0.667
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 0.40
         },
         "furniture_definition": "FD_ArmorBenchTier1_CS",
         "transform": {
           "rotation": {
             "x": 0.0,
             "y": 0.0,
-            "z": 0.0,
-            "w": 1.0
+            "z": 1.0,
+            "w": 6.123233995736766e-17
           },
           "translation": {
-            "x": 0.0,
-            "y": 300.0,
+            "x": -430.0,
+            "y": 430.0,
             "z": 0.0
           },
           "scale3_d": {
@@ -81,20 +81,86 @@
           "seed_offset": 1,
           "search_queries": [],
           "tile_requirements": [],
-          "spawn_chance_over": 0.667,
-          "spawn_chance_under": 1.0
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 0.60
         },
         "furniture_definition": "FD_CraftingTableTierOne_CS",
         "transform": {
           "rotation": {
             "x": 0.0,
             "y": 0.0,
-            "z": 0.0,
-            "w": 1.0
+            "z": 1.0,
+            "w": 6.123233995736766e-17
           },
           "translation": {
+            "x": -430.0,
+            "y": 430.0,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "PROXY_ACTOR",
+          "value": 0
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": 1,
+          "search_queries": [],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 0.80
+        },
+        "furniture_definition": "FD_Furnace_PS",
+        "transform": {
+          "rotation": {
             "x": 0.0,
-            "y": 300.0,
+            "y": 0.0,
+            "z": 1.0,
+            "w": 6.123233995736766e-17
+          },
+          "translation": {
+            "x": -430.0,
+            "y": 430.0,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "PROXY_ACTOR",
+          "value": 0
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": 1,
+          "search_queries": [],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "furniture_definition": "FD_WeaponBench_CS",
+        "transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 1.0,
+            "w": 6.123233995736766e-17
+          },
+          "translation": {
+            "x": -430.0,
+            "y": 430.0,
             "z": 0.0
           },
           "scale3_d": {
@@ -115,7 +181,7 @@
           "search_queries": [],
           "tile_requirements": [],
           "spawn_chance_over": 0.0,
-          "spawn_chance_under": 0.333
+          "spawn_chance_under": 0.20
         },
         "furniture_definition": "FD_SawBench_PS",
         "transform": {
@@ -126,8 +192,8 @@
             "w": 1.0
           },
           "translation": {
-            "x": 0.0,
-            "y": -300.0,
+            "x": 430.0,
+            "y": -430.0,
             "z": 0.0
           },
           "scale3_d": {
@@ -147,8 +213,8 @@
           "seed_offset": 2,
           "search_queries": [],
           "tile_requirements": [],
-          "spawn_chance_over": 0.333,
-          "spawn_chance_under": 0.667
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 0.40
         },
         "furniture_definition": "FD_ArmorBenchTier1_CS",
         "transform": {
@@ -159,8 +225,8 @@
             "w": 1.0
           },
           "translation": {
-            "x": 0.0,
-            "y": -300.0,
+            "x": 430.0,
+            "y": -430.0,
             "z": 0.0
           },
           "scale3_d": {
@@ -180,8 +246,8 @@
           "seed_offset": 2,
           "search_queries": [],
           "tile_requirements": [],
-          "spawn_chance_over": 0.667,
-          "spawn_chance_under": 1.0
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 0.60
         },
         "furniture_definition": "FD_CraftingTableTierOne_CS",
         "transform": {
@@ -192,8 +258,74 @@
             "w": 1.0
           },
           "translation": {
+            "x": 430.0,
+            "y": -430.0,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "PROXY_ACTOR",
+          "value": 0
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": 2,
+          "search_queries": [],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 0.80
+        },
+        "furniture_definition": "FD_Furnace_PS",
+        "transform": {
+          "rotation": {
             "x": 0.0,
-            "y": -300.0,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 1.0
+          },
+          "translation": {
+            "x": 430.0,
+            "y": -430.0,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "PROXY_ACTOR",
+          "value": 0
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": 2,
+          "search_queries": [],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "furniture_definition": "FD_WeaponBench_CS",
+        "transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 1.0
+          },
+          "translation": {
+            "x": 430.0,
+            "y": -430.0,
             "z": 0.0
           },
           "scale3_d": {
@@ -210,4 +342,4 @@
       "Layout.Type.BenchGroup"
     ]
   }
-}
+}

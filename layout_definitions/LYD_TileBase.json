@@ -59,6 +59,7 @@
                 "Tile.Biome.HelpPoint",
                 "Tile.Biome.Kids",
                 "Tile.Biome.Map",
+                "Tile.Biome.BossArena",
                 "Tile.Biome.ShowFloor"
               ],
               "b_not": false

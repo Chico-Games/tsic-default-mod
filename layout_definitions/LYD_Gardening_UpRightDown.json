@@ -839,8 +839,8 @@
             "w": 1.0
           },
           "translation": {
-            "x": -240.0,
-            "y": 80.0,
+            "x": -275.0,
+            "y": 50.0,
             "z": 0.0
           },
           "scale3_d": {
@@ -872,8 +872,8 @@
             "w": 1.0
           },
           "translation": {
-            "x": 0.0,
-            "y": 280.0,
+            "x": 50.0,
+            "y": 325.0,
             "z": 0.0
           },
           "scale3_d": {
@@ -905,8 +905,41 @@
             "w": 1.0
           },
           "translation": {
-            "x": 360.0,
-            "y": -360.0,
+            "x": -175.0,
+            "y": 200.0,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "LAYOUT",
+          "value": 1
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 0.35
+        },
+        "layout_definition": "LYD_Benches_ByBiome",
+        "transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 1.0
+          },
+          "translation": {
+            "x": 0.0,
+            "y": 0.0,
             "z": 0.0
           },
           "scale3_d": {

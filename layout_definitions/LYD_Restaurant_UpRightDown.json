@@ -510,15 +510,15 @@
         "loot_spawn_point_definition": "LSP_Restaurant_Floor",
         "transform": {
           "rotation": {
-            "x": 0,
-            "y": 0,
-            "z": 0,
-            "w": 1
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 1.0
           },
           "translation": {
-            "x": -280,
-            "y": 80,
-            "z": 0
+            "x": 625.0,
+            "y": 0.0,
+            "z": 0.0
           },
           "scale3_d": {
             "x": 1,
@@ -543,15 +543,15 @@
         "loot_spawn_point_definition": "LSP_Restaurant_Floor",
         "transform": {
           "rotation": {
-            "x": 0,
-            "y": 0,
-            "z": 0,
-            "w": 1
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 1.0
           },
           "translation": {
-            "x": 80,
-            "y": 320,
-            "z": 0
+            "x": -25.0,
+            "y": 350.0,
+            "z": 0.0
           },
           "scale3_d": {
             "x": 1,
@@ -576,15 +576,15 @@
         "loot_spawn_point_definition": "LSP_Restaurant_Floor",
         "transform": {
           "rotation": {
-            "x": 0,
-            "y": 0,
-            "z": 0,
-            "w": 1
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 1.0
           },
           "translation": {
-            "x": 360,
-            "y": -120,
-            "z": 0
+            "x": 75.0,
+            "y": -300.0,
+            "z": 0.0
           },
           "scale3_d": {
             "x": 1,
@@ -595,8 +595,8 @@
       },
       {
         "layout_actor_type": {
-          "name": "PROXY_ACTOR",
-          "value": 0
+          "name": "LAYOUT",
+          "value": 1
         },
         "b_visual_helper": false,
         "definition_filter": {
@@ -606,7 +606,7 @@
           "spawn_chance_over": 0,
           "spawn_chance_under": 0.1
         },
-        "furniture_definition": "FD_ShopNormal_CS",
+        "layout_definition": "LYD_VendingMachines_ByDifficulty",
         "transform": {
           "rotation": {
             "x": 0,
@@ -623,6 +623,39 @@
             "x": 1,
             "y": 1,
             "z": 1
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "LAYOUT",
+          "value": 1
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 0.35
+        },
+        "layout_definition": "LYD_Benches_ByBiome",
+        "transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 1.0
+          },
+          "translation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
           }
         }
       }

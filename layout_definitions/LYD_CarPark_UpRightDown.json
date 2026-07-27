@@ -13,6 +13,39 @@
     "layout_objects": [
       {
         "layout_actor_type": {
+          "name": "ENEMY_SPAWN_POINT",
+          "value": 2
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "enemy_spawn_point_definition": "ESP_CarPark",
+        "transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 1.0
+          },
+          "translation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
           "name": "LAYOUT",
           "value": 1
         },
@@ -60,15 +93,15 @@
         "loot_spawn_point_definition": "LSP_CarPark_Floor",
         "transform": {
           "rotation": {
-            "x": 0,
-            "y": 0,
-            "z": 0,
-            "w": 1
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 1.0
           },
           "translation": {
-            "x": 439,
-            "y": 290,
-            "z": 0
+            "x": 250.0,
+            "y": 125.0,
+            "z": 0.0
           },
           "scale3_d": {
             "x": 1,
@@ -93,15 +126,15 @@
         "loot_spawn_point_definition": "LSP_CarPark_Floor",
         "transform": {
           "rotation": {
-            "x": 0,
-            "y": 0,
-            "z": 0,
-            "w": 1
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 1.0
           },
           "translation": {
-            "x": -339,
-            "y": -640,
-            "z": 0
+            "x": 100.0,
+            "y": -275.0,
+            "z": 0.0
           },
           "scale3_d": {
             "x": 1,
@@ -126,15 +159,15 @@
         "loot_spawn_point_definition": "LSP_CarPark_Floor",
         "transform": {
           "rotation": {
-            "x": 0,
-            "y": 0,
-            "z": 0,
-            "w": 1
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 1.0
           },
           "translation": {
-            "x": 571,
-            "y": -623,
-            "z": 0
+            "x": -150.0,
+            "y": 225.0,
+            "z": 0.0
           },
           "scale3_d": {
             "x": 1,
@@ -800,6 +833,39 @@
             "x": 1,
             "y": 1,
             "z": 1
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "LAYOUT",
+          "value": 1
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 0.35
+        },
+        "layout_definition": "LYD_Benches_ByBiome",
+        "transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 1.0
+          },
+          "translation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
           }
         }
       }

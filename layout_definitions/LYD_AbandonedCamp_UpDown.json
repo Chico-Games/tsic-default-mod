@@ -1142,15 +1142,15 @@
         "loot_spawn_point_definition": "LSP_AbandonedCamp_Floor",
         "transform": {
           "rotation": {
-            "x": 0,
-            "y": 0,
-            "z": 0,
-            "w": 1
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 1.0
           },
           "translation": {
-            "x": 320,
-            "y": -40,
-            "z": 0
+            "x": 375.0,
+            "y": -75.0,
+            "z": 0.0
           },
           "scale3_d": {
             "x": 1,
@@ -1175,15 +1175,15 @@
         "loot_spawn_point_definition": "LSP_AbandonedCamp_Floor",
         "transform": {
           "rotation": {
-            "x": 0,
-            "y": 0,
-            "z": 0,
-            "w": 1
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 1.0
           },
           "translation": {
-            "x": -156,
-            "y": 31,
-            "z": 0
+            "x": -375.0,
+            "y": -25.0,
+            "z": 0.0
           },
           "scale3_d": {
             "x": 1,
@@ -1208,15 +1208,15 @@
         "loot_spawn_point_definition": "LSP_AbandonedCamp_Floor",
         "transform": {
           "rotation": {
-            "x": 0,
-            "y": 0,
-            "z": 0,
-            "w": 1
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 1.0
           },
           "translation": {
-            "x": 80,
-            "y": -160,
-            "z": 0
+            "x": 350.0,
+            "y": -75.0,
+            "z": 0.0
           },
           "scale3_d": {
             "x": 1,
@@ -1552,6 +1552,39 @@
             "x": 1,
             "y": 1,
             "z": 1
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "LAYOUT",
+          "value": 1
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 0.35
+        },
+        "layout_definition": "LYD_Benches_ByBiome",
+        "transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 1.0
+          },
+          "translation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
           }
         }
       }

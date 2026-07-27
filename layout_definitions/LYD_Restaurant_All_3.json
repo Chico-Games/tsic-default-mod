@@ -7,8 +7,8 @@
     "layout_objects": [
       {
         "layout_actor_type": {
-          "name": "PROXY_ACTOR",
-          "value": 0
+          "name": "LAYOUT",
+          "value": 1
         },
         "b_visual_helper": false,
         "definition_filter": {
@@ -18,7 +18,7 @@
           "spawn_chance_over": 0.0,
           "spawn_chance_under": 0.1
         },
-        "furniture_definition": "FD_ShopHard_CS",
+        "layout_definition": "LYD_VendingMachines_ByDifficulty",
         "transform": {
           "rotation": {
             "x": 0.0,
@@ -399,8 +399,8 @@
             "w": 1.0
           },
           "translation": {
-            "x": -120.0,
-            "y": 520.0,
+            "x": 0.0,
+            "y": 625.0,
             "z": 0.0
           },
           "scale3_d": {
@@ -432,8 +432,8 @@
             "w": 1.0
           },
           "translation": {
-            "x": -160.0,
-            "y": -80.0,
+            "x": 625.0,
+            "y": 0.0,
             "z": 0.0
           },
           "scale3_d": {
@@ -466,7 +466,40 @@
           },
           "translation": {
             "x": -200.0,
-            "y": 240.0,
+            "y": 175.0,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "LAYOUT",
+          "value": 1
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 0.35
+        },
+        "layout_definition": "LYD_Benches_ByBiome",
+        "transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 1.0
+          },
+          "translation": {
+            "x": 0.0,
+            "y": 0.0,
             "z": 0.0
           },
           "scale3_d": {

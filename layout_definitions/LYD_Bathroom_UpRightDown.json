@@ -1710,15 +1710,15 @@
         "loot_spawn_point_definition": "LSP_Bathroom_Floor",
         "transform": {
           "rotation": {
-            "x": 0,
-            "y": 0,
-            "z": 0,
-            "w": 1
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 1.0
           },
           "translation": {
-            "x": 385,
-            "y": 557,
-            "z": -2.2737367544323206e-13
+            "x": 0.0,
+            "y": 625.0,
+            "z": 0.0
           },
           "scale3_d": {
             "x": 1,
@@ -1743,15 +1743,15 @@
         "loot_spawn_point_definition": "LSP_Bathroom_Floor",
         "transform": {
           "rotation": {
-            "x": 0,
-            "y": 0,
-            "z": 0,
-            "w": 1
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 1.0
           },
           "translation": {
-            "x": 401,
-            "y": -326,
-            "z": 5.684341886080802e-14
+            "x": 50.0,
+            "y": -400.0,
+            "z": 0.0
           },
           "scale3_d": {
             "x": 1,
@@ -1776,20 +1776,53 @@
         "loot_spawn_point_definition": "LSP_Bathroom_Floor",
         "transform": {
           "rotation": {
-            "x": 0,
-            "y": 0,
-            "z": 0,
-            "w": 1
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 1.0
           },
           "translation": {
-            "x": 375,
-            "y": -637,
-            "z": 0
+            "x": 625.0,
+            "y": 50.0,
+            "z": 0.0
           },
           "scale3_d": {
             "x": 1,
             "y": 1,
             "z": 1
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "LAYOUT",
+          "value": 1
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 0.35
+        },
+        "layout_definition": "LYD_Benches_ByBiome",
+        "transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 1.0
+          },
+          "translation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
           }
         }
       }
