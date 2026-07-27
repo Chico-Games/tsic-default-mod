@@ -13,6 +13,10 @@
       {
         "key": "ID_BoneSpikes_CM",
         "value": 3
+      },
+      {
+        "key": "ID_Marrow_CN",
+        "value": 3
       }
     ],
     "output": [],

@@ -17,6 +17,14 @@
       {
         "key": "ID_ScrapMetal_CM",
         "value": 5
+      },
+      {
+        "key": "ID_Banana_CN",
+        "value": 3
+      },
+      {
+        "key": "ID_Lemon_CN",
+        "value": 2
       }
     ],
     "output": [],
