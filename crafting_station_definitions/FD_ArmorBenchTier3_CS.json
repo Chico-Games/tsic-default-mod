@@ -45,7 +45,7 @@
     "is_draggable": true,
     "display_name": "Expert Armor Forge",
     "description": "Expert armor forge. Craft heavy armor and specialized protective equipment.",
-    "level": 1,
+    "level": 3,
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,

@@ -11,7 +11,8 @@
     "loot_dropped_on_death": [
       "LD_WheelBarrowLoot"
     ],
-    "deconstruction_tier": 0,
+    "deconstruction_tier": 2,
+    "constructable_item_to_grant": "ID_Wheelbarrow_CI",
     "blocking_collision_boxes": [
       {
         "offset": {
@@ -100,6 +101,7 @@
     "random_material_overrides": [],
     "loot_positions": [],
     "weighted_chance": 1000,
-    "world_gen_priority": 1000
+    "world_gen_priority": 1000,
+    "upgrade_recipe": "RD_WheelbarrowPlanter_FromWheelbarrow_CN"
   }
 }

@@ -45,7 +45,7 @@
     "is_draggable": true,
     "display_name": "Advanced Armor Bench",
     "description": "Advanced armor crafting bench. Create medium armor with improved defense.",
-    "level": 1,
+    "level": 2,
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,
