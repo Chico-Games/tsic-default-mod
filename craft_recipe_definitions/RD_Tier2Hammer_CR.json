@@ -1,6 +1,6 @@
 {
-  "id": "RD_Tier2Screwdriver_CR",
-  "asset_path": "/Game/Items/Equipment/Tools/Tier2Screwdriver/Recipes/RD_Tier2Screwdriver_CR",
+  "id": "RD_Tier2Hammer_CR",
+  "asset_path": "/Game/Items/Equipment/Tools/Tier2Hammer/Recipes/RD_Tier2Hammer_CR",
   "class": "UCraftRecipeDefinition",
   "schema_version": 2,
   "properties": {
@@ -21,7 +21,7 @@
     ],
     "output": [
       {
-        "key": "ID_Tier2Screwdriver_EQ",
+        "key": "ID_Tier2Hammer_EQ",
         "value": 1
       }
     ],
