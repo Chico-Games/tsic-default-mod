@@ -12,8 +12,10 @@
 //                     Severity } ] }
 //
 // Severity is "" for everything that escalates by arriving and leaving, and
-// "Hungry" | "Starving" for the hunger family, which escalates in place instead — the
-// same three chips lean on harder rather than one renaming itself mid-state.
+// "Hungry" | "Starvation" for the hunger family, which escalates in place instead — the
+// same three chips lean on harder rather than mounting and unmounting. The headline chip
+// does take the tier's name at "Starvation" (see SEVERITY_LABELS); the two penalty chips
+// below it keep theirs, since what they cost you does not change, only how much.
 //
 // Sent on change only (see PublishConditionsSnapshot), never per tick, so a settled
 // HUD costs nothing. RemainingTime is therefore a snapshot taken at the last change —
@@ -92,6 +94,21 @@
     QuickRecovery: 'Quick Recovery',
   };
 
+  // Chips whose name changes with Severity instead of staying fixed. Only the hunger
+  // headline does this: tier 1 is the steady "Hunger" state, but tier 2 has its own name
+  // and the player should be told it by name — "Starvation" is a different thing to be in,
+  // not a worse shade of the same thing. The two penalty chips below it keep their names,
+  // because what they cost you does not change, only how much.
+  var SEVERITY_LABELS = {
+    Hunger: { Starvation: 'Starvation' },
+  };
+
+  function labelFor(id, severity) {
+    var bySeverity = SEVERITY_LABELS[id];
+    if (bySeverity && severity && bySeverity[severity]) return bySeverity[severity];
+    return LABELS[id] || id;
+  }
+
   // Frame matches the stomach slots and hotbar plinths: dark glass, heavy ink outline,
   // hard offset block shadow. Chips are 22px tall and rest at icon width (26px),
   // widening to fit their label while open.
@@ -157,11 +174,11 @@
     '  animation: cond-harm-breathe 2.6s ease-in-out infinite; }',
     '@keyframes cond-harm-breathe { 0%,100% { opacity:0.18; } 50% { opacity:0.9; } }',
 
-    // Starving — the same chips, leaning on harder. Faster breath and a hotter red, so
+    // Starvation — the same chips, leaning on harder. Faster breath and a hotter red, so
     // the escalation is felt without a single chip mounting, unmounting or renaming.
-    '#hud-conditions .cond-chip.cond-harm[data-severity="Starving"] { color:#ff9c8e;',
+    '#hud-conditions .cond-chip.cond-harm[data-severity="Starvation"] { color:#ff9c8e;',
     '  background: linear-gradient(180deg, rgba(122,36,29,0.76), rgba(30,8,6,0.80)); }',
-    '#hud-conditions .cond-chip.cond-harm[data-severity="Starving"]::after {',
+    '#hud-conditions .cond-chip.cond-harm[data-severity="Starvation"]::after {',
     '  background: radial-gradient(125% 150% at 11px 50%, rgba(248,92,74,0.52), rgba(248,92,74,0) 72%);',
     '  animation-duration: 1.45s; }',
 
@@ -357,7 +374,7 @@
       }
       chip.refresh = refresh;
 
-      // Hunger deepening to starving: the same chips lean on harder. Driven off an
+      // Hunger deepening to starvation: the same chips lean on harder. Driven off an
       // attribute rather than a class swap so the CSS reads as one ramp.
       if (severity !== chip.severity) {
         chip.severity = severity;
@@ -365,6 +382,18 @@
           chip.el.setAttribute('data-severity', severity);
         } else {
           chip.el.removeAttribute('data-severity');
+        }
+
+        // The headline chip renames itself at tier 2 (Hunger -> Starvation). Re-open the
+        // label rather than just swapping the text: the chip's open width is a max-width
+        // animation sized to its content, and the new word is longer. On first mount this
+        // runs before addChip's deferred openLabel, so the correct name is already in place
+        // by the time the chip widens — no flash of the old one.
+        var nextLabel = labelFor(id, severity);
+        var labelEl = chip.el.querySelector('.cond-label');
+        if (labelEl && labelEl.textContent !== nextLabel) {
+          labelEl.textContent = nextLabel;
+          if (mounted) openLabel(chip, pin);
         }
       }
 

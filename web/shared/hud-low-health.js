@@ -16,6 +16,11 @@
 //
 // Channel: tsic.msg.UI.Player.Attribute (Channel === 'Health')
 (function () {
+  // Fraction of max health that counts as critical. MUST match
+  // ScpHealthRegen::CriticalFraction in Source/TSIC/Public/AbilitySystem/Attributes/
+  // Shared/ScpHealthSet.h — passive regen switches to its fast phase off the same line, so
+  // the two disagreeing would mean regen changing gear at a visibly different point than
+  // this vignette clears.
   var THRESHOLD = 0.20;
   var COUNT = 16;                 // splats scattered around the screen
   var BLOOD = '120,8,12';
