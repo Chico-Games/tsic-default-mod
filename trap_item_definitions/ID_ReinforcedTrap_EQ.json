@@ -1,6 +1,6 @@
 {
-  "id": "ID_BasicTrap_EQ",
-  "asset_path": "/Game/Items/Equipment/Traps/BasicTrap/ID_BasicTrap_EQ",
+  "id": "ID_ReinforcedTrap_EQ",
+  "asset_path": "/Game/Items/Equipment/Traps/BasicTrap/ID_ReinforcedTrap_EQ",
   "class": "UTrapItemDefinition",
   "schema_version": 2,
   "properties": {
@@ -11,8 +11,9 @@
       "z": 200.0
     },
     "capturable_enemy_classes": [
-      "/Game/Characters/Enemies/MaleStaff/Blueprints/CH_MaleStaff.CH_MaleStaff_C",
-      "/Game/Characters/Enemies/Janitor/Blueprints/CH_Janitor.CH_Janitor_C"
+      "/Game/Characters/Enemies/HeavyStaff/Blueprints/CH_HeavyStaff.CH_HeavyStaff_C",
+      "/Game/Characters/Enemies/Gardener/Blueprints/CH_Gardener.CH_Gardener_C",
+      "/Game/Characters/Enemies/LivingMannequin/Blueprints/CH_LivingMannequin.CH_LivingMannequin_C"
     ],
     "equipment_actors_and_meshes": [],
     "ability_sets_to_grant": [
@@ -78,14 +79,14 @@
     "capture_glow_material": "/Game/Items/Equipment/Traps/BasicTrap/Materials/M_TrapCaptureGlow.M_TrapCaptureGlow",
     "capture_glow_mesh_unit_radius": 50.0,
     "capture_glow_color": {
-      "r": 0.15,
-      "g": 0.95,
-      "b": 0.6,
+      "r": 0.35,
+      "g": 0.7,
+      "b": 1.0,
       "a": 1.0
     },
-    "capture_glow_opacity": 0.05,
+    "capture_glow_opacity": 0.06,
     "max_stack_size": 10,
-    "display_name": "Basic Trap",
-    "description": "A sprung snare baited with fresh produce. Captures common staff."
+    "display_name": "Reinforced Trap",
+    "description": "A heavy steel snare baited with home-grown vegetables. Captures tougher staff."
   }
 }
