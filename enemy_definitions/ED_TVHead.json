@@ -8,16 +8,7 @@
     "display_name": "TV Head",
     "enemy_class": "/Game/Characters/Enemies/TVHead/Blueprints/CH_TVHead.CH_TVHead_C",
     "death_drop_table": [
-      {
-        "world_item": "FD_TVGuide_SI",
-        "count": 1,
-        "weight": 1
-      },
-      {
-        "world_item": "FD_TVHeadCore_SI",
-        "count": 1,
-        "weight": 1
-      }
+      { "world_item": "FD_TVGuide_SI", "count": 1, "weight": 1 }
     ],
     "weighted_chance": 1000,
     "world_gen_priority": 1000,
@@ -71,8 +62,8 @@
           "damage_multiplier": 1.0,
           "death_drop_table": [
             { "world_item": "FD_TVGuide_SI", "count": 2, "weight": 1 },
-            { "world_item": "FD_TVHeadCore_SI", "count": 1, "weight": 1 },
-            { "world_item": "FD_CircuitBoard_SI", "count": 1, "weight": 1 }
+            { "world_item": "FD_CircuitBoard_SI", "count": 1, "weight": 1 },
+            { "world_item": "FD_BrokenWalkman_SI", "count": 1, "weight": 1 }
           ]
         }
       },
@@ -82,7 +73,7 @@
           "damage_multiplier": 2.0,
           "death_drop_table": [
             { "world_item": "FD_TVGuide_SI", "count": 3, "weight": 1 },
-            { "world_item": "FD_TVHeadCore_SI", "count": 2, "weight": 1 },
+            { "world_item": "FD_TVHeadCore_SI", "count": 1, "weight": 1 },
             { "world_item": "FD_CircuitBoard_SI", "count": 2, "weight": 1 },
             { "world_item": "FD_Monitor_SI", "count": 1, "weight": 1 }
           ]
@@ -93,10 +84,10 @@
         "value": {
           "damage_multiplier": 3.0,
           "death_drop_table": [
-            { "world_item": "FD_TVGuide_SI", "count": 3, "weight": 1 },
+            { "world_item": "FD_TVGuide_SI", "count": 3, "weight": 2 },
             { "world_item": "FD_TVHeadCore_SI", "count": 2, "weight": 2 },
-            { "world_item": "FD_Monitor_SI", "count": 1, "weight": 1 },
-            { "world_item": "FD_ElectronMicroscope_SI", "count": 1, "weight": 1 }
+            { "world_item": "FD_CircuitBoard_SI", "count": 3, "weight": 1 },
+            { "world_item": "FD_Monitor_SI", "count": 1, "weight": 1 }
           ]
         }
       }

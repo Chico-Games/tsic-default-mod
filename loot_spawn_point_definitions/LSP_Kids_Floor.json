@@ -21,11 +21,6 @@
               "item_entity": "FD_ChewingGum_SI",
               "count": 1,
               "weight": 1
-            },
-            {
-              "item_entity": "FD_Coins_SI",
-              "count": 2,
-              "weight": 1
             }
           ],
           "spawn_chance": 0.3499999940395355
@@ -47,11 +42,6 @@
               "item_entity": "FD_DurhamBonBons_SI",
               "count": 1,
               "weight": 1
-            },
-            {
-              "item_entity": "FD_Coins_SI",
-              "count": 3,
-              "weight": 1
             }
           ],
           "spawn_chance": 0.3499999940395355
@@ -65,8 +55,13 @@
         "value": {
           "loot_items": [
             {
-              "item_entity": "FD_Coins_SI",
-              "count": 5,
+              "item_entity": "FD_Crayons_SI",
+              "count": 1,
+              "weight": 1
+            },
+            {
+              "item_entity": "FD_PlasticToy_SI",
+              "count": 1,
               "weight": 1
             }
           ],

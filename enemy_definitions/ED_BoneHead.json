@@ -8,16 +8,7 @@
     "display_name": "Bone Head",
     "enemy_class": "/Game/Characters/Enemies/BoneHead/Blueprints/CH_BoneHead.CH_BoneHead_C",
     "death_drop_table": [
-      {
-        "world_item": "FD_BoneChunk_SI",
-        "count": 1,
-        "weight": 1
-      },
-      {
-        "world_item": "FD_BoneHeadTrophy_SI",
-        "count": 1,
-        "weight": 1
-      }
+      { "world_item": "FD_BoneChunk_SI", "count": 1, "weight": 1 }
     ],
     "weighted_chance": 1000,
     "world_gen_priority": 1000,
@@ -76,7 +67,7 @@
           "damage_multiplier": 1.0,
           "death_drop_table": [
             { "world_item": "FD_BoneChunk_SI", "count": 2, "weight": 1 },
-            { "world_item": "FD_BoneHeadTrophy_SI", "count": 1, "weight": 1 },
+            { "world_item": "FD_BoneSpikes_SI", "count": 1, "weight": 1 },
             { "world_item": "FD_ScrapMetal_SI", "count": 1, "weight": 1 }
           ]
         }
@@ -87,7 +78,8 @@
           "damage_multiplier": 2.0,
           "death_drop_table": [
             { "world_item": "FD_BoneChunk_SI", "count": 3, "weight": 1 },
-            { "world_item": "FD_BoneHeadTrophy_SI", "count": 2, "weight": 1 },
+            { "world_item": "FD_BoneHeadTrophy_SI", "count": 1, "weight": 1 },
+            { "world_item": "FD_BoneSpikes_SI", "count": 2, "weight": 1 },
             { "world_item": "FD_MetalScrews_SI", "count": 1, "weight": 1 }
           ]
         }
@@ -97,9 +89,10 @@
         "value": {
           "damage_multiplier": 3.0,
           "death_drop_table": [
-            { "world_item": "FD_BoneChunk_SI", "count": 3, "weight": 1 },
+            { "world_item": "FD_BoneChunk_SI", "count": 3, "weight": 2 },
             { "world_item": "FD_BoneHeadTrophy_SI", "count": 2, "weight": 2 },
-            { "world_item": "FD_ArmClub_SI", "count": 1, "weight": 1 }
+            { "world_item": "FD_BoneSpikes_SI", "count": 3, "weight": 1 },
+            { "world_item": "FD_MetalScrews_SI", "count": 2, "weight": 1 }
           ]
         }
       }
