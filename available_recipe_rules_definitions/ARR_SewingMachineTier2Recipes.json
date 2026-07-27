@@ -7,7 +7,7 @@
     "production_machine_rules": {
       "recipes": [
         "RD_ProcessedFabric_CR",
-        "RD_WoodenArmorChestplate_CR"
+        "RD_ProcessedFabricBulk_CR"
       ]
     }
   }

@@ -6,7 +6,8 @@
   "properties": {
     "production_machine_rules": {
       "recipes": [
-        "RD_WoodenPlank_CR"
+        "RD_ProcessedWood_CR",
+        "RD_ProcessedWoodBulk_CR"
       ]
     }
   }

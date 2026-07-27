@@ -7,7 +7,7 @@
     "production_machine_rules": {
       "recipes": [
         "RD_ProcessedConcrete_CR",
-        "RD_ConcreteBrick_CR"
+        "RD_ProcessedConcreteBulk_CR"
       ]
     }
   }

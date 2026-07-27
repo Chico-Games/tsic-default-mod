@@ -8,7 +8,20 @@
       "recipes": [
         "RD_HeartyStew_CR",
         "RD_ShepherdsPie_CR",
-        "RD_PastaPrimavera_CR"
+        "RD_PastaPrimavera_CR",
+        "RD_BakedPotato_CR",
+        "RD_CaramelizedOnions_CR",
+        "RD_CinnamonRoll_CR",
+        "RD_GrilledVegetables_CR",
+        "RD_Meatballs_CR",
+        "RD_Pancakes_CR",
+        "RD_PancakesWithJam_CR",
+        "RD_Pizza_CR",
+        "RD_Salmon_CR",
+        "RD_SwedishPancakes_CR",
+        "RD_Waffles_CR",
+        "RD_Bread_CR",
+        "RD_BreadBulk_CR"
       ]
     }
   }

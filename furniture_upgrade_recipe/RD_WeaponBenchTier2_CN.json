@@ -7,8 +7,8 @@
     "recipe_tags": [],
     "input": [
       {
-        "key": "ID_ScrapMetal_CM",
-        "value": 8
+        "key": "ID_SteelPanel_CM",
+        "value": 6
       },
       {
         "key": "ID_MetalScrews_CM",

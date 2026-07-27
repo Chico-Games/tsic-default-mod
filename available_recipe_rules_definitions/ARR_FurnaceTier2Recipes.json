@@ -7,7 +7,7 @@
     "production_machine_rules": {
       "recipes": [
         "RD_ProcessedMetal_CR",
-        "RD_SledgeHammer_CR"
+        "RD_ProcessedMetalBulk_CR"
       ]
     }
   }

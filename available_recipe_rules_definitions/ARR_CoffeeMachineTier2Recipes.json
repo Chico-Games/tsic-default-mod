@@ -6,7 +6,8 @@
   "properties": {
     "production_machine_rules": {
       "recipes": [
-        "RD_Coffee_CR"
+        "RD_Coffee_CR",
+        "RD_CoffeeBulk_CR"
       ]
     }
   }

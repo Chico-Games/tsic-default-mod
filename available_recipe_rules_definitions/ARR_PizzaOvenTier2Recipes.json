@@ -7,7 +7,8 @@
     "production_machine_rules": {
       "recipes": [
         "RD_PizzaOvenPizza_CR",
-        "RD_PizzaOvenBread_CR"
+        "RD_PizzaOvenBread_CR",
+        "RD_PizzaOvenPizzaBulk_CR"
       ]
     }
   }

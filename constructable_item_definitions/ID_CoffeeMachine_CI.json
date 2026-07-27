@@ -10,7 +10,7 @@
     "description": "A simple microwave for basic cooking. Heats and cooks simple meals quickly.",
     "stackable": true,
     "weight": 0.10000000149011612,
-    "static_item_definition": "FD_Microwave_SI",
+    "static_item_definition": "FD_CoffeeMachine_SI",
     "max_stack_size": 20
   }
 }

@@ -7,7 +7,7 @@
     "production_machine_rules": {
       "recipes": [
         "RD_ProcessedPlastic_CR",
-        "RD_Taser_CR"
+        "RD_ProcessedPlasticBulk_CR"
       ]
     }
   }
