@@ -1,6 +1,6 @@
 {
-  "id": "RD_ShopCandyBar_CR",
-  "asset_path": "/Game/Furniture/Shops/Recipes/RD_ShopCandyBar_CR",
+  "id": "RD_ShopBottleWater_CR",
+  "asset_path": "/Game/Items/Consumables/Drinks/BottleWater/Recipes/RD_ShopBottleWater_CR",
   "class": "UCraftRecipeDefinition",
   "schema_version": 2,
   "properties": {
@@ -8,12 +8,12 @@
     "input": [
       {
         "key": "ID_Coins_CM",
-        "value": 3
+        "value": 2
       }
     ],
     "output": [
       {
-        "key": "ID_CandyBar_CN",
+        "key": "ID_BottleWater_CN",
         "value": 1
       }
     ],

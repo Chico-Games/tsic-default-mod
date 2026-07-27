@@ -1,6 +1,6 @@
 {
-  "id": "RD_ShopWorkGloves_CR",
-  "asset_path": "/Game/Furniture/Shops/Recipes/RD_ShopWorkGloves_CR",
+  "id": "RD_ShopChewingGum_CR",
+  "asset_path": "/Game/Items/Consumables/Snacks/ChewingGum/Recipes/RD_ShopChewingGum_CR",
   "class": "UCraftRecipeDefinition",
   "schema_version": 2,
   "properties": {
@@ -8,12 +8,12 @@
     "input": [
       {
         "key": "ID_Coins_CM",
-        "value": 12
+        "value": 2
       }
     ],
     "output": [
       {
-        "key": "ID_WorkGloves_GL",
+        "key": "ID_ChewingGum_CN",
         "value": 1
       }
     ],

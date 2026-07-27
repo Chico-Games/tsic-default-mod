@@ -1,6 +1,6 @@
 {
-  "id": "RD_ShopCandyBar_CR",
-  "asset_path": "/Game/Furniture/Shops/Recipes/RD_ShopCandyBar_CR",
+  "id": "RD_ShopDurhamFizzyPop_CR",
+  "asset_path": "/Game/Items/Consumables/Drinks/DurhamFizzyPop/Recipes/RD_ShopDurhamFizzyPop_CR",
   "class": "UCraftRecipeDefinition",
   "schema_version": 2,
   "properties": {
@@ -13,7 +13,7 @@
     ],
     "output": [
       {
-        "key": "ID_CandyBar_CN",
+        "key": "ID_DurhamFizzyPop_CN",
         "value": 1
       }
     ],

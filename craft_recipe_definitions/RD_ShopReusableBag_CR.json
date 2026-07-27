@@ -1,6 +1,6 @@
 {
-  "id": "RD_ShopCandyBar_CR",
-  "asset_path": "/Game/Furniture/Shops/Recipes/RD_ShopCandyBar_CR",
+  "id": "RD_ShopReusableBag_CR",
+  "asset_path": "/Game/Furniture/Shops/Recipes/RD_ShopReusableBag_CR",
   "class": "UCraftRecipeDefinition",
   "schema_version": 2,
   "properties": {
@@ -8,12 +8,12 @@
     "input": [
       {
         "key": "ID_Coins_CM",
-        "value": 3
+        "value": 6
       }
     ],
     "output": [
       {
-        "key": "ID_CandyBar_CN",
+        "key": "ID_ReusableBag_EQ",
         "value": 1
       }
     ],

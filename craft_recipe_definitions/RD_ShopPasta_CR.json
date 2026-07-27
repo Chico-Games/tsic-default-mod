@@ -1,6 +1,6 @@
 {
-  "id": "RD_ShopCandyBar_CR",
-  "asset_path": "/Game/Furniture/Shops/Recipes/RD_ShopCandyBar_CR",
+  "id": "RD_ShopPasta_CR",
+  "asset_path": "/Game/Furniture/Shops/Recipes/RD_ShopPasta_CR",
   "class": "UCraftRecipeDefinition",
   "schema_version": 2,
   "properties": {
@@ -8,17 +8,17 @@
     "input": [
       {
         "key": "ID_Coins_CM",
-        "value": 3
+        "value": 5
       }
     ],
     "output": [
       {
-        "key": "ID_CandyBar_CN",
+        "key": "ID_Pasta_CN",
         "value": 1
       }
     ],
     "duration": 0.5,
-    "level": 1,
+    "level": 2,
     "crafting_bench_tags": []
   }
 }

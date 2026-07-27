@@ -1,6 +1,6 @@
 {
-  "id": "RD_ShopTier2Screwdriver_CR",
-  "asset_path": "/Game/Furniture/Shops/Recipes/RD_ShopTier2Screwdriver_CR",
+  "id": "RD_ShopOnionSeeds_CR",
+  "asset_path": "/Game/Items/Seeds/OnionSeeds/Recipes/RD_ShopOnionSeeds_CR",
   "class": "UCraftRecipeDefinition",
   "schema_version": 2,
   "properties": {
@@ -8,12 +8,12 @@
     "input": [
       {
         "key": "ID_Coins_CM",
-        "value": 20
+        "value": 6
       }
     ],
     "output": [
       {
-        "key": "ID_Tier2Screwdriver_EQ",
+        "key": "ID_OnionSeeds_SD",
         "value": 1
       }
     ],
