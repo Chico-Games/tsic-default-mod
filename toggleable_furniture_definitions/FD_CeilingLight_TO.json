@@ -5,6 +5,10 @@
   "schema_version": 2,
   "properties": {
     "starts_toggled_on": true,
+    "player_toggleable": false,
+    "follows_day_night": true,
+    "toggle_on_cue_tag": "GameplayCue.Furniture.Toggle.On",
+    "toggle_off_cue_tag": "GameplayCue.Furniture.Toggle.Off",
     "interaction_hold_time": 0.0,
     "has_static_audio": false,
     "has_toggled_on_audio": false,

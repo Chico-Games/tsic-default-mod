@@ -10,7 +10,16 @@
     "interaction_hold_time": 0.0,
     "interaction_prompt_text": "Use",
     "has_static_audio": false,
-    "has_toggled_on_audio": false,
+    "has_toggled_on_audio": true,
+    "toggled_on_audio": {
+      "sound": "/Game/Shared/Audio/Stations/SW_Loop_WaterBoil.SW_Loop_WaterBoil",
+      "volume_multiplier": 0.4,
+      "b_looping": true,
+      "b_attach_to_entity": true,
+      "attenuation_distance": 800.0,
+      "fade_in_time": 0.5,
+      "fade_out_time": 0.8
+    },
     "has_toggled_off_audio": false,
     "has_static_lights": false,
     "has_toggled_on_lights": false,
@@ -22,6 +31,7 @@
     "destructible_collection": "/Game/Furniture/SewingMachine/GeometryCollections/GCS_SewingMachine.GCS_SewingMachine",
     "loot_dropped_on_death": [],
     "deconstruction_tier": 2,
+    "constructable_item_to_grant": "ID_CoffeeMachineTier2_CI",
     "building_base": {
       "rotation": {
         "x": 0.0,
@@ -47,7 +57,7 @@
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,
-    "static_mesh": "/Game/Fab/Suburban_Household/VOL9_Kitchen/Meshes/NN/SM_Kitchen_Appliances_Set_NN_01a.SM_Kitchen_Appliances_Set_NN_01a",
+    "static_mesh": "/Game/Kitchen_VOL4/Meshes/SM_CoffeMachine_01a.SM_CoffeMachine_01a",
     "casts_shadow": true,
     "collision_profile_name": {
       "name": "Furniture"

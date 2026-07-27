@@ -10,7 +10,16 @@
     "interaction_hold_time": 0.0,
     "interaction_prompt_text": "Use",
     "has_static_audio": false,
-    "has_toggled_on_audio": false,
+    "has_toggled_on_audio": true,
+    "toggled_on_audio": {
+      "sound": "/Game/Shared/Audio/Hums/SW_Hum_Machine.SW_Hum_Machine",
+      "volume_multiplier": 0.35,
+      "b_looping": true,
+      "b_attach_to_entity": true,
+      "attenuation_distance": 700.0,
+      "fade_in_time": 0.5,
+      "fade_out_time": 0.8
+    },
     "has_toggled_off_audio": false,
     "has_static_lights": false,
     "has_toggled_on_lights": false,
