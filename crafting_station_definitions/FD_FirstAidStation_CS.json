@@ -40,7 +40,7 @@
         "z": 1.0
       }
     },
-    "is_draggable": false,
+    "is_draggable": true,
     "display_name": "First Aid Station",
     "description": "A medical crafting station for creating healing items, bandages, and medicine.",
     "level": 1,
@@ -61,7 +61,7 @@
     "drag_linear_damping": 5.0,
     "drag_mass": 1.0,
     "drag_max_angular_velocity": 90.0,
-    "drag_tier": 0,
+    "drag_tier": 1,
     "friction": 0.699999988079071,
     "furniture_armour": 2,
     "gameplay_tags": [],

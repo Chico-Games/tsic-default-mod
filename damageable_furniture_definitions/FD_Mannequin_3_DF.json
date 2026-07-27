@@ -12,7 +12,7 @@
       "LD_MannequinLoot"
     ],
     "constructable_item_to_grant": "ID_Mannequin_3_CI",
-    "deconstruction_tier": 0,
+    "deconstruction_tier": 1,
     "blocking_collision_boxes": [
       {
         "offset": {

@@ -187,7 +187,7 @@
       "LD_BedsLoot"
     ],
     "constructable_item_to_grant": "ID_Bed_Large_5_CI",
-    "deconstruction_tier": 0,
+    "deconstruction_tier": 1,
     "blocking_collision_boxes": [
       {
         "offset": {

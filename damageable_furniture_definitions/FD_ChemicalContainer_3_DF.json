@@ -10,7 +10,7 @@
     "destruction_impulse_strength": 0,
     "loot_dropped_on_death": [],
     "constructable_item_to_grant": "ID_ChemicalContainer_3_CI",
-    "deconstruction_tier": 0,
+    "deconstruction_tier": 2,
     "blocking_collision_boxes": [
       {
         "offset": {

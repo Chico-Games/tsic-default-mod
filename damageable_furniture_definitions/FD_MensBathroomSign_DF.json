@@ -12,7 +12,7 @@
       "LD_PlasticSignLoot"
     ],
     "constructable_item_to_grant": "ID_MensBathroomSign_CI",
-    "deconstruction_tier": 0,
+    "deconstruction_tier": 1,
     "blocking_collision_boxes": [],
     "support_collision_boxes": [
       {

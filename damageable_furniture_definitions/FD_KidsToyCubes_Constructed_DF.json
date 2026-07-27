@@ -11,7 +11,8 @@
     "loot_dropped_on_death": [
       "LD_KidsPlasticToyLoot"
     ],
-    "deconstruction_tier": 0,
+    "deconstruction_tier": 2,
+    "constructable_item_to_grant": "ID_KidsToyCubes_CI",
     "blocking_collision_boxes": [],
     "support_collision_boxes": [
       {

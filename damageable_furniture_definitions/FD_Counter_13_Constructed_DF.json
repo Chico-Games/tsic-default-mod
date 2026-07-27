@@ -9,7 +9,8 @@
     "destructible_collection": "/Game/Furniture/Counters/GeometryCollections/GCS_Stove_03.GCS_Stove_03",
     "destruction_impulse_strength": 0,
     "loot_dropped_on_death": [],
-    "deconstruction_tier": 0,
+    "deconstruction_tier": 2,
+    "constructable_item_to_grant": "ID_Counter_13_CI",
     "blocking_collision_boxes": [
       {
         "offset": {

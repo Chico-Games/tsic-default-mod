@@ -186,7 +186,8 @@
     "loot_dropped_on_death": [
       "LD_BedsLoot"
     ],
-    "deconstruction_tier": 0,
+    "deconstruction_tier": 1,
+    "constructable_item_to_grant": "ID_Bed_Large_3_CI",
     "blocking_collision_boxes": [
       {
         "offset": {

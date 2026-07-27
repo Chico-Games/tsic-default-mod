@@ -22,7 +22,7 @@
       "LD_CraftingBenchTierOneLoot"
     ],
     "constructable_item_to_grant": "ID_ArmorBenchTier1_CI",
-    "deconstruction_tier": 1,
+    "deconstruction_tier": 2,
     "building_base": {
       "rotation": {
         "x": 0.0,

@@ -11,7 +11,8 @@
     "loot_dropped_on_death": [
       "LD_BigSofaLoot"
     ],
-    "deconstruction_tier": 0,
+    "deconstruction_tier": 1,
+    "constructable_item_to_grant": "ID_Sofa_4_CI",
     "blocking_collision_boxes": [
       {
         "offset": {
