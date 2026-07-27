@@ -5,7 +5,7 @@
   "schema_version": 2,
   "properties": {
     "thumbnail": "mod:icons/id_emptyleatherwallet_cm",
-    "display_name": "Leather Wallet (Placeholder)",
+    "display_name": "Leather Wallet",
     "description": "An empty leather wallet. Someone left in a hurry.",
     "stackable": true,
     "weight": 0.10000000149011612,

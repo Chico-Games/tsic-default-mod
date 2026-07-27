@@ -60,7 +60,7 @@
     "has_durability": false,
     "has_ammo": false,
     "max_ammo": 0,
-    "display_name": "Deodorant (Placeholder)",
+    "display_name": "Deodorant",
     "description": "An aerosol deodorant. Alpine Fresh, allegedly. Propellant included.",
     "stackable": true,
     "weight": 0.10000000149011612,
