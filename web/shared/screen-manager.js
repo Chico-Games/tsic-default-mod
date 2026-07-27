@@ -17,6 +17,9 @@
 //     inputModeTag: 'InputMode.Menu.Inventory',   // optional
 //     cancelCmd:    'UI.Cmd.Pause.Resume',        // optional, default Pause.Resume
 //     actionBarContext: [ ... ],                  // optional, static menu-context entries
+//     screenSound: false,                         // optional, opt out of the generic
+//                                                 // UI.Screen.Open/Close sounds (for
+//                                                 // screens that play their own)
 //     mount(root, ctx)   { ... },                 // one-time, on first activation
 //     onShow(params, ctx){ ... },                 // every time it becomes visible
 //     onHide(ctx)        { ... },                 // every time it becomes hidden
@@ -184,6 +187,14 @@
     return true;
   }
 
+  // Generic screen open/close sounds. Screens that play their own (map,
+  // pause menu) opt out with screenSound: false in their registration.
+  function playScreenSound(name, key) {
+    const mod = REGISTRY.get(name);
+    if (mod && mod.screenSound === false) return;
+    if (window.tsic && window.tsic.playSound) window.tsic.playSound(key);
+  }
+
   function changeScreen(name, paramsJson) {
     if (name === activeName) return;
     let params = {};
@@ -191,16 +202,20 @@
       try { params = JSON.parse(paramsJson); } catch (e) { /* ignore */ }
     }
 
+    const prevName = activeName;
     hideCurrent();
 
     if (name === 'InGame' || !name) {
       activeName = 'InGame';
       document.body.classList.remove('tsic-overlay-open');
+      if (prevName !== 'InGame') playScreenSound(prevName, 'UI.Screen.Close');
       return;
     }
 
     if (REGISTRY.has(name)) {
       activeName = name;
+      // Screen-to-screen switches only sound the incoming screen.
+      playScreenSound(name, 'UI.Screen.Open');
       showRegistered(name, params);
       return;
     }

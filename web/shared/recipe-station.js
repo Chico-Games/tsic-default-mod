@@ -91,9 +91,8 @@
     function getRecipeName(r) {
       var cat = (window.tsic && window.tsic.itemCatalog) || {};
       if (typeof opts.rowName === 'function') return opts.rowName(r, cat);
-      if (!r.bDiscovered) return '???';
-      var outId = (r.Outputs && r.Outputs[0] && r.Outputs[0].ItemId) || '';
-      return (cat[outId] && cat[outId].Name) || r.Name || r.RecipeId;
+      // '???' while undiscovered, produced-item name otherwise — never a raw id.
+      return window.TSICRecipeInfo.displayName(r);
     }
 
     function getRowRight(r) {
@@ -183,12 +182,22 @@
     }
 
     function renderInfoPane(recipe) {
+      if (!recipe) {
+        // Never leave the detail pane as an unexplained blank slab — that read as a broken
+        // screen. Say which of the two states it is.
+        var hasRows = !!(lastStation && (lastStation.Recipes || []).length > 0);
+        infoPane.innerHTML = '';
+        infoPane.appendChild(el('div', { class: 'tsic-empty' },
+          hasRows ? 'Select a recipe to see its details.' : emptyText));
+        actionBtn.disabled = true;
+        return;
+      }
       if (typeof opts.renderInfo === 'function') {
         opts.renderInfo(infoPane, recipe, materialCounts);
       } else {
         window.TSICRecipeInfo.render(infoPane, recipe, materialCounts);
       }
-      actionBtn.disabled = !recipe || !canAction(recipe);
+      actionBtn.disabled = !canAction(recipe);
     }
 
     function renderAll() {
@@ -203,8 +212,19 @@
       stationId = p.StationId;
       lastStation = p;
       materialCounts = p.MaterialCounts || {};
-      if (!selectedRecipeId && (p.Recipes || []).length > 0) {
-        selectedRecipeId = p.Recipes[0].RecipeId;
+
+      // Keep the player's selection when the new snapshot still contains it, otherwise fall
+      // back to the first row. Previously this only auto-selected when NOTHING was selected,
+      // so a selection left over from a different station of the same kind survived into a
+      // station whose list does not contain it — Production/Plantable/Cage all share this one
+      // screen module, so opening a furnace then a plant pot left the stale furnace recipe
+      // selected, matched nothing, and rendered an empty details pane.
+      var recipes = p.Recipes || [];
+      var stillPresent = selectedRecipeId && recipes.some(function (r) {
+        return r.RecipeId === selectedRecipeId;
+      });
+      if (!stillPresent) {
+        selectedRecipeId = recipes.length > 0 ? recipes[0].RecipeId : null;
       }
       renderAll();
     }

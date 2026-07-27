@@ -11,6 +11,17 @@
         tsic.publishMessage('UI.Cmd.Input.RemoveModeTag', { Tag: 'InputMode.Menu.Settings' });
     });
 
+    // Shared low..epic options for the scalability dropdowns. Fresh arrays per
+    // call — applyNvidiaCaps-style pruning mutates option lists in place.
+    function qualityLevels() {
+        return [
+            { Value: 'low',    Label: 'Low' },
+            { Value: 'medium', Label: 'Medium' },
+            { Value: 'high',   Label: 'High' },
+            { Value: 'epic',   Label: 'Epic' },
+        ];
+    }
+
     // Static catalog for Audio/Video/Gameplay. The "Keyboard & Mouse" and
     // "Controller" tabs are built dynamically from UI.Settings.ControlsState
     // (rebinds can't be captured in JS; the C++ input manager drives capture —
@@ -22,6 +33,7 @@
                     { Key: 'audio.master', Label: 'Master volume', Type: 'range', Min: 0, Max: 1, Step: 0.01, Value: 0.8 },
                     { Key: 'audio.music',  Label: 'Music volume',  Type: 'range', Min: 0, Max: 1, Step: 0.01, Value: 0.5 },
                     { Key: 'audio.sfx',    Label: 'SFX volume',    Type: 'range', Min: 0, Max: 1, Step: 0.01, Value: 0.7 },
+                    { Key: 'audio.menu_music', Label: 'Menu music volume', Type: 'range', Min: 0, Max: 1, Step: 0.01, Value: 0.8 },
                 ] },
                 { Id: 'Voice', Title: 'Voice chat', Settings: [
                     { Key: 'voice.enabled', Label: 'Voice chat', Type: 'bool', Value: true },
@@ -45,6 +57,19 @@
                     // graphics.* (not video.*) on purpose: video.* keys open the
                     // keep/revert countdown, which is for display-mode changes
                     // that can strand the player — a GI change can't.
+                    //
+                    // Overall preset drives the "Advanced quality" categories below.
+                    // "Custom" is display-only: C++ echoes it when the categories
+                    // are mixed and rejects it as an input.
+                    { Key: 'graphics.quality', Label: 'Overall quality', Type: 'enum',
+                      Options: [
+                          { Value: 'low',    Label: 'Low' },
+                          { Value: 'medium', Label: 'Medium' },
+                          { Value: 'high',   Label: 'High' },
+                          { Value: 'epic',   Label: 'Epic' },
+                          { Value: 'custom', Label: 'Custom' },
+                      ],
+                      Value: 'high' },
                     { Key: 'graphics.lumen', Label: 'Lumen quality', Type: 'enum',
                       Options: [
                           { Value: 'low',    Label: 'Low (Lumen Lite)' },
@@ -90,9 +115,29 @@
                           { Value: 'boost', Label: 'On + Boost' },
                       ],
                       Value: 'on' },
+                    { Key: 'graphics.motion_blur', Label: 'Motion blur', Type: 'bool', Value: true },
+                ] },
+                // Per-category scalability. GI, anti-aliasing and render resolution
+                // deliberately have no rows here — they're owned by the Lumen /
+                // upscaler settings above.
+                { Id: 'Quality', Title: 'Advanced quality', Settings: [
+                    { Key: 'graphics.view_distance',   Label: 'View distance',   Type: 'enum', Options: qualityLevels(), Value: 'high' },
+                    { Key: 'graphics.shadows',         Label: 'Shadows',         Type: 'enum', Options: qualityLevels(), Value: 'high' },
+                    { Key: 'graphics.textures',        Label: 'Textures',        Type: 'enum', Options: qualityLevels(), Value: 'high' },
+                    { Key: 'graphics.effects',         Label: 'Effects',         Type: 'enum', Options: qualityLevels(), Value: 'high' },
+                    { Key: 'graphics.post_processing', Label: 'Post-processing', Type: 'enum', Options: qualityLevels(), Value: 'high' },
+                    { Key: 'graphics.foliage',         Label: 'Foliage',         Type: 'enum', Options: qualityLevels(), Value: 'high' },
+                    { Key: 'graphics.shading',         Label: 'Shading',         Type: 'enum', Options: qualityLevels(), Value: 'high' },
+                    { Key: 'graphics.reflections',     Label: 'Reflections',     Type: 'enum', Options: qualityLevels(), Value: 'high' },
                 ] },
                 { Id: 'Display', Title: 'Display', Settings: [
-                    { Key: 'video.fullscreen', Label: 'Fullscreen', Type: 'bool', Value: true },
+                    { Key: 'video.window_mode', Label: 'Window mode', Type: 'enum',
+                      Options: [
+                          { Value: 'fullscreen', Label: 'Fullscreen' },
+                          { Value: 'borderless', Label: 'Borderless window' },
+                          { Value: 'windowed',   Label: 'Windowed' },
+                      ],
+                      Value: 'borderless' },
                     { Key: 'video.resolution', Label: 'Resolution', Type: 'enum',
                       Options: [
                           { Value: '1280x720',  Label: '1280 × 720 (HD)' },
@@ -108,14 +153,42 @@
                           { Value: '3840x2160', Label: '3840 × 2160 (4K)' },
                       ],
                       Value: '1920x1080' },
+                    // graphics.* on purpose (instant apply, no countdown): neither
+                    // VSync nor an FPS cap can strand the player.
+                    { Key: 'graphics.vsync', Label: 'VSync', Type: 'bool', Value: false },
+                    { Key: 'graphics.fps_limit', Label: 'Frame rate limit', Type: 'enum',
+                      Options: [
+                          { Value: '30',  Label: '30 FPS' },
+                          { Value: '60',  Label: '60 FPS' },
+                          { Value: '90',  Label: '90 FPS' },
+                          { Value: '120', Label: '120 FPS' },
+                          { Value: '144', Label: '144 FPS' },
+                          { Value: '165', Label: '165 FPS' },
+                          { Value: '240', Label: '240 FPS' },
+                          { Value: '0',   Label: 'Unlimited' },
+                      ],
+                      Value: '0' },
+                    { Key: 'graphics.brightness', Label: 'Brightness (gamma)',
+                      Type: 'range', Min: 1.4, Max: 3, Step: 0.05, Value: 2.2 },
+                    // Removed on displays without HDR output (video.hdr_supported).
+                    // video.* on purpose: a bad HDR switch gets the countdown.
+                    { Key: 'video.hdr', Label: 'HDR output', Type: 'bool', Value: false },
                 ] },
             ] },
             { Id: 'GameplayCollection', Title: 'Gameplay', Groups: [
-                { Id: 'Camera', Title: 'Camera', Settings: [
-                    { Key: 'gameplay.fov', Label: 'Field of view', Type: 'range', Min: 60, Max: 120, Step: 1, Value: 90 },
-                ] },
                 { Id: 'Interface', Title: 'Interface', Settings: [
                     { Key: 'gameplay.show_tutorial', Label: 'Show tutorial objectives', Type: 'bool', Value: true },
+                ] },
+                { Id: 'Accessibility', Title: 'Accessibility', Settings: [
+                    { Key: 'accessibility.colorblind', Label: 'Colorblind mode', Type: 'enum',
+                      Options: [
+                          { Value: 'off',          Label: 'Off' },
+                          { Value: 'deuteranopia', Label: 'Deuteranopia (red-green)' },
+                          { Value: 'protanopia',   Label: 'Protanopia (red-green)' },
+                          { Value: 'tritanopia',   Label: 'Tritanopia (blue-yellow)' },
+                      ],
+                      Value: 'off' },
+                    { Key: 'accessibility.reduce_shake', Label: 'Reduce screen shake', Type: 'bool', Value: false },
                 ] },
             ] },
         ],
@@ -216,6 +289,7 @@
             const valueLabel = document.createElement('span');
             valueLabel.className = 'value-label';
             valueLabel.textContent = s.Display !== undefined ? s.Display : fmt2(v);
+            let lastTickAt = 0;
             slider.oninput = () => {
                 let n = Number(slider.value);
                 if (Number.isNaN(n)) return;
@@ -224,6 +298,11 @@
                 const old = (s.Key in localState) ? localState[s.Key] : s.Value;
                 localState[s.Key] = n;
                 valueLabel.textContent = fmt2(n);
+                const now = Date.now();
+                if (now - lastTickAt >= 60) {
+                    lastTickAt = now;
+                    try { tsic.playSound('UI.Slider.Tick', 0.3); } catch (e) {}
+                }
                 applySet(s.Key, n, old);
             };
             controlUpdaters[s.Key] = (val) => {
@@ -246,6 +325,7 @@
                     const old = localState[s.Key] !== undefined ? localState[s.Key] : v;
                     localState[s.Key] = !old;
                     tog.classList.toggle('on', localState[s.Key]);
+                    try { tsic.playSound(localState[s.Key] ? 'UI.Toggle.On' : 'UI.Toggle.Off'); } catch (e) {}
                     applySet(s.Key, localState[s.Key], old);
                 };
             }
@@ -282,6 +362,7 @@
                 if (localState[s.Key] === newValue) return;
                 const old = (s.Key in localState) ? localState[s.Key] : String(v);
                 localState[s.Key] = newValue;
+                try { tsic.playSound('UI.Dropdown.Select'); } catch (e) {}
                 applySet(s.Key, newValue, old);
             });
             controlUpdaters[s.Key] = (val) => {
@@ -954,12 +1035,30 @@
         return changed;
     }
 
+    // video.hdr_supported is a capability report like nvidia_caps: drop the HDR
+    // row on displays that can't output HDR. Idempotent for sticky replays.
+    function dropHdrRow() {
+        let changed = false;
+        for (const page of STATIC_CATALOG.Pages) {
+            for (const g of (page.Groups || [])) {
+                if (!g.Settings) continue;
+                const kept = g.Settings.filter((s) => s.Key !== 'video.hdr');
+                if (kept.length !== g.Settings.length) { g.Settings = kept; changed = true; }
+            }
+        }
+        return changed;
+    }
+
     function onValue(payload) {
         if (!payload || !payload.Key) return;
         let v;
         try { v = JSON.parse(payload.ValueJson || 'null'); } catch (e) { return; }
         if (payload.Key === 'graphics.nvidia_caps') {
             if (applyNvidiaCaps(v)) rebuildPreservingValues();
+            return;
+        }
+        if (payload.Key === 'video.hdr_supported') {
+            if (v === false && dropHdrRow()) rebuildPreservingValues();
             return;
         }
         // Authoritative saved value (per-key sticky replay when the screen

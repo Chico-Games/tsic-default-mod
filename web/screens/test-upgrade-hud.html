@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="tsic-screen" content="TestUpgradeHud">
+  <meta name="tsic-debug" content="true">
+  <title>Test: hammer upgrade readout</title>
+  <!-- Test-only host for the LIVE hammer upgrade readout
+       (shared/hud-upgrade.js). That component creates and owns #hud-upgrade
+       itself and injects its own styles, so this page only needs to load it.
+
+       DO NOT add rendering logic to this file. -->
+  <!-- Bridge first: components subscribe on window.tsic at defer time; the
+       playground migrates those subs into its mock on iframe load. -->
+  <script src="/shared/tsic-bridge.js" defer></script>
+  <script src="/shared/tsic-runtime.js" defer></script>
+  <script src="/shared/dom.js" defer></script>
+  <script src="/shared/icons.js" defer></script>
+  <script src="/shared/hud-upgrade.js" defer></script>
+</head><body>
+  <!-- Minimal stand-in for the action-bar panel hud.js builds in the live shell:
+       hud-upgrade.js mounts its #bb-upgradable badge into it, before #bb-divider. -->
+  <div id="bb-shell-gameplay"><div id="bb-divider" class="hidden"></div></div>
+</body></html>

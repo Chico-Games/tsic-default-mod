@@ -921,7 +921,9 @@
         renderInfoPanel(host, itemDescriptor, itemInstance, compareDescriptor) {
             host.innerHTML = '';
             if (!itemDescriptor) return;
-            var eyebrow = el('div', { class: 'info-eyebrow' }, itemDescriptor.Category || 'Item');
+            // Human-readable type ("Weapon", "Crafting Material") — not the raw
+            // Category bucket, which is a filter key rather than player-facing text.
+            var eyebrow = el('div', { class: 'info-eyebrow' }, TSIC.itemTypeLabel(itemDescriptor) || 'Item');
             host.appendChild(eyebrow);
             host.appendChild(el('h3', { style: 'margin:2px 0 6px;' }, itemDescriptor.Name || itemDescriptor.ItemId || ''));
             if (itemDescriptor.Description) {

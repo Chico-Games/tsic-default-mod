@@ -15,10 +15,12 @@
   <style>
     /* Mirror the visibility rules hud.js injects, so getComputedStyle()-based
        hidden/visible assertions work. */
+    #bb-target.hidden { display:none; }
+    #bb-target-name.hidden { display:none; }
     #bb-divider.hidden { display:none; }
     #interaction-prompt.hidden { display:none; }
-    #interaction-prompt .cat-icon { display:inline-block; width:13px; height:13px; margin-right:6px; vertical-align:-2px; }
-    #interaction-prompt .cat-icon svg { width:100%; height:100%; display:block; }
+    #bb-target-name .cat-icon, #interaction-prompt .cat-icon { display:inline-block; width:13px; height:13px; margin-right:6px; vertical-align:-2px; }
+    #bb-target-name .cat-icon svg, #interaction-prompt .cat-icon svg { width:100%; height:100%; display:block; }
     #interaction-prompt.cat-crafting { color:#f0cd8a; }
     #interaction-prompt.cat-production { color:#9fd4f0; }
     #interaction-prompt.cat-plantable { color:#a9e2a0; }
@@ -29,11 +31,15 @@
   <script src="/shared/tsic-bridge.js" defer></script>
   <script src="/shared/tsic-runtime.js" defer></script>
   <script src="/shared/dom.js" defer></script>
+  <script src="/shared/icons.js" defer></script>
   <script src="/shared/hud-interaction.js" defer></script>
 </head><body>
   <div id="bb-shell-gameplay" class="bb-shell">
-    <div id="bb-gameplay"></div>
+    <div id="bb-target" class="hidden">
+      <div id="bb-target-name" class="hidden"></div>
+      <div id="interaction-prompt" class="hidden"></div>
+    </div>
     <div id="bb-divider" class="hidden"></div>
-    <div id="interaction-prompt" class="hidden"></div>
+    <div id="bb-gameplay"></div>
   </div>
 </body></html>

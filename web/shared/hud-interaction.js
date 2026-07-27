@@ -1,44 +1,69 @@
-// shared/hud-interaction.js — Interaction target name + divider inside the
-// gameplay behavior-bar panel (#bb-shell-gameplay > #interaction-prompt + #bb-divider).
-// Shows the primary interaction target's label, tinted per category with a
-// small inline-SVG symbol (Targets[0].Category, bridge field from
-// FScpUIInteractionTarget; colours live in hud.js under .cat-<category>).
-// Targets may also carry a HoldLabel (hold-interact option, e.g. the shopping
-// cart's "Ride"/"Drive") rendered as a second line under the tap label.
+// shared/hud-interaction.js — Look-target block at the TOP of the gameplay
+// behavior-bar panel (#bb-shell-gameplay > #bb-target > #bb-target-name +
+// #interaction-prompt + #interaction-hold-prompt, with #bb-divider below
+// separating it from the general input-action rows in #bb-gameplay).
+//
+// The block is the "furniture header" of the input-action panel:
+//   line 1  #bb-target-name        the furniture/item's own name (Targets[0].Name)
+//   line 2  #interaction-prompt    tap-interact verb row  [glyph][verb][key chip]
+//   line 3  #interaction-hold-prompt  hold-interact verb row [HOLD][verb][key chip]
+// so the furniture's own actions always sort ABOVE the generic rows.
+//
+// All three lines are tinted per category (Targets[0].Category, bridge field
+// from FScpUIInteractionTarget) via the shared .cat-<category> palette in
+// hud.js (--cat-color); the glyph is shared with the crosshair through
+// TSIC.categoryIcon (shared/icons.js), so a given interaction type reads as
+// the same colour + symbol everywhere.
+//
+// The key chip mirrors the behavior bar's rendering: the Interact behaviour's
+// resolved key icon is lifted from UI.BehaviorBar.Entries (the row itself is
+// suppressed from the generic list while this block shows — hud-behavior-bar.js)
+// and swaps with input mode. Drag-only furniture (no interaction option, but
+// bDraggable) still shows the name header plus a key-less "Drag" verb.
 (function () {
-  // Category → stroke-icon paths (24×24 viewBox, inherit currentColor).
-  var CAT_ICONS = {
-    crafting: ['m15 12-8.5 8.5a2.12 2.12 0 1 1-3-3L12 9', 'M17.64 15 22 10.64', 'm20.91 11.7-1.25-1.25c-.6-.6-.93-1.4-.93-2.25v-.86L16.01 4.6a5.56 5.56 0 0 0-3.94-1.64H9l.92.82A6.18 6.18 0 0 1 12 8.4v1.56l2 2h2.47l2.26 1.91'],
-    production: ['M12 2v3', 'M12 19v3', 'M2 12h3', 'M19 12h3', 'm4.9 4.9 2.1 2.1', 'm17 17 2.1 2.1', 'M19.1 4.9 17 7', 'm7 17-2.1 2.1', 'M12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6z'],
-    plantable: ['M7 20h10', 'M12 20v-6', 'M12 14c0-4 3-7 7-7 0 4-3 7-7 7z', 'M12 14c0-4-3-7-7-7 0 4 3 7 7 7z'],
-    storage: ['M3 8l9-5 9 5v8l-9 5-9-5z', 'M3 8l9 5 9-5', 'M12 13v8'],
-    door: ['M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16', 'M3 21h18', 'M15 12h.01'],
-    toggle: ['M12 2v8', 'M18.4 6.6a9 9 0 1 1-12.77.04'],
-    loot: ['M6 8h12l1.5 12a1.5 1.5 0 0 1-1.5 1.6H6A1.5 1.5 0 0 1 4.5 20z', 'M9 8a3 3 0 0 1 6 0'],
-    shop: ['M12 2H4v8l10 10 8-8z', 'M7.5 6.5h.01'],
-    item: ['M12 4v12', 'm7 11 5 5 5-5', 'M5 20h14'],
-    interact: ['M12 3l9 9-9 9-9-9z'],
-  };
+  var INTERACT_TAG = 'Input.Behavior.Interact';
+
+  var lastPayload = null;               // last UI.Interaction.Targets payload
+  var interactEntry = null;             // behavior-bar entry for the Interact behaviour
+  var inputMode = 'MouseAndKeyboard';
 
   function catIcon(cat) {
-    var paths = CAT_ICONS[cat];
-    if (!paths || !window.TSIC || !TSIC.svg || !TSIC.el) return null;
-    var svg = TSIC.svg('svg', {
-      viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor',
-      'stroke-width': '2', 'stroke-linecap': 'round', 'stroke-linejoin': 'round',
-    });
-    for (var i = 0; i < paths.length; i++) svg.appendChild(TSIC.svg('path', { d: paths[i] }));
+    if (!cat || !window.TSIC || !TSIC.categoryIcon || !TSIC.el) return null;
+    var svg = TSIC.categoryIcon(cat);
+    if (!svg) return null;
     var span = TSIC.el('span', { class: 'cat-icon' });
     span.appendChild(svg);
     return span;
   }
 
-  function setLabel(label, target) {
-    // Reset previous category tint, keep every other class (e.g. hidden).
-    for (var i = label.classList.length - 1; i >= 0; i--) {
-      var c = label.classList[i];
-      if (c.indexOf('cat-') === 0) label.classList.remove(c);
+  // Reset any previous .cat-<x> tint on an element, keeping every other class.
+  function clearCat(elm) {
+    for (var i = elm.classList.length - 1; i >= 0; i--) {
+      var c = elm.classList[i];
+      if (c.indexOf('cat-') === 0) elm.classList.remove(c);
     }
+  }
+
+  // Key chip for the Interact behaviour, mirroring hud-behavior-bar.js's
+  // resolution order: publisher-resolved icon URL first, TSIC.keyIconUrl
+  // fallback second, nothing when neither resolves (test pages, early boot).
+  function interactKeyChip() {
+    if (!interactEntry || !window.TSIC || !TSIC.el) return null;
+    var isGP = inputMode === 'Gamepad';
+    var url = isGP ? interactEntry.GamepadIconUrl : interactEntry.KeyboardIconUrl;
+    var keyText = isGP ? interactEntry.GamepadKeyText : interactEntry.KeyboardKeyText;
+    if (!url && TSIC.keyIconUrl) url = TSIC.keyIconUrl(keyText, isGP);
+    if (!url) return null;
+    var chip = TSIC.el('span', { class: 'bb-key' });
+    var img = TSIC.el('img', { src: url, alt: keyText || '' });
+    img.onerror = function () { chip.remove(); };
+    chip.appendChild(img);
+    return chip;
+  }
+
+  // Tap-interact verb row: [category glyph][verb][key chip].
+  function setLabel(label, target, dragOnly) {
+    clearCat(label);
     while (label.firstChild) label.removeChild(label.firstChild);
 
     var cat = String(target.Category || '');
@@ -47,43 +72,121 @@
       label.classList.add('cat-' + cat);
       label.appendChild(icon);
     }
+    if (dragOnly) {
+      // No interaction option — the verb is the drag affordance itself, and the
+      // Interact key would be a lie, so no key chip.
+      label.appendChild(document.createTextNode('Drag'));
+      return;
+    }
     label.appendChild(document.createTextNode(target.Label || 'Interact'));
+    var chip = interactKeyChip();
+    if (chip) label.appendChild(chip);
+  }
+
+  // Furniture/item name header. Hidden when the target reports no name.
+  function setName(nameEl, target) {
+    clearCat(nameEl);
+    while (nameEl.firstChild) nameEl.removeChild(nameEl.firstChild);
+
+    var name = String((target && target.Name) || '');
+    if (!name) {
+      nameEl.classList.add('hidden');
+      return;
+    }
+    var cat = String(target.Category || '');
+    var icon = cat ? catIcon(cat) : null;
+    if (icon) {
+      nameEl.classList.add('cat-' + cat);
+      nameEl.appendChild(icon);
+    }
+    nameEl.appendChild(document.createTextNode(name));
+    nameEl.classList.remove('hidden');
+  }
+
+  // Hold-interact verb row: [HOLD tag][verb][key chip]. Same key as tap — the
+  // distinction is the HOLD qualifier, matching how the ability listens.
+  function setHold(holdEl, target) {
+    clearCat(holdEl);
+    while (holdEl.firstChild) holdEl.removeChild(holdEl.firstChild);
+    if (!target || !target.HoldLabel) {
+      holdEl.classList.add('hidden');
+      return;
+    }
+    var cat = String(target.Category || '');
+    if (cat) holdEl.classList.add('cat-' + cat);
+    holdEl.appendChild(TSIC.el ? TSIC.el('span', { class: 'bb-hold-tag' }, 'HOLD') : document.createTextNode('HOLD '));
+    holdEl.appendChild(document.createTextNode(target.HoldLabel));
+    var chip = interactKeyChip();
+    if (chip) holdEl.appendChild(chip);
+    holdEl.classList.remove('hidden');
   }
 
   function holdPromptEl(afterEl) {
     var el = document.getElementById('interaction-hold-prompt');
-    if (!el && afterEl && afterEl.parentNode) {
+    if (!el && afterEl && afterEl.parentNode && window.TSIC && TSIC.el) {
       el = TSIC.el('div', { id: 'interaction-hold-prompt', class: 'hidden' });
       afterEl.parentNode.insertBefore(el, afterEl.nextSibling);
     }
     return el;
   }
 
-  tsic.on('tsic.msg.UI.Interaction.Targets', function (p) {
+  function render() {
+    var p = lastPayload;
+    var block = document.getElementById('bb-target');
+    var nameEl = document.getElementById('bb-target-name');
     var label = document.getElementById('interaction-prompt');
     var divider = document.getElementById('bb-divider');
     if (!label || !divider) return;
-    var holdLabel = holdPromptEl(label);
+    var holdEl = holdPromptEl(label);
     var target = p && p.Targets && p.Targets[0];
     if (target) {
-      setLabel(label, target);
+      // A target with no verb is the C++ drag-only fallback (name/category only,
+      // published because the entity is draggable) — title the panel, show a
+      // key-less Drag verb instead of the misleading "Interact" fallback.
+      var dragOnly = !target.Label && !!p.bDraggable;
+      if (nameEl) setName(nameEl, target);
+      setLabel(label, target, dragOnly);
       // Grey out single-use options that have already been used. (Status also
       // carries Blocked/Cooldown/Active for future use; only SingleUseUsed greys today.)
       label.classList.toggle('interaction-disabled', String(target.Status || '') === 'SingleUseUsed');
       label.classList.remove('hidden');
+      if (block) block.classList.remove('hidden');
       divider.classList.remove('hidden');
-      if (holdLabel) {
-        if (target.HoldLabel) {
-          holdLabel.textContent = 'Hold: ' + target.HoldLabel;
-          holdLabel.classList.remove('hidden');
-        } else {
-          holdLabel.classList.add('hidden');
-        }
-      }
+      if (holdEl) setHold(holdEl, dragOnly ? null : target);
     } else {
       label.classList.add('hidden');
+      if (nameEl) nameEl.classList.add('hidden');
+      if (block) block.classList.add('hidden');
       divider.classList.add('hidden');
-      if (holdLabel) holdLabel.classList.add('hidden');
+      if (holdEl) holdEl.classList.add('hidden');
     }
+  }
+
+  tsic.on('tsic.msg.UI.Interaction.Targets', function (p) {
+    lastPayload = p;
+    render();
+  });
+
+  // Key-chip source: the behavior bar's already-resolved Interact entry. Only
+  // re-render when the resolved icons actually change (entries rebroadcast at
+  // up to 10 Hz on cooldown churn).
+  tsic.on('tsic.msg.UI.BehaviorBar.Entries', function (p) {
+    var next = null;
+    var entries = (p && p.Entries) || [];
+    for (var i = 0; i < entries.length; i++) {
+      if (entries[i].BehaviorTagName === INTERACT_TAG) { next = entries[i]; break; }
+    }
+    var a = interactEntry || {}, b = next || {};
+    var changed = a.KeyboardIconUrl !== b.KeyboardIconUrl || a.GamepadIconUrl !== b.GamepadIconUrl
+      || a.KeyboardKeyText !== b.KeyboardKeyText || a.GamepadKeyText !== b.GamepadKeyText;
+    interactEntry = next;
+    if (changed && lastPayload) render();
+  });
+
+  tsic.on('tsic.msg.UI.Input.Mode.Changed', function (p) {
+    var next = (p && p.Mode) || 'MouseAndKeyboard';
+    if (next === inputMode) return;
+    inputMode = next;
+    if (lastPayload) render();
   });
 })();

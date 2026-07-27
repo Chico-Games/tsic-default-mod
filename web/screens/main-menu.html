@@ -213,6 +213,45 @@
       100%      { transform: translate(0, 0); }
     }
     .showroom-eyes { animation: showroom-eyes-dart 5s infinite; }
+
+    /* ─── House Radio: menu-music volume pill (bottom-right) ─── */
+    .menu-vol {
+      position: fixed;
+      right: 18px;
+      bottom: 14px;
+      z-index: 40;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 14px;
+      background: rgba(12, 11, 9, 0.72);
+      border: 1px solid rgba(255, 244, 214, 0.25);
+      border-radius: 999px;
+      backdrop-filter: blur(2px);
+    }
+    .menu-vol-cap {
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(255, 244, 214, 0.55);
+      white-space: nowrap;
+    }
+    .menu-vol-mute {
+      background: none;
+      border: 0;
+      padding: 0 2px;
+      cursor: pointer;
+      color: rgba(255, 244, 214, 0.9);
+      font-size: 15px;
+      line-height: 1;
+    }
+    .menu-vol-mute:hover { color: #fff; }
+    .menu-vol-mute.muted { color: rgba(255, 120, 100, 0.9); }
+    .menu-vol input[type="range"] {
+      width: 110px;
+      accent-color: #e8d9a8;
+      cursor: pointer;
+    }
   </style>
 </head><body>
 
@@ -306,6 +345,15 @@
         </button>
       </div>
     </div>
+  </div>
+
+  <!-- House Radio: live menu-music volume + mute. Backed by the persisted
+       audio.menu_music setting (same one as the Settings screen slider). -->
+  <div class="menu-vol" id="menu-vol" data-no-sfx>
+    <span class="menu-vol-cap">House Radio</span>
+    <button class="menu-vol-mute" id="menu-vol-mute" title="Mute menu music" data-no-sfx>&#128266;</button>
+    <input type="range" id="menu-vol-slider" min="0" max="1" step="0.01" value="0.8"
+           aria-label="Menu music volume">
   </div>
 
   <!--
@@ -920,6 +968,45 @@
             devJoin.style.display = (p && p.bDevBuild) ? '' : 'none';
           });
         }
+
+        // House Radio: menu-music volume + mute, backed by audio.menu_music.
+        // The sticky UI.Settings.Value replay seeds the control; edits apply
+        // and persist through the same path the Settings screen uses.
+        var volSlider = document.getElementById('menu-vol-slider');
+        var volMute = document.getElementById('menu-vol-mute');
+        var lastAudible = 0.8;
+
+        function setVolume(v) {
+          tsic.publishMessage('UI.Cmd.Settings.Set',
+            { Key: 'audio.menu_music', ValueJson: JSON.stringify(v) });
+        }
+        function refreshMuteUI(v) {
+          var muted = v <= 0.001;
+          volMute.classList.toggle('muted', muted);
+          volMute.innerHTML = muted ? '&#128263;' : '&#128266;';
+          volMute.title = muted ? 'Unmute menu music' : 'Mute menu music';
+        }
+        volSlider.oninput = function () {
+          var v = parseFloat(volSlider.value);
+          if (v > 0.001) lastAudible = v;
+          setVolume(v);
+          refreshMuteUI(v);
+        };
+        volMute.onclick = function () {
+          var muted = parseFloat(volSlider.value) <= 0.001;
+          var v = muted ? (lastAudible || 0.8) : 0;
+          volSlider.value = String(v);
+          setVolume(v);
+          refreshMuteUI(v);
+        };
+        tsic.on('tsic.msg.UI.Settings.Value', function (p) {
+          if (!p || p.Key !== 'audio.menu_music') return;
+          var v = parseFloat(JSON.parse(p.ValueJson || '"0.8"'));
+          if (!isFinite(v)) return;
+          if (v > 0.001) lastAudible = v;
+          volSlider.value = String(v);
+          refreshMuteUI(v);
+        });
       });
     })();
   </script>

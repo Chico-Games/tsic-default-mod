@@ -82,3 +82,32 @@ TSICTestHarness.register({
         ctx.expect(ctx.assert.truthy(img && img.src.indexOf('/icons/gamepad/') > 0, 'expected gamepad glyph URL'));
     },
 });
+
+TSICTestHarness.register({
+    // While the look-target block (#bb-target) shows the interact verb + key chip,
+    // the generic "Interact" row would be a duplicate — it must drop out of the
+    // list and come back when the player looks away.
+    name: 'BehaviorBar: generic Interact row suppressed while a look target shows',
+    file: '/screens/test-behavior-bar.html',
+    async run(ctx) {
+        ctx.inject('tsic.msg.UI.BehaviorBar.Entries', {
+            Entries: [
+                { BehaviorTagName: 'Input.Behavior.Interact', DisplayName: 'Interact', StatusInt: 0, bVisible: true },
+                { BehaviorTagName: 'Input.Behavior.Sprint',   DisplayName: 'Sprint',   StatusInt: 0, bVisible: true },
+            ],
+        });
+        await ctx.waitFor(() => ctx.doc.querySelectorAll('#bb-gameplay .bb-row').length === 2);
+
+        ctx.inject('tsic.msg.UI.Interaction.Targets', {
+            Targets: [{ EntityId: 4, Name: 'Bookcase', Label: 'Open Storage', Category: 'storage' }],
+        });
+        await ctx.waitFor(() => ctx.doc.querySelectorAll('#bb-gameplay .bb-row').length === 1);
+        const names = Array.from(ctx.doc.querySelectorAll('#bb-gameplay .bb-name')).map(n => n.textContent);
+        ctx.expect(ctx.assert.truthy(names.indexOf('Interact') === -1, 'Interact row suppressed'));
+        ctx.expect(ctx.assert.truthy(names.indexOf('Sprint') !== -1, 'other rows unaffected'));
+
+        ctx.inject('tsic.msg.UI.Interaction.Targets', { Targets: [] });
+        await ctx.waitFor(() => ctx.doc.querySelectorAll('#bb-gameplay .bb-row').length === 2);
+        ctx.expect(ctx.assert.domCount(ctx.doc, '#bb-gameplay .bb-row', 2));
+    },
+});

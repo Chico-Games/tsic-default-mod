@@ -7,7 +7,10 @@
 // halo animation (styles in hud.js). A slightly transparent hand icon appears
 // beside the dot while looking at a draggable target and tightens while
 // dragging (both flags ride on UI.Interaction.Targets; bridge bools keep
-// their b-prefix).
+// their b-prefix). A second glyph (#hud-crosshair-cat) sits nearest the dot and
+// shows the look target's category symbol (loot/storage/door/…), tinted to match
+// the interaction panel — so a lootable vs a storage vs a door read differently
+// at a glance. The icon is shared with the panel via TSIC.categoryIcon (icons.js).
 (function () {
   var HAND_PATHS = [
     'M18 11V6a2 2 0 0 0-4 0v5',
@@ -33,6 +36,32 @@
     return hand;
   }
 
+  // Category glyph beside the dot. Created here when missing so the test host
+  // page stays minimal; the SVG is (re)built when the category changes.
+  function catEl(dot) {
+    var cel = document.getElementById('hud-crosshair-cat');
+    if (!cel && dot && dot.parentNode && window.TSIC && TSIC.el) {
+      cel = TSIC.el('div', { id: 'hud-crosshair-cat' });
+      dot.parentNode.insertBefore(cel, dot.nextSibling);
+    }
+    return cel;
+  }
+
+  function setCatGlyph(cel, cat) {
+    if (cel.dataset.cat === cat) return; // unchanged — keep the decoded SVG
+    cel.dataset.cat = cat;
+    for (var i = cel.classList.length - 1; i >= 0; i--) {
+      var c = cel.classList[i];
+      if (c.indexOf('cat-') === 0) cel.classList.remove(c);
+    }
+    while (cel.firstChild) cel.removeChild(cel.firstChild);
+    var svg = (window.TSIC && TSIC.categoryIcon) ? TSIC.categoryIcon(cat) : null;
+    if (svg) {
+      cel.classList.add('cat-' + cat);
+      cel.appendChild(svg);
+    }
+  }
+
   tsic.on('tsic.msg.UI.Input.Mode.Changed', function (p) {
     var dot = document.getElementById('hud-crosshair');
     if (!dot || !p) return;
@@ -40,6 +69,8 @@
     dot.classList.toggle('hidden', isMenuMode);
     var hand = document.getElementById('hud-crosshair-hand');
     if (hand) hand.classList.toggle('hidden', isMenuMode);
+    var cel = document.getElementById('hud-crosshair-cat');
+    if (cel) cel.classList.toggle('hidden', isMenuMode);
   });
 
   tsic.on('tsic.msg.UI.Interaction.Targets', function (p) {
@@ -58,6 +89,15 @@
     if (hand) {
       hand.classList.toggle('visible', dragging || !!p.bDraggable);
       hand.classList.toggle('dragging', dragging);
+    }
+
+    // Category glyph shows whenever there's an interactable look target; hidden
+    // while dragging (the hand tells the whole story then).
+    var cel = catEl(dot);
+    if (cel) {
+      var showCat = !!target && !!cat && !dragging;
+      if (showCat) setCatGlyph(cel, cat);
+      cel.classList.toggle('visible', showCat);
     }
   });
 })();

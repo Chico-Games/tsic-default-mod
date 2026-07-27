@@ -273,6 +273,14 @@
     injectStyles();
     tsic.whenReady(function () {
       tsic.on('tsic.msg.UI.Hotbar.Changed', function (p) {
+        // Selection tick on every genuine selection move (keyboard, wheel or
+        // click — this is the one place all of them converge). Skip the very
+        // first snapshot so loading in doesn't click.
+        var newSel = (p && typeof p.SelectedSlot === 'number') ? p.SelectedSlot : -1;
+        var oldSel = (lastHotbar && typeof lastHotbar.SelectedSlot === 'number') ? lastHotbar.SelectedSlot : -1;
+        if (lastHotbar && newSel !== oldSel) {
+          try { tsic.playSound('Hotbar.Select', 0.5); } catch (e) {}
+        }
         lastHotbar = p || null;
         update();
       });

@@ -75,16 +75,30 @@
       background-repeat: no-repeat;
     }
     [data-screen="Map"] #world-tex, [data-screen="Map"] #fow-tex, [data-screen="Map"] #overlay,
+    [data-screen="Map"] #height-tint-tex,
     [data-screen="Map"] #debug-height-tex, [data-screen="Map"] #debug-maze-tex {
       position: absolute; left: 0; top: 0;
       pointer-events: none; user-select: none; -webkit-user-drag: none;
     }
-    [data-screen="Map"] #world-tex          { z-index: 1; image-rendering: pixelated; }
+    /* Zero-sized until setBounds() knows the world size: an <img> with no CSS
+       size paints at its natural resolution, so the basemap used to flash a
+       1:1 crop of the (unfogged) world texture in the beat before the first
+       snapshot landed — outside the fog veil, which is world-sized. */
+    [data-screen="Map"] #world-tex          { z-index: 1; image-rendering: pixelated; width: 0; height: 0; }
+    [data-screen="Map"] #height-tint-tex    { z-index: 1; image-rendering: pixelated; }
     [data-screen="Map"] #debug-height-tex   { z-index: 2; }
     [data-screen="Map"] #debug-maze-tex     { z-index: 3; }
     [data-screen="Map"] #debug-all-tex      { z-index: 4; }
     [data-screen="Map"] #fow-tex            { z-index: 5; }
     [data-screen="Map"] #overlay            { z-index: 6; }
+    /* Fog-not-ready veil: the same opaque black the fog texture paints over
+       unexplored ground (see FGenerateExploredTexture::DoWork), covering every
+       map layer INCLUDING the SVG markers until real fog pixels are up. */
+    [data-screen="Map"] #fow-veil {
+      position: absolute; left: 0; top: 0; width: 100%; height: 100%;
+      z-index: 7; pointer-events: none;
+      background: #000;
+    }
     [data-screen="Map"] #debug-height-tex, [data-screen="Map"] #debug-maze-tex, [data-screen="Map"] #debug-all-tex {
       image-rendering: pixelated; display: none;
     }
@@ -165,10 +179,11 @@
       <div id="map-viewport" data-cursor="map">
         <div id="map-content">
           <img id="world-tex" src="/runtime/world-map.imgsrc">
+          <canvas id="height-tint-tex" width="0" height="0"></canvas>
           <img id="debug-height-tex" src="/runtime/world-debug-height.imgsrc">
           <img id="debug-maze-tex"   src="/runtime/world-debug-maze.imgsrc">
           <img id="debug-all-tex"    src="/runtime/world-debug-all.imgsrc">
-          <img id="fow-tex"   src="/runtime/fow.imgsrc">
+          <canvas id="fow-tex" width="0" height="0"></canvas>
           <svg id="overlay" xmlns="http://www.w3.org/2000/svg">
             <rect id="world-bounds" x="0" y="0" width="0" height="0"></rect>
             <g id="g-icons"></g>
@@ -176,6 +191,7 @@
             <g id="g-coords"></g>
             <g id="g-cheat-fx"></g>
           </svg>
+          <div id="fow-veil"></div>
         </div>
         <div id="empty">Waiting for map data…</div>
         <canvas id="player-canvas"></canvas>
@@ -196,9 +212,14 @@
     document.head.appendChild(s);
   }
 
+  // Set by mount() so the module-level onShow() (which has no access to the
+  // per-mount closure) can drive the fog refresh. One mount per screen.
+  let onShowHook = null;
+
   TSIC.registerScreen('Map', {
     inputModeTag: 'InputMode.Menu.Map',
     cancelCmd: 'UI.Cmd.GameScreen.Close',
+    screenSound: false, // plays its own Map.Open / Map.Close
     template: TEMPLATE,
 
     mount(root, ctx) {
@@ -229,10 +250,20 @@
         defaultZoomMult: DEFAULT_ZOOM_MULT,
         // Drops the fog gate to its documented fail-open state (fowGrid = null)
         // so icon/cluster contracts are testable without hours of exploration.
+        // Also lifts the fog-not-ready veil, which would otherwise cover the
+        // markers the caller is about to assert on.
         disableFogGate() {
           fowGrid = null;
+          fowGateOverridden = true;
+          applyFowGate();
           if (latestSnapshot) renderIcons(latestSnapshot.Icons);
         },
+        // Fog-gate probes (see the fog readiness gate below): whether fog is in
+        // play for this session, whether its pixels are up, and whether the veil
+        // is currently covering the map.
+        get fowPainted() { return fowPainted; },
+        get fowExpected() { return fowExpected; },
+        get fowVeiled() { return !fowReady(); },
         // Viewport-centre zoom via the REAL clamp path (what triggers drive);
         // dt is seconds-at-rate, so large values pin against MIN/MAX.
         zoomBy(direction, dt) { zoomBy(direction, dt); },
@@ -240,10 +271,144 @@
       let latestSnapshot = null;
       let latestPings = null;
       let tileGrid = null;
+      // Height-tint overlay (shared/height-tint.js): per-level tile tints
+      // relative to the local player's height level. null until TileGrid lands.
+      let heightTint = null;
+      let heightLevel = 0;
       // Fog-of-war hover gate. Built from UI.Map.FowGrid (see shared/fow-lookup.js).
       // null = no fog data yet → fail open (never suppress the hover panel).
       let fowGrid = null;
       let latestPlayers = [];
+
+      // ---- fog readiness gate --------------------------------------
+      // The basemap must NEVER paint before the fog overlay. They are two
+      // independent fetches with no ordering guarantee, and the basemap wins for
+      // two reasons: (1) #world-tex declares its src in the template, so the
+      // request is issued the moment the overlay HTML is inserted, while the fog
+      // request is only issued when the sticky UI.Map.Fow handler runs at the END
+      // of mount(); (2) the 'fow' runtime source only exists once the first FOW
+      // texture has been generated, so early on it can 404 while the basemap —
+      // baked during worldgen — already resolves. Result: opening the map showed
+      // a fully-revealed world for a beat, exposing unexplored ground. Until real
+      // fog pixels are on screen, #fow-veil covers every layer with the same
+      // opaque black the fog paints over unexplored.
+      //
+      // The gate fails CLOSED while fog status is unknown: not-yet-known is the
+      // same risk as not-yet-loaded. It opens on exactly four conditions —
+      //   1. fog pixels are painted (the normal case, well under a frame or two)
+      //   2. the fog overlay is hidden by the SetFogOfWarVisible cheat
+      //   3. the grace window expired with no fog broadcast at all → fog is off
+      //      for this session (worldgen disabled / dev map), so a fog-less world
+      //      never sits behind a black square forever
+      //   4. the fetch ladder gave up → fog is broken; a permanently black map
+      //      would be worse than an unfogged one (logged loudly)
+      // Fog counts as "in play" once a UI.Map.Fow / UI.Map.FowGrid broadcast has
+      // been seen; both are sticky, so a late mount replays the last one
+      // synchronously and condition 3 never fires in a real fogged session.
+      const FOW_ASSUME_OFF_MS = 3000;
+      const FOW_RETRY_MS = 750;
+      const FOW_MAX_RETRIES = 6;
+      let fowExpected = false;      // a fog broadcast has been seen
+      let fowPainted = false;       // fog pixels are in the #fow-tex canvas
+      let fowGraceExpired = false;  // grace window elapsed (see condition 3)
+      let fowFetchGaveUp = false;   // retry ladder exhausted (see condition 4)
+      let fowGateOverridden = false; // test seam (__tsicMap.disableFogGate)
+      let fowStale = false;         // fog changed while the screen was hidden
+      let fowGen = 0;               // stale-guard for out-of-order fetches
+      let fowInFlight = false;
+      let fowRetries = 0;
+      let fowRetryTimer = null;
+
+      // Blit the decoded fog PNG into the #fow-tex canvas. A canvas (not an
+      // <img>) is the fog layer precisely because assigning a new .src to a live
+      // <img> clears its pixels for the whole fetch+decode — every fog regen
+      // would blank the fog layer for a few frames and flash the whole
+      // unexplored world (the same trap hud-minimap.js documents in reloadFow).
+      function paintFow(img) {
+        const cvs = qs('#fow-tex');
+        if (!cvs) return false;
+        if (cvs.width !== img.naturalWidth || cvs.height !== img.naturalHeight) {
+          cvs.width = img.naturalWidth;
+          cvs.height = img.naturalHeight;
+        }
+        const c2d = cvs.getContext('2d');
+        if (!c2d) return false;
+        c2d.clearRect(0, 0, cvs.width, cvs.height);
+        c2d.drawImage(img, 0, 0);
+        fowPainted = true;
+        applyFowGate();
+        return true;
+      }
+
+      // Fetch the current fog texture off-DOM and blit it once decoded. The
+      // runtime image source only resolves after the C++ side registers it, so a
+      // failed fetch retries a few times instead of leaving the map veiled.
+      function reloadFow() {
+        if (fowRetryTimer) { clearTimeout(fowRetryTimer); fowRetryTimer = null; }
+        fowStale = false;
+        fowInFlight = true;
+        const gen = ++fowGen;
+        const next = new Image();
+        // A zero-sized "successful" load is an empty response from the scheme
+        // handler (the runtime source exists but has no pixels yet) — treat it
+        // as a failure so the retry ladder keeps trying instead of latching a
+        // blank fog layer over a revealed basemap.
+        const onFail = () => {
+          if (gen !== fowGen) return;
+          fowInFlight = false;
+          if (fowRetries++ >= FOW_MAX_RETRIES) {
+            console.warn('[map] fog texture never loaded — revealing basemap unfogged');
+            fowFetchGaveUp = true;
+            applyFowGate();
+            return;
+          }
+          fowRetryTimer = setTimeout(() => { fowRetryTimer = null; reloadFow(); }, FOW_RETRY_MS);
+        };
+        next.onload = () => {
+          if (gen !== fowGen) return;   // a newer refresh already won
+          if (!next.naturalWidth || !next.naturalHeight || !paintFow(next)) { onFail(); return; }
+          fowInFlight = false;
+          fowRetries = 0;
+        };
+        next.onerror = onFail;
+        next.src = TSIC.runtimeImgUrl('fow') + '?t=' + Date.now();
+      }
+
+      // Fog refreshes are only worth fetching while the map is on screen: the
+      // scheme handler re-encodes the runtime texture to PNG on every fetch, and
+      // UI.Map.Fow fires on every regen (constantly while walking). Coalesce to
+      // one refresh on show. Previously-painted fog stays up meanwhile — only
+      // exploration adds revealed cells, so a stale copy reveals LESS than the
+      // truth and cannot leak. (ClearFogOfWar is the one exception: a cheat that
+      // shrinks the revealed area shows the older, MORE revealed fog until the
+      // refresh lands a fraction of a second later.)
+      function onFowBroadcast() {
+        fowExpected = true;
+        if (!ctx.isVisible()) {
+          fowStale = true;
+          applyFowGate();
+          return;
+        }
+        reloadFow();
+      }
+
+      function fowReady() {
+        if (fowGateOverridden || fowPainted || fowFetchGaveUp) return true;
+        // The fog overlay hidden by the SetFogOfWarVisible cheat has nothing to
+        // wait for. Checked via the same style.display flag fowOverlayVisible()
+        // reads, but tolerant of being called before the DOM query resolves.
+        const cvs = qs('#fow-tex');
+        if (cvs && cvs.style.display === 'none') return true;
+        // Unknown (no broadcast yet) stays closed until the grace window ends.
+        // A broadcast arriving later re-closes the gate until pixels land.
+        return fowGraceExpired && !fowExpected;
+      }
+
+      function applyFowGate() {
+        const veil = qs('#fow-veil');
+        if (!veil) return;
+        veil.style.display = fowReady() ? 'none' : 'block';
+      }
 
       function svgEl(tag, attrs) {
         const e = document.createElementNS('http://www.w3.org/2000/svg', tag);
@@ -315,7 +480,7 @@
           c.style.padding = `${pad}px`;
           c.style.width  = `${w}px`;
           c.style.height = `${h}px`;
-          for (const id of ['world-tex', 'fow-tex', 'debug-height-tex', 'debug-maze-tex', 'debug-all-tex']) {
+          for (const id of ['world-tex', 'height-tint-tex', 'fow-tex', 'debug-height-tex', 'debug-maze-tex', 'debug-all-tex']) {
             const img = qs('#' + id);
             if (!img) continue;
             img.style.width  = `${w}px`;
@@ -768,7 +933,7 @@
       }
 
       function onTileGrid(p) {
-        if (!p || !p.WorldSize || p.WorldSize <= 0) { tileGrid = null; return; }
+        if (!p || !p.WorldSize || p.WorldSize <= 0) { tileGrid = null; heightTint = null; return; }
         const total = (p.WorldSize | 0) * (p.WorldSize | 0);
         tileGrid = {
           worldSize: p.WorldSize | 0,
@@ -782,8 +947,33 @@
           biomes:  expandRLE(p.BiomeRLE,  total),
           heights: expandRLE(p.HeightRLE, total),
         };
+        const HT = window.TSICHeightTint;
+        heightTint = HT ? HT.build(p) : null;
+        if (heightTint && HT) HT.prebuild(heightTint);
+        updateHeightTintLayer();
         // Repaint markers so newly-arrived biome colours apply.
         if (ctx.isVisible() && latestSnapshot) rerenderSoon();
+      }
+
+      // Blit the cached tint canvas for the player's current level into the
+      // overlay layer. The display canvas is 1px/tile; CSS stretches it over
+      // the map with pixelated sampling (see setBounds).
+      function updateHeightTintLayer() {
+        const cvs = qs('#height-tint-tex');
+        if (!cvs) return;
+        const HT = window.TSICHeightTint;
+        const src = (heightTint && HT) ? HT.getCanvas(heightTint, heightLevel) : null;
+        if (!src) {
+          if (cvs.width > 0) cvs.getContext('2d').clearRect(0, 0, cvs.width, cvs.height);
+          return;
+        }
+        if (cvs.width !== src.width || cvs.height !== src.height) {
+          cvs.width = src.width;
+          cvs.height = src.height;
+        }
+        const c2d = cvs.getContext('2d');
+        c2d.clearRect(0, 0, cvs.width, cvs.height);
+        c2d.drawImage(src, 0, 0);
       }
 
       function tileAt(wx, wy) {
@@ -856,6 +1046,11 @@
         const chip = qs('#hover-chip');
         const vp = qs('#map-viewport');
         if (!chip || !vp || !bounds.hasData) { hideHoverChip(); return; }
+        // The chip lives outside #map-content, so it draws OVER the fog veil —
+        // it would happily label tiles and POIs the veil is busy hiding. The
+        // per-cell fowGrid gate below can't cover this: it fails open until the
+        // grid arrives, which is exactly the window the veil exists for.
+        if (!fowReady()) { hideHoverChip(); return; }
         let cx, cy;
         if (state.isPad) { cx = vp.clientWidth / 2; cy = vp.clientHeight / 2; }
         else { if (state.mouseX < 0) { hideHoverChip(); return; } cx = state.mouseX; cy = state.mouseY; }
@@ -951,6 +1146,13 @@
       function onSnapshot(p) {
         latestSnapshot = p;
         if (p) setBounds(p.MinBounds, p.MaxBounds);
+        // Players[0] is the local player; retint the height overlay when their
+        // height level changes (elevators, stairs, ramps).
+        const me = p && Array.isArray(p.Players) ? p.Players[0] : null;
+        if (me && typeof me.HeightLevel === 'number' && me.HeightLevel !== heightLevel) {
+          heightLevel = me.HeightLevel | 0;
+          updateHeightTintLayer();
+        }
         if (ctx.isVisible()) rerender();
       }
       function onPingSet(p) {
@@ -1128,18 +1330,24 @@
       ctx.on('tsic.msg.UI.Map.Snapshot', onSnapshot);
       ctx.on('tsic.msg.UI.Map.TileGrid', onTileGrid);
       ctx.on('tsic.msg.UI.Ping.Set', onPingSet);
-      ctx.on('tsic.msg.UI.Map.Fow', () => {
-        const img = qs('#fow-tex');
-        if (img) img.src = TSIC.runtimeImgUrl('fow') + '?t=' + Date.now();
-      });
+      ctx.on('tsic.msg.UI.Map.Fow', onFowBroadcast);
       ctx.on('tsic.msg.UI.Map.FowGrid', (p) => {
         fowGrid = window.TSICFow ? window.TSICFow.build(p) : null;
+        // FowGrid ships with every fog regen, so it proves fog is in play even
+        // if the texture message was missed.
+        fowExpected = true;
+        applyFowGate();
         if (ctx.isVisible()) updateHoverChip();
       });
       ctx.on('tsic.msg.Cheats.Map.Fow.Visibility', (p) => {
-        const img = qs('#fow-tex');
-        if (!img) return;
-        img.style.display = (p && p.bVisible === false) ? 'none' : '';
+        const cvs = qs('#fow-tex');
+        if (!cvs) return;
+        cvs.style.display = (p && p.bVisible === false) ? 'none' : '';
+        applyFowGate();
+        // Both hover gates (the veil gate and the per-cell fowGrid gate) key off
+        // this flag, so the chip has to be recomputed rather than waiting for the
+        // next mouse move.
+        if (ctx.isVisible()) updateHoverChip();
       });
       ctx.on('tsic.debug.Map.Overlay', (p) => {
         if (!p || !p.Layer) return;
@@ -1178,11 +1386,30 @@
       }
       ctx.on('tsic.msg.UI.Cheat.Catalog', () => { cheatEnabled = true; updateHint(); });
 
+      // Veil until fog pixels land (sticky UI.Map.Fow above may already have
+      // kicked the fetch off), and give up on fog if no broadcast ever arrives.
+      applyFowGate();
+      setTimeout(() => {
+        fowGraceExpired = true;
+        applyFowGate();
+      }, FOW_ASSUME_OFF_MS);
+
+      // onShow() runs outside this closure; hand it the per-mount refresh.
+      onShowHook = () => {
+        // A fresh open re-arms the retry ladder: a session that gave up on the
+        // fog source earlier should try again rather than stay unfogged forever.
+        // fowFetchGaveUp stays latched so the veil doesn't flicker back on.
+        fowRetries = 0;
+        if (fowStale || (fowExpected && !fowPainted && !fowInFlight)) reloadFow();
+        applyFowGate();
+      };
+
       buildLegend();
     },
 
     onShow(/* params, ctx */) {
       if (window.tsic && window.tsic.playSound) window.tsic.playSound('Map.Open', 0.4);
+      if (onShowHook) onShowHook();
       // Force a refit on show so the map fills the viewport correctly after
       // any prior overlay's display:none changed layout dimensions.
       // Defer to next frame so the container has actual rect dimensions.

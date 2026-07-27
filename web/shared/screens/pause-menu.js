@@ -73,6 +73,7 @@
   TSIC.registerScreen('PauseMenu', {
     inputModeTag: 'InputMode.Menu.Pause',
     cancelCmd: 'UI.Cmd.Pause.Resume',
+    screenSound: false, // plays its own Pause.Open / Pause.Close
     actionBarContext: [
       { ActionName: 'IA_UI_CancelBack', Label: 'Resume', Priority: 1000 },
     ],

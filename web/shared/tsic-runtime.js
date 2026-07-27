@@ -31,8 +31,40 @@
         t.resume       = () => t.publishMessage('UI.Cmd.Pause.Resume', {});
         t.quitToMenu   = () => t.publishMessage('UI.Cmd.Pause.QuitToMenu', {});
         t.closeScreen  = () => t.publishMessage('UI.Cmd.GameScreen.Close', {});
-        t.playSound    = (key, vol) => t.publishMessage('UI.Cmd.Sound.Play',
-            { SoundKey: key, VolumeScale: typeof vol === 'number' ? vol : 1.0 });
+        let lastSoundAt = 0;
+        t.playSound    = (key, vol) => {
+            lastSoundAt = Date.now();
+            t.publishMessage('UI.Cmd.Sound.Play',
+                { SoundKey: key, VolumeScale: typeof vol === 'number' ? vol : 1.0 });
+        };
+
+        // ---- Generic control sounds -------------------------------------
+        // Delegated document-level listeners give every button-ish element a
+        // default click/hover sound without per-screen wiring. An element (or
+        // any ancestor) opts out with data-no-sfx. Explicit playSound calls
+        // win: the click layer skips its generic sound when something already
+        // played one this instant (target handlers run before this bubble
+        // listener), so e.g. a transfer button doesn't stack Click on top of
+        // Inventory.Transfer.
+        const SFX_SELECTOR = 'button, [role="button"]';
+        document.addEventListener('click', (ev) => {
+            const el = ev.target && ev.target.closest && ev.target.closest(SFX_SELECTOR);
+            if (!el || el.disabled || el.closest('[data-no-sfx]')) return;
+            if (Date.now() - lastSoundAt < 50) return;
+            t.playSound('UI.Click');
+        });
+        let lastHoverEl = null;
+        let lastHoverAt = 0;
+        document.addEventListener('mouseover', (ev) => {
+            const el = ev.target && ev.target.closest && ev.target.closest(SFX_SELECTOR);
+            if (!el || el === lastHoverEl) { if (!el) lastHoverEl = null; return; }
+            lastHoverEl = el;
+            if (el.disabled || el.closest('[data-no-sfx]')) return;
+            const now = Date.now();
+            if (now - lastHoverAt < 60) return;
+            lastHoverAt = now;
+            t.playSound('UI.Hover', 0.4);
+        });
 
         // ---- DOM helpers ------------------------------------------------
         t.qs  = (sel, root) => (root || document).querySelector(sel);

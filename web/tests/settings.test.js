@@ -244,6 +244,108 @@ TSICTestHarness.register({
 });
 
 TSICTestHarness.register({
+    name: 'Settings: video tab exposes quality preset, scalability, display and HDR rows',
+    file: '/screens/settings.html',
+    async run(ctx) {
+        await openGraphicsTab(ctx);
+        // Overall preset pins the C++ vocabulary; "custom" is echo-only but must
+        // be present so a mixed state has a label to land on.
+        const preset = ctx.doc.querySelector('button.tsic-dropdown[data-key="graphics.quality"]');
+        ctx.expect(preset ? null : 'missing graphics.quality preset row');
+        const presetOpts = JSON.parse(preset.getAttribute('data-tsic-options')).map(o => o.value);
+        for (const want of ['low', 'medium', 'high', 'epic', 'custom']) {
+            ctx.expect(presetOpts.indexOf(want) !== -1 ? null : 'missing preset option ' + want);
+        }
+        // Per-category scalability rows (GI/AA/resolution deliberately absent —
+        // owned by the Lumen / upscaler rows).
+        for (const cat of ['view_distance', 'shadows', 'textures', 'effects',
+                           'post_processing', 'foliage', 'shading', 'reflections']) {
+            const dd = ctx.doc.querySelector('button.tsic-dropdown[data-key="graphics.' + cat + '"]');
+            ctx.expect(dd ? null : 'missing scalability row graphics.' + cat);
+            const opts = JSON.parse(dd.getAttribute('data-tsic-options')).map(o => o.value);
+            ctx.expect(ctx.assert.eq(opts.join(','), 'low,medium,high,epic'));
+        }
+        // Display rows.
+        const wm = ctx.doc.querySelector('button.tsic-dropdown[data-key="video.window_mode"]');
+        ctx.expect(wm ? null : 'missing video.window_mode row');
+        ctx.expect(ctx.assert.eq(
+            JSON.parse(wm.getAttribute('data-tsic-options')).map(o => o.value).join(','),
+            'fullscreen,borderless,windowed'));
+        ctx.expect(ctx.doc.querySelector('[data-key="video.fullscreen"]')
+            ? 'video.fullscreen was replaced by video.window_mode and must not be offered' : null);
+        ctx.expect(ctx.assert.domExists(ctx.doc, 'button.tsic-dropdown[data-key="graphics.fps_limit"]'));
+        ctx.expect(ctx.assert.domExists(ctx.doc, 'input[type="range"][data-key="graphics.brightness"]'));
+        const fpsOpts = JSON.parse(ctx.doc.querySelector('button.tsic-dropdown[data-key="graphics.fps_limit"]')
+            .getAttribute('data-tsic-options')).map(o => o.value);
+        ctx.expect(fpsOpts.indexOf('0') !== -1 ? null : 'fps_limit must offer Unlimited ("0")');
+        // Toggles: motion blur + vsync render as field-toggles with no data-key,
+        // so assert via their group rows' labels.
+        const labels = Array.from(ctx.doc.querySelectorAll('#page .field > label')).map(l => l.textContent);
+        ctx.expect(labels.indexOf('Motion blur') !== -1 ? null : 'missing motion blur toggle');
+        ctx.expect(labels.indexOf('VSync') !== -1 ? null : 'missing VSync toggle');
+        ctx.expect(labels.indexOf('HDR output') !== -1 ? null : 'missing HDR toggle');
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Settings: window-mode pick publishes the C++ enum and opens the countdown',
+    file: '/screens/settings.html',
+    async run(ctx) {
+        await openGraphicsTab(ctx);
+        ctx.clearPublishes();
+        ctx.win.tsic.dropdown.set(
+            ctx.doc.querySelector('button.tsic-dropdown[data-key="video.window_mode"]'), 'windowed');
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Settings.Set',
+            { where: p => p.Key === 'video.window_mode' && p.ValueJson === '"windowed"' }));
+        // video.* is a display-mode change — the keep/revert countdown must open.
+        ctx.expect(ctx.assert.domExists(ctx.doc, '#settings-popover'));
+        ctx.doc.getElementById('popover-keep').click();
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Settings: video.hdr_supported=false prunes the HDR row only',
+    file: '/screens/settings.html',
+    async run(ctx) {
+        await openGraphicsTab(ctx);
+        ctx.inject('tsic.msg.UI.Settings.Value', { Key: 'video.hdr_supported', ValueJson: 'false' });
+        await ctx.waitFor(() => {
+            const labels = Array.from(ctx.doc.querySelectorAll('#page .field > label')).map(l => l.textContent);
+            return labels.indexOf('HDR output') === -1;
+        });
+        // Neighbours survive the prune.
+        ctx.expect(ctx.assert.domExists(ctx.doc, 'button.tsic-dropdown[data-key="video.window_mode"]'));
+        ctx.expect(ctx.assert.domExists(ctx.doc, 'button.tsic-dropdown[data-key="graphics.fps_limit"]'));
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Settings: gameplay tab exposes accessibility rows and no FOV slider',
+    file: '/screens/settings.html',
+    async run(ctx) {
+        await ctx.waitFor(() => Array.from(ctx.doc.querySelectorAll('.tsic-tab')).some(b => b.textContent === 'Gameplay'));
+        Array.from(ctx.doc.querySelectorAll('.tsic-tab')).find(b => b.textContent === 'Gameplay').click();
+        await ctx.waitFor(() => ctx.doc.querySelector('button.tsic-dropdown[data-key="accessibility.colorblind"]'));
+        // FOV is fixed at 90 by design — the slider must not come back.
+        ctx.expect(ctx.doc.querySelector('[data-key="gameplay.fov"]')
+            ? 'gameplay.fov must not be offered (FOV is fixed at 90)' : null);
+        const cb = ctx.doc.querySelector('button.tsic-dropdown[data-key="accessibility.colorblind"]');
+        ctx.expect(cb ? null : 'missing accessibility.colorblind row');
+        ctx.expect(ctx.assert.eq(
+            JSON.parse(cb.getAttribute('data-tsic-options')).map(o => o.value).join(','),
+            'off,deuteranopia,protanopia,tritanopia'));
+        const labels = Array.from(ctx.doc.querySelectorAll('#page .field > label')).map(l => l.textContent);
+        ctx.expect(labels.indexOf('Reduce screen shake') !== -1 ? null : 'missing reduce screen shake toggle');
+        // Picking a colorblind mode publishes the exact C++ enum string, no countdown.
+        ctx.clearPublishes();
+        ctx.win.tsic.dropdown.set(cb, 'deuteranopia');
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Settings.Set',
+            { where: p => p.Key === 'accessibility.colorblind' && p.ValueJson === '"deuteranopia"' }));
+        ctx.expect(ctx.doc.getElementById('settings-popover') ? 'accessibility keys must not open the countdown' : null);
+    },
+});
+
+TSICTestHarness.register({
     name: 'Settings: nvidia_caps pruning keeps already-received saved values',
     file: '/screens/settings.html',
     async run(ctx) {

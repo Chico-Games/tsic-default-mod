@@ -109,6 +109,7 @@
       root.classList.add('open');
       root.classList.remove('faded');
       tsic.publishMessage('UI.Cmd.Overlay.Push', { Name: 'ChatInput' });
+      try { tsic.playSound('Chat.Open', 0.5); } catch (e) {}
       publishRects();
       input.focus();
     }
@@ -118,6 +119,7 @@
       isOpen = false;
       root.classList.remove('open');
       input.value = '';
+      try { tsic.playSound('Chat.Close', 0.5); } catch (e) {}
       tsic.publishMessage('UI.Cmd.Overlay.Pop', { Name: 'ChatInput' });
       restoreRects();
       scheduleFade(CLOSE_FADE_MS);

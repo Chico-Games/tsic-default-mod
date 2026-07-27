@@ -20,8 +20,8 @@
     '  background: linear-gradient(180deg, rgba(58,40,34,0.62), rgba(14,9,8,0.70));',
     '  box-shadow: inset 0 1px 0 rgba(255,250,240,0.14), var(--shadow-block-sm);',
     '  display:flex; align-items:center; justify-content:center; overflow:hidden; }',
-    // Empty slots show a faint stomach silhouette (MDI, Apache-2.0; see
-    // /icons/stomach.svg) as a placeholder, dropped once an item fills the slot.
+    // Empty slots show a faint diamond marker (see /icons/stomach.svg) as a
+    // placeholder, dropped once an item fills the slot.
     '#hud-stomach .stomach-slot.empty { background-color: rgba(14,9,8,0.30); border-color: rgba(10,10,10,0.5); box-shadow:none;',
     '  background-image: url("/icons/stomach.svg"); background-repeat:no-repeat; background-position:center; background-size:60%; }',
     // Selected — this slot holds the same food as the currently-selected hotbar slot.

@@ -70,26 +70,68 @@
     '#hud-crosshair[data-cat="loot"] { --ch-t:1.8s; --ch-halo:6px; }',
     '#hud-crosshair[data-cat="shop"] { --ch-t:1.8s; --ch-halo:5px; }',
     '#hud-crosshair[data-cat="item"] { --ch-t:2s; --ch-halo:4px; }',
+    '#hud-crosshair[data-cat="cart"] { --ch-t:1.6s; --ch-halo:5px; }',
+    '#hud-crosshair[data-cat="elevator"] { --ch-t:2.2s; --ch-halo:4px; }',
+    '#hud-crosshair[data-cat="teleporter"] { --ch-t:1.2s; --ch-halo:6px; --ch-halo-a:0.32; }',
+    '#hud-crosshair[data-cat="cage"] { --ch-t:2.6s; --ch-halo:4px; }',
+    '#hud-crosshair[data-cat="summon"] { --ch-t:1s; --ch-halo:7px; --ch-halo-a:0.35; }',
+    '#hud-crosshair[data-cat="repair"] { --ch-t:1.9s; --ch-halo:4px; }',
+    '#hud-crosshair[data-cat="text"] { --ch-t:3s; --ch-halo:3px; --ch-halo-a:0.22; }',
+    // ONE palette for every category-tinted element (panel header, interaction
+    // rows, crosshair glyph). Classes set the variable; each consumer's base rule
+    // reads color:var(--cat-color,#fff) — so the tint follows the class without
+    // per-ID duplicate rules, and status rules that set color directly still win.
+    '.cat-crafting { --cat-color:#f0cd8a; }',
+    '.cat-production { --cat-color:#9fd4f0; }',
+    '.cat-plantable { --cat-color:#a9e2a0; }',
+    '.cat-storage { --cat-color:#d9c9f2; }',
+    '.cat-door { --cat-color:#c9d9ea; }',
+    '.cat-toggle { --cat-color:#f2e394; }',
+    '.cat-loot { --cat-color:#f2d3a4; }',
+    '.cat-shop { --cat-color:#a3e2d2; }',
+    '.cat-item { --cat-color:#e8e2d5; }',
+    '.cat-cart { --cat-color:#98d4c8; }',
+    '.cat-elevator { --cat-color:#d5e0a8; }',
+    '.cat-teleporter { --cat-color:#c5a8f0; }',
+    '.cat-cage { --cat-color:#f0a8b8; }',
+    '.cat-summon { --cat-color:#e89090; }',
+    '.cat-repair { --cat-color:#f0b878; }',
+    '.cat-text { --cat-color:#e8d8b0; }',
+    '.cat-interact { --cat-color:#e8e2d5; }',
     // Dragging ring — solid, suppresses the category halo while active.
     '#hud-crosshair.dragging { transform:scale(1.4); box-shadow:0 0 0 3px rgba(255,255,255,0.65); animation:none; }',
     '#hud-crosshair.hidden { display:none; }',
     // Drag hand — slightly transparent icon beside the (opaque) dot while the
     // look target is draggable; tightens while dragging. SVG built by hud-crosshair.js.
-    '#hud-crosshair-hand { position:fixed; left:calc(50% + 10px); top:50%; margin-top:-9px; width:18px; height:18px; color:#fff; opacity:0; pointer-events:none; z-index:20; transition:opacity 120ms ease, transform 120ms ease; filter:drop-shadow(0 1px 1px rgba(0,0,0,0.6)); }',
+    '#hud-crosshair-hand { position:fixed; left:calc(50% + 32px); top:50%; margin-top:-9px; width:18px; height:18px; color:#fff; opacity:0; pointer-events:none; z-index:20; transition:opacity 120ms ease, transform 120ms ease; filter:drop-shadow(0 1px 1px rgba(0,0,0,0.6)); }',
     '#hud-crosshair-hand.visible { opacity:0.55; }',
     '#hud-crosshair-hand.dragging { opacity:0.8; transform:scale(0.9); }',
     '#hud-crosshair-hand.hidden { display:none; }',
     '#hud-crosshair-hand svg { width:100%; height:100%; display:block; }',
+    // Category affordance sits nearest the dot; the hand (above) sits just beyond it.
+    '#hud-crosshair-cat { position:fixed; left:calc(50% + 10px); top:50%; margin-top:-8px; width:16px; height:16px; color:var(--cat-color,#fff); opacity:0; pointer-events:none; z-index:20; transition:opacity 120ms ease; filter:drop-shadow(0 1px 1px rgba(0,0,0,0.6)); }',
+    '#hud-crosshair-cat.visible { opacity:0.7; }',
+    '#hud-crosshair-cat.hidden { display:none; }',
+    '#hud-crosshair-cat svg { width:100%; height:100%; display:block; }',
     // Circular progress ring — throw charge / timed-ability progress. Lives in
     // the bottom-right behavior-bar panel (right-aligned under the interaction
     // prompt), not on the crosshair. Fill percent + colour from hud-circular-progress.js.
     '#hud-circular-progress { display:none; width:26px; height:26px; margin:6px 0 0 auto; border-radius:50%; background:conic-gradient(var(--cp-color,#fff) calc(var(--cp-p,0) * 1%), rgba(241,229,207,0.35) 0); mask:radial-gradient(circle, transparent 9px, #000 10px); -webkit-mask:radial-gradient(circle, transparent 9px, #000 10px); pointer-events:none; }',
     '#hud-circular-progress.active { display:block; }',
-    'body.hud-hidden #hud-chrome, body.hud-hidden #hud-health, body.hud-hidden #hud-stamina, body.hud-hidden #hud-stomach, body.hud-hidden #hud-conditions, body.hud-hidden #hud-crosshair, body.hud-hidden #hud-crosshair-hand, body.hud-hidden #hud-circular-progress, body.hud-hidden #bb-shell-gameplay, body.hud-hidden #hud-minimap, body.hud-hidden #hud-chunk-debug, body.hud-hidden #hud-hotbar, body.hud-hidden #ping-shell, body.hud-hidden #hud-low-health, body.hud-hidden #hud-hit-reaction, body.hud-hidden #hud-stealth, body.hud-hidden #hud-chat, body.hud-hidden #hud-voice, body.hud-hidden #hud-tutorial { display:none !important; }',
-    'body.hud-hide-health #hud-health, body.hud-hide-stamina #hud-stamina, body.hud-hide-stomach #hud-stomach, body.hud-hide-conditions #hud-conditions, body.hud-hide-crosshair #hud-crosshair, body.hud-hide-crosshair #hud-crosshair-hand, body.hud-hide-minimap #hud-minimap, body.hud-hide-actionbar #bb-shell-gameplay, body.hud-hide-interaction #interaction-prompt, body.hud-hide-hotbar #hud-hotbar, body.hud-hide-lowhealth #hud-low-health, body.hud-hide-hitreaction #hud-hit-reaction, body.hud-hide-stealth #hud-stealth, body.hud-hide-tutorial #hud-tutorial { display:none !important; }',
+    'body.hud-hidden #hud-chrome, body.hud-hidden #hud-health, body.hud-hidden #hud-stamina, body.hud-hidden #hud-stomach, body.hud-hidden #hud-conditions, body.hud-hidden #hud-crosshair, body.hud-hidden #hud-crosshair-hand, body.hud-hidden #hud-crosshair-cat, body.hud-hidden #hud-circular-progress, body.hud-hidden #bb-shell-gameplay, body.hud-hidden #hud-minimap, body.hud-hidden #hud-chunk-debug, body.hud-hidden #hud-hotbar, body.hud-hidden #ping-shell, body.hud-hidden #hud-low-health, body.hud-hidden #hud-hit-reaction, body.hud-hidden #hud-stealth, body.hud-hidden #hud-chat, body.hud-hidden #hud-voice, body.hud-hidden #hud-tutorial { display:none !important; }',
+    'body.hud-hide-health #hud-health, body.hud-hide-stamina #hud-stamina, body.hud-hide-stomach #hud-stomach, body.hud-hide-conditions #hud-conditions, body.hud-hide-crosshair #hud-crosshair, body.hud-hide-crosshair #hud-crosshair-hand, body.hud-hide-crosshair #hud-crosshair-cat, body.hud-hide-minimap #hud-minimap, body.hud-hide-actionbar #bb-shell-gameplay, body.hud-hide-interaction #interaction-prompt, body.hud-hide-hotbar #hud-hotbar, body.hud-hide-lowhealth #hud-low-health, body.hud-hide-hitreaction #hud-hit-reaction, body.hud-hide-stealth #hud-stealth, body.hud-hide-tutorial #hud-tutorial { display:none !important; }',
     '#bb-shell-gameplay { position:fixed; bottom:18px; right:24px; min-width:240px; max-width:calc(100vw - 48px); padding:8px 12px; color:#fff; pointer-events:none; z-index:20; font-family:Georgia,"Libre Baskerville",serif; text-shadow:0 1px 2px rgba(0,0,0,0.75); }',
     '#bb-shell-gameplay.hidden { display:none; }',
     '#bb-gameplay { display:flex; flex-direction:column; align-items:stretch; gap:0; }',
+    // Look-target block (name header + interaction verbs) pinned above the divider.
+    '#bb-target { display:flex; flex-direction:column; align-items:stretch; }',
+    '#bb-target.hidden { display:none; }',
+    // Furniture name header — the panel title when looking at interactable furniture.
+    // Tint rides the shared .cat-* palette via --cat-color.
+    '#bb-target-name { text-align:right; font-size:15px; font-weight:700; color:var(--cat-color,#fff); letter-spacing:0.04em; margin-bottom:2px; }',
+    '#bb-target-name.hidden { display:none; }',
+    '#bb-target-name .cat-icon { display:inline-block; width:14px; height:14px; margin-right:6px; vertical-align:-2px; }',
+    '#bb-target-name .cat-icon svg { width:100%; height:100%; display:block; }',
     '.bb-row { display:flex; justify-content:flex-end; align-items:center; gap:6px; font-size:11px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color:#fff; }',
     '.bb-row[data-status="cooldown"] { color:#f5d34a; }',
     '.bb-row[data-status="blocked"] { color:#e8a0a0; }',
@@ -103,26 +145,22 @@
     '.bb-sub { font-size:9px; font-weight:400; letter-spacing:0.04em; text-transform:none; }',
     '#bb-divider { height:1px; background:#fff; margin:6px 0; }',
     '#bb-divider.hidden { display:none; }',
-    '#interaction-prompt { text-align:right; font-size:13px; font-weight:700; color:#fff; letter-spacing:0.06em; text-transform:uppercase; }',
+    // Furniture-scoped interaction rows — rendered like input-action rows (verb
+    // left, key chip right) so the furniture's own actions read as the TOP of the
+    // input-action list. Tint rides the shared .cat-* palette via --cat-color.
+    '#interaction-prompt { display:flex; justify-content:flex-end; align-items:center; gap:6px; font-size:13px; font-weight:700; color:var(--cat-color,#fff); letter-spacing:0.06em; text-transform:uppercase; }',
     '#interaction-prompt.hidden { display:none; }',
-    // Category symbol + tint on the interaction prompt (hud-interaction.js stamps
+    // Category symbol on the interaction rows (hud-interaction.js stamps
     // .cat-<category> and builds the inline SVG, which inherits currentColor).
-    '#interaction-prompt .cat-icon { display:inline-block; width:13px; height:13px; margin-right:6px; vertical-align:-2px; }',
-    '#interaction-prompt .cat-icon svg { width:100%; height:100%; display:block; }',
-    '#interaction-prompt.cat-crafting { color:#f0cd8a; }',
-    '#interaction-prompt.cat-production { color:#9fd4f0; }',
-    '#interaction-prompt.cat-plantable { color:#a9e2a0; }',
-    '#interaction-prompt.cat-storage { color:#d9c9f2; }',
-    '#interaction-prompt.cat-door { color:#c9d9ea; }',
-    '#interaction-prompt.cat-toggle { color:#f2e394; }',
-    '#interaction-prompt.cat-loot { color:#f2d3a4; }',
-    '#interaction-prompt.cat-shop { color:#a3e2d2; }',
-    '#interaction-prompt.cat-item { color:#e8e2d5; }',
+    '#interaction-prompt .cat-icon, #interaction-hold-prompt .cat-icon { display:inline-flex; width:13px; height:13px; }',
+    '#interaction-prompt .cat-icon svg, #interaction-hold-prompt .cat-icon svg { width:100%; height:100%; display:block; }',
     // Non-available option (single-use already used / blocked / cooldown): dim + strike, overrides the category tint.
     '#interaction-prompt.interaction-disabled { color:rgba(190,190,190,0.4) !important; text-decoration:line-through; }',
     '#interaction-prompt.interaction-disabled .cat-icon { opacity:0.4; }',
-    '#interaction-hold-prompt { text-align:right; font-size:10px; font-weight:600; color:rgba(255,255,255,0.75); letter-spacing:0.06em; text-transform:uppercase; }',
+    '#interaction-hold-prompt { display:flex; justify-content:flex-end; align-items:center; gap:6px; font-size:11px; font-weight:700; color:var(--cat-color,#fff); letter-spacing:0.06em; text-transform:uppercase; opacity:0.85; }',
     '#interaction-hold-prompt.hidden { display:none; }',
+    // "HOLD" qualifier chip on the hold-interact row.
+    '.bb-hold-tag { font-size:8px; font-weight:700; letter-spacing:0.1em; border:1px solid currentColor; border-radius:3px; padding:0 3px; opacity:0.8; }',
     // Minimap — circular HUD badge. Frame matches the ping wheel: heavy ink ring
     // + soft drop shadow. The ink ring is an INSET shadow (not a real border) so
     // the content box stays a full 180px = the canvas buffer, keeping the player
@@ -180,6 +218,9 @@
 
     document.body.appendChild(el('div', { id: 'hud-crosshair' }));
     document.body.appendChild(el('div', { id: 'hud-crosshair-hand' }));
+    // Second crosshair affordance: the look target's category glyph (loot/storage/
+    // door/…), tinted per category. Driven by hud-crosshair.js.
+    document.body.appendChild(el('div', { id: 'hud-crosshair-cat' }));
 
     var minimap = el('div', { id: 'hud-minimap' });
     minimap.appendChild(el('img', { id: 'minimap-tex', src: '/runtime/world-map.imgsrc' }));
@@ -196,9 +237,15 @@
     document.body.appendChild(chunkDebug);
 
     var bbShell = el('div', { id: 'bb-shell-gameplay', class: 'bb-shell hidden' });
-    bbShell.appendChild(el('div', { id: 'bb-gameplay' }));
+    // Look-target block sits at the TOP: furniture name header, then the
+    // interaction verb(s). hud-interaction.js drives it from UI.Interaction.Targets.
+    var bbTarget = el('div', { id: 'bb-target', class: 'hidden' });
+    bbTarget.appendChild(el('div', { id: 'bb-target-name', class: 'hidden' }));
+    bbTarget.appendChild(el('div', { id: 'interaction-prompt', class: 'hidden' }));
+    bbShell.appendChild(bbTarget);
     bbShell.appendChild(el('div', { id: 'bb-divider', class: 'hidden' }));
-    bbShell.appendChild(el('div', { id: 'interaction-prompt', class: 'hidden' }));
+    // General input-action rows (hud-behavior-bar.js) render below the target block.
+    bbShell.appendChild(el('div', { id: 'bb-gameplay' }));
     // Progress ring (interact holds + throw charge) sits at the panel's bottom edge.
     bbShell.appendChild(el('div', { id: 'hud-circular-progress' }));
     document.body.appendChild(bbShell);
@@ -296,6 +343,7 @@
     loadScript('/shared/hud-crosshair.js');
     loadScript('/shared/hud-circular-progress.js');
     loadScript('/shared/hud-interaction.js');
+    loadScript('/shared/hud-upgrade.js');      // hammer look-at upgrade cost readout
     loadScript('/shared/hud-behavior-bar.js');
     loadScript('/shared/hud-construction-carousel.js');
     loadScript('/shared/hud-minimap.js');

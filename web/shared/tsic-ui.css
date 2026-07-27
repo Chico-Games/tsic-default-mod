@@ -266,10 +266,25 @@ button.tsic-list-row {
 }
 .tsic-button-row--start   { justify-content: flex-start; }
 
+/* Never shrink: inside .tsic-panel--screen (a flex column with overflow:hidden) a greedy
+ * sibling would otherwise squeeze the close row to nothing and the player loses the
+ * only visible way out of the screen. */
 .tsic-close-row {
     display: flex;
     justify-content: flex-end;
     margin-top: 12px;
+    flex: 0 0 auto;
+}
+
+/* Host for a RecipeStation mounted inside a screen panel. The station appends a
+ * .tsic-split, whose `flex:1 1 auto; min-height:0` only sizes correctly when its parent
+ * is itself a flex column — a plain <div> host let the recipe list grow to content height
+ * and pushed the action button and close row out of the panel on long recipe lists. */
+.tsic-station-host {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
 }
 
 /* Magazine tab-bar — borderless section labels sitting on one heavy ink

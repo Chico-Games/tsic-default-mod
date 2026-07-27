@@ -17,11 +17,14 @@ TSICPlayground.register({
                         { Key: 'audio.master', Label: 'Master volume', Type: 'range', Min: 0, Max: 1, Step: 0.01, Value: 0.8 },
                         { Key: 'audio.music',  Label: 'Music volume',  Type: 'range', Min: 0, Max: 1, Step: 0.01, Value: 0.5 },
                         { Key: 'audio.sfx',    Label: 'SFX volume',    Type: 'range', Min: 0, Max: 1, Step: 0.01, Value: 0.7 },
+                        { Key: 'audio.menu_music', Label: 'Menu music volume', Type: 'range', Min: 0, Max: 1, Step: 0.01, Value: 0.8 },
                     ] },
                 ] },
                 { Id: 'VideoCollection', Title: 'Video', Groups: [
                     { Id: 'Display', Title: 'Display', Settings: [
-                        { Key: 'video.fullscreen', Label: 'Fullscreen', Type: 'bool', Value: true },
+                        { Key: 'video.window_mode', Label: 'Window mode', Type: 'enum',
+                          Options: [{Value:'fullscreen',Label:'Fullscreen'},{Value:'borderless',Label:'Borderless window'},{Value:'windowed',Label:'Windowed'}],
+                          Value: 'borderless' },
                         { Key: 'video.resolution', Label: 'Resolution', Type: 'enum',
                           Options: [{Value:'1920x1080',Label:'1920x1080'},{Value:'2560x1440',Label:'2560x1440'},{Value:'3840x2160',Label:'3840x2160'}],
                           Value: '2560x1440' },
@@ -29,7 +32,6 @@ TSICPlayground.register({
                 ] },
                 { Id: 'GameplayCollection', Title: 'Gameplay', Groups: [
                     { Id: 'Controls', Title: 'Controls', Settings: [
-                        { Key: 'gameplay.fov',    Label: 'Field of view', Type: 'range', Min: 60, Max: 120, Step: 1, Value: 90 },
                         { Key: 'gameplay.inv_key',Label: 'Inventory key', Type: 'keybind',
                           Bindings: [{ Slot: 0, Display: 'Tab', Key: 'Tab' }] },
                     ] },
@@ -94,18 +96,8 @@ TSICPlayground.register({
         } },
         { label: 'Windowed 1080',     apply(s) {
             for (const p of s.catalog.Pages) for (const g of p.Groups) for (const f of g.Settings) {
-                if (f.Key === 'video.fullscreen') f.Value = false;
+                if (f.Key === 'video.window_mode') f.Value = 'windowed';
                 if (f.Key === 'video.resolution') f.Value = '1920x1080';
-            }
-        }, expect: { visualChange: false } },
-        { label: 'Wide FOV (110)',    apply(s) {
-            for (const p of s.catalog.Pages) for (const g of p.Groups) for (const f of g.Settings) {
-                if (f.Key === 'gameplay.fov') f.Value = 110;
-            }
-        }, expect: { visualChange: false } },
-        { label: 'Narrow FOV (60)',   apply(s) {
-            for (const p of s.catalog.Pages) for (const g of p.Groups) for (const f of g.Settings) {
-                if (f.Key === 'gameplay.fov') f.Value = 60;
             }
         }, expect: { visualChange: false } },
         { label: 'No keybind',        apply(s) {

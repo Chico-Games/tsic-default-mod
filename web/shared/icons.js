@@ -282,7 +282,46 @@
     return s;
   }
 
+  // Interaction-category stroke-icon paths (24×24 viewBox, inherit currentColor).
+  // Shared by the interaction panel header (hud-interaction.js) and the crosshair
+  // affordance (hud-crosshair.js) so a given category always draws the same glyph.
+  var CATEGORY_ICON_PATHS = {
+    crafting: ['m15 12-8.5 8.5a2.12 2.12 0 1 1-3-3L12 9', 'M17.64 15 22 10.64', 'm20.91 11.7-1.25-1.25c-.6-.6-.93-1.4-.93-2.25v-.86L16.01 4.6a5.56 5.56 0 0 0-3.94-1.64H9l.92.82A6.18 6.18 0 0 1 12 8.4v1.56l2 2h2.47l2.26 1.91'],
+    production: ['M12 2v3', 'M12 19v3', 'M2 12h3', 'M19 12h3', 'm4.9 4.9 2.1 2.1', 'm17 17 2.1 2.1', 'M19.1 4.9 17 7', 'm7 17-2.1 2.1', 'M12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6z'],
+    plantable: ['M7 20h10', 'M12 20v-6', 'M12 14c0-4 3-7 7-7 0 4-3 7-7 7z', 'M12 14c0-4-3-7-7-7 0 4 3 7 7 7z'],
+    storage: ['M3 8l9-5 9 5v8l-9 5-9-5z', 'M3 8l9 5 9-5', 'M12 13v8'],
+    door: ['M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16', 'M3 21h18', 'M15 12h.01'],
+    toggle: ['M12 2v8', 'M18.4 6.6a9 9 0 1 1-12.77.04'],
+    loot: ['M6 8h12l1.5 12a1.5 1.5 0 0 1-1.5 1.6H6A1.5 1.5 0 0 1 4.5 20z', 'M9 8a3 3 0 0 1 6 0'],
+    shop: ['M12 2H4v8l10 10 8-8z', 'M7.5 6.5h.01'],
+    item: ['M12 4v12', 'm7 11 5 5 5-5', 'M5 20h14'],
+    cart: ['M8 21a1 1 0 1 0 0-2 1 1 0 0 0 0 2z', 'M19 21a1 1 0 1 0 0-2 1 1 0 0 0 0 2z', 'M2 3h2l2.5 12.5a2 2 0 0 0 2 1.5h8.7a2 2 0 0 0 2-1.6L21 8H6'],
+    elevator: ['M5 3h14a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z', 'm8.5 10 3.5-4 3.5 4', 'm8.5 14 3.5 4 3.5-4'],
+    teleporter: ['M4 18c0 1.66 3.58 3 8 3s8-1.34 8-3-3.58-3-8-3-8 1.34-8 3z', 'M12 2v13', 'm8 11 4 4 4-4'],
+    cage: ['M5 21V8a7 7 0 0 1 14 0v13', 'M3 21h18', 'M9 10.5V21', 'M15 10.5V21', 'M12 8v13'],
+    summon: ['M12 4a8 8 0 1 0 0 16 8 8 0 0 0 0-16z', 'm12 7 1.5 3 3.5.5-2.5 2.5.5 3.5-3-1.5-3 1.5.5-3.5L7 10.5l3.5-.5z'],
+    repair: ['M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94z'],
+    text: ['M2 4h6a4 4 0 0 1 4 4v12a3 3 0 0 0-3-3H2z', 'M22 4h-6a4 4 0 0 0-4 4v12a3 3 0 0 1 3-3h7z'],
+    interact: ['M12 3l9 9-9 9-9-9z'],
+  };
+
+  // Build an <svg> glyph for an interaction category, or null when the category
+  // is unknown or the DOM helpers aren't loaded. Inherits currentColor so callers
+  // tint it by adding a .cat-<category> class on an ancestor.
+  function categoryIcon(cat, attrs) {
+    var paths = CATEGORY_ICON_PATHS[cat];
+    if (!paths || !window.TSIC || !TSIC.svg) return null;
+    var svg = TSIC.svg('svg', Object.assign({
+      viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor',
+      'stroke-width': '2', 'stroke-linecap': 'round', 'stroke-linejoin': 'round',
+    }, attrs || {}));
+    for (var i = 0; i < paths.length; i++) svg.appendChild(TSIC.svg('path', { d: paths[i] }));
+    return svg;
+  }
+
   window.TSIC = window.TSIC || {};
+  window.TSIC.CATEGORY_ICON_PATHS = CATEGORY_ICON_PATHS;
+  window.TSIC.categoryIcon = categoryIcon;
   window.TSIC.keyIconUrl = keyIconUrl;
   window.TSIC.itemIconUrl = itemIconUrl;
   window.TSIC.iconImg = iconImg;

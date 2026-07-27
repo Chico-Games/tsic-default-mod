@@ -131,10 +131,12 @@ TSICTestHarness.register({
             Recipes: [{ RecipeId: 'R', Name: 'R', bDiscovered: true, bStationLevelSufficient: true, Ingredients: [], Outputs: [] }],
             MaterialCounts: {},
         });
+        // No completed jobs here, so RemoveIndex == display position and ReorderIndex == the
+        // in-progress index (0 = active, immovable).
         ctx.inject('tsic.msg.UI.Recipe.QueueChanged', { Kind: 'Production', StationId: 'S_Sawmill', Entries: [
-            { RecipeId: 'R', QueueIndex: 0, Progress: 0.4, bIsActive: true  },
-            { RecipeId: 'R', QueueIndex: 1, Progress: 0,   bIsActive: false },
-            { RecipeId: 'R', QueueIndex: 2, Progress: 0,   bIsActive: false },
+            { RecipeId: 'R', QueueIndex: 0, Progress: 0.4, bIsActive: true,  bCompleted: false, RemoveIndex: 0, ReorderIndex: -1 },
+            { RecipeId: 'R', QueueIndex: 1, Progress: 0,   bIsActive: false, bCompleted: false, RemoveIndex: 1, ReorderIndex: 1 },
+            { RecipeId: 'R', QueueIndex: 2, Progress: 0,   bIsActive: false, bCompleted: false, RemoveIndex: 2, ReorderIndex: 2 },
         ]});
         await ctx.waitFor(() => ctx.doc.querySelectorAll('#p-queue .q-entry').length === 3);
         const entries = ctx.doc.querySelectorAll('#p-queue .q-entry');
@@ -272,9 +274,9 @@ TSICTestHarness.register({
             MaterialCounts: {},
         });
         ctx.inject('tsic.msg.UI.Recipe.QueueChanged', { Kind: 'Production', StationId: 'S_Sawmill', Entries: [
-            { RecipeId: 'R', QueueIndex: 0, Progress: 0.5, bIsActive: true  },
-            { RecipeId: 'R', QueueIndex: 1, Progress: 0,   bIsActive: false },
-            { RecipeId: 'R', QueueIndex: 2, Progress: 0,   bIsActive: false },
+            { RecipeId: 'R', QueueIndex: 0, Progress: 0.5, bIsActive: true,  bCompleted: false, RemoveIndex: 0, ReorderIndex: -1 },
+            { RecipeId: 'R', QueueIndex: 1, Progress: 0,   bIsActive: false, bCompleted: false, RemoveIndex: 1, ReorderIndex: 1 },
+            { RecipeId: 'R', QueueIndex: 2, Progress: 0,   bIsActive: false, bCompleted: false, RemoveIndex: 2, ReorderIndex: 2 },
         ]});
         await ctx.waitFor(() => ctx.doc.querySelectorAll('#p-queue .q-entry').length === 3);
         ctx.clearPublishes();
@@ -300,13 +302,85 @@ TSICTestHarness.register({
         ctx.screen('Production');
         ctx.inject('tsic.msg.UI.Recipe.StationOpened', { Kind: 'Production', StationId: 'S', Recipes: [], MaterialCounts: {} });
         ctx.inject('tsic.msg.UI.Recipe.QueueChanged', { Kind: 'Production', StationId: 'S', Entries: [
-            { RecipeId: 'R', QueueIndex: 0, Progress: 0.5, bIsActive: true  },
-            { RecipeId: 'R', QueueIndex: 1, Progress: 0,   bIsActive: false },
+            { RecipeId: 'R', QueueIndex: 0, Progress: 0.5, bIsActive: true,  bCompleted: false, RemoveIndex: 0, ReorderIndex: -1 },
+            { RecipeId: 'R', QueueIndex: 1, Progress: 0,   bIsActive: false, bCompleted: false, RemoveIndex: 1, ReorderIndex: 1 },
         ]});
         await ctx.waitFor(() => ctx.doc.querySelectorAll('#p-queue .q-entry').length === 2);
         const entries = ctx.doc.querySelectorAll('#p-queue .q-entry');
         ctx.expect(ctx.assert.eq(entries[0].draggable, false));
         ctx.expect(ctx.assert.eq(entries[1].draggable, true));
+    },
+});
+
+// ---- Completed jobs: Collect (not Cancel), correct RemoveIndex, not draggable -----
+// Regression guard for two bugs: a finished job's only action was "Cancel", and the page
+// reused the display position as the server remove index — but the server's remove space is
+// COMPLETED-first, so with a completed job present every cancel/collect hit the wrong entry.
+TSICTestHarness.register({
+    name: 'Production/Queue: completed job offers Collect with the completed-first RemoveIndex',
+    file: '/screens/production.html',
+    async run(ctx) {
+        ctx.screen('Production');
+        ctx.inject('tsic.msg.UI.Recipe.StationOpened', {
+            Kind: 'Production',
+            StationId: 'S_Sawmill',
+            Recipes: [{ RecipeId: 'R', Name: 'R', bDiscovered: true, bStationLevelSufficient: true, Ingredients: [], Outputs: [] }],
+            MaterialCounts: {},
+        });
+        // Display order is active-first; the single completed job sits last but owns
+        // RemoveIndex 0, and the two in-progress jobs are shifted by CompletedCount.
+        ctx.inject('tsic.msg.UI.Recipe.QueueChanged', { Kind: 'Production', StationId: 'S_Sawmill', Entries: [
+            { RecipeId: 'R', QueueIndex: 0, Progress: 0.4, bIsActive: true,  bCompleted: false, RemoveIndex: 1, ReorderIndex: -1 },
+            { RecipeId: 'R', QueueIndex: 1, Progress: 0,   bIsActive: false, bCompleted: false, RemoveIndex: 2, ReorderIndex: 1 },
+            { RecipeId: 'R', QueueIndex: 2, Progress: 1,   bIsActive: false, bCompleted: true,  RemoveIndex: 0, ReorderIndex: -1 },
+        ]});
+        await ctx.waitFor(() => ctx.doc.querySelectorAll('#p-queue .q-entry').length === 3);
+        const entries = ctx.doc.querySelectorAll('#p-queue .q-entry');
+
+        // The finished job reads as a reward, not a deletion, and cannot be dragged.
+        ctx.expect(ctx.assert.eq(entries[2].querySelector('.q-cancel').textContent, 'Collect'));
+        ctx.expect(ctx.assert.eq(entries[0].querySelector('.q-cancel').textContent, 'Cancel'));
+        ctx.expect(ctx.assert.eq(entries[2].draggable, false));
+
+        ctx.clearPublishes();
+        entries[2].querySelector('.q-cancel').click();
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Recipe.Cancel',
+            { where: p => p.QueueIndex === 0 }));
+
+        // ...and cancelling the in-progress row uses ITS shifted remove index, not its position.
+        ctx.clearPublishes();
+        entries[1].querySelector('.q-cancel').click();
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Recipe.Cancel',
+            { where: p => p.QueueIndex === 2 }));
+    },
+});
+
+// ---- Queued jobs are never masked as "???" -------------------------------------
+// The discovery mask belongs to the browsable recipe list; a job the player queued
+// themselves must name itself.
+TSICTestHarness.register({
+    name: 'Production/Queue: an undiscovered queued recipe still shows its real name',
+    file: '/screens/production.html',
+    async run(ctx) {
+        ctx.screen('Production');
+        ctx.setItemCatalog({ ID_Plank: { Name: 'Wooden Plank' } });
+        ctx.inject('tsic.msg.UI.Recipe.StationOpened', {
+            Kind: 'Production',
+            StationId: 'S',
+            Recipes: [{
+                RecipeId: 'R_Plank', Name: 'R_Plank',
+                bDiscovered: false, bStationLevelSufficient: true,
+                Ingredients: [], Outputs: [{ ItemId: 'ID_Plank', Name: 'Wooden Plank', Count: 1 }],
+            }],
+            MaterialCounts: {},
+        });
+        ctx.inject('tsic.msg.UI.Recipe.QueueChanged', { Kind: 'Production', StationId: 'S', Entries: [
+            { RecipeId: 'R_Plank', QueueIndex: 0, Progress: 0.3, bIsActive: true, bCompleted: false, RemoveIndex: 0, ReorderIndex: -1 },
+        ]});
+        await ctx.waitFor(() => ctx.doc.querySelectorAll('#p-queue .q-entry').length === 1);
+        const name = ctx.doc.querySelector('#p-queue .q-entry .name').textContent;
+        ctx.expect(ctx.assert.eq(name.includes('???'), false));
+        ctx.expect(ctx.assert.eq(name.includes('Wooden Plank'), true));
     },
 });
 

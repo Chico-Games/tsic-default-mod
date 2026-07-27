@@ -46,6 +46,8 @@
   var bounds = { minX: 0, minY: 0, maxX: 0, maxY: 0, hasData: false };
   var worldW = 0, worldH = 0;
   var scale = 1;
+  // Timestamp of the first snapshot with usable world bounds (see fogPending).
+  var drawableSince = 0;
 
   var targetLocal = { x: 0, y: 0 };
   var currentLocal = { x: 0, y: 0 };
@@ -67,6 +69,15 @@
   // The element may already be complete before this script runs, so seed
   // from it (the load listener below never fires for an already-loaded img).
   var fowDraw = (fow && fow.complete && fow.naturalWidth > 0) ? fow : null;
+  // Height-tint overlay (shared/height-tint.js): offscreen 1px/tile canvas for
+  // the local player's current height level. Pixel source only — never in DOM.
+  var tintStore = null;
+  var tintDraw = null;
+  var myLevel = 0;
+  function refreshTint() {
+    var HT = window.TSICHeightTint;
+    tintDraw = (tintStore && HT) ? HT.getCanvas(tintStore, myLevel) : null;
+  }
   // Test/debug hook: the Gauntlet DOM-assert seam reads the caught-up idle
   // state (no-redraw-at-rest contract), the FOW refresh count, and the fog
   // alpha at the player's own map position (a healthy minimap is always
@@ -74,6 +85,9 @@
   window.__tsicMinimap = {
     get animating() { return animating; },
     get fowMsgs() { return fowMsgs; },
+    // True while the basemap is being withheld because fog can't cover it yet
+    // (see fogPending below).
+    get fogPending() { return fogPending(); },
     sampleFowAtPlayer: function () {
       var img = fowDraw;
       if (!img || !img.naturalWidth || !worldW || !worldH) return 'n/a';
@@ -110,6 +124,11 @@
     worldH = (bounds.maxX - bounds.minX) * PX_PER_CM;
     var visibleRadius = Math.max(worldW, worldH) * ZOOM_FRACTION;
     scale = HALF / visibleRadius;
+    // Start the fog grace clock from the first frame the minimap could draw
+    // anything, not from HUD boot: the HUD exists long before worldgen finishes,
+    // so a boot-relative window expires while fog legitimately doesn't exist yet
+    // (see fogPending).
+    if (!drawableSince) drawableSince = Date.now();
   }
 
   function lerpAngle(from, to, t) {
@@ -119,16 +138,42 @@
     return from + diff * t;
   }
 
-  // Blit the visible window of a world-sized source image into the canvas.
-  // Source rect is in image pixels; local coords are 1px/cm, so rescale by
-  // the image's actual resolution relative to the world.
+  // Blit the visible window of a world-sized source into the canvas. Sources
+  // are <img> elements (naturalWidth) or offscreen canvases (width) — either
+  // way the source rect is in source pixels; local coords are 1px/cm, so
+  // rescale by the source's actual resolution relative to the world.
   function drawLayer(img, lx, ly, viewR) {
-    if (!img || !img.naturalWidth || !worldW || !worldH) return;
-    var kx = img.naturalWidth / worldW;
-    var ky = img.naturalHeight / worldH;
+    if (!img || !worldW || !worldH) return;
+    var sw = img.naturalWidth || img.width || 0;
+    var sh = img.naturalHeight || img.height || 0;
+    if (!sw || !sh) return;
+    var kx = sw / worldW;
+    var ky = sh / worldH;
     ctx.drawImage(img,
       (lx - viewR) * kx, (ly - viewR) * ky, 2 * viewR * kx, 2 * viewR * ky,
       0, 0, SIZE, SIZE);
+  }
+
+  // True while the fog layer is expected but its pixels aren't decoded yet. The
+  // basemap must not be blitted in that window: world-map and fow are separate
+  // fetches with no ordering guarantee, and the 'fow' runtime source only exists
+  // once the first FOW texture has been generated — so at HUD boot it can 404
+  // (retried below) while the basemap, baked during worldgen, already resolves.
+  // The minimap then briefly showed unexplored ground. Fog counts as "expected"
+  // once any UI.Map.Fow broadcast has been seen — plus a grace window, since the
+  // first snapshot can beat the first fog broadcast. No fog at all (worldgen
+  // disabled / dev map) resolves to "not expected" and the basemap draws.
+  var FOW_ASSUME_OFF_MS = 3000;
+  var fowSeen = false;
+  var fowAssumedOff = false;
+  function fogPending() {
+    if (fowDraw && fowDraw.naturalWidth > 0) return false;
+    if (!fow || fow.style.display === 'none') return false; // fog hidden by cheat
+    if (fowAssumedOff) return false;
+    if (fowSeen) return true;
+    // Unknown: fail closed until the grace window (measured from first drawable
+    // frame) expires, then treat fog as off for this session.
+    return !drawableSince || (Date.now() - drawableSince) < FOW_ASSUME_OFF_MS;
   }
 
   function render() {
@@ -136,11 +181,18 @@
     var lx = currentLocal.x;
     var ly = currentLocal.y;
     var viewR = HALF / scale;
+    // Fully fogged is the honest default: draw no world pixels at all until the
+    // fog layer can cover them. Player markers still draw (positions the HUD
+    // already shares) so the minimap doesn't look dead.
+    var pending = fogPending();
 
     ctx.clearRect(0, 0, SIZE, SIZE);
-    drawLayer(tex, lx, ly, viewR);
+    if (!pending) drawLayer(tex, lx, ly, viewR);
+    // Height tint (above/below the player's level) sits over the basemap but
+    // under fog — fogged tiles stay uniformly fogged.
+    if (!pending && tintDraw) drawLayer(tintDraw, lx, ly, viewR);
     // fow.style.display doubles as the SetFogOfWarVisible cheat flag (hud.js)
-    if (fow && fow.style.display !== 'none') drawLayer(fowDraw, lx, ly, viewR);
+    if (!pending && fow && fow.style.display !== 'none') drawLayer(fowDraw, lx, ly, viewR);
 
     for (var i = 1; i < players.length; i++) {
       var pl = players[i];
@@ -233,7 +285,17 @@
 
   tsic.on('tsic.msg.UI.Map.Fow', function () {
     fowMsgs++;
+    fowSeen = true;
     reloadFow();
+  });
+
+  // Sticky channel: a late-subscribing HUD replays the last TileGrid payload.
+  tsic.on('tsic.msg.UI.Map.TileGrid', function (p) {
+    var HT = window.TSICHeightTint;
+    tintStore = HT ? HT.build(p) : null;
+    if (tintStore && HT) HT.prebuild(tintStore);
+    refreshTint();
+    render();
   });
 
   // The world-map and fow image sources register only after their async
@@ -245,16 +307,24 @@
   // UI.Map.Fow bridge message is cached, so a late-subscribing page replays
   // the last regen and the handler below refetches.)
   var texRetryAt = 0;
+  var fowRetries = 0;
   function retryFailedImg(img, name, now) {
-    if (!img || !img.complete || img.naturalWidth > 0) return;
+    if (!img || !img.complete || img.naturalWidth > 0) return false;
     img.src = TSIC.runtimeImgUrl(name) + '?t=' + now;
+    return true;
   }
   function ensureTexLoaded() {
     var now = Date.now();
     if (now < texRetryAt) return;
     texRetryAt = now + 2000;
     retryFailedImg(tex, 'world-map', now);
-    retryFailedImg(fow, 'fow', now);
+    if (!retryFailedImg(fow, 'fow', now)) return;
+    // Bounded: a fog source that never resolves must not veil the minimap for
+    // the rest of the session (see fogPending) — after ~20s, draw the basemap.
+    if (++fowRetries >= 10 && !fowAssumedOff) {
+      console.warn('[minimap] fog texture never loaded — drawing basemap unfogged');
+      fowAssumedOff = true;
+    }
   }
 
   tsic.on('tsic.msg.UI.Map.Snapshot', function (p) {
@@ -271,6 +341,12 @@
       targetLocal.x = pos.x;
       targetLocal.y = pos.y;
       targetYaw = me.YawDeg || 0;
+      var lvl = (typeof me.HeightLevel === 'number') ? (me.HeightLevel | 0) : myLevel;
+      if (lvl !== myLevel) {
+        myLevel = lvl;
+        refreshTint();
+        render();
+      }
       if (firstSnapshot) {
         currentLocal.x = targetLocal.x;
         currentLocal.y = targetLocal.y;

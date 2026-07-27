@@ -26,13 +26,16 @@
     [data-screen="Production"] .q-bar > div { height:100%; background:#7fd4ff; transition: width 0.15s; }
     [data-screen="Production"] .q-bar.active > div { background:#7fffae; }
     [data-screen="Production"] .q-cancel { padding: 2px 8px; font-size:10px; min-height: 22px; }
+    /* Collect reads as the reward action, not the destructive one. */
+    [data-screen="Production"] .q-collect { font-weight:700; }
+    [data-screen="Production"] .q-entry.is-done { background: rgba(127,255,174,0.18); }
   `;
 
   const TEMPLATE = `
     <div id="p-root" class="tsic-modal-scrim">
       <div id="p-panel" class="tsic-panel tsic-panel--screen">
         <div id="p-header">
-          <h2 class="tsic-title" style="margin:0;">Production</h2>
+          <h2 class="tsic-title" id="p-title" style="margin:0;">Production</h2>
           <div id="p-throb">PRODUCING…</div>
         </div>
 
@@ -92,7 +95,6 @@
         const host = root.querySelector('#p-list');
         host.innerHTML = '';
         if (!lastStation) return;
-        const cat = window.tsic.itemCatalog || {};
         const recipes = lastStation.Recipes || [];
         if (recipes.length === 0) {
           host.appendChild(Object.assign(document.createElement('div'), { className: 'tsic-empty', textContent: 'No recipes available.' }));
@@ -115,9 +117,7 @@
 
           const name = document.createElement('div');
           name.className = 'name';
-          name.textContent = r.bDiscovered
-            ? ((cat[(r.Outputs[0] || {}).ItemId] || {}).Name || r.Name)
-            : '???';
+          name.textContent = window.TSICRecipeInfo.displayName(r);
           row.appendChild(name);
 
           const right = document.createElement('div');
@@ -156,7 +156,6 @@
         const host = root.querySelector('#p-queue');
         host.innerHTML = '';
         barByIndex = new Map();
-        const cat = window.tsic.itemCatalog || {};
         const recipesById = {};
         for (const r of ((lastStation && lastStation.Recipes) || [])) recipesById[r.RecipeId] = r;
         if (queue.length === 0) {
@@ -164,11 +163,15 @@
         }
         for (const e of queue) {
           const div = document.createElement('div');
-          div.className = 'q-entry' + (e.bIsActive ? ' is-active' : '');
+          div.className = 'q-entry' + (e.bIsActive ? ' is-active' : '') + (e.bCompleted ? ' is-done' : '');
           div.dataset.queueIndex = String(e.QueueIndex);
           const r = recipesById[e.RecipeId];
-          const itemId = r ? (r.Outputs[0] || {}).ItemId : '';
-          const name = (cat[itemId] || {}).Name || e.RecipeId;
+          // A queued recipe is by definition one the player has already started, so name it
+          // even if the station snapshot hasn't arrived yet — and never mask it behind the
+          // discovery "???", which only makes sense for the browsable recipe LIST.
+          const name = r
+            ? window.TSICRecipeInfo.displayNameUnmasked(r)
+            : TSIC.prettifyDefinitionName(e.RecipeId);
           const head = document.createElement('div');
           head.className = 'q-head';
           const nameSpan = document.createElement('span');
@@ -176,11 +179,15 @@
           nameSpan.textContent = `${e.QueueIndex + 1}. ${name}`;
           head.appendChild(nameSpan);
           const btn = document.createElement('button');
-          btn.className = 'tsic-button cancel q-cancel';
-          btn.textContent = 'Cancel';
+          // A finished job is collected, not cancelled — same server call, opposite meaning.
+          const isDone = !!e.bCompleted;
+          btn.className = 'tsic-button q-cancel' + (isDone ? ' q-collect' : ' cancel');
+          btn.textContent = isDone ? 'Collect' : 'Cancel';
           btn.addEventListener('click', () => {
-            ctx.publish('UI.Cmd.Recipe.Cancel', { Kind: 'Production', StationId: stationId, QueueIndex: e.QueueIndex });
-            window.tsic.playSound && window.tsic.playSound('Recipe.Removed');
+            ctx.publish('UI.Cmd.Recipe.Cancel', {
+              Kind: 'Production', StationId: stationId, QueueIndex: e.RemoveIndex,
+            });
+            window.tsic.playSound && window.tsic.playSound(isDone ? 'Recipe.Completed' : 'Recipe.Removed');
           });
           head.appendChild(btn);
           div.appendChild(head);
@@ -193,11 +200,13 @@
           div.appendChild(bar);
           barByIndex.set(e.QueueIndex, inner);
 
-          // Drag-reorder. Index 0 is the actively-producing entry and is locked.
-          if (e.QueueIndex > 0) {
+          // Drag-reorder, in the server's in-progress-only index space. ReorderIndex is -1 for
+          // completed jobs and for the active one (both immovable), so this also stops a
+          // completed row pretending to be reorderable.
+          if (e.ReorderIndex > 0) {
             div.draggable = true;
             div.addEventListener('dragstart', (ev) => {
-              ev.dataTransfer.setData('application/tsic-queue', JSON.stringify({ from: e.QueueIndex }));
+              ev.dataTransfer.setData('application/tsic-queue', JSON.stringify({ from: e.ReorderIndex }));
               div.classList.add('is-dragging');
             });
             div.addEventListener('dragend', () => div.classList.remove('is-dragging'));
@@ -210,11 +219,26 @@
               if (!raw) return;
               let src;
               try { src = JSON.parse(raw); } catch (_) { return; }
-              const targetIndex = e.QueueIndex;
-              if (src.from === targetIndex || src.from <= 0) return;
-              const moving = queue.splice(src.from, 1)[0];
-              queue.splice(targetIndex, 0, moving);
-              for (let k = 0; k < queue.length; k++) queue[k].QueueIndex = k;
+              // Both indices are in the server's in-progress-only space.
+              const targetIndex = e.ReorderIndex;
+              if (targetIndex <= 0 || src.from === targetIndex || src.from <= 0) return;
+              // Optimistic local move, applied over the DISPLAY array by matching the
+              // reorder index (display position != reorder index once anything completes).
+              const fromPos = queue.findIndex((q) => q.ReorderIndex === src.from);
+              const toPos = queue.findIndex((q) => q.ReorderIndex === targetIndex);
+              if (fromPos < 0 || toPos < 0) return;
+              const moving = queue.splice(fromPos, 1)[0];
+              queue.splice(toPos, 0, moving);
+              // Re-derive both spaces so a second drag before the server echo is still correct.
+              // In-progress entries, in display order, map to server in-progress indices
+              // 0,1,2...; index 0 is the active job and is immovable (-1).
+              let inProgressSeen = 0;
+              for (let k = 0; k < queue.length; k++) {
+                queue[k].QueueIndex = k;
+                if (queue[k].bCompleted) continue;
+                queue[k].ReorderIndex = inProgressSeen === 0 ? -1 : inProgressSeen;
+                inProgressSeen++;
+              }
               renderQueue();
               ctx.publish('UI.Cmd.Recipe.Reorder', {
                 Kind: 'Production', StationId: stationId,
@@ -244,8 +268,18 @@
 
       function renderInfo() {
         const recipe = lastStation && (lastStation.Recipes || []).find((r) => r.RecipeId === selectedRecipeId);
-        window.TSICRecipeInfo.render(root.querySelector('#p-info'), recipe, materialCounts);
+        const host = root.querySelector('#p-info');
         const btn = root.querySelector('#p-add');
+        if (!recipe) {
+          // Say which empty state this is rather than rendering a blank slab.
+          const hasRows = !!(lastStation && (lastStation.Recipes || []).length > 0);
+          host.innerHTML = '';
+          host.appendChild(TSIC.el('div', { class: 'tsic-empty' },
+            hasRows ? 'Select a recipe to see its details.' : 'No recipes available.'));
+          btn.disabled = true;
+          return;
+        }
+        window.TSICRecipeInfo.render(host, recipe, materialCounts);
         btn.disabled = !window.TSICRecipeInfo.canCraft(recipe, materialCounts);
       }
       function renderAll() { renderList(); renderQueue(); renderInfo(); }
@@ -258,7 +292,22 @@
           stationId = p.StationId;
           lastStation = p;
           materialCounts = p.MaterialCounts || {};
-          if (!selectedRecipeId && (p.Recipes || []).length > 0) selectedRecipeId = p.Recipes[0].RecipeId;
+
+          // Keep the selection only if the new station actually offers it. Plantables and
+          // containment cages are production-station subclasses and share THIS screen, so a
+          // recipe selected at a furnace used to survive into a plant pot, match nothing, and
+          // leave the details pane blank.
+          const recipes = p.Recipes || [];
+          const stillPresent = selectedRecipeId && recipes.some((r) => r.RecipeId === selectedRecipeId);
+          if (!stillPresent) selectedRecipeId = recipes.length > 0 ? recipes[0].RecipeId : null;
+
+          // Title and commit verb come from the machine, not the screen: a plant pot is a
+          // "Plant Pot" you "Plant" at, not a "Production" you "Add to Queue" at.
+          const titleEl = root.querySelector('#p-title');
+          if (titleEl) titleEl.textContent = p.StationName || 'Production';
+          const addEl = root.querySelector('#p-add');
+          if (addEl) addEl.textContent = p.ActionVerb || 'Add to Queue';
+
           if (ctx.isVisible()) renderAll();
         });
         ctx.on('tsic.msg.UI.Recipe.QueueChanged', (p) => {

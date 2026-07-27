@@ -24,7 +24,7 @@
   <div id="modal" class="tsic-modal-scrim">
     <div class="tsic-panel tsic-panel--screen">
       <h2 class="tsic-title" style="margin:0 0 8px;">Boss Summoner</h2>
-      <div id="bs-station"></div>
+      <div id="bs-station" class="tsic-station-host"></div>
       <div class="tsic-close-row" data-tsic-focus-group="actions">
         <button class="tsic-button" id="btn-close" data-tsic-initial-focus>Close</button>
       </div>
@@ -39,9 +39,9 @@
             kind: 'Boss',
             actionLabel: 'Summon',
             emptyText: 'No rituals available yet.',
-            rowName: function(r) { return r.Name || r.RecipeId; },
             rowIcon: function(r) {
               // Boss recipes may not have Outputs; use the first ingredient icon.
+              if (r.bDiscovered === false) return '';
               if (r.Outputs && r.Outputs[0]) return r.Outputs[0].ItemId;
               if (r.Ingredients && r.Ingredients[0]) return r.Ingredients[0].ItemId;
               return '';

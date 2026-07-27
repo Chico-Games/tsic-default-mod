@@ -1,6 +1,13 @@
 <!doctype html>
 <html lang="en"><head>
   <meta charset="utf-8">
+  <!-- TEST FIXTURE ONLY (since 2026-07-25).
+     The live Storage screen is the SPA module shared/screens/storage.js; this page is
+     no longer in router.js SCREEN_TO_FILE, so the game can never navigate here. It is
+     kept solely as the host the storage tests mount against (storage.test.js,
+     storage-qol.test.js, interactions-mouse, scrolling-and-perf, e2e-flows, focus).
+     Both load the same shared/storage-shell.js, so testing here still tests the real
+     rendering code. Do NOT add rendering logic to this file. -->
   <meta name="tsic-screen" content="Storage">
   <meta name="tsic-focus" content="enabled">
   <meta name="tsic-input-mode" content="InputMode.Menu.Storage">

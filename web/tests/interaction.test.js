@@ -121,3 +121,58 @@ TSICTestHarness.register({
         ctx.expect(ctx.assert.domText(ctx.doc, '#interaction-prompt', /Interact/));
     },
 });
+
+TSICTestHarness.register({
+    name: 'Interaction: furniture name header titles the panel and shares the tint',
+    file: '/screens/test-interaction.html',
+    async run(ctx) {
+        ctx.inject('tsic.msg.UI.Interaction.Targets', {
+            Targets: [{ EntityId: 21, Name: 'Basic Crafting Table', Label: 'Craft', Category: 'crafting' }],
+        });
+        await ctx.waitFor(() => /Basic Crafting Table/.test((ctx.doc.getElementById('bb-target-name') || {}).textContent || ''));
+        const nameEl = ctx.doc.getElementById('bb-target-name');
+        ctx.expect(ctx.assert.truthy(!nameEl.classList.contains('hidden'), 'name header visible'));
+        ctx.expect(ctx.assert.truthy(nameEl.classList.contains('cat-crafting'), 'header carries the category tint class'));
+        ctx.expect(ctx.assert.truthy(nameEl.querySelector('.cat-icon svg'), 'header carries the category glyph'));
+        // Nameless target hides the header but keeps the verb row.
+        ctx.inject('tsic.msg.UI.Interaction.Targets', { Targets: [{ EntityId: 22, Label: 'Use' }] });
+        await ctx.waitFor(() => ctx.doc.getElementById('bb-target-name').classList.contains('hidden'));
+        ctx.expect(ctx.assert.truthy(!ctx.doc.getElementById('interaction-prompt').classList.contains('hidden'), 'verb row stays visible'));
+    },
+});
+
+TSICTestHarness.register({
+    // C++ publishes a Label-less target for drag-only furniture (no interaction
+    // option, but draggable). The panel titles itself and shows a key-less
+    // "Drag" verb instead of the misleading "Interact" fallback.
+    name: 'Interaction: drag-only target shows name + key-less Drag verb',
+    file: '/screens/test-interaction.html',
+    async run(ctx) {
+        ctx.inject('tsic.msg.UI.Interaction.Targets', {
+            Targets: [{ EntityId: 31, Name: 'Wooden Shelf', Label: '' }],
+            bDraggable: true,
+        });
+        await ctx.waitFor(() => /Drag/.test((ctx.doc.getElementById('interaction-prompt') || {}).textContent || ''));
+        ctx.expect(ctx.assert.domText(ctx.doc, '#bb-target-name', /Wooden Shelf/));
+        const prompt = ctx.doc.getElementById('interaction-prompt');
+        ctx.expect(ctx.assert.truthy(!/Interact/.test(prompt.textContent), 'no Interact fallback for drag-only'));
+        ctx.expect(ctx.assert.truthy(!prompt.querySelector('.bb-key'), 'no key chip on the drag verb'));
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Interaction: hold option renders as a HOLD-tagged row under the tap verb',
+    file: '/screens/test-interaction.html',
+    async run(ctx) {
+        ctx.inject('tsic.msg.UI.Interaction.Targets', {
+            Targets: [{ EntityId: 41, Name: 'Shopping Cart', Label: 'Push', HoldLabel: 'Ride', Category: 'cart' }],
+        });
+        await ctx.waitFor(() => /Ride/.test((ctx.doc.getElementById('interaction-hold-prompt') || {}).textContent || ''));
+        const hold = ctx.doc.getElementById('interaction-hold-prompt');
+        ctx.expect(ctx.assert.truthy(!hold.classList.contains('hidden'), 'hold row visible'));
+        ctx.expect(ctx.assert.truthy(hold.querySelector('.bb-hold-tag'), 'HOLD qualifier tag present'));
+        ctx.expect(ctx.assert.truthy(hold.classList.contains('cat-cart'), 'hold row shares the category tint'));
+        ctx.inject('tsic.msg.UI.Interaction.Targets', { Targets: [{ EntityId: 42, Label: 'Use' }] });
+        await ctx.waitFor(() => ctx.doc.getElementById('interaction-hold-prompt').classList.contains('hidden'));
+    },
+});

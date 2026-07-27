@@ -155,8 +155,11 @@
 
     var first = (prevDone === null);
     var newly = [];
+    var appeared = false;
     if (!first) {
       p.Steps.forEach(function (s) { if (s.bDone && !prevDone[s.Id]) newly.push(s.Id); });
+      // A step id we have never tracked at all = a fresh objective rolling in.
+      appeared = p.Steps.some(function (s) { return !(s.Id in prevDone) && !s.bDone; });
     }
     prevDone = {};
     p.Steps.forEach(function (s) { prevDone[s.Id] = !!s.bDone; });
@@ -171,6 +174,8 @@
       }
       lastDone = newly[newly.length - 1];
       justDone = lastDone;   // plays the strike/tick animation this render only
+    } else if (appeared) {
+      try { tsic.playSound('Tutorial.NewStep', 0.4); } catch (e) {}
     } else if (first) {
       // Sticky replay after a reload/rejoin: surface the last completed step
       // by display order, with no sound or animation.

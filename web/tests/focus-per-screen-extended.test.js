@@ -112,26 +112,10 @@ TSICTestHarness.register(Object.assign({
 }, focusOpts()));
 
 // -- upgrade ---------------------------------------------------------------
-TSICTestHarness.register(Object.assign({
-    name: 'Focus/Upgrade: reachable + groups mutually reachable',
-    file: '/screens/upgrade.html',
-    async run(ctx) {
-        ctx.inject('tsic.msg.UI.Item.Catalog', { Items: [
-            { ItemId: 'ID_Iron', Name: 'Iron', Category: 'CraftingMaterial' },
-        ] });
-        ctx.inject('tsic.msg.UI.Recipe.StationOpened', {
-            Kind: 'Upgrade', StationId: 'F_Workbench_01',
-            Recipes: [
-                { RecipeId: 'U_Tier2', Name: 'Tier 2', bDiscovered: true, bStationLevelSufficient: true,
-                  Ingredients: [{ ItemId: 'ID_Iron', Count: 4 }] },
-                { RecipeId: 'U_Tier3', Name: 'Tier 3', bDiscovered: true, bStationLevelSufficient: true,
-                  Ingredients: [{ ItemId: 'ID_Iron', Count: 8 }] },
-            ],
-            MaterialCounts: { ID_Iron: 6 },
-        });
-        await TSICTestHarness.fx.runReachability(ctx);
-    },
-}, focusOpts()));
+// The Upgrade SCREEN was removed 2026-07-25: furniture upgrades now happen by looking at
+// the target with a hammer equipped (UScpGameplayAbility_Upgrade), with the cost shown on
+// the HUD instead of in a menu. Its focus-reachability test went with the page; the
+// replacement readout is covered by tests/upgrade-hud.test.js.
 
 // -- storage ---------------------------------------------------------------
 TSICTestHarness.register(Object.assign({
