@@ -53,7 +53,7 @@
     "is_draggable": true,
     "display_name": "Microwave (Advanced)",
     "description": "An upgraded microwave with faster cooking and access to advanced recipes.",
-    "level": 1,
+    "level": 2,
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,

@@ -55,7 +55,7 @@
     "is_draggable": true,
     "display_name": "Saw Bench (Tier 2)",
     "description": "An upgraded powered saw bench that mills logs and scrap into planks, boards, and shaped timber faster and unlocks new recipes.",
-    "level": 1,
+    "level": 2,
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,

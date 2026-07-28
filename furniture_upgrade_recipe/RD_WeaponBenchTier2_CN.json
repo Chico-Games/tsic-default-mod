@@ -7,6 +7,10 @@
     "recipe_tags": [],
     "input": [
       {
+        "key": "ID_ResearchCredit_T2_CM",
+        "value": 2
+      },
+      {
         "key": "ID_SteelPanel_CM",
         "value": 6
       },

@@ -6,6 +6,7 @@
   "properties": {
     "production_machine_rules": {
       "recipes": [
+        "RD_WorkBoots_CR",
         "RD_WoodenArmorHelmet_CR",
         "RD_WoodenArmorChestplate_CR",
         "RD_WoodenArmorLeggings_CR",

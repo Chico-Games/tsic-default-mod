@@ -7,12 +7,20 @@
     "recipe_tags": [],
     "input": [
       {
-        "key": "ID_BoneChunk_CM",
-        "value": 5
+        "key": "ID_BoneSpikes_CM",
+        "value": 8
       },
       {
-        "key": "ID_BoneSpikes_CM",
-        "value": 3
+        "key": "ID_StaffFlesh_CM",
+        "value": 10
+      },
+      {
+        "key": "ID_MannequinArm_CM",
+        "value": 4
+      },
+      {
+        "key": "ID_PlantFibre_CM",
+        "value": 6
       },
       {
         "key": "ID_Marrow_CN",

@@ -6,6 +6,7 @@
   "properties": {
     "production_machine_rules": {
       "recipes": [
+        "RD_WorkBoots_CR",
         "RD_MetalArmorHelmet_CR",
         "RD_MetalArmorChestplate_CR",
         "RD_MetalArmorLeggings_CR",
@@ -17,11 +18,7 @@
         "RD_WorkGloves_CR",
         "RD_PillowArmorHelmet_CR",
         "RD_PillowArmorChestplate_CR",
-        "RD_PillowArmorLeggings_CR",
-        "RD_AnomalousArmorHelmet_CR",
-        "RD_AnomalousArmorChestplate_CR",
-        "RD_AnomalousArmorLeggings_CR",
-        "RD_AnomalousGloves_CR"
+        "RD_PillowArmorLeggings_CR"
       ]
     }
   }

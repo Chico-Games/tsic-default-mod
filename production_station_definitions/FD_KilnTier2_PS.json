@@ -53,7 +53,7 @@
     "is_draggable": true,
     "display_name": "Kiln (Advanced)",
     "description": "An upgraded industrial kiln with access to advanced firing recipes.",
-    "level": 1,
+    "level": 2,
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,

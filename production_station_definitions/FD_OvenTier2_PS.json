@@ -53,7 +53,7 @@
     "is_draggable": true,
     "display_name": "Oven (Tier 2)",
     "description": "An upgraded commercial oven for cooking food. Bakes, roasts, and heats meals faster and unlocks hardier recipes.",
-    "level": 1,
+    "level": 2,
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,

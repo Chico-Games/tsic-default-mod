@@ -52,7 +52,7 @@
     "is_draggable": true,
     "display_name": "Rubbish Compactor (Tier 2)",
     "description": "An upgraded heavy-duty compactor that crushes rubbish into dense, reusable blocks of material faster and unlocks new recipes.",
-    "level": 1,
+    "level": 2,
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,

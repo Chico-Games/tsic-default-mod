@@ -8,15 +8,19 @@
     "input": [
       {
         "key": "ID_CircuitBoard_CM",
-        "value": 4
+        "value": 8
       },
       {
-        "key": "ID_BrokenWalkman_CM",
-        "value": 2
+        "key": "ID_SteelPanel_CM",
+        "value": 10
       },
       {
-        "key": "ID_ScrapMetal_CM",
-        "value": 5
+        "key": "ID_CleaningChemicals_CM",
+        "value": 6
+      },
+      {
+        "key": "ID_BoneChunk_CM",
+        "value": 6
       },
       {
         "key": "ID_Banana_CN",

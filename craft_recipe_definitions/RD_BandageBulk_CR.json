@@ -7,6 +7,10 @@
     "recipe_tags": [],
     "input": [
       {
+        "key": "ID_Lemongrass_CN",
+        "value": 2
+      },
+      {
         "key": "ID_UpholsteryFabric_CM",
         "value": 9
       }

@@ -51,6 +51,10 @@
     "recipe_tags": [],
     "input": [
       {
+        "key": "ID_FertilizerBag_CM",
+        "value": 1
+      },
+      {
         "key": "ID_RunnerBeansSeeds_SD",
         "value": 1
       }

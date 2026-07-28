@@ -44,7 +44,7 @@
     "is_draggable": true,
     "display_name": "Advanced First Aid Station",
     "description": "An upgraded medical station for creating advanced healing items, bandages, and medicine.",
-    "level": 1,
+    "level": 2,
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,

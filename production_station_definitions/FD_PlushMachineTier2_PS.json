@@ -52,7 +52,7 @@
     "is_draggable": true,
     "display_name": "Plush Machine (Tier 2)",
     "description": "An overhauled build-a-plush machine. Feeds and stuffs in bulk, and turns out showroom-grade plush toys.",
-    "level": 1,
+    "level": 2,
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,

@@ -251,7 +251,7 @@
     "release_angular_damping": 0.05000000074505806,
     "display_name": "Hydroponics Rack",
     "description": "A powered rack of nutrient trays. Grows every known crop, six at a time.",
-    "level": 1,
+    "level": 3,
     "gameplay_tags": [],
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],

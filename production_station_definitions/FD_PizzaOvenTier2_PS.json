@@ -53,7 +53,7 @@
     "is_draggable": true,
     "display_name": "Pizza Oven (Tier 2)",
     "description": "An upgraded pizza oven that also works great for drying and treating wood. Converts scrap wood into processed lumber faster and unlocks new recipes.",
-    "level": 1,
+    "level": 2,
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,

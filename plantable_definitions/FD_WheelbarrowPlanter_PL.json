@@ -252,7 +252,7 @@
     "release_angular_damping": 0.05000000074505806,
     "display_name": "Wheelbarrow Planter",
     "description": "A wheelbarrow packed with fertilised soil. Grows hardier crops, three at a time.",
-    "level": 1,
+    "level": 2,
     "gameplay_tags": [],
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],

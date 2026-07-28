@@ -6,6 +6,8 @@
   "properties": {
     "production_machine_rules": {
       "recipes": [
+        "RD_Compost_CR",
+        "RD_FertilizerBag_CR",
         "RD_RecycleJunk_CR"
       ]
     }

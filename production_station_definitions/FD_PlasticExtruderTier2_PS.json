@@ -53,7 +53,7 @@
     "is_draggable": true,
     "display_name": "Plastic Extruder (Tier 2)",
     "description": "An upgraded machine for melting and extruding plastic. Transforms scrap plastic into refined plastic sheets faster and unlocks new recipes.",
-    "level": 1,
+    "level": 2,
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,

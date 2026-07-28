@@ -51,6 +51,10 @@
     "recipe_tags": [],
     "input": [
       {
+        "key": "ID_HighQualityCompost_CM",
+        "value": 1
+      },
+      {
         "key": "ID_BananaSeeds_SD",
         "value": 1
       }

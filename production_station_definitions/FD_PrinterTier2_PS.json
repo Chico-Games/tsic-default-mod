@@ -54,7 +54,7 @@
     "is_draggable": true,
     "display_name": "Printer (Tier 2)",
     "description": "An upgraded industrial printer with a high-capacity paper feed. Pulps wooden oddments into receipts in bulk batches.",
-    "level": 1,
+    "level": 2,
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,
