@@ -31,6 +31,44 @@
     "destructible_collection": "/Game/Furniture/SewingMachine/GeometryCollections/GCS_SewingMachine.GCS_SewingMachine",
     "loot_dropped_on_death": [],
     "deconstruction_tier": 2,
+    "blocking_collision_boxes": [
+      {
+        "offset": {
+          "x": 0,
+          "y": 0,
+          "z": 23.9958
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 24.0973,
+          "y": 21.6882,
+          "z": 18.5938
+        }
+      }
+    ],
+    "support_collision_boxes": [
+      {
+        "offset": {
+          "x": 0,
+          "y": 0,
+          "z": 23.519
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 34.4248,
+          "y": 30.9832,
+          "z": 23.8382
+        }
+      }
+    ],
     "constructable_item_to_grant": "ID_PizzaOvenTier2_CI",
     "building_base": {
       "rotation": {
@@ -57,7 +95,7 @@
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,
-    "static_mesh": "/Game/Kitchen_VOL4/Meshes/SM_Fryer_02a.SM_Fryer_02a",
+    "static_mesh": "/Game/Commercial_Kitchen/Meshes/SM_PizzaOven01.SM_PizzaOven01",
     "casts_shadow": true,
     "collision_profile_name": {
       "name": "Furniture"

@@ -30,6 +30,44 @@
     "starting_health": 100,
     "loot_dropped_on_death": [],
     "deconstruction_tier": 3,
+    "blocking_collision_boxes": [
+      {
+        "offset": {
+          "x": 0,
+          "y": 0,
+          "z": 49.7264
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 19.635,
+          "y": 19.5274,
+          "z": 32.6357
+        }
+      }
+    ],
+    "support_collision_boxes": [
+      {
+        "offset": {
+          "x": 0,
+          "y": 0,
+          "z": 49.2243
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 28.05,
+          "y": 27.8964,
+          "z": 50.2088
+        }
+      }
+    ],
     "constructable_item_to_grant": "ID_RubbishCompactorTier2_CI",
     "building_base": {
       "rotation": {
@@ -56,6 +94,7 @@
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,
+    "static_mesh": "/Game/Underground/Meshes/Props/SM_Bin.SM_Bin",
     "casts_shadow": true,
     "collision_profile_name": {
       "name": "Furniture"

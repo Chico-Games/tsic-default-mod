@@ -33,6 +33,44 @@
       "LD_CraftingBenchTierOneLoot"
     ],
     "deconstruction_tier": 2,
+    "blocking_collision_boxes": [
+      {
+        "offset": {
+          "x": 0,
+          "y": -5.0774,
+          "z": 12.5564
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 13.0604,
+          "y": 13.6439,
+          "z": 9.5598
+        }
+      }
+    ],
+    "support_collision_boxes": [
+      {
+        "offset": {
+          "x": 0,
+          "y": -5.0774,
+          "z": 12.3113
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 18.6578,
+          "y": 19.4913,
+          "z": 12.2562
+        }
+      }
+    ],
     "building_base": {
       "rotation": {
         "x": 0.0,

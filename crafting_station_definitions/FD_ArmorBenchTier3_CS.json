@@ -23,6 +23,44 @@
     ],
     "constructable_item_to_grant": "ID_ArmorBenchTier3_CI",
     "deconstruction_tier": 2,
+    "blocking_collision_boxes": [
+      {
+        "offset": {
+          "x": 50,
+          "y": 7.6009,
+          "z": 120.2562
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 36.72,
+          "y": 0.25,
+          "z": 93.2226
+        }
+      }
+    ],
+    "support_collision_boxes": [
+      {
+        "offset": {
+          "x": 50,
+          "y": 7.6009,
+          "z": 120.2562
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 51,
+          "y": 7.7529,
+          "z": 122.6613
+        }
+      }
+    ],
     "building_base": {
       "rotation": {
         "x": 0.0,
@@ -49,7 +87,7 @@
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,
-    "static_mesh": "/Game/Furniture/CraftingBenches/Meshes/SM_CraftingTableTierOne.SM_CraftingTableTierOne",
+    "static_mesh": "/Game/INDUSTRIAL/VOL4_Consoles/Meshes/LP/SM_Consoles_Industrial_12a.SM_Consoles_Industrial_12a",
     "casts_shadow": true,
     "collision_profile_name": {
       "name": "Furniture"

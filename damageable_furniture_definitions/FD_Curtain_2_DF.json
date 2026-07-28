@@ -13,7 +13,25 @@
     ],
     "constructable_item_to_grant": "ID_Curtain_2_CI",
     "deconstruction_tier": 1,
-    "blocking_collision_boxes": [],
+    "blocking_collision_boxes": [
+      {
+        "offset": {
+          "x": -3.5614,
+          "y": 9.7297,
+          "z": -120.6983
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 29.5311,
+          "y": 0.25,
+          "z": 100.3746
+        }
+      }
+    ],
     "support_collision_boxes": [
       {
         "offset": {

@@ -10,6 +10,44 @@
     ],
     "constructable_item_to_grant": "ID_StoreStairs_CI",
     "deconstruction_tier": 2,
+    "blocking_collision_boxes": [
+      {
+        "offset": {
+          "x": 0,
+          "y": 0,
+          "z": 117.0285
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 57.8392,
+          "y": 153.1089,
+          "z": 88.383
+        }
+      }
+    ],
+    "support_collision_boxes": [
+      {
+        "offset": {
+          "x": 0,
+          "y": 0,
+          "z": 127.4265
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 96.3987,
+          "y": 255.1815,
+          "z": 129.975
+        }
+      }
+    ],
     "building_base": {
       "rotation": {
         "x": 0.0,

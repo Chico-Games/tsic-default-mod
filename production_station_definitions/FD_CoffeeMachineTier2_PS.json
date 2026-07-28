@@ -31,6 +31,44 @@
     "destructible_collection": "/Game/Furniture/SewingMachine/GeometryCollections/GCS_SewingMachine.GCS_SewingMachine",
     "loot_dropped_on_death": [],
     "deconstruction_tier": 2,
+    "blocking_collision_boxes": [
+      {
+        "offset": {
+          "x": -0.1304,
+          "y": 0,
+          "z": 48.9964
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 25.3279,
+          "y": 15.7056,
+          "z": 32.163
+        }
+      }
+    ],
+    "support_collision_boxes": [
+      {
+        "offset": {
+          "x": -0.1304,
+          "y": 0,
+          "z": 48.5016
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 36.1827,
+          "y": 22.4365,
+          "z": 49.4815
+        }
+      }
+    ],
     "constructable_item_to_grant": "ID_CoffeeMachineTier2_CI",
     "building_base": {
       "rotation": {

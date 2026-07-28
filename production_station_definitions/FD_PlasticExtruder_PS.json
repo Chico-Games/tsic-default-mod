@@ -31,6 +31,44 @@
     "destructible_collection": "/Game/Furniture/SewingMachine/GeometryCollections/GCS_SewingMachine.GCS_SewingMachine",
     "loot_dropped_on_death": [],
     "deconstruction_tier": 3,
+    "blocking_collision_boxes": [
+      {
+        "offset": {
+          "x": 8.19,
+          "y": 6.0479,
+          "z": 13.4818
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 17.1163,
+          "y": 9.3773,
+          "z": 10.5117
+        }
+      }
+    ],
+    "support_collision_boxes": [
+      {
+        "offset": {
+          "x": 8.19,
+          "y": 6.0479,
+          "z": 13.2122
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 24.4519,
+          "y": 13.3962,
+          "z": 13.4765
+        }
+      }
+    ],
     "upgrade_recipe": "RD_PlasticExtruderTier2_CN",
     "building_base": {
       "rotation": {

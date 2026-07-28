@@ -22,6 +22,44 @@
       "LD_CraftingBenchTierOneLoot"
     ],
     "deconstruction_tier": 2,
+    "blocking_collision_boxes": [
+      {
+        "offset": {
+          "x": 140.0008,
+          "y": 81.6994,
+          "z": 63.9145
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 100.1559,
+          "y": 58.3333,
+          "z": 41.9474
+        }
+      }
+    ],
+    "support_collision_boxes": [
+      {
+        "offset": {
+          "x": 140.0008,
+          "y": 81.6994,
+          "z": 63.2691
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 143.0799,
+          "y": 83.3333,
+          "z": 64.5345
+        }
+      }
+    ],
     "building_base": {
       "rotation": {
         "x": 0.0,
@@ -47,7 +85,7 @@
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,
-    "static_mesh": "/Game/Furniture/CraftingBenches/Meshes/SM_CraftingTableTierOne.SM_CraftingTableTierOne",
+    "static_mesh": "/Game/INDUSTRIAL/VOL4_Consoles/Meshes/LP/SM_Consoles_Industrial_11a.SM_Consoles_Industrial_11a",
     "casts_shadow": true,
     "collision_profile_name": {
       "name": "Furniture"

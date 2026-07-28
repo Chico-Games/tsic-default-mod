@@ -23,6 +23,44 @@
     "loot_dropped_on_death": [],
     "constructable_item_to_grant": "ID_Shelf_Double_CI",
     "deconstruction_tier": 2,
+    "blocking_collision_boxes": [
+      {
+        "offset": {
+          "x": 0,
+          "y": 0,
+          "z": 98.5604
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 59.9698,
+          "y": 14.3212,
+          "z": 59.1142
+        }
+      }
+    ],
+    "support_collision_boxes": [
+      {
+        "offset": {
+          "x": 0,
+          "y": 0,
+          "z": 91.9921
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 99.9497,
+          "y": 23.8686,
+          "z": 93.832
+        }
+      }
+    ],
     "building_base": {
       "rotation": {
         "x": 0.0,

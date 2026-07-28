@@ -33,6 +33,44 @@
       "LD_CraftingBenchTierOneLoot"
     ],
     "deconstruction_tier": 2,
+    "blocking_collision_boxes": [
+      {
+        "offset": {
+          "x": -50.4029,
+          "y": -0.0003,
+          "z": 77.0444
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 29.8142,
+          "y": 73.9502,
+          "z": 38.5092
+        }
+      }
+    ],
+    "support_collision_boxes": [
+      {
+        "offset": {
+          "x": -50.4029,
+          "y": -0.0003,
+          "z": 65.0933
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 51.4038,
+          "y": 127.5003,
+          "z": 66.3952
+        }
+      }
+    ],
     "constructable_item_to_grant": "ID_SawBenchTier2_CI",
     "building_base": {
       "rotation": {
@@ -59,7 +97,7 @@
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,
-    "static_mesh": "/Game/Furniture/CraftingBenches/Meshes/SM_CraftingTableTierOne.SM_CraftingTableTierOne",
+    "static_mesh": "/Game/ScienceLab/Meshes/Furniture/SM_ReceptionDesk01.SM_ReceptionDesk01",
     "casts_shadow": true,
     "collision_profile_name": {
       "name": "Furniture"

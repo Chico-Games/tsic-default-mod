@@ -10,6 +10,44 @@
     ],
     "constructable_item_to_grant": "ID_WoodenStepStool_CI",
     "deconstruction_tier": 1,
+    "blocking_collision_boxes": [
+      {
+        "offset": {
+          "x": -0.032,
+          "y": 0.0403,
+          "z": 69.4816
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 34.4468,
+          "y": 52.5067,
+          "z": 34.7291
+        }
+      }
+    ],
+    "support_collision_boxes": [
+      {
+        "offset": {
+          "x": -0.032,
+          "y": 0.0403,
+          "z": 58.7036
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 59.3911,
+          "y": 90.5287,
+          "z": 59.8777
+        }
+      }
+    ],
     "building_base": {
       "rotation": {
         "x": 0.0,

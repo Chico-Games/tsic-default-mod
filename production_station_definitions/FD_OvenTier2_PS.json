@@ -31,6 +31,44 @@
     "destructible_collection": "/Game/Furniture/SewingMachine/GeometryCollections/GCS_SewingMachine.GCS_SewingMachine",
     "loot_dropped_on_death": [],
     "deconstruction_tier": 2,
+    "blocking_collision_boxes": [
+      {
+        "offset": {
+          "x": 0,
+          "y": 0,
+          "z": 59.688
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 27.6103,
+          "y": 24.0276,
+          "z": 29.7838
+        }
+      }
+    ],
+    "support_collision_boxes": [
+      {
+        "offset": {
+          "x": 0,
+          "y": 0,
+          "z": 50.4448
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 47.604,
+          "y": 41.4269,
+          "z": 51.3513
+        }
+      }
+    ],
     "constructable_item_to_grant": "ID_OvenTier2_CI",
     "building_base": {
       "rotation": {

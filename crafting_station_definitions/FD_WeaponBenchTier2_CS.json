@@ -22,6 +22,44 @@
       "LD_CraftingBenchTierOneLoot"
     ],
     "deconstruction_tier": 2,
+    "blocking_collision_boxes": [
+      {
+        "offset": {
+          "x": 0,
+          "y": 0,
+          "z": 130.6694
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 59.6224,
+          "y": 53.6288,
+          "z": 85.7591
+        }
+      }
+    ],
+    "support_collision_boxes": [
+      {
+        "offset": {
+          "x": 0,
+          "y": 0,
+          "z": 129.3501
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 85.1748,
+          "y": 76.6126,
+          "z": 131.9371
+        }
+      }
+    ],
     "constructable_item_to_grant": "ID_WeaponBenchTier2_CI",
     "building_base": {
       "rotation": {

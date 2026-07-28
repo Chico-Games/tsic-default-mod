@@ -11,7 +11,25 @@
     "loot_dropped_on_death": [],
     "constructable_item_to_grant": "ID_Painting_2_CI",
     "deconstruction_tier": 1,
-    "blocking_collision_boxes": [],
+    "blocking_collision_boxes": [
+      {
+        "offset": {
+          "x": 0,
+          "y": 1.4532,
+          "z": 60.7057
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 51.2705,
+          "y": 0.25,
+          "z": 49.3685
+        }
+      }
+    ],
     "support_collision_boxes": [
       {
         "offset": {

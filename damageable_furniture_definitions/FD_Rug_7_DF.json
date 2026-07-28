@@ -13,7 +13,25 @@
     ],
     "constructable_item_to_grant": "ID_Rug_7_CI",
     "deconstruction_tier": 1,
-    "blocking_collision_boxes": [],
+    "blocking_collision_boxes": [
+      {
+        "offset": {
+          "x": 0,
+          "y": 0,
+          "z": 2.365
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 47.5715,
+          "y": 65.2968,
+          "z": 1
+        }
+      }
+    ],
     "support_collision_boxes": [
       {
         "offset": {

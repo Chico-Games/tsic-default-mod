@@ -80,6 +80,44 @@
       "LD_VendingMachine"
     ],
     "deconstruction_tier": 2,
+    "blocking_collision_boxes": [
+      {
+        "offset": {
+          "x": 0.8011,
+          "y": -0.0255,
+          "z": 83.4237
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 17.4607,
+          "y": 18.2853,
+          "z": 54.7983
+        }
+      }
+    ],
+    "support_collision_boxes": [
+      {
+        "offset": {
+          "x": 0.8011,
+          "y": -0.0255,
+          "z": 82.5806
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 24.9439,
+          "y": 26.1219,
+          "z": 84.3051
+        }
+      }
+    ],
     "constructable_item_to_grant": "ID_ShopHard_CI",
     "building_base": {
       "rotation": {

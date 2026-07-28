@@ -23,6 +23,44 @@
     ],
     "constructable_item_to_grant": "ID_CashRegister_CI",
     "deconstruction_tier": 2,
+    "blocking_collision_boxes": [
+      {
+        "offset": {
+          "x": 0.0166,
+          "y": 20.6847,
+          "z": 15.3011
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 15.655,
+          "y": 33.0799,
+          "z": 12.1457
+        }
+      }
+    ],
+    "support_collision_boxes": [
+      {
+        "offset": {
+          "x": 0.0166,
+          "y": 20.6847,
+          "z": 14.9896
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 22.3643,
+          "y": 47.2571,
+          "z": 15.5715
+        }
+      }
+    ],
     "building_base": {
       "rotation": {
         "x": 0.0,

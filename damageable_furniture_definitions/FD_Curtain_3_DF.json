@@ -13,13 +13,12 @@
     ],
     "constructable_item_to_grant": "ID_Curtain_3_CI",
     "deconstruction_tier": 2,
-    "blocking_collision_boxes": [],
-    "support_collision_boxes": [
+    "blocking_collision_boxes": [
       {
         "offset": {
-          "x": 4.294358726277958,
-          "y": 156.18069008394468,
-          "z": 1.4318160797433244
+          "x": -3.3534,
+          "y": 0.0395,
+          "z": 129.8922
         },
         "rotation": {
           "pitch": 0,
@@ -27,9 +26,28 @@
           "roll": 0
         },
         "box_size": {
-          "x": 11.045163229973554,
-          "y": 161.81510561441502,
-          "z": 6.508519444377896
+          "x": 21.2841,
+          "y": 0.25,
+          "z": 105.87
+        }
+      }
+    ],
+    "support_collision_boxes": [
+      {
+        "offset": {
+          "x": -3.3534,
+          "y": 0.0395,
+          "z": 129.8922
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 30.4058,
+          "y": 9.5412,
+          "z": 132.3375
         }
       }
     ],
@@ -76,7 +94,7 @@
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,
-    "static_mesh": "/Game/Furniture/Curtains/Meshes/SM_Curtain_2_frame.SM_Curtain_2_frame",
+    "static_mesh": "/Game/Scandinavi_Apartment/Assets/SM_Curtain_Opt03.SM_Curtain_Opt03",
     "casts_shadow": true,
     "collision_profile_name": {
       "name": "Furniture"

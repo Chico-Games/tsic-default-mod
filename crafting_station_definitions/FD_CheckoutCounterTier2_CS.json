@@ -23,6 +23,44 @@
       "LD_MetalRailingLoot"
     ],
     "deconstruction_tier": 2,
+    "blocking_collision_boxes": [
+      {
+        "offset": {
+          "x": -32.3199,
+          "y": 32.7866,
+          "z": 189.0806
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 125.3454,
+          "y": 59.5205,
+          "z": 94.5097
+        }
+      }
+    ],
+    "support_collision_boxes": [
+      {
+        "offset": {
+          "x": -32.3199,
+          "y": 32.7866,
+          "z": 159.75
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 216.1128,
+          "y": 102.6215,
+          "z": 162.9477
+        }
+      }
+    ],
     "constructable_item_to_grant": "ID_CheckoutCounterTier2_CI",
     "building_base": {
       "rotation": {

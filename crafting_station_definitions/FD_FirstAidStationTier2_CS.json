@@ -22,6 +22,44 @@
       "LD_CraftingBenchTierOneLoot"
     ],
     "deconstruction_tier": 1,
+    "blocking_collision_boxes": [
+      {
+        "offset": {
+          "x": 0,
+          "y": 0,
+          "z": 46.2837
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 24.911,
+          "y": 13.4821,
+          "z": 23.134
+        }
+      }
+    ],
+    "support_collision_boxes": [
+      {
+        "offset": {
+          "x": 0,
+          "y": 0,
+          "z": 39.1042
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 42.95,
+          "y": 23.245,
+          "z": 39.8863
+        }
+      }
+    ],
     "constructable_item_to_grant": "ID_FirstAidStationTier2_CI",
     "building_base": {
       "rotation": {
@@ -48,7 +86,7 @@
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,
-    "static_mesh": "/Game/Furniture/CraftingBenches/Meshes/SM_CraftingTableTierOne.SM_CraftingTableTierOne",
+    "static_mesh": "/Game/Hospital_VOL2/Meshes/SM_SupplyCart_02a.SM_SupplyCart_02a",
     "casts_shadow": true,
     "collision_profile_name": {
       "name": "Furniture"

@@ -31,6 +31,44 @@
     "destructible_collection": "/Game/Furniture/SewingMachine/GeometryCollections/GCS_SewingMachine.GCS_SewingMachine",
     "loot_dropped_on_death": [],
     "deconstruction_tier": 3,
+    "blocking_collision_boxes": [
+      {
+        "offset": {
+          "x": 5.1743,
+          "y": 33.8537,
+          "z": 88.2931
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 27.089,
+          "y": 24.234,
+          "z": 57.9392
+        }
+      }
+    ],
+    "support_collision_boxes": [
+      {
+        "offset": {
+          "x": 5.1743,
+          "y": 33.8537,
+          "z": 87.4018
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 38.6986,
+          "y": 34.62,
+          "z": 89.1372
+        }
+      }
+    ],
     "upgrade_recipe": "RD_FurnaceTier2_CN",
     "building_base": {
       "rotation": {
@@ -57,7 +95,7 @@
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,
-    "static_mesh": "/Game/Furniture/SewingMachine/Meshes/SM_SewingMachine.SM_SewingMachine",
+    "static_mesh": "/Game/MERIDIAN/VOL15_ChineseFood/Meshes/NN/SM_Hot_Water_heater_NN_17a.SM_Hot_Water_heater_NN_17a",
     "casts_shadow": true,
     "collision_profile_name": {
       "name": "Furniture"

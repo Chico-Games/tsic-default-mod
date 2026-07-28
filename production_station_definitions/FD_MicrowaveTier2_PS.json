@@ -31,6 +31,44 @@
     "destructible_collection": "/Game/Furniture/SewingMachine/GeometryCollections/GCS_SewingMachine.GCS_SewingMachine",
     "loot_dropped_on_death": [],
     "deconstruction_tier": 2,
+    "blocking_collision_boxes": [
+      {
+        "offset": {
+          "x": 0.0723,
+          "y": -1.4429,
+          "z": 20.5726
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 25.4044,
+          "y": 18.2925,
+          "z": 16.035
+        }
+      }
+    ],
+    "support_collision_boxes": [
+      {
+        "offset": {
+          "x": 0.0723,
+          "y": -1.4429,
+          "z": 20.1614
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 36.2919,
+          "y": 26.1322,
+          "z": 20.5577
+        }
+      }
+    ],
     "constructable_item_to_grant": "ID_MicrowaveTier2_CI",
     "building_base": {
       "rotation": {

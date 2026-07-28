@@ -11,7 +11,25 @@
     "loot_dropped_on_death": [],
     "constructable_item_to_grant": "ID_Painting_10_CI",
     "deconstruction_tier": 1,
-    "blocking_collision_boxes": [],
+    "blocking_collision_boxes": [
+      {
+        "offset": {
+          "x": 0,
+          "y": 1.4796,
+          "z": 25.05
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 28.338,
+          "y": 0.25,
+          "z": 20.2224
+        }
+      }
+    ],
     "support_collision_boxes": [
       {
         "offset": {
@@ -62,7 +80,7 @@
     "drag_max_angular_velocity": 90,
     "release_linear_damping": 0.009999999776482582,
     "release_angular_damping": 0.05000000074505806,
-    "display_name": "Ceiling light",
+    "display_name": "Painting",
     "description": "Store furniture.",
     "level": 1,
     "gameplay_tags": [

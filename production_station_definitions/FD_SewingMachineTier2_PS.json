@@ -29,6 +29,44 @@
     "starting_health": 33,
     "loot_dropped_on_death": [],
     "deconstruction_tier": 2,
+    "blocking_collision_boxes": [
+      {
+        "offset": {
+          "x": 0.718,
+          "y": -24.1419,
+          "z": 28.8705
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 15.0151,
+          "y": 26.1264,
+          "z": 23.0971
+        }
+      }
+    ],
+    "support_collision_boxes": [
+      {
+        "offset": {
+          "x": 0.718,
+          "y": -24.1419,
+          "z": 28.2782
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 21.4502,
+          "y": 37.3235,
+          "z": 29.6117
+        }
+      }
+    ],
     "constructable_item_to_grant": "ID_SewingMachineTier2_CI",
     "building_base": {
       "rotation": {

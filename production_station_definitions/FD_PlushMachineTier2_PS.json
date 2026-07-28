@@ -31,6 +31,44 @@
     "loot_dropped_on_death": [],
     "constructable_item_to_grant": "ID_PlushMachineTier2_CI",
     "deconstruction_tier": 2,
+    "blocking_collision_boxes": [
+      {
+        "offset": {
+          "x": -0.0101,
+          "y": -0.0004,
+          "z": 107.0452
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 26.8548,
+          "y": 32.2824,
+          "z": 70.3527
+        }
+      }
+    ],
+    "support_collision_boxes": [
+      {
+        "offset": {
+          "x": -0.0101,
+          "y": -0.0004,
+          "z": 105.9629
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 38.364,
+          "y": 46.1177,
+          "z": 108.2349
+        }
+      }
+    ],
     "building_base": {
       "rotation": {
         "x": 0.0,

@@ -13,7 +13,25 @@
     ],
     "constructable_item_to_grant": "ID_BulletinBoard_CI",
     "deconstruction_tier": 2,
-    "blocking_collision_boxes": [],
+    "blocking_collision_boxes": [
+      {
+        "offset": {
+          "x": 0,
+          "y": 1.2334,
+          "z": 0
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 64.9945,
+          "y": 0.25,
+          "z": 44.4244
+        }
+      }
+    ],
     "support_collision_boxes": [
       {
         "offset": {

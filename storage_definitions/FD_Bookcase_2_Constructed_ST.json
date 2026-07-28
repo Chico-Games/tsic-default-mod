@@ -22,6 +22,44 @@
     "destructible_collection": "/Game/Furniture/Shelves/GeometryCollections/GCS_Bookcase02_Vol1.GCS_Bookcase02_Vol1",
     "loot_dropped_on_death": [],
     "deconstruction_tier": 2,
+    "blocking_collision_boxes": [
+      {
+        "offset": {
+          "x": 0,
+          "y": 19.05,
+          "z": 98.0295
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 24.1049,
+          "y": 11.662,
+          "z": 58.7957
+        }
+      }
+    ],
+    "support_collision_boxes": [
+      {
+        "offset": {
+          "x": 0,
+          "y": 19.05,
+          "z": 91.4966
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 40.1748,
+          "y": 19.4366,
+          "z": 93.3266
+        }
+      }
+    ],
     "constructable_item_to_grant": "ID_Bookcase_2_CI",
     "building_base": {
       "rotation": {

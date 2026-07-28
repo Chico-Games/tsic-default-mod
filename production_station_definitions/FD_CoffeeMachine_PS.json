@@ -32,6 +32,44 @@
     "loot_dropped_on_death": [],
     "constructable_item_to_grant": "ID_CoffeeMachine_CI",
     "deconstruction_tier": 2,
+    "blocking_collision_boxes": [
+      {
+        "offset": {
+          "x": 0.3281,
+          "y": -2.9112,
+          "z": 33.2859
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 30.8657,
+          "y": 22.2218,
+          "z": 25.9529
+        }
+      }
+    ],
+    "support_collision_boxes": [
+      {
+        "offset": {
+          "x": 0.3281,
+          "y": -2.9112,
+          "z": 32.6205
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 44.0938,
+          "y": 31.7454,
+          "z": 33.2729
+        }
+      }
+    ],
     "building_base": {
       "rotation": {
         "x": 0.0,

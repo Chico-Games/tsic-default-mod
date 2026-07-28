@@ -13,11 +13,10 @@
     ],
     "constructable_item_to_grant": "ID_MensBathroomSign_CI",
     "deconstruction_tier": 1,
-    "blocking_collision_boxes": [],
-    "support_collision_boxes": [
+    "blocking_collision_boxes": [
       {
         "offset": {
-          "x": 0,
+          "x": 0.171,
           "y": 0,
           "z": 0
         },
@@ -27,9 +26,28 @@
           "roll": 0
         },
         "box_size": {
-          "x": 21.10015758872032,
-          "y": 13.429742656648159,
-          "z": 1.6132178008556366
+          "x": 0.25,
+          "y": 9.18,
+          "z": 15.504
+        }
+      }
+    ],
+    "support_collision_boxes": [
+      {
+        "offset": {
+          "x": 0.171,
+          "y": 0,
+          "z": 0
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 3,
+          "y": 12.75,
+          "z": 20.4
         }
       }
     ],

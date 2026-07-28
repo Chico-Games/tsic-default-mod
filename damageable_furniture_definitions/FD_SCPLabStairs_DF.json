@@ -10,6 +10,44 @@
     ],
     "constructable_item_to_grant": "ID_SCPLabStairs_CI",
     "deconstruction_tier": 3,
+    "blocking_collision_boxes": [
+      {
+        "offset": {
+          "x": 229.3347,
+          "y": -99.9413,
+          "z": -111.2304
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 140.3528,
+          "y": 79.6447,
+          "z": 151.488
+        }
+      }
+    ],
+    "support_collision_boxes": [
+      {
+        "offset": {
+          "x": 229.3347,
+          "y": -99.9413,
+          "z": -93.4083
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 233.9214,
+          "y": 132.7411,
+          "z": 222.7764
+        }
+      }
+    ],
     "building_base": {
       "rotation": {
         "x": 0.0,

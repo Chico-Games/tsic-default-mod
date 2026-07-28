@@ -22,6 +22,44 @@
     "destructible_collection": "/Game/Furniture/Shelves/GeometryCollections/GC_SM_Bookcase01_Vol1.GC_SM_Bookcase01_Vol1",
     "loot_dropped_on_death": [],
     "deconstruction_tier": 2,
+    "blocking_collision_boxes": [
+      {
+        "offset": {
+          "x": 0,
+          "y": -1.4838,
+          "z": 88.6631
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 27.2556,
+          "y": 29.1294,
+          "z": 58.1759
+        }
+      }
+    ],
+    "support_collision_boxes": [
+      {
+        "offset": {
+          "x": 0,
+          "y": -1.4838,
+          "z": 87.768
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 38.9366,
+          "y": 41.6134,
+          "z": 89.5014
+        }
+      }
+    ],
     "constructable_item_to_grant": "ID_Fridge_5_CI",
     "upgrade_recipe": "RD_Fridges_CN",
     "building_base": {

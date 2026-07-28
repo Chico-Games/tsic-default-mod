@@ -13,7 +13,25 @@
     ],
     "constructable_item_to_grant": "ID_Mirror_CI",
     "deconstruction_tier": 2,
-    "blocking_collision_boxes": [],
+    "blocking_collision_boxes": [
+      {
+        "offset": {
+          "x": 0.9333,
+          "y": 1.5221,
+          "z": 2.0294
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 0.25,
+          "y": 112.6835,
+          "z": 31.3487
+        }
+      }
+    ],
     "support_collision_boxes": [
       {
         "offset": {

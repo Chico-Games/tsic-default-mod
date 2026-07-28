@@ -31,6 +31,44 @@
     "destructible_collection": "/Game/Furniture/SewingMachine/GeometryCollections/GCS_SewingMachine.GCS_SewingMachine",
     "loot_dropped_on_death": [],
     "deconstruction_tier": 3,
+    "blocking_collision_boxes": [
+      {
+        "offset": {
+          "x": 0,
+          "y": 0,
+          "z": 59.8576
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 19.9664,
+          "y": 17.9702,
+          "z": 29.8446
+        }
+      }
+    ],
+    "support_collision_boxes": [
+      {
+        "offset": {
+          "x": 0,
+          "y": 0,
+          "z": 50.5955
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 34.4248,
+          "y": 30.9832,
+          "z": 51.4562
+        }
+      }
+    ],
     "upgrade_recipe": "RD_KilnTier2_CN",
     "building_base": {
       "rotation": {
@@ -57,7 +95,7 @@
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,
-    "static_mesh": "/Game/Furniture/SewingMachine/Meshes/SM_SewingMachine.SM_SewingMachine",
+    "static_mesh": "/Game/Commercial_Kitchen/Meshes/SM_PizzaOven.SM_PizzaOven",
     "casts_shadow": true,
     "collision_profile_name": {
       "name": "Furniture"

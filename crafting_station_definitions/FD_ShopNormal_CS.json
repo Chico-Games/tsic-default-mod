@@ -96,6 +96,44 @@
       "LD_VendingMachine"
     ],
     "deconstruction_tier": 2,
+    "blocking_collision_boxes": [
+      {
+        "offset": {
+          "x": -0.7975,
+          "y": 3.6837,
+          "z": 76.1025
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 34.2239,
+          "y": 24.2745,
+          "z": 54.9542
+        }
+      }
+    ],
+    "support_collision_boxes": [
+      {
+        "offset": {
+          "x": -0.7975,
+          "y": 3.6837,
+          "z": 75.2571
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 48.8913,
+          "y": 34.6778,
+          "z": 84.5449
+        }
+      }
+    ],
     "constructable_item_to_grant": "ID_ShopNormal_CI",
     "building_base": {
       "rotation": {

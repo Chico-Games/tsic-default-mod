@@ -92,6 +92,44 @@
       "LD_VendingMachine"
     ],
     "deconstruction_tier": 2,
+    "blocking_collision_boxes": [
+      {
+        "offset": {
+          "x": 0,
+          "y": 0.6427,
+          "z": 92.6893
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 32.5818,
+          "y": 30.6225,
+          "z": 61.0456
+        }
+      }
+    ],
+    "support_collision_boxes": [
+      {
+        "offset": {
+          "x": 0,
+          "y": 0.6427,
+          "z": 91.7502
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 46.5454,
+          "y": 43.7465,
+          "z": 93.9162
+        }
+      }
+    ],
     "constructable_item_to_grant": "ID_ShopEasy_CI",
     "building_base": {
       "rotation": {
