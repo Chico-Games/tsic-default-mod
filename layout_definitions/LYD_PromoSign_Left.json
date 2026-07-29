@@ -1,101 +1,30 @@
 {
-  "id": "LYD_TileBase",
-  "asset_path": "/Game/WorldGeneration/Layouts/Shared/LYD_TileBase",
+  "id": "LYD_PromoSign_Left",
+  "asset_path": "/Game/WorldGeneration/Layouts/Signs/LYD_PromoSign_Left",
   "class": "ULayoutDefinition",
   "schema_version": 2,
   "properties": {
     "layout_objects": [
       {
         "layout_actor_type": {
-          "name": "LAYOUT",
-          "value": 1
+          "name": "PROXY_ACTOR",
+          "value": 0
         },
         "b_visual_helper": false,
         "definition_filter": {
           "seed_offset": -1,
-          "search_queries": [],
-          "tile_requirements": [
+          "search_queries": [
             {
               "search_query": {
-                "name": "HAS_ANY_EXACT",
-                "value": 2
+                "name": "HAS_ALL_EXACT",
+                "value": 4
               },
               "tags": [
-                "Tile.Biome.ShowFloor",
-                "Tile.Biome.Warehouse",
-                "Tile.Biome.Kids",
-                "Tile.Biome.Restaurant",
-                "Tile.Biome.Gardening",
-                "Tile.Biome.LostAndFound"
+                "Entity.PromoSign.ShowFloor"
               ],
               "b_not": false
             }
           ],
-          "spawn_chance_over": 0.0,
-          "spawn_chance_under": 1.0
-        },
-        "layout_definition": "LYD_PromoSigns",
-        "transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0,
-            "w": 1.0
-          },
-          "translation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        }
-      },
-      {
-        "layout_actor_type": {
-          "name": "LAYOUT",
-          "value": 1
-        },
-        "b_visual_helper": false,
-        "definition_filter": {
-          "seed_offset": -1,
-          "search_queries": [],
-          "tile_requirements": [],
-          "spawn_chance_over": 0.0,
-          "spawn_chance_under": 1.0
-        },
-        "layout_definition": "LYD_Floor_MixedBiome_Scaled",
-        "transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0,
-            "w": 1.0
-          },
-          "translation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        }
-      },
-      {
-        "layout_actor_type": {
-          "name": "LAYOUT",
-          "value": 1
-        },
-        "b_visual_helper": false,
-        "definition_filter": {
-          "seed_offset": -1,
-          "search_queries": [],
           "tile_requirements": [
             {
               "search_query": {
@@ -103,21 +32,14 @@
                 "value": 2
               },
               "tags": [
-                "Tile.Biome.AbandonedCamp",
-                "Tile.Biome.Gardening",
-                "Tile.Biome.HelpPoint",
-                "Tile.Biome.Kids",
-                "Tile.Biome.Map",
-                "Tile.Biome.BossArena",
                 "Tile.Biome.ShowFloor"
               ],
               "b_not": false
             }
           ],
           "spawn_chance_over": 0.0,
-          "spawn_chance_under": 1.0
+          "spawn_chance_under": 0.03
         },
-        "layout_definition": "LYD_MazePathFiltered",
         "transform": {
           "rotation": {
             "x": 0.0,
@@ -139,79 +61,24 @@
       },
       {
         "layout_actor_type": {
-          "name": "LAYOUT",
-          "value": 1
+          "name": "PROXY_ACTOR",
+          "value": 0
         },
         "b_visual_helper": false,
         "definition_filter": {
           "seed_offset": -1,
-          "search_queries": [],
-          "tile_requirements": [],
-          "spawn_chance_over": 0.0,
-          "spawn_chance_under": 1.0
-        },
-        "layout_definition": "LYD_Wall_AllSide_MixedBiome",
-        "transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0,
-            "w": 1.0
-          },
-          "translation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        }
-      },
-      {
-        "layout_actor_type": {
-          "name": "LAYOUT",
-          "value": 1
-        },
-        "b_visual_helper": false,
-        "definition_filter": {
-          "seed_offset": -1,
-          "search_queries": [],
-          "tile_requirements": [],
-          "spawn_chance_over": 0.0,
-          "spawn_chance_under": 1.0
-        },
-        "layout_definition": "LYD_Ceiling_MixedBiome",
-        "transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0,
-            "w": 1.0
-          },
-          "translation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        }
-      },
-      {
-        "layout_actor_type": {
-          "name": "LAYOUT",
-          "value": 1
-        },
-        "b_visual_helper": false,
-        "definition_filter": {
-          "seed_offset": -1,
-          "search_queries": [],
+          "search_queries": [
+            {
+              "search_query": {
+                "name": "HAS_ALL_EXACT",
+                "value": 4
+              },
+              "tags": [
+                "Entity.PromoSign.Warehouse"
+              ],
+              "b_not": false
+            }
+          ],
           "tile_requirements": [
             {
               "search_query": {
@@ -219,20 +86,230 @@
                 "value": 2
               },
               "tags": [
-                "Tile.Biome.ShowFloor",
-                "Tile.Biome.Warehouse",
-                "Tile.Biome.Kids",
-                "Tile.Biome.Restaurant",
-                "Tile.Biome.Gardening",
+                "Tile.Biome.Warehouse"
+              ],
+              "b_not": false
+            }
+          ],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 0.06
+        },
+        "transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 1.0
+          },
+          "translation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "PROXY_ACTOR",
+          "value": 0
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [
+            {
+              "search_query": {
+                "name": "HAS_ALL_EXACT",
+                "value": 4
+              },
+              "tags": [
+                "Entity.PromoSign.Kids"
+              ],
+              "b_not": false
+            }
+          ],
+          "tile_requirements": [
+            {
+              "search_query": {
+                "name": "HAS_ANY_EXACT",
+                "value": 2
+              },
+              "tags": [
+                "Tile.Biome.Kids"
+              ],
+              "b_not": false
+            }
+          ],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 0.1
+        },
+        "transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 1.0
+          },
+          "translation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "PROXY_ACTOR",
+          "value": 0
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [
+            {
+              "search_query": {
+                "name": "HAS_ALL_EXACT",
+                "value": 4
+              },
+              "tags": [
+                "Entity.PromoSign.Cafe"
+              ],
+              "b_not": false
+            }
+          ],
+          "tile_requirements": [
+            {
+              "search_query": {
+                "name": "HAS_ANY_EXACT",
+                "value": 2
+              },
+              "tags": [
+                "Tile.Biome.Restaurant"
+              ],
+              "b_not": false
+            }
+          ],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 0.08
+        },
+        "transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 1.0
+          },
+          "translation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "PROXY_ACTOR",
+          "value": 0
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [
+            {
+              "search_query": {
+                "name": "HAS_ALL_EXACT",
+                "value": 4
+              },
+              "tags": [
+                "Entity.PromoSign.Gardening"
+              ],
+              "b_not": false
+            }
+          ],
+          "tile_requirements": [
+            {
+              "search_query": {
+                "name": "HAS_ANY_EXACT",
+                "value": 2
+              },
+              "tags": [
+                "Tile.Biome.Gardening"
+              ],
+              "b_not": false
+            }
+          ],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 0.08
+        },
+        "transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 1.0
+          },
+          "translation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "PROXY_ACTOR",
+          "value": 0
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [
+            {
+              "search_query": {
+                "name": "HAS_ALL_EXACT",
+                "value": 4
+              },
+              "tags": [
+                "Entity.PromoSign.LostAndFound"
+              ],
+              "b_not": false
+            }
+          ],
+          "tile_requirements": [
+            {
+              "search_query": {
+                "name": "HAS_ANY_EXACT",
+                "value": 2
+              },
+              "tags": [
                 "Tile.Biome.LostAndFound"
               ],
               "b_not": false
             }
           ],
           "spawn_chance_over": 0.0,
-          "spawn_chance_under": 1.0
+          "spawn_chance_under": 0.1
         },
-        "layout_definition": "LYD_WelcomeSigns",
         "transform": {
           "rotation": {
             "x": 0.0,

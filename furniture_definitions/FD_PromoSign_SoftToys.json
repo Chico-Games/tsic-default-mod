@@ -1,0 +1,27 @@
+{
+  "id": "FD_PromoSign_SoftToys",
+  "asset_path": "/Game/Furniture/Signs/Furniture/FD_PromoSign_SoftToys",
+  "class": "UFurnitureDefinition",
+  "schema_version": 2,
+  "properties": {
+    "display_name": "Buy 2 Get 1 Free Soft Toys Banner",
+    "level": 1,
+    "default_world_gen_gameplay_tags": [],
+    "meta_tags": [],
+    "is_pingable": false,
+    "static_mesh": "/Game/Furniture/Signs/Meshes/SM_PromoSign_SoftToys.SM_PromoSign_SoftToys",
+    "casts_shadow": true,
+    "collision_profile_name": {
+      "name": "NoCollision"
+    },
+    "random_material_overrides": [],
+    "loot_positions": [],
+    "weighted_chance": 1000,
+    "world_gen_priority": 5000,
+    "gameplay_tags": [
+      "Entity.RandomGeneration.CanBeRandom",
+      "Entity.PromoSign",
+      "Entity.PromoSign.Kids"
+    ]
+  }
+}
