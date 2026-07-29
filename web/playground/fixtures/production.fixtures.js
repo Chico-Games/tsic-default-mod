@@ -79,6 +79,18 @@ TSICPlayground.register({
         { label: 'Insufficient (empty inv)', apply() {
             TSICPlaygroundInventory.reset({ items: [], maxSlots: 32, maxWeight: 30 });
         } },
+        // Completed entries sit at the TAIL of the broadcast (in-progress block
+        // first), with Progress 1 — the page renders them as Take-able rows.
+        { label: 'Completed, ready to take', apply(s) { s.queue = [
+            { QueueIndex: 0, RecipeId: 'R_Nail',  Progress: 0.5, bIsActive: true  },
+            { QueueIndex: 1, RecipeId: 'R_Bread', Progress: 1,   bIsActive: false },
+        ]; } },
+        { label: 'Completed stack (Bread ×3)', apply(s) { s.queue = [
+            { QueueIndex: 0, RecipeId: 'R_Nail',  Progress: 0.3, bIsActive: true  },
+            { QueueIndex: 1, RecipeId: 'R_Bread', Progress: 1,   bIsActive: false },
+            { QueueIndex: 2, RecipeId: 'R_Bread', Progress: 1,   bIsActive: false },
+            { QueueIndex: 3, RecipeId: 'R_Bread', Progress: 1,   bIsActive: false },
+        ]; } },
         // Tick/Complete operate on the queue, but with reset-before-each the
         // queue is empty when these run, so they're no-ops against initial.
         // Useful in interactive playground; visualChange:false in sweep.
@@ -87,15 +99,17 @@ TSICPlayground.register({
             if (active) active.Progress = Math.min(1.0, (active.Progress || 0) + 0.2);
         }, expect: { visualChange: false } },
         { label: 'Complete active',     apply(s) {
+            // Mirrors the server: a finished recipe moves to the completed tail
+            // (Progress 1) and waits to be taken; the next pending one starts.
             const active = s.queue.find(e => e.bIsActive);
             if (!active) return;
-            const recipe = s.recipes.find(r => r.RecipeId === active.RecipeId);
-            for (const out of (recipe && recipe.Outputs) || []) {
-                TSICPlaygroundInventory.add(out.ItemId, out.Count);
-            }
+            active.bIsActive = false;
+            active.Progress = 1;
             s.queue.splice(s.queue.indexOf(active), 1);
+            s.queue.push(active);
+            const next = s.queue.find(e => !e.bIsActive && (e.Progress || 0) < 1);
+            if (next) next.bIsActive = true;
             s.queue.forEach((e, i) => { e.QueueIndex = i; });
-            if (s.queue.length) s.queue[0].bIsActive = true;
         }, expect: { visualChange: false } },
         { label: 'Recipes locked',      apply(s) { s.recipes = s.recipes.map(r => ({ ...r, bStationLevelSufficient: false, RequiredStationLevel: 5 })); } },
     ],
@@ -111,14 +125,26 @@ TSICPlayground.register({
                 Progress: 0, bIsActive: state.queue.length === 0,
             });
         } else if (channel === 'UI.Cmd.Recipe.Cancel' && payload.Kind === 'Production') {
-            const idx = state.queue.findIndex(e => e.QueueIndex === payload.QueueIndex);
-            if (idx >= 0) {
-                const recipe = state.recipes.find(r => r.RecipeId === state.queue[idx].RecipeId);
+            // The page publishes MACHINE-space indices: completed recipes first,
+            // then the in-progress block. Mirror the server's semantics: removing
+            // a completed entry grants its outputs (take); removing a pending
+            // one refunds its inputs (cancel).
+            const done = state.queue.filter(e => !e.bIsActive && (e.Progress || 0) >= 1);
+            const pending = state.queue.filter(e => done.indexOf(e) < 0);
+            const mi = payload.QueueIndex;
+            const entry = mi < done.length ? done[mi] : pending[mi - done.length];
+            if (!entry) return;
+            const recipe = state.recipes.find(r => r.RecipeId === entry.RecipeId);
+            if (done.indexOf(entry) >= 0) {
+                for (const out of (recipe && recipe.Outputs) || []) {
+                    TSICPlaygroundInventory.add(out.ItemId, out.Count);
+                }
+            } else {
                 for (const ing of (recipe && recipe.Ingredients) || []) {
                     TSICPlaygroundInventory.add(ing.ItemId, ing.Count);
                 }
-                state.queue.splice(idx, 1);
             }
+            state.queue.splice(state.queue.indexOf(entry), 1);
             state.queue.forEach((e, i) => { e.QueueIndex = i; });
             if (state.queue.length && !state.queue.some(e => e.bIsActive)) state.queue[0].bIsActive = true;
         }

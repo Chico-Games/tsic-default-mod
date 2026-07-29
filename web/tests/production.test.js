@@ -312,49 +312,6 @@ TSICTestHarness.register({
     },
 });
 
-// ---- Completed jobs: Collect (not Cancel), correct RemoveIndex, not draggable -----
-// Regression guard for two bugs: a finished job's only action was "Cancel", and the page
-// reused the display position as the server remove index — but the server's remove space is
-// COMPLETED-first, so with a completed job present every cancel/collect hit the wrong entry.
-TSICTestHarness.register({
-    name: 'Production/Queue: completed job offers Collect with the completed-first RemoveIndex',
-    file: '/screens/production.html',
-    async run(ctx) {
-        ctx.screen('Production');
-        ctx.inject('tsic.msg.UI.Recipe.StationOpened', {
-            Kind: 'Production',
-            StationId: 'S_Sawmill',
-            Recipes: [{ RecipeId: 'R', Name: 'R', bDiscovered: true, bStationLevelSufficient: true, Ingredients: [], Outputs: [] }],
-            MaterialCounts: {},
-        });
-        // Display order is active-first; the single completed job sits last but owns
-        // RemoveIndex 0, and the two in-progress jobs are shifted by CompletedCount.
-        ctx.inject('tsic.msg.UI.Recipe.QueueChanged', { Kind: 'Production', StationId: 'S_Sawmill', Entries: [
-            { RecipeId: 'R', QueueIndex: 0, Progress: 0.4, bIsActive: true,  bCompleted: false, RemoveIndex: 1, ReorderIndex: -1 },
-            { RecipeId: 'R', QueueIndex: 1, Progress: 0,   bIsActive: false, bCompleted: false, RemoveIndex: 2, ReorderIndex: 1 },
-            { RecipeId: 'R', QueueIndex: 2, Progress: 1,   bIsActive: false, bCompleted: true,  RemoveIndex: 0, ReorderIndex: -1 },
-        ]});
-        await ctx.waitFor(() => ctx.doc.querySelectorAll('#p-queue .q-entry').length === 3);
-        const entries = ctx.doc.querySelectorAll('#p-queue .q-entry');
-
-        // The finished job reads as a reward, not a deletion, and cannot be dragged.
-        ctx.expect(ctx.assert.eq(entries[2].querySelector('.q-cancel').textContent, 'Collect'));
-        ctx.expect(ctx.assert.eq(entries[0].querySelector('.q-cancel').textContent, 'Cancel'));
-        ctx.expect(ctx.assert.eq(entries[2].draggable, false));
-
-        ctx.clearPublishes();
-        entries[2].querySelector('.q-cancel').click();
-        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Recipe.Cancel',
-            { where: p => p.QueueIndex === 0 }));
-
-        // ...and cancelling the in-progress row uses ITS shifted remove index, not its position.
-        ctx.clearPublishes();
-        entries[1].querySelector('.q-cancel').click();
-        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Recipe.Cancel',
-            { where: p => p.QueueIndex === 2 }));
-    },
-});
-
 // ---- Queued jobs are never masked as "???" -------------------------------------
 // The discovery mask belongs to the browsable recipe list; a job the player queued
 // themselves must name itself.
@@ -381,6 +338,191 @@ TSICTestHarness.register({
         const name = ctx.doc.querySelector('#p-queue .q-entry .name').textContent;
         ctx.expect(ctx.assert.eq(name.includes('???'), false));
         ctx.expect(ctx.assert.eq(name.includes('Wooden Plank'), true));
+    },
+});
+
+// ---- Completed entries: Take button, click-to-take, stacking ------------
+// Server queue layout (BroadcastUIProductionQueue): in-progress block first
+// (active at 0), completed block last with Progress=1. The remove command is
+// interpreted in the MACHINE index space (completed 0..C-1, then in-progress),
+// so the page must translate SPA indices when publishing.
+
+TSICTestHarness.register({
+    name: 'Production/Take: completed entry renders Take button, others keep Cancel',
+    file: '/screens/production.html',
+    async run(ctx) {
+        ctx.screen('Production');
+        ctx.inject('tsic.msg.UI.Recipe.StationOpened', { Kind: 'Production', StationId: 'S', Recipes: [], MaterialCounts: {} });
+        ctx.inject('tsic.msg.UI.Recipe.QueueChanged', { Kind: 'Production', StationId: 'S', Entries: [
+            { RecipeId: 'R_A', QueueIndex: 0, Progress: 0.5, bIsActive: true,  bCompleted: false, RemoveIndex: 1, ReorderIndex: -1 },
+            { RecipeId: 'R_B', QueueIndex: 1, Progress: 0,   bIsActive: false, bCompleted: false, RemoveIndex: 2, ReorderIndex: 1 },
+            { RecipeId: 'R_C', QueueIndex: 2, Progress: 1,   bIsActive: false, bCompleted: true,  RemoveIndex: 0, ReorderIndex: -1 },
+        ]});
+        await ctx.waitFor(() => ctx.doc.querySelectorAll('#p-queue .q-entry').length === 3);
+        const entries = ctx.doc.querySelectorAll('#p-queue .q-entry');
+        ctx.expect(ctx.assert.domText(entries[0], '.q-cancel', 'Cancel'));
+        ctx.expect(ctx.assert.domText(entries[1], '.q-cancel', 'Cancel'));
+        ctx.expect(ctx.assert.domText(entries[2], '.q-take', 'Take'));
+        ctx.expect(ctx.assert.eq(entries[2].querySelectorAll('.q-cancel').length, 0, 'completed row must not offer Cancel'));
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Production/Take: Take button publishes machine-space index + Inventory.Transfer sound',
+    file: '/screens/production.html',
+    async run(ctx) {
+        ctx.screen('Production');
+        ctx.inject('tsic.msg.UI.Recipe.StationOpened', { Kind: 'Production', StationId: 'S', Recipes: [], MaterialCounts: {} });
+        // P=2 in-progress, C=1 completed. Completed SPA index 2 → machine index 0.
+        ctx.inject('tsic.msg.UI.Recipe.QueueChanged', { Kind: 'Production', StationId: 'S', Entries: [
+            { RecipeId: 'R_A', QueueIndex: 0, Progress: 0.5, bIsActive: true,  bCompleted: false, RemoveIndex: 1, ReorderIndex: -1 },
+            { RecipeId: 'R_B', QueueIndex: 1, Progress: 0,   bIsActive: false, bCompleted: false, RemoveIndex: 2, ReorderIndex: 1 },
+            { RecipeId: 'R_C', QueueIndex: 2, Progress: 1,   bIsActive: false, bCompleted: true,  RemoveIndex: 0, ReorderIndex: -1 },
+        ]});
+        await ctx.waitFor(() => ctx.doc.querySelectorAll('#p-queue .q-entry').length === 3);
+        ctx.clearPublishes();
+        ctx.doc.querySelectorAll('#p-queue .q-entry')[2].querySelector('.q-take').click();
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Recipe.Cancel',
+            { where: p => p.Kind === 'Production' && p.StationId === 'S' && p.QueueIndex === 0 }));
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Sound.Play',
+            { where: p => p.SoundKey === 'Inventory.Transfer' }));
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Production/Take: Cancel on pending entry offsets by completed count (machine-space index)',
+    file: '/screens/production.html',
+    async run(ctx) {
+        ctx.screen('Production');
+        ctx.inject('tsic.msg.UI.Recipe.StationOpened', { Kind: 'Production', StationId: 'S', Recipes: [], MaterialCounts: {} });
+        // C=1 completed → pending SPA index 1 must publish machine index 1+1=2.
+        ctx.inject('tsic.msg.UI.Recipe.QueueChanged', { Kind: 'Production', StationId: 'S', Entries: [
+            { RecipeId: 'R_A', QueueIndex: 0, Progress: 0.5, bIsActive: true,  bCompleted: false, RemoveIndex: 1, ReorderIndex: -1 },
+            { RecipeId: 'R_B', QueueIndex: 1, Progress: 0,   bIsActive: false, bCompleted: false, RemoveIndex: 2, ReorderIndex: 1 },
+            { RecipeId: 'R_C', QueueIndex: 2, Progress: 1,   bIsActive: false, bCompleted: true,  RemoveIndex: 0, ReorderIndex: -1 },
+        ]});
+        await ctx.waitFor(() => ctx.doc.querySelectorAll('#p-queue .q-entry').length === 3);
+        const entries = ctx.doc.querySelectorAll('#p-queue .q-entry');
+        ctx.clearPublishes();
+        entries[1].querySelector('.q-cancel').click();
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Recipe.Cancel',
+            { where: p => p.Kind === 'Production' && p.QueueIndex === 2 }));
+        // Active entry SPA 0 → machine index 1.
+        ctx.clearPublishes();
+        entries[0].querySelector('.q-cancel').click();
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Recipe.Cancel',
+            { where: p => p.Kind === 'Production' && p.QueueIndex === 1 }));
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Production/Take: clicking anywhere on a completed row takes it; pending row click does not',
+    file: '/screens/production.html',
+    async run(ctx) {
+        ctx.screen('Production');
+        ctx.inject('tsic.msg.UI.Recipe.StationOpened', { Kind: 'Production', StationId: 'S', Recipes: [], MaterialCounts: {} });
+        ctx.inject('tsic.msg.UI.Recipe.QueueChanged', { Kind: 'Production', StationId: 'S', Entries: [
+            { RecipeId: 'R_A', QueueIndex: 0, Progress: 0.5, bIsActive: true,  bCompleted: false, RemoveIndex: 1, ReorderIndex: -1 },
+            { RecipeId: 'R_B', QueueIndex: 1, Progress: 0,   bIsActive: false, bCompleted: false, RemoveIndex: 2, ReorderIndex: 1 },
+            { RecipeId: 'R_C', QueueIndex: 2, Progress: 1,   bIsActive: false, bCompleted: true,  RemoveIndex: 0, ReorderIndex: -1 },
+        ]});
+        await ctx.waitFor(() => ctx.doc.querySelectorAll('#p-queue .q-entry').length === 3);
+        const entries = ctx.doc.querySelectorAll('#p-queue .q-entry');
+        ctx.clearPublishes();
+        entries[2].click();
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Recipe.Cancel',
+            { where: p => p.Kind === 'Production' && p.QueueIndex === 0 }));
+        ctx.clearPublishes();
+        entries[1].click();
+        ctx.expect(ctx.assert.notPublished(ctx.handle, 'UI.Cmd.Recipe.Cancel'));
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Production/Take: gamepad confirm on completed row takes it',
+    file: '/screens/production.html',
+    async run(ctx) {
+        ctx.screen('Production');
+        ctx.inject('tsic.msg.UI.Recipe.StationOpened', { Kind: 'Production', StationId: 'S', Recipes: [], MaterialCounts: {} });
+        ctx.inject('tsic.msg.UI.Recipe.QueueChanged', { Kind: 'Production', StationId: 'S', Entries: [
+            { RecipeId: 'R_A', QueueIndex: 0, Progress: 0.5, bIsActive: true,  bCompleted: false, RemoveIndex: 1, ReorderIndex: -1 },
+            { RecipeId: 'R_B', QueueIndex: 1, Progress: 1,   bIsActive: false, bCompleted: true,  RemoveIndex: 0, ReorderIndex: -1 },
+        ]});
+        await ctx.waitFor(() => ctx.doc.querySelectorAll('#p-queue .q-entry').length === 2);
+        const row = ctx.doc.querySelectorAll('#p-queue .q-entry')[1];
+        ctx.expect(ctx.assert.truthy(row.hasAttribute('data-tsic-focusable'), 'completed row must be gamepad-focusable'));
+        ctx.clearPublishes();
+        row.dispatchEvent(new ctx.win.Event('tsic:confirm', { bubbles: true, cancelable: true }));
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Recipe.Cancel',
+            { where: p => p.Kind === 'Production' && p.QueueIndex === 0 }));
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Production/Stack: same-recipe completed entries collapse into one row with a count',
+    file: '/screens/production.html',
+    async run(ctx) {
+        ctx.screen('Production');
+        ctx.setItemCatalog({ ID_B: { Name: 'Bread' } });
+        ctx.inject('tsic.msg.UI.Recipe.StationOpened', {
+            Kind: 'Production', StationId: 'S',
+            Recipes: [{ RecipeId: 'R_B', Name: 'B', bDiscovered: true, bStationLevelSufficient: true,
+                        Ingredients: [], Outputs: [{ ItemId: 'ID_B', Count: 1 }] }],
+            MaterialCounts: {},
+        });
+        ctx.inject('tsic.msg.UI.Recipe.QueueChanged', { Kind: 'Production', StationId: 'S', Entries: [
+            { RecipeId: 'R_A', QueueIndex: 0, Progress: 0.5, bIsActive: true,  bCompleted: false, RemoveIndex: 3, ReorderIndex: -1 },
+            { RecipeId: 'R_B', QueueIndex: 1, Progress: 1,   bIsActive: false, bCompleted: true,  RemoveIndex: 0, ReorderIndex: -1 },
+            { RecipeId: 'R_B', QueueIndex: 2, Progress: 1,   bIsActive: false, bCompleted: true,  RemoveIndex: 1, ReorderIndex: -1 },
+            { RecipeId: 'R_C', QueueIndex: 3, Progress: 1,   bIsActive: false, bCompleted: true,  RemoveIndex: 2, ReorderIndex: -1 },
+        ]});
+        // 1 active + R_B stack (×2) + R_C = 3 rows.
+        await ctx.waitFor(() => ctx.doc.querySelectorAll('#p-queue .q-entry').length === 3);
+        const entries = ctx.doc.querySelectorAll('#p-queue .q-entry');
+        ctx.expect(ctx.assert.domText(entries[1], '.q-count', '×2'));
+        ctx.expect(ctx.assert.eq(entries[2].querySelectorAll('.q-count').length, 0, 'single completed row shows no count'));
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Production/Stack: taking a stack publishes one removal per item, descending machine index',
+    file: '/screens/production.html',
+    async run(ctx) {
+        ctx.screen('Production');
+        ctx.inject('tsic.msg.UI.Recipe.StationOpened', { Kind: 'Production', StationId: 'S', Recipes: [], MaterialCounts: {} });
+        // P=1, C=2 (same recipe). Completed SPA 1,2 → machine 0,1; must publish 1 then 0.
+        ctx.inject('tsic.msg.UI.Recipe.QueueChanged', { Kind: 'Production', StationId: 'S', Entries: [
+            { RecipeId: 'R_A', QueueIndex: 0, Progress: 0.5, bIsActive: true,  bCompleted: false, RemoveIndex: 2, ReorderIndex: -1 },
+            { RecipeId: 'R_B', QueueIndex: 1, Progress: 1,   bIsActive: false, bCompleted: true,  RemoveIndex: 0, ReorderIndex: -1 },
+            { RecipeId: 'R_B', QueueIndex: 2, Progress: 1,   bIsActive: false, bCompleted: true,  RemoveIndex: 1, ReorderIndex: -1 },
+        ]});
+        await ctx.waitFor(() => ctx.doc.querySelectorAll('#p-queue .q-entry').length === 2);
+        ctx.clearPublishes();
+        ctx.doc.querySelectorAll('#p-queue .q-entry')[1].querySelector('.q-take').click();
+        const removals = ctx.handle.publishes().filter(p => p.channel === 'UI.Cmd.Recipe.Cancel');
+        ctx.expect(ctx.assert.eq(removals.length, 2, 'one removal per stacked item'));
+        ctx.expect(ctx.assert.eq(removals.map(p => p.payload.QueueIndex), [1, 0], 'descending machine indices'));
+        // Sound plays once, not per item.
+        const sounds = ctx.handle.publishes().filter(p => p.channel === 'UI.Cmd.Sound.Play' && p.payload.SoundKey === 'Inventory.Transfer');
+        ctx.expect(ctx.assert.eq(sounds.length, 1, 'single take sound for the stack'));
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Production/Take: completed rows are not draggable',
+    file: '/screens/production.html',
+    async run(ctx) {
+        ctx.screen('Production');
+        ctx.inject('tsic.msg.UI.Recipe.StationOpened', { Kind: 'Production', StationId: 'S', Recipes: [], MaterialCounts: {} });
+        ctx.inject('tsic.msg.UI.Recipe.QueueChanged', { Kind: 'Production', StationId: 'S', Entries: [
+            { RecipeId: 'R_A', QueueIndex: 0, Progress: 0.5, bIsActive: true,  bCompleted: false, RemoveIndex: 1, ReorderIndex: -1 },
+            { RecipeId: 'R_B', QueueIndex: 1, Progress: 0,   bIsActive: false, bCompleted: false, RemoveIndex: 2, ReorderIndex: 1 },
+            { RecipeId: 'R_C', QueueIndex: 2, Progress: 1,   bIsActive: false, bCompleted: true,  RemoveIndex: 0, ReorderIndex: -1 },
+        ]});
+        await ctx.waitFor(() => ctx.doc.querySelectorAll('#p-queue .q-entry').length === 3);
+        const entries = ctx.doc.querySelectorAll('#p-queue .q-entry');
+        ctx.expect(ctx.assert.eq(entries[1].draggable, true, 'pending row stays draggable'));
+        ctx.expect(ctx.assert.eq(entries[2].draggable, false, 'completed row must not be draggable'));
     },
 });
 

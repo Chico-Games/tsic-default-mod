@@ -25,10 +25,11 @@
     [data-screen="Production"] .q-bar { height:5px; background: rgba(184,170,145,0.45); }
     [data-screen="Production"] .q-bar > div { height:100%; background:#7fd4ff; transition: width 0.15s; }
     [data-screen="Production"] .q-bar.active > div { background:#7fffae; }
-    [data-screen="Production"] .q-cancel { padding: 2px 8px; font-size:10px; min-height: 22px; }
-    /* Collect reads as the reward action, not the destructive one. */
-    [data-screen="Production"] .q-collect { font-weight:700; }
-    [data-screen="Production"] .q-entry.is-done { background: rgba(127,255,174,0.18); }
+    [data-screen="Production"] .q-cancel, [data-screen="Production"] .q-take { padding: 2px 8px; font-size:10px; min-height: 22px; }
+    [data-screen="Production"] .q-entry.is-done { cursor:pointer; }
+    [data-screen="Production"] .q-entry.is-done:hover, [data-screen="Production"] .q-entry.is-done[data-tsic-focused] { background: rgba(127,255,174,0.18); }
+    [data-screen="Production"] .q-entry.is-done .q-bar > div { background:#7fffae; }
+    [data-screen="Production"] .q-count { font-weight:700; font-size:11px; color:rgba(47,43,34,0.75); }
   `;
 
   const TEMPLATE = `
@@ -152,6 +153,21 @@
         }
       }
 
+      // The server flags completion and publishes the index the Cancel handler
+      // resolves against, so never infer either here: the SPA lists in-progress
+      // first and completed last, while the machine indexes completed FIRST.
+      const isCompleted = (e) => !!e.bCompleted;
+
+      // Collect a completed stack: one remove per item, highest index first so
+      // earlier removals never shift a later target.
+      function takeStack(stackEntries) {
+        const indices = stackEntries.map((e) => e.RemoveIndex).sort((a, b) => b - a);
+        for (const mi of indices) {
+          ctx.publish('UI.Cmd.Recipe.Cancel', { Kind: 'Production', StationId: stationId, QueueIndex: mi });
+        }
+        window.tsic.playSound && window.tsic.playSound('Inventory.Transfer');
+      }
+
       function renderQueue() {
         const host = root.querySelector('#p-queue');
         host.innerHTML = '';
@@ -161,9 +177,23 @@
         if (queue.length === 0) {
           host.appendChild(Object.assign(document.createElement('div'), { className: 'tsic-empty', textContent: 'Queue is empty.' }));
         }
+        // Same-recipe completed entries collapse into one Take-able stack row.
+        const rows = [];
+        const stackByRecipe = new Map();
         for (const e of queue) {
+          if (!isCompleted(e)) { rows.push({ entry: e, stack: null }); continue; }
+          let stack = stackByRecipe.get(e.RecipeId);
+          if (!stack) {
+            stack = [];
+            stackByRecipe.set(e.RecipeId, stack);
+            rows.push({ entry: e, stack });
+          }
+          stack.push(e);
+        }
+        for (const { entry: e, stack } of rows) {
+          const done = stack !== null;
           const div = document.createElement('div');
-          div.className = 'q-entry' + (e.bIsActive ? ' is-active' : '') + (e.bCompleted ? ' is-done' : '');
+          div.className = 'q-entry' + (e.bIsActive ? ' is-active' : '') + (done ? ' is-done' : '');
           div.dataset.queueIndex = String(e.QueueIndex);
           const r = recipesById[e.RecipeId];
           // A queued recipe is by definition one the player has already started, so name it
@@ -176,19 +206,28 @@
           head.className = 'q-head';
           const nameSpan = document.createElement('span');
           nameSpan.className = 'name';
-          nameSpan.textContent = `${e.QueueIndex + 1}. ${name}`;
+          nameSpan.textContent = done ? name : `${e.QueueIndex + 1}. ${name}`;
           head.appendChild(nameSpan);
+          if (done && stack.length > 1) {
+            const count = document.createElement('span');
+            count.className = 'q-count';
+            count.textContent = `×${stack.length}`;
+            head.appendChild(count);
+          }
           const btn = document.createElement('button');
-          // A finished job is collected, not cancelled — same server call, opposite meaning.
-          const isDone = !!e.bCompleted;
-          btn.className = 'tsic-button q-cancel' + (isDone ? ' q-collect' : ' cancel');
-          btn.textContent = isDone ? 'Collect' : 'Cancel';
-          btn.addEventListener('click', () => {
-            ctx.publish('UI.Cmd.Recipe.Cancel', {
-              Kind: 'Production', StationId: stationId, QueueIndex: e.RemoveIndex,
+          if (done) {
+            btn.className = 'tsic-button q-take';
+            btn.textContent = 'Take';
+            // No own listener: the click bubbles to the row handler below, so
+            // button and row-background clicks share one take path.
+          } else {
+            btn.className = 'tsic-button cancel q-cancel';
+            btn.textContent = 'Cancel';
+            btn.addEventListener('click', () => {
+              ctx.publish('UI.Cmd.Recipe.Cancel', { Kind: 'Production', StationId: stationId, QueueIndex: e.RemoveIndex });
+              window.tsic.playSound && window.tsic.playSound('Recipe.Removed');
             });
-            window.tsic.playSound && window.tsic.playSound(isDone ? 'Recipe.Completed' : 'Recipe.Removed');
-          });
+          }
           head.appendChild(btn);
           div.appendChild(head);
 
@@ -198,7 +237,17 @@
           inner.style.width = (Math.max(0, Math.min(1, e.Progress || 0)) * 100).toFixed(1) + '%';
           bar.appendChild(inner);
           div.appendChild(bar);
-          barByIndex.set(e.QueueIndex, inner);
+          if (!done) barByIndex.set(e.QueueIndex, inner);
+
+          if (done) {
+            // Click anywhere on the row (or gamepad confirm) takes the stack.
+            div.setAttribute('data-tsic-focusable', '');
+            div.tabIndex = -1;
+            div.addEventListener('click', () => takeStack(stack));
+            div.addEventListener('tsic:confirm', (ev) => { ev.preventDefault(); takeStack(stack); });
+            host.appendChild(div);
+            continue;
+          }
 
           // Drag-reorder, in the server's in-progress-only index space. ReorderIndex is -1 for
           // completed jobs and for the active one (both immovable), so this also stops a

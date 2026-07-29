@@ -8,7 +8,14 @@
 // C++ emits debuffs first, which puts them nearest the vials.
 //
 // Channel: tsic.msg.UI.Conditions.State
-//   { Conditions: [ { Id, Kind, Duration, RemainingTime } ] }
+//   { Conditions: [ { Id, Kind, Duration, RemainingTime, RefreshCount, bFromSelected,
+//                     Severity } ] }
+//
+// Severity is "" for everything that escalates by arriving and leaving, and
+// "Hungry" | "Starvation" for the hunger family, which escalates in place instead — the
+// same three chips lean on harder rather than mounting and unmounting. The headline chip
+// does take the tier's name at "Starvation" (see SEVERITY_LABELS); the two penalty chips
+// below it keep theirs, since what they cost you does not change, only how much.
 //
 // Sent on change only (see PublishConditionsSnapshot), never per tick, so a settled
 // HUD costs nothing. RemainingTime is therefore a snapshot taken at the last change —
@@ -26,14 +33,26 @@
   // How long a chip shows its name before collapsing to icon-only.
   var LABEL_HOLD_MS = 3000;
 
+  // The hunger family. These get the "actively costing you something" treatment — a red
+  // wash that breathes rather than the flat debuff tint — because unlike Burning or Tazed
+  // they are not an event that happens to you, they are a state you are choosing to stay in.
+  var HARM = { Hunger: 1, ReducedRegen: 1, CapStamina: 1 };
+
+  // Chips whose name never folds away. Hunger is the headline of its group: the two
+  // penalties below it behave like any other chip and collapse to icons once read, but
+  // something has to keep saying WHY they are there, for as long as they are there.
+  var PINNED = { Hunger: 1 };
+
   // Icon paths are 24x24, stroked with currentColor so each chip's tint carries through.
   // One distinct shape per condition — at 14px only the silhouette reads, so they lean
   // on outline rather than detail.
   var ICONS = {
-    // Hunger trio — the same bowl, three states: steaming, empty, empty + falling.
+    // The bowl, fed and unfed: steaming, then empty with the last of it draining away.
     WellFed:       ['M3 13h18a9 9 0 0 1-18 0z', 'M9 6c0-1 1-1.5 1-2.5M13 6c0-1 1-1.5 1-2.5'],
-    Hungry:        ['M3 13h18a9 9 0 0 1-18 0z'],
-    Starving:      ['M3 13h18a9 9 0 0 1-18 0z', 'M12 3v5M9.5 6l2.5 2.5L14.5 6'],
+    Hunger:        ['M3 13h18a9 9 0 0 1-18 0z', 'M12 3v5M9.5 6l2.5 2.5L14.5 6'],
+    // What hunger costs: a line trending down, and a bar with a hard ceiling on it.
+    ReducedRegen:  ['M3 7l6 6 4-4 7 7', 'M20 11v5h-5'],
+    CapStamina:    ['M3 9h11v6H3z', 'M17 10.5v3', 'M10 5.5v13'],
     // Flame.
     Burning:       ['M12 2c3 4 5 6 5 9a5 5 0 0 1-10 0c0-2 1-3 2-4 0 1.5 1 2.5 2 2.5C12 7 10 5 12 2z'],
     // Dizzy swirl — reads as "stunned" without colliding with the Energised bolt.
@@ -59,11 +78,12 @@
   };
 
   var LABELS = {
-    Starving:      'Starving',
+    Hunger:        'Hunger',
+    ReducedRegen:  'Reduced Regen',
+    CapStamina:    'Cap Stamina',
     Burning:       'Burning',
     Tazed:         'Tazed',
     Overburdened:  'Overburdened',
-    Hungry:        'Hungry',
     WellFed:       'Well Fed',
     Regenerating:  'Regenerating',
     Hearty:        'Hearty',
@@ -73,6 +93,21 @@
     Energised:     'Energised',
     QuickRecovery: 'Quick Recovery',
   };
+
+  // Chips whose name changes with Severity instead of staying fixed. Only the hunger
+  // headline does this: tier 1 is the steady "Hunger" state, but tier 2 has its own name
+  // and the player should be told it by name — "Starvation" is a different thing to be in,
+  // not a worse shade of the same thing. The two penalty chips below it keep their names,
+  // because what they cost you does not change, only how much.
+  var SEVERITY_LABELS = {
+    Hunger: { Starvation: 'Starvation' },
+  };
+
+  function labelFor(id, severity) {
+    var bySeverity = SEVERITY_LABELS[id];
+    if (bySeverity && severity && bySeverity[severity]) return bySeverity[severity];
+    return LABELS[id] || id;
+  }
 
   // Frame matches the stomach slots and hotbar plinths: dark glass, heavy ink outline,
   // hard offset block shadow. Chips are 22px tall and rest at icon width (26px),
@@ -92,11 +127,13 @@
     // where width:auto cannot, and the chip only ever grows to its content.
     '#hud-conditions .cond-chip.cond-open { max-width:148px; }',
 
-    '#hud-conditions .cond-ico { flex:0 0 22px; display:flex; align-items:center; justify-content:center; }',
+    // Both sit above the harm wash below, which paints across the whole chip.
+    '#hud-conditions .cond-ico { flex:0 0 22px; display:flex; align-items:center; justify-content:center;',
+    '  position:relative; z-index:1; }',
     '#hud-conditions .cond-ico svg { width:14px; height:14px; display:block;',
     '  filter: drop-shadow(0 1px 1px rgba(0,0,0,0.7)); }',
 
-    '#hud-conditions .cond-label { flex:0 0 auto; padding-right:8px;',
+    '#hud-conditions .cond-label { position:relative; z-index:1; flex:0 0 auto; padding-right:8px;',
     '  font-family:var(--font-display, Georgia, serif); font-size:10px; font-weight:700;',
     '  letter-spacing:0.08em; text-transform:uppercase; line-height:1;',
     '  text-shadow:0 1px 2px rgba(0,0,0,0.8);',
@@ -124,6 +161,27 @@
     '#hud-conditions .cond-chip.cond-expiring { animation: cond-pulse 1.15s ease-in-out infinite; }',
     '@keyframes cond-pulse { 0%,100% { opacity:1; } 50% { opacity:0.55; } }',
 
+    // Harm — the hunger family. A deeper red than the flat debuff tint, plus a wash that
+    // breathes out from behind the icon so the group reads as ONGOING rather than as
+    // something that merely happened. The glow has to be an inset ::after: the chip is
+    // overflow:hidden for the label collapse, which would clip an outer halo, and its own
+    // animation slot is already taken for good by cond-enter's fill-mode:both.
+    '#hud-conditions .cond-chip.cond-harm { color:#f2938c; border-color:#250908;',
+    '  background: linear-gradient(180deg, rgba(96,32,27,0.70), rgba(24,7,6,0.76)); }',
+    '#hud-conditions .cond-chip.cond-harm::after { content:""; position:absolute; inset:0;',
+    '  pointer-events:none; z-index:0;',
+    '  background: radial-gradient(125% 150% at 11px 50%, rgba(228,84,70,0.38), rgba(228,84,70,0) 72%);',
+    '  animation: cond-harm-breathe 2.6s ease-in-out infinite; }',
+    '@keyframes cond-harm-breathe { 0%,100% { opacity:0.18; } 50% { opacity:0.9; } }',
+
+    // Starvation — the same chips, leaning on harder. Faster breath and a hotter red, so
+    // the escalation is felt without a single chip mounting, unmounting or renaming.
+    '#hud-conditions .cond-chip.cond-harm[data-severity="Starvation"] { color:#ff9c8e;',
+    '  background: linear-gradient(180deg, rgba(122,36,29,0.76), rgba(30,8,6,0.80)); }',
+    '#hud-conditions .cond-chip.cond-harm[data-severity="Starvation"]::after {',
+    '  background: radial-gradient(125% 150% at 11px 50%, rgba(248,92,74,0.52), rgba(248,92,74,0) 72%);',
+    '  animation-duration: 1.45s; }',
+
     // From-selected — a buff the food in the currently-selected hotbar slot is driving.
     // Warm-gold rim + halo matching the highlighted stomach slot, so selecting a food
     // lights up both the slot digesting it AND the effects it is granting. Declared after
@@ -144,6 +202,9 @@
     '  #hud-conditions .cond-chip.cond-enter { animation:none; }',
     '  #hud-conditions .cond-chip.cond-expiring { animation:none; opacity:0.7; }',
     '  #hud-conditions .cond-chip.cond-refresh .cond-ico { animation:none; }',
+    // The red stays — it is the meaning, not the motion. Only the breathing stops, held
+    // at the bright end so a harm chip still stands out from an ordinary debuff.
+    '  #hud-conditions .cond-chip.cond-harm::after { animation:none; opacity:0.75; }',
     '}',
   ].join('\n');
 
@@ -213,11 +274,13 @@
     var stale = host.querySelector('.cond-chip.cond-exit[data-id="' + id + '"]');
     if (stale) host.removeChild(stale);
 
-    var chipEl = el('div', { class: 'cond-chip cond-enter', 'data-id': id, 'data-kind': kind },
+    var cls = 'cond-chip cond-enter' + (HARM[id] ? ' cond-harm' : '');
+    var chipEl = el('div', { class: cls, 'data-id': id, 'data-kind': kind },
       el('span', { class: 'cond-ico' }, buildIcon(id)),
       el('span', { class: 'cond-label' }, LABELS[id] || id));
 
-    var chip = { el: chipEl, kind: kind, expiring: false, refresh: 0, fromSelected: false, holdTimer: 0, exitTimer: 0, bumpTimer: 0 };
+    var chip = { el: chipEl, kind: kind, expiring: false, refresh: 0, fromSelected: false,
+                 severity: '', holdTimer: 0, exitTimer: 0, bumpTimer: 0 };
     chips[id] = chip;
     host.appendChild(chipEl);
 
@@ -225,7 +288,7 @@
     // animates instead of snapping. Re-read chip.expiring here rather than capturing it:
     // render() sets it synchronously right after this call, and a chip that mounts already
     // inside its final seconds must keep its label pinned, not collapse 3s later.
-    requestAnimationFrame(function () { openLabel(chip, chip.expiring); });
+    requestAnimationFrame(function () { openLabel(chip, chip.expiring || !!PINNED[id]); });
     return chip;
   }
 
@@ -287,6 +350,10 @@
       var expiring = remaining > 0 && remaining <= EXPIRING_SECONDS;
       var refresh = Number(c.RefreshCount) || 0;
       var fromSelected = !!c.bFromSelected;
+      var severity = c.Severity || '';
+      // Pinned chips ignore the hold timer entirely; the expiring pin is the same
+      // mechanism, so either reason keeps the name up.
+      var pin = expiring || !!PINNED[id];
 
       var chip = chips[id];
       var mounted = !!chip;
@@ -303,9 +370,32 @@
       // the entry animation already introduces it.
       if (mounted && refresh > chip.refresh) {
         bumpChip(chip);
-        openLabel(chip, expiring);
+        openLabel(chip, pin);
       }
       chip.refresh = refresh;
+
+      // Hunger deepening to starvation: the same chips lean on harder. Driven off an
+      // attribute rather than a class swap so the CSS reads as one ramp.
+      if (severity !== chip.severity) {
+        chip.severity = severity;
+        if (severity) {
+          chip.el.setAttribute('data-severity', severity);
+        } else {
+          chip.el.removeAttribute('data-severity');
+        }
+
+        // The headline chip renames itself at tier 2 (Hunger -> Starvation). Re-open the
+        // label rather than just swapping the text: the chip's open width is a max-width
+        // animation sized to its content, and the new word is longer. On first mount this
+        // runs before addChip's deferred openLabel, so the correct name is already in place
+        // by the time the chip widens — no flash of the old one.
+        var nextLabel = labelFor(id, severity);
+        var labelEl = chip.el.querySelector('.cond-label');
+        if (labelEl && labelEl.textContent !== nextLabel) {
+          labelEl.textContent = nextLabel;
+          if (mounted) openLabel(chip, pin);
+        }
+      }
 
       // Gold-highlight the chip when the selected hotbar food is driving this buff.
       // Applies on mount too (chip.fromSelected defaults false), so a chip that arrives
@@ -321,7 +411,7 @@
         // Re-open the label on the way out and hold it there, so the last thing seen is
         // the chip's name rather than an anonymous icon vanishing. Dropping back out of
         // the window (a re-application topped the timer up) resumes the normal collapse.
-        openLabel(chip, expiring);
+        openLabel(chip, pin);
       }
     });
 

@@ -6,6 +6,7 @@
   "properties": {
     "duration": 60.0,
     "requires_consumption_slot": true,
+    "consumption_sound": "/Game/Characters/Customer/Audio/Cues/SC_Medical.SC_Medical",
     "equipment_actors_and_meshes": [],
     "ability_sets_to_grant": [],
     "effects_to_apply": {

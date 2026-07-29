@@ -22,28 +22,34 @@ const BUFF = (Id, RemainingTime = 0, Duration = 0, RefreshCount = 0) =>
     ({ Id, Kind: 'Buff', Duration, RemainingTime, RefreshCount });
 const DEBUFF = (Id) => ({ Id, Kind: 'Debuff', Duration: 0, RemainingTime: 0, RefreshCount: 0 });
 
+// The hunger family always arrives as a set: the headline plus the two penalties it is
+// costing you. C++ emits them together and tags each with the tier.
+const HUNGER = (Severity = 'Hungry') =>
+    ['Hunger', 'ReducedRegen', 'CapStamina'].map(Id =>
+        ({ Id, Kind: 'Debuff', Duration: 0, RemainingTime: 0, RefreshCount: 0, Severity }));
+
 TSICTestHarness.register({
     name: 'Conditions: chips mount with icon and name',
     file: '/screens/conditions.html',
     async run(ctx) {
-        send(ctx, [DEBUFF('Hungry'), BUFF('Swift', 30, 45)]);
+        send(ctx, [DEBUFF('Overburdened'), BUFF('Swift', 30, 45)]);
         await new Promise(r => setTimeout(r, 80));
 
-        const hungry = chip(ctx, 'Hungry');
+        const overburdened = chip(ctx, 'Overburdened');
         const swift = chip(ctx, 'Swift');
-        ctx.expect(ctx.assert.truthy(hungry, 'expected a Hungry chip'));
+        ctx.expect(ctx.assert.truthy(overburdened, 'expected an Overburdened chip'));
         ctx.expect(ctx.assert.truthy(swift, 'expected a Swift chip'));
 
         // Name comes from the JS catalogue, not the payload.
-        ctx.expect(ctx.assert.eq(hungry.querySelector('.cond-label').textContent, 'Hungry'));
+        ctx.expect(ctx.assert.eq(overburdened.querySelector('.cond-label').textContent, 'Overburdened'));
         ctx.expect(ctx.assert.eq(swift.querySelector('.cond-label').textContent, 'Swift'));
 
         // Each chip carries an inline SVG icon.
-        ctx.expect(ctx.assert.truthy(hungry.querySelector('.cond-ico svg path'), 'expected an icon path'));
+        ctx.expect(ctx.assert.truthy(overburdened.querySelector('.cond-ico svg path'), 'expected an icon path'));
         ctx.expect(ctx.assert.truthy(swift.querySelector('.cond-ico svg path'), 'expected an icon path'));
 
         // Kind drives the tint.
-        ctx.expect(ctx.assert.eq(hungry.getAttribute('data-kind'), 'Debuff'));
+        ctx.expect(ctx.assert.eq(overburdened.getAttribute('data-kind'), 'Debuff'));
         ctx.expect(ctx.assert.eq(swift.getAttribute('data-kind'), 'Buff'));
     },
 });
@@ -64,9 +70,9 @@ TSICTestHarness.register({
     name: 'Conditions: every catalogue id renders a distinct icon',
     file: '/screens/conditions.html',
     async run(ctx) {
-        const ids = ['Starving', 'Burning', 'Tazed', 'Overburdened', 'Hungry', 'WellFed',
-                     'Regenerating', 'Hearty', 'Enduring', 'Fortified', 'Swift',
-                     'Energised', 'QuickRecovery', 'Hidden'];
+        const ids = ['Hunger', 'ReducedRegen', 'CapStamina', 'Burning', 'Tazed',
+                     'Overburdened', 'WellFed', 'Regenerating', 'Hearty', 'Enduring',
+                     'Fortified', 'Swift', 'Energised', 'QuickRecovery', 'Hidden'];
         send(ctx, ids.map(id => BUFF(id)));
         await new Promise(r => setTimeout(r, 100));
 
@@ -92,12 +98,12 @@ TSICTestHarness.register({
     name: 'Conditions: chips unmount when the condition ends',
     file: '/screens/conditions.html',
     async run(ctx) {
-        send(ctx, [DEBUFF('Hungry'), BUFF('Swift', 30, 45), BUFF('Energised', 30, 45)]);
+        send(ctx, [DEBUFF('Overburdened'), BUFF('Swift', 30, 45), BUFF('Energised', 30, 45)]);
         await new Promise(r => setTimeout(r, 80));
         ctx.expect(ctx.assert.eq(liveChips(ctx).length, 3));
 
         // Swift lapses; the other two stay.
-        send(ctx, [DEBUFF('Hungry'), BUFF('Energised', 25, 45)]);
+        send(ctx, [DEBUFF('Overburdened'), BUFF('Energised', 25, 45)]);
         await new Promise(r => setTimeout(r, 40));
         // Exit is animated, so the chip is marked before it is gone.
         ctx.expect(ctx.assert.truthy(
@@ -107,7 +113,7 @@ TSICTestHarness.register({
         await new Promise(r => setTimeout(r, EXIT_MS));
         ctx.expect(ctx.assert.truthy(!chip(ctx, 'Swift'), 'expected the Swift chip removed from the DOM'));
         ctx.expect(ctx.assert.eq(liveChips(ctx).length, 2));
-        ctx.expect(ctx.assert.truthy(chip(ctx, 'Hungry'), 'Hungry should survive'));
+        ctx.expect(ctx.assert.truthy(chip(ctx, 'Overburdened'), 'Overburdened should survive'));
         ctx.expect(ctx.assert.truthy(chip(ctx, 'Energised'), 'Energised should survive'));
     },
 });
@@ -319,9 +325,9 @@ TSICTestHarness.register({
     file: '/screens/conditions.html',
     async run(ctx) {
         // Tag-driven conditions carry RemainingTime 0 — that is "no clock", not "expired".
-        send(ctx, [DEBUFF('Starving'), DEBUFF('Overburdened'), BUFF('Hidden')]);
+        send(ctx, [DEBUFF('Hunger'), DEBUFF('Overburdened'), BUFF('Hidden')]);
         await new Promise(r => setTimeout(r, 80));
-        for (const id of ['Starving', 'Overburdened', 'Hidden']) {
+        for (const id of ['Hunger', 'Overburdened', 'Hidden']) {
             ctx.expect(ctx.assert.truthy(!chip(ctx, id).classList.contains('cond-expiring'),
                 `${id} has no duration and must not pulse`));
         }
@@ -333,19 +339,19 @@ TSICTestHarness.register({
     file: '/screens/conditions.html',
     async run(ctx) {
         // C++ emits debuffs first; the component stacks bottom-up, so DOM order is payload order.
-        send(ctx, [DEBUFF('Hungry'), BUFF('Swift', 30, 45)]);
+        send(ctx, [DEBUFF('Overburdened'), BUFF('Swift', 30, 45)]);
         await new Promise(r => setTimeout(r, 80));
-        ctx.expect(ctx.assert.eq(liveChips(ctx).map(c => c.dataset.id).join(','), 'Hungry,Swift'));
+        ctx.expect(ctx.assert.eq(liveChips(ctx).map(c => c.dataset.id).join(','), 'Overburdened,Swift'));
 
         // A condition inserted between the two lands between them, not at the end.
-        send(ctx, [DEBUFF('Hungry'), BUFF('WellFed'), BUFF('Swift', 30, 45)]);
+        send(ctx, [DEBUFF('Overburdened'), BUFF('WellFed'), BUFF('Swift', 30, 45)]);
         await new Promise(r => setTimeout(r, 80));
-        ctx.expect(ctx.assert.eq(liveChips(ctx).map(c => c.dataset.id).join(','), 'Hungry,WellFed,Swift'));
+        ctx.expect(ctx.assert.eq(liveChips(ctx).map(c => c.dataset.id).join(','), 'Overburdened,WellFed,Swift'));
 
         // And a debuff arriving later still sorts to the bottom of the stack.
-        send(ctx, [DEBUFF('Burning'), DEBUFF('Hungry'), BUFF('WellFed'), BUFF('Swift', 30, 45)]);
+        send(ctx, [DEBUFF('Burning'), DEBUFF('Overburdened'), BUFF('WellFed'), BUFF('Swift', 30, 45)]);
         await new Promise(r => setTimeout(r, 80));
-        ctx.expect(ctx.assert.eq(liveChips(ctx).map(c => c.dataset.id).join(','), 'Burning,Hungry,WellFed,Swift'));
+        ctx.expect(ctx.assert.eq(liveChips(ctx).map(c => c.dataset.id).join(','), 'Burning,Overburdened,WellFed,Swift'));
     },
 });
 
@@ -353,15 +359,15 @@ TSICTestHarness.register({
     name: 'Conditions: a chip arriving while another fades does not disturb the fading one',
     file: '/screens/conditions.html',
     async run(ctx) {
-        send(ctx, [DEBUFF('Hungry'), BUFF('Swift', 30, 45)]);
+        send(ctx, [DEBUFF('Overburdened'), BUFF('Swift', 30, 45)]);
         await new Promise(r => setTimeout(r, 80));
         const swiftEl = chip(ctx, 'Swift');
 
         // Swift lapses and Burning lands in the same beat — Burning sorts to the bottom.
-        send(ctx, [DEBUFF('Burning'), DEBUFF('Hungry')]);
+        send(ctx, [DEBUFF('Burning'), DEBUFF('Overburdened')]);
         await new Promise(r => setTimeout(r, 60));
 
-        ctx.expect(ctx.assert.eq(liveChips(ctx).map(c => c.dataset.id).join(','), 'Burning,Hungry'));
+        ctx.expect(ctx.assert.eq(liveChips(ctx).map(c => c.dataset.id).join(','), 'Burning,Overburdened'));
         // The fading chip keeps its slot rather than being shuffled to an end.
         ctx.expect(ctx.assert.truthy(swiftEl.classList.contains('cond-exit'), 'Swift should be exiting'));
         const all = Array.from(ctx.doc.querySelectorAll('#hud-conditions .cond-chip'));
@@ -369,7 +375,7 @@ TSICTestHarness.register({
             'the exiting chip should still sit above the live ones, where it was'));
 
         await new Promise(r => setTimeout(r, EXIT_MS));
-        ctx.expect(ctx.assert.eq(liveChips(ctx).map(c => c.dataset.id).join(','), 'Burning,Hungry'));
+        ctx.expect(ctx.assert.eq(liveChips(ctx).map(c => c.dataset.id).join(','), 'Burning,Overburdened'));
         ctx.expect(ctx.assert.truthy(!chip(ctx, 'Swift'), 'Swift should be gone'));
     },
 });
@@ -445,6 +451,100 @@ TSICTestHarness.register({
             'the previously selected buff drops its highlight'));
         ctx.expect(ctx.assert.truthy(chip(ctx, 'Energised').classList.contains('cond-from-selected'),
             'the newly selected food\'s buff picks up the highlight'));
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Conditions: the Hunger headline stays named while its penalties collapse',
+    file: '/screens/conditions.html',
+    async run(ctx) {
+        // The whole point of the split: two chips tell you what it costs and then get out
+        // of the way, but something has to keep saying WHY, for as long as it is true.
+        send(ctx, HUNGER());
+        await new Promise(r => setTimeout(r, 120));
+        for (const id of ['Hunger', 'ReducedRegen', 'CapStamina']) {
+            ctx.expect(ctx.assert.truthy(chip(ctx, id), `expected a ${id} chip`));
+        }
+        ctx.expect(ctx.assert.eq(chip(ctx, 'ReducedRegen').querySelector('.cond-label').textContent,
+            'Reduced Regen'));
+        ctx.expect(ctx.assert.eq(chip(ctx, 'CapStamina').querySelector('.cond-label').textContent,
+            'Cap Stamina'));
+
+        // Past LABEL_HOLD_MS: the penalties fold to icons, the headline does not.
+        await new Promise(r => setTimeout(r, 3400));
+        ctx.expect(ctx.assert.truthy(chip(ctx, 'Hunger').classList.contains('cond-open'),
+            'the Hunger label must never collapse'));
+        ctx.expect(ctx.assert.truthy(!chip(ctx, 'ReducedRegen').classList.contains('cond-open'),
+            'Reduced Regen should collapse like any other chip'));
+        ctx.expect(ctx.assert.truthy(!chip(ctx, 'CapStamina').classList.contains('cond-open'),
+            'Cap Stamina should collapse like any other chip'));
+
+        // Still pinned much later — this is a hold, not a longer timer.
+        await new Promise(r => setTimeout(r, 2000));
+        ctx.expect(ctx.assert.truthy(chip(ctx, 'Hunger').classList.contains('cond-open'),
+            'the Hunger label must stay up indefinitely'));
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Conditions: hunger chips read as harm, ordinary debuffs do not',
+    file: '/screens/conditions.html',
+    async run(ctx) {
+        send(ctx, HUNGER().concat([DEBUFF('Overburdened'), BUFF('Swift', 30, 45)]));
+        await new Promise(r => setTimeout(r, 100));
+
+        for (const id of ['Hunger', 'ReducedRegen', 'CapStamina']) {
+            ctx.expect(ctx.assert.truthy(chip(ctx, id).classList.contains('cond-harm'),
+                `${id} should carry the harm treatment`));
+            // Still a debuff underneath, so it keeps the shared tint contract.
+            ctx.expect(ctx.assert.eq(chip(ctx, id).getAttribute('data-kind'), 'Debuff'));
+        }
+        ctx.expect(ctx.assert.truthy(!chip(ctx, 'Overburdened').classList.contains('cond-harm'),
+            'an ordinary debuff is not the hunger treatment'));
+        ctx.expect(ctx.assert.truthy(!chip(ctx, 'Swift').classList.contains('cond-harm'),
+            'a buff is certainly not'));
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Conditions: starving ramps the same chips instead of remounting them',
+    file: '/screens/conditions.html',
+    async run(ctx) {
+        send(ctx, HUNGER('Hungry'));
+        await new Promise(r => setTimeout(r, 100));
+        const els = ['Hunger', 'ReducedRegen', 'CapStamina'].map(id => chip(ctx, id));
+        for (const el of els) {
+            ctx.expect(ctx.assert.eq(el.getAttribute('data-severity'), 'Hungry'));
+        }
+
+        send(ctx, HUNGER('Starving'));
+        await new Promise(r => setTimeout(r, 80));
+        ['Hunger', 'ReducedRegen', 'CapStamina'].forEach((id, i) => {
+            ctx.expect(ctx.assert.truthy(chip(ctx, id) === els[i],
+                `${id} must escalate in place, not remount`));
+            ctx.expect(ctx.assert.eq(chip(ctx, id).getAttribute('data-severity'), 'Starving'));
+        });
+        // The headline is still the headline — escalation must not cost the pinned name.
+        ctx.expect(ctx.assert.truthy(chip(ctx, 'Hunger').classList.contains('cond-open'),
+            'the Hunger label stays up across the tier change'));
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Conditions: eating clears the whole hunger group at once',
+    file: '/screens/conditions.html',
+    async run(ctx) {
+        send(ctx, HUNGER('Starving').concat([BUFF('Swift', 30, 45)]));
+        await new Promise(r => setTimeout(r, 100));
+        ctx.expect(ctx.assert.eq(liveChips(ctx).length, 4));
+
+        // A meal lands: hunger goes, Well Fed arrives, the unrelated buff is untouched.
+        send(ctx, [BUFF('WellFed'), BUFF('Swift', 30, 45)]);
+        await new Promise(r => setTimeout(r, EXIT_MS));
+        for (const id of ['Hunger', 'ReducedRegen', 'CapStamina']) {
+            ctx.expect(ctx.assert.truthy(!chip(ctx, id), `${id} should be gone after eating`));
+        }
+        ctx.expect(ctx.assert.eq(liveChips(ctx).map(c => c.dataset.id).join(','), 'WellFed,Swift'));
     },
 });
 
