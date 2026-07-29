@@ -14,7 +14,7 @@
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,
-    "static_mesh": "/Game/Hospital_Props_03/Meshes/SM_Expandable_Forceps.SM_Expandable_Forceps",
+    "static_mesh": "/Game/Fab/GroundSpellsVFX/Meshes/Mesh_Spikes_02.Mesh_Spikes_02",
     "casts_shadow": false,
     "collision_profile_name": {
       "name": "ItemStatic"

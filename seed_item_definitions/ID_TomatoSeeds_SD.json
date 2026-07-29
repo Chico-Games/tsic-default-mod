@@ -5,8 +5,8 @@
   "schema_version": 2,
   "properties": {
     "thumbnail": "mod:icons/id_tomatoseeds_sd",
-    "display_name": "Tomato Seeds",
-    "description": "Plant these to grow tomatoes.",
+    "display_name": "Tomato Seedling",
+    "description": "A young tomato plant raised in the garden centre.",
     "stackable": true,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_TomatoSeeds_SI",

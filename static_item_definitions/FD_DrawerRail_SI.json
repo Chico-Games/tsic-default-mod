@@ -14,7 +14,7 @@
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,
-    "static_mesh": "/Game/Tool_Pack/Adjustable_Wrench/SM_Adjustable_Wrench.SM_Adjustable_Wrench",
+    "static_mesh": "/Game/Fab/BP_Smart_Railing/Mesh/Rail_Mesh/SM_Rail_Bar-2x2cm.SM_Rail_Bar-2x2cm",
     "casts_shadow": false,
     "collision_profile_name": {
       "name": "ItemStatic"

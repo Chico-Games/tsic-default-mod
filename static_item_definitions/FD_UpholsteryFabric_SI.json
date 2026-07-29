@@ -14,7 +14,7 @@
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,
-    "static_mesh": "/Game/Underground/Meshes/Props/SM_Tarp_Wall03.SM_Tarp_Wall03",
+    "static_mesh": "/Game/Items/CraftingMaterials/ScrapFabric/Meshes/SM_ScrapFabric.SM_ScrapFabric",
     "casts_shadow": false,
     "collision_profile_name": {
       "name": "ItemStatic"

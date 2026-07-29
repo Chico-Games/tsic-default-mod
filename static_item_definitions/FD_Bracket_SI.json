@@ -14,7 +14,7 @@
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,
-    "static_mesh": "/Game/Tool_Pack/Chisel/SM_Chisel.SM_Chisel",
+    "static_mesh": "/Game/Modern_Furniture_V3/Meshes/SM_Bracket.SM_Bracket",
     "casts_shadow": false,
     "collision_profile_name": {
       "name": "ItemStatic"

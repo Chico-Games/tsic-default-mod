@@ -86,7 +86,7 @@
     "max_ammo": 0,
     "tool_tier": 1,
     "display_name": "Basic Screwdriver",
-    "description": "An item from the store.",
+    "description": "A basic flat-head screwdriver. Good enough to strip simple fixtures.",
     "stackable": false,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_Tier1Screwdriver_SI",

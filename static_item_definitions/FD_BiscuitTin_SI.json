@@ -14,7 +14,7 @@
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,
-    "static_mesh": "/Game/Supermarket_Products/Meshes/SM_Can_Pineapple.SM_Can_Pineapple",
+    "static_mesh": "/Game/Items/Consumables/UncookedFood/SCPRations/Meshes/SM_Can_1.SM_Can_1",
     "casts_shadow": false,
     "collision_profile_name": {
       "name": "ItemStatic"

@@ -6,7 +6,7 @@
   "properties": {
     "thumbnail": "mod:icons/id_pencil_am",
     "display_name": "Pencils",
-    "description": "An item from the store.",
+    "description": "A handful of sharpened pencils. Crossbow bolts, if you are not fussy.",
     "stackable": true,
     "weight": 0.0,
     "static_item_definition": "FD_Pencil_SI",

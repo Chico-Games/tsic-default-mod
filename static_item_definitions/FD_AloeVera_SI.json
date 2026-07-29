@@ -14,7 +14,7 @@
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,
-    "static_mesh": "/Game/UltimateFarming/Meshes/SM_Arugula_A.SM_Arugula_A",
+    "static_mesh": "/Game/Furniture/Gardening/Meshes/SM_succulentpot02.SM_succulentpot02",
     "casts_shadow": false,
     "collision_profile_name": {
       "name": "ItemStatic"
