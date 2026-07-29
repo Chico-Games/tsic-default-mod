@@ -1,15 +1,15 @@
 {
-  "id": "FD_PromoSign_MeatballMonday",
-  "asset_path": "/Game/Furniture/Signs/Furniture/FD_PromoSign_MeatballMonday",
+  "id": "FD_PromoSign_WaffleWednesday",
+  "asset_path": "/Game/Furniture/Signs/Furniture/FD_PromoSign_WaffleWednesday",
   "class": "UFurnitureDefinition",
   "schema_version": 2,
   "properties": {
-    "display_name": "Meatball Monday Half Price All Day Banner",
+    "display_name": "Waffle Wednesday Half Price All Day Banner",
     "level": 1,
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,
-    "static_mesh": "/Game/Furniture/Signs/Meshes/SM_PromoSign_MeatballMonday.SM_PromoSign_MeatballMonday",
+    "static_mesh": "/Game/Furniture/Signs/Meshes/SM_PromoSign_WaffleWednesday.SM_PromoSign_WaffleWednesday",
     "casts_shadow": true,
     "collision_profile_name": {
       "name": "NoCollision"
