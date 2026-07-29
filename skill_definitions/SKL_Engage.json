@@ -28,6 +28,17 @@
     "transitions": [
      {
       "on": "event",
+      "event": "AI.Event.PathBlocked",
+      "to": "ClearPath",
+      "conditions": [
+       {
+        "if": "can_break_furniture",
+        "entity": "$Path.BlockingEntity"
+       }
+      ]
+     },
+     {
+      "on": "event",
       "event": "AI.Event.TokenLost",
       "to": "CloseIn"
      },
@@ -52,6 +63,29 @@
        }
       ],
       "to": "Swing"
+     },
+     {
+      "on": "action_failed",
+      "to": "CloseIn"
+     }
+    ]
+   },
+   {
+    "name": "ClearPath",
+    "actions": [
+     {
+      "do": "run_skill",
+      "skill": "SKL_DestroyEntity",
+      "params": {
+       "Entity": "$Path.BlockingEntity",
+       "Ability": "$Attack.Melee"
+      }
+     }
+    ],
+    "transitions": [
+     {
+      "on": "actions_succeeded",
+      "to": "CloseIn"
      },
      {
       "on": "action_failed",
