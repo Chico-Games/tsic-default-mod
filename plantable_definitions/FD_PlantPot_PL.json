@@ -5,7 +5,14 @@
   "schema_version": 2,
   "properties": {
     "available_recipe_rules_definition": "ARR_PlantRecipesTier1",
-    "plant_mesh_offset": {
+    "plant_slot_offsets": [
+      {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      }
+    ],
+    "plant_root_offset": {
       "x": 0,
       "y": 0,
       "z": 11.5
