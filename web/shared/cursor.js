@@ -227,21 +227,21 @@
 
         // Hide while the game owns the mouse. Mirrors the C++ rule in
         // ScpUIDirectorSubsystem::RefreshFocusCapture: the UI has the mouse
-        // when an overlay is open OR the current screen is a capture screen.
+        // when an overlay is open OR the current screen is not a gameplay screen.
         // (UI.Input.Mode.Changed only carries the input DEVICE — gamepad is
         // handled via html[data-tsic-input] CSS.) Both channels are sticky,
         // so a freshly loaded page gets current state on subscribe.
-        // Keep in sync with the CaptureScreens set in ScpUIDirectorSubsystem.cpp.
-        var CAPTURE_SCREENS = {
-            MainMenu: 1, NewStore: 1, LoadSave: 1, Mods: 1, Settings: 1,
-            Credits: 1, DeathScreen: 1, PauseMenu: 1, Inventory: 1, Map: 1,
-            Crafting: 1, Production: 1, CheatMenu: 1, HtmlGame: 1,
-            DebugScreen: 1, Construction: 1, BugReport: 1,
-        };
-        var currentScreen = '';
+        // Inverted list: every screen except these owns the mouse. Keep in sync
+        // with the GameplayScreens set in ScpUIDirectorSubsystem.cpp. (A capture
+        // allow-list used to live here and drifted — station screens like Storage
+        // and Shop were never added, so containers opened with no cursor.)
+        var GAMEPLAY_SCREENS = { InGame: 1, Boot: 1, Loading: 1 };
+        // Default to gameplay: the shell boots on the HUD, and the sticky
+        // Screen.Changed replaces this as soon as the bridge is up.
+        var currentScreen = 'InGame';
         var overlayCount = 0;
         function applySuppression() {
-            var uiHasMouse = overlayCount > 0 || !!CAPTURE_SCREENS[currentScreen];
+            var uiHasMouse = overlayCount > 0 || !GAMEPLAY_SCREENS[currentScreen];
             root.classList.toggle('is-suppressed', !uiHasMouse);
         }
         var tries = 0;

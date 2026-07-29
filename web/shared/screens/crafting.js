@@ -11,7 +11,7 @@
   const TEMPLATE = `
     <div id="c-root" class="tsic-modal-scrim">
       <div id="c-panel" class="tsic-panel tsic-panel--screen">
-        <h2 class="tsic-title" style="margin:0 0 8px;">Crafting</h2>
+        <h2 class="tsic-title" id="c-title" style="margin:0 0 8px;">Crafting</h2>
         <div id="c-station" class="tsic-station-host"></div>
         <div class="tsic-close-row">
           <button class="tsic-button" id="btn-close" data-tsic-initial-focus>Close (Esc)</button>
@@ -29,6 +29,15 @@
     template: TEMPLATE,
 
     mount(root, ctx) {
+      // Title itself per station ("Weapon Bench", "First Aid Station", ...) —
+      // crafting is station-only, so the generic "Crafting" only shows until
+      // the first snapshot lands.
+      const titleEl = root.querySelector('#c-title');
+      ctx.on('tsic.msg.UI.Recipe.StationOpened', (p) => {
+        if (!p || p.Kind !== 'Crafting' || !titleEl) return;
+        titleEl.textContent = p.StationName || 'Crafting';
+      });
+
       (function waitForDeps() {
         if (!window.TSICRecipeInfo || !window.TSIC.RecipeStation) {
           setTimeout(waitForDeps, 16);

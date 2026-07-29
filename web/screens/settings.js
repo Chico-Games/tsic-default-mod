@@ -78,9 +78,10 @@
                       ],
                       Value: 'medium' },
                     // Upscaler options must match HandleCmdSettingsSet's allow-list
-                    // exactly — it drops anything else on the floor. The dlss_* and
-                    // dlaa entries are pruned on GPUs without DLSS (graphics.nvidia_caps),
-                    // so TSR is the only row every machine keeps.
+                    // exactly — it drops anything else on the floor. The dlss_*/dlaa
+                    // entries are pruned on GPUs without DLSS and the fsr_* entries
+                    // on machines without the FSR plugin (graphics.nvidia_caps), so
+                    // TSR is the only option every machine keeps.
                     { Key: 'graphics.upscaler', Label: 'Upscaling', Type: 'enum',
                       Options: [
                           { Value: 'tsr',                   Label: 'TSR (recommended)' },
@@ -89,6 +90,11 @@
                           { Value: 'dlss_balanced',         Label: 'DLSS Balanced' },
                           { Value: 'dlss_performance',      Label: 'DLSS Performance' },
                           { Value: 'dlss_ultra_performance',Label: 'DLSS Ultra Performance' },
+                          { Value: 'fsr_native_aa',         Label: 'FSR Native AA (native res, best quality)' },
+                          { Value: 'fsr_quality',           Label: 'FSR Quality' },
+                          { Value: 'fsr_balanced',          Label: 'FSR Balanced' },
+                          { Value: 'fsr_performance',       Label: 'FSR Performance' },
+                          { Value: 'fsr_ultra_performance', Label: 'FSR Ultra Performance' },
                       ],
                       Value: 'tsr' },
                     // TSR's internal render percentage — the old "Upscaling quality"
@@ -97,9 +103,10 @@
                     // is selected: DLSS picks its own optimal percentage.
                     { Key: 'graphics.resolution_scale', Label: 'Render resolution (TSR)',
                       Type: 'range', Min: 50, Max: 100, Step: 1, Value: 67 },
-                    // Frame generation and Reflex are NVIDIA-only; both rows are removed
-                    // wholesale when graphics.nvidia_caps reports no support.
-                    { Key: 'graphics.frame_gen', Label: 'Frame generation', Type: 'enum',
+                    // Frame generation and Reflex are NVIDIA-only, FSR frame gen is
+                    // FSR-plugin-only; the rows are removed wholesale when
+                    // graphics.nvidia_caps reports no support.
+                    { Key: 'graphics.frame_gen', Label: 'Frame generation (DLSS)', Type: 'enum',
                       Options: [
                           { Value: 'off',  Label: 'Off' },
                           { Value: 'auto', Label: 'Auto' },
@@ -108,6 +115,8 @@
                           { Value: '4x',   Label: '4x' },
                       ],
                       Value: 'off' },
+                    // Only takes effect while an FSR upscaling mode is selected.
+                    { Key: 'graphics.fsr_frame_gen', Label: 'Frame generation (FSR)', Type: 'bool', Value: false },
                     { Key: 'graphics.reflex', Label: 'NVIDIA Reflex (low latency)', Type: 'enum',
                       Options: [
                           { Value: 'off',   Label: 'Off' },
@@ -178,6 +187,11 @@
             { Id: 'GameplayCollection', Title: 'Gameplay', Groups: [
                 { Id: 'Interface', Title: 'Interface', Settings: [
                     { Key: 'gameplay.show_tutorial', Label: 'Show tutorial objectives', Type: 'bool', Value: true },
+                ] },
+                // Off stops the game publishing anything to Discord/Steam/EOS —
+                // the friends list then shows only "playing", with no map or count.
+                { Id: 'Social', Title: 'Social', Settings: [
+                    { Key: 'social.rich_presence', Label: 'Show game activity to friends (Discord, Steam)', Type: 'bool', Value: true },
                 ] },
                 { Id: 'Accessibility', Title: 'Accessibility', Settings: [
                     { Key: 'accessibility.colorblind', Label: 'Colorblind mode', Type: 'enum',
@@ -316,6 +330,7 @@
         } else if (type === 'bool') {
             const tog = document.createElement('div');
             tog.className = 'field-toggle' + (v ? ' on' : '') + (isDisabled ? ' disabled' : '');
+            tog.dataset.key = s.Key; // stable hook for tests / debugging, as with dropdowns
             if (!isDisabled) {
                 tog.setAttribute('data-tsic-focusable', '');
                 tog.tabIndex = 0;
@@ -1009,22 +1024,25 @@
     // graphics.nvidia_caps is a capability report, not a setting: strip the options
     // and rows this GPU can't drive so the menu never offers a control that the C++
     // handler would silently reject. Mutating STATIC_CATALOG makes this idempotent,
-    // which matters because the message replays stickily.
+    // which matters because the message replays stickily. Despite the legacy key
+    // name it covers AMD FSR too (caps.fsr).
     function applyNvidiaCaps(caps) {
         if (!caps || typeof caps !== 'object') return false;
         let changed = false;
+        const upscalerOk = (v) => v === 'tsr'
+            || (caps.dlss && (v === 'dlaa' || v.indexOf('dlss_') === 0))
+            || (caps.fsr && v.indexOf('fsr_') === 0);
         for (const page of STATIC_CATALOG.Pages) {
             for (const g of (page.Groups || [])) {
                 if (!g.Settings) continue;
-                if (!caps.dlss) {
-                    for (const s of g.Settings) {
-                        if (s.Key !== 'graphics.upscaler' || !s.Options) continue;
-                        const kept = s.Options.filter((o) => o.Value === 'tsr');
-                        if (kept.length !== s.Options.length) { s.Options = kept; changed = true; }
-                    }
+                for (const s of g.Settings) {
+                    if (s.Key !== 'graphics.upscaler' || !s.Options) continue;
+                    const kept = s.Options.filter((o) => upscalerOk(o.Value));
+                    if (kept.length !== s.Options.length) { s.Options = kept; changed = true; }
                 }
                 const dropKeys = [];
                 if (!caps.frame_gen) dropKeys.push('graphics.frame_gen');
+                if (!caps.fsr)       dropKeys.push('graphics.fsr_frame_gen');
                 if (!caps.reflex)    dropKeys.push('graphics.reflex');
                 if (dropKeys.length) {
                     const kept = g.Settings.filter((s) => dropKeys.indexOf(s.Key) === -1);

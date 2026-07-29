@@ -214,7 +214,7 @@
     }
     .showroom-eyes { animation: showroom-eyes-dart 5s infinite; }
 
-    /* ─── House Radio: menu-music volume pill (bottom-right) ─── */
+    /* ─── Menu Music: volume pill (bottom-right) ─── */
     .menu-vol {
       position: fixed;
       right: 18px;
@@ -347,10 +347,10 @@
     </div>
   </div>
 
-  <!-- House Radio: live menu-music volume + mute. Backed by the persisted
+  <!-- Menu Music: live volume + mute. Backed by the persisted
        audio.menu_music setting (same one as the Settings screen slider). -->
   <div class="menu-vol" id="menu-vol" data-no-sfx>
-    <span class="menu-vol-cap">House Radio</span>
+    <span class="menu-vol-cap">Menu Music</span>
     <button class="menu-vol-mute" id="menu-vol-mute" title="Mute menu music" data-no-sfx>&#128266;</button>
     <input type="range" id="menu-vol-slider" min="0" max="1" step="0.01" value="0.8"
            aria-label="Menu music volume">
@@ -969,7 +969,7 @@
           });
         }
 
-        // House Radio: menu-music volume + mute, backed by audio.menu_music.
+        // Menu Music: volume + mute, backed by audio.menu_music.
         // The sticky UI.Settings.Value replay seeds the control; edits apply
         // and persist through the same path the Settings screen uses.
         var volSlider = document.getElementById('menu-vol-slider');

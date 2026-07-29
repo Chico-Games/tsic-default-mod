@@ -1005,13 +1005,27 @@
         return lines.join('\n');
       }
 
+      // PlayerState names come through blank in a local/PIE session, and the
+      // unique-id fallback is a bare net-id number ("0") — neither reads as a
+      // name, so drop through to the in-fiction default rather than show digits.
+      function playerLabel(e) {
+        const name = String((e && e.Name) || '').trim();
+        if (name && !/^\d+$/.test(name)) return name;
+        const id = String((e && e.PlayerId) || '').trim();
+        if (id && !/^\d+$/.test(id)) return id;
+        return 'Customer';
+      }
+
       function describePick(pick) {
         if (!pick) return null;
         const e = pick.entity;
         if (pick.type === 'player') {
           const x = Math.round((e.Position && e.Position.X) || 0);
           const y = Math.round((e.Position && e.Position.Y) || 0);
-          return `${e.Name || e.PlayerId || 'Player'} • (${x}, ${y})`;
+          // Name the biome they're standing on, same as hovering bare ground.
+          const t = tileAt(x, y);
+          const biome = t ? humanizeBiome(t.biome) : '';
+          return [playerLabel(e), biome, `(${x}, ${y})`].filter(Boolean).join(' • ');
         }
         if (pick.type === 'ping') {
           const loc = e.Location || {};

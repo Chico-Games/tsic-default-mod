@@ -176,6 +176,7 @@ TSICTestHarness.register({
         ctx.expect(ctx.assert.domExists(ctx.doc, 'button.tsic-dropdown[data-key="graphics.upscaler"]'));
         ctx.expect(ctx.assert.domExists(ctx.doc, 'input[type="range"][data-key="graphics.resolution_scale"]'));
         ctx.expect(ctx.assert.domExists(ctx.doc, 'button.tsic-dropdown[data-key="graphics.frame_gen"]'));
+        ctx.expect(ctx.assert.domExists(ctx.doc, '[data-key="graphics.fsr_frame_gen"]'));
         ctx.expect(ctx.assert.domExists(ctx.doc, 'button.tsic-dropdown[data-key="graphics.reflex"]'));
         // The int-era row is gone — C++ has no graphics.upscaler_quality handler.
         ctx.expect(ctx.doc.querySelector('[data-key="graphics.upscaler_quality"]')
@@ -184,7 +185,8 @@ TSICTestHarness.register({
         const opts = JSON.parse(ctx.doc.querySelector('button.tsic-dropdown[data-key="graphics.upscaler"]')
             .getAttribute('data-tsic-options')).map(o => o.Value || o.value);
         ctx.expect(opts.indexOf('native') === -1 ? null : '"native" is not in the C++ allow-list');
-        for (const want of ['tsr', 'dlaa', 'dlss_quality', 'dlss_balanced', 'dlss_performance', 'dlss_ultra_performance']) {
+        for (const want of ['tsr', 'dlaa', 'dlss_quality', 'dlss_balanced', 'dlss_performance', 'dlss_ultra_performance',
+                            'fsr_native_aa', 'fsr_quality', 'fsr_balanced', 'fsr_performance', 'fsr_ultra_performance']) {
             ctx.expect(opts.indexOf(want) !== -1 ? null : 'missing upscaler option ' + want);
         }
     },
@@ -227,11 +229,13 @@ TSICTestHarness.register({
     async run(ctx) {
         await openGraphicsTab(ctx);
         ctx.inject('tsic.msg.UI.Settings.Value',
-            { Key: 'graphics.nvidia_caps', ValueJson: '{"dlss":false,"frame_gen":false,"reflex":false}' });
-        // Frame-gen and Reflex are NVIDIA-only: the whole rows go.
+            { Key: 'graphics.nvidia_caps', ValueJson: '{"dlss":false,"frame_gen":false,"reflex":false,"fsr":false}' });
+        // Frame-gen (both vendors) and Reflex rows go wholesale.
         await ctx.waitFor(() => !ctx.doc.querySelector('[data-key="graphics.frame_gen"]'));
         ctx.expect(ctx.doc.querySelector('[data-key="graphics.reflex"]')
             ? 'reflex row must be pruned when unsupported' : null);
+        ctx.expect(ctx.doc.querySelector('[data-key="graphics.fsr_frame_gen"]')
+            ? 'fsr frame-gen row must be pruned without the FSR plugin' : null);
         // The upscaler row stays, reduced to TSR — every GPU can run it.
         const dd = ctx.doc.querySelector('button.tsic-dropdown[data-key="graphics.upscaler"]');
         ctx.expect(dd ? null : 'upscaler row must survive: TSR works everywhere');
