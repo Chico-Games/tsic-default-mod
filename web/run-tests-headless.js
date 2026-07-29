@@ -1,6 +1,8 @@
 // Headless runner for the TSICWebUI SPA test harness.
-// Usage: node run-tests-headless.js [--filter <substring>]
+// Usage: node run-tests-headless.js [--filter <substring>] [--channel chrome]
 // Assumes a static server is serving the /Web tree at http://localhost:8765.
+// --channel chrome runs against the installed Chrome instead of the
+// downloaded chromium headless shell (no `npx playwright install` needed).
 
 const { chromium } = require('playwright');
 
@@ -8,8 +10,11 @@ const { chromium } = require('playwright');
     const filter = process.argv.includes('--filter')
         ? process.argv[process.argv.indexOf('--filter') + 1]
         : null;
+    const channel = process.argv.includes('--channel')
+        ? process.argv[process.argv.indexOf('--channel') + 1]
+        : null;
 
-    const browser = await chromium.launch({ headless: true });
+    const browser = await chromium.launch({ headless: true, ...(channel ? { channel } : {}) });
     const page = await browser.newPage();
     page.on('pageerror', e => console.error('[pageerror]', e.message));
     page.on('console', msg => {

@@ -25,7 +25,11 @@
     [data-screen="Production"] .q-bar { height:5px; background: rgba(184,170,145,0.45); }
     [data-screen="Production"] .q-bar > div { height:100%; background:#7fd4ff; transition: width 0.15s; }
     [data-screen="Production"] .q-bar.active > div { background:#7fffae; }
-    [data-screen="Production"] .q-cancel { padding: 2px 8px; font-size:10px; min-height: 22px; }
+    [data-screen="Production"] .q-cancel, [data-screen="Production"] .q-take { padding: 2px 8px; font-size:10px; min-height: 22px; }
+    [data-screen="Production"] .q-entry.is-done { cursor:pointer; }
+    [data-screen="Production"] .q-entry.is-done:hover, [data-screen="Production"] .q-entry.is-done[data-tsic-focused] { background: rgba(127,255,174,0.18); }
+    [data-screen="Production"] .q-entry.is-done .q-bar > div { background:#7fffae; }
+    [data-screen="Production"] .q-count { font-weight:700; font-size:11px; color:rgba(47,43,34,0.75); }
   `;
 
   const TEMPLATE = `
@@ -152,6 +156,29 @@
         }
       }
 
+      // Completed entries sit at the tail of the broadcast with a full bar.
+      const isCompleted = (e) => !e.bIsActive && (e.Progress || 0) >= 1;
+
+      // The SPA queue lists the in-progress block first, completed last, but
+      // FProductionMachineState (and the Cancel handler resolving against it)
+      // index completed recipes FIRST. Translate before publishing or the
+      // server acts on a different entry than the one clicked.
+      function machineIndex(e) {
+        const completedCount = queue.filter(isCompleted).length;
+        const inProgressCount = queue.length - completedCount;
+        return isCompleted(e) ? (e.QueueIndex - inProgressCount) : (e.QueueIndex + completedCount);
+      }
+
+      // Collect a completed stack: one remove per item, highest machine index
+      // first so earlier removals never shift a later target.
+      function takeStack(stackEntries) {
+        const indices = stackEntries.map(machineIndex).sort((a, b) => b - a);
+        for (const mi of indices) {
+          ctx.publish('UI.Cmd.Recipe.Cancel', { Kind: 'Production', StationId: stationId, QueueIndex: mi });
+        }
+        window.tsic.playSound && window.tsic.playSound('Inventory.Transfer');
+      }
+
       function renderQueue() {
         const host = root.querySelector('#p-queue');
         host.innerHTML = '';
@@ -162,9 +189,23 @@
         if (queue.length === 0) {
           host.appendChild(Object.assign(document.createElement('div'), { className: 'tsic-empty', textContent: 'Queue is empty.' }));
         }
+        // Same-recipe completed entries collapse into one Take-able stack row.
+        const rows = [];
+        const stackByRecipe = new Map();
         for (const e of queue) {
+          if (!isCompleted(e)) { rows.push({ entry: e, stack: null }); continue; }
+          let stack = stackByRecipe.get(e.RecipeId);
+          if (!stack) {
+            stack = [];
+            stackByRecipe.set(e.RecipeId, stack);
+            rows.push({ entry: e, stack });
+          }
+          stack.push(e);
+        }
+        for (const { entry: e, stack } of rows) {
+          const done = stack !== null;
           const div = document.createElement('div');
-          div.className = 'q-entry' + (e.bIsActive ? ' is-active' : '');
+          div.className = 'q-entry' + (e.bIsActive ? ' is-active' : '') + (done ? ' is-done' : '');
           div.dataset.queueIndex = String(e.QueueIndex);
           const r = recipesById[e.RecipeId];
           const itemId = r ? (r.Outputs[0] || {}).ItemId : '';
@@ -173,15 +214,28 @@
           head.className = 'q-head';
           const nameSpan = document.createElement('span');
           nameSpan.className = 'name';
-          nameSpan.textContent = `${e.QueueIndex + 1}. ${name}`;
+          nameSpan.textContent = done ? name : `${e.QueueIndex + 1}. ${name}`;
           head.appendChild(nameSpan);
+          if (done && stack.length > 1) {
+            const count = document.createElement('span');
+            count.className = 'q-count';
+            count.textContent = `×${stack.length}`;
+            head.appendChild(count);
+          }
           const btn = document.createElement('button');
-          btn.className = 'tsic-button cancel q-cancel';
-          btn.textContent = 'Cancel';
-          btn.addEventListener('click', () => {
-            ctx.publish('UI.Cmd.Recipe.Cancel', { Kind: 'Production', StationId: stationId, QueueIndex: e.QueueIndex });
-            window.tsic.playSound && window.tsic.playSound('Recipe.Removed');
-          });
+          if (done) {
+            btn.className = 'tsic-button q-take';
+            btn.textContent = 'Take';
+            // No own listener: the click bubbles to the row handler below, so
+            // button and row-background clicks share one take path.
+          } else {
+            btn.className = 'tsic-button cancel q-cancel';
+            btn.textContent = 'Cancel';
+            btn.addEventListener('click', () => {
+              ctx.publish('UI.Cmd.Recipe.Cancel', { Kind: 'Production', StationId: stationId, QueueIndex: machineIndex(e) });
+              window.tsic.playSound && window.tsic.playSound('Recipe.Removed');
+            });
+          }
           head.appendChild(btn);
           div.appendChild(head);
 
@@ -191,7 +245,17 @@
           inner.style.width = (Math.max(0, Math.min(1, e.Progress || 0)) * 100).toFixed(1) + '%';
           bar.appendChild(inner);
           div.appendChild(bar);
-          barByIndex.set(e.QueueIndex, inner);
+          if (!done) barByIndex.set(e.QueueIndex, inner);
+
+          if (done) {
+            // Click anywhere on the row (or gamepad confirm) takes the stack.
+            div.setAttribute('data-tsic-focusable', '');
+            div.tabIndex = -1;
+            div.addEventListener('click', () => takeStack(stack));
+            div.addEventListener('tsic:confirm', (ev) => { ev.preventDefault(); takeStack(stack); });
+            host.appendChild(div);
+            continue;
+          }
 
           // Drag-reorder. Index 0 is the actively-producing entry and is locked.
           if (e.QueueIndex > 0) {
