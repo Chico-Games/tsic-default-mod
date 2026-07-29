@@ -16,7 +16,7 @@
           "search_queries": [],
           "tile_requirements": [],
           "spawn_chance_over": 0.0,
-          "spawn_chance_under": 0.25
+          "spawn_chance_under": 0.090909
         },
         "furniture_definition": "FD_Oven_PS",
         "transform": {
@@ -48,8 +48,8 @@
           "seed_offset": 1,
           "search_queries": [],
           "tile_requirements": [],
-          "spawn_chance_over": 0.0,
-          "spawn_chance_under": 0.5
+          "spawn_chance_over": 0.090909,
+          "spawn_chance_under": 0.181818
         },
         "furniture_definition": "FD_Microwave_PS",
         "transform": {
@@ -81,8 +81,8 @@
           "seed_offset": 1,
           "search_queries": [],
           "tile_requirements": [],
-          "spawn_chance_over": 0.0,
-          "spawn_chance_under": 0.75
+          "spawn_chance_over": 0.181818,
+          "spawn_chance_under": 0.272727
         },
         "furniture_definition": "FD_RubbishCompactor_PS",
         "transform": {
@@ -114,8 +114,8 @@
           "seed_offset": 1,
           "search_queries": [],
           "tile_requirements": [],
-          "spawn_chance_over": 0.0,
-          "spawn_chance_under": 1.0
+          "spawn_chance_over": 0.272727,
+          "spawn_chance_under": 0.363636
         },
         "furniture_definition": "FD_PlasticExtruder_PS",
         "transform": {
@@ -144,11 +144,11 @@
         },
         "b_visual_helper": false,
         "definition_filter": {
-          "seed_offset": 2,
+          "seed_offset": 1,
           "search_queries": [],
           "tile_requirements": [],
-          "spawn_chance_over": 0.0,
-          "spawn_chance_under": 0.25
+          "spawn_chance_over": 0.363636,
+          "spawn_chance_under": 0.454545
         },
         "furniture_definition": "FD_Oven_PS",
         "transform": {
@@ -177,11 +177,11 @@
         },
         "b_visual_helper": false,
         "definition_filter": {
-          "seed_offset": 2,
+          "seed_offset": 1,
           "search_queries": [],
           "tile_requirements": [],
-          "spawn_chance_over": 0.0,
-          "spawn_chance_under": 0.5
+          "spawn_chance_over": 0.454545,
+          "spawn_chance_under": 0.545455
         },
         "furniture_definition": "FD_Microwave_PS",
         "transform": {
@@ -210,11 +210,11 @@
         },
         "b_visual_helper": false,
         "definition_filter": {
-          "seed_offset": 2,
+          "seed_offset": 1,
           "search_queries": [],
           "tile_requirements": [],
-          "spawn_chance_over": 0.0,
-          "spawn_chance_under": 0.75
+          "spawn_chance_over": 0.545455,
+          "spawn_chance_under": 0.636364
         },
         "furniture_definition": "FD_RubbishCompactor_PS",
         "transform": {
@@ -243,11 +243,11 @@
         },
         "b_visual_helper": false,
         "definition_filter": {
-          "seed_offset": 2,
+          "seed_offset": 1,
           "search_queries": [],
           "tile_requirements": [],
-          "spawn_chance_over": 0.0,
-          "spawn_chance_under": 1.0
+          "spawn_chance_over": 0.636364,
+          "spawn_chance_under": 0.727273
         },
         "furniture_definition": "FD_PlasticExtruder_PS",
         "transform": {
@@ -276,11 +276,11 @@
         },
         "b_visual_helper": false,
         "definition_filter": {
-          "seed_offset": 3,
+          "seed_offset": 1,
           "search_queries": [],
           "tile_requirements": [],
-          "spawn_chance_over": 0.0,
-          "spawn_chance_under": 0.34
+          "spawn_chance_over": 0.727273,
+          "spawn_chance_under": 0.818182
         },
         "furniture_definition": "FD_PizzaOven_PS",
         "transform": {
@@ -309,11 +309,11 @@
         },
         "b_visual_helper": false,
         "definition_filter": {
-          "seed_offset": 3,
+          "seed_offset": 1,
           "search_queries": [],
           "tile_requirements": [],
-          "spawn_chance_over": 0.34,
-          "spawn_chance_under": 0.67
+          "spawn_chance_over": 0.818182,
+          "spawn_chance_under": 0.909091
         },
         "furniture_definition": "FD_CoffeeMachine_PS",
         "transform": {
@@ -342,10 +342,10 @@
         },
         "b_visual_helper": false,
         "definition_filter": {
-          "seed_offset": 3,
+          "seed_offset": 1,
           "search_queries": [],
           "tile_requirements": [],
-          "spawn_chance_over": 0.67,
+          "spawn_chance_over": 0.909091,
           "spawn_chance_under": 1.0
         },
         "furniture_definition": "FD_Dishwasher_PS",

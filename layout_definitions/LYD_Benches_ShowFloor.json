@@ -16,7 +16,7 @@
           "search_queries": [],
           "tile_requirements": [],
           "spawn_chance_over": 0.0,
-          "spawn_chance_under": 0.333
+          "spawn_chance_under": 0.142857
         },
         "furniture_definition": "FD_CraftingTableTierOne_CS",
         "transform": {
@@ -48,8 +48,8 @@
           "seed_offset": 1,
           "search_queries": [],
           "tile_requirements": [],
-          "spawn_chance_over": 0.333,
-          "spawn_chance_under": 0.667
+          "spawn_chance_over": 0.142857,
+          "spawn_chance_under": 0.285714
         },
         "furniture_definition": "FD_SewingMachine_PS",
         "transform": {
@@ -81,8 +81,8 @@
           "seed_offset": 1,
           "search_queries": [],
           "tile_requirements": [],
-          "spawn_chance_over": 0.667,
-          "spawn_chance_under": 1.0
+          "spawn_chance_over": 0.285714,
+          "spawn_chance_under": 0.428571
         },
         "furniture_definition": "FD_RubbishCompactor_PS",
         "transform": {
@@ -111,11 +111,11 @@
         },
         "b_visual_helper": false,
         "definition_filter": {
-          "seed_offset": 2,
+          "seed_offset": 1,
           "search_queries": [],
           "tile_requirements": [],
-          "spawn_chance_over": 0.0,
-          "spawn_chance_under": 0.333
+          "spawn_chance_over": 0.428571,
+          "spawn_chance_under": 0.571429
         },
         "furniture_definition": "FD_CraftingTableTierOne_CS",
         "transform": {
@@ -144,11 +144,11 @@
         },
         "b_visual_helper": false,
         "definition_filter": {
-          "seed_offset": 2,
+          "seed_offset": 1,
           "search_queries": [],
           "tile_requirements": [],
-          "spawn_chance_over": 0.333,
-          "spawn_chance_under": 0.667
+          "spawn_chance_over": 0.571429,
+          "spawn_chance_under": 0.714286
         },
         "furniture_definition": "FD_SewingMachine_PS",
         "transform": {
@@ -177,11 +177,11 @@
         },
         "b_visual_helper": false,
         "definition_filter": {
-          "seed_offset": 2,
+          "seed_offset": 1,
           "search_queries": [],
           "tile_requirements": [],
-          "spawn_chance_over": 0.667,
-          "spawn_chance_under": 1.0
+          "spawn_chance_over": 0.714286,
+          "spawn_chance_under": 0.857143
         },
         "furniture_definition": "FD_RubbishCompactor_PS",
         "transform": {
@@ -210,11 +210,11 @@
         },
         "b_visual_helper": false,
         "definition_filter": {
-          "seed_offset": 3,
+          "seed_offset": 1,
           "search_queries": [],
           "tile_requirements": [],
-          "spawn_chance_over": 0.0,
-          "spawn_chance_under": 0.5
+          "spawn_chance_over": 0.857143,
+          "spawn_chance_under": 1.0
         },
         "furniture_definition": "FD_CheckoutCounter_CS",
         "transform": {

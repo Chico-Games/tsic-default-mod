@@ -16,7 +16,7 @@
           "search_queries": [],
           "tile_requirements": [],
           "spawn_chance_over": 0.0,
-          "spawn_chance_under": 0.25
+          "spawn_chance_under": 0.125
         },
         "furniture_definition": "FD_SawBench_PS",
         "transform": {
@@ -48,8 +48,8 @@
           "seed_offset": 1,
           "search_queries": [],
           "tile_requirements": [],
-          "spawn_chance_over": 0.25,
-          "spawn_chance_under": 0.5
+          "spawn_chance_over": 0.125,
+          "spawn_chance_under": 0.25
         },
         "furniture_definition": "FD_Furnace_PS",
         "transform": {
@@ -81,8 +81,8 @@
           "seed_offset": 1,
           "search_queries": [],
           "tile_requirements": [],
-          "spawn_chance_over": 0.5,
-          "spawn_chance_under": 0.75
+          "spawn_chance_over": 0.25,
+          "spawn_chance_under": 0.375
         },
         "furniture_definition": "FD_CraftingTableTierOne_CS",
         "transform": {
@@ -114,8 +114,8 @@
           "seed_offset": 1,
           "search_queries": [],
           "tile_requirements": [],
-          "spawn_chance_over": 0.75,
-          "spawn_chance_under": 1.0
+          "spawn_chance_over": 0.375,
+          "spawn_chance_under": 0.5
         },
         "furniture_definition": "FD_WeaponBench_CS",
         "transform": {
@@ -144,11 +144,11 @@
         },
         "b_visual_helper": false,
         "definition_filter": {
-          "seed_offset": 2,
+          "seed_offset": 1,
           "search_queries": [],
           "tile_requirements": [],
-          "spawn_chance_over": 0.0,
-          "spawn_chance_under": 0.25
+          "spawn_chance_over": 0.5,
+          "spawn_chance_under": 0.625
         },
         "furniture_definition": "FD_SawBench_PS",
         "transform": {
@@ -177,11 +177,11 @@
         },
         "b_visual_helper": false,
         "definition_filter": {
-          "seed_offset": 2,
+          "seed_offset": 1,
           "search_queries": [],
           "tile_requirements": [],
-          "spawn_chance_over": 0.25,
-          "spawn_chance_under": 0.5
+          "spawn_chance_over": 0.625,
+          "spawn_chance_under": 0.75
         },
         "furniture_definition": "FD_Furnace_PS",
         "transform": {
@@ -210,11 +210,11 @@
         },
         "b_visual_helper": false,
         "definition_filter": {
-          "seed_offset": 2,
+          "seed_offset": 1,
           "search_queries": [],
           "tile_requirements": [],
-          "spawn_chance_over": 0.5,
-          "spawn_chance_under": 0.75
+          "spawn_chance_over": 0.75,
+          "spawn_chance_under": 0.875
         },
         "furniture_definition": "FD_CraftingTableTierOne_CS",
         "transform": {
@@ -243,10 +243,10 @@
         },
         "b_visual_helper": false,
         "definition_filter": {
-          "seed_offset": 2,
+          "seed_offset": 1,
           "search_queries": [],
           "tile_requirements": [],
-          "spawn_chance_over": 0.75,
+          "spawn_chance_over": 0.875,
           "spawn_chance_under": 1.0
         },
         "furniture_definition": "FD_WeaponBench_CS",
