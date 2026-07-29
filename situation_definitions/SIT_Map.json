@@ -12,7 +12,6 @@
       "BH_MapPlacePing",
       "BH_MapResetView",
       "BH_OpenInventory",
-      "BH_OpenCrafting",
       "BH_OpenMap",
       "BH_PushToTalk"
     ],
@@ -30,7 +29,6 @@
       "BH_MapPlacePing",
       "BH_MapResetView",
       "BH_OpenInventory",
-      "BH_OpenCrafting",
       "BH_OpenMap"
     ]
   }

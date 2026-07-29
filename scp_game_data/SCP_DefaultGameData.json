@@ -31,10 +31,6 @@
       {
         "key": "/Game/Shared/Input/Actions/ModeSwitch/IA_OpenMapMenu.IA_OpenMapMenu",
         "value": "UI.GameScreen.Map"
-      },
-      {
-        "key": "/Game/Shared/Input/Actions/ModeSwitch/IA_OpenCraftingMenu.IA_OpenCraftingMenu",
-        "value": "UI.GameScreen.Crafting"
       }
     ],
     "consume_ability_set": "/Game/Characters/Customer/Abilities/AS_Consume.AS_Consume",
@@ -70,7 +66,6 @@
     ],
     "research_credit_tier1": "ID_ResearchCredit_T1_CM",
     "research_credit_tier2": "ID_ResearchCredit_T2_CM",
-    "research_credit_tier3": "ID_ResearchCredit_T3_CM",
-    "default_customer_recipe_rules": "ARR_DefaultCustomerRecipes"
+    "research_credit_tier3": "ID_ResearchCredit_T3_CM"
   }
 }
