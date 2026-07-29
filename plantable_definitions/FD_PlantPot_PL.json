@@ -178,7 +178,7 @@
     },
     "starting_health": 100,
     "furniture_armour": 2,
-    "destructible_collection": "/Game/Furniture/Gardening/GeometryCollections/GCS_Basil_ClayPot.GCS_Basil_ClayPot",
+    "destructible_collection": "/Game/Furniture/Gardening/GeometryCollections/GCS_PlantPotFull.GCS_PlantPotFull",
     "destruction_impulse_strength": 0,
     "loot_dropped_on_death": [],
     "deconstruction_tier": 0,

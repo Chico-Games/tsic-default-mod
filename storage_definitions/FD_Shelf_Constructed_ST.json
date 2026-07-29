@@ -19,7 +19,7 @@
     "has_toggled_on_vfx": false,
     "has_toggled_off_vfx": false,
     "starting_health": 100.0,
-    "destructible_collection": "/Game/Furniture/Shelves/GeometryCollections/GCS_Bookcase01_Vol1.GCS_Bookcase01_Vol1",
+    "destructible_collection": "/Game/Fab/GeometryCollections/GCS_Shelf.GCS_Shelf",
     "loot_dropped_on_death": [],
     "constructable_item_to_grant": "ID_Shelf_CI",
     "deconstruction_tier": 2,

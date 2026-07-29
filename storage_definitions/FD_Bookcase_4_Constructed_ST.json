@@ -19,7 +19,7 @@
     "has_toggled_on_vfx": false,
     "has_toggled_off_vfx": false,
     "starting_health": 100.0,
-    "destructible_collection": "/Game/Furniture/Shelves/GeometryCollections/GCS_Bookcase04_Vol1Test.GCS_Bookcase04_Vol1Test",
+    "destructible_collection": "/Game/Furniture/Shelves/GeometryCollections/GCS_Bookcase04_Vol1.GCS_Bookcase04_Vol1",
     "loot_dropped_on_death": [],
     "deconstruction_tier": 2,
     "blocking_collision_boxes": [

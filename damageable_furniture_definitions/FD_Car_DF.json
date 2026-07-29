@@ -6,7 +6,7 @@
   "properties": {
     "starting_health": 73,
     "furniture_armour": 2,
-    "destructible_collection": "/Game/Furniture/CarPark/GeometryCollections/GCS_TarpaulinSim_01a.GCS_TarpaulinSim_01a",
+    "destructible_collection": "/Game/Vehicles/VOL3_RetroCars/GeometryCollections/GCS_Car_02a.GCS_Car_02a",
     "destruction_impulse_strength": 0,
     "loot_dropped_on_death": [
       "LD_Car"

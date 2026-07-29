@@ -28,7 +28,7 @@
     "has_toggled_on_vfx": false,
     "has_toggled_off_vfx": false,
     "starting_health": 300.0,
-    "destructible_collection": "/Game/Furniture/CraftingBenches/GeometryCollections/GCS_CraftingTableTierOne.GCS_CraftingTableTierOne",
+    "destructible_collection": "/Game/Fab/Office80s/Models/GeometryCollections/GCS_Printer.GCS_Printer",
     "loot_dropped_on_death": [
       "LD_CraftingBenchTierOneLoot"
     ],

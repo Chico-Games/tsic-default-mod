@@ -28,7 +28,7 @@
     "has_toggled_on_vfx": false,
     "has_toggled_off_vfx": false,
     "starting_health": 100,
-    "destructible_collection": "/Game/Furniture/SewingMachine/GeometryCollections/GCS_SewingMachine.GCS_SewingMachine",
+    "destructible_collection": "/Game/Kitchen_VOL4/GeometryCollections/GCS_PastaMaker_01b.GCS_PastaMaker_01b",
     "loot_dropped_on_death": [],
     "deconstruction_tier": 3,
     "blocking_collision_boxes": [

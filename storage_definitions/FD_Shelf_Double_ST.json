@@ -177,7 +177,7 @@
     },
     "starting_health": 100,
     "furniture_armour": 2,
-    "destructible_collection": "/Game/Furniture/Shelves/GeometryCollections/GC_SM_Bookcase01_Vol1.GC_SM_Bookcase01_Vol1",
+    "destructible_collection": "/Game/Fab/GeometryCollections/GCS_DoubleShelf.GCS_DoubleShelf",
     "destruction_impulse_strength": 0,
     "loot_dropped_on_death": [],
     "deconstruction_tier": 2,

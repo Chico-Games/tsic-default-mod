@@ -103,6 +103,7 @@
     "loot_positions": [],
     "weighted_chance": 1000,
     "world_gen_priority": 1000,
+    "destructible_collection": "/Game/Underground/Meshes/GeometryCollections/GCS_Bin.GCS_Bin",
     "destruction_impulse_strength": 0.0,
     "drag_angular_damping": 1.25,
     "drag_linear_damping": 5.0,

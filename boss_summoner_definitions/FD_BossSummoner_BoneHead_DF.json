@@ -4,6 +4,7 @@
   "class": "UBossSummonerDefinition",
   "schema_version": 2,
   "properties": {
+    "destructible_collection": "/Game/Furniture/ScientificDevices/GeometryCollections/GCS_GlassContainment.GCS_GlassContainment",
     "display_name": "Bone Altar",
     "boss_summon_recipe_definition": "RD_SummonBoneHead_BS",
     "gameplay_event_tag": "UI.GameScreen.BossSummoner",
