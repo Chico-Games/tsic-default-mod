@@ -1,14 +1,14 @@
 {
-  "id": "LYD_TileBase",
-  "asset_path": "/Game/WorldGeneration/Layouts/Shared/LYD_TileBase",
+  "id": "LYD_PylonSigns",
+  "asset_path": "/Game/WorldGeneration/Layouts/Signs/LYD_PylonSigns",
   "class": "ULayoutDefinition",
   "schema_version": 2,
   "properties": {
     "layout_objects": [
       {
         "layout_actor_type": {
-          "name": "LAYOUT",
-          "value": 1
+          "name": "PROXY_ACTOR",
+          "value": 0
         },
         "b_visual_helper": false,
         "definition_filter": {
@@ -21,152 +21,27 @@
                 "value": 2
               },
               "tags": [
-                "Tile.Biome.ShowFloor",
-                "Tile.Biome.Warehouse",
-                "Tile.Biome.Kids",
-                "Tile.Biome.Restaurant",
-                "Tile.Biome.Gardening",
-                "Tile.Biome.LostAndFound"
-              ],
-              "b_not": false
-            }
-          ],
-          "spawn_chance_over": 0.0,
-          "spawn_chance_under": 1.0
-        },
-        "layout_definition": "LYD_PylonSigns",
-        "transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0,
-            "w": 1.0
-          },
-          "translation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        }
-      },
-      {
-        "layout_actor_type": {
-          "name": "LAYOUT",
-          "value": 1
-        },
-        "b_visual_helper": false,
-        "definition_filter": {
-          "seed_offset": -1,
-          "search_queries": [],
-          "tile_requirements": [
-            {
-              "search_query": {
-                "name": "HAS_ANY_EXACT",
-                "value": 2
-              },
-              "tags": [
-                "Tile.Biome.ShowFloor",
-                "Tile.Biome.Warehouse",
-                "Tile.Biome.Kids",
-                "Tile.Biome.Restaurant",
-                "Tile.Biome.Gardening",
-                "Tile.Biome.LostAndFound"
-              ],
-              "b_not": false
-            }
-          ],
-          "spawn_chance_over": 0.0,
-          "spawn_chance_under": 1.0
-        },
-        "layout_definition": "LYD_PromoSigns",
-        "transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0,
-            "w": 1.0
-          },
-          "translation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        }
-      },
-      {
-        "layout_actor_type": {
-          "name": "LAYOUT",
-          "value": 1
-        },
-        "b_visual_helper": false,
-        "definition_filter": {
-          "seed_offset": -1,
-          "search_queries": [],
-          "tile_requirements": [],
-          "spawn_chance_over": 0.0,
-          "spawn_chance_under": 1.0
-        },
-        "layout_definition": "LYD_Floor_MixedBiome_Scaled",
-        "transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0,
-            "w": 1.0
-          },
-          "translation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        }
-      },
-      {
-        "layout_actor_type": {
-          "name": "LAYOUT",
-          "value": 1
-        },
-        "b_visual_helper": false,
-        "definition_filter": {
-          "seed_offset": -1,
-          "search_queries": [],
-          "tile_requirements": [
-            {
-              "search_query": {
-                "name": "HAS_ANY_EXACT",
-                "value": 2
-              },
-              "tags": [
-                "Tile.Biome.AbandonedCamp",
-                "Tile.Biome.Gardening",
-                "Tile.Biome.HelpPoint",
-                "Tile.Biome.Kids",
-                "Tile.Biome.Map",
-                "Tile.Biome.BossArena",
                 "Tile.Biome.ShowFloor"
               ],
               "b_not": false
+            },
+            {
+              "search_query": {
+                "name": "HAS_ANY_EXACT",
+                "value": 2
+              },
+              "tags": [
+                "Tile.Offset.MazeOpening.Up",
+                "Tile.Offset.MazeOpening.Down",
+                "Tile.Offset.MazeOpening.Left",
+                "Tile.Offset.MazeOpening.Right"
+              ],
+              "b_not": false
             }
           ],
           "spawn_chance_over": 0.0,
-          "spawn_chance_under": 1.0
+          "spawn_chance_under": 0.005
         },
-        "layout_definition": "LYD_MazePathFiltered",
         "transform": {
           "rotation": {
             "x": 0.0,
@@ -184,78 +59,13 @@
             "y": 1.0,
             "z": 1.0
           }
-        }
+        },
+        "furniture_definition": "FD_PylonSign_SaleEvent"
       },
       {
         "layout_actor_type": {
-          "name": "LAYOUT",
-          "value": 1
-        },
-        "b_visual_helper": false,
-        "definition_filter": {
-          "seed_offset": -1,
-          "search_queries": [],
-          "tile_requirements": [],
-          "spawn_chance_over": 0.0,
-          "spawn_chance_under": 1.0
-        },
-        "layout_definition": "LYD_Wall_AllSide_MixedBiome",
-        "transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0,
-            "w": 1.0
-          },
-          "translation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        }
-      },
-      {
-        "layout_actor_type": {
-          "name": "LAYOUT",
-          "value": 1
-        },
-        "b_visual_helper": false,
-        "definition_filter": {
-          "seed_offset": -1,
-          "search_queries": [],
-          "tile_requirements": [],
-          "spawn_chance_over": 0.0,
-          "spawn_chance_under": 1.0
-        },
-        "layout_definition": "LYD_Ceiling_MixedBiome",
-        "transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0,
-            "w": 1.0
-          },
-          "translation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        }
-      },
-      {
-        "layout_actor_type": {
-          "name": "LAYOUT",
-          "value": 1
+          "name": "PROXY_ACTOR",
+          "value": 0
         },
         "b_visual_helper": false,
         "definition_filter": {
@@ -268,20 +78,27 @@
                 "value": 2
               },
               "tags": [
-                "Tile.Biome.ShowFloor",
-                "Tile.Biome.Warehouse",
-                "Tile.Biome.Kids",
-                "Tile.Biome.Restaurant",
-                "Tile.Biome.Gardening",
-                "Tile.Biome.LostAndFound"
+                "Tile.Biome.ShowFloor"
+              ],
+              "b_not": false
+            },
+            {
+              "search_query": {
+                "name": "HAS_ANY_EXACT",
+                "value": 2
+              },
+              "tags": [
+                "Tile.Offset.MazeOpening.Up",
+                "Tile.Offset.MazeOpening.Down",
+                "Tile.Offset.MazeOpening.Left",
+                "Tile.Offset.MazeOpening.Right"
               ],
               "b_not": false
             }
           ],
           "spawn_chance_over": 0.0,
-          "spawn_chance_under": 1.0
+          "spawn_chance_under": 0.005
         },
-        "layout_definition": "LYD_WelcomeSigns",
         "transform": {
           "rotation": {
             "x": 0.0,
@@ -299,7 +116,236 @@
             "y": 1.0,
             "z": 1.0
           }
-        }
+        },
+        "furniture_definition": "FD_PylonSign_NewIn"
+      },
+      {
+        "layout_actor_type": {
+          "name": "PROXY_ACTOR",
+          "value": 0
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [],
+          "tile_requirements": [
+            {
+              "search_query": {
+                "name": "HAS_ANY_EXACT",
+                "value": 2
+              },
+              "tags": [
+                "Tile.Biome.Kids"
+              ],
+              "b_not": false
+            },
+            {
+              "search_query": {
+                "name": "HAS_ANY_EXACT",
+                "value": 2
+              },
+              "tags": [
+                "Tile.Offset.MazeOpening.Up",
+                "Tile.Offset.MazeOpening.Down",
+                "Tile.Offset.MazeOpening.Left",
+                "Tile.Offset.MazeOpening.Right"
+              ],
+              "b_not": false
+            }
+          ],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 0.05
+        },
+        "transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 1.0
+          },
+          "translation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        },
+        "furniture_definition": "FD_PylonSign_ToySale"
+      },
+      {
+        "layout_actor_type": {
+          "name": "PROXY_ACTOR",
+          "value": 0
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [],
+          "tile_requirements": [
+            {
+              "search_query": {
+                "name": "HAS_ANY_EXACT",
+                "value": 2
+              },
+              "tags": [
+                "Tile.Biome.Restaurant"
+              ],
+              "b_not": false
+            },
+            {
+              "search_query": {
+                "name": "HAS_ANY_EXACT",
+                "value": 2
+              },
+              "tags": [
+                "Tile.Offset.MazeOpening.Up",
+                "Tile.Offset.MazeOpening.Down",
+                "Tile.Offset.MazeOpening.Left",
+                "Tile.Offset.MazeOpening.Right"
+              ],
+              "b_not": false
+            }
+          ],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 0.04
+        },
+        "transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 1.0
+          },
+          "translation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        },
+        "furniture_definition": "FD_PylonSign_CafeOpen"
+      },
+      {
+        "layout_actor_type": {
+          "name": "PROXY_ACTOR",
+          "value": 0
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [],
+          "tile_requirements": [
+            {
+              "search_query": {
+                "name": "HAS_ANY_EXACT",
+                "value": 2
+              },
+              "tags": [
+                "Tile.Biome.Gardening"
+              ],
+              "b_not": false
+            },
+            {
+              "search_query": {
+                "name": "HAS_ANY_EXACT",
+                "value": 2
+              },
+              "tags": [
+                "Tile.Offset.MazeOpening.Up",
+                "Tile.Offset.MazeOpening.Down",
+                "Tile.Offset.MazeOpening.Left",
+                "Tile.Offset.MazeOpening.Right"
+              ],
+              "b_not": false
+            }
+          ],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 0.04
+        },
+        "transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 1.0
+          },
+          "translation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        },
+        "furniture_definition": "FD_PylonSign_GardenCentre"
+      },
+      {
+        "layout_actor_type": {
+          "name": "PROXY_ACTOR",
+          "value": 0
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [],
+          "tile_requirements": [
+            {
+              "search_query": {
+                "name": "HAS_ANY_EXACT",
+                "value": 2
+              },
+              "tags": [
+                "Tile.Biome.Warehouse"
+              ],
+              "b_not": false
+            },
+            {
+              "search_query": {
+                "name": "HAS_ANY_EXACT",
+                "value": 2
+              },
+              "tags": [
+                "Tile.Offset.MazeOpening.Up",
+                "Tile.Offset.MazeOpening.Down",
+                "Tile.Offset.MazeOpening.Left",
+                "Tile.Offset.MazeOpening.Right"
+              ],
+              "b_not": false
+            }
+          ],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 0.025
+        },
+        "transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 1.0
+          },
+          "translation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        },
+        "furniture_definition": "FD_PylonSign_CollectionPoint"
       }
     ],
     "weighted_chance": 1000,
