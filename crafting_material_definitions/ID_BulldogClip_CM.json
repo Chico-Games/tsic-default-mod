@@ -4,8 +4,8 @@
   "class": "UCraftingMaterialDefinition",
   "schema_version": 2,
   "properties": {
-    "display_name": "Bulldog Clip",
-    "description": "A strong spring clip for papers.",
+    "display_name": "Push Pins",
+    "description": "A handful of coloured push pins from a notice board.",
     "stackable": true,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_BulldogClip_SI",
