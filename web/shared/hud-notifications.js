@@ -17,6 +17,19 @@
     if (old.el.parentNode) old.el.parentNode.removeChild(old.el);
   }
 
+  // A store alarm and a crafting tip should not sound identical. Types with no
+  // entry fall back to the generic card sound.
+  var TYPE_SOUNDS = {
+    Alarm: 'UI.Error',
+    Error: 'UI.Error',
+    Warning: 'UI.Error',
+    Progression: 'Notification.Objective',
+    PlayerDied: 'Notification.Objective',
+  };
+  function soundForType(type) {
+    return TYPE_SOUNDS[String(type || '')] || 'Notification.Show';
+  }
+
   function spawn(payload) {
     var host = document.getElementById('notif-stack');
     if (!host || !payload) return;
@@ -46,7 +59,7 @@
     }
     div.appendChild(body);
     host.appendChild(div);
-    try { tsic.playSound('Notification.Show', 0.35); } catch (e) {}
+    try { tsic.playSound(soundForType(payload.Type), 0.35); } catch (e) {}
 
     var entry = { el: div };
     stack.push(entry);

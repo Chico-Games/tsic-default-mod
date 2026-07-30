@@ -81,8 +81,9 @@
           kind: 'Shop',
           actionLabel: 'Buy',
           emptyText: 'This machine is empty.',
-          soundSuccess: 'Craft.Success',
-          soundFail: 'Craft.Fail',
+          // Buying is not crafting — the shop has its own coin takes.
+          soundSuccess: 'Shop.Buy',
+          soundFail: 'Shop.Denied',
 
           // Right-hand column: price, then remaining stock for capped lines.
           rowRight(recipe) {

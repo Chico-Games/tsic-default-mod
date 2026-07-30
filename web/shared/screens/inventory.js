@@ -476,8 +476,10 @@
               const slotTag = equippedSlotTagFor(it.InstanceId);
               if (slotTag) {
                 ctx.publish('UI.Cmd.Equipment.Unequip', { ItemId: '', SlotTag: slotTag });
+                tsic.playSound('Inventory.Unequip', 0.45);
               } else {
                 ctx.publish('UI.Cmd.Equipment.Equip', { ItemId: String(it.InstanceId), SlotTag: '' });
+                tsic.playSound('Inventory.Equip', 0.45);
               }
             }
           },
@@ -487,6 +489,7 @@
           onDollDrop: (src, cellIndex) => {
             if (!src.equipSlotTag) return;
             ctx.publish('UI.Cmd.Equipment.Unequip', { ItemId: '', SlotTag: src.equipSlotTag });
+            tsic.playSound('Inventory.Unequip', 0.45);
             const worn = itemByInstance(src.instanceId);
             if (worn && worn.GridSlot >= 0 && worn.GridSlot !== cellIndex) {
               ctx.publish('UI.Cmd.Inventory.Move', {
@@ -532,6 +535,7 @@
               div.addEventListener('click', () => {
                 if (window.TSICInventory.clickSuppressed()) return;
                 ctx.publish('UI.Cmd.Equipment.Unequip', { ItemId: '', SlotTag: s.SlotTag });
+                tsic.playSound('Inventory.Unequip', 0.45);
               });
               div.addEventListener('pointerdown', (e) => {
                 window.TSICInventory.beginPointerDrag(div, {

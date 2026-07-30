@@ -110,9 +110,11 @@
         if (!desc) {
           description.classList.add('br-invalid');
           hint.style.visibility = 'visible';
+          tsic.playSound('UI.Error', 0.4);
           try { description.focus({ preventScroll: true }); } catch (e) { /* noop */ }
           return;
         }
+        tsic.playSound('BugReport.Submit', 0.45);
         ctx.publish('UI.Cmd.BugReport.Submit', {
           Category: tsic.dropdown.get(root.querySelector('#br-category')) || 'Other',
           Description: desc,
@@ -122,7 +124,10 @@
         description.value = '';
         ctx.publish('UI.Cmd.Pause.Resume');
       };
-      root.querySelector('#btn-cancel').onclick = () => ctx.publish('UI.Cmd.BugReport.Close');
+      root.querySelector('#btn-cancel').onclick = () => {
+        tsic.playSound('BugReport.Cancel', 0.4);
+        ctx.publish('UI.Cmd.BugReport.Close');
+      };
     },
 
     onShow(params, ctx) {

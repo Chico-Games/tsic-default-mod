@@ -7,7 +7,7 @@
     "thumbnail": "mod:icons/id_dowelbat_eq",
     "equipment_actors_and_meshes": [
       {
-        "mesh": "/Game/Items/Equipment/Weapons/DowelBat/Meshes/bat_updated.bat_updated",
+        "mesh": "/Game/Items/Equipment/Weapons/DowelBat/Meshes/SM_DowelBat.SM_DowelBat",
         "attach_socket": "hand_r_weapon",
         "attach_transform": {
           "rotation": {

@@ -92878,6 +92878,7 @@
       "hold_loot_rarity": []
     },
     "loot_multiplier": 1.0,
+    "container_loot_table": "LSP_SCPBase_Container",
     "layouts": [
       "LYD_SCPBasePower_All",
       "LYD_SCPBasePower_Up",

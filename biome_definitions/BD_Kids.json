@@ -92880,6 +92880,7 @@
     "loot_multiplier": 1.0,
     "floor_lsp": "LSP_Kids_Floor",
     "furniture_lsp": "LSP_Kids_Furniture",
+    "container_loot_table": "LSP_Kids_Container",
     "layouts": [
       "LYD_Kids_All",
       "LYD_Kids_All_2",

@@ -92878,6 +92878,7 @@
       "hold_loot_rarity": []
     },
     "loot_multiplier": 1.0,
+    "container_loot_table": "LSP_Bathroom_Container",
     "layouts": [
       "LYD_BathroomExit_All",
       "LYD_BathroomExit_All_Decrease",

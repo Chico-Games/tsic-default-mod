@@ -102,6 +102,10 @@
         t.bindEscape = function (opts) {
             const o = opts || {};
             return t.onKey('Escape', () => {
+                // Backing out with Escape reads differently from clicking a
+                // button — the screen-open/close sound covers the transition,
+                // this covers the gesture itself.
+                t.playSound('UI.Back', 0.3);
                 if (o.handler) { o.handler(); return; }
                 if (o.closeScreen) { t.closeScreen(); return; }
                 t.resume();
@@ -112,6 +116,7 @@
         t.bindCloseButton = function (selectorOrEl, opts) {
             return t.onClick(selectorOrEl || '#btn-close', () => {
                 const o = opts || {};
+                t.playSound('UI.Cancel', 0.3);
                 if (o.handler) { o.handler(); return; }
                 if (o.closeScreen) { t.closeScreen(); return; }
                 t.resume();

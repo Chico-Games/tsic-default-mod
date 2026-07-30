@@ -92880,6 +92880,7 @@
     "loot_multiplier": 1.0,
     "floor_lsp": "LSP_Gardening_Floor",
     "furniture_lsp": "LSP_Gardening_Furniture",
+    "container_loot_table": "LSP_Gardening_Container",
     "layouts": [
       "LYD_Gardening_All",
       "LYD_Gardening_All_2",

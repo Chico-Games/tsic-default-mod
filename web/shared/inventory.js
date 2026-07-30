@@ -229,7 +229,12 @@
         // rather than dropping into the world) — it just never takes the item.
         if (slot.index !== FISTS_HOTBAR_SLOT && window.TSICInventory.canAssignToHotbar(held.itemId)) {
             publish('UI.Cmd.Hotbar.Assign', { SlotIndex: slot.index, ItemId: String(held.instanceId) });
-            sound('Inventory.Transfer', 0.33);
+            sound('Hotbar.Swap', 0.45);
+        } else {
+            // Refused assignment (fists slot, or a category the ASC won't take).
+            // The stack silently returns home otherwise — this is the only
+            // feedback the player gets that the drop was rejected.
+            sound('Inventory.Invalid', 0.4);
         }
         distributeTrail = null;
         suppressClickUntil = Date.now() + 200;
@@ -285,7 +290,7 @@
         };
         ghostShow(ev && ev.clientX, ev && ev.clientY);
         refreshHeldSourceVisual();
-        sound('Inventory.Transfer', 0.2);
+        sound('Inventory.Pickup', 0.35);
         notifyHeldChanged();
     }
 
@@ -313,16 +318,21 @@
             clearPendingCancel();
             pendingSameCellCancel = setTimeout(function () {
                 pendingSameCellCancel = null;
+                sound('Inventory.Drag.Return', 0.3);
                 cancelHeld();
             }, 300);
             return;
         }
+        // Landing on an occupied cell of the same item is a merge, not a move —
+        // resolved before publishing because the broadcast re-renders the grid.
+        var existing = targetPane.itemAt ? targetPane.itemAt(cellIndex) : null;
+        var bMerge = !!(existing && existing.ItemId === held.itemId);
         publish('UI.Cmd.Inventory.Move', {
             FromOwnerId: held.ownerId, ToOwnerId: targetPane.ownerId,
             ItemId: held.instanceId, FromSlot: held.fromSlot,
             ToSlot: cellIndex, Count: heldCountArg(),
         });
-        sound('Inventory.Transfer', 0.33);
+        sound(bMerge ? 'Inventory.Stack' : 'Inventory.Transfer', 0.33);
         cancelHeld();
     }
 
@@ -438,7 +448,10 @@
                 var payload = { instanceId: held.instanceId, ownerId: held.ownerId };
                 cancelHeld();
                 suppressClickUntil = Date.now() + 200;
+                sound('Inventory.Equip', 0.45);
                 t._tsicEquipDrop(payload);
+            } else {
+                sound('Inventory.Invalid', 0.4);
             }
             return;
         }
@@ -594,7 +607,7 @@
             publish('UI.Cmd.Inventory.Split', {
                 OwnerId: pane.ownerId, FromSlot: cellIndex, ToSlot: -1, Count: count,
             });
-            sound('Inventory.Transfer', 0.33);
+            sound('Inventory.Split', 0.4);
             closeSplit();
         };
 
@@ -1024,7 +1037,7 @@
                 OtherOwnerId: (pane.otherOwnerId && pane.otherOwnerId()) || '',
                 ItemId: item.InstanceId, Slot: cellIndex,
             });
-            sound('Inventory.Transfer', 0.33);
+            sound('Inventory.Stack', 0.33);
         });
 
         cell.addEventListener('contextmenu', function (e) {

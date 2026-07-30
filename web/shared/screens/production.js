@@ -165,7 +165,7 @@
         for (const mi of indices) {
           ctx.publish('UI.Cmd.Recipe.Cancel', { Kind: 'Production', StationId: stationId, QueueIndex: mi });
         }
-        window.tsic.playSound && window.tsic.playSound('Inventory.Transfer');
+        window.tsic.playSound && window.tsic.playSound('Production.Collect', 0.5);
       }
 
       function renderQueue() {
@@ -380,6 +380,9 @@
           const recipe = lastStation && (lastStation.Recipes || []).find((r) => r.RecipeId === selectedRecipeId);
           if (!recipe || !window.TSICRecipeInfo.canCraft(recipe, materialCounts)) return;
           ctx.publish('UI.Cmd.Recipe.Start', { Kind: 'Production', StationId: stationId, RecipeId: recipe.RecipeId, Count: 1 });
+          // NB: 'Production.Insert' is registered in the sound set but is the
+          // same moment as Recipe.Added — stacking both double-triggers. Left
+          // unwired deliberately; see the audio audit.
           window.tsic.playSound && window.tsic.playSound('Recipe.Added');
         });
         root.querySelector('#btn-close').addEventListener('click', () => {

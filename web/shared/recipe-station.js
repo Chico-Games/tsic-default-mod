@@ -135,7 +135,12 @@
             row.appendChild(el('div', { class: 'right' }, rightText));
           }
 
-          var selectRecipe = function () { selectRecipeOnly(r.RecipeId); };
+          var selectRecipe = function () {
+            // A gated row still selects (so the player can read why), but it
+            // sounds locked instead of like a normal pick.
+            if (locked && selectedRecipeId !== r.RecipeId) tsic.playSound('UI.Locked', 0.35);
+            selectRecipeOnly(r.RecipeId);
+          };
           var commitRecipe = function () {
             selectRecipe();
             if (!actionBtn.disabled) actionBtn.click();

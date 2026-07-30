@@ -82,6 +82,9 @@
             if (Open.trigger) close();
             const options = parseOptions(trigger);
             if (options.length === 0) return;
+            // Opening the list and picking from it are separate moments;
+            // UI.Dropdown.Select already covers the pick.
+            if (t.playSound) t.playSound('UI.Dropdown.Open', 0.3);
 
             const portal = document.createElement('div');
             portal.className = 'tsic-dropdown-portal';

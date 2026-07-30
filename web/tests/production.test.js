@@ -368,7 +368,7 @@ TSICTestHarness.register({
 });
 
 TSICTestHarness.register({
-    name: 'Production/Take: Take button publishes machine-space index + Inventory.Transfer sound',
+    name: 'Production/Take: Take button publishes machine-space index + Production.Collect sound',
     file: '/screens/production.html',
     async run(ctx) {
         ctx.screen('Production');
@@ -385,7 +385,7 @@ TSICTestHarness.register({
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Recipe.Cancel',
             { where: p => p.Kind === 'Production' && p.StationId === 'S' && p.QueueIndex === 0 }));
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Sound.Play',
-            { where: p => p.SoundKey === 'Inventory.Transfer' }));
+            { where: p => p.SoundKey === 'Production.Collect' }));
     },
 });
 
@@ -503,7 +503,7 @@ TSICTestHarness.register({
         ctx.expect(ctx.assert.eq(removals.length, 2, 'one removal per stacked item'));
         ctx.expect(ctx.assert.eq(removals.map(p => p.payload.QueueIndex), [1, 0], 'descending machine indices'));
         // Sound plays once, not per item.
-        const sounds = ctx.handle.publishes().filter(p => p.channel === 'UI.Cmd.Sound.Play' && p.payload.SoundKey === 'Inventory.Transfer');
+        const sounds = ctx.handle.publishes().filter(p => p.channel === 'UI.Cmd.Sound.Play' && p.payload.SoundKey === 'Production.Collect');
         ctx.expect(ctx.assert.eq(sounds.length, 1, 'single take sound for the stack'));
     },
 });

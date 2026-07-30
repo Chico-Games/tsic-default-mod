@@ -21,6 +21,14 @@
 
   // Robust app glyph: a beveled letter tile (Susan-Kare-ish) keyed off the
   // program name's initial — always renders regardless of bitmap-font coverage.
+  // Guarded: this shell is also driven by the headless harness, where
+  // window.tsic is absent.
+  function t2sfx(key, vol) {
+    if (window.tsic && window.tsic.playSound) {
+      try { window.tsic.playSound(key, vol); } catch (e) {}
+    }
+  }
+
   function glyphFor(name) {
     return (String(name || '?').trim()[0] || '?').toUpperCase();
   }
@@ -293,11 +301,13 @@
       windows.push(rec);
       positionWindow(w);
       bringToFront(rec);
+      t2sfx('Terminal.Window.Open', 0.4);
       return rec;
     }
 
     function closeWindowRec(rec) {
       if (!rec) return;
+      t2sfx('Terminal.Window.Close', 0.4);
       const fns = rec.onCloseFns; rec.onCloseFns = [];
       fns.forEach(function (fn) { try { fn(); } catch (e) {} });   // kill the program / tear down the console
       if (rec.el && rec.el.parentNode) rec.el.parentNode.removeChild(rec.el);

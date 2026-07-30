@@ -181,13 +181,22 @@
     injectStyleOnce();
     const root = ensureRoot();
 
+    // The target message repeats while you keep looking at the same piece of
+    // furniture, so the preview blip is edge-triggered on the entity changing.
+    let lastPreviewEntity = 0;
+
     window.tsic.on('tsic.msg.UI.Upgrade.Target', (p) => {
       // EntityId 0 is the "nothing upgradeable in front of me" signal.
       if (!p || !p.EntityId) {
+        lastPreviewEntity = 0;
         root.hidden = true;
         root.innerHTML = '';
         hideBadge();
         return;
+      }
+      if (p.EntityId !== lastPreviewEntity) {
+        lastPreviewEntity = p.EntityId;
+        if (p.bHasUpgradeTool) window.tsic.playSound('Upgrade.Preview', 0.3);
       }
       const badge = ensureBadge();
       if (badge) renderBadge(badge, p);

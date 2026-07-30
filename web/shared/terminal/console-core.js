@@ -101,6 +101,14 @@
     }
     function write(text, cls) { enqueue(text, cls); }
 
+    // Terminal SFX. Guarded because this module is also exercised by the
+    // headless test harness, where window.tsic does not exist.
+    function sfx(key, vol) {
+      if (window.tsic && window.tsic.playSound) {
+        try { window.tsic.playSound(key, vol); } catch (e) {}
+      }
+    }
+
     // ── Boot ──────────────────────────────────────────────
     function finishBoot() {
       booting = false;
@@ -113,6 +121,7 @@
       if (pendingAutoRun) {
         const id = pendingAutoRun; pendingAutoRun = null;
         write(promptStr + ' run ' + id, 'tsic-term-echo');
+        sfx('Terminal.Launch', 0.45);
         host.run(id).then(function (res) { if (!res.ok) renderError(res, id); });
       } else {
         printHelp();
@@ -120,6 +129,7 @@
     }
     function bootSequence() {
       skipped = false;
+      sfx('Terminal.Boot', 0.5);
       const lines = opts.bootLines || (NS.boot && NS.boot.BOOT_LINES) || [];
       const logo = (opts.bootLogo !== undefined) ? opts.bootLogo : (NS.boot && NS.boot.DURHAM_LOGO);
       if (NS.boot && typeof NS.boot.runBoot === 'function') {
@@ -137,6 +147,7 @@
 
     // ── Launch errors / HELP ──────────────────────────────
     function renderError(res, programId) {
+      sfx('Terminal.Error', 0.5);
       if (res.code === NS.ERR.TIER_TOO_LOW) {
         write('ERROR 0x02: INCOMPATIBLE HARDWARE', 'tsic-term-err');
         write('  ' + programId.toUpperCase() + ' requires ' + NS.hardwareName(res.info.required) + ' (tier ' + res.info.required + ').', 'tsic-term-err');
@@ -181,6 +192,7 @@
       if (cmd === 'exit' || cmd === 'quit') { host.close(); return; }
       const id = (cmd === 'run') ? parts[1] : parts[0];
       if (!id) { write('Usage: RUN <name>', 'tsic-term-err'); return; }
+      sfx('Terminal.Launch', 0.45);
       host.run(id).then(function (res) { if (!res.ok) renderError(res, id); });
     }
 

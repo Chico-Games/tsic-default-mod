@@ -701,7 +701,7 @@
           "search_queries": [],
           "tile_requirements": [],
           "spawn_chance_over": 0.0,
-          "spawn_chance_under": 0.35
+          "spawn_chance_under": 0.6
         },
         "layout_definition": "LYD_Benches_ByBiome",
         "transform": {

@@ -18,22 +18,12 @@
               "weight": 1
             },
             {
-              "item_entity": "FD_Bracket_SI",
-              "count": 1,
-              "weight": 1
-            },
-            {
-              "item_entity": "FD_DrawerRail_SI",
-              "count": 1,
-              "weight": 1
-            },
-            {
               "item_entity": "FD_MDFBoard_SI",
               "count": 1,
               "weight": 1
             }
           ],
-          "spawn_chance": 0.3499999940395355
+          "spawn_chance": 0.2800000011920929
         }
       },
       {
@@ -47,19 +37,9 @@
               "item_entity": "FD_MetalChairLeg_SI",
               "count": 1,
               "weight": 1
-            },
-            {
-              "item_entity": "FD_BiscuitTin_SI",
-              "count": 1,
-              "weight": 1
-            },
-            {
-              "item_entity": "FD_MetalScrews_SI",
-              "count": 1,
-              "weight": 1
             }
           ],
-          "spawn_chance": 0.3499999940395355
+          "spawn_chance": 0.2800000011920929
         }
       },
       {
@@ -75,17 +55,12 @@
               "weight": 1
             },
             {
-              "item_entity": "FD_Calculator_SI",
-              "count": 1,
-              "weight": 1
-            },
-            {
               "item_entity": "FD_MetalScrews_SI",
               "count": 1,
               "weight": 1
             }
           ],
-          "spawn_chance": 0.3499999940395355
+          "spawn_chance": 0.2800000011920929
         }
       }
     ],

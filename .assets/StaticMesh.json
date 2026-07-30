@@ -16330,7 +16330,7 @@
       }
     },
     {
-      "path": "/Game/Fab/Straight_Staircase_V3_-_Wooden_Interior_Stairs/source/StaticMeshes/source.source",
+      "path": "/Game/Fab/Straight_Staircase_V3_-_Wooden_Interior_Stairs/source/StaticMeshes/SM_StoreStairs.SM_StoreStairs",
       "name": "source",
       "folder": "/Game/Fab/Straight_Staircase_V3_-_Wooden_Interior_Stairs/source/StaticMeshes",
       "package_guid": "",
@@ -30118,7 +30118,7 @@
       }
     },
     {
-      "path": "/Game/Items/Equipment/Weapons/DowelBat/Meshes/bat_updated.bat_updated",
+      "path": "/Game/Items/Equipment/Weapons/DowelBat/Meshes/SM_DowelBat.SM_DowelBat",
       "name": "bat_updated",
       "folder": "/Game/Items/Equipment/Weapons/DowelBat/Meshes",
       "package_guid": "",
@@ -30172,7 +30172,7 @@
       }
     },
     {
-      "path": "/Game/Items/Equipment/Weapons/PizzaCutterLamp/Meshes/pizza_cutter_lamp.pizza_cutter_lamp",
+      "path": "/Game/Items/Equipment/Weapons/PizzaCutterLamp/Meshes/SM_PizzaCutterLamp.SM_PizzaCutterLamp",
       "name": "pizza_cutter_lamp",
       "folder": "/Game/Items/Equipment/Weapons/PizzaCutterLamp/Meshes",
       "package_guid": "",

@@ -188,6 +188,13 @@
 
     ctx.clearRect(0, 0, SIZE, SIZE);
     if (!pending) drawLayer(tex, lx, ly, viewR);
+    // Furniture walls streamed in after the basemap <img> was fetched. That fetch is
+    // a one-shot (retryFailedImg only re-tries a FAILED load), so without this layer
+    // the minimap would show only the walls that existed at HUD boot. Sits directly
+    // over the basemap, under the tint — where walls sat when they were baked into
+    // the basemap itself. Null until the first patch arrives; drawLayer ignores that.
+    var wallDraw = window.TSICWallPatches && window.TSICWallPatches.getCanvas();
+    if (!pending && wallDraw) drawLayer(wallDraw, lx, ly, viewR);
     // Height tint (above/below the player's level) sits over the basemap but
     // under fog — fogged tiles stay uniformly fogged.
     if (!pending && tintDraw) drawLayer(tintDraw, lx, ly, viewR);
@@ -290,6 +297,13 @@
   });
 
   // Sticky channel: a late-subscribing HUD replays the last TileGrid payload.
+  // Wall patches decode asynchronously, so we redraw when one has actually landed
+  // rather than when its message arrives. Needed because the animation loop idles
+  // while the player stands still, and a chunk can finish streaming in that window.
+  if (window.TSICWallPatches) {
+    window.TSICWallPatches.onApplied(render);
+  }
+
   tsic.on('tsic.msg.UI.Map.TileGrid', function (p) {
     var HT = window.TSICHeightTint;
     tintStore = HT ? HT.build(p) : null;

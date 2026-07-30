@@ -75,7 +75,7 @@
       background-repeat: no-repeat;
     }
     [data-screen="Map"] #world-tex, [data-screen="Map"] #fow-tex, [data-screen="Map"] #overlay,
-    [data-screen="Map"] #height-tint-tex,
+    [data-screen="Map"] #height-tint-tex, [data-screen="Map"] #wall-tex,
     [data-screen="Map"] #debug-height-tex, [data-screen="Map"] #debug-maze-tex {
       position: absolute; left: 0; top: 0;
       pointer-events: none; user-select: none; -webkit-user-drag: none;
@@ -85,6 +85,11 @@
        1:1 crop of the (unfogged) world texture in the beat before the first
        snapshot landed — outside the fog veil, which is world-sized. */
     [data-screen="Map"] #world-tex          { z-index: 1; image-rendering: pixelated; width: 0; height: 0; }
+    /* Furniture walls streamed in after the basemap was fetched. Same z as the
+       basemap and later in DOM order, so it paints directly on top of it and BELOW
+       the height tint — which is where walls sat back when they were baked into the
+       basemap itself, so the tint keeps affecting them exactly as before. */
+    [data-screen="Map"] #wall-tex           { z-index: 1; image-rendering: pixelated; width: 0; height: 0; }
     [data-screen="Map"] #height-tint-tex    { z-index: 1; image-rendering: pixelated; }
     [data-screen="Map"] #debug-height-tex   { z-index: 2; }
     [data-screen="Map"] #debug-maze-tex     { z-index: 3; }
@@ -464,6 +469,31 @@
         applyTransform();
         if (latestSnapshot) rerender();
       }
+      // World-sized layer dimensions from the last setBounds(). Kept so a layer that
+      // joins the stack later (the adopted wall canvas) can be sized on arrival
+      // instead of waiting for the next bounds change, which may never come.
+      let layerW = 0;
+      let layerH = 0;
+      function sizeLayer(el) {
+        if (!el || !(layerW > 0)) return;
+        el.style.width  = `${layerW}px`;
+        el.style.height = `${layerH}px`;
+      }
+
+      // The furniture-wall overlay canvas is owned by shared/wall-patches.js and
+      // shared with the minimap, so it is ADOPTED into the layer stack rather than
+      // recreated here — one world-resolution canvas per session, not two.
+      if (window.TSICWallPatches) {
+        window.TSICWallPatches.onCanvas((cvs) => {
+          cvs.id = 'wall-tex';
+          const world = qs('#world-tex');
+          if (world && world.parentNode) {
+            world.parentNode.insertBefore(cvs, world.nextSibling);
+          }
+          sizeLayer(cvs);
+        });
+      }
+
       function setBounds(minB, maxB) {
         const minX = minB && typeof minB.X === 'number' ? minB.X : 0;
         const minY = minB && typeof minB.Y === 'number' ? minB.Y : 0;
@@ -480,11 +510,10 @@
           c.style.padding = `${pad}px`;
           c.style.width  = `${w}px`;
           c.style.height = `${h}px`;
-          for (const id of ['world-tex', 'height-tint-tex', 'fow-tex', 'debug-height-tex', 'debug-maze-tex', 'debug-all-tex']) {
-            const img = qs('#' + id);
-            if (!img) continue;
-            img.style.width  = `${w}px`;
-            img.style.height = `${h}px`;
+          layerW = w;
+          layerH = h;
+          for (const id of ['world-tex', 'wall-tex', 'height-tint-tex', 'fow-tex', 'debug-height-tex', 'debug-maze-tex', 'debug-all-tex']) {
+            sizeLayer(qs('#' + id));
           }
           const svg = qs('#overlay');
           if (svg) {
@@ -1175,6 +1204,7 @@
       }
 
       // ---- mouse / wheel / keyboard --------------------------------
+      let lastZoomSoundAt = 0;
       let dragging = false;
       let dragLastX = 0, dragLastY = 0;
       const vp = qs('#map-viewport');
@@ -1190,6 +1220,7 @@
           const X = Math.max(bounds.minX, Math.min(bounds.maxX, wx));
           const Y = Math.max(bounds.minY, Math.min(bounds.maxY, wy));
           ctx.publish('UI.Cmd.Cheat.Execute', { Command: `Teleport2D ${X.toFixed(0)} ${Y.toFixed(0)}` });
+          if (window.tsic && window.tsic.playSound) window.tsic.playSound('Map.Teleport', 0.5);
           flashTeleportMarker(lx, ly);
           ev.preventDefault();
           ev.stopPropagation();
@@ -1228,7 +1259,14 @@
         const factor = ev.deltaY < 0 ? 1.1 : (1 / 1.1);
         const lx = (cx - state.panX) / state.scale;
         const ly = (cy - state.panY) / state.scale;
+        const prevScale = state.scale;
         state.scale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, state.scale * factor));
+        // Throttled + clamp-aware: a wheel spin fires many events, and at the
+        // zoom limits nothing moves, so neither should make a sound.
+        if (state.scale !== prevScale && Date.now() - lastZoomSoundAt > 70) {
+          lastZoomSoundAt = Date.now();
+          if (window.tsic && window.tsic.playSound) window.tsic.playSound('Map.Zoom.Step', 0.2);
+        }
         state.panX = cx - lx * state.scale;
         state.panY = cy - ly * state.scale;
         applyTransform();

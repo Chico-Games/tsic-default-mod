@@ -92880,6 +92880,7 @@
     "loot_multiplier": 1.0,
     "floor_lsp": "LSP_LostAndFound_Floor",
     "furniture_lsp": "LSP_LostAndFound_Furniture",
+    "container_loot_table": "LSP_LostAndFound_Container",
     "layouts": [
       "LYD_LostAndFound_All",
       "LYD_LostAndFound_All_Decrease",

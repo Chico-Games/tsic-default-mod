@@ -67,6 +67,14 @@
     container.addEventListener('mousedown', onPointerDown);
     function onKey(ev) {
       if (core.isBooting()) { ev.preventDefault(); core.skipBoot(); return; } // any key fast-forwards boot
+      // Mechanical key click on real operator input only — the typewriter
+      // effect in console-core prints without going through here.
+      const k = ev.key || '';
+      if (k.length === 1 || k === 'Backspace' || k === 'Enter') {
+        if (window.tsic && window.tsic.playSound) {
+          try { window.tsic.playSound('Terminal.Key', 0.18); } catch (e) {}
+        }
+      }
       if (ev.key !== 'Enter') return;
       const value = input.value;
       input.value = ''; syncMirror();

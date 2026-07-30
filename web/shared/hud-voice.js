@@ -43,9 +43,21 @@
     return true;
   }
 
+  // Mic-open/close blip for the local player only — remote speakers already
+  // announce themselves by talking. Edge-triggered so a repeated state
+  // broadcast doesn't re-blip.
+  var wasSelfTalking = false;
+
   function onState(p) {
     if (!root) return;
-    selfChip.classList.toggle('on', !!(p && p.bSelfPushToTalk));
+    var bSelfTalking = !!(p && p.bSelfPushToTalk);
+    if (bSelfTalking !== wasSelfTalking) {
+      wasSelfTalking = bSelfTalking;
+      if (window.tsic && tsic.playSound) {
+        tsic.playSound(bSelfTalking ? 'Voice.TalkStart' : 'Voice.TalkStop', 0.3);
+      }
+    }
+    selfChip.classList.toggle('on', bSelfTalking);
     var speaking = (p && p.Speaking) || [];
     while (list.firstChild) list.removeChild(list.firstChild);
     for (var i = 0; i < speaking.length; i++) {
