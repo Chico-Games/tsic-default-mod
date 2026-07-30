@@ -13,25 +13,7 @@
     ],
     "constructable_item_to_grant": "ID_StorePoster_9_CI",
     "deconstruction_tier": 1,
-    "blocking_collision_boxes": [
-      {
-        "offset": {
-          "x": 0,
-          "y": 0.1191,
-          "z": 55.6891
-        },
-        "rotation": {
-          "pitch": 0,
-          "yaw": 0,
-          "roll": 0
-        },
-        "box_size": {
-          "x": 31.0662,
-          "y": 0.2,
-          "z": 47.6518
-        }
-      }
-    ],
+    "blocking_collision_boxes": [],
     "support_collision_boxes": [
       {
         "offset": {
