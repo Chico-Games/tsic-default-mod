@@ -1343,12 +1343,12 @@
           "rotation": {
             "x": 0.0,
             "y": 0.0,
-            "z": 1.0,
-            "w": 6.123233995736766e-17
+            "z": 0.0,
+            "w": 1.0
           },
           "translation": {
             "x": 488.832048,
-            "y": -412.659761,
+            "y": -412.5,
             "z": 269.07574
           },
           "scale3_d": {
@@ -1376,12 +1376,12 @@
           "rotation": {
             "x": 0.0,
             "y": 0.0,
-            "z": 0.0,
-            "w": 1.0
+            "z": -1.0,
+            "w": 0.0
           },
           "translation": {
             "x": 488.832048,
-            "y": 438.183103,
+            "y": 437.5,
             "z": 269.075738
           },
           "scale3_d": {
@@ -1409,13 +1409,46 @@
           "rotation": {
             "x": 0.0,
             "y": 0.0,
-            "z": 1.0,
-            "w": 6.123233995736766e-17
+            "z": 0.0,
+            "w": 1.0
           },
           "translation": {
             "x": -430.288769,
-            "y": -412.659761,
+            "y": -412.5,
             "z": 269.075746
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "PROXY_ACTOR",
+          "value": 0
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": -1,
+          "search_queries": [],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
+        },
+        "furniture_definition": "FD_WallLight_2_TO",
+        "transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": -1.0,
+            "w": 0.0
+          },
+          "translation": {
+            "x": -430.288769,
+            "y": 437.5,
+            "z": 269.075744
           },
           "scale3_d": {
             "x": 1.0,
@@ -1446,41 +1479,8 @@
             "w": 1.0
           },
           "translation": {
-            "x": -430.288769,
-            "y": 438.183103,
-            "z": 269.075744
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        }
-      },
-      {
-        "layout_actor_type": {
-          "name": "PROXY_ACTOR",
-          "value": 0
-        },
-        "b_visual_helper": false,
-        "definition_filter": {
-          "seed_offset": -1,
-          "search_queries": [],
-          "tile_requirements": [],
-          "spawn_chance_over": 0.0,
-          "spawn_chance_under": 1.0
-        },
-        "furniture_definition": "FD_WallLight_2_TO",
-        "transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 1.0,
-            "w": 6.123233995736766e-17
-          },
-          "translation": {
             "x": 488.832048,
-            "y": 462.106396,
+            "y": 462.5,
             "z": 269.075736
           },
           "scale3_d": {
@@ -1508,12 +1508,12 @@
           "rotation": {
             "x": 0.0,
             "y": 0.0,
-            "z": 1.0,
-            "w": 6.123233995736766e-17
+            "z": 0.0,
+            "w": 1.0
           },
           "translation": {
-            "x": -420.31892,
-            "y": 462.106396,
+            "x": -460.31892,
+            "y": 462.5,
             "z": 269.075728
           },
           "scale3_d": {

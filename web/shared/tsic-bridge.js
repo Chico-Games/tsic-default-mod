@@ -11,6 +11,71 @@
 (function () {
     'use strict';
 
+    // ---- case-tolerant payload access -------------------------------------
+    // Bridged JSON keys come from FProperty::GetAuthoredName() (see
+    // TSICWebMessageBridge.h, which passes SkipStandardizeCase to keep the
+    // authored PascalCase). That name is only reliable in the EDITOR:
+    // NameTypes.h defines WITH_CASE_PRESERVING_NAME as WITH_EDITORONLY_DATA,
+    // so a cooked runtime collapses every FName to the casing it was FIRST
+    // registered with, anywhere in the process. Engine modules register their
+    // names long before ours, so a field whose name is a common word can come
+    // out of a cooked build re-cased, and `payload.Foo` silently reads
+    // undefined while the identical editor build works.
+    //
+    // Observed in the 2026-07-31 closed-alpha build: FScpUIMapPlayer::Position
+    // shipped as "position" (minimap parked on the world's origin corner,
+    // since worldToLocal fell back to 0) and FScpUIAttributeUpdate::Max
+    // shipped as "max" (every liquid bar rendered Current/1 -> "100 / 1").
+    // Sibling fields in the same structs were untouched, which is what makes
+    // this so hard to spot: it is per-name, not per-struct.
+    //
+    // C++ cannot fix this — the authored casing simply does not exist at
+    // runtime in a cooked build — and WITH_CASE_PRESERVING_NAME can't be
+    // forced on, since it changes FName's layout and would ABI-break against
+    // the installed engine's prebuilt binaries. So the wire contract stops
+    // depending on casing here instead: payloads are wrapped so a read finds
+    // its key whatever case it arrived in, and every screen keeps reading the
+    // authored PascalCase.
+    //
+    // Correctly-cased reads (the overwhelming majority) cost one `in` check;
+    // only a miss pays the one-time scan. Wrapping is lazy — nested objects
+    // are wrapped when touched, not up front — so a big untouched payload
+    // (the TileGrid RLE arrays) costs nothing.
+    var ciCache = (typeof WeakMap === 'function') ? new WeakMap() : null;
+
+    function caseTolerant(value) {
+        if (value === null || typeof value !== 'object') return value;
+        if (ciCache) {
+            var hit = ciCache.get(value);
+            if (hit) return hit;
+        }
+        var proxy = new Proxy(value, {
+            get: function (target, key, receiver) {
+                if (typeof key !== 'string' || key in target) {
+                    var direct = Reflect.get(target, key, receiver);
+                    // Methods are handed back UNBOUND on purpose. Bound to the
+                    // raw target, Array.prototype.map / Symbol.iterator would
+                    // read their elements straight off it and hand callers the
+                    // unwrapped objects — `for (const l of p.Lines) l.Flips`
+                    // would miss a re-cased "flips". Left unbound they run with
+                    // `this` === this proxy, so element reads come back through
+                    // here and stay case-tolerant all the way down.
+                    return (typeof direct === 'function') ? direct : caseTolerant(direct);
+                }
+                var lower = key.toLowerCase();
+                for (var k in target) {
+                    if (k.toLowerCase() === lower) return caseTolerant(target[k]);
+                }
+                return undefined;
+            }
+        });
+        if (ciCache) ciCache.set(value, proxy);
+        return proxy;
+    }
+
+    // Exposed for the headless suite (tests/bridge-case.test.js).
+    window.__tsicCaseTolerant = caseTolerant;
+
     // Don't clobber an existing window.tsic. In production this file is the
     // first deferred script and window.tsic is undefined, so the real bridge
     // installs normally. Under the test harness, installMockTsic() stamps a
@@ -95,7 +160,7 @@
         // which executes ue.interface.tsicDispatch(data). We wire it below.
         __dispatch: function (channel, payloadJson, metaJson) {
             var payload;
-            try { payload = JSON.parse(payloadJson); } catch (e) { payload = payloadJson; }
+            try { payload = caseTolerant(JSON.parse(payloadJson)); } catch (e) { payload = payloadJson; }
             var meta = undefined;
             if (metaJson) { try { meta = JSON.parse(metaJson); } catch (e) {} }
             if (meta && meta.cachedAt) {
