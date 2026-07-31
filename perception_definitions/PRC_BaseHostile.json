@@ -41,7 +41,7 @@
       "enabled": false
     },
     "stalemate": {
-      "give_up_seconds": 25,
+      "give_up_seconds": 8,
       "resume_seconds": 20,
       "search_near_spawn": true
     },

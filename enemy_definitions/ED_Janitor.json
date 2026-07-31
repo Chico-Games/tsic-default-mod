@@ -43,19 +43,19 @@
       },
       {
         "name": "walk_medium",
-        "max_speed": 230,
+        "max_speed": 161,
         "accel": 950,
         "rotation_rate": 220
       },
       {
         "name": "hurry",
-        "max_speed": 300,
+        "max_speed": 210,
         "accel": 1200,
         "rotation_rate": 270
       },
       {
         "name": "sprint",
-        "max_speed": 450,
+        "max_speed": 315,
         "accel": 2000,
         "rotation_rate": 360
       }

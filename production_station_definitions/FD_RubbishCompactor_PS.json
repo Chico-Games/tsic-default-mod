@@ -35,7 +35,7 @@
         "offset": {
           "x": 0,
           "y": 0,
-          "z": 49.7264
+          "z": 42.1759
         },
         "rotation": {
           "pitch": 0,
@@ -43,9 +43,9 @@
           "roll": 0
         },
         "box_size": {
-          "x": 19.635,
-          "y": 19.5274,
-          "z": 32.6357
+          "x": 21.42,
+          "y": 21.8809,
+          "z": 27.6803
         }
       }
     ],
@@ -54,7 +54,7 @@
         "offset": {
           "x": 0,
           "y": 0,
-          "z": 49.2243
+          "z": 41.75
         },
         "rotation": {
           "pitch": 0,
@@ -62,9 +62,9 @@
           "roll": 0
         },
         "box_size": {
-          "x": 28.05,
-          "y": 27.8964,
-          "z": 50.2088
+          "x": 30.6,
+          "y": 31.2585,
+          "z": 42.585
         }
       }
     ],
@@ -94,7 +94,7 @@
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,
-    "static_mesh": "/Game/Underground/Meshes/Props/SM_Bin.SM_Bin",
+    "static_mesh": "/Game/Fab/Suburban_Household/VOL9_Kitchen/Meshes/NN/SM_Dishwasher_NN_01a.SM_Dishwasher_NN_01a",
     "casts_shadow": true,
     "collision_profile_name": {
       "name": "Furniture"
@@ -103,7 +103,7 @@
     "loot_positions": [],
     "weighted_chance": 1000,
     "world_gen_priority": 1000,
-    "destructible_collection": "/Game/Underground/Meshes/GeometryCollections/GCS_Bin.GCS_Bin",
+    "destructible_collection": "/Game/Fab/Suburban_Household/VOL9_Kitchen/Meshes/GeometryCollections/GCS_Dishwasher_NN_01a.GCS_Dishwasher_NN_01a",
     "destruction_impulse_strength": 0.0,
     "drag_angular_damping": 1.25,
     "drag_linear_damping": 5.0,

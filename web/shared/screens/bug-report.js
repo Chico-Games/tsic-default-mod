@@ -4,14 +4,22 @@
 //
 // Publishes UI.Cmd.BugReport.Submit {Category, Description, bIncludeScreenshot,
 // bIncludeLog}; the director forwards it to BugReportContextSubsystem which
-// posts to BugSplat and toasts the async result. Cancel/Esc publishes
-// UI.Cmd.BugReport.Close (routes back to PauseMenu or MainMenu).
+// posts to the telemetry server and toasts the async result. Cancel/Esc
+// publishes UI.Cmd.BugReport.Close (routes back to PauseMenu or MainMenu).
+//
+// The "FurniturePlacement" category additionally asks C++ to trace for the
+// furniture under the crosshair (UI.Cmd.BugReport.RequestFurnitureTarget ->
+// UI.BugReport.FurnitureTarget) and shows the player what was picked, so they
+// never submit a placement report against furniture the ray missed.
 (function register() {
   if (!window.TSIC || typeof TSIC.registerScreen !== 'function') {
     // screen-manager.js installs TSIC.registerScreen — retry until ready.
     setTimeout(register, 16);
     return;
   }
+
+  // Must match FScpFurniturePlacementReport::GetCategoryId() on the C++ side.
+  const FURNITURE_CATEGORY = 'FurniturePlacement';
 
   const STYLE = `
     [data-screen="BugReport"] #br-overlay { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:auto; }
@@ -30,6 +38,13 @@
     [data-screen="BugReport"] .check-row { display:flex; align-items:center; gap:8px; margin-top: 8px; }
     [data-screen="BugReport"] .check-row > input { accent-color: var(--tsic-accent); }
     [data-screen="BugReport"] #br-hint { font-size:11px; color:#b03030; margin-top:6px; visibility:hidden; }
+    [data-screen="BugReport"] #br-furniture { display:none; margin-top:10px; padding:8px 10px; border:1px solid var(--tsic-border); font-size:12px; line-height:1.5; }
+    [data-screen="BugReport"] #br-furniture.br-shown { display:block; }
+    [data-screen="BugReport"] #br-furniture.br-missing { border-color:#b03030; color:#b03030; }
+    [data-screen="BugReport"] #br-furniture dl { display:grid; grid-template-columns:auto 1fr; gap:2px 10px; margin:4px 0 0; }
+    [data-screen="BugReport"] #br-furniture dt { color:rgba(59,47,28,0.7); text-transform:uppercase; font-size:10px; letter-spacing:1px; align-self:center; }
+    [data-screen="BugReport"] #br-furniture dd { margin:0; }
+    [data-screen="BugReport"] #br-furniture .br-name { font-weight:600; }
   `;
 
   const TEMPLATE = `
@@ -46,6 +61,7 @@
                     data-tsic-value="Gameplay"
                     data-tsic-options='[
                       {"value":"Gameplay","label":"Gameplay"},
+                      {"value":"FurniturePlacement","label":"This furniture is out of position"},
                       {"value":"UI","label":"UI"},
                       {"value":"Crash","label":"Crash"},
                       {"value":"Other","label":"Other"}]'>
@@ -53,6 +69,9 @@
               <span class="tsic-dropdown-caret">▾</span>
             </button>
           </div>
+
+          <!-- Only shown for the FurniturePlacement category: what the view ray hit. -->
+          <div id="br-furniture" aria-live="polite"></div>
 
           <div class="field">
             <label for="br-description">Description</label>
@@ -99,6 +118,64 @@
 
       const description = root.querySelector('#br-description');
       const hint = root.querySelector('#br-hint');
+      const category = root.querySelector('#br-category');
+      const furniture = root.querySelector('#br-furniture');
+
+      // Latest UI.BugReport.FurnitureTarget payload; null until C++ answers.
+      let target = null;
+
+      function renderFurniture() {
+        const isPlacement = tsic.dropdown.get(category) === FURNITURE_CATEGORY;
+        furniture.classList.toggle('br-shown', isPlacement);
+        if (!isPlacement) return;
+
+        if (target === null) {
+          furniture.classList.remove('br-missing');
+          furniture.textContent = 'Looking for furniture…';
+          return;
+        }
+        if (!target.bHasTarget) {
+          furniture.classList.add('br-missing');
+          furniture.textContent =
+            'No furniture under the crosshair. Close this, aim at the furniture that is out of position, then reopen the report.';
+          return;
+        }
+
+        furniture.classList.remove('br-missing');
+        // TSIC.el takes children as variadic arguments, not an array.
+        const rows = [
+          ['Definition', target.DefinitionId || '—'],
+          ['Map', target.MapName || '—'],
+          ['Tile', target.TileIndex >= 0 ? `${target.TileIndex} (${target.TileCoord || '?'})` : '—'],
+          ['Placement', target.bMoved
+            ? 'Moved since the level generated it'
+            : 'As the level generated it'],
+        ].flatMap(([label, value]) => [
+          TSIC.el('dt', {}, label),
+          TSIC.el('dd', {}, value),
+        ]);
+        furniture.replaceChildren(
+          TSIC.el('div', { class: 'br-name' },
+            target.DisplayName || target.DefinitionId || 'Unknown furniture'),
+          TSIC.el('dl', {}, ...rows),
+        );
+      }
+
+      // Ask C++ to trace now. The reply lands on UI.BugReport.FurnitureTarget.
+      function requestTarget() {
+        target = null;
+        renderFurniture();
+        ctx.publish('UI.Cmd.BugReport.RequestFurnitureTarget');
+      }
+
+      ctx.on('tsic.msg.UI.BugReport.FurnitureTarget', (payload) => {
+        target = payload || { bHasTarget: false };
+        renderFurniture();
+      });
+
+      // tsic.dropdown.set fires tsic-change on the trigger; re-render the panel
+      // so picking the placement category reveals what the ray found.
+      category.addEventListener('tsic-change', renderFurniture);
 
       description.addEventListener('input', () => {
         description.classList.remove('br-invalid');
@@ -106,6 +183,7 @@
       });
 
       root.querySelector('#btn-submit').onclick = () => {
+        const chosen = tsic.dropdown.get(category) || 'Other';
         const desc = (description.value || '').trim();
         if (!desc) {
           description.classList.add('br-invalid');
@@ -114,9 +192,16 @@
           try { description.focus({ preventScroll: true }); } catch (e) { /* noop */ }
           return;
         }
+        // A placement report with no furniture attached is just a vague bug report —
+        // make the player re-aim rather than sending one the triage can't act on.
+        if (chosen === FURNITURE_CATEGORY && !(target && target.bHasTarget)) {
+          tsic.playSound('UI.Error', 0.4);
+          renderFurniture();
+          return;
+        }
         tsic.playSound('BugReport.Submit', 0.45);
         ctx.publish('UI.Cmd.BugReport.Submit', {
-          Category: tsic.dropdown.get(root.querySelector('#br-category')) || 'Other',
+          Category: chosen,
           Description: desc,
           bIncludeScreenshot: !!root.querySelector('#br-screenshot').checked,
           bIncludeLog: !!root.querySelector('#br-log').checked,
@@ -128,6 +213,9 @@
         tsic.playSound('BugReport.Cancel', 0.4);
         ctx.publish('UI.Cmd.BugReport.Close');
       };
+
+      ctx.requestTarget = requestTarget;
+      ctx.renderFurniture = renderFurniture;
     },
 
     onShow(params, ctx) {
@@ -135,6 +223,9 @@
       const description = ctx.root.querySelector('#br-description');
       description.classList.remove('br-invalid');
       ctx.root.querySelector('#br-hint').style.visibility = 'hidden';
+      // Re-trace every time the form opens — the snapshot is only valid for the
+      // view the player froze on this trip through the pause menu.
+      if (ctx.requestTarget) ctx.requestTarget();
     },
   });
 })();

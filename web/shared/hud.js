@@ -223,7 +223,17 @@
     document.body.appendChild(el('div', { id: 'hud-crosshair-cat' }));
 
     var minimap = el('div', { id: 'hud-minimap' });
-    minimap.appendChild(el('img', { id: 'minimap-tex', src: '/runtime/world-map.imgsrc' }));
+    // No src here, deliberately: hud-minimap.js fetches world-map on the first
+    // UI.Map.Snapshot instead (its retryFailedImg path already treats a src-less
+    // img as "not loaded"). The basemap snapshot the scheme handler encodes is
+    // final for the life of that <img>; walls composited AFTER it arrive only as
+    // UI.Map.WallPatch messages, which are transient. hud.js runs before
+    // shared/wall-patches.js and both wait on window.tsic with a 16ms poll, so
+    // fetching here raced the patch subscription — a chunk that finished in that
+    // window was in neither the snapshot nor the overlay, and its walls never
+    // appeared. Deferring the fetch to the snapshot tick puts it unambiguously
+    // after every deferred script has subscribed.
+    minimap.appendChild(el('img', { id: 'minimap-tex' }));
     minimap.appendChild(el('img', { id: 'minimap-fow', src: '/runtime/fow.imgsrc' }));
     var minimapCvs = document.createElement('canvas');
     minimapCvs.id = 'minimap-canvas';

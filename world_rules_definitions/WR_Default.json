@@ -42,6 +42,17 @@
       "b_enabled": true
     },
     "transition_flash_duration": 0.15,
+    "light_wave": {
+      "sweep_direction": { "x": -1.0, "y": 0.0, "z": 0.0 },
+      "band_depth": 1400.0,
+      "band_interval": 0.28,
+      "max_bands": 14,
+      "band_sound": "/Game/Core/Rules/DayNightCycle/Audio/Waves/SW_SwitchLights.SW_SwitchLights",
+      "band_sound_volume": 1.0,
+      "band_sound_pitch_variance": 0.06,
+      "band_sound_inner_radius": 800.0,
+      "band_sound_falloff_distance": 9000.0
+    },
     "default_respawn_delay": 5.0,
     "tombstone_lifetime": 300.0,
     "max_tombstones_per_player": 3,
