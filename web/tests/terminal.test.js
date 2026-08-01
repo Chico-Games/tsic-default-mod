@@ -389,7 +389,9 @@ TSICTestHarness.register({
         ctx.inject('tsic.msg.UI.Terminal.Open', { TerminalId: 't2', Tier: 2 });
         await TSICTestHarness.waitFor(() => ctx.doc.querySelector('.t2-icon-system'));
         ctx.doc.querySelector('.t2-icon-system').click();
-        await TSICTestHarness.waitFor(() => ctx.doc.querySelector('.t2-console-input'));
+        // Wait for readiness, not just for the input to exist: the prompt line is
+        // visibility:hidden until boot finishes, and focus() on a hidden input is a no-op.
+        await TSICTestHarness.waitFor(() => ctx.doc.querySelector('.t2-console[data-term-ready] .t2-console-input'));
         const c2 = ctx.doc.querySelector('.t2-console-input');
         c2.blur();
         ctx.doc.querySelector('.t2-content.t2-console').dispatchEvent(new ctx.win.MouseEvent('mousedown', { bubbles: true, cancelable: true }));
@@ -401,7 +403,7 @@ TSICTestHarness.register({
         Array.from(ctx.doc.querySelectorAll('.tsic-term--t3 .t3-node')).find(function (n) {
             const l = n.querySelector('.t3-node-label'); return l && l.textContent === 'TERMINAL';
         }).click();
-        await TSICTestHarness.waitFor(() => ctx.doc.querySelector('.t3-console-input'));
+        await TSICTestHarness.waitFor(() => ctx.doc.querySelector('.t3-console[data-term-ready] .t3-console-input'));
         const c3 = ctx.doc.querySelector('.t3-console-input');
         c3.blur();
         ctx.doc.querySelector('.t3-console').dispatchEvent(new ctx.win.MouseEvent('mousedown', { bubbles: true, cancelable: true }));

@@ -332,7 +332,10 @@
         clearRows: function () { const r = cContent.querySelectorAll('.t3-row'); for (let i = 0; i < r.length; i++) r[i].remove(); },
         scrollToEnd: function () { cContent.scrollTop = cContent.scrollHeight; },
         setBooting: function (b) { line.style.visibility = b ? 'hidden' : ''; },
-        setReady: function () { try { cInput.focus({ preventScroll: true }); } catch (e) {} },
+        // Publish the readiness marker console-core documents (tier-1 does the same).
+        // Focusing is focusInput's job — finishBoot calls it right after this — and
+        // doing it here made setReady(false) on reboot steal focus back to the prompt.
+        setReady: function (b) { if (b) cContent.setAttribute('data-term-ready', '1'); else cContent.removeAttribute('data-term-ready'); },
         setPromptVisible: function (b) { promptEl.style.visibility = b ? '' : 'hidden'; },
         clearInput: function () { cInput.value = ''; syncMirror(); },
         focusInput: function () { try { cInput.focus({ preventScroll: true }); } catch (e) {} },
