@@ -1,0 +1,29 @@
+{
+  "id": "FD_AisleSign_PlantsAndSeeds",
+  "asset_path": "/Game/Furniture/Signs/Furniture/FD_AisleSign_PlantsAndSeeds",
+  "class": "UFurnitureDefinition",
+  "schema_version": 2,
+  "properties": {
+    "display_name": "Plants & Seeds This Aisle",
+    "level": 1,
+    "default_world_gen_gameplay_tags": [],
+    "meta_tags": [],
+    "is_pingable": false,
+    "static_mesh": "/Game/Furniture/Signs/Meshes/SM_AisleSign_PlantsAndSeeds.SM_AisleSign_PlantsAndSeeds",
+    "casts_shadow": true,
+    "collision_profile_name": {
+      "name": "Furniture"
+    },
+    "random_material_overrides": [],
+    "loot_positions": [],
+    "weighted_chance": 1000,
+    "world_gen_priority": 4000,
+    "gameplay_tags": [
+      "Entity.RandomGeneration.CanBeRandom",
+      "Entity.RandomGeneration.Materials.Metal",
+      "Entity.RandomGeneration.Size.Medium",
+      "Entity.AisleSign",
+      "Entity.AisleSign.Gardening"
+    ]
+  }
+}
