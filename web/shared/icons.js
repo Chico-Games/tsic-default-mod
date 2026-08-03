@@ -128,25 +128,80 @@
   // appends a cache-buster so CEF re-hits the handler (the resolver strips the
   // query string, so the item id — and cache key — is unchanged). Once the cache
   // warms, the retry lands the real (or fallback) icon. Gives up after the last
-  // delay: calls opts.onFail if given, else hides unless opts.keepOnFail.
+  // delay: calls opts.onFail if given; otherwise a /tex/ icon settles on the
+  // cardboard-box placeholder, and anything else hides unless opts.keepOnFail.
   var ICON_RETRY_DELAYS = [120, 280, 600, 1200];
+
+  // While an icon is still resolving we paint the same cardboard box the C++
+  // resolver serves for an item whose thumbnail can't be resolved at all, so the
+  // loading state looks like the game rather than like breakage. It rides as a
+  // CSS background: the <img>'s own content is what the browser replaces with the
+  // broken-image glyph on a failed src, and a background is immune to that.
+  // Cleared once the real icon lands so transparent PNGs don't sit on top of it.
+  var FALLBACK_ICON_URL = '/tex/fallback-icon';
+
+  // 1x1 transparent GIF. Parked in img.src whenever the real icon is not
+  // available: a src that always loads paints nothing and, crucially, suppresses
+  // the glyph — leaving the background placeholder above visible underneath.
+  var BLANK_PX = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
 
   function bustUrl(src, n) {
     return src + (src.indexOf('?') < 0 ? '?' : '&') + 'r=' + n;
+  }
+
+  // A class, not inline styles: call sites size icons by assigning img.style.cssText
+  // (shared/inventory.js does), which would wipe an inline background wholesale.
+  // background-origin lines the stand-in up with the object-fit:contain content box
+  // rather than letting it spill into the slot padding.
+  var PLACEHOLDER_CLASS = 'tsic-icon-loading';
+  var PLACEHOLDER_CSS = '.' + PLACEHOLDER_CLASS + ' {'
+    + ' background-image: url("' + FALLBACK_ICON_URL + '");'
+    + ' background-size: contain;'
+    + ' background-position: center;'
+    + ' background-repeat: no-repeat;'
+    + ' background-origin: content-box; }';
+
+  function ensurePlaceholderStyles() {
+    if (document.getElementById('tsic-icon-placeholder-styles')) return;
+    var style = document.createElement('style');
+    style.id = 'tsic-icon-placeholder-styles';
+    style.textContent = PLACEHOLDER_CSS;
+    (document.head || document.documentElement).appendChild(style);
+  }
+
+  function showPlaceholder(img) {
+    ensurePlaceholderStyles();
+    img.classList.add(PLACEHOLDER_CLASS);
+  }
+
+  function clearPlaceholder(img) {
+    img.classList.remove(PLACEHOLDER_CLASS);
   }
 
   function attachIconRetry(img, src, opts) {
     var o = opts || {};
     var retriable = src.indexOf('/tex/') !== -1; // data: URLs and static svgs don't warm
     var tries = 0;
+    if (retriable) showPlaceholder(img);
+    img.onload = function () {
+      // BLANK_PX loads too — only a real icon retires the placeholder.
+      if (img.src.indexOf(BLANK_PX) === 0) return;
+      clearPlaceholder(img);
+    };
     img.onerror = function () {
       if (retriable && tries < ICON_RETRY_DELAYS.length) {
         var delay = ICON_RETRY_DELAYS[tries++];
+        // Park on the blank pixel for the whole wait, not just the instant of
+        // the swap — otherwise the glyph is what shows for the entire backoff.
+        img.src = BLANK_PX;
         setTimeout(function () { img.src = bustUrl(src, tries); }, delay);
         return;
       }
       img.onerror = null;
       if (typeof o.onFail === 'function') { o.onFail(img); return; }
+      // Out of retries: keep the placeholder rather than collapsing the slot, so
+      // the layout holds and the item still reads as "something is here".
+      if (retriable) { img.src = BLANK_PX; return; }
       if (o.keepOnFail) return;
       img.style.display = 'none';
     };

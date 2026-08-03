@@ -24,7 +24,8 @@
       "BH_FocusFlickDown",
       "BH_FocusFlickLeft",
       "BH_FocusFlickRight",
-      "BH_PushToTalk"
+      "BH_PushToTalk",
+      "BH_BugReport"
     ]
   }
 }

@@ -16,6 +16,22 @@ These are plain web assets — clone this repo on its own and iterate:
 - `debug-tools.html` / `debug-tools.ps1` — local debug utilities
 - `api.md` — C++ ↔ JS message-bridge reference
 
+### Testing pointer gestures and multi-surface UI
+
+`shared/test-input.js` (`TSIC.testInput`) provides drag / click-move-click / sweep / hover as
+synthetic pointer events. It lives in `shared/` and is loaded by `screens/in-game.html`
+**on purpose**: the live CEF view has it too, so a Gauntlet node can perform the identical
+gesture in a packaged build via `ScpMechanicsTestDriver::RequestWebUIEval` (which evaluates an
+expression in the Root view and returns the string result). Scenarios reach it as `ctx.gesture`.
+
+**A scenario that loads an isolated `/screens/<name>.html` page has NO HUD.** That makes
+anything spanning two surfaces — or depending on the z-order between them — untestable, and it
+hid a real bug: the screen overlay (`#screen-overlay-host`, z-index 50, full-viewport,
+`pointer-events:auto`) sits above the HUD (z-index 20), so `elementFromPoint` can never reach a
+HUD drop target while a screen is open, and releases fell through to the world-drop path. For
+anything cross-surface, load `/screens/in-game.html` and call `ctx.screen('Inventory')` — that
+gives the real shell with real stacking. See `tests/cross-surface-drag.test.js`.
+
 ## Architecture (where rendering actually lives)
 
 The live UI is ONE CEF "Root" view. `screens/in-game.html` is the shell; `shared/hud.js`

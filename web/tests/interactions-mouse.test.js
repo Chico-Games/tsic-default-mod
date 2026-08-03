@@ -269,13 +269,21 @@ TSICTestHarness.register({
     name: 'Mouse/Hotbar: clicking every slot publishes Select with the right index',
     file: '/screens/hotbar.html',
     async run(ctx) {
-        ctx.inject('tsic.msg.UI.Hotbar.Changed', { SlotIndices: [1,2,3,-1,5,-1,-1,-1,-1,-1], SelectedSlot: 0 });
-        await ctx.waitFor(() => ctx.doc.querySelectorAll('#hotbar-row .tsic-slot').length === 10);
+        ctx.inject('tsic.msg.UI.Inventory.Updated', {
+            OwnerId: 'Player', MaxSlots: 32, GridWidth: 8, Items: [
+                { InstanceId: 1, ItemId: 'ID_Axe', Count: 1, GridSlot: 0 },
+                { InstanceId: 2, ItemId: 'ID_Bread', Count: 2, GridSlot: 1 },
+                { InstanceId: 3, ItemId: 'ID_Nail', Count: 3, GridSlot: 4 },
+            ],
+        });
+        ctx.inject('tsic.msg.UI.Hotbar.Changed', { NumSlots: 8, SelectedSlot: 0, SelectedSlotPending: -1 });
+        await ctx.waitFor(() => ctx.doc.querySelectorAll('#hotbar-row .tsic-slot').length === 8);
         ctx.clearPublishes();
         const slots = ctx.doc.querySelectorAll('#hotbar-row .tsic-slot');
         for (let i = 0; i < slots.length; i++) slots[i].click();
         const pubs = ctx.publishes().filter(p => p.channel === 'UI.Cmd.Hotbar.Select');
-        ctx.expect(ctx.assert.eq(pubs.length, 10));
+        // Empty cells are selectable too — selecting one is how you end up bare-handed.
+        ctx.expect(ctx.assert.eq(pubs.length, 8));
         ctx.expect(ctx.assert.truthy(pubs.every((p, i) => p.payload.SlotIndex === i)));
     },
 });

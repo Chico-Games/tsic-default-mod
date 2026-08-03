@@ -359,73 +359,58 @@ TSICTestHarness.register({
     },
 });
 
-// ---- Hotbar assignment via the cursor engine --------------------------------
+// ---- Releasing on the HUD hotbar row ----------------------------------------
 
-// Fixture hotbars, pinned away from the grid so elementFromPoint resolves
-// unambiguously: the inventory screen's mirror (.inv-hotbar .hslot) and the
-// HUD row (#hotbar-row .tsic-slot).
+// The hotbar is player grid cells 0..7, so the live HUD bar behind the screen is just another
+// set of grid cells to drop into — a release there is an ordinary Move, never a world drop.
+// Pinned away from the fixture grid so the hit test is unambiguous.
 function ensureHotbarFixture(ctx) {
-    let mirror = ctx.doc.getElementById('zz-inv-hotbar');
-    if (mirror) return;
-    mirror = ctx.doc.createElement('div');
-    mirror.id = 'zz-inv-hotbar';
-    mirror.className = 'inv-hotbar';
-    mirror.style.cssText = 'position:fixed;left:420px;top:8px;display:flex;gap:4px;';
+    if (ctx.doc.getElementById('hotbar-row')) return;
     const hud = ctx.doc.createElement('div');
     hud.id = 'hotbar-row';
     hud.style.cssText = 'position:fixed;left:420px;top:80px;display:flex;gap:4px;';
-    for (let i = 0; i < 10; i++) {
-        const hslot = ctx.doc.createElement('div');
-        hslot.className = 'hslot';
-        hslot.style.cssText = 'width:48px;height:48px;';
-        hslot.dataset.hotbar = i;
-        mirror.appendChild(hslot);
+    for (let i = 0; i < 8; i++) {
         const hudSlot = ctx.doc.createElement('div');
         hudSlot.className = 'tsic-slot';
         hudSlot.style.cssText = 'width:48px;height:48px;';
         hudSlot.dataset.slot = i;
         hud.appendChild(hudSlot);
     }
-    ctx.doc.body.appendChild(mirror);
     ctx.doc.body.appendChild(hud);
 }
-function mirrorSlot(ctx, i) { return ctx.doc.querySelector('#zz-inv-hotbar .hslot[data-hotbar="' + i + '"]'); }
 function hudSlot(ctx, i) { return ctx.doc.querySelector('#hotbar-row .tsic-slot[data-slot="' + i + '"]'); }
 
 TSICTestHarness.register({
-    name: 'Unit/InventoryJs: press-drag-release onto the hotbar mirror publishes Hotbar.Assign, never Move/Drop',
+    name: 'Unit/InventoryJs: press-drag-release onto the HUD hotbar moves into that grid cell',
     file: '/screens/test-fixtures.html',
     async run(ctx) {
         ctx.clearPublishes();
         ctx.handle.setItemCatalog({ ID_Axe: { Category: 'Equipment' } });
         ensureHotbarFixture(ctx);
-        renderHost(ctx, [{ ItemId: 'ID_Axe', Count: 1, InstanceId: 9, GridSlot: 0 }]);
-        // Low slot index: the test iframe viewport is narrow, and slots past
-        // ~x600 fall outside elementFromPoint's reach.
-        pointerAt(ctx, cellAt(ctx, 0), 'pointerdown', 1, 0);
-        pointerAt(ctx, mirrorSlot(ctx, 2), 'pointermove', 1);
-        pointerAt(ctx, mirrorSlot(ctx, 2), 'pointerup', 0, 0);
-        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Hotbar.Assign', {
-            where: p => p.SlotIndex === 2 && p.ItemId === '9',
+        renderHost(ctx, [{ ItemId: 'ID_Axe', Count: 1, InstanceId: 9, GridSlot: 12 }]);
+        pointerAt(ctx, cellAt(ctx, 12), 'pointerdown', 1, 0);
+        pointerAt(ctx, hudSlot(ctx, 2), 'pointermove', 1);
+        pointerAt(ctx, hudSlot(ctx, 2), 'pointerup', 0, 0);
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Inventory.Move', {
+            where: p => p.ToSlot === 2 && p.FromSlot === 12 && p.ItemId === 9,
         }));
-        ctx.expect(ctx.assert.notPublished(ctx.handle, 'UI.Cmd.Inventory.Move'));
         ctx.expect(ctx.assert.notPublished(ctx.handle, 'UI.Cmd.Inventory.DropFromSlot'));
         ctx.expect(ctx.assert.eq(ctx.win.TSICInventory.getHeld(), null, 'gesture completed'));
     },
 });
 
 TSICTestHarness.register({
-    name: 'Unit/InventoryJs: click-move-click onto the HUD hotbar row assigns instead of dropping in the world',
+    name: 'Unit/InventoryJs: click-move-click onto the HUD hotbar row moves instead of dropping in the world',
     file: '/screens/test-fixtures.html',
     async run(ctx) {
         ctx.clearPublishes();
         ctx.handle.setItemCatalog({ ID_Bread: { Category: 'Consumable' } });
         ensureHotbarFixture(ctx);
-        renderHost(ctx, [{ ItemId: 'ID_Bread', Count: 3, InstanceId: 5, GridSlot: 1 }]);
-        click(ctx, cellAt(ctx, 1)); // pick up
+        renderHost(ctx, [{ ItemId: 'ID_Bread', Count: 3, InstanceId: 5, GridSlot: 11 }]);
+        click(ctx, cellAt(ctx, 11)); // pick up
         pressReleaseOn(ctx, hudSlot(ctx, 2));
-        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Hotbar.Assign', {
-            where: p => p.SlotIndex === 2 && p.ItemId === '5',
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Inventory.Move', {
+            where: p => p.ToSlot === 2 && p.FromSlot === 11 && p.ItemId === 5,
         }));
         ctx.expect(ctx.assert.notPublished(ctx.handle, 'UI.Cmd.Inventory.DropFromSlot'));
         ctx.expect(ctx.assert.eq(ctx.win.TSICInventory.getHeld(), null, 'gesture completed'));
@@ -433,20 +418,66 @@ TSICTestHarness.register({
 });
 
 TSICTestHarness.register({
-    name: 'Unit/InventoryJs: non-assignable categories released on the hotbar return home silently',
+    name: 'Unit/InventoryJs: the HUD hotbar takes drops THROUGH a full-screen overlay',
     file: '/screens/test-fixtures.html',
     async run(ctx) {
+        // REGRESSION: every open screen mounts inside #screen-overlay-host, a full-viewport
+        // z-index:50 pointer-events:auto layer above the HUD. elementFromPoint therefore
+        // returns the overlay at EVERY point on screen, so an elementFromPoint-based hit test
+        // can never see the bar — and the release falls through to the world-drop branch,
+        // silently throwing the player's stack on the floor. The hit test is geometric to
+        // survive this; this scenario reproduces the stacking that broke it.
+        ctx.clearPublishes();
+        ctx.handle.setItemCatalog({ ID_Axe: { Category: 'Equipment' } });
+        ensureHotbarFixture(ctx);
+        renderHost(ctx, [{ ItemId: 'ID_Axe', Count: 1, InstanceId: 9, GridSlot: 12 }]);
+
+        const overlay = ctx.doc.createElement('div');
+        overlay.id = 'zz-fake-screen-overlay';
+        overlay.style.cssText = 'position:fixed;inset:0;z-index:50;pointer-events:auto;';
+        ctx.doc.body.appendChild(overlay);
+        try {
+            const target = hudSlot(ctx, 3);
+            const r = target.getBoundingClientRect();
+            // Sanity: the overlay really is what elementFromPoint sees at the bar.
+            const hitEl = ctx.doc.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+            ctx.expect(ctx.assert.truthy(hitEl && hitEl.id === 'zz-fake-screen-overlay',
+                'the overlay covers the bar, exactly as a real screen does'));
+
+            pointerAt(ctx, cellAt(ctx, 12), 'pointerdown', 1, 0);
+            pointerAt(ctx, target, 'pointermove', 1);
+            pointerAt(ctx, target, 'pointerup', 0, 0);
+
+            ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Inventory.Move', {
+                where: p => p.ToSlot === 3 && p.FromSlot === 12 && p.ItemId === 9,
+            }));
+            ctx.expect(ctx.assert.notPublished(ctx.handle, 'UI.Cmd.Inventory.DropFromSlot'));
+            ctx.expect(ctx.assert.eq(ctx.win.TSICInventory.getHeld(), null, 'gesture completed'));
+        } finally {
+            overlay.remove();
+        }
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Unit/InventoryJs: crafting materials go on the hotbar like anything else',
+    file: '/screens/test-fixtures.html',
+    async run(ctx) {
+        // The old model refused non-equippables because an assignment to one was dead. A
+        // hotbar cell is an inventory cell now, so a stack of scrap belongs there if the
+        // player puts it there.
         ctx.clearPublishes();
         ctx.handle.setItemCatalog({ ID_Scrap: { Category: 'CraftingMaterial' } });
         ensureHotbarFixture(ctx);
-        renderHost(ctx, [{ ItemId: 'ID_Scrap', Count: 4, InstanceId: 7, GridSlot: 0 }]);
-        pointerAt(ctx, cellAt(ctx, 0), 'pointerdown', 1, 0);
-        pointerAt(ctx, mirrorSlot(ctx, 1), 'pointermove', 1);
-        pointerAt(ctx, mirrorSlot(ctx, 1), 'pointerup', 0, 0);
-        ctx.expect(ctx.assert.notPublished(ctx.handle, 'UI.Cmd.Hotbar.Assign'));
-        ctx.expect(ctx.assert.notPublished(ctx.handle, 'UI.Cmd.Inventory.Move'));
+        renderHost(ctx, [{ ItemId: 'ID_Scrap', Count: 4, InstanceId: 7, GridSlot: 10 }]);
+        pointerAt(ctx, cellAt(ctx, 10), 'pointerdown', 1, 0);
+        pointerAt(ctx, hudSlot(ctx, 1), 'pointermove', 1);
+        pointerAt(ctx, hudSlot(ctx, 1), 'pointerup', 0, 0);
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Inventory.Move', {
+            where: p => p.ToSlot === 1 && p.FromSlot === 10 && p.ItemId === 7,
+        }));
         ctx.expect(ctx.assert.notPublished(ctx.handle, 'UI.Cmd.Inventory.DropFromSlot'));
-        ctx.expect(ctx.assert.eq(ctx.win.TSICInventory.getHeld(), null, 'stack returned home'));
+        ctx.expect(ctx.assert.eq(ctx.win.TSICInventory.getHeld(), null, 'gesture completed'));
     },
 });
 

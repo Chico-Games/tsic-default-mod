@@ -18,11 +18,14 @@
     var DRAG_THRESHOLD_PX = 6;
     var suppressClickUntil = 0;
 
-    // Hotbar slot 0 is the reserved FISTS slot — selecting it stows whatever is
-    // out and leaves the player bare-handed. It holds no item and never can:
-    // C++ (UEquipmentControllerComponent) refuses assignments to it, and every
-    // UI assign path checks here first so a rejected drop never round-trips.
-    var FISTS_HOTBAR_SLOT = 0;
+    // The hotbar is the player grid's first HOTBAR_SLOTS cells. Nothing is "assigned" to it —
+    // an item is on the bar because it is sitting in one of those cells. C++ owns the real
+    // number and ships it on UI.Hotbar.Changed; this is the fallback for a cold render.
+    //
+    // Those cells are NOT drawn a second time inside the inventory/storage panels. The live
+    // HUD bar is the row (bindCells wires it as a real pane), so the in-panel grid starts at
+    // opts.startSlot and the player only ever sees one copy of each cell.
+    var HOTBAR_SLOTS = 8;
 
     function publish(tag, payload) {
         if (window.tsic && window.tsic.publishMessage) window.tsic.publishMessage(tag, payload);
@@ -176,7 +179,7 @@
         if (!ghostEl) return;
         ghostEl.style.left = (ev.clientX - 24) + 'px';
         ghostEl.style.top = (ev.clientY - 24) + 'px';
-        var overCell = !!cellUnder(ev.clientX, ev.clientY) || !!hotbarSlotUnder(ev.clientX, ev.clientY);
+        var overCell = !!cellUnder(ev.clientX, ev.clientY);
         ghostEl.classList.toggle('tsic-drag-ghost--out', !overCell && outsideEveryPane(ev));
     }
     function ghostHide() {
@@ -205,43 +208,6 @@
         return target ? target.closest('.tsic-slot, .equip-slot') : null;
     }
 
-    // Hotbar drop targets: the inventory screen's mirror (.inv-hotbar .hslot,
-    // indexed by data-hotbar) and the HUD row (#hotbar-row .tsic-slot, indexed
-    // by data-slot).
-    function hotbarSlotUnder(x, y) {
-        var target = document.elementFromPoint(x, y);
-        var slotEl = target ? target.closest('.inv-hotbar .hslot, #hotbar-row .tsic-slot') : null;
-        if (!slotEl) return null;
-        var raw = slotEl.dataset.hotbar != null ? slotEl.dataset.hotbar : slotEl.dataset.slot;
-        var index = parseInt(raw, 10);
-        return Number.isNaN(index) ? null : { el: slotEl, index: index };
-    }
-
-    // Release over a hotbar slot: assign the held stack's instance to that
-    // slot (id-based — the stack never leaves its grid cell). Non-assignable
-    // categories just return home; a hotbar release never falls through to
-    // the drop-in-world path.
-    function tryCommitHeldToHotbar(x, y) {
-        if (!held) return false;
-        var slot = hotbarSlotUnder(x, y);
-        if (!slot) return false;
-        // The fists slot still swallows the release (the stack returns home
-        // rather than dropping into the world) — it just never takes the item.
-        if (slot.index !== FISTS_HOTBAR_SLOT && window.TSICInventory.canAssignToHotbar(held.itemId)) {
-            publish('UI.Cmd.Hotbar.Assign', { SlotIndex: slot.index, ItemId: String(held.instanceId) });
-            sound('Hotbar.Swap', 0.45);
-        } else {
-            // Refused assignment (fists slot, or a category the ASC won't take).
-            // The stack silently returns home otherwise — this is the only
-            // feedback the player gets that the drop was rejected.
-            sound('Inventory.Invalid', 0.4);
-        }
-        distributeTrail = null;
-        suppressClickUntil = Date.now() + 200;
-        cancelHeld();
-        return true;
-    }
-
     function refreshHeldSourceVisual() {
         for (var pane of panes) {
             if (!pane.host || !pane.host.isConnected) continue;
@@ -249,7 +215,9 @@
                 var isSource = !!(held && pane.ownerId === held.ownerId &&
                     Number(cell.dataset.grid) === held.fromSlot);
                 cell.classList.toggle('is-held-source', isSource);
-                var badge = cell.querySelector('.count');
+                // :not(.ammo) — the HUD bar's ammo readout also lives in a .count, and
+                // rewriting it with a stack remainder would blank the loaded/spare figure.
+                var badge = cell.querySelector('.count:not(.ammo)');
                 if (isSource && badge) {
                     var remaining = held.sourceCount - held.count;
                     badge.textContent = remaining > 0 ? String(remaining) : '';
@@ -438,9 +406,6 @@
         if (!heldRelease) return;
         heldRelease = null;
         if (!held || e.button !== 0) return;
-        // A hotbar release wins over drag-distribute: releasing on a slot
-        // means "assign", even when the drag swept valid cells on the way.
-        if (tryCommitHeldToHotbar(e.clientX, e.clientY)) return;
         if (tryDistributeRelease()) return;
         var t = cellUnder(e.clientX, e.clientY);
         if (t && t.classList.contains('equip-slot')) {
@@ -707,6 +672,48 @@
         document.addEventListener('pointerup', onUp, true);
     }
 
+    // ---- Pane registration + shared cell overlays --------------------------
+
+    /** Publish a host element as the live pane for its cells, replacing any stale
+     *  registration for the same host (every re-render re-registers). */
+    function registerPane(host, pane, items) {
+        host._tsicPane = pane;
+        host.setAttribute('data-tsic-grid-host', '');
+        for (var existing of Array.from(panes)) {
+            if (existing.host === host || !existing.host.isConnected) panes.delete(existing);
+        }
+        panes.add(pane);
+        var byCell = new Map();
+        for (var it of (items || [])) {
+            if (it && it.GridSlot >= 0 && !byCell.has(it.GridSlot)) byCell.set(it.GridSlot, it);
+        }
+        // Gamepad §8 actions resolve the focused cell back to its item.
+        pane.itemAt = function (cellIndex) { return byCell.get(cellIndex) || null; };
+    }
+
+    /** Condition bar, NEW badge and equipped badge — the overlays every cell carries
+     *  regardless of which surface drew it. */
+    function decorateCell(cell, ownerId, item, equippedIds) {
+        if (!cell || !item) return;
+        // Condition bar for gear that wears; C++ sends -1 for the rest.
+        if (typeof item.Durability === 'number' && item.Durability >= 0 && item.MaxDurability > 0) {
+            var wearRatio = Math.max(0, Math.min(1, item.Durability / item.MaxDurability));
+            var wear = el('div', {
+                class: 'wear' + (wearRatio <= 0.15 ? ' crit' : (wearRatio <= 0.4 ? ' warn' : '')),
+                title: 'Condition ' + Math.round(wearRatio * 100) + '%',
+            });
+            wear.appendChild(el('i', { style: 'width:' + (wearRatio * 100).toFixed(1) + '%;' }));
+            cell.appendChild(wear);
+        }
+        if (isFresh(ownerId, item.InstanceId)) {
+            cell.appendChild(el('span', { class: 'new-badge' }, 'NEW'));
+        }
+        if (equippedIds && item.InstanceId != null && equippedIds.has(String(item.InstanceId))) {
+            cell.classList.add('is-equipped');
+            cell.appendChild(el('span', { class: 'equip-badge', title: 'Equipped' }, 'E'));
+        }
+    }
+
     window.TSICInventory = {
         beginPointerDrag: beginPointerDrag,
         clickSuppressed: clickSuppressed,
@@ -715,17 +722,9 @@
         getHeld() { return held; },
         /** Subscribe to held-stack changes (hint rows re-render off this). */
         onHeldChanged(cb) { if (typeof cb === 'function') heldChangedCallbacks.push(cb); },
-        /** Reserved fists slot index — nothing can be assigned to it. */
-        FISTS_HOTBAR_SLOT: FISTS_HOTBAR_SLOT,
-        /** False for the fists slot, which permanently holds no item. */
-        isHotbarSlotAssignable(slotIndex) { return slotIndex !== FISTS_HOTBAR_SLOT; },
-        /** Only equipment and consumables belong on the hotbar. */
-        canAssignToHotbar(itemDefId) {
-            var cat = (window.tsic && window.tsic.itemCatalog) || {};
-            var desc = cat[itemDefId];
-            var category = desc && desc.Category;
-            return category === 'Equipment' || category === 'Consumable';
-        },
+        /** How many leading grid cells are the hotbar. C++ is the authority; screens override
+         *  this from the UI.Hotbar.Changed payload's NumSlots. */
+        HOTBAR_SLOTS: HOTBAR_SLOTS,
 
         /** Diff a snapshot against the previous one to mark freshly-arrived stacks. */
         noteSnapshot: noteSnapshot,
@@ -791,17 +790,30 @@
         },
 
         /**
-         * Slot grid v2. Cells 0..slotCount-1 laid out gridWidth wide; items
+         * Append the shared per-cell overlays — condition bar, NEW badge, equipped badge — to a
+         * cell. Public because the live HUD hotbar draws its own slots (bindCells) and must
+         * decorate them identically; a second implementation there would drift.
+         */
+        decorateCell: decorateCell,
+
+        /**
+         * Slot grid v2. Cells startSlot..slotCount-1 laid out gridWidth wide; items
          * land at their persistent GridSlot. Items parked past the cap (load
          * overflow fallback) extend the grid by whole rows so nothing is ever
          * hidden. opts.lockedPreviewCells greyed cells render after the live
          * ones ("Requires backpack" — UI-only, never a target).
+         *
+         * opts.startSlot skips the leading cells entirely — the live HUD hotbar draws
+         * those (bindCells), so the panel must not draw a second copy of them. It is 0
+         * on surfaces with no HUD bar to reach for, where the panel is the only place
+         * those cells exist and opts.hotbarSlots marks them in place instead.
          *
          * paneCtx: { ownerId, panelEl, publish?, quickMove(item), otherOwnerId(),
          *            onHover(it, cell), onLeave(),
          *            onDollDrop(payload, cell) }
          */
         renderGrid(host, items, opts) {
+            injectCursorStyleOnce();
             var cat = (opts && opts.catalog) || (window.tsic && window.tsic.itemCatalog) || {};
             var cols = opts.gridWidth > 0 ? opts.gridWidth : 8;
             var liveSlots = opts.slotCount > 0 ? opts.slotCount
@@ -816,7 +828,11 @@
             }
             var lockedCells = Math.max(0, opts.lockedPreviewCells || 0);
             var totalCells = totalLive + lockedCells;
-            var rows = Math.ceil(totalCells / cols);
+            // Cells the HUD bar owns. Clamped to whole rows so skipping them can never
+            // shift the remaining cells out of their columns.
+            var startSlot = Math.max(0, Math.min(totalCells, opts.startSlot || 0));
+            startSlot -= startSlot % cols;
+            var rows = Math.ceil((totalCells - startSlot) / cols);
 
             host.innerHTML = '';
             host.style.setProperty('--grid-cols', String(cols));
@@ -833,28 +849,36 @@
                 onDollDrop: opts.onDollDrop || null,
                 otherOwnerId: opts.otherOwnerId || null,
             };
-            host._tsicPane = pane;
-            // Re-registering on re-render: drop stale entries for this host.
-            for (var existing of Array.from(panes)) {
-                if (existing.host === host || !existing.host.isConnected) panes.delete(existing);
-            }
-            panes.add(pane);
+            registerPane(host, pane, items);
 
             var byCell = new Map();
             for (var it of (items || [])) {
                 if (it && it.GridSlot >= 0 && !byCell.has(it.GridSlot)) byCell.set(it.GridSlot, it);
             }
-            // Gamepad §8 actions resolve the focused cell back to its item.
-            pane.itemAt = function (cellIndex) { return byCell.get(cellIndex) || null; };
 
             var equippedIds = opts.equippedIds || null;
-            var hotbarNumbers = opts.hotbarNumbersByInstance || null;
+            // Leading cells that are the hotbar, marked in place. Only ever set when this
+            // panel IS the hotbar's only home (no HUD bar) — otherwise startSlot skipped them.
+            var hotbarSlots = (typeof opts.hotbarSlots === 'number' && opts.hotbarSlots > 0) ? opts.hotbarSlots : 0;
+            // Which hotbar cell is currently in the player's hands. -1 = empty hands.
+            var heldSlot = (typeof opts.heldSlot === 'number') ? opts.heldSlot : -1;
 
-            for (var i = 0; i < totalCells; i++) {
+            for (var i = startSlot; i < totalCells; i++) {
                 var isLocked = i >= totalLive;
                 var item = isLocked ? null : byCell.get(i);
-                var cell = el('div', { class: 'tsic-slot' + (isLocked ? ' is-locked' : (item ? '' : ' is-empty')) });
+                var isHotbarCell = i < hotbarSlots;
+                var cell = el('div', {
+                    class: 'tsic-slot'
+                        + (isLocked ? ' is-locked' : (item ? '' : ' is-empty'))
+                        + (isHotbarCell ? ' is-hotbar' : '')
+                        + (i === heldSlot ? ' is-held' : ''),
+                });
                 cell.dataset.grid = i;
+                if (isHotbarCell) {
+                    // The cell's position IS its hotbar number, so the chip is a label, not a
+                    // badge that could ever disagree with where the item actually is.
+                    cell.appendChild(el('span', { class: 'hotbar-key' }, String(i + 1)));
+                }
                 if (isLocked) {
                     cell.title = 'Requires backpack';
                     cell.appendChild(el('span', { class: 'lock-glyph' }, '🔒'));
@@ -866,35 +890,13 @@
                 cell.tabIndex = -1;
                 if (item) {
                     cell.dataset.instance = item.InstanceId;
-                    var isEquipped = !!(equippedIds && item.InstanceId != null && equippedIds.has(String(item.InstanceId)));
-                    if (isEquipped) cell.classList.add('is-equipped');
                     if (opts.filterFn && !opts.filterFn(item)) cell.classList.add('is-filtered');
                     if (item.ItemId) {
                         var img = TSIC.iconImg(TSIC.itemIconUrl(item.ItemId));
                         img.style.cssText = 'width:100%;height:100%;object-fit:contain;pointer-events:none;';
                         cell.appendChild(img);
                     }
-                    // Condition bar for gear that wears; C++ sends -1 for the rest.
-                    if (typeof item.Durability === 'number' && item.Durability >= 0 && item.MaxDurability > 0) {
-                        var wearRatio = Math.max(0, Math.min(1, item.Durability / item.MaxDurability));
-                        var wear = el('div', {
-                            class: 'wear' + (wearRatio <= 0.15 ? ' crit' : (wearRatio <= 0.4 ? ' warn' : '')),
-                            title: 'Condition ' + Math.round(wearRatio * 100) + '%',
-                        });
-                        wear.appendChild(el('i', { style: 'width:' + (wearRatio * 100).toFixed(1) + '%;' }));
-                        cell.appendChild(wear);
-                    }
-                    if (isFresh(pane.ownerId, item.InstanceId)) {
-                        cell.appendChild(el('span', { class: 'new-badge' }, 'NEW'));
-                    }
-                    if (isEquipped) {
-                        cell.appendChild(el('span', { class: 'equip-badge', title: 'Equipped' }, 'E'));
-                    }
-                    var hotbarNum = hotbarNumbers && item.InstanceId != null
-                        ? hotbarNumbers.get(String(item.InstanceId)) : null;
-                    if (hotbarNum != null) {
-                        cell.appendChild(el('span', { class: 'hotbar-badge' }, String(hotbarNum)));
-                    }
+                    decorateCell(cell, pane.ownerId, item, equippedIds);
                     if ((item.Count || 1) > 1) {
                         cell.appendChild(el('span', { class: 'count' }, String(item.Count)));
                     }
@@ -905,6 +907,64 @@
                 host.appendChild(cell);
             }
             refreshHeldSourceVisual();
+        },
+
+        /**
+         * Wire an ALREADY-RENDERED strip of `.tsic-slot` cells as a live grid pane — this is
+         * how the HUD hotbar becomes the inventory's first row rather than a copy of it.
+         *
+         * The caller owns the markup (the bar keeps its shelf look, its key chips and its
+         * selection frame); this stamps data-grid, registers the pane so held-stack gestures
+         * can reach it, and attaches the same wiring an in-panel cell gets. Call it again after
+         * every re-render — the cells are rebuilt, so the listeners must be too.
+         */
+        bindCells(host, items, opts) {
+            if (!host) return;
+            injectCursorStyleOnce();
+            opts = opts || {};
+            var pane = {
+                host: host,
+                // Bounds for the world-drop test: a release over the bar is inside a pane,
+                // so it can never fall through and throw the stack on the floor.
+                panelEl: opts.panelEl || host,
+                ownerId: opts.ownerId || 'Player',
+                quickMove: opts.onQuickMove || null,
+                onHover: opts.onHover || null,
+                onLeave: opts.onLeave || null,
+                onDollDrop: null,
+                otherOwnerId: opts.otherOwnerId || null,
+            };
+            registerPane(host, pane, items);
+
+            var byCell = new Map();
+            for (var it of (items || [])) {
+                if (it && it.GridSlot >= 0 && !byCell.has(it.GridSlot)) byCell.set(it.GridSlot, it);
+            }
+            for (var cell of host.querySelectorAll('.tsic-slot')) {
+                var index = parseInt(cell.dataset.grid, 10);
+                if (Number.isNaN(index)) continue;
+                var item = byCell.get(index) || null;
+                if (item) {
+                    cell.dataset.instance = item.InstanceId;
+                    if (opts.filterFn && !opts.filterFn(item)) cell.classList.add('is-filtered');
+                    decorateCell(cell, pane.ownerId, item, opts.equippedIds || null);
+                }
+                if (opts.focusGroup) cell.setAttribute('data-tsic-focus-group', opts.focusGroup);
+                cell.setAttribute('data-tsic-focusable', '');
+                cell.tabIndex = -1;
+                wireCell(cell, pane, item, index);
+            }
+            refreshHeldSourceVisual();
+        },
+
+        /** Drop an externally-wired pane (the screen that owned it closed). */
+        unbindCells(host) {
+            if (!host) return;
+            for (var existing of Array.from(panes)) {
+                if (existing.host === host) panes.delete(existing);
+            }
+            host._tsicPane = null;
+            host.removeAttribute('data-tsic-grid-host');
         },
 
         // Partial updates preserved from v1 (equipped badge toggling).
@@ -1081,9 +1141,6 @@
                     document.removeEventListener('pointerup', onUp, true);
                     if (!dragging) return; // plain click — the click listener handles it
                     suppressClickUntil = Date.now() + 150;
-                    // A hotbar release wins over drag-distribute: releasing on
-                    // a slot means "assign", even when the drag swept cells.
-                    if (tryCommitHeldToHotbar(ev.clientX, ev.clientY)) return;
                     if (tryDistributeRelease()) return;
                     var t = cellUnder(ev.clientX, ev.clientY);
                     if (t && t.classList.contains('equip-slot')) {

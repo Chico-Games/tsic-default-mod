@@ -82,4 +82,22 @@ const { chromium } = require('playwright');
     }
 
     await browser.close();
+
+    // Exit code, not just a printed SUMMARY. Both branches emit one "FAIL  <name>"
+    // line per failing scenario, so this covers filtered and full runs alike.
+    // Without it this script exited 0 no matter how many scenarios failed, which made
+    // the whole web suite report success to every caller that checked $LASTEXITCODE.
+    const failed = lines.filter(l => l.startsWith('FAIL')).length;
+    // A filter that matches nothing is a typo, not a pass — it would otherwise report
+    // "0 failing" and exit clean having run no scenario at all.
+    const ran = lines.filter(l => /^(PASS|FAIL|SKIP)/.test(l)).length;
+    if (failed > 0) {
+        console.error(`${failed} scenario(s) failed`);
+        process.exitCode = 1;
+    } else if (ran === 0) {
+        console.error(filter
+            ? `Filter "${filter}" matched no scenarios — nothing was run`
+            : 'No scenarios ran');
+        process.exitCode = 1;
+    }
 })();

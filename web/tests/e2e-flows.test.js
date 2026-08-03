@@ -29,27 +29,67 @@ TSICTestHarness.register({
     },
 });
 
-// ---- Inventory → equip flow (click = quick action) -----------------------
+// ---- Inventory → equip flow (shift-click = quick action) -----------------
+// Minecraft's shift-click resolution with no container open: ARMOUR goes to the paper doll,
+// everything else band-swaps between the hotbar row and the bag.
 TSICTestHarness.register({
-    name: 'E2E/Inventory: equippable shift-click → Equip; paper doll reflects update',
+    name: 'E2E/Inventory: armour shift-click → Equip; paper doll reflects update',
     file: '/screens/inventory.html',
     async run(ctx) {
         ctx.screen('Inventory');
-        ctx.setItemCatalog({ ID_Axe: { Name: 'Axe', Category: 'Equipment' } });
-        ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', GridWidth: 8, Items: [{ ItemId: 'ID_Axe', Count: 1, InstanceId: 4, GridSlot: 0 }], MaxSlots: 32, MaxWeight: 50, CurrentWeight: 5 });
+        ctx.setItemCatalog({ ID_Helmet: {
+            Name: 'Helmet', Category: 'Equipment',
+            EquipmentSlot: 'Entity.Inventory.Item.Equipment.Slot.Head',
+        } });
+        ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', GridWidth: 8, Items: [{ ItemId: 'ID_Helmet', Count: 1, InstanceId: 4, GridSlot: 0 }], MaxSlots: 32, MaxWeight: 50, CurrentWeight: 5 });
         ctx.inject('tsic.msg.UI.Equipment.Updated', { OwnerId: 'Player', Slots: [{ SlotTag: 'Entity.Inventory.Item.Equipment.Slot.Head', ItemId: '', IconUrl: '' }] });
         await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid .tsic-slot[data-grid="0"] img'));
         const cell = ctx.doc.querySelector('#inv-grid .tsic-slot[data-grid="0"]');
         cell.dispatchEvent(new ctx.win.MouseEvent('mouseenter', { bubbles: true }));
         ctx.clearPublishes();
-        // §7.4: plain click picks the stack up; SHIFT-click is the equip quick-move.
+        // Plain click picks the stack up; SHIFT-click is the quick action.
         cell.dispatchEvent(new ctx.win.MouseEvent('click', { bubbles: true, cancelable: true, shiftKey: true }));
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Equipment.Equip', { where: p => p.ItemId === '4' }));
-        // Pretend C++ accepted and re-broadcasts equipment with the axe equipped.
-        // The doll is armor-only (§10.1) — the accepted equip lands in the Head cell.
-        ctx.inject('tsic.msg.UI.Equipment.Updated', { OwnerId: 'Player', Slots: [{ SlotTag: 'Entity.Inventory.Item.Equipment.Slot.Head', ItemId: 'ID_Axe', IconUrl: '' }] });
+        // Armour never band-swaps — the doll is its destination.
+        ctx.expect(ctx.assert.notPublished(ctx.handle, 'UI.Cmd.Inventory.Move'));
+        // Pretend C++ accepted and re-broadcasts equipment with the helmet worn.
+        ctx.inject('tsic.msg.UI.Equipment.Updated', { OwnerId: 'Player', Slots: [{ SlotTag: 'Entity.Inventory.Item.Equipment.Slot.Head', ItemId: 'ID_Helmet', IconUrl: '' }] });
         await new Promise(r => setTimeout(r, 30));
         ctx.expect(ctx.assert.truthy(ctx.doc.querySelector('#inv-doll .equip-slot img'), 'expected equipped slot to render an icon'));
+    },
+});
+
+TSICTestHarness.register({
+    name: 'E2E/Inventory: shift-click band-swaps a weapon between the hotbar and the bag',
+    file: '/screens/inventory.html',
+    async run(ctx) {
+        ctx.screen('Inventory');
+        ctx.setItemCatalog({ ID_Axe: {
+            Name: 'Axe', Category: 'Equipment',
+            EquipmentSlot: 'Entity.Inventory.Item.Equipment.Slot.Weapon',
+        } });
+        // Axe on the bar (cell 1), cells 0 and 2..7 free, cell 8 free in the bag.
+        ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', GridWidth: 8, Items: [{ ItemId: 'ID_Axe', Count: 1, InstanceId: 4, GridSlot: 1 }], MaxSlots: 32, MaxWeight: 50, CurrentWeight: 5 });
+        ctx.inject('tsic.msg.UI.Hotbar.Changed', { NumSlots: 8, SelectedSlot: 1, SelectedSlotPending: -1 });
+        await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid .tsic-slot[data-grid="1"] img'));
+        ctx.clearPublishes();
+        ctx.doc.querySelector('#inv-grid .tsic-slot[data-grid="1"]')
+            .dispatchEvent(new ctx.win.MouseEvent('click', { bubbles: true, cancelable: true, shiftKey: true }));
+        // On the bar -> first free bag cell (8). A weapon is not armour, so no Equip.
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Inventory.Move', {
+            where: p => p.FromSlot === 1 && p.ToSlot === 8 && p.ItemId === 4,
+        }));
+        ctx.expect(ctx.assert.notPublished(ctx.handle, 'UI.Cmd.Equipment.Equip'));
+
+        // Now the other way: from the bag it goes to the first free bar cell (0).
+        ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', GridWidth: 8, Items: [{ ItemId: 'ID_Axe', Count: 1, InstanceId: 4, GridSlot: 8 }], MaxSlots: 32, MaxWeight: 50, CurrentWeight: 5 });
+        await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid .tsic-slot[data-grid="8"] img'));
+        ctx.clearPublishes();
+        ctx.doc.querySelector('#inv-grid .tsic-slot[data-grid="8"]')
+            .dispatchEvent(new ctx.win.MouseEvent('click', { bubbles: true, cancelable: true, shiftKey: true }));
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Inventory.Move', {
+            where: p => p.FromSlot === 8 && p.ToSlot === 0 && p.ItemId === 4,
+        }));
     },
 });
 

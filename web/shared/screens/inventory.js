@@ -3,11 +3,21 @@
 // Left column: category tabs + the player grid + the weight bar (weight only;
 // the slot count lives as text in the headline band). Right rail: armor-only
 // paper doll (+ Backpack), character preview, item info card. Bottom: the
-// in-screen 10-slot hotbar mirror + contextual hotkey hint row.
+// contextual hotkey hint row.
+//
+// THE LIVE HUD HOTBAR IS THIS GRID'S FIRST ROW. Not a copy of it, not a mirror — the bar
+// standing at the bottom of the screen IS cells 0..7, so this grid starts at cell 8 and the
+// player sees each cell exactly once. While the screen is open the bar takes the same
+// gestures every cell here does (TSICHotbar.setGridPane hands it to the cursor engine), which
+// is the whole point: drag a stack down onto the bar and it is on the bar.
+//
+// On a host with no HUD (the standalone /screens/inventory.html dev page) there is no bar to
+// stand in for those cells, so the grid draws them itself, marked with the number chip.
 //
 // All interactions ride the shared cursor engine (shared/inventory.js):
-// click/drag pickup, RMB half/place-one, shift-click quick-move (equip),
-// double-click collect, Q / Ctrl+Q drops, click-outside world drops.
+// click/drag pickup, RMB half/place-one, shift-click quick-move (armour to the doll,
+// everything else band-swaps hotbar <-> bag), double-click collect, G / Ctrl+G drops,
+// click-outside world drops, 1-8 to swap the hovered stack onto the bar.
 (function register() {
   if (!window.TSIC || typeof TSIC.registerScreen !== 'function') {
     setTimeout(register, 16);
@@ -16,7 +26,10 @@
 
   const STYLE = `
     [data-screen="Inventory"] #inv-root { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:auto; }
-    [data-screen="Inventory"] #inv-panel { width:auto; height:auto; max-width:92vw; max-height:92vh; overflow:auto; }
+    /* min(92vh, 100%): 92vh is the look, 100% is the guarantee. The overlay is SHORTER than
+       the viewport while the HUD hotbar is acting as this grid's first row, and a panel
+       capped only against vh would run off the top of it instead of scrolling. */
+    [data-screen="Inventory"] #inv-panel { width:auto; height:auto; max-width:92vw; max-height:min(92vh, 100%); overflow:auto; }
     [data-screen="Inventory"] #inv-band { display:flex; align-items:baseline; gap:12px; border-bottom:3px solid rgba(10,10,10,0.85); margin-bottom:10px; padding-bottom:5px; }
     [data-screen="Inventory"] #inv-band h2 { margin:0; }
     [data-screen="Inventory"] #inv-band .spacer { flex:1; }
@@ -68,11 +81,21 @@
       font-size:11px; font-weight:700; color:#fff; background: var(--mag-red, #e60000);
       border:1px solid rgba(10,10,10,0.85); pointer-events:none;
     }
-    [data-screen="Inventory"] .tsic-slot .hotbar-badge {
+    /* Hotbar cells drawn IN the grid — only ever on a host with no HUD bar to draw them
+       instead. Ordinary cells in every respect; the heavier bottom rule and the number chip
+       just mark which stacks are one keypress from being in the player's hands. */
+    [data-screen="Inventory"] .tsic-slot.is-hotbar { border-bottom-width:4px; }
+    [data-screen="Inventory"] .tsic-slot.is-hotbar .hotbar-key {
       position:absolute; top:1px; right:2px; padding:1px 4px; line-height:1;
       font-size:11px; font-weight:700; color: var(--mag-yellow, #ffcc00); background: rgba(10,10,10,0.9);
       border:1px solid rgba(10,10,10,0.85); pointer-events:none;
     }
+    /* The cell whose item is actually in the player's hands, matching the HUD bar's selection
+       frame so the screen and the bar never disagree. */
+    [data-screen="Inventory"] .tsic-slot.is-held {
+      border-color: var(--mag-red, #e60000); box-shadow: 0 0 0 2px var(--mag-red, #e60000) inset;
+    }
+    [data-screen="Inventory"] .tsic-slot.is-held .hotbar-key { color:#fff; background: var(--mag-red, #e60000); }
 
     [data-screen="Inventory"] .inv-meter { margin-top:8px; min-width:200px; }
     [data-screen="Inventory"] .inv-meter .lab { display:flex; justify-content:space-between; font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:rgba(37,33,25,0.8); }
@@ -121,79 +144,6 @@
     [data-screen="Inventory"] #inv-info .statline { display:flex; justify-content:space-between; border-top:1px dashed rgba(10,10,10,0.3); padding:2px 0; }
     [data-screen="Inventory"] #inv-info .statline b { letter-spacing:0.06em; font-size:12px; }
 
-    /* The in-screen mirror takes the HUD hotbar's SHAPE — rounded plinths, key
-       top-left, count bottom-right, selection that scales up and lifts — but
-       paper-and-ink colouring so it belongs to this screen rather than looking
-       like the HUD dropped into a panel. Slot fills, border weights and the
-       accent colours are the same values the grid above it uses.
-       --mag/--lift are registered here too so the grow/shrink still
-       interpolates when this screen renders without the HUD loaded. */
-    @property --mag { syntax: "<number>"; inherits: false; initial-value: 1; }
-    @property --lift { syntax: "<length>"; inherits: false; initial-value: 0px; }
-    [data-screen="Inventory"] .inv-hotbar {
-      display:flex; align-items:flex-end; gap:8px; justify-content:center;
-      margin-top:26px; padding:16px 4px 10px;
-    }
-    [data-screen="Inventory"] .inv-hotbar .hslot {
-      width:64px; height:64px; position:relative; cursor:pointer;
-      background: rgba(255,253,243,0.96);
-      border:2px solid rgba(10,10,10,0.85); border-radius:11px;
-      --mag:1; --lift:0px; transform-origin:bottom center;
-      transform: translateY(var(--lift)) scale(var(--mag));
-      box-shadow: var(--shadow-block-sm);
-      transition: --mag 230ms cubic-bezier(0.34,1.56,0.64,1), --lift 230ms cubic-bezier(0.34,1.56,0.64,1),
-        border-color 150ms ease, background-color 90ms ease, box-shadow 150ms ease;
-      display:flex; align-items:center; justify-content:center;
-    }
-    /* Empty slots sit back, exactly as they do in the grid above. */
-    [data-screen="Inventory"] .inv-hotbar .hslot.is-empty {
-      background: rgba(237,228,203,0.85); border-color: rgba(10,10,10,0.45); box-shadow:none;
-    }
-    [data-screen="Inventory"] .inv-hotbar .hslot img {
-      position:relative; width:100%; height:100%; object-fit:contain; padding:9px; pointer-events:none;
-    }
-    /* Key number wears the grid's hotbar-badge idiom — yellow on ink, already
-       the screen's vocabulary for "this is a hotbar number". */
-    [data-screen="Inventory"] .inv-hotbar .hslot .num {
-      position:absolute; top:3px; left:4px; min-width:16px; padding:0 4px; pointer-events:none;
-      font-family:var(--font-display); font-size:14px; font-weight:700; line-height:1.35; letter-spacing:0.02em;
-      text-align:center; color: var(--mag-yellow, #ffcc00); background: rgba(10,10,10,0.9);
-      border:1px solid rgba(10,10,10,0.85); border-radius:5px;
-    }
-    [data-screen="Inventory"] .inv-hotbar .hslot .count {
-      position:absolute; bottom:3px; right:4px; padding:1px 4px; line-height:1; pointer-events:none;
-      font-size:12px; font-weight:700; color:#1a1612; background: var(--mag-yellow, #ffcc00);
-      border:1px solid rgba(10,10,10,0.85); border-radius:4px;
-    }
-    /* Selection keeps the HUD's scale + lift, but reads in the screen's red
-       accent and a heavier offset block instead of a gold glow. */
-    [data-screen="Inventory"] .inv-hotbar .hslot.sel {
-      --mag:1.16; --lift:-5px;
-      background:#fffdf3; border-color: var(--mag-red, #e60000); box-shadow: var(--shadow-block);
-    }
-    [data-screen="Inventory"] .inv-hotbar .hslot.sel .num { color:#fff; background: var(--mag-red, #e60000); }
-    [data-screen="Inventory"] .inv-hotbar .hslot:hover,
-    [data-screen="Inventory"] .inv-hotbar .hslot[data-tsic-focused] {
-      border-color: rgba(10,10,10,1); background:#fffdf3;
-    }
-    [data-screen="Inventory"] .inv-hotbar .hslot.is-drop-target {
-      outline:2px solid var(--buff-green, #1e8f3e); outline-offset:-2px;
-    }
-
-    /* Fists: reserved slot 1, set apart from the item slots by a rule so it
-       reads as a fixture rather than something you loaded. It's never empty —
-       the fists are always there — so it keeps the filled paper fill. Nothing
-       can be dropped here, so it takes no drop-target styling. */
-    [data-screen="Inventory"] .inv-hotbar .hslot.fists .fists-glyph {
-      position:relative; width:100%; height:100%; padding:11px;
-      color: rgba(37,33,25,0.85); pointer-events:none;
-    }
-    [data-screen="Inventory"] .inv-hotbar .hslot.fists.sel .fists-glyph { color: var(--mag-red, #e60000); }
-    [data-screen="Inventory"] .inv-hotbar .hb-sep {
-      width:0; align-self:stretch; margin:2px 5px 0;
-      border-left:2px dashed rgba(10,10,10,0.45); pointer-events:none;
-    }
-
     /* The chip set changes when a stack is picked up, and the panel is
        width:auto — so left to itself the hint row is the one child whose
        content can resize the whole panel mid-drag. width:0 + min-width:100%
@@ -241,7 +191,6 @@
             <div id="inv-info" class="tsic-empty">Hover an item to see details</div>
           </div>
         </div>
-        <div class="inv-hotbar" id="inv-hotbar"></div>
         <div class="inv-hints" id="inv-hints"></div>
       </div>
     </div>
@@ -416,29 +365,142 @@
         }
       }
 
-      function hotbarNumbersByInstance() {
-        const map = new Map();
-        const slots = (lastHotbar && lastHotbar.SlotIndices) || [];
-        for (let i = 0; i < slots.length; i++) {
-          if (slots[i] != null && slots[i] >= 0) map.set(String(slots[i]), (i + 1) % 10);
-        }
-        return map;
+      // How many leading grid cells are the hotbar. C++ ships it on every hotbar broadcast;
+      // the shared default covers the first render before one has arrived.
+      function hotbarSlotCount() {
+        const n = lastHotbar && lastHotbar.NumSlots;
+        return (typeof n === 'number' && n > 0) ? n : window.TSICInventory.HOTBAR_SLOTS;
       }
 
-      function refresh() {
-        if (!lastUpdate) return;
-        const cat = window.tsic.itemCatalog || {};
-        const activeTab = tabFilter ? tabFilter.getActive() : 'All';
-        const filter = TAB_FILTERS[activeTab] || null;
-        const equippedIds = new Set(
+      // True when the live HUD bar is standing in for the hotbar cells, so this grid must
+      // skip them. False on the standalone dev page, where the grid is their only home.
+      function barIsTheRow() {
+        return !!(window.TSICHotbar && window.TSICHotbar.available());
+      }
+
+      // The cell whose item is actually in the player's hands, or -1 for empty hands.
+      function heldHotbarSlot() {
+        const s = lastHotbar && lastHotbar.SelectedSlot;
+        return (typeof s === 'number') ? s : -1;
+      }
+
+      // Armour is anything equippable that wants a slot OTHER than the weapon hand — those are
+      // the only items the paper doll takes, and the only ones the hotbar can't hold.
+      function isArmour(desc) {
+        const slot = desc && desc.EquipmentSlot;
+        return !!slot && !String(slot).endsWith('.Weapon');
+      }
+
+      /**
+       * Minecraft's shift-click: an item on the hotbar row jumps to the bag, an item in the bag
+       * jumps to the hotbar row. Lands on the first free cell of the target band; if that band
+       * is full the click does nothing, rather than silently swapping something out.
+       */
+      function bandSwap(it) {
+        if (!it || it.GridSlot < 0) return;
+        const bar = hotbarSlotCount();
+        const capacity = lastUpdate.MaxSlots > 0 ? lastUpdate.MaxSlots : 32;
+        const occupied = new Set((lastUpdate.Items || []).map((row) => row.GridSlot));
+        const onBar = it.GridSlot < bar;
+        const from = onBar ? bar : 0;
+        const to = onBar ? capacity : bar;
+        let target = -1;
+        for (let i = from; i < to; i++) {
+          if (!occupied.has(i)) { target = i; break; }
+        }
+        if (target < 0) {
+          tsic.playSound('Inventory.Invalid', 0.4);
+          return;
+        }
+        ctx.publish('UI.Cmd.Inventory.Move', {
+          FromOwnerId: 'Player', ToOwnerId: 'Player',
+          ItemId: it.InstanceId, FromSlot: it.GridSlot,
+          ToSlot: target, Count: 0,
+        });
+        tsic.playSound('Inventory.Transfer', 0.4);
+      }
+
+      function equippedIdSet() {
+        return new Set(
           ((lastEquipment && lastEquipment.Slots) || [])
             .map((s) => s && s.ItemId)
             .filter((id) => id != null && id !== '')
             .map((id) => String(id))
         );
+      }
 
+      // Tab AND search must both pass — they compose rather than override, so
+      // "Materials" + "iron" narrows instead of one silently winning. Null when
+      // neither is active, so the grid can skip the per-cell test.
+      function buildFilterFn() {
+        const cat = window.tsic.itemCatalog || {};
+        const activeTab = tabFilter ? tabFilter.getActive() : 'All';
+        const filter = TAB_FILTERS[activeTab] || null;
+        if (!filter && !searchTerm) return null;
+        return (it) => {
+          const desc = cat[it.ItemId];
+          if (!desc) return false;
+          if (filter && !filter(desc)) return false;
+          if (searchTerm) {
+            const haystack = ((desc.Name || '') + ' ' + (it.ItemId || '')).toLowerCase();
+            if (haystack.indexOf(searchTerm) === -1) return false;
+          }
+          return true;
+        };
+      }
+
+      function onHoverCell(it) {
+        hoveredItem = it || null;
+        if (it) renderInfo(it);
+        renderMeter();
+      }
+      function onLeaveCell() { hoveredItem = null; renderMeter(); /* info stays sticky */ }
+
+      // Shift-click, Minecraft's resolution order with no container open:
+      //   1. armour  -> the paper doll (equip, or unequip when already worn)
+      //   2. anything else -> band-swap between the hotbar row and the bag
+      // With a container open the storage shell handles the click first and transfers
+      // instead, which is also what Minecraft does.
+      function onQuickMoveCell(it) {
+        const cat = window.tsic.itemCatalog || {};
+        if (isArmour(cat[it.ItemId])) {
+          const slotTag = equippedSlotTagFor(it.InstanceId);
+          if (slotTag) {
+            ctx.publish('UI.Cmd.Equipment.Unequip', { ItemId: '', SlotTag: slotTag });
+            tsic.playSound('Inventory.Unequip', 0.45);
+          } else {
+            ctx.publish('UI.Cmd.Equipment.Equip', { ItemId: String(it.InstanceId), SlotTag: '' });
+            tsic.playSound('Inventory.Equip', 0.45);
+          }
+          return;
+        }
+        bandSwap(it);
+      }
+
+      // The pane contract handed to the live HUD bar so its cells behave as this screen's
+      // first row — same hover readout, same shift-click, same dimming. filterFor and
+      // equippedIds are getters: the bar re-reads them on every refresh, so a tab change
+      // or an equip can never leave it a beat behind the grid above it.
+      const HOTBAR_PANE = {
+        ownerId: 'Player',
+        focusGroup: 'inv-grid',
+        onHover: onHoverCell,
+        onLeave: onLeaveCell,
+        onQuickMove: onQuickMoveCell,
+        otherOwnerId: () => '',
+        filterFor: buildFilterFn,
+        equippedIds: equippedIdSet,
+      };
+      this._hotbarPane = HOTBAR_PANE;
+
+      function refresh() {
+        if (!lastUpdate) return;
+        const cat = window.tsic.itemCatalog || {};
         const slotCount = lastUpdate.MaxSlots > 0 ? lastUpdate.MaxSlots : 32;
         const lockedPreview = Math.min(MAX_PREVIEW_CELLS, Math.max(0, PREVIEW_TIER_SLOTS - slotCount));
+        // With a live bar those cells are drawn there and skipped here; without one this
+        // grid is their only home, so it draws and marks them itself.
+        const barIsRow = barIsTheRow();
 
         window.TSICInventory.renderGrid(root.querySelector('#inv-grid'), lastUpdate.Items || [], {
           catalog: cat,
@@ -448,41 +510,14 @@
           ownerId: 'Player',
           focusGroup: 'inv-grid',
           panelEl: root.querySelector('#inv-panel'),
-          equippedIds,
-          hotbarNumbersByInstance: hotbarNumbersByInstance(),
-          // Tab AND search must both pass — they compose rather than override,
-          // so "Materials" + "iron" narrows instead of one silently winning.
-          filterFn: (filter || searchTerm) ? (it) => {
-            const desc = cat[it.ItemId];
-            if (!desc) return false;
-            if (filter && !filter(desc)) return false;
-            if (searchTerm) {
-              const haystack = ((desc.Name || '') + ' ' + (it.ItemId || '')).toLowerCase();
-              if (haystack.indexOf(searchTerm) === -1) return false;
-            }
-            return true;
-          } : null,
-          onHover: (it) => {
-            hoveredItem = it || null;
-            if (it) renderInfo(it);
-            renderMeter();
-          },
-          onLeave: () => { hoveredItem = null; renderMeter(); /* info stays sticky */ },
-          // Shift-click quick-move on the inventory screen: equippables equip
-          // (armor shift-click parity); everything else is a no-op (§7.4).
-          onQuickMove: (it) => {
-            const desc = cat[it.ItemId];
-            if (desc && desc.Category === 'Equipment') {
-              const slotTag = equippedSlotTagFor(it.InstanceId);
-              if (slotTag) {
-                ctx.publish('UI.Cmd.Equipment.Unequip', { ItemId: '', SlotTag: slotTag });
-                tsic.playSound('Inventory.Unequip', 0.45);
-              } else {
-                ctx.publish('UI.Cmd.Equipment.Equip', { ItemId: String(it.InstanceId), SlotTag: '' });
-                tsic.playSound('Inventory.Equip', 0.45);
-              }
-            }
-          },
+          equippedIds: equippedIdSet(),
+          startSlot: barIsRow ? hotbarSlotCount() : 0,
+          hotbarSlots: barIsRow ? 0 : hotbarSlotCount(),
+          heldSlot: barIsRow ? -1 : heldHotbarSlot(),
+          filterFn: buildFilterFn(),
+          onHover: onHoverCell,
+          onLeave: onLeaveCell,
+          onQuickMove: onQuickMoveCell,
           otherOwnerId: () => '',
           // Paper-doll item dragged into the grid: unequip, then place it in
           // the release cell (the item never left its cell — just unmarked).
@@ -501,6 +536,10 @@
           },
         });
 
+        // The bar's own broadcast re-renders it on item changes; this covers the changes
+        // it can't see — a tab, a search keystroke, a piece of gear coming off.
+        if (window.TSICHotbar) window.TSICHotbar.refresh();
+
         // Gamepad landing: opening the screen puts focus on the first grid
         // cell (§8.1). Re-stamped on every re-render.
         const firstCell = root.querySelector('#inv-grid .tsic-slot[data-tsic-focusable]');
@@ -509,7 +548,6 @@
         const used = (lastUpdate.Items || []).length;
         root.querySelector('#inv-slots-text').textContent = `${used}/${slotCount} SLOTS`;
         renderMeter();
-        renderHotbar();
       }
 
       function renderEquipment() {
@@ -559,79 +597,6 @@
         host.appendChild(makeCol(DOLL_RIGHT, 3));
       }
 
-      // In-screen 10-slot hotbar mirror: visible destination for hover+number
-      // assignment and drag/held-click assignment (§10.1). Slot 0 is the
-      // reserved fists slot — selectable (stows whatever is out), never
-      // assignable, and set apart from the item slots by a rule.
-      function renderHotbar() {
-        const host = root.querySelector('#inv-hotbar');
-        host.innerHTML = '';
-        const slots = (lastHotbar && lastHotbar.SlotIndices) || new Array(10).fill(-1);
-        const sel = lastHotbar && typeof lastHotbar.SelectedSlot === 'number' ? lastHotbar.SelectedSlot : -1;
-        const fistsSlot = window.TSICInventory.FISTS_HOTBAR_SLOT;
-        for (let i = 0; i < 10; i++) {
-          const isFists = i === fistsSlot;
-          const hslot = TSIC.el('div', {
-            class: 'hslot' + (i === sel ? ' sel' : '') + (isFists ? ' fists' : ''),
-          });
-          hslot.dataset.hotbar = i;
-          // Controller path for hotbar assignment: pick a stack up (A), walk
-          // focus down to the hotbar, A again assigns (the click handler).
-          hslot.setAttribute('data-tsic-focusable', '');
-          hslot.setAttribute('data-tsic-focus-group', 'inv-hotbar');
-          hslot.tabIndex = -1;
-          hslot.appendChild(TSIC.el('span', { class: 'num' }, String((i + 1) % 10)));
-          if (isFists) {
-            hslot.title = 'Fists — bare hands';
-            hslot.appendChild(TSIC.fistsIcon({ class: 'fists-glyph' }));
-          } else {
-            const item = itemByInstance(slots[i]);
-            if (item && item.ItemId) {
-              hslot.appendChild(TSIC.iconImg(TSIC.itemIconUrl(item.ItemId)));
-              if ((item.Count || 1) > 1) {
-                hslot.appendChild(TSIC.el('span', { class: 'count' }, String(item.Count)));
-              }
-            } else {
-              // Same empty treatment the grid uses, so the two read as one screen.
-              hslot.classList.add('is-empty');
-            }
-          }
-          hslot.addEventListener('click', () => {
-            // A pointerup-committed hotbar assign suppresses this click so it
-            // can't double up as a Select. The held branch stays for the
-            // gamepad path (focus + A synthesizes a click, no pointerup).
-            if (window.TSICInventory.clickSuppressed()) return;
-            const heldStack = window.TSICInventory.getHeld();
-            if (heldStack) {
-              // Click with a held stack = assign it to this hotbar slot; the
-              // stack itself stays in its grid cell (id-based assignment).
-              // Only equipment and consumables belong on the hotbar, and the
-              // fists slot takes nothing at all — both refusals return the
-              // stack home rather than assigning, same as a drag release.
-              if (!isFists && window.TSICInventory.canAssignToHotbar(heldStack.itemId)) {
-                ctx.publish('UI.Cmd.Hotbar.Assign', { SlotIndex: i, ItemId: String(heldStack.instanceId) });
-              }
-              window.TSICInventory.cancelHeld();
-              return;
-            }
-            ctx.publish('UI.Cmd.Hotbar.Select', { SlotIndex: i });
-          });
-          // RMB clears the slot. An empty ItemId is the established "unassign"
-          // payload (see hud-hotbar.js). The item itself is untouched — it stays
-          // in the grid; only the hotbar reference goes. The fists slot has
-          // nothing to clear, and an already-empty slot publishes nothing.
-          hslot.addEventListener('contextmenu', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            if (isFists || slots[i] == null || slots[i] < 0) return;
-            ctx.publish('UI.Cmd.Hotbar.Assign', { SlotIndex: i, ItemId: '' });
-            tsic.playSound('Inventory.Transfer', 0.33);
-          });
-          host.appendChild(hslot);
-          if (isFists) host.appendChild(TSIC.el('div', { class: 'hb-sep' }));
-        }
-      }
-
       function renderHints() {
         const host = root.querySelector('#inv-hints');
         host.innerHTML = '';
@@ -644,11 +609,10 @@
           host.appendChild(hintChip(['LMB'], 'Take'));
           host.appendChild(hintChip(['RMB'], 'Half'));
           host.appendChild(hintChip(['SHIFT', 'RMB'], 'Split…'));
-          host.appendChild(hintChip(['SHIFT', 'LMB'], 'Equip'));
+          host.appendChild(hintChip(['SHIFT', 'LMB'], 'Equip / to hotbar'));
+          host.appendChild(hintChip(['1', '8'], 'Swap to hotbar'));
           host.appendChild(hintChip(['G'], 'Drop 1'));
           host.appendChild(hintChip(['CTRL', 'G'], 'Drop stack'));
-          host.appendChild(hintChip(['1', '0'], 'Hotbar'));
-          host.appendChild(hintChip(['RMB'], 'Clear hotbar slot'));
         }
         // Holding a stack swaps in a shorter chip set, which would otherwise
         // shed a wrapped line and shrink the panel out from under the drag.
@@ -709,11 +673,14 @@
             .map((id) => String(id))
         );
         window.TSICInventory.updateEquippedClasses(root.querySelector('#inv-grid'), eqIds);
+        // The bar carries the same E badge, and equipping never touches the inventory
+        // snapshot that would otherwise re-render it.
+        if (window.TSICHotbar) window.TSICHotbar.refresh();
       });
       ctx.on('tsic.msg.UI.Hotbar.Changed', (p) => {
         lastHotbar = p || null;
         if (!ctx.isVisible()) return;
-        renderHotbar();
+        // The bar lives in the grid now, so a selection change is just a re-render.
         if (window.TSICInventory && lastUpdate) refresh();
       });
       // Gamepad grid actions (§8.2) on the focused cell: Y split/place-one,
@@ -750,20 +717,21 @@
         e.preventDefault();
       });
 
-      // Keyboard (hover-based, §7.3): number keys assign the hovered item to
-      // the hotbar; Q drops one, Ctrl+Q the whole hovered stack.
+      // Keyboard (hover-based, §7.3): number keys SWAP the hovered stack with that hotbar cell
+      // — Minecraft's gesture, and the only one that makes sense once the bar is grid cells.
+      // G drops one, Ctrl+G the whole hovered stack.
       document.addEventListener('keydown', (e) => {
         if (!ctx.isVisible()) return;
-        if (/^[0-9]$/.test(e.key) && hoveredItem) {
-          // Only equipment and consumables belong on the hotbar.
-          if (!window.TSICInventory.canAssignToHotbar(hoveredItem.ItemId)) return;
-          const slotIndex = e.key === '0' ? 9 : (parseInt(e.key, 10) - 1);
-          // "1" is the fists slot — it takes nothing, so the key does nothing.
-          if (!window.TSICInventory.isHotbarSlotAssignable(slotIndex)) return;
-          ctx.publish('UI.Cmd.Hotbar.Assign', {
-            SlotIndex: slotIndex,
-            ItemId: String(hoveredItem.InstanceId),
+        if (/^[1-9]$/.test(e.key) && hoveredItem && hoveredItem.GridSlot >= 0) {
+          const slotIndex = parseInt(e.key, 10) - 1;
+          if (slotIndex >= hotbarSlotCount() || slotIndex === hoveredItem.GridSlot) return;
+          // A plain grid move: an occupied target swaps, a mergeable one merges.
+          ctx.publish('UI.Cmd.Inventory.Move', {
+            FromOwnerId: 'Player', ToOwnerId: 'Player',
+            ItemId: hoveredItem.InstanceId, FromSlot: hoveredItem.GridSlot,
+            ToSlot: slotIndex, Count: 0,
           });
+          tsic.playSound('Inventory.Transfer', 0.4);
           return;
         }
         if ((e.key === 'g' || e.key === 'G') && hoveredItem && !window.TSICInventory.getHeld()) {
@@ -789,6 +757,8 @@
     },
 
     onShow(/* params, ctx */) {
+      // Claim the HUD bar as this grid's first row for as long as the screen is up.
+      if (window.TSICHotbar && this._hotbarPane) window.TSICHotbar.setGridPane(this._hotbarPane);
       if (this._renderAll) this._renderAll();
       window.tsic.publishMessage('UI.Cmd.CharacterPreview.Show', {});
     },
@@ -796,6 +766,8 @@
     onHide(/* ctx */) {
       // Closing with a held stack: nothing ever moved — the gesture dissolves.
       if (window.TSICInventory) window.TSICInventory.cancelHeld();
+      // Hand the bar back: from here a click on it draws that slot again.
+      if (window.TSICHotbar) window.TSICHotbar.setGridPane(null);
       if (this._previewStream) { this._previewStream(); this._previewStream = null; }
       window.tsic.publishMessage('UI.Cmd.CharacterPreview.Hide', {});
     },

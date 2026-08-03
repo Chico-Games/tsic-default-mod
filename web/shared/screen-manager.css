@@ -25,3 +25,17 @@
 #screen-overlay-host > .tsic-overlay[hidden] {
     display: none !important;      /* override inline display from screen CSS */
 }
+
+/* body.tsic-hotbar-grid — a screen has claimed the HUD hotbar as its own first row
+ * (shared/hud-hotbar.js). The bar is lifted to z-index 55, ABOVE this layer, so its cells
+ * can take pointer events; without this the overlay would still cover the strip it stands
+ * in and centred panels would be drawn underneath it. Pulling the overlay's bottom edge
+ * clear both keeps panels off the bar and leaves the strip out of the scrim, which is
+ * correct — it belongs to the bar now, not to the screen.
+ *
+ * 120px = the bar's 24px offset + its 78px row + the ~14px the selected slot lifts and
+ * scales beyond that.
+ */
+body.tsic-hotbar-grid #screen-overlay-host > .tsic-overlay {
+    bottom: 120px;
+}

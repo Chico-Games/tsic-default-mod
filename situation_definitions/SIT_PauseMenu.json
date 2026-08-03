@@ -15,7 +15,8 @@
       "BH_NextPage",
       "BH_PrevPage",
       "BH_Navigate",
-      "BH_PushToTalk"
+      "BH_PushToTalk",
+      "BH_BugReport"
     ]
   }
 }

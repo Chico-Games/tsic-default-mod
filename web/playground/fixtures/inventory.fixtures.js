@@ -25,7 +25,7 @@ TSICPlayground.register({
             maxSlots: 32, maxWeight: 30,
         });
         return {
-            hotbar: { SlotIndices: [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1], SelectedSlot: 0 },
+            hotbar: { NumSlots: 8, SelectedSlot: 0, SelectedSlotPending: -1 },
             equipment: { OwnerId: 'Player', Slots: [] },
         };
     },
@@ -135,12 +135,9 @@ TSICPlayground.register({
                 (TSICPlaygroundInventory.items().find(i => i.SlotIndex === payload.SlotIndex) || {}).ItemId || '',
                 1
             );
-        } else if (channel === 'UI.Cmd.Hotbar.Assign') {
-            const inventorySlot = parseInt(payload.ItemId, 10);
-            const hotbarIndex = payload.SlotIndex;
-            if (!Number.isNaN(inventorySlot)) {
-                state.hotbar.SlotIndices[hotbarIndex] = inventorySlot;
-            }
+        } else if (channel === 'UI.Cmd.Hotbar.Select') {
+            state.hotbar.SelectedSlot = payload.SlotIndex;
+            state.hotbar.SelectedSlotPending = -1;
         } else if (channel === 'UI.Cmd.Equipment.Unequip') {
             state.equipment.Slots = state.equipment.Slots.filter(s => s.SlotTag !== payload.SlotTag);
         }

@@ -16,7 +16,7 @@
           "search_queries": [],
           "tile_requirements": [],
           "spawn_chance_over": 0.0,
-          "spawn_chance_under": 0.090909
+          "spawn_chance_under": 0.1
         },
         "furniture_definition": "FD_Oven_PS",
         "transform": {
@@ -48,8 +48,8 @@
           "seed_offset": 1,
           "search_queries": [],
           "tile_requirements": [],
-          "spawn_chance_over": 0.090909,
-          "spawn_chance_under": 0.181818
+          "spawn_chance_over": 0.1,
+          "spawn_chance_under": 0.2
         },
         "furniture_definition": "FD_Microwave_PS",
         "transform": {
@@ -81,8 +81,8 @@
           "seed_offset": 1,
           "search_queries": [],
           "tile_requirements": [],
-          "spawn_chance_over": 0.181818,
-          "spawn_chance_under": 0.272727
+          "spawn_chance_over": 0.2,
+          "spawn_chance_under": 0.3
         },
         "furniture_definition": "FD_RubbishCompactor_PS",
         "transform": {
@@ -114,41 +114,8 @@
           "seed_offset": 1,
           "search_queries": [],
           "tile_requirements": [],
-          "spawn_chance_over": 0.272727,
-          "spawn_chance_under": 0.363636
-        },
-        "furniture_definition": "FD_PlasticExtruder_PS",
-        "transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 1.0,
-            "w": 6.123233995736766e-17
-          },
-          "translation": {
-            "x": -430.0,
-            "y": 430.0,
-            "z": 0.0
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        }
-      },
-      {
-        "layout_actor_type": {
-          "name": "PROXY_ACTOR",
-          "value": 0
-        },
-        "b_visual_helper": false,
-        "definition_filter": {
-          "seed_offset": 1,
-          "search_queries": [],
-          "tile_requirements": [],
-          "spawn_chance_over": 0.363636,
-          "spawn_chance_under": 0.454545
+          "spawn_chance_over": 0.3,
+          "spawn_chance_under": 0.4
         },
         "furniture_definition": "FD_Oven_PS",
         "transform": {
@@ -180,8 +147,8 @@
           "seed_offset": 1,
           "search_queries": [],
           "tile_requirements": [],
-          "spawn_chance_over": 0.454545,
-          "spawn_chance_under": 0.545455
+          "spawn_chance_over": 0.4,
+          "spawn_chance_under": 0.5
         },
         "furniture_definition": "FD_Microwave_PS",
         "transform": {
@@ -213,8 +180,8 @@
           "seed_offset": 1,
           "search_queries": [],
           "tile_requirements": [],
-          "spawn_chance_over": 0.545455,
-          "spawn_chance_under": 0.636364
+          "spawn_chance_over": 0.5,
+          "spawn_chance_under": 0.6
         },
         "furniture_definition": "FD_RubbishCompactor_PS",
         "transform": {
@@ -246,41 +213,8 @@
           "seed_offset": 1,
           "search_queries": [],
           "tile_requirements": [],
-          "spawn_chance_over": 0.636364,
-          "spawn_chance_under": 0.727273
-        },
-        "furniture_definition": "FD_PlasticExtruder_PS",
-        "transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0,
-            "w": 1.0
-          },
-          "translation": {
-            "x": 430.0,
-            "y": -430.0,
-            "z": 0.0
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        }
-      },
-      {
-        "layout_actor_type": {
-          "name": "PROXY_ACTOR",
-          "value": 0
-        },
-        "b_visual_helper": false,
-        "definition_filter": {
-          "seed_offset": 1,
-          "search_queries": [],
-          "tile_requirements": [],
-          "spawn_chance_over": 0.727273,
-          "spawn_chance_under": 0.818182
+          "spawn_chance_over": 0.6,
+          "spawn_chance_under": 0.7
         },
         "furniture_definition": "FD_PizzaOven_PS",
         "transform": {
@@ -312,8 +246,8 @@
           "seed_offset": 1,
           "search_queries": [],
           "tile_requirements": [],
-          "spawn_chance_over": 0.818182,
-          "spawn_chance_under": 0.909091
+          "spawn_chance_over": 0.7,
+          "spawn_chance_under": 0.8
         },
         "furniture_definition": "FD_CoffeeMachine_PS",
         "transform": {
@@ -345,10 +279,43 @@
           "seed_offset": 1,
           "search_queries": [],
           "tile_requirements": [],
-          "spawn_chance_over": 0.909091,
-          "spawn_chance_under": 1.0
+          "spawn_chance_over": 0.8,
+          "spawn_chance_under": 0.9
         },
         "furniture_definition": "FD_Dishwasher_PS",
+        "transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.7071067811865476,
+            "w": 0.7071067811865476
+          },
+          "translation": {
+            "x": 430.0,
+            "y": 430.0,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "PROXY_ACTOR",
+          "value": 0
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": 1,
+          "search_queries": [],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.9,
+          "spawn_chance_under": 1.0
+        },
+        "furniture_definition": "FD_CheckoutCounter_CS",
         "transform": {
           "rotation": {
             "x": 0.0,

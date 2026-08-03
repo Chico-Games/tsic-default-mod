@@ -197,6 +197,23 @@
       window.location.replace(`/screens/${file}.html`);
     });
 
+    // Global behaviour hotkeys. Wired once per page (HUD overlays sit on top of a
+    // real screen and would double-publish), and outside the input-mode block below
+    // so they also work during gameplay, where no menu tag is pushed.
+    //
+    // Both are gated on the C++ side rather than here: the director knows whether a
+    // menu was opened by interacting, and whether the bug-report form is already up.
+    if (!OVERLAY_SCREENS.has(myScreen())) {
+      window.tsic.on('tsic.msg.UI.Behavior.BugReport', (p) => {
+        if (!p || p.Phase !== 'Started') return;
+        window.tsic.publishMessage('UI.Cmd.Pause.BugReport', {});
+      });
+      window.tsic.on('tsic.msg.UI.Behavior.CloseMenu', (p) => {
+        if (!p || p.Phase !== 'Started') return;
+        window.tsic.publishMessage('UI.Cmd.CloseInteractionMenu', {});
+      });
+    }
+
     // Input-mode tag activation: append on load, release on page teardown.
     const inputTag = activeInputModeTag();
     if (inputTag) {

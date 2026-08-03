@@ -17,7 +17,8 @@
       "BH_Navigate",
       "BH_OpenInventory",
       "BH_OpenMap",
-      "BH_PushToTalk"
+      "BH_PushToTalk",
+      "BH_BugReport"
     ]
   }
 }

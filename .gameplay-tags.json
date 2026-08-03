@@ -435,6 +435,7 @@
     "Input.Behavior.Accept",
     "Input.Behavior.Back",
     "Input.Behavior.Crouch",
+    "Input.Behavior.Flashlight",
     "Input.Behavior.Interact",
     "Input.Behavior.Jump",
     "Input.Behavior.MapZoomIn",

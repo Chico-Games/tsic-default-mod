@@ -127,3 +127,41 @@ TSICTestHarness.register({
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.BugReport.Submit'));
     },
 });
+
+// --- Shift+Enter sends, plain Enter stays a newline -------------------------
+
+function pressEnter(ctx, shiftKey) {
+    const ta = ctx.doc.querySelector('#br-description');
+    ta.focus();
+    ta.dispatchEvent(new ctx.win.KeyboardEvent('keydown', {
+        key: 'Enter', shiftKey, bubbles: true, cancelable: true,
+    }));
+}
+
+TSICTestHarness.register({
+    name: 'BugReport: Shift+Enter submits the report',
+    file: '/screens/bug-report.html',
+    async run(ctx) {
+        await ctx.waitFor(() => ctx.doc.querySelector('#br-description'));
+        ctx.doc.querySelector('#br-description').value = 'enemy clipped through the floor';
+        ctx.clearPublishes();
+        pressEnter(ctx, /*shiftKey*/ true);
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.BugReport.Submit'));
+    },
+});
+
+TSICTestHarness.register({
+    name: 'BugReport: plain Enter does not submit (it is a newline)',
+    file: '/screens/bug-report.html',
+    async run(ctx) {
+        await ctx.waitFor(() => ctx.doc.querySelector('#br-description'));
+        ctx.doc.querySelector('#br-description').value = 'enemy clipped through the floor';
+        ctx.clearPublishes();
+        pressEnter(ctx, /*shiftKey*/ false);
+
+        const submitted = ctx.publishes().some(p =>
+            String(p.channel || p.Channel || '').includes('UI.Cmd.BugReport.Submit'));
+        ctx.expect(ctx.assert.truthy(!submitted,
+            'plain Enter must insert a newline, not send the report'));
+    },
+});

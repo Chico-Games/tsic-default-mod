@@ -36,14 +36,12 @@
         }
     };
 
-    NS.applyHotbarAssign = function (state, hotbarIndex, slotIndex) {
-        state.hotbar = state.hotbar || { SlotIndices: [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1], SelectedSlot: 0 };
-        state.hotbar.SlotIndices[hotbarIndex] = slotIndex;
-    };
-
+    // Putting something on the hotbar IS moving it into one of the leading grid cells, so
+    // there is no assign helper — use NS.applyMove with a target slot under NumSlots.
     NS.applyHotbarSelect = function (state, hotbarIndex) {
-        state.hotbar = state.hotbar || { SlotIndices: [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1], SelectedSlot: 0 };
+        state.hotbar = state.hotbar || { NumSlots: 8, SelectedSlot: 0, SelectedSlotPending: -1 };
         state.hotbar.SelectedSlot = hotbarIndex;
+        state.hotbar.SelectedSlotPending = -1;
     };
 
     // Transfer between two named containers in state.containers[owner].

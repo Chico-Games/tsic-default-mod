@@ -176,14 +176,15 @@ TSICTestHarness.register({
     },
 });
 
-// ---- Hotbar: zero slots -------------------------------------------------
+// ---- Hotbar: a payload with no NumSlots still renders the bar -----------
 TSICTestHarness.register({
-    name: 'Stress/Hotbar: zero slots payload renders zero cells',
+    name: 'Stress/Hotbar: a payload missing NumSlots falls back to the shared default',
     file: '/screens/hotbar.html',
     async run(ctx) {
-        ctx.inject('tsic.msg.UI.Hotbar.Changed', { SlotIndices: [], SelectedSlot: 0 });
+        // C++ always ships NumSlots; a truncated or pre-upgrade payload must not blank the bar.
+        ctx.inject('tsic.msg.UI.Hotbar.Changed', { SelectedSlot: 0 });
         await new Promise(r => setTimeout(r, 60));
-        ctx.expect(ctx.assert.eq(ctx.doc.querySelectorAll('#hotbar-row .tsic-slot').length, 0));
+        ctx.expect(ctx.assert.eq(ctx.doc.querySelectorAll('#hotbar-row .tsic-slot').length, 8));
     },
 });
 

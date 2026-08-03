@@ -168,7 +168,32 @@
         win.tsic = fake;
         // Expose the handle to the host for scenario authoring.
         win.__tsicTestHandle = handle;
+        NS.ensureTestInput(win);
         return handle;
+    };
+
+    // --- Pointer gestures (shared/test-input.js) ---------------------------
+    // The gesture code lives in shared/ because the LIVE in-game page loads it too, so a
+    // Gauntlet node can perform the identical drag through RequestWebUIEval. Screen pages
+    // driven by the harness don't load it, so evaluate the same source into the scenario's
+    // iframe rather than growing a second implementation here that could drift from it.
+    let testInputSource = null;
+
+    /** Fetch the gesture module once, before scenarios run. */
+    NS.preloadTestInput = async function () {
+        if (testInputSource !== null) return;
+        try {
+            const r = await fetch('/shared/test-input.js');
+            testInputSource = r.ok ? await r.text() : '';
+        } catch (e) {
+            testInputSource = '';
+        }
+    };
+
+    NS.ensureTestInput = function (win) {
+        if (!win || (win.TSIC && win.TSIC.testInput)) return;
+        if (!testInputSource) return;   // not preloaded — ctx.gesture will report it
+        try { win.eval(testInputSource); } catch (e) { /* page-side failure surfaces in ctx.gesture */ }
     };
 
     // Assertion helpers — return strings on failure, null on pass.
@@ -179,6 +204,9 @@
         },
         truthy(value, label) {
             return value ? null : `${label || 'expect.truthy'}: got ${JSON.stringify(value)}`;
+        },
+        falsy(value, label) {
+            return value ? `${label || 'expect.falsy'}: got ${JSON.stringify(value)}` : null;
         },
         published(handle, channel, opts) {
             const matches = handle.publishes().filter(p => p.channel === channel);

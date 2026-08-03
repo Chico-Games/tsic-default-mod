@@ -2,7 +2,12 @@
 // SHARED screen module (screens/inventory.html only boots screen-manager +
 // shared/screens/inventory.js). Covers §9: 28 (Q drop), 48 (filter dims in
 // place), §10.1 (slots text, weight bar + reserved chip, locked preview),
-// §7.3 (hover+number assign), §7.4 (shift-click equip).
+// hover+number swap, and shift-click.
+//
+// The grid's first row IS the hotbar (docs/plans/2026-08-01-slot-backed-hotbar.md): those
+// cells are ordinary inventory cells, so anything asserting a separate in-screen hotbar
+// widget, an assignment command or a reserved fists cell is testing a model that no longer
+// exists.
 
 async function showInventory(ctx, payload) {
     ctx.screen('Inventory');
@@ -102,27 +107,46 @@ TSICTestHarness.register({
 });
 
 TSICTestHarness.register({
-    name: 'Inventory: hover + number key assigns the hovered item to that hotbar slot',
+    name: 'Inventory: hover + number key swaps the hovered stack into that hotbar cell',
     file: '/screens/inventory.html',
     async run(ctx) {
         ctx.setItemCatalog({ ID_Axe: { Name: 'Axe', Category: 'Equipment' } });
         await showInventory(ctx, {
-            Items: [{ ItemId: 'ID_Axe', Count: 1, InstanceId: 5, GridSlot: 0 }],
+            Items: [{ ItemId: 'ID_Axe', Count: 1, InstanceId: 5, GridSlot: 20 }],
         });
-        const cell = ctx.doc.querySelector('#inv-grid .tsic-slot[data-grid="0"]');
+        const cell = ctx.doc.querySelector('#inv-grid .tsic-slot[data-grid="20"]');
         cell.dispatchEvent(new ctx.win.MouseEvent('mouseenter', { bubbles: true }));
         await new Promise(r => setTimeout(r, 30));
         ctx.clearPublishes();
-        // "1" is the reserved fists slot and assigns nothing; "2" and "0" do.
-        ctx.events.key(ctx.doc, '1');
-        ctx.expect(ctx.assert.notPublished(ctx.handle, 'UI.Cmd.Hotbar.Assign'));
+        // A number key is Minecraft's swap: an ordinary grid move into that cell.
         ctx.events.key(ctx.doc, '2');
-        ctx.events.key(ctx.doc, '0');
-        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Hotbar.Assign', {
-            where: p => p.SlotIndex === 1 && p.ItemId === '5',
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Inventory.Move', {
+            where: p => p.ToSlot === 1 && p.FromSlot === 20 && p.ItemId === 5,
         }));
-        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Hotbar.Assign', {
-            where: p => p.SlotIndex === 9,
+        // "0" is not a hotbar key any more — the bar is eight cells.
+        ctx.clearPublishes();
+        ctx.events.key(ctx.doc, '0');
+        ctx.expect(ctx.assert.notPublished(ctx.handle, 'UI.Cmd.Inventory.Move'));
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Inventory: any item can go on the hotbar, including crafting materials',
+    file: '/screens/inventory.html',
+    async run(ctx) {
+        // The old model gated the bar to equipment/consumables because an assignment to
+        // anything else was dead. Cells are cells now, so a stack of bricks is welcome.
+        ctx.setItemCatalog({ ID_Brick: { Name: 'Brick', Category: 'CraftingMaterial' } });
+        await showInventory(ctx, {
+            Items: [{ ItemId: 'ID_Brick', Count: 12, InstanceId: 9, GridSlot: 17 }],
+        });
+        const cell = ctx.doc.querySelector('#inv-grid .tsic-slot[data-grid="17"]');
+        cell.dispatchEvent(new ctx.win.MouseEvent('mouseenter', { bubbles: true }));
+        await new Promise(r => setTimeout(r, 30));
+        ctx.clearPublishes();
+        ctx.events.key(ctx.doc, '4');
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Inventory.Move', {
+            where: p => p.ToSlot === 3 && p.FromSlot === 17 && p.ItemId === 9,
         }));
     },
 });
@@ -155,7 +179,10 @@ TSICTestHarness.register({
     name: 'Inventory: shift-click on an equippable equips it (armor quick-move parity)',
     file: '/screens/inventory.html',
     async run(ctx) {
-        ctx.setItemCatalog({ ID_Helmet: { Name: 'Helmet', Category: 'Equipment' } });
+        ctx.setItemCatalog({ ID_Helmet: {
+            Name: 'Helmet', Category: 'Equipment',
+            EquipmentSlot: 'Entity.Inventory.Item.Equipment.Slot.Head',
+        } });
         await showInventory(ctx, {
             Items: [{ ItemId: 'ID_Helmet', Count: 1, InstanceId: 4, GridSlot: 1 }],
         });
@@ -165,6 +192,8 @@ TSICTestHarness.register({
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Equipment.Equip', {
             where: p => p.ItemId === '4',
         }));
+        // Armour goes to the doll, never to the other band.
+        ctx.expect(ctx.assert.notPublished(ctx.handle, 'UI.Cmd.Inventory.Move'));
         ctx.expect(ctx.assert.eq(ctx.win.TSICInventory.getHeld(), null, 'quick-move never holds'));
     },
 });
@@ -186,56 +215,62 @@ TSICTestHarness.register({
 });
 
 TSICTestHarness.register({
-    name: 'Inventory: in-screen hotbar renders 10 numbered slots and assigns a held stack on click',
+    name: 'Inventory: the first grid row is the hotbar, marked and numbered',
     file: '/screens/inventory.html',
     async run(ctx) {
         ctx.setItemCatalog({ ID_Bread: { Name: 'Bread', Category: 'Consumable' } });
         await showInventory(ctx, {
             Items: [{ ItemId: 'ID_Bread', Count: 3, InstanceId: 7, GridSlot: 0 }],
         });
-        ctx.inject('tsic.msg.UI.Hotbar.Changed', { SlotIndices: [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1], SelectedSlot: -1 });
-        await ctx.waitFor(() => ctx.doc.querySelectorAll('#inv-hotbar .hslot').length === 10);
-        // Pick the stack up, then click hotbar slot 3 — assign, not select.
-        ctx.doc.querySelector('#inv-grid .tsic-slot[data-grid="0"]').click();
-        ctx.clearPublishes();
-        ctx.doc.querySelectorAll('#inv-hotbar .hslot')[2].click();
-        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Hotbar.Assign', {
-            where: p => p.SlotIndex === 2 && p.ItemId === '7',
-        }));
-        ctx.expect(ctx.assert.eq(ctx.win.TSICInventory.getHeld(), null, 'assignment releases the hold'));
+        ctx.inject('tsic.msg.UI.Hotbar.Changed', { NumSlots: 8, SelectedSlot: 0, SelectedSlotPending: -1 });
+        await ctx.waitFor(() => ctx.doc.querySelectorAll('#inv-grid .tsic-slot.is-hotbar').length === 8);
+
+        // There is no separate in-screen widget any more — the mirror is gone for good.
+        ctx.expect(ctx.assert.eq(ctx.doc.querySelectorAll('#inv-hotbar').length, 0,
+            'the in-screen hotbar mirror is deleted'));
+
+        const first = ctx.doc.querySelector('#inv-grid .tsic-slot[data-grid="0"]');
+        ctx.expect(ctx.assert.truthy(first.classList.contains('is-hotbar'), 'cell 0 is on the bar'));
+        ctx.expect(ctx.assert.eq(first.querySelector('.hotbar-key').textContent, '1',
+            'the cell position IS the hotbar number'));
+        ctx.expect(ctx.assert.truthy(first.classList.contains('is-held'),
+            'the drawn cell wears the selection frame'));
+        // Cell 8 starts the bag.
+        ctx.expect(ctx.assert.falsy(
+            ctx.doc.querySelector('#inv-grid .tsic-slot[data-grid="8"]').classList.contains('is-hotbar'),
+            'the bag starts at cell 8'));
     },
 });
 
 TSICTestHarness.register({
-    name: 'Inventory: hotbar slot 1 is the reserved fists slot — selectable, never assignable',
+    name: 'Inventory: hotbar cells are ordinary grid cells (pick up, place, move)',
     file: '/screens/inventory.html',
     async run(ctx) {
         ctx.setItemCatalog({ ID_Bread: { Name: 'Bread', Category: 'Consumable' } });
         await showInventory(ctx, {
-            Items: [{ ItemId: 'ID_Bread', Count: 3, InstanceId: 7, GridSlot: 0 }],
+            Items: [{ ItemId: 'ID_Bread', Count: 3, InstanceId: 7, GridSlot: 2 }],
         });
-        ctx.inject('tsic.msg.UI.Hotbar.Changed', { SlotIndices: [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1], SelectedSlot: -1 });
-        await ctx.waitFor(() => ctx.doc.querySelectorAll('#inv-hotbar .hslot').length === 10);
+        ctx.inject('tsic.msg.UI.Hotbar.Changed', { NumSlots: 8, SelectedSlot: 0, SelectedSlotPending: -1 });
+        await ctx.waitFor(() => ctx.doc.querySelectorAll('#inv-grid .tsic-slot.is-hotbar').length === 8);
 
-        const fists = ctx.doc.querySelectorAll('#inv-hotbar .hslot')[0];
-        ctx.expect(ctx.assert.eq(fists.classList.contains('fists'), true, 'slot 1 is the fists slot'));
-        ctx.expect(ctx.assert.truthy(fists.querySelector('.fists-glyph'), 'fists slot draws the fists icon'));
-        ctx.expect(ctx.assert.eq(fists.dataset.hotbar, '0', 'fists slot is hotbar index 0'));
-        ctx.expect(ctx.assert.truthy(ctx.doc.querySelector('#inv-hotbar .hb-sep'),
-            'a rule separates the fists slot from the item slots'));
-
-        // Held stack clicked onto it: no assignment, and the stack returns home.
-        ctx.doc.querySelector('#inv-grid .tsic-slot[data-grid="0"]').click();
-        ctx.expect(ctx.assert.truthy(ctx.win.TSICInventory.getHeld(), 'stack picked up'));
+        // Pick a stack up OFF the bar and put it down in the bag — the same click-move-click
+        // gesture any other pair of cells takes, with no hotbar command anywhere in sight.
+        ctx.doc.querySelector('#inv-grid .tsic-slot[data-grid="2"]').click();
+        ctx.expect(ctx.assert.truthy(ctx.win.TSICInventory.getHeld(), 'a hotbar cell is a drag source'));
         ctx.clearPublishes();
-        fists.click();
-        ctx.expect(ctx.assert.notPublished(ctx.handle, 'UI.Cmd.Hotbar.Assign'));
-        ctx.expect(ctx.assert.eq(ctx.win.TSICInventory.getHeld(), null, 'refusal releases the hold'));
-
-        // With nothing held it still selects — that's how you go bare-handed.
-        ctx.clearPublishes();
-        fists.click();
-        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Hotbar.Select', { where: p => p.SlotIndex === 0 }));
+        // Commits ride the engine's global pointerup tracker, not the click event.
+        const target = ctx.doc.querySelector('#inv-grid .tsic-slot[data-grid="14"]');
+        const r = target.getBoundingClientRect();
+        const at = (type) => target.dispatchEvent(new ctx.win.PointerEvent(type, {
+            bubbles: true, cancelable: true, button: 0,
+            clientX: r.left + r.width / 2, clientY: r.top + r.height / 2,
+        }));
+        at('pointerdown');
+        at('pointerup');
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Inventory.Move', {
+            where: p => p.FromSlot === 2 && p.ToSlot === 14 && p.ItemId === 7,
+        }));
+        ctx.expect(ctx.assert.eq(ctx.win.TSICInventory.getHeld(), null, 'the placement releases the hold'));
     },
 });
 
@@ -276,42 +311,6 @@ TSICTestHarness.register({
         ctx.win.TSICInventory.cancelHeld();
         await new Promise(r => setTimeout(r, 30));
         ctx.expect(ctx.assert.eq(size(), idle, 'panel returns to the same size'));
-    },
-});
-
-TSICTestHarness.register({
-    name: 'Inventory: RMB on a hotbar slot clears it; fists and empty slots publish nothing',
-    file: '/screens/inventory.html',
-    async run(ctx) {
-        ctx.setItemCatalog({ ID_Bread: { Name: 'Bread', Category: 'Consumable' } });
-        await showInventory(ctx, {
-            Items: [{ ItemId: 'ID_Bread', Count: 3, InstanceId: 7, GridSlot: 0 }],
-        });
-        ctx.inject('tsic.msg.UI.Hotbar.Changed', {
-            SlotIndices: [-1, 7, -1, -1, -1, -1, -1, -1, -1, -1], SelectedSlot: -1,
-        });
-        await ctx.waitFor(() => ctx.doc.querySelectorAll('#inv-hotbar .hslot').length === 10);
-        const slots = ctx.doc.querySelectorAll('#inv-hotbar .hslot');
-        const rmb = (el) => el.dispatchEvent(new ctx.win.MouseEvent('contextmenu', { bubbles: true, cancelable: true }));
-
-        // Assigned slot 2 clears with an empty ItemId (the unassign payload).
-        ctx.clearPublishes();
-        rmb(slots[1]);
-        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Hotbar.Assign', {
-            where: p => p.SlotIndex === 1 && p.ItemId === '',
-        }));
-        // It must not double as a Select.
-        ctx.expect(ctx.assert.notPublished(ctx.handle, 'UI.Cmd.Hotbar.Select'));
-
-        // The fists slot has nothing to clear.
-        ctx.clearPublishes();
-        rmb(slots[0]);
-        ctx.expect(ctx.assert.notPublished(ctx.handle, 'UI.Cmd.Hotbar.Assign'));
-
-        // Neither does an already-empty slot.
-        ctx.clearPublishes();
-        rmb(slots[4]);
-        ctx.expect(ctx.assert.notPublished(ctx.handle, 'UI.Cmd.Hotbar.Assign'));
     },
 });
 
@@ -401,30 +400,6 @@ TSICTestHarness.register({
             where: p => p.ItemId === 1 && p.FromSlot === 0 && p.ToSlot === 9,
         }));
         ctx.expect(ctx.assert.eq(ctx.win.TSICInventory.getHeld(), null, 'gesture completed'));
-    },
-});
-
-TSICTestHarness.register({
-    name: 'Inventory: materials cannot be assigned to the hotbar (number key or held-click)',
-    file: '/screens/inventory.html',
-    async run(ctx) {
-        ctx.setItemCatalog({ ID_Brick: { Name: 'Brick', Category: 'CraftingMaterial' } });
-        await showInventory(ctx, {
-            Items: [{ ItemId: 'ID_Brick', Count: 5, InstanceId: 1, GridSlot: 0 }],
-        });
-        ctx.inject('tsic.msg.UI.Hotbar.Changed', { SlotIndices: [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1], SelectedSlot: -1 });
-        await ctx.waitFor(() => ctx.doc.querySelectorAll('#inv-hotbar .hslot').length === 10);
-        const cell = ctx.doc.querySelector('#inv-grid .tsic-slot[data-grid="0"]');
-        cell.dispatchEvent(new ctx.win.MouseEvent('mouseenter', { bubbles: true }));
-        await new Promise(r => setTimeout(r, 30));
-        ctx.clearPublishes();
-        ctx.events.key(ctx.doc, '1');
-        ctx.expect(ctx.assert.notPublished(ctx.handle, 'UI.Cmd.Hotbar.Assign'));
-        // Held-click on a hotbar slot with a material: no assign, hold released.
-        cell.click();
-        ctx.doc.querySelectorAll('#inv-hotbar .hslot')[0].click();
-        ctx.expect(ctx.assert.notPublished(ctx.handle, 'UI.Cmd.Hotbar.Assign'));
-        ctx.expect(ctx.assert.eq(ctx.win.TSICInventory.getHeld(), null));
     },
 });
 

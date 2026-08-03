@@ -29,19 +29,34 @@
     template: TEMPLATE,
 
     mount(root, ctx) {
+      const screen = this;
       (function waitForDeps() {
         if (!window.TSICInventory || !window.TSICStorageShell
             || !(window.TSIC && window.TSIC.TabFilter)) {
           setTimeout(waitForDeps, 16);
           return;
         }
-        window.TSICStorageShell.mount({
+        screen._shell = window.TSICStorageShell.mount({
           title: 'Storage',
           containerEyebrow: 'Container',
           containerOwnerIdMatch: (id) => typeof id === 'string' && id.indexOf('Storage:') === 0,
           containerMaxSlots: 32,
         });
+        // The very first showing mounts the shell asynchronously, so onShow has already
+        // been and gone by the time it exists — claim the hotbar here instead of losing it.
+        if (ctx.isVisible()) screen._shell.activate();
       })();
+    },
+
+    // The player pane's first row is the live HUD hotbar (shared/hud-hotbar.js), claimed for
+    // as long as a container is open. The shell is mounted once and reused, so the claim has
+    // to be made and released per showing.
+    onShow() {
+      if (this._shell) this._shell.activate();
+    },
+
+    onHide() {
+      if (this._shell) this._shell.deactivate();
     },
   });
 })();

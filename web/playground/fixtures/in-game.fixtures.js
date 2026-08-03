@@ -7,7 +7,7 @@
 //   Behavior bar    tsic.msg.UI.BehaviorBar.Entries{ Entries:[...] }
 //   Interaction     tsic.msg.UI.Interaction.Targets{ Targets:[{Label, bIsPrimary}] }
 //   Minimap         (runtime texture — shows as an empty ring in the browser)
-//   Hotbar          tsic.msg.UI.Hotbar.Changed { SlotIndices, SelectedSlot }
+//   Hotbar          tsic.msg.UI.Hotbar.Changed { NumSlots, SelectedSlot, SelectedSlotPending }
 //                   + tsic.msg.UI.Inventory.Updated (OwnerId 'Player') for icons
 // Per-element visibility is driven by UI.HUD.SetElementVisible { Element, Visible }
 // so the toggles below can hide/show each piece independently.
@@ -49,13 +49,13 @@ TSICPlayground.register({
                 { DisplayName: 'Dash',   SubText: '',       StatusInt: 2, bVisible: true, KeyboardKeyText: 'Shift', BehaviorTagName: 'IA_Dash', CooldownPercent: 0.45 },
             ] },
             targets: [{ EntityId: 1, Label: 'Open Locker', bIsPrimary: true }],
-            // Hotbar: a few assigned slots + the rest empty; slot 0 selected.
+            // Hotbar = the player's first eight grid cells; slot 0 selected.
             hotbarItems: [
                 { ItemId: 'ID_Axe',    Count: 1, SlotIndex: 0 },
                 { ItemId: 'ID_Hammer', Count: 1, SlotIndex: 1 },
                 { ItemId: 'ID_Bread',  Count: 5, SlotIndex: 2 },
             ],
-            hotbar: { SlotIndices: [0, 1, 2, -1, -1, -1, -1, -1, -1, -1], SelectedSlot: 0 },
+            hotbar: { NumSlots: 8, SelectedSlot: 0, SelectedSlotPending: -1 },
             // Ping wheel defaults off — it's a full-screen overlay, so it's an
             // explicit toggle rather than part of the always-on HUD set.
             show: { health: true, stamina: true, stomach: true, crosshair: true, minimap: true, actionbar: true, interaction: true, hotbar: true, ping: false },
@@ -169,9 +169,11 @@ TSICPlayground.register({
     ],
     // Mouse wheel cycles the hotbar's selected slot, as it does in game.
     onWheel(s, deltaY) {
-        const n = (s.hotbar.SlotIndices || []).length || 10;
+        const n = s.hotbar.NumSlots || 8;
         const dir = deltaY > 0 ? 1 : -1;   // wheel down → next slot
-        const cur = (typeof s.hotbar.SelectedSlot === 'number') ? s.hotbar.SelectedSlot : 0;
+        const cur = (s.hotbar.SelectedSlot >= 0) ? s.hotbar.SelectedSlot
+            : (s.hotbar.SelectedSlotPending >= 0 ? s.hotbar.SelectedSlotPending : 0);
         s.hotbar.SelectedSlot = ((cur + dir) % n + n) % n;
+        s.hotbar.SelectedSlotPending = -1;
     },
 });

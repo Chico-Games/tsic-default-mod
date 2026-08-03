@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="/shared/components.css">
   <!-- Harness is global; scenario files register themselves into TSICTestHarness.scenarios. -->
   <script src="/shared/test-harness.js"></script>
+  <script>TSICTestHarness.preloadTestInput();</script>
   <!-- Scenario files. Add new ones here. -->
   <script src="/tests/unit-terminal-constants.test.js"></script>
   <script src="/tests/unit-terminal-boot.test.js"></script>
@@ -21,11 +22,13 @@
   <script src="/tests/focus-integration.test.js"></script>
   <script src="/tests/focus-keyboard.test.js"></script>
   <script src="/tests/inventory.test.js"></script>
+  <script src="/tests/cross-surface-drag.test.js"></script>
   <script src="/tests/unit-inventory-js.test.js"></script>
   <script src="/tests/inventory-qol.test.js"></script>
   <script src="/tests/storage.test.js"></script>
   <script src="/tests/storage-qol.test.js"></script>
   <script src="/tests/hotbar.test.js"></script>
+  <script src="/tests/hotbar-wheel.test.js"></script>
   <script src="/tests/behavior-bar.test.js"></script>
   <script src="/tests/settings.test.js"></script>
   <script src="/tests/controls.test.js"></script>
@@ -44,6 +47,7 @@
   <script src="/tests/unit-fow-lookup.test.js"></script>
   <script src="/tests/unit-height-tint.test.js"></script>
   <script src="/tests/unit-bridge-case.test.js"></script>
+  <script src="/tests/unit-icon-placeholder.test.js"></script>
   <script src="/tests/interaction.test.js"></script>
   <script src="/tests/upgrade-hud.test.js"></script>
   <script src="/tests/storage-spa.test.js"></script>
@@ -85,6 +89,7 @@
   <script src="/tests/unit-harness.test.js"></script>
   <script src="/tests/unit-recipe-info.test.js"></script>
   <script src="/tests/unit-router.test.js"></script>
+  <script src="/tests/zzdebug.test.js"></script>
   <style>
     html, body { height: 100%; margin: 0; }
     #root { display: grid; grid-template-columns: 280px 1fr 380px; height: 100vh; background: #0a0a0a; color: var(--cat-ink-dark); }
@@ -222,6 +227,20 @@
           };
           // Focus-engine helpers (pressDir/confirm/cancel/active/assertAllReachable/...)
           ctx.focus = TSICTestHarness.makeFocusHelpers(iframe, handle, failures);
+          // Pointer gestures — the SAME shared/test-input.js the live in-game page loads, so a
+          // drag asserted here is the drag a Gauntlet node performs against a packaged build.
+          // Selectors resolve inside the scenario's document.
+          ctx.gesture = new Proxy({}, {
+            get(_, name) {
+              return (...args) => {
+                const gestures = iframe.contentWindow.TSIC && iframe.contentWindow.TSIC.testInput;
+                if (!gestures) { failures.push('ctx.gesture: shared/test-input.js not loaded in the page'); return 'ERR:not-loaded'; }
+                const result = gestures[name](...args);
+                if (typeof result === 'string' && result.indexOf('ERR:') === 0) failures.push('ctx.gesture.' + name + ': ' + result);
+                return result;
+              };
+            },
+          });
           // Give the page's defer scripts a tick to register their subscribers.
           await new Promise(r => setTimeout(r, 80));
           await scn.run(ctx);

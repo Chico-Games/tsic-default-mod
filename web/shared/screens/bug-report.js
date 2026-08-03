@@ -5,7 +5,12 @@
 // Publishes UI.Cmd.BugReport.Submit {Category, Description, bIncludeScreenshot,
 // bIncludeLog}; the director forwards it to BugReportContextSubsystem which
 // posts to the telemetry server and toasts the async result. Cancel/Esc
-// publishes UI.Cmd.BugReport.Close (routes back to PauseMenu or MainMenu).
+// publishes UI.Cmd.BugReport.Close (the director routes it back to whichever
+// screen was up when the form opened — pause menu, main menu, or gameplay when
+// it was opened with the Report a Bug hotkey).
+//
+// Shift+Enter sends. Plain Enter is a newline: the description is free text and
+// players write multi-line repro steps.
 //
 // The "FurniturePlacement" category additionally asks C++ to trace for the
 // furniture under the crosshair (UI.Cmd.BugReport.RequestFurnitureTarget ->
@@ -38,6 +43,7 @@
     [data-screen="BugReport"] .check-row { display:flex; align-items:center; gap:8px; margin-top: 8px; }
     [data-screen="BugReport"] .check-row > input { accent-color: var(--tsic-accent); }
     [data-screen="BugReport"] #br-hint { font-size:11px; color:#b03030; margin-top:6px; visibility:hidden; }
+    [data-screen="BugReport"] #br-submit-hint { font-size:11px; letter-spacing:1px; text-transform:uppercase; color: rgba(59,47,28,0.6); margin-right:auto; align-self:center; }
     [data-screen="BugReport"] #br-furniture { display:none; margin-top:10px; padding:8px 10px; border:1px solid var(--tsic-border); font-size:12px; line-height:1.5; }
     [data-screen="BugReport"] #br-furniture.br-shown { display:block; }
     [data-screen="BugReport"] #br-furniture.br-missing { border-color:#b03030; color:#b03030; }
@@ -75,6 +81,7 @@
 
           <div class="field">
             <label for="br-description">Description</label>
+            <!-- Enter inserts a newline; Shift+Enter submits (see the keydown handler). -->
             <textarea id="br-description" placeholder="What happened? Steps to reproduce…" maxlength="4000"></textarea>
             <div id="br-hint">Please describe what happened before submitting.</div>
           </div>
@@ -90,6 +97,7 @@
         </div>
 
         <div class="tsic-button-row" data-tsic-focus-group="actions">
+          <span id="br-submit-hint">Shift + Enter to send</span>
           <button class="tsic-button" id="btn-cancel">Cancel</button>
           <button class="tsic-button" id="btn-submit" data-tsic-initial-focus>Submit</button>
         </div>
@@ -182,7 +190,7 @@
         hint.style.visibility = 'hidden';
       });
 
-      root.querySelector('#btn-submit').onclick = () => {
+      function submit() {
         const chosen = tsic.dropdown.get(category) || 'Other';
         const desc = (description.value || '').trim();
         if (!desc) {
@@ -208,7 +216,20 @@
         });
         description.value = '';
         ctx.publish('UI.Cmd.Pause.Resume');
-      };
+      }
+
+      // Shift+Enter sends; plain Enter stays a newline in the description. Bound on
+      // the panel rather than the textarea so it also works from the checkboxes and
+      // the category dropdown. Enter is not the game's Accept key (that is Space),
+      // so nothing else in the menu stack competes for this chord.
+      root.addEventListener('keydown', (ev) => {
+        if (ev.key !== 'Enter' || !ev.shiftKey) return;
+        if (ev.ctrlKey || ev.altKey || ev.metaKey) return;
+        ev.preventDefault();
+        submit();
+      });
+
+      root.querySelector('#btn-submit').onclick = submit;
       root.querySelector('#btn-cancel').onclick = () => {
         tsic.playSound('BugReport.Cancel', 0.4);
         ctx.publish('UI.Cmd.BugReport.Close');

@@ -71,17 +71,18 @@ TSICTestHarness.register({
     },
 });
 
-// ---- Hotbar -1 / null slots --------------------------------------------
+// ---- Hotbar with an empty inventory ------------------------------------
 TSICTestHarness.register({
-    name: 'Hotbar: -1 in SlotIndices renders empty slot',
+    name: 'Hotbar: an empty inventory renders every cell empty',
     file: '/screens/hotbar.html',
     async run(ctx) {
-        ctx.inject('tsic.msg.UI.Hotbar.Changed', { SlotIndices: [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1], SelectedSlot: 0 });
-        await ctx.waitFor(() => ctx.doc.querySelectorAll('#hotbar-row .tsic-slot').length === 10);
-        const slots = ctx.doc.querySelectorAll('#hotbar-row .tsic-slot');
-        // None of them should contain an item-id label (#<n> div).
-        for (const s of slots) {
-            ctx.expect(ctx.assert.truthy(!Array.from(s.children).some(c => /^#\d+$/.test(c.textContent || ''))));
+        ctx.inject('tsic.msg.UI.Inventory.Updated',
+            { OwnerId: 'Player', MaxSlots: 32, GridWidth: 8, Items: [] });
+        ctx.inject('tsic.msg.UI.Hotbar.Changed', { NumSlots: 8, SelectedSlot: -1, SelectedSlotPending: 0 });
+        await ctx.waitFor(() => ctx.doc.querySelectorAll('#hotbar-row .tsic-slot').length === 8);
+        for (const s of ctx.doc.querySelectorAll('#hotbar-row .tsic-slot')) {
+            ctx.expect(ctx.assert.falsy(s.querySelector('img'), 'no icon in an empty cell'));
+            ctx.expect(ctx.assert.falsy(s.querySelector('.count'), 'no count in an empty cell'));
         }
     },
 });

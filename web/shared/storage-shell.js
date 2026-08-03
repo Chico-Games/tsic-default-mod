@@ -44,7 +44,10 @@
         // even a wide panel. Panel hugs its content (like #inv-panel) instead
         // of the inherited 60vw, which clipped the container grid on narrower
         // displays.
-        '#ss-panel { --tsic-slot:54px; --tsic-slot-gap:5px; width:auto; height:auto; max-width:94vw; max-height:92vh; overflow:auto; }',
+        // max-height min(92vh, 100%): 92vh is the look, 100% is the guarantee — the overlay is
+        // shorter than the viewport while the HUD hotbar acts as the player pane's first row,
+        // and a panel capped only against vh would run off the top of it instead of scrolling.
+        '#ss-panel { --tsic-slot:54px; --tsic-slot-gap:5px; width:auto; height:auto; max-width:94vw; max-height:min(92vh, 100%); overflow:auto; }',
         '#ss-panel .ss-band { display:flex; align-items:baseline; gap:12px; border-bottom:3px solid rgba(10,10,10,0.85); margin-bottom:10px; padding-bottom:5px; }',
         '#ss-panel .ss-band h2 { margin:0; }',
         '#ss-panel .ss-band .spacer { flex:1; }',
@@ -72,7 +75,13 @@
         '#ss-panel .tsic-slot.is-locked { background: rgba(227,216,184,0.7); border-style:dashed; border-color: rgba(10,10,10,0.35); cursor:default; opacity:0.75; }',
         '#ss-panel .tsic-slot .count { position:absolute; bottom:1px; right:2px; padding:1px 3px; line-height:1; font-size:10px; font-weight:700; color:#1a1612; background:var(--mag-yellow, #ffcc00); border:1px solid rgba(10,10,10,0.85); pointer-events:none; }',
         '#ss-panel .tsic-slot .equip-badge { position:absolute; top:1px; left:2px; padding:1px 3px; line-height:1; font-size:9px; font-weight:700; color:#fff; background:var(--mag-red, #e60000); border:1px solid rgba(10,10,10,0.85); pointer-events:none; }',
-        '#ss-panel .tsic-slot .hotbar-badge { position:absolute; top:1px; right:2px; padding:1px 3px; line-height:1; font-size:9px; font-weight:700; color:var(--mag-yellow, #ffcc00); background:rgba(10,10,10,0.9); border:1px solid rgba(10,10,10,0.85); pointer-events:none; }',
+        // Hotbar cells drawn IN the player pane — only on a host with no HUD bar to stand in
+        // for them (the standalone /screens/storage.html dev page). Matches the inventory
+        // screen so the same cells read the same way in both places.
+        '#ss-panel .tsic-slot.is-hotbar { border-bottom-width:4px; }',
+        '#ss-panel .tsic-slot.is-hotbar .hotbar-key { position:absolute; top:1px; right:2px; padding:1px 3px; line-height:1; font-size:9px; font-weight:700; color:var(--mag-yellow, #ffcc00); background:rgba(10,10,10,0.9); border:1px solid rgba(10,10,10,0.85); pointer-events:none; }',
+        '#ss-panel .tsic-slot.is-held { border-color:var(--mag-red, #e60000); box-shadow:0 0 0 2px var(--mag-red, #e60000) inset; }',
+        '#ss-panel .tsic-slot.is-held .hotbar-key { color:#fff; background:var(--mag-red, #e60000); }',
         '#ss-panel .ss-panehdr { display:flex; align-items:baseline; gap:8px; border-bottom:2px solid rgba(10,10,10,0.85); margin-bottom:6px; padding-bottom:3px; }',
         '#ss-panel .ss-panehdr h4 { margin:0; font-size:16px; letter-spacing:0.06em; text-transform:uppercase; }',
         // Reads as the pane heading until focused, then as a text field.
@@ -236,6 +245,10 @@
             // Active pane for the >> header marker (last pointer interaction).
             activePane: 'player',
             hovered: null,  // { side, it }
+            // The player's leading grid cells are the hotbar; C++ ships the real count on
+            // UI.Hotbar.Changed and heldHotbarSlot is the cell currently in the player's hands.
+            hotbarSlots: (window.TSICInventory && window.TSICInventory.HOTBAR_SLOTS) || 8,
+            heldHotbarSlot: -1,
         };
 
         const tabDefs = TABS.map(t => ({ id: t.id, label: t.id }));
@@ -346,10 +359,18 @@
             };
         }
 
+        // True when the live HUD bar is standing in for the player's hotbar cells, so the
+        // player pane must skip them. False on the standalone dev pages, which boot no HUD
+        // and where this panel is those cells' only home.
+        function barIsTheRow() {
+            return !!(window.TSICHotbar && window.TSICHotbar.available());
+        }
+
         function paneOpts(side) {
             const isPlayer = side === 'player';
             const ownerId = isPlayer ? state.playerOwnerId : state.containerOwnerId;
             const otherId = isPlayer ? state.containerOwnerId : state.playerOwnerId;
+            const barIsRow = isPlayer && barIsTheRow();
             return {
                 catalog: (window.tsic && window.tsic.itemCatalog) || {},
                 gridWidth: isPlayer ? state.playerGridW : state.containerGridW,
@@ -357,6 +378,11 @@
                 ownerId: ownerId || (isPlayer ? 'Player' : ''),
                 focusGroup: isPlayer ? 'ss-player' : 'ss-container',
                 panelEl: panel,
+                // The player's first row is the hotbar: drawn by the live HUD bar and skipped
+                // here, or drawn and marked here when there is no bar. Containers have neither.
+                startSlot: barIsRow ? state.hotbarSlots : 0,
+                hotbarSlots: (isPlayer && !barIsRow) ? state.hotbarSlots : 0,
+                heldSlot: (isPlayer && !barIsRow) ? state.heldHotbarSlot : -1,
                 // Tabs are player-side only; search dims across BOTH panes, which
                 // is the point when you're hunting one item across two grids.
                 filterFn: buildFilter(isPlayer ? filterFnFor(state.playerTab) : null),
@@ -380,11 +406,41 @@
             };
         }
 
+        // The pane contract handed to the live HUD bar so its cells act as the player pane's
+        // first row: same hover readout and active-pane marker, and a shift-click that
+        // transfers into the container, exactly like the cells above it. Every field that can
+        // change while the screen is open (the container's id, the tab, the search term) is
+        // read at call time — this pane is bound once and lives for the whole screen.
+        const HOTBAR_PANE = {
+            ownerId: state.playerOwnerId,
+            focusGroup: 'ss-player',
+            onHover: (it) => {
+                state.hovered = it ? { side: 'player', it } : null;
+                setActivePane('player');
+                if (it) renderInfo(it, 'player');
+            },
+            onLeave: () => { state.hovered = null; },
+            onQuickMove: (it) => {
+                if (!state.containerOwnerId || it.GridSlot == null || it.GridSlot < 0) return;
+                tsic.publishMessage('UI.Cmd.Inventory.QuickMove', {
+                    FromOwnerId: state.playerOwnerId, ToOwnerId: state.containerOwnerId,
+                    ItemId: it.InstanceId, FromSlot: it.GridSlot,
+                });
+                playTransferSound();
+            },
+            otherOwnerId: () => state.containerOwnerId || '',
+            filterFor: () => buildFilter(filterFnFor(state.playerTab)),
+            equippedIds: () => null,
+        };
+
         function renderAll() {
             playerTabFilter.setActive(state.playerTab);
             renderMeterAndCounts();
             window.TSICInventory.renderGrid(panel.querySelector('#ss-player-list'), state.playerItems, paneOpts('player'));
             window.TSICInventory.renderGrid(panel.querySelector('#ss-container-list'), state.containerItems, paneOpts('container'));
+            // The bar re-renders itself on inventory broadcasts; this covers what it cannot
+            // see — a tab change, a search keystroke, a container swap.
+            if (window.TSICHotbar) window.TSICHotbar.refresh();
             renderHints();
         }
 
@@ -476,6 +532,12 @@
         }
 
         tsic.on('tsic.msg.UI.Inventory.Updated', applyInventoryMessage);
+        tsic.on('tsic.msg.UI.Hotbar.Changed', (p) => {
+            if (!p) return;
+            if (typeof p.NumSlots === 'number' && p.NumSlots > 0) state.hotbarSlots = p.NumSlots;
+            state.heldHotbarSlot = (typeof p.SelectedSlot === 'number') ? p.SelectedSlot : -1;
+            renderAll();
+        });
         window.addEventListener('tsic-item-catalog', renderAll);
 
         // Auto-sort on close: a per-client preference (no server state — it only
@@ -634,9 +696,22 @@
             }
         });
 
+        // The shell is mounted once and reused for every container the player opens, so the
+        // bar has to be claimed and handed back per showing — not at mount. The screen module
+        // drives these from onShow/onHide; the standalone dev pages never call them and keep
+        // drawing the hotbar cells in the panel instead.
+        function activate() {
+            if (window.TSICHotbar) window.TSICHotbar.setGridPane(HOTBAR_PANE);
+            renderAll();
+        }
+        function deactivate() {
+            window.TSICInventory.cancelHeld();
+            if (window.TSICHotbar) window.TSICHotbar.setGridPane(null);
+        }
+
         renderAll();
         tsic.playSound('Container.Open', 0.4);
-        return { state, refresh: renderAll };
+        return { state, refresh: renderAll, activate, deactivate };
     }
 
     window.TSICStorageShell = { mount };
