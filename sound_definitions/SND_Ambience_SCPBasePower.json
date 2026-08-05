@@ -1,5 +1,5 @@
 {
-  "id": "Ambience.Pressure",
+  "id": "Ambience.SCPBasePower",
   "class": "SoundSlotDefinition",
   "properties": {
     "sounds": [

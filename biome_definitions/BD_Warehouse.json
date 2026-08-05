@@ -92925,7 +92925,7 @@
       "LYD_Warehouse_All_5"
     ],
     "ambient_audio": {
-      "sound": "Ambience.Factory",
+      "sound": "Ambience.BackOfHouse",
       "volume": 0.4,
       "fade_in_duration": 3,
       "fade_out_duration": 3

@@ -92884,7 +92884,7 @@
       "LYD_SkyCeiling"
     ],
     "ambient_audio": {
-      "sound": "Ambience.Wind",
+      "sound": "Ambience.Sky",
       "volume": 0.3,
       "fade_in_duration": 3,
       "fade_out_duration": 3

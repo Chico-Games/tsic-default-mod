@@ -92885,7 +92885,7 @@
       "LYD_Quarter_BathroomExit"
     ],
     "ambient_audio": {
-      "sound": "Ambience.Sewage",
+      "sound": "Ambience.Bathroom",
       "volume": 0.2,
       "fade_in_duration": 3,
       "fade_out_duration": 3

@@ -92898,7 +92898,7 @@
       "LYD_SCPBasePower_All_3"
     ],
     "ambient_audio": {
-      "sound": "Ambience.Pressure",
+      "sound": "Ambience.SCPBasePower",
       "volume": 0.5,
       "fade_in_duration": 3,
       "fade_out_duration": 3

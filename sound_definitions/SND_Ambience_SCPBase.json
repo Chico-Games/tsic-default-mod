@@ -1,5 +1,5 @@
 {
-  "id": "Ambience.MachineRoom",
+  "id": "Ambience.SCPBase",
   "class": "SoundSlotDefinition",
   "properties": {
     "sounds": [

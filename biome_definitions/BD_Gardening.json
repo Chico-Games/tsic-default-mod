@@ -92919,7 +92919,7 @@
       "LYD_Gardening_All_5"
     ],
     "ambient_audio": {
-      "sound": "Ambience.Garden",
+      "sound": "Ambience.Gardening",
       "volume": 0.3,
       "fade_in_duration": 3,
       "fade_out_duration": 3

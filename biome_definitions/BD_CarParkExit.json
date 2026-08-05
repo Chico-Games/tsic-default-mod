@@ -92885,7 +92885,7 @@
       "LYD_Quarter_CarParkExit"
     ],
     "ambient_audio": {
-      "sound": "Ambience.Tunnel",
+      "sound": "Ambience.CarPark",
       "volume": 0.4,
       "fade_in_duration": 3,
       "fade_out_duration": 3

@@ -92880,7 +92880,7 @@
       "LYD_BrokenEmptyEdgeSide1"
     ],
     "ambient_audio": {
-      "sound": "Ambience.Scary",
+      "sound": "Ambience.BrokenEmpty",
       "volume": 0.3,
       "fade_in_duration": 3,
       "fade_out_duration": 3

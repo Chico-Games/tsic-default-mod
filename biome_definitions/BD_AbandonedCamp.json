@@ -92901,7 +92901,7 @@
       "LYD_AbandonedCamp_All_3"
     ],
     "ambient_audio": {
-      "sound": "Ambience.Crickets",
+      "sound": "Ambience.AbandonedCamp",
       "volume": 0.3,
       "fade_in_duration": 3,
       "fade_out_duration": 3

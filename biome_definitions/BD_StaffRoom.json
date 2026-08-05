@@ -92900,7 +92900,7 @@
       "LYD_StaffRoom_All_3"
     ],
     "ambient_audio": {
-      "sound": "Ambience.Factory",
+      "sound": "Ambience.BackOfHouse",
       "volume": 0.3,
       "fade_in_duration": 3,
       "fade_out_duration": 3
