@@ -4023,6 +4023,32 @@
           "name": "EnemySpawnParams"
         }
       }
+    },
+    "USoundSlotDefinition": {
+      "parents": [
+        "UPrimaryDataAsset",
+        "UDataAsset",
+        "UObject"
+      ],
+      "properties": {
+        "sounds": {
+          "kind": "array",
+          "element": {
+            "kind": "soft_object",
+            "class": "SoundBase"
+          }
+        },
+        "pick": {
+          "kind": "enum",
+          "name": "ESoundSlotPick"
+        },
+        "volume": {
+          "kind": "float"
+        },
+        "pitch_variance": {
+          "kind": "float"
+        }
+      }
     }
   },
   "structs": {
@@ -4865,6 +4891,18 @@
         {
           "name": "NightOnly",
           "value": 2
+        }
+      ]
+    },
+    "ESoundSlotPick": {
+      "members": [
+        {
+          "name": "Random",
+          "value": 0
+        },
+        {
+          "name": "Sequence",
+          "value": 1
         }
       ]
     }
