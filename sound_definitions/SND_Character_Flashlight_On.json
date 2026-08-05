@@ -1,0 +1,9 @@
+{
+  "id": "Character.Flashlight.On",
+  "class": "SoundSlotDefinition",
+  "properties": {
+    "sounds": [
+      "/Game/Shared/Audio/Toggles/SW_Toggle_On.SW_Toggle_On"
+    ]
+  }
+}

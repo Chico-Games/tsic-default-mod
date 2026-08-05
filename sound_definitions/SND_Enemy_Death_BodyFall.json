@@ -1,0 +1,14 @@
+{
+  "id": "Enemy.Death.BodyFall",
+  "class": "SoundSlotDefinition",
+  "properties": {
+    "sounds": [
+      "/Game/Shared/Audio/Combat/SW_BodyFall_01.SW_BodyFall_01",
+      "/Game/Shared/Audio/Combat/SW_BodyFall_02.SW_BodyFall_02",
+      "/Game/Shared/Audio/Combat/SW_BodyFall_03.SW_BodyFall_03",
+      "/Game/Shared/Audio/Combat/SW_BodyFall_04.SW_BodyFall_04",
+      "/Game/Shared/Audio/Combat/SW_BodyFall_05.SW_BodyFall_05"
+    ],
+    "pitch_variance": 0.05
+  }
+}
