@@ -14,7 +14,8 @@
     '#vc-self .vc-mic { display:inline-block; width:8px; height:8px; border-radius:50%; background:#fff;',
     '  animation: vc-pulse 800ms ease-in-out infinite alternate; }',
     '@keyframes vc-pulse { from { background: rgba(255,255,255,0.35); } to { background: #fff; } }',
-    '@media (prefers-reduced-motion: reduce) { #vc-self .vc-mic { animation:none; } }',
+    // Motion & Comfort -> "Reduce interface motion" (accessibility.reduce_motion).
+    'html[data-tsic-reduce-motion] #vc-self .vc-mic { animation:none; }',
     '#vc-list { display:flex; flex-direction:column; gap:2px; }',
     '#vc-list .vc-row { padding:2px 8px; background:rgba(241,229,207,0.88); border-left:2px solid #4ade80;',
     '  color:#2b2118; max-width:220px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }',

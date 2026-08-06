@@ -12,7 +12,8 @@
 // transparent with no running animation.
 //
 // The edge vignette is painted art (/img/blood-vignette.png) masked per edge;
-// the splats are procedural SVG. Honors prefers-reduced-motion.
+// the splats are procedural SVG. The pop and the heartbeat honour the
+// "Pulsing screen effects" comfort setting (see shared/reduce-motion.js).
 //
 // Channel: tsic.msg.UI.Player.Attribute (Channel === 'Health')
 (function () {
@@ -81,10 +82,11 @@
     '  40% { opacity: calc(var(--hi,1) * 0.92); }',
     '  55% { opacity: var(--lo,0.7); }',
     '}',
-    '@media (prefers-reduced-motion: reduce) {',
-    '  #hud-low-health.lh-on .lh-splat { animation:none; opacity:var(--sa,0.5); scale:1; }',
-    '  #hud-low-health.lh-on .lh-stage { animation:none; opacity:var(--hi,1); }',
-    '}',
+    // Motion & Comfort -> "Pulsing screen effects" off (accessibility.screen_pulse).
+    // The splatter-in pop and the heartbeat stop; the blood itself stays, because
+    // it IS the low-health warning.
+    'html[data-tsic-no-screen-pulse] #hud-low-health.lh-on .lh-splat { animation:none; opacity:var(--sa,0.5); scale:1; }',
+    'html[data-tsic-no-screen-pulse] #hud-low-health.lh-on .lh-stage { animation:none; opacity:var(--hi,1); }',
   ].join('\n');
 
   // Shared turbulence filter — gives every splat a ragged, organic edge via a

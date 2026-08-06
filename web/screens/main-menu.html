@@ -15,6 +15,7 @@
   <script src="/shared/router.js" defer></script>
   <script src="/shared/tsic-bridge.js" defer></script>
   <script src="/shared/tsic-runtime.js" defer></script>
+  <script src="/shared/reduce-motion.js" defer></script>
   <script src="/shared/tsic-focus.js" defer></script>
   <script src="/shared/tsic-dropdown.js" defer></script>
   <script src="/shared/store-maze.js" defer></script>
@@ -213,6 +214,14 @@
       100%      { transform: translate(0, 0); }
     }
     .showroom-eyes { animation: showroom-eyes-dart 5s infinite; }
+
+    /* Motion & Comfort -> "Reduce interface motion" (accessibility.reduce_motion),
+       stamped on <html> by shared/reduce-motion.js. Every showroom animation is
+       ambient decoration — a lamp pulsing, motes drifting, a cat breathing — so
+       one rule off the shared `showroom-` class prefix freezes the lot, and any
+       new room added later is covered without touching this. The SVG art itself
+       still draws; only the looping motion stops. */
+    html[data-tsic-reduce-motion] [class*="showroom-"] { animation: none; }
 
     /* ─── Menu Music: volume pill (bottom-right) ─── */
     .menu-vol {

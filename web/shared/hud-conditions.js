@@ -197,15 +197,15 @@
     '                       45% { transform:scale(1.35); filter:brightness(1.9); }',
     '                       100% { transform:scale(1); filter:none; } }',
 
-    '@media (prefers-reduced-motion: reduce) {',
-    '  #hud-conditions .cond-chip, #hud-conditions .cond-label { transition:none; }',
-    '  #hud-conditions .cond-chip.cond-enter { animation:none; }',
-    '  #hud-conditions .cond-chip.cond-expiring { animation:none; opacity:0.7; }',
-    '  #hud-conditions .cond-chip.cond-refresh .cond-ico { animation:none; }',
+    // Motion & Comfort -> "Reduce interface motion" (accessibility.reduce_motion).
+    'html[data-tsic-reduce-motion] #hud-conditions .cond-chip,',
+    'html[data-tsic-reduce-motion] #hud-conditions .cond-label { transition:none; }',
+    'html[data-tsic-reduce-motion] #hud-conditions .cond-chip.cond-enter { animation:none; }',
+    'html[data-tsic-reduce-motion] #hud-conditions .cond-chip.cond-expiring { animation:none; opacity:0.7; }',
+    'html[data-tsic-reduce-motion] #hud-conditions .cond-chip.cond-refresh .cond-ico { animation:none; }',
     // The red stays — it is the meaning, not the motion. Only the breathing stops, held
     // at the bright end so a harm chip still stands out from an ordinary debuff.
-    '  #hud-conditions .cond-chip.cond-harm::after { animation:none; opacity:0.75; }',
-    '}',
+    'html[data-tsic-reduce-motion] #hud-conditions .cond-chip.cond-harm::after { animation:none; opacity:0.75; }',
   ].join('\n');
 
   var host = null;

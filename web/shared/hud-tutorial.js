@@ -74,10 +74,10 @@
     '@keyframes tut-strike { from { width:0; } to { width:100%; } }',
     '@keyframes tut-tick { 0% { transform:scale(0); } 60% { transform:scale(1.5); } 100% { transform:scale(1); } }',
 
-    '@media (prefers-reduced-motion: reduce) {',
-    '  #hud-tutorial .tut-row.tut-in, #hud-tutorial .tut-row.tut-done.tut-just .tut-label::after,',
-    '  #hud-tutorial .tut-row.tut-done.tut-just .tut-check { animation:none; }',
-    '}',
+    // Motion & Comfort -> "Reduce interface motion" (accessibility.reduce_motion).
+    'html[data-tsic-reduce-motion] #hud-tutorial .tut-row.tut-in,',
+    'html[data-tsic-reduce-motion] #hud-tutorial .tut-row.tut-done.tut-just .tut-label::after,',
+    'html[data-tsic-reduce-motion] #hud-tutorial .tut-row.tut-done.tut-just .tut-check { animation:none; }',
   ].join('\n');
 
   var root = null;

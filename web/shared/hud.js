@@ -118,7 +118,7 @@
     // prompt), not on the crosshair. Fill percent + colour from hud-circular-progress.js.
     '#hud-circular-progress { display:none; width:26px; height:26px; margin:6px 0 0 auto; border-radius:50%; background:conic-gradient(var(--cp-color,#fff) calc(var(--cp-p,0) * 1%), rgba(241,229,207,0.35) 0); mask:radial-gradient(circle, transparent 9px, #000 10px); -webkit-mask:radial-gradient(circle, transparent 9px, #000 10px); pointer-events:none; }',
     '#hud-circular-progress.active { display:block; }',
-    'body.hud-hidden #hud-chrome, body.hud-hidden #hud-health, body.hud-hidden #hud-stamina, body.hud-hidden #hud-stomach, body.hud-hidden #hud-conditions, body.hud-hidden #hud-crosshair, body.hud-hidden #hud-crosshair-hand, body.hud-hidden #hud-crosshair-cat, body.hud-hidden #hud-circular-progress, body.hud-hidden #bb-shell-gameplay, body.hud-hidden #hud-minimap, body.hud-hidden #hud-chunk-debug, body.hud-hidden #hud-hotbar, body.hud-hidden #ping-shell, body.hud-hidden #hud-low-health, body.hud-hidden #hud-hit-reaction, body.hud-hidden #hud-stealth, body.hud-hidden #hud-chat, body.hud-hidden #hud-voice, body.hud-hidden #hud-tutorial { display:none !important; }',
+    'body.hud-hidden #hud-chrome, body.hud-hidden #hud-health, body.hud-hidden #hud-stamina, body.hud-hidden #hud-stomach, body.hud-hidden #hud-conditions, body.hud-hidden #hud-crosshair, body.hud-hidden #hud-crosshair-hand, body.hud-hidden #hud-crosshair-cat, body.hud-hidden #hud-circular-progress, body.hud-hidden #bb-shell-gameplay, body.hud-hidden #hud-minimap, body.hud-hidden #hud-chunk-debug, body.hud-hidden #hud-hotbar, body.hud-hidden #ping-shell, body.hud-hidden #hud-low-health, body.hud-hidden #hud-hit-reaction, body.hud-hidden #hud-stealth, body.hud-hidden #hud-sprint-vignette,body.hud-hidden #hud-chat, body.hud-hidden #hud-voice, body.hud-hidden #hud-tutorial { display:none !important; }',
     'body.hud-hide-health #hud-health, body.hud-hide-stamina #hud-stamina, body.hud-hide-stomach #hud-stomach, body.hud-hide-conditions #hud-conditions, body.hud-hide-crosshair #hud-crosshair, body.hud-hide-crosshair #hud-crosshair-hand, body.hud-hide-crosshair #hud-crosshair-cat, body.hud-hide-minimap #hud-minimap, body.hud-hide-actionbar #bb-shell-gameplay, body.hud-hide-interaction #interaction-prompt, body.hud-hide-hotbar #hud-hotbar, body.hud-hide-lowhealth #hud-low-health, body.hud-hide-hitreaction #hud-hit-reaction, body.hud-hide-stealth #hud-stealth, body.hud-hide-tutorial #hud-tutorial { display:none !important; }',
     '#bb-shell-gameplay { position:fixed; bottom:18px; right:24px; min-width:240px; max-width:calc(100vw - 48px); padding:8px 12px; color:#fff; pointer-events:none; z-index:20; font-family:Georgia,"Libre Baskerville",serif; text-shadow:0 1px 2px rgba(0,0,0,0.75); }',
     '#bb-shell-gameplay.hidden { display:none; }',
@@ -269,8 +269,9 @@
     document.body.appendChild(el('div', { id: 'hud-hotbar-wheel' }));
 
     // Full-screen overlays — components build their own contents inside.
-    // Stealth shroud lowest (z17), low-health surround above it (z18),
-    // hit-reaction on top (z19).
+    // Sprint comfort vignette lowest (z16, opt-in), stealth shroud above it
+    // (z17), low-health surround above that (z18), hit-reaction on top (z19).
+    document.body.appendChild(el('div', { id: 'hud-sprint-vignette' }));
     document.body.appendChild(el('div', { id: 'hud-stealth' }));
     document.body.appendChild(el('div', { id: 'hud-low-health' }));
     document.body.appendChild(el('div', { id: 'hud-hit-reaction' }));
@@ -362,6 +363,7 @@
     loadScript('/shared/hud-hotbar-wheel.js');
     loadScript('/shared/hud-low-health.js');
     loadScript('/shared/hud-stealth.js');
+    loadScript('/shared/hud-sprint-vignette.js');
     loadScript('/shared/hud-hit-reaction.js');
     loadScript('/shared/hud-ping.js');
     loadScript('/shared/hud-screen-fade.js');

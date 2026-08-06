@@ -324,22 +324,50 @@ TSICTestHarness.register({
 });
 
 TSICTestHarness.register({
-    name: 'Settings: gameplay tab exposes accessibility rows and no FOV slider',
+    name: 'Settings: gameplay tab exposes accessibility and motion-comfort rows',
     file: '/screens/settings.html',
     async run(ctx) {
         await ctx.waitFor(() => Array.from(ctx.doc.querySelectorAll('.tsic-tab')).some(b => b.textContent === 'Gameplay'));
         Array.from(ctx.doc.querySelectorAll('.tsic-tab')).find(b => b.textContent === 'Gameplay').click();
         await ctx.waitFor(() => ctx.doc.querySelector('button.tsic-dropdown[data-key="accessibility.colorblind"]'));
-        // FOV is fixed at 90 by design — the slider must not come back.
-        ctx.expect(ctx.doc.querySelector('[data-key="gameplay.fov"]')
-            ? 'gameplay.fov must not be offered (FOV is fixed at 90)' : null);
         const cb = ctx.doc.querySelector('button.tsic-dropdown[data-key="accessibility.colorblind"]');
         ctx.expect(cb ? null : 'missing accessibility.colorblind row');
         ctx.expect(ctx.assert.eq(
             JSON.parse(cb.getAttribute('data-tsic-options')).map(o => o.value).join(','),
             'off,deuteranopia,protanopia,tritanopia'));
-        const labels = Array.from(ctx.doc.querySelectorAll('#page .field > label')).map(l => l.textContent);
-        ctx.expect(labels.indexOf('Reduce screen shake') !== -1 ? null : 'missing reduce screen shake toggle');
+
+        // Motion & Comfort. gameplay.fov is a LIVE slider now: it shipped dead
+        // once (the setter was never wired), so assert the control exists AND
+        // that moving it publishes — a rendered row proves nothing on its own.
+        const fov = ctx.doc.querySelector('input[type="range"][data-key="gameplay.fov"]');
+        ctx.expect(fov ? null : 'missing gameplay.fov slider');
+        ctx.expect(ctx.assert.eq(fov.min + '-' + fov.max, '60-120'));
+        ctx.clearPublishes();
+        fov.value = '105';
+        fov.oninput();
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Settings.Set',
+            { where: p => p.Key === 'gameplay.fov' && p.ValueJson === '105' }));
+
+        const shake = ctx.doc.querySelector('input[type="range"][data-key="accessibility.shake_intensity"]');
+        ctx.expect(shake ? null : 'missing accessibility.shake_intensity slider');
+        ctx.expect(ctx.assert.eq(shake.min + '-' + shake.max, '0-100'));
+        for (const key of ['accessibility.head_bob', 'accessibility.sprint_fov',
+            'accessibility.motion_blur', 'accessibility.screen_pulse',
+            'accessibility.reduce_motion', 'accessibility.sprint_vignette']) {
+            ctx.expect(ctx.doc.querySelector('.field-toggle[data-key="' + key + '"]')
+                ? null : 'missing ' + key + ' toggle');
+        }
+
+        // The one-click comfort preset is an action row, not a value row: it
+        // publishes UI.Cmd.Settings.Action and C++ echoes every row it changed.
+        const preset = Array.from(ctx.doc.querySelectorAll('#page button.tsic-button'))
+            .find(b => b.textContent === 'Apply Reduce Motion');
+        ctx.expect(preset ? null : 'missing Reduce Motion preset button');
+        ctx.clearPublishes();
+        preset.click();
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Settings.Action',
+            { where: p => p.Key === 'accessibility.reduce_motion_preset' }));
+
         // Picking a colorblind mode publishes the exact C++ enum string, no countdown.
         ctx.clearPublishes();
         ctx.win.tsic.dropdown.set(cb, 'deuteranopia');
@@ -367,5 +395,51 @@ TSICTestHarness.register({
             ctx.doc.querySelector('input[type="range"][data-key="graphics.resolution_scale"]').value, '85'));
         // A supported cap must not be pruned.
         ctx.expect(ctx.assert.domExists(ctx.doc, 'button.tsic-dropdown[data-key="graphics.reflex"]'));
+    },
+});
+
+// ---- Motion & Comfort: the reduce-motion document flags ----------------
+// shared/reduce-motion.js turns two settings into <html> attributes that CSS
+// across the HUD and the menus keys off. It replaced prefers-reduced-motion,
+// which CEF inherits from the host Windows session and which therefore froze
+// menus for people who never asked for it — so the ONLY input is these keys.
+TSICTestHarness.register({
+    name: 'Settings/ReduceMotion: the game setting stamps the document flags',
+    file: '/screens/settings.html',
+    async run(ctx) {
+        const html = ctx.doc.documentElement;
+        await ctx.waitFor(() => ctx.win.TSIC && typeof ctx.win.TSIC.reduceMotion === 'function');
+
+        // Nothing received yet: full motion, both flags clear.
+        ctx.expect(html.hasAttribute('data-tsic-reduce-motion')
+            ? 'reduce-motion must default off' : null);
+        ctx.expect(html.hasAttribute('data-tsic-no-screen-pulse')
+            ? 'screen-pulse must default on' : null);
+
+        let observed = null;
+        ctx.win.TSIC.onReduceMotion((on) => { observed = on; });
+        ctx.expect(ctx.assert.eq(observed, false));
+
+        ctx.inject('tsic.msg.UI.Settings.Value',
+            { Key: 'accessibility.reduce_motion', ValueJson: 'true' });
+        await ctx.waitFor(() => html.hasAttribute('data-tsic-reduce-motion'));
+        ctx.expect(ctx.assert.eq(ctx.win.TSIC.reduceMotion(), true));
+        // The JS-side subscribers (the store-maze backdrop) must hear it too —
+        // a canvas rAF loop cannot be stopped from a stylesheet.
+        ctx.expect(ctx.assert.eq(observed, true));
+
+        // screen_pulse is inverted: the flag means "pulsing is OFF".
+        ctx.inject('tsic.msg.UI.Settings.Value',
+            { Key: 'accessibility.screen_pulse', ValueJson: 'false' });
+        await ctx.waitFor(() => html.hasAttribute('data-tsic-no-screen-pulse'));
+        ctx.inject('tsic.msg.UI.Settings.Value',
+            { Key: 'accessibility.screen_pulse', ValueJson: 'true' });
+        await ctx.waitFor(() => !html.hasAttribute('data-tsic-no-screen-pulse'));
+
+        // Turning it back off has to clear the flag, or the setting is one-way.
+        ctx.inject('tsic.msg.UI.Settings.Value',
+            { Key: 'accessibility.reduce_motion', ValueJson: 'false' });
+        await ctx.waitFor(() => !html.hasAttribute('data-tsic-reduce-motion'));
+        ctx.expect(ctx.assert.eq(observed, false));
     },
 });

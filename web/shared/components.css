@@ -137,12 +137,14 @@
   from { background-position: 0 0; }
   to   { background-position: 18px 9px; }
 }
-@media (prefers-reduced-motion: reduce) {
-  .tsic-button.danger,
-  .tsic-button.pink,
-  .tsic-button[data-variant="danger"],
-  .tsic-button[data-variant="pink"] { animation: none; }
-}
+/* Motion & Comfort -> "Reduce interface motion" (accessibility.reduce_motion).
+   Set on <html> by shared/reduce-motion.js. NOT prefers-reduced-motion: under
+   CEF that inherits from the host Windows session (RDP and dev boxes set it),
+   so it froze the UI for players who never asked for it. */
+html[data-tsic-reduce-motion] .tsic-button.danger,
+html[data-tsic-reduce-motion] .tsic-button.pink,
+html[data-tsic-reduce-motion] .tsic-button[data-variant="danger"],
+html[data-tsic-reduce-motion] .tsic-button[data-variant="pink"] { animation: none; }
 
 /* GHOST — type-only; a red rule sweeps in from the left on hover. */
 .tsic-button.ghost,

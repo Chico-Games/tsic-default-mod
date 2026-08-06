@@ -202,7 +202,42 @@
                           { Value: 'tritanopia',   Label: 'Tritanopia (blue-yellow)' },
                       ],
                       Value: 'off' },
-                    { Key: 'accessibility.reduce_shake', Label: 'Reduce screen shake', Type: 'bool', Value: false },
+                ] },
+                // Motion & Comfort. Camera and screen motion the player did not
+                // ask for is the main nausea trigger, so every row here removes
+                // one source of it. Defaults are the full-motion game; the preset
+                // at the bottom flips all of them at once.
+                { Id: 'MotionComfort', Title: 'Motion & comfort', Settings: [
+                    // Percent, not a bool: the cue notifies multiply their shake
+                    // scale by this, so 0 is silent and 40 keeps a hint of impact.
+                    { Key: 'accessibility.shake_intensity', Label: 'Screen shake intensity',
+                      Type: 'range', Min: 0, Max: 100, Step: 5, Value: 100 },
+                    // The camera is welded to the animated head bone — this moves
+                    // it to the capsule at the same eye height instead.
+                    { Key: 'accessibility.head_bob', Label: 'Head bob', Type: 'bool', Value: true },
+                    // The only dynamic FOV in the game (+6° while sprinting).
+                    { Key: 'accessibility.sprint_fov', Label: 'Sprint field-of-view effect', Type: 'bool', Value: true },
+                    // Mirrors graphics.motion_blur (Video → Graphics); one value,
+                    // two rows, and C++ re-echoes so both always agree.
+                    { Key: 'accessibility.motion_blur', Label: 'Motion blur', Type: 'bool', Value: true },
+                    // Low-health heartbeat, hit flash, stealth breathing. The
+                    // static art stays — only the looping stops.
+                    { Key: 'accessibility.screen_pulse', Label: 'Pulsing screen effects', Type: 'bool', Value: true },
+                    // Menu backdrops and UI chrome animation. Deliberately a game
+                    // setting rather than prefers-reduced-motion, which CEF
+                    // inherits from the host Windows session.
+                    { Key: 'accessibility.reduce_motion', Label: 'Reduce interface motion', Type: 'bool', Value: false },
+                    // Opt-in aid, off by default: it costs some of the view.
+                    { Key: 'accessibility.sprint_vignette', Label: 'Sprint comfort vignette', Type: 'bool', Value: false },
+                    { Key: 'accessibility.reduce_motion_preset', Label: 'Comfort preset',
+                      Type: 'action', ButtonText: 'Apply Reduce Motion' },
+                ] },
+                // Camera framing. A wider view reduces the sense of speed at the
+                // screen edges, so it belongs beside the comfort rows even though
+                // it is a taste setting for most players.
+                { Id: 'Camera', Title: 'Camera', Settings: [
+                    { Key: 'gameplay.fov', Label: 'Field of view',
+                      Type: 'range', Min: 60, Max: 120, Step: 1, Value: 90 },
                 ] },
             ] },
         ],

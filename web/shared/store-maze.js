@@ -24,7 +24,10 @@
 //
 // prefers-reduced-motion is intentionally NOT honored: this is a game menu
 // backdrop, and OS-level "disable animations" (common on RDP/dev boxes)
-// leaks into CEF and would silently freeze it.
+// leaks into CEF and would silently freeze it. The GAME setting is honored
+// instead — TSIC.onReduceMotion (shared/reduce-motion.js) freezes the backdrop
+// on a resting plan, shoppers included, and thaws it if the player turns the
+// setting back off. Pages that never load reduce-motion.js keep full motion.
 //
 // Intended as an ambient backdrop for menu screens. Styled to the magazine
 // look (see shared/base.css tokens): ink-printed walls and ink shoppers,
@@ -94,7 +97,7 @@
     var u = 1;                // sweep progress; 1 = resting on plan B
     var flip = false;         // alternates the sweep's overall direction
     var walkers = [];
-    var alive = true, rafId = 0, rsTimer = 0, lastDraw = -1e9, lastNow = 0;
+    var alive = true, frozen = false, rafId = 0, rsTimer = 0, lastDraw = -1e9, lastNow = 0;
 
     function inB(x, y) { return x >= 0 && y >= 0 && x < cols && y < rows; }
     function idx(x, y) { return y * cols + x; }
@@ -344,8 +347,37 @@
     }
 
     // ---- frame loop ----
-    function frame(now) {
+    // A resting still: plan B blitted whole, shoppers where they stand. This is
+    // exactly what a REST frame draws, so freezing is invisible apart from the
+    // motion stopping.
+    function drawStill() {
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      if (o.bg) { ctx.fillStyle = o.bg; ctx.fillRect(0, 0, cv.width, cv.height); }
+      else ctx.clearRect(0, 0, cv.width, cv.height);
+      ctx.drawImage(layerB, 0, 0);
+      gridTransform(ctx);
+      drawWalkers();
+    }
+
+    // Reduce Motion stops the rAF loop outright rather than just skipping the
+    // sweep — an idling loop still costs a repaint per frame, and CEF samples
+    // the whole page at the dominant animation's cadence.
+    function setFrozen(on) {
       if (!alive) return;
+      frozen = !!on;
+      cancelAnimationFrame(rafId);
+      if (frozen) {
+        A = B; layerA = layerB; u = 1;   // land on a whole plan, mid-sweep or not
+        drawStill();
+        return;
+      }
+      lastNow = performance.now();
+      lastDraw = -1e9;
+      rafId = requestAnimationFrame(frame);
+    }
+
+    function frame(now) {
+      if (!alive || frozen) return;
       rafId = requestAnimationFrame(frame);
       // Frame cap: rAF ticks land on refresh multiples, so accept a tick
       // once it's within ~2ms of the target interval.
@@ -454,6 +486,7 @@
       lastNow = performance.now();
       lastDraw = -1e9;
       cancelAnimationFrame(rafId);
+      if (frozen) { drawStill(); return; }   // a resize while frozen re-draws the still
       rafId = requestAnimationFrame(frame);
     }
 
@@ -466,6 +499,18 @@
       global.addEventListener('resize', onResize);
     }
     setup();
+
+    // reduce-motion.js resolves its state from a sticky message, so poll until
+    // it exists (it may be a later <script> than this one, or absent entirely on
+    // pages that never load it — those keep full motion, which is the default).
+    (function bindReduceMotion() {
+      if (!alive) return;
+      if (global.TSIC && typeof global.TSIC.onReduceMotion === 'function') {
+        global.TSIC.onReduceMotion(setFrozen);
+        return;
+      }
+      setTimeout(bindReduceMotion, 100);
+    })();
 
     return {
       destroy: function () {

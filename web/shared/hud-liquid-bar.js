@@ -57,7 +57,11 @@
     '          mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);         mask-composite: exclude;',
     '  animation: tlb-stripe 0.8s linear infinite; }',
     '@keyframes tlb-stripe { from { background-position: 18px 0; } to { background-position: 0 0; } }',
-    '@media (prefers-reduced-motion: reduce) { .tlb-surface, .tlb-sheen, .tlb-vial.tlb-danger::after { animation:none; } .tlb-liquid { transition: background 200ms linear; } }',
+    // Motion & Comfort -> "Reduce interface motion" (accessibility.reduce_motion).
+    // The liquid still moves to its new level — that is the reading — but the
+    // surface ripple, the sheen sweep and the danger throb stop.
+    'html[data-tsic-reduce-motion] .tlb-surface, html[data-tsic-reduce-motion] .tlb-sheen, html[data-tsic-reduce-motion] .tlb-vial.tlb-danger::after { animation:none; }',
+    'html[data-tsic-reduce-motion] .tlb-liquid { transition: background 200ms linear; }',
   ].join('\n');
 
   let stylesInjected = false;

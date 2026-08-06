@@ -32,9 +32,9 @@
     '  0%,100% { opacity:0.92; }',
     '  50% { opacity:1; }',
     '}',
-    '@media (prefers-reduced-motion: reduce) {',
-    '  #hud-stealth.st-on .st-vignette { animation:none; opacity:1; }',
-    '}',
+    // Motion & Comfort -> "Pulsing screen effects" off (accessibility.screen_pulse).
+    // The shroud holds at full strength instead of breathing.
+    'html[data-tsic-no-screen-pulse] #hud-stealth.st-on .st-vignette { animation:none; opacity:1; }',
   ].join('\n');
 
   var root = null;

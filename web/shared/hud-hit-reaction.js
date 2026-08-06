@@ -46,11 +46,12 @@
     '@keyframes hr-life { 0% { opacity:0; } 8% { opacity:0.52; } 52% { opacity:0.52; } 100% { opacity:0; } }',
     '@keyframes hr-pop  { 0% { transform: translateY(8%) scale(0.2); } 16% { transform: translateY(0) scale(1.12); } 100% { transform: translateY(0) scale(1.0); } }',
 
-    '@media (prefers-reduced-motion: reduce) {',
-    '  .hr-splat { animation: hr-life-rm var(--life,1000ms) linear forwards; }',
-    '  .hr-drop { animation: none; }',
-    '  @keyframes hr-life-rm { 0% { opacity:0; } 12% { opacity:0.5; } 60% { opacity:0.5; } 100% { opacity:0; } }',
-    '}',
+    // Motion & Comfort -> "Pulsing screen effects" off (accessibility.screen_pulse).
+    // The splat still appears and fades so the hit direction still reads; the
+    // flash and the running drips do not.
+    'html[data-tsic-no-screen-pulse] .hr-splat { animation: hr-life-rm var(--life,1000ms) linear forwards; }',
+    'html[data-tsic-no-screen-pulse] .hr-drop { animation: none; }',
+    '@keyframes hr-life-rm { 0% { opacity:0; } 12% { opacity:0.5; } 60% { opacity:0.5; } 100% { opacity:0; } }',
   ].join('\n');
 
   // Shared SVG defs: the turbulence displacement filter that roughens every blob
