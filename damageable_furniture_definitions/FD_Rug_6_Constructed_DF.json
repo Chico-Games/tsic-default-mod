@@ -70,7 +70,7 @@
       "Entity.RandomGeneration.FurnitureType.Mat",
       "Entity.RandomGeneration.Size.Medium",
       "Tile.Biome.SCPBase",
-      "Tile.Biome.ShowFloor"
+      "Tile.Biome.SCPBasePower"
     ],
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
