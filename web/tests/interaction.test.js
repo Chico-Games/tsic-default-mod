@@ -176,3 +176,34 @@ TSICTestHarness.register({
         await ctx.waitFor(() => ctx.doc.getElementById('interaction-hold-prompt').classList.contains('hidden'));
     },
 });
+
+TSICTestHarness.register({
+    // A trolley seat someone else already took publishes a Blocked hold option:
+    // the row must still render (greyed, with the reason, no key chip) so the
+    // second player sees the affordance and why it is refusing them.
+    name: 'Interaction: blocked hold option greys out and shows its reason',
+    file: '/screens/test-interaction.html',
+    async run(ctx) {
+        ctx.inject('tsic.msg.UI.Interaction.Targets', {
+            Targets: [{
+                EntityId: 43, Name: 'Shopping Trolley', Label: 'Open', Category: 'cart',
+                HoldLabel: 'Ride', HoldStatus: 'Blocked', HoldSubText: 'Occupied',
+            }],
+        });
+        await ctx.waitFor(() => /Occupied/.test((ctx.doc.getElementById('interaction-hold-prompt') || {}).textContent || ''));
+        const hold = ctx.doc.getElementById('interaction-hold-prompt');
+        ctx.expect(ctx.assert.truthy(!hold.classList.contains('hidden'), 'blocked hold row still visible'));
+        ctx.expect(ctx.assert.truthy(hold.classList.contains('interaction-disabled'), 'blocked hold row greys out'));
+        ctx.expect(ctx.assert.truthy(hold.querySelector('.bb-hold-reason'), 'reason chip present'));
+        ctx.expect(ctx.assert.truthy(!hold.querySelector('.bb-key'), 'no key chip on a refused option'));
+
+        // Freeing the seat restores the normal available row.
+        ctx.inject('tsic.msg.UI.Interaction.Targets', {
+            Targets: [{
+                EntityId: 43, Name: 'Shopping Trolley', Label: 'Open', Category: 'cart',
+                HoldLabel: 'Ride', HoldStatus: 'Available',
+            }],
+        });
+        await ctx.waitFor(() => !ctx.doc.getElementById('interaction-hold-prompt').classList.contains('interaction-disabled'));
+    },
+});

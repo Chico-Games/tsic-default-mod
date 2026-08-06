@@ -161,6 +161,10 @@
     '#interaction-hold-prompt.hidden { display:none; }',
     // "HOLD" qualifier chip on the hold-interact row.
     '.bb-hold-tag { font-size:8px; font-weight:700; letter-spacing:0.1em; border:1px solid currentColor; border-radius:3px; padding:0 3px; opacity:0.8; }',
+    // Refused hold option (trolley seat taken, trolley tipped): dim + strike, with the reason trailing.
+    '#interaction-hold-prompt.interaction-disabled { color:rgba(190,190,190,0.4) !important; text-decoration:line-through; }',
+    '#interaction-hold-prompt.interaction-disabled .cat-icon { opacity:0.4; }',
+    '.bb-hold-reason { font-size:9px; font-weight:600; text-decoration:none; opacity:0.9; }',
     // Minimap — circular HUD badge. Frame matches the ping wheel: heavy ink ring
     // + soft drop shadow. The ink ring is an INSET shadow (not a real border) so
     // the content box stays a full 180px = the canvas buffer, keeping the player
