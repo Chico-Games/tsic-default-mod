@@ -54,9 +54,10 @@ TSICTestHarness.register({
         await ctx.waitFor(() => ctx.doc.querySelector('#br-furniture'));
         const panel = ctx.doc.querySelector('#br-furniture');
 
-        // Hidden until the player picks the placement category.
+        // Categories that attach nothing hide the panel entirely.
+        selectCategory(ctx, 'Suggestion');
         ctx.expect(ctx.assert.truthy(!panel.classList.contains('br-shown'),
-            'furniture panel should be hidden for the default category'));
+            'furniture panel should be hidden for a category that attaches nothing'));
 
         ctx.inject('tsic.msg.UI.BugReport.FurnitureTarget', FURNITURE_TARGET);
         selectCategory(ctx, 'FurniturePlacement');
@@ -125,6 +126,45 @@ TSICTestHarness.register({
         ctx.clearPublishes();
         ctx.doc.querySelector('#btn-submit').click();
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.BugReport.Submit'));
+    },
+});
+
+// --- the Bug category attaches the same target, but never requires it -------
+
+TSICTestHarness.register({
+    name: 'BugReport: bug category shows the looked-at furniture too',
+    file: '/screens/bug-report.html',
+    async run(ctx) {
+        await ctx.waitFor(() => ctx.doc.querySelector('#br-furniture'));
+        ctx.inject('tsic.msg.UI.BugReport.FurnitureTarget', FURNITURE_TARGET);
+        selectCategory(ctx, 'Bug');
+
+        const panel = ctx.doc.querySelector('#br-furniture');
+        await ctx.waitFor(() => panel.classList.contains('br-shown'));
+        ctx.expect(ctx.assert.truthy((panel.textContent || '').includes('Metal Shelf'),
+            `bug report should show what is being attached; got: ${panel.textContent}`));
+    },
+});
+
+TSICTestHarness.register({
+    name: 'BugReport: bug submits with nothing under the crosshair',
+    file: '/screens/bug-report.html',
+    async run(ctx) {
+        await ctx.waitFor(() => ctx.doc.querySelector('#br-furniture'));
+        ctx.inject('tsic.msg.UI.BugReport.FurnitureTarget', { bHasTarget: false });
+        selectCategory(ctx, 'Bug');
+
+        const panel = ctx.doc.querySelector('#br-furniture');
+        await ctx.waitFor(() => panel.classList.contains('br-shown'));
+        // Not an error state — a bug without an object is still a bug.
+        ctx.expect(ctx.assert.truthy(!panel.classList.contains('br-missing'),
+            'a bug with no target must not be flagged as invalid'));
+
+        ctx.doc.querySelector('#br-description').value = 'stamina never regenerates';
+        ctx.clearPublishes();
+        ctx.doc.querySelector('#btn-submit').click();
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.BugReport.Submit',
+            { where: p => p.Category === 'Bug' }));
     },
 });
 

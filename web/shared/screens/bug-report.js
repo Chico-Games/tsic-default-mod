@@ -12,10 +12,14 @@
 // Shift+Enter sends. Plain Enter is a newline: the description is free text and
 // players write multi-line repro steps.
 //
-// The "FurniturePlacement" category additionally asks C++ to trace for the
+// The world-generation and bug categories additionally ask C++ to trace for the
 // furniture under the crosshair (UI.Cmd.BugReport.RequestFurnitureTarget ->
-// UI.BugReport.FurnitureTarget) and shows the player what was picked, so they
-// never submit a placement report against furniture the ray missed.
+// UI.BugReport.FurnitureTarget) and show the player what was picked. A world-gen
+// report is *about* that furniture, so it cannot be sent without one; a plain bug
+// only attaches it when the ray found something.
+//
+// There is deliberately no Crash category: a crash report is filed by the crash
+// handler, not by a player who is still in the pause menu.
 (function register() {
   if (!window.TSIC || typeof TSIC.registerScreen !== 'function') {
     // screen-manager.js installs TSIC.registerScreen — retry until ready.
@@ -24,7 +28,12 @@
   }
 
   // Must match FScpFurniturePlacementReport::GetCategoryId() on the C++ side.
+  // The label reads "World generation issue" but the id stays the placement one
+  // so the telemetry inbox keeps slicing these out as `type:"placement"`.
   const FURNITURE_CATEGORY = 'FurniturePlacement';
+  // Bugs are usually about a specific object too, so they carry the same
+  // snapshot — opportunistically, never as a precondition.
+  const BUG_CATEGORY = 'Bug';
 
   const STYLE = `
     [data-screen="BugReport"] #br-overlay { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:auto; }
@@ -51,6 +60,7 @@
     [data-screen="BugReport"] #br-furniture dt { color:rgba(59,47,28,0.7); text-transform:uppercase; font-size:10px; letter-spacing:1px; align-self:center; }
     [data-screen="BugReport"] #br-furniture dd { margin:0; }
     [data-screen="BugReport"] #br-furniture .br-name { font-weight:600; }
+    [data-screen="BugReport"] #br-furniture .br-note { color:rgba(59,47,28,0.7); font-size:11px; letter-spacing:1px; text-transform:uppercase; margin-bottom:4px; }
   `;
 
   const TEMPLATE = `
@@ -64,19 +74,18 @@
             <!-- tsic-dropdown, not a native <select>: CEF's native select popup renders
                  through a Slate menu that misplaces/flips under accelerated paint. -->
             <button id="br-category" type="button" class="tsic-dropdown" data-tsic-focusable
-                    data-tsic-value="Gameplay"
+                    data-tsic-value="Bug"
                     data-tsic-options='[
-                      {"value":"Gameplay","label":"Gameplay"},
-                      {"value":"FurniturePlacement","label":"This furniture is out of position"},
-                      {"value":"UI","label":"UI"},
-                      {"value":"Crash","label":"Crash"},
+                      {"value":"Suggestion","label":"Suggestion"},
+                      {"value":"Bug","label":"Bug"},
+                      {"value":"FurniturePlacement","label":"World generation issue"},
                       {"value":"Other","label":"Other"}]'>
-              <span class="tsic-dropdown-label">Gameplay</span>
+              <span class="tsic-dropdown-label">Bug</span>
               <span class="tsic-dropdown-caret">▾</span>
             </button>
           </div>
 
-          <!-- Only shown for the FurniturePlacement category: what the view ray hit. -->
+          <!-- Shown for the bug and world-gen categories: what the view ray hit. -->
           <div id="br-furniture" aria-live="polite"></div>
 
           <div class="field">
@@ -133,9 +142,12 @@
       let target = null;
 
       function renderFurniture() {
-        const isPlacement = tsic.dropdown.get(category) === FURNITURE_CATEGORY;
-        furniture.classList.toggle('br-shown', isPlacement);
-        if (!isPlacement) return;
+        const chosen = tsic.dropdown.get(category);
+        const isPlacement = chosen === FURNITURE_CATEGORY;
+        // A bug shows the same panel, but as information rather than a requirement.
+        const wantsTarget = isPlacement || chosen === BUG_CATEGORY;
+        furniture.classList.toggle('br-shown', wantsTarget);
+        if (!wantsTarget) return;
 
         if (target === null) {
           furniture.classList.remove('br-missing');
@@ -143,9 +155,12 @@
           return;
         }
         if (!target.bHasTarget) {
-          furniture.classList.add('br-missing');
-          furniture.textContent =
-            'No furniture under the crosshair. Close this, aim at the furniture that is out of position, then reopen the report.';
+          // Only a world-gen report is meaningless without a target — a bug just
+          // goes out with nothing attached.
+          furniture.classList.toggle('br-missing', isPlacement);
+          furniture.textContent = isPlacement
+            ? 'No furniture under the crosshair. Close this, aim at the furniture that is out of position, then reopen the report.'
+            : 'Nothing under the crosshair — the report will be sent without an object attached.';
           return;
         }
 
@@ -162,11 +177,16 @@
           TSIC.el('dt', {}, label),
           TSIC.el('dd', {}, value),
         ]);
-        furniture.replaceChildren(
+        const children = [
           TSIC.el('div', { class: 'br-name' },
             target.DisplayName || target.DefinitionId || 'Unknown furniture'),
           TSIC.el('dl', {}, ...rows),
-        );
+        ];
+        if (!isPlacement) {
+          // Say why furniture details are on a bug report at all.
+          children.unshift(TSIC.el('div', { class: 'br-note' }, 'Attaching what you are looking at'));
+        }
+        furniture.replaceChildren(...children);
       }
 
       // Ask C++ to trace now. The reply lands on UI.BugReport.FurnitureTarget.
