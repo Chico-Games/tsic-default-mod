@@ -193,7 +193,12 @@
                 { Id: 'Social', Title: 'Social', Settings: [
                     { Key: 'social.rich_presence', Label: 'Show game activity to friends (Discord, Steam)', Type: 'bool', Value: true },
                 ] },
-                { Id: 'Accessibility', Title: 'Accessibility', Settings: [
+            ] },
+            // Accessibility is its own tab, not a group buried under Gameplay: a
+            // player who needs these has to be able to find them, and they are the
+            // difference between the game being playable and not.
+            { Id: 'AccessibilityCollection', Title: 'Accessibility', Groups: [
+                { Id: 'Vision', Title: 'Vision', Settings: [
                     { Key: 'accessibility.colorblind', Label: 'Colorblind mode', Type: 'enum',
                       Options: [
                           { Value: 'off',          Label: 'Off' },

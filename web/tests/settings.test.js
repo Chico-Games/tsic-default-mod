@@ -324,11 +324,11 @@ TSICTestHarness.register({
 });
 
 TSICTestHarness.register({
-    name: 'Settings: gameplay tab exposes accessibility and motion-comfort rows',
+    name: 'Settings: accessibility tab exposes vision, motion-comfort and camera rows',
     file: '/screens/settings.html',
     async run(ctx) {
-        await ctx.waitFor(() => Array.from(ctx.doc.querySelectorAll('.tsic-tab')).some(b => b.textContent === 'Gameplay'));
-        Array.from(ctx.doc.querySelectorAll('.tsic-tab')).find(b => b.textContent === 'Gameplay').click();
+        await ctx.waitFor(() => Array.from(ctx.doc.querySelectorAll('.tsic-tab')).some(b => b.textContent === 'Accessibility'));
+        Array.from(ctx.doc.querySelectorAll('.tsic-tab')).find(b => b.textContent === 'Accessibility').click();
         await ctx.waitFor(() => ctx.doc.querySelector('button.tsic-dropdown[data-key="accessibility.colorblind"]'));
         const cb = ctx.doc.querySelector('button.tsic-dropdown[data-key="accessibility.colorblind"]');
         ctx.expect(cb ? null : 'missing accessibility.colorblind row');
