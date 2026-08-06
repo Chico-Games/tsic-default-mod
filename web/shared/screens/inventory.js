@@ -477,6 +477,22 @@
         bandSwap(it);
       }
 
+      // Paper-doll item dragged into a grid cell: unequip, then place it in the release cell
+      // (the item never left its cell — it was just marked worn).
+      function onDollDropCell(src, cellIndex) {
+        if (!src.equipSlotTag) return;
+        ctx.publish('UI.Cmd.Equipment.Unequip', { ItemId: '', SlotTag: src.equipSlotTag });
+        tsic.playSound('Inventory.Unequip', 0.45);
+        const worn = itemByInstance(src.instanceId);
+        if (worn && worn.GridSlot >= 0 && worn.GridSlot !== cellIndex) {
+          ctx.publish('UI.Cmd.Inventory.Move', {
+            FromOwnerId: 'Player', ToOwnerId: 'Player',
+            ItemId: worn.InstanceId, FromSlot: worn.GridSlot,
+            ToSlot: cellIndex, Count: 0,
+          });
+        }
+      }
+
       // The pane contract handed to the live HUD bar so its cells behave as this screen's
       // first row — same hover readout, same shift-click, same dimming. filterFor and
       // equippedIds are getters: the bar re-reads them on every refresh, so a tab change
@@ -487,6 +503,7 @@
         onHover: onHoverCell,
         onLeave: onLeaveCell,
         onQuickMove: onQuickMoveCell,
+        onDollDrop: onDollDropCell,
         otherOwnerId: () => '',
         filterFor: buildFilterFn,
         equippedIds: equippedIdSet,
@@ -518,22 +535,8 @@
           onHover: onHoverCell,
           onLeave: onLeaveCell,
           onQuickMove: onQuickMoveCell,
+          onDollDrop: onDollDropCell,
           otherOwnerId: () => '',
-          // Paper-doll item dragged into the grid: unequip, then place it in
-          // the release cell (the item never left its cell — just unmarked).
-          onDollDrop: (src, cellIndex) => {
-            if (!src.equipSlotTag) return;
-            ctx.publish('UI.Cmd.Equipment.Unequip', { ItemId: '', SlotTag: src.equipSlotTag });
-            tsic.playSound('Inventory.Unequip', 0.45);
-            const worn = itemByInstance(src.instanceId);
-            if (worn && worn.GridSlot >= 0 && worn.GridSlot !== cellIndex) {
-              ctx.publish('UI.Cmd.Inventory.Move', {
-                FromOwnerId: 'Player', ToOwnerId: 'Player',
-                ItemId: worn.InstanceId, FromSlot: worn.GridSlot,
-                ToSlot: cellIndex, Count: 0,
-              });
-            }
-          },
         });
 
         // The bar's own broadcast re-renders it on item changes; this covers the changes

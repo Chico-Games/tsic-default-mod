@@ -68,7 +68,10 @@
        screen overlay (#screen-overlay-host, z-index 50) or pointer events never reach it
        and the cells are dead. screen-manager.css lifts the overlay's bottom edge clear of
        the bar to match, so panels never draw over it. */
-    'body.tsic-hotbar-grid #hud-hotbar { z-index:55; }',
+    /* display:block wins back the H-key HUD toggle (body.hud-hidden) and the per-element
+       hotbar toggle. In grid mode the bar is not HUD chrome any more — it is the open
+       panel's first row, and hiding it would take eight inventory cells with it. */
+    'body.tsic-hotbar-grid #hud-hotbar { display:block !important; z-index:55; }',
     /* The held stack's source cell dims here exactly as it does in the panel. */
     '#hotbar-row .tsic-slot.is-held-source img { opacity:0.35; }',
     /* Tab/search dimming reaches the bar too — a filtered grid with an unfiltered bar
@@ -223,6 +226,7 @@
         onHover: gridPane.onHover || null,
         onLeave: gridPane.onLeave || null,
         onQuickMove: gridPane.onQuickMove || null,
+        onDollDrop: gridPane.onDollDrop || null,
         otherOwnerId: gridPane.otherOwnerId || null,
         focusGroup: gridPane.focusGroup || null,
         filterFn: gridPane.filterFor ? gridPane.filterFor() : null,

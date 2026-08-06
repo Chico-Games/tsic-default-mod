@@ -105,8 +105,12 @@
 
   // Hold-interact verb row: [HOLD tag][verb][key chip]. Same key as tap — the
   // distinction is the HOLD qualifier, matching how the ability listens.
+  // An unavailable option (trolley basket already taken, trolley on its side)
+  // still renders, greyed and with its reason, so the second player can see the
+  // affordance exists and why it is refusing them.
   function setHold(holdEl, target) {
     clearCat(holdEl);
+    holdEl.classList.remove('interaction-disabled');
     while (holdEl.firstChild) holdEl.removeChild(holdEl.firstChild);
     if (!target || !target.HoldLabel) {
       holdEl.classList.add('hidden');
@@ -114,10 +118,18 @@
     }
     var cat = String(target.Category || '');
     if (cat) holdEl.classList.add('cat-' + cat);
+    var status = String(target.HoldStatus || '');
+    var blocked = status !== '' && status !== 'Available';
     holdEl.appendChild(TSIC.el ? TSIC.el('span', { class: 'bb-hold-tag' }, 'HOLD') : document.createTextNode('HOLD '));
     holdEl.appendChild(document.createTextNode(target.HoldLabel));
-    var chip = interactKeyChip();
-    if (chip) holdEl.appendChild(chip);
+    if (blocked) {
+      holdEl.classList.add('interaction-disabled');
+      var reason = String(target.HoldSubText || '');
+      if (reason && TSIC.el) holdEl.appendChild(TSIC.el('span', { class: 'bb-hold-reason' }, reason));
+    } else {
+      var chip = interactKeyChip();
+      if (chip) holdEl.appendChild(chip);
+    }
     holdEl.classList.remove('hidden');
   }
 

@@ -14,6 +14,8 @@
 (function (global) {
   // Shared cream-wash opacity for all menu backdrops (matches the old
   // loading-screen value). One number here keeps every menu consistent.
+  // A page that must fully hide the world behind it opts out per-stage with
+  //   <div class="tsic-stage--magazine-gradient" data-paper-alpha="1">
   var PAPER_ALPHA = '0.92';
 
   function boot() {
@@ -23,9 +25,11 @@
     if (stage.querySelector('.menu-maze-layer')) return;   // already mounted
 
     // Kill the stage's halftone dot layers — the maze is the texture now —
-    // and unify the paper wash opacity across menus (overrides any inline).
+    // and unify the paper wash opacity across menus (overrides any inline,
+    // except an explicit per-stage data-paper-alpha).
     stage.style.setProperty('--tsic-stage-dot-strength', '0');
-    stage.style.setProperty('--tsic-stage-paper-alpha', PAPER_ALPHA);
+    stage.style.setProperty('--tsic-stage-paper-alpha',
+      stage.dataset.paperAlpha || PAPER_ALPHA);
 
     var layer = document.createElement('div');
     layer.className = 'menu-maze-layer';

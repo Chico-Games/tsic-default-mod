@@ -60,10 +60,11 @@ TSICTestHarness.register({
         const opts = JSON.parse(ctx.doc.querySelector('#br-category').getAttribute('data-tsic-options'));
         ctx.expect(ctx.assert.truthy(opts.length >= 2));
         // Pick by value, not position: FurniturePlacement needs a captured
-        // furniture target before it will submit, so an index-based pick
-        // silently changes meaning whenever the option list is reordered.
-        const picked = opts.map(o => o.value).find(v => v !== 'Gameplay' && v !== 'FurniturePlacement');
-        ctx.expect(ctx.assert.truthy(picked, 'expected a category needing no attachment'));
+        // furniture target before it will submit, and Bug is the default (so it
+        // would prove nothing). An index-based pick silently changes meaning
+        // whenever the option list is reordered.
+        const picked = opts.map(o => o.value).find(v => v !== 'FurniturePlacement' && v !== 'Bug');
+        ctx.expect(ctx.assert.truthy(picked, 'expected a non-default category needing no attachment'));
         ctx.win.tsic.dropdown.set('#br-category', picked);
         const ta = ctx.doc.querySelector('#br-description');
         ta.value = 'reproducible';
