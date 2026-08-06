@@ -1,0 +1,9 @@
+{
+  "id": "Consume.Generic",
+  "class": "SoundSlotDefinition",
+  "properties": {
+    "sounds": [
+      "/Game/Characters/Customer/Audio/Cues/SC_Eat.SC_Eat"
+    ]
+  }
+}

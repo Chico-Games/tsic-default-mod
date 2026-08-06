@@ -1,0 +1,9 @@
+{
+  "id": "Consume.Drink",
+  "class": "SoundSlotDefinition",
+  "properties": {
+    "sounds": [
+      "/Game/Characters/Customer/Audio/Cues/SC_Drink.SC_Drink"
+    ]
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "id": "Music.Day",
+  "class": "SoundSlotDefinition",
+  "properties": {
+    "sounds": [
+      "/Game/Core/Rules/DayNightCycle/Audio/Cues/SC_Day_JazzRotation.SC_Day_JazzRotation"
+    ]
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "id": "Character.Torch.Light",
+  "class": "SoundSlotDefinition",
+  "properties": {
+    "sounds": [
+      "/Game/Shared/Audio/Character/SW_Torch_Light.SW_Torch_Light"
+    ]
+  }
+}

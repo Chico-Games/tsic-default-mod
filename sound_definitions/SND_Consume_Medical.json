@@ -1,0 +1,9 @@
+{
+  "id": "Consume.Medical",
+  "class": "SoundSlotDefinition",
+  "properties": {
+    "sounds": [
+      "/Game/Characters/Customer/Audio/Cues/SC_Medical.SC_Medical"
+    ]
+  }
+}
