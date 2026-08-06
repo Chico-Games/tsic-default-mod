@@ -198,16 +198,6 @@
             // player who needs these has to be able to find them, and they are the
             // difference between the game being playable and not.
             { Id: 'AccessibilityCollection', Title: 'Accessibility', Groups: [
-                { Id: 'Vision', Title: 'Vision', Settings: [
-                    { Key: 'accessibility.colorblind', Label: 'Colorblind mode', Type: 'enum',
-                      Options: [
-                          { Value: 'off',          Label: 'Off' },
-                          { Value: 'deuteranopia', Label: 'Deuteranopia (red-green)' },
-                          { Value: 'protanopia',   Label: 'Protanopia (red-green)' },
-                          { Value: 'tritanopia',   Label: 'Tritanopia (blue-yellow)' },
-                      ],
-                      Value: 'off' },
-                ] },
                 // Motion & Comfort. Camera and screen motion the player did not
                 // ask for is the main nausea trigger, so every row here removes
                 // one source of it. Defaults are the full-motion game; the preset

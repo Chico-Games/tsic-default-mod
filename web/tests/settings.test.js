@@ -324,17 +324,17 @@ TSICTestHarness.register({
 });
 
 TSICTestHarness.register({
-    name: 'Settings: accessibility tab exposes vision, motion-comfort and camera rows',
+    name: 'Settings: accessibility tab exposes motion-comfort and camera rows',
     file: '/screens/settings.html',
     async run(ctx) {
         await ctx.waitFor(() => Array.from(ctx.doc.querySelectorAll('.tsic-tab')).some(b => b.textContent === 'Accessibility'));
         Array.from(ctx.doc.querySelectorAll('.tsic-tab')).find(b => b.textContent === 'Accessibility').click();
-        await ctx.waitFor(() => ctx.doc.querySelector('button.tsic-dropdown[data-key="accessibility.colorblind"]'));
-        const cb = ctx.doc.querySelector('button.tsic-dropdown[data-key="accessibility.colorblind"]');
-        ctx.expect(cb ? null : 'missing accessibility.colorblind row');
-        ctx.expect(ctx.assert.eq(
-            JSON.parse(cb.getAttribute('data-tsic-options')).map(o => o.value).join(','),
-            'off,deuteranopia,protanopia,tritanopia'));
+        await ctx.waitFor(() => ctx.doc.querySelector('input[type="range"][data-key="gameplay.fov"]'));
+        // Colorblind mode is deliberately absent — it drove Slate's colour-vision
+        // filter, which has nothing to act on in a CEF/HTML UI, so it was removed
+        // rather than shipped non-functional.
+        ctx.expect(ctx.doc.querySelector('[data-key="accessibility.colorblind"]')
+            ? 'colorblind was removed and must not reappear until it actually works' : null);
 
         // Motion & Comfort. gameplay.fov is a LIVE slider now: it shipped dead
         // once (the setter was never wired), so assert the control exists AND
@@ -368,11 +368,8 @@ TSICTestHarness.register({
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Settings.Action',
             { where: p => p.Key === 'accessibility.reduce_motion_preset' }));
 
-        // Picking a colorblind mode publishes the exact C++ enum string, no countdown.
-        ctx.clearPublishes();
-        ctx.win.tsic.dropdown.set(cb, 'deuteranopia');
-        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Settings.Set',
-            { where: p => p.Key === 'accessibility.colorblind' && p.ValueJson === '"deuteranopia"' }));
+        // Accessibility keys apply instantly; only display-mode changes get the
+        // keep/revert countdown, and nothing here can strand the player.
         ctx.expect(ctx.doc.getElementById('settings-popover') ? 'accessibility keys must not open the countdown' : null);
     },
 });
