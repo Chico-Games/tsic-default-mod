@@ -931,7 +931,9 @@
                 quickMove: opts.onQuickMove || null,
                 onHover: opts.onHover || null,
                 onLeave: opts.onLeave || null,
-                onDollDrop: null,
+                // Worn gear dragged out of the paper doll onto the bar — the bar is a row of
+                // inventory cells, so it takes that drop like any other cell would.
+                onDollDrop: opts.onDollDrop || null,
                 otherOwnerId: opts.otherOwnerId || null,
             };
             registerPane(host, pane, items);

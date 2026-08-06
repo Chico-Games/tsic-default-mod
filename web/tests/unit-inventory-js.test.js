@@ -359,24 +359,34 @@ TSICTestHarness.register({
     },
 });
 
-// ---- Releasing on the HUD hotbar row ----------------------------------------
+// ---- The HUD hotbar row as a bound pane -------------------------------------
 
-// The hotbar is player grid cells 0..7, so the live HUD bar behind the screen is just another
-// set of grid cells to drop into — a release there is an ordinary Move, never a world drop.
-// Pinned away from the fixture grid so the hit test is unambiguous.
-function ensureHotbarFixture(ctx) {
-    if (ctx.doc.getElementById('hotbar-row')) return;
-    const hud = ctx.doc.createElement('div');
-    hud.id = 'hotbar-row';
-    hud.style.cssText = 'position:fixed;left:420px;top:80px;display:flex;gap:4px;';
-    for (let i = 0; i < 8; i++) {
-        const hudSlot = ctx.doc.createElement('div');
-        hudSlot.className = 'tsic-slot';
-        hudSlot.style.cssText = 'width:48px;height:48px;';
-        hudSlot.dataset.slot = i;
-        hud.appendChild(hudSlot);
+// The hotbar is player grid cells 0..7 and the live HUD bar DRAWS those cells — the inventory
+// panel does not draw them a second time. bindCells is how the bar joins the cursor engine:
+// the caller owns the markup, the engine owns the behaviour. These scenarios exercise that
+// contract against a stand-in bar; cross-surface-drag.test.js exercises the real one.
+//
+// Pinned away from the fixture grid so the hit test is unambiguous, and z-index:55 to match
+// hud-hotbar.js's grid mode — the bar must out-stack the screen overlay or its cells are dead.
+function ensureHotbarFixture(ctx, items) {
+    let hud = ctx.doc.getElementById('hotbar-row');
+    if (!hud) {
+        hud = ctx.doc.createElement('div');
+        hud.id = 'hotbar-row';
+        hud.style.cssText = 'position:fixed;left:420px;top:80px;z-index:55;display:flex;gap:4px;';
+        ctx.doc.body.appendChild(hud);
     }
-    ctx.doc.body.appendChild(hud);
+    hud.innerHTML = '';
+    for (let i = 0; i < 8; i++) {
+        const slot = ctx.doc.createElement('div');
+        slot.className = 'tsic-slot';
+        slot.style.cssText = 'width:48px;height:48px;';
+        slot.dataset.slot = i;
+        slot.dataset.grid = i;
+        hud.appendChild(slot);
+    }
+    ctx.win.TSICInventory.bindCells(hud, items || [], { ownerId: 'Player' });
+    return hud;
 }
 function hudSlot(ctx, i) { return ctx.doc.querySelector('#hotbar-row .tsic-slot[data-slot="' + i + '"]'); }
 
@@ -386,8 +396,9 @@ TSICTestHarness.register({
     async run(ctx) {
         ctx.clearPublishes();
         ctx.handle.setItemCatalog({ ID_Axe: { Category: 'Equipment' } });
-        ensureHotbarFixture(ctx);
-        renderHost(ctx, [{ ItemId: 'ID_Axe', Count: 1, InstanceId: 9, GridSlot: 12 }]);
+        const items = [{ ItemId: 'ID_Axe', Count: 1, InstanceId: 9, GridSlot: 12 }];
+        renderHost(ctx, items);
+        ensureHotbarFixture(ctx, items);
         pointerAt(ctx, cellAt(ctx, 12), 'pointerdown', 1, 0);
         pointerAt(ctx, hudSlot(ctx, 2), 'pointermove', 1);
         pointerAt(ctx, hudSlot(ctx, 2), 'pointerup', 0, 0);
@@ -405,8 +416,9 @@ TSICTestHarness.register({
     async run(ctx) {
         ctx.clearPublishes();
         ctx.handle.setItemCatalog({ ID_Bread: { Category: 'Consumable' } });
-        ensureHotbarFixture(ctx);
-        renderHost(ctx, [{ ItemId: 'ID_Bread', Count: 3, InstanceId: 5, GridSlot: 11 }]);
+        const items = [{ ItemId: 'ID_Bread', Count: 3, InstanceId: 5, GridSlot: 11 }];
+        renderHost(ctx, items);
+        ensureHotbarFixture(ctx, items);
         click(ctx, cellAt(ctx, 11)); // pick up
         pressReleaseOn(ctx, hudSlot(ctx, 2));
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Inventory.Move', {
@@ -422,15 +434,16 @@ TSICTestHarness.register({
     file: '/screens/test-fixtures.html',
     async run(ctx) {
         // REGRESSION: every open screen mounts inside #screen-overlay-host, a full-viewport
-        // z-index:50 pointer-events:auto layer above the HUD. elementFromPoint therefore
-        // returns the overlay at EVERY point on screen, so an elementFromPoint-based hit test
-        // can never see the bar — and the release falls through to the world-drop branch,
-        // silently throwing the player's stack on the floor. The hit test is geometric to
-        // survive this; this scenario reproduces the stacking that broke it.
+        // z-index:50 pointer-events:auto layer that used to sit ABOVE the HUD. elementFromPoint
+        // then returned the overlay at every point on screen, the bar could never be hit, and
+        // releases over it fell through to the world-drop branch — silently throwing the
+        // player's stack on the floor. The bar out-stacks the overlay now (z-index 55, applied
+        // by hud-hotbar.js's grid mode); this scenario reproduces that stacking and pins it.
         ctx.clearPublishes();
         ctx.handle.setItemCatalog({ ID_Axe: { Category: 'Equipment' } });
-        ensureHotbarFixture(ctx);
-        renderHost(ctx, [{ ItemId: 'ID_Axe', Count: 1, InstanceId: 9, GridSlot: 12 }]);
+        const items = [{ ItemId: 'ID_Axe', Count: 1, InstanceId: 9, GridSlot: 12 }];
+        renderHost(ctx, items);
+        ensureHotbarFixture(ctx, items);
 
         const overlay = ctx.doc.createElement('div');
         overlay.id = 'zz-fake-screen-overlay';
@@ -439,10 +452,10 @@ TSICTestHarness.register({
         try {
             const target = hudSlot(ctx, 3);
             const r = target.getBoundingClientRect();
-            // Sanity: the overlay really is what elementFromPoint sees at the bar.
+            // The whole point: the bar wins the hit test against a real screen's overlay.
             const hitEl = ctx.doc.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
-            ctx.expect(ctx.assert.truthy(hitEl && hitEl.id === 'zz-fake-screen-overlay',
-                'the overlay covers the bar, exactly as a real screen does'));
+            ctx.expect(ctx.assert.truthy(hitEl && hitEl.closest('#hotbar-row'),
+                'the bar out-stacks the overlay a real screen mounts'));
 
             pointerAt(ctx, cellAt(ctx, 12), 'pointerdown', 1, 0);
             pointerAt(ctx, target, 'pointermove', 1);
@@ -468,8 +481,9 @@ TSICTestHarness.register({
         // player puts it there.
         ctx.clearPublishes();
         ctx.handle.setItemCatalog({ ID_Scrap: { Category: 'CraftingMaterial' } });
-        ensureHotbarFixture(ctx);
-        renderHost(ctx, [{ ItemId: 'ID_Scrap', Count: 4, InstanceId: 7, GridSlot: 10 }]);
+        const items = [{ ItemId: 'ID_Scrap', Count: 4, InstanceId: 7, GridSlot: 10 }];
+        renderHost(ctx, items);
+        ensureHotbarFixture(ctx, items);
         pointerAt(ctx, cellAt(ctx, 10), 'pointerdown', 1, 0);
         pointerAt(ctx, hudSlot(ctx, 1), 'pointermove', 1);
         pointerAt(ctx, hudSlot(ctx, 1), 'pointerup', 0, 0);
