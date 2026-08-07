@@ -71,6 +71,12 @@
     if (hand) hand.classList.toggle('hidden', isMenuMode);
     var cel = document.getElementById('hud-crosshair-cat');
     if (cel) cel.classList.toggle('hidden', isMenuMode);
+    // The progress collar + its completion bloom (hud-circular-progress.js) are
+    // crosshair furniture too — without this they float over an open menu.
+    var prog = document.getElementById('hud-crosshair-progress');
+    if (prog) prog.classList.toggle('hidden', isMenuMode);
+    var bloom = document.getElementById('hud-crosshair-bloom');
+    if (bloom) bloom.classList.toggle('hidden', isMenuMode);
   });
 
   tsic.on('tsic.msg.UI.Interaction.Targets', function (p) {

@@ -1,9 +1,13 @@
 // Inventory screen module — grid design §10.1 "Split Page" layout.
 //
-// Left column: category tabs + the player grid + the weight bar (weight only;
-// the slot count lives as text in the headline band). Right rail: armor-only
-// paper doll (+ Backpack), character preview, item info card. Bottom: the
-// contextual hotkey hint row.
+// Left column: a pane header (category tabs, each one slot-column wide, + this pane's slot
+// count) over the player grid, with the weight bar on the panel's bottom line. Right rail:
+// armor-only paper doll (+ Backpack), character preview, item info card. Bottom: a footer bar
+// with the contextual hotkey hints on the left and the buttons hard right.
+//
+// Every measurement above the footer is shared with the storage screen (shared/storage-shell.js)
+// so that opening a container ADDS a column and moves nothing. Changing the band, the 26px
+// pane-header row or the tab metrics here means changing them there too.
 //
 // THE LIVE HUD HOTBAR IS THIS GRID'S FIRST ROW. Not a copy of it, not a mirror — the bar
 // standing at the bottom of the screen IS cells 0..7, so this grid starts at cell 8 and the
@@ -25,7 +29,12 @@
   }
 
   const STYLE = `
-    [data-screen="Inventory"] #inv-root { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:auto; }
+    /* Top-left anchored — .tsic-modal-scrim--left supplies the alignment and the insets. The
+       storage screen is this screen plus a container column, so a centred panel would slide
+       the bag sideways AND upward every time a crate was opened. inset:0 rather than the
+       class's position:fixed keeps the panel inside the overlay, which is lifted clear of the
+       HUD hotbar while the bar is acting as the grid's first row. */
+    [data-screen="Inventory"] #inv-root { position:absolute; inset:0; display:flex; pointer-events:auto; }
     /* min(92vh, 100%): 92vh is the look, 100% is the guarantee. The overlay is SHORTER than
        the viewport while the HUD hotbar is acting as this grid's first row, and a panel
        capped only against vh would run off the top of it instead of scrolling. */
@@ -34,20 +43,66 @@
     [data-screen="Inventory"] #inv-band h2 { margin:0; }
     [data-screen="Inventory"] #inv-band .spacer { flex:1; }
     [data-screen="Inventory"] #inv-band .slots-text { font-size:14px; letter-spacing:0.08em; color:rgba(37,33,25,0.65); }
+    /* Lives in the PANE header, over the grid it sorts — the storage screen has one of these
+       per pane and they have to be the same plate at the same offset.
+       Sized in SLOTS, not pixels. The header has to fit 6 slot-wide tabs + this + the slot
+       count inside 8 slot columns; with a fixed pixel size that holds at --tsic-slot 68px and
+       fails as the clamp shrinks, shoving both past the grid's right edge on a 1280 window.
+       Scaling with the slot makes the budget a constant ratio, so it fits at every size. */
     [data-screen="Inventory"] .sort-btn {
-      font: inherit; font-size:12px; letter-spacing:0.1em; cursor:pointer; padding:2px 10px;
+      box-sizing:border-box; align-self:center;
+      height: max(16px, calc(var(--tsic-slot) * 0.294));
+      padding: 0 max(5px, calc(var(--tsic-slot) * 0.147));
+      font: inherit; font-size: clamp(9px, calc(var(--tsic-slot) * 0.162), 11px);
+      line-height:1; letter-spacing:0.1em; cursor:pointer;
       background: rgba(255,253,243,0.96); border:2px solid rgba(10,10,10,0.85); color:inherit;
     }
     [data-screen="Inventory"] .sort-btn:hover, [data-screen="Inventory"] .sort-btn[data-tsic-focused] { background: var(--mag-red, #e60000); color:#fff; }
-    [data-screen="Inventory"] #inv-search {
-      font: inherit; font-size:12px; width:132px; padding:2px 7px;
-      background: rgba(255,253,243,0.96); border:2px solid rgba(10,10,10,0.85); color:inherit;
-    }
-    [data-screen="Inventory"] #inv-search::placeholder { color:rgba(37,33,25,0.45); letter-spacing:0.06em; }
-    [data-screen="Inventory"] #inv-search:focus { outline:2px solid var(--mag-red, #e60000); outline-offset:-2px; }
     [data-screen="Inventory"] .inv-cols { display:grid; gap:12px; grid-template-columns:max-content 300px; align-items:stretch; }
-    [data-screen="Inventory"] #inv-tabs { display:flex; gap:0; margin-bottom:8px; }
-    [data-screen="Inventory"] #inv-tabs .tsic-tab { font-size:11px; padding:3px 8px; }
+    [data-screen="Inventory"] .inv-bagcol { display:flex; flex-direction:column; min-width:0; }
+
+    /* Pane header — tabs on the left, then SORT and this pane's slot count. Pinned to exactly
+       26px INCLUDING its 4px rule, because the storage screen pins its container header to the
+       same box to put both grids on one line; changing this height moves the bag on BOTH
+       screens. The rule lives here rather than on #inv-tabs: the strip is only as wide as its
+       tabs now, so its own underline would stop short of the grid.
+
+       width:0 + min-width:100% — the GRID decides this column's width, nothing else. The
+       header's own content is ~14px wider than 8 slot columns, so left to contribute it
+       widened the column and pushed SORT past the grid's right edge. Same trick on the meter
+       and on the footer below. */
+    [data-screen="Inventory"] .inv-panehdr {
+      box-sizing:border-box; height:26px; margin-bottom:8px;
+      width:0; min-width:100%;
+      display:flex; align-items:flex-end; gap: max(4px, calc(var(--tsic-slot) * 0.118));
+      border-bottom:4px solid var(--ink-night);
+    }
+    [data-screen="Inventory"] .inv-panehdr .spacer { flex:1; }
+    /* Fixed min-width so SORT lands at the same offset from the column's right edge as the
+       container pane's does on the storage screen, whatever the digits say. Budget is tight:
+       6 slot-wide tabs + SORT + this must fit 8 slot columns, which is why the count reads
+       "19/32" and not "19/32 SLOTS" — the word cost 38px and the strip wrapped. */
+    [data-screen="Inventory"] .inv-panehdr .slots-text {
+      align-self:center; min-width: max(40px, calc(var(--tsic-slot) * 0.912)); text-align:right;
+      font-size: clamp(9px, calc(var(--tsic-slot) * 0.162), 11px);
+      letter-spacing:0.1em; text-transform:uppercase; color:rgba(37,33,25,0.65); white-space:nowrap;
+    }
+    /* One tab per slot COLUMN: same width, same gap, so every tab sits squarely over the
+       column it filters and the strip reads as part of the grid rather than a bar above it.
+       bottom:-4px is the shared tab treatment — the active red block overlaps the rule. */
+    [data-screen="Inventory"] #inv-tabs { display:flex; flex-wrap:nowrap; flex:0 1 auto; min-width:0; gap:var(--tsic-slot-gap); border-bottom:0; margin-bottom:0; }
+    [data-screen="Inventory"] #inv-tabs .tsic-tab {
+      box-sizing:border-box; flex:0 1 var(--tsic-slot); min-width:0; width:var(--tsic-slot);
+      padding:2px 0; font-size: clamp(9px, calc(var(--tsic-slot) * 0.162), 11px); overflow:hidden;
+      display:flex; align-items:center; justify-content:center;
+    }
+    /* Hover/focus reads as a lighter draft of the active state (a solid red block), so the
+       cursor answers "what does clicking do?" before the click. :not(.is-active) keeps the
+       selected tab from washing out when the pointer passes over it. */
+    [data-screen="Inventory"] #inv-tabs .tsic-tab:not(.is-active):hover,
+    [data-screen="Inventory"] #inv-tabs .tsic-tab:not(.is-active)[data-tsic-focused] {
+      background: rgba(230,0,0,0.16); color: var(--ink-night);
+    }
 
     [data-screen="Inventory"] .inv-grid {
       display:grid; grid-template-columns: repeat(var(--grid-cols, 8), var(--tsic-slot));
@@ -71,9 +126,20 @@
       cursor:default; font-size:15px; opacity:0.75;
     }
     [data-screen="Inventory"] .tsic-slot .lock-glyph { opacity:0.35; pointer-events:none; }
+    /* Stack count — the yellow chip. 14px is ~15% up from the old 12px.
+       The odd padding is deliberate and measured. This renders in Press Start 2P, a PIXEL
+       font whose metrics are ascent = 1em, descent = 0 — so its digits' ink actually hangs a
+       pixel BELOW the em box, and any normal centring parks them on the chip's bottom edge
+       (measured: 8px of air above, 1px below). Note line-height cannot fix it: under
+       align-items:center the line box is centred as a unit, so its height cancels out of the
+       ink position entirely. Only the box height and the vertical padding move the glyphs.
+       height:19 + padding-bottom:6 puts the ink at 4.5px from both edges — actually centred,
+       not approximately. Re-measure if the font or font-size changes. */
     [data-screen="Inventory"] .tsic-slot .count {
-      position:absolute; bottom:1px; right:2px; padding:1px 4px; line-height:1;
-      font-size:12px; font-weight:700; color:#1a1612; background: var(--mag-yellow, #ffcc00);
+      position:absolute; bottom:1px; right:2px;
+      display:flex; align-items:center; justify-content:center;
+      min-width:17px; height:19px; padding:0 4px 6px;
+      font-size:14px; font-weight:700; color:#1a1612; background: var(--mag-yellow, #ffcc00);
       border:1px solid rgba(10,10,10,0.85); pointer-events:none;
     }
     [data-screen="Inventory"] .tsic-slot .equip-badge {
@@ -97,8 +163,15 @@
     }
     [data-screen="Inventory"] .tsic-slot.is-held .hotbar-key { color:#fff; background: var(--mag-red, #e60000); }
 
-    [data-screen="Inventory"] .inv-meter { margin-top:8px; min-width:200px; }
-    [data-screen="Inventory"] .inv-meter .lab { display:flex; justify-content:space-between; font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:rgba(37,33,25,0.8); }
+    /* Directly under the grid, NOT pushed to the column's bottom. The rail is taller than
+       this column here (the paper doll runs past the grid), so margin-top:auto would drop the
+       weight bar to the doll's bottom edge — 46px below where the storage screen puts it, and
+       the bar is the one thing on this column that must not move between the two. Storage
+       does use auto, because there it has a container capacity bar to line up with. */
+    [data-screen="Inventory"] .inv-meter { margin-top:0; padding-top:8px; width:0; min-width:100%; }
+    /* min-height matches the storage screen's, where the bag's weight label has to sit on one
+       line with the container's capacity label. */
+    [data-screen="Inventory"] .inv-meter .lab { display:flex; justify-content:space-between; align-items:center; min-height:19px; font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:rgba(37,33,25,0.8); }
     [data-screen="Inventory"] .inv-meter .val { font-size:13px; }
     [data-screen="Inventory"] .inv-meter .stackw {
       display:inline-block; min-width:58px; text-align:center; font-size:12px;
@@ -112,14 +185,19 @@
     @keyframes inv-ob-pulse { 50% { filter: brightness(1.5); } }
     [data-screen="Inventory"] .inv-meter .fillsel { position:absolute; top:0; bottom:0; background: var(--mag-yellow, #ffcc00); border-left:1px solid rgba(10,10,10,0.85); }
 
-    [data-screen="Inventory"] .inv-rail { display:flex; flex-direction:column; gap:8px; }
+    /* The rail must never be TALLER than the bag column beside it, or the panel runs on past
+       the weight bar and leaves dead space under the grid. Two things keep that true:
+       the doll's cells are deliberately smaller than grid cells (--inv-equip-slot), and the
+       info card's floor is low enough that doll + floor still fits the SHORTEST bag column
+       (a 24-slot bag: 4 grid rows). The card then flexes to eat whatever is left over. */
+    [data-screen="Inventory"] .inv-rail { --inv-equip-slot: calc(var(--tsic-slot) * 0.74); display:flex; flex-direction:column; gap:8px; }
     [data-screen="Inventory"] #inv-doll {
-      position:relative; display:grid; grid-template-columns:var(--tsic-slot) 1fr var(--tsic-slot); gap:4px; padding:8px;
-      min-height:240px; background: rgba(255,253,243,0.96); border:2px solid rgba(10,10,10,0.85);
+      position:relative; display:grid; grid-template-columns:var(--inv-equip-slot) 1fr var(--inv-equip-slot); gap:4px; padding:8px;
+      flex:0 0 auto; background: rgba(255,253,243,0.96); border:2px solid rgba(10,10,10,0.85);
     }
     [data-screen="Inventory"] .doll-col { display:flex; flex-direction:column; justify-content:space-around; align-items:center; gap:14px; }
     [data-screen="Inventory"] .equip-slot {
-      width:var(--tsic-slot); height:var(--tsic-slot); position:relative;
+      width:var(--inv-equip-slot); height:var(--inv-equip-slot); position:relative;
       background: rgba(237,228,203,0.9); border:2px dashed rgba(10,10,10,0.5);
       display:flex; align-items:center; justify-content:center;
       font-size:9px; letter-spacing:1px; text-transform:uppercase; color: rgba(74,66,57,0.8);
@@ -136,27 +214,45 @@
     [data-screen="Inventory"] #inv-char-preview { grid-column:2; min-height:0; display:flex; align-items:center; justify-content:center; overflow:hidden; }
     [data-screen="Inventory"] #inv-char-preview img { width:100%; height:100%; object-fit:contain; transform:scale(1.9); transform-origin:50% 42%; }
 
+    /* min-height:0, deliberately — see the note on .inv-rail. This card is the rail's slack:
+       it takes whatever height the doll leaves, so the rail can never be taller than the bag
+       column and there is no dead space under the grid at ANY bag size. Any floor here is a
+       floor on the rail, and on the starter bag (4 grid rows) even 88px re-opened a 28px gap.
+       It scrolls, so a short card loses nothing. */
     [data-screen="Inventory"] #inv-info {
       padding:9px 11px; background:#fffdf3; border:2px solid rgba(10,10,10,0.85);
-      min-height:140px; flex:1 1 auto; overflow:auto; font-size:13px;
+      min-height:0; flex:1 1 auto; overflow:auto; font-size:13px;
     }
     [data-screen="Inventory"] #inv-info .info-eyebrow { font-size:10px; letter-spacing:0.18em; color: var(--mag-red, #e60000); text-transform:uppercase; }
     [data-screen="Inventory"] #inv-info .statline { display:flex; justify-content:space-between; border-top:1px dashed rgba(10,10,10,0.3); padding:2px 0; }
     [data-screen="Inventory"] #inv-info .statline b { letter-spacing:0.06em; font-size:12px; }
 
-    /* The chip set changes when a stack is picked up, and the panel is
-       width:auto — so left to itself the hint row is the one child whose
-       content can resize the whole panel mid-drag. width:0 + min-width:100%
-       keeps it out of the panel's shrink-to-fit width (the grid and rail decide
-       that), so the chips wrap onto as many lines as they need instead of
-       stretching the panel to fit them on one. renderHints() then reserves the
-       tallest set's height so swapping sets can't change it either. */
-    [data-screen="Inventory"] .inv-hints {
-      display:flex; flex-wrap:wrap; align-content:flex-start;
-      gap:10px 14px; justify-content:center;
-      width:0; min-width:100%;
+    /* Footer bar: key hints on the left, buttons hard right. The chip set changes when a
+       stack is picked up, and the panel is width:auto — so left to itself this row is the one
+       child whose content can resize the whole panel mid-drag. width:0 + min-width:100% keeps
+       it out of the panel's shrink-to-fit width (the grid and rail decide that), so the chips
+       wrap onto as many lines as they need instead of stretching the panel to fit them on
+       one. renderHints() then reserves the tallest set's height so swapping sets can't change
+       it either. */
+    /* min-height is shared with the storage screen's footer and is what makes the two PANELS
+       the same height. Everything above this row is already identical, so the footer was the
+       only difference: seven hint chips wrap to two rows here, while storage's six sit on one
+       line under a much wider panel. Two chip rows (20px each + 10px gap) is the floor both
+       reach, so both panels close at the same y. */
+    [data-screen="Inventory"] .inv-footer {
+      display:flex; align-items:flex-end; gap:16px;
+      width:0; min-width:100%; min-height:60px;
       margin-top:10px; border-top:2px dashed rgba(10,10,10,0.3); padding-top:8px;
     }
+    [data-screen="Inventory"] .inv-hints {
+      flex:1 1 auto; min-width:0;
+      display:flex; flex-wrap:wrap; align-content:flex-start;
+      gap:10px 14px;
+    }
+    /* Same plate metrics as the storage screen's footer buttons — .tsic-button's default
+       padding made Close visibly bigger here than the identical button over there. */
+    [data-screen="Inventory"] .inv-actions { flex:0 0 auto; display:flex; gap:8px; align-items:flex-end; }
+    [data-screen="Inventory"] .inv-actions .tsic-button { font-size:12px; padding:4px 10px; }
     [data-screen="Inventory"] .inv-hints .hint { display:flex; align-items:center; gap:5px; font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:rgba(74,66,57,0.9); }
     [data-screen="Inventory"] .inv-hints .kbd {
       display:inline-flex; align-items:center; justify-content:center; min-width:20px; height:20px; padding:0 4px;
@@ -166,18 +262,19 @@
   `;
 
   const TEMPLATE = `
-    <div id="inv-root" class="tsic-modal-scrim">
+    <div id="inv-root" class="tsic-modal-scrim tsic-modal-scrim--left">
       <div id="inv-panel" class="tsic-panel tsic-panel--screen">
         <div id="inv-band">
           <h2 class="tsic-title">Inventory</h2>
-          <span class="spacer"></span>
-          <input id="inv-search" type="search" placeholder="Search…" autocomplete="off" spellcheck="false">
-          <button id="inv-sort" class="sort-btn" data-tsic-focusable>SORT</button>
-          <span class="slots-text" id="inv-slots-text">—</span>
         </div>
         <div class="inv-cols">
-          <div>
-            <div id="inv-tabs" data-tsic-tab-bar></div>
+          <div class="inv-bagcol">
+            <div class="inv-panehdr">
+              <div id="inv-tabs" data-tsic-tab-bar></div>
+              <span class="spacer"></span>
+              <button id="inv-sort" class="sort-btn" data-tsic-focusable>SORT</button>
+              <span class="slots-text" id="inv-slots-text" title="Slots used">—</span>
+            </div>
             <div id="inv-grid" class="inv-grid"></div>
             <div class="inv-meter" id="inv-meter">
               <div class="lab"><span>Weight</span>
@@ -191,7 +288,12 @@
             <div id="inv-info" class="tsic-empty">Hover an item to see details</div>
           </div>
         </div>
-        <div class="inv-hints" id="inv-hints"></div>
+        <div class="inv-footer">
+          <div class="inv-hints" id="inv-hints"></div>
+          <div class="inv-actions">
+            <button class="tsic-button" id="inv-close" type="button">Close (Esc)</button>
+          </div>
+        </div>
       </div>
     </div>
   `;
@@ -217,11 +319,6 @@
   const DOLL_LEFT  = ['Head', 'Body', 'Outfit', 'Backpack'];
   const DOLL_RIGHT = ['Gloves', 'Legs', 'Shoes'];
   const DOLL_TAG_PREFIX = 'Entity.Inventory.Item.Equipment.Slot.';
-
-  // Locked-preview region is UI-ONLY (§10.1): grey cells up to the shipped
-  // bag tier (48) so backpack upgrades are a visible unlock moment.
-  const PREVIEW_TIER_SLOTS = 48;
-  const MAX_PREVIEW_CELLS = 16;
 
   function injectStyleOnce() {
     if (document.getElementById('screen-inventory-style')) return;
@@ -256,27 +353,19 @@
         tsic.playSound('Inventory.Transfer');
       });
 
+      // Mirrors the storage screen's footer button, and gives the screen a visible way out
+      // for anyone not reaching for Escape.
+      root.querySelector('#inv-close').addEventListener('click', () => {
+        window.TSICInventory.cancelHeld();
+        ctx.publish('UI.Cmd.Pause.Resume', {});
+      });
+
       let tabFilter = null;
       let lastUpdate = null;
       let lastEquipment = null;
       let lastHotbar = null;
       let hoveredItem = null;
-      let searchTerm = '';
       this._state = { get hoveredItem() { return hoveredItem; } };
-
-      // Search DIMS like the tabs do rather than reflowing the grid — a filter
-      // must never change slot geometry (rule 48), or muscle memory breaks and
-      // a drag mid-type would land in the wrong cell.
-      const searchBox = root.querySelector('#inv-search');
-      searchBox.addEventListener('input', () => {
-        searchTerm = searchBox.value.trim().toLowerCase();
-        refresh();
-      });
-      // Typing must not leak to gameplay/menu bindings (Escape still closes the
-      // screen, so it is deliberately left to bubble).
-      searchBox.addEventListener('keydown', (e) => {
-        if (e.key !== 'Escape') e.stopPropagation();
-      });
 
       function equippedSlotTagFor(instanceId) {
         if (instanceId == null) return null;
@@ -429,23 +518,15 @@
         );
       }
 
-      // Tab AND search must both pass — they compose rather than override, so
-      // "Materials" + "iron" narrows instead of one silently winning. Null when
-      // neither is active, so the grid can skip the per-cell test.
+      // Null when the All tab is active, so the grid can skip the per-cell test entirely.
       function buildFilterFn() {
         const cat = window.tsic.itemCatalog || {};
         const activeTab = tabFilter ? tabFilter.getActive() : 'All';
         const filter = TAB_FILTERS[activeTab] || null;
-        if (!filter && !searchTerm) return null;
+        if (!filter) return null;
         return (it) => {
           const desc = cat[it.ItemId];
-          if (!desc) return false;
-          if (filter && !filter(desc)) return false;
-          if (searchTerm) {
-            const haystack = ((desc.Name || '') + ' ' + (it.ItemId || '')).toLowerCase();
-            if (haystack.indexOf(searchTerm) === -1) return false;
-          }
-          return true;
+          return !!desc && filter(desc);
         };
       }
 
@@ -514,7 +595,8 @@
         if (!lastUpdate) return;
         const cat = window.tsic.itemCatalog || {};
         const slotCount = lastUpdate.MaxSlots > 0 ? lastUpdate.MaxSlots : 32;
-        const lockedPreview = Math.min(MAX_PREVIEW_CELLS, Math.max(0, PREVIEW_TIER_SLOTS - slotCount));
+        // Shared with the storage screen so the bag is the same shape on both (§10.1).
+        const lockedPreview = window.TSICInventory.lockedPreviewFor(slotCount);
         // With a live bar those cells are drawn there and skipped here; without one this
         // grid is their only home, so it draws and marks them itself.
         const barIsRow = barIsTheRow();
@@ -540,7 +622,7 @@
         });
 
         // The bar's own broadcast re-renders it on item changes; this covers the changes
-        // it can't see — a tab, a search keystroke, a piece of gear coming off.
+        // it can't see — a tab change, a piece of gear coming off.
         if (window.TSICHotbar) window.TSICHotbar.refresh();
 
         // Gamepad landing: opening the screen puts focus on the first grid
@@ -549,7 +631,7 @@
         if (firstCell) firstCell.setAttribute('data-tsic-initial-focus', '');
 
         const used = (lastUpdate.Items || []).length;
-        root.querySelector('#inv-slots-text').textContent = `${used}/${slotCount} SLOTS`;
+        root.querySelector('#inv-slots-text').textContent = `${used}/${slotCount}`;
         renderMeter();
       }
 

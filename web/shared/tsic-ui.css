@@ -31,6 +31,21 @@
 .tsic-modal-scrim--dim   { background: rgba(13, 14, 21, 0.78); }
 .tsic-modal-scrim--clear { background: transparent; }
 
+/* Top-left-anchored variant — the bag screens (inventory, storage).
+ *
+ * Both axes are pinned, and both for the same reason. These panels grow to the
+ * RIGHT as panes appear and DOWNWARD as the rail fills, so a centred panel moved
+ * the player's bag both sideways and up the moment a container was opened.
+ * Anchoring the panel's top-left corner fixes every row above the rail's end —
+ * title band, tabs, the grid itself — so opening a container adds a column and
+ * the bag does not move at all. What varies is only where the panel ENDS. */
+.tsic-modal-scrim--left {
+    justify-content: flex-start;
+    align-items: flex-start;
+    padding-left: clamp(16px, 4vw, 72px);
+    padding-top: clamp(12px, 5vh, 56px);
+}
+
 /* Vertical stack with consistent gap. */
 .tsic-stack         { display: flex; flex-direction: column; gap: 12px; }
 .tsic-stack--sm     { gap: 6px; }

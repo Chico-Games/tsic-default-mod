@@ -12,7 +12,7 @@
   height: 100%; box-sizing: border-box; padding: 20px;
   display: flex; flex-direction: column;
   background: var(--term-bg); color: var(--term-color);
-  font-family: "VT323", "Courier New", monospace;
+  font-family: var(--font-terminal);
   font-size: 24px; line-height: 1.15;
   text-shadow: var(--term-glow);
 }
@@ -118,7 +118,7 @@
   display: flex; flex-direction: column;
   background: var(--t2-bg);
   color: var(--t2-text);
-  font-family: var(--font-terminal, "VT323", monospace);
+  font-family: var(--font-terminal);
   font-size: 20px; line-height: 1.15;
 }
 
@@ -293,7 +293,7 @@
   padding: 6px 9px;
   background: var(--t2-win); color: var(--t2-text);
   border: 2px solid var(--t2-border);
-  font-family: var(--font-terminal, "VT323", monospace); font-size: 20px; line-height: 1.15;
+  font-family: var(--font-terminal); font-size: 20px; line-height: 1.15;
   scrollbar-width: thin; scrollbar-color: var(--t2-border) var(--t2-win);
 }
 .tsic-term--t2 .t2-row { min-height: 1.15em; }
@@ -395,7 +395,7 @@
   position: relative; isolation: isolate; overflow: hidden;
   height: 100%; box-sizing: border-box;
   background: var(--t3-bg); color: var(--t3-fg);
-  font-family: "Courier New", "VT323", monospace; font-size: 13px;
+  font-family: var(--font-terminal); font-size: 13px;
 }
 .tsic-term--t3.theme-breach { --t3-fg: var(--t3-danger); --t3-dim: #4a0000; --t3-glow: rgba(255,43,43,0.6); --t3-grid: #1a0505; }
 
@@ -526,7 +526,7 @@
 .tsic-term--t3 .t3-content--gui .tsic-term-program { display: block; }
 
 /* Console window */
-.tsic-term--t3 .t3-console { font-family: "VT323", "Courier New", monospace; font-size: 18px; }
+.tsic-term--t3 .t3-console { font-family: var(--font-terminal); font-size: 18px; }
 .tsic-term--t3 .t3-console-line { display: flex; align-items: baseline; position: relative; }
 .tsic-term--t3 .t3-console-prompt { margin-right: 0.5ch; }
 .tsic-term--t3 .t3-console-mirror { white-space: pre; }

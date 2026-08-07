@@ -15,7 +15,7 @@
       position: absolute; inset: 0;
       background: #d4c19d;
       color: var(--cat-ink-soft);
-      font-family: 'Consolas', monospace;
+      font-family: var(--font-terminal);
       display: flex; flex-direction: column;
       overflow: hidden;
     }
@@ -141,14 +141,14 @@
     }
     [data-screen="Map"] #map-viewport.pad-cursor #pad-cursor { display: block; }
     [data-screen="Map"] .ic-cluster { fill: rgba(35,31,24,0.35); stroke: #ffffff; }
-    [data-screen="Map"] .ic-cluster-text { fill: #ffffff; font-family: 'Consolas', monospace; font-size: 14px; }
+    [data-screen="Map"] .ic-cluster-text { fill: #ffffff; font-family: var(--font-terminal); font-size: 17px; }
     [data-screen="Map"] #world-bounds {
       fill: none; stroke: #5a4a30; stroke-width: 2;
       vector-effect: non-scaling-stroke; pointer-events: none;
     }
     [data-screen="Map"] .bound-coord {
       fill: rgba(90, 74, 48, 0.85);
-      font-family: 'Consolas', monospace;
+      font-family: var(--font-terminal);
       pointer-events: none;
     }
     @keyframes tsic-map-tp-flash {
@@ -166,8 +166,10 @@
       padding: 3px 7px;
       background: rgba(35,31,24,0.85);
       color: #f3e8c8;
-      font-family: 'Consolas', monospace;
-      font-size: 12px;
+      font-family: var(--font-terminal);
+      /* VT323 runs small for its px size — 15px matches the legibility of the
+       * 12px Consolas this used to fall back to. */
+      font-size: 15px;
       letter-spacing: 1px;
       line-height: 1.35;
       border: 1px solid #5a4a30;
@@ -203,23 +205,59 @@
         <div id="pad-cursor"></div>
         <div id="hover-chip"></div>
       </div>
+      <div id="tp-bar" style="display:none;">
+        <b>TELEPORT</b>
+        <span class="tp-layers">
+          <button class="tp-layer is-active" data-layer="Floor">Ground</button>
+          <button class="tp-layer" data-layer="Sky">Sky</button>
+          <button class="tp-layer" data-layer="Underground">Underground</button>
+        </span>
+        <span id="tp-note">Click a tile to teleport there.</span>
+        <button id="tp-done">Back to cheats</button>
+      </div>
       <div id="legend">
         <span id="hint" data-base="drag = pan · wheel = zoom · R = reset · Esc = close · RMB = ping · WebUI.Map.DebugHeight / DebugMazeRegions">drag = pan · wheel = zoom · R = reset · Esc = close · RMB = ping · WebUI.Map.DebugHeight / DebugMazeRegions</span>
       </div>
     </div>
   `;
 
+  // Teleport-picker chrome. Kept out of the main STYLE block so the picker is
+  // obviously an addition to the map rather than part of its normal look.
+  const TELEPORT_STYLE = `
+    [data-screen="Map"] #tp-bar {
+      display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+      padding: 5px 10px; background: var(--ink-night, #14110c); color: var(--paper-bright, #fffdf3);
+      border-bottom: 2px solid var(--mag-yellow, #f5c518); font-size: 12px;
+    }
+    [data-screen="Map"] #tp-bar b { font-family: var(--font-display, inherit); letter-spacing: 2px; color: var(--mag-yellow, #f5c518); font-weight: 400; font-size: 15px; }
+    [data-screen="Map"] #tp-bar .tp-layers { display:inline-flex; gap:3px; }
+    [data-screen="Map"] .tp-layer {
+      font: inherit; padding: 2px 9px; cursor: pointer;
+      background: transparent; color: var(--paper-bright, #fffdf3);
+      border: 1px solid rgba(255,253,247,0.4);
+    }
+    [data-screen="Map"] .tp-layer:hover { background: rgba(255,253,247,0.15); }
+    [data-screen="Map"] .tp-layer.is-active { background: var(--mag-yellow, #f5c518); color: var(--ink-night, #14110c); border-color: var(--ink-night, #14110c); font-weight: bold; }
+    [data-screen="Map"] #tp-note { opacity: 0.75; }
+    [data-screen="Map"] #tp-note.is-warn { opacity: 1; color: var(--mag-yellow, #f5c518); font-weight: bold; }
+    [data-screen="Map"] #tp-done { font: inherit; margin-left:auto; padding: 2px 10px; cursor:pointer; background: var(--mag-red, #e60000); color: var(--paper-bright, #fffdf3); border: 1px solid var(--ink-night, #14110c); }
+    [data-screen="Map"] #map-viewport.is-teleport { cursor: crosshair; }
+  `;
+
   function injectStyleOnce() {
     if (document.getElementById('screen-map-style')) return;
     const s = document.createElement('style');
     s.id = 'screen-map-style';
-    s.textContent = STYLE;
+    s.textContent = STYLE + TELEPORT_STYLE;
     document.head.appendChild(s);
   }
 
   // Set by mount() so the module-level onShow() (which has no access to the
   // per-mount closure) can drive the fog refresh. One mount per screen.
   let onShowHook = null;
+  // Set by mount() so onShow(params) can hand the per-mount closure the
+  // teleport-picker flag the cheat menu opened us with.
+  let teleportModeHook = null;
 
   TSIC.registerScreen('Map', {
     inputModeTag: 'InputMode.Menu.Map',
@@ -253,6 +291,9 @@
         maxScale: MAX_SCALE,
         iconPx: ICON_PX,
         defaultZoomMult: DEFAULT_ZOOM_MULT,
+        // World -> local projection, so a test can aim a click at a known tile
+        // without re-deriving the projection (and silently drifting from it).
+        worldToLocal: (wx, wy) => worldToLocal(wx, wy),
         // Drops the fog gate to its documented fail-open state (fowGrid = null)
         // so icon/cluster contracts are testable without hours of exploration.
         // Also lifts the fog-not-ready veil, which would otherwise cover the
@@ -318,6 +359,60 @@
       let fowGraceExpired = false;  // grace window elapsed (see condition 3)
       let fowFetchGaveUp = false;   // retry ladder exhausted (see condition 4)
       let fowGateOverridden = false; // test seam (__tsicMap.disableFogGate)
+
+      // ---- teleport picker (cheat menu) ----------------------------
+      // Opened as UI.Screen.Changed {Name:'Map', ParamsJson:'{"mode":"teleport"}'}.
+      // Fog is revealed for the VIEW only — no HideFOW is run, so the session's
+      // real fog grid and the save are untouched.
+      let teleportMode = false;
+      let teleportLayer = 'Floor';
+      let teleportPlayer = 1;
+
+      function setTeleportMode(on, playerNum) {
+        teleportMode = !!on;
+        teleportPlayer = Math.max(1, parseInt(playerNum, 10) || 1);
+        const bar = qs('#tp-bar');
+        if (bar) bar.style.display = teleportMode ? 'flex' : 'none';
+        const vpEl = qs('#map-viewport');
+        if (vpEl) vpEl.classList.toggle('is-teleport', teleportMode);
+        // Revealing is a render-side override: the gate opens, the fog canvas
+        // hides, and the marker fog test short-circuits (see iconVisibleInFog).
+        fowGateOverridden = teleportMode;
+        const fowTex = qs('#fow-tex');
+        if (fowTex) fowTex.style.visibility = teleportMode ? 'hidden' : '';
+        applyFowGate();
+        if (teleportMode) selectTeleportLayer(teleportLayer);
+        rerenderSoon();
+      }
+
+      function selectTeleportLayer(layer) {
+        teleportLayer = layer;
+        root.querySelectorAll('#tp-bar .tp-layer').forEach((b) => {
+          b.classList.toggle('is-active', b.getAttribute('data-layer') === layer);
+        });
+      }
+
+      // Tile-snap and hand the tile indices to C++; the cheat owns the world
+      // position so the tile centre and layer Z are computed in one place.
+      function teleportToPoint(wx, wy) {
+        const t = tileAt(wx, wy);
+        if (!t) return;
+        if (teleportLayer === 'Sky' && !t.hasSky) { flashTeleportRefusal('no sky layer on that tile'); return; }
+        if (teleportLayer === 'Underground' && !t.hasUnderground) { flashTeleportRefusal('no underground on that tile'); return; }
+        ctx.publish('UI.Cmd.Cheat.Execute', {
+          Command: 'TeleportToTileLayer ' + teleportPlayer + ' ' + t.east + ' ' + t.north + ' ' + teleportLayer,
+        });
+        if (window.tsic && window.tsic.playSound) window.tsic.playSound('Map.Ping', 0.35);
+      }
+
+      function flashTeleportRefusal(why) {
+        const note = qs('#tp-note');
+        if (!note) return;
+        note.textContent = why;
+        note.classList.add('is-warn');
+        setTimeout(() => { note.classList.remove('is-warn'); note.textContent = TP_HINT; }, 1600);
+      }
+      const TP_HINT = 'Click a tile to teleport there.';
       let fowStale = false;         // fog changed while the screen was hidden
       let fowGen = 0;               // stale-guard for out-of-order fetches
       let fowInFlight = false;
@@ -565,6 +660,9 @@
       // panel. Fail-open when there's no fog data or the fog overlay is hidden.
       function iconVisibleInFog(wx, wy) {
         const TF = window.TSICFow;
+        // The picker exists to show you everywhere you could go, so every POI is
+        // visible regardless of exploration.
+        if (teleportMode) return true;
         if (!fowGrid || !TF || !fowOverlayVisible()) return true;
         return TF.exploredAt(fowGrid, wx, wy);
       }
@@ -975,6 +1073,12 @@
           colors:  Array.isArray(p.BiomeColors) ? p.BiomeColors : [],
           biomes:  expandRLE(p.BiomeRLE,  total),
           heights: expandRLE(p.HeightRLE, total),
+          // Sky / Underground, for the cheat menu's teleport picker. A world
+          // with no such layers yields zeroes, which reads as "not here" —
+          // which is correct.
+          skyHeights:   expandRLE(p.SkyHeightRLE, total),
+          underHeights: expandRLE(p.UndergroundHeightRLE, total),
+          layerMask:    expandRLE(p.LayerMaskRLE, total),
         };
         const HT = window.TSICHeightTint;
         heightTint = HT ? HT.build(p) : null;
@@ -1015,7 +1119,16 @@
         const biomeName = (paletteIdx >= 0 && paletteIdx < tileGrid.palette.length)
           ? tileGrid.palette[paletteIdx]
           : '';
-        return { index: idx, north: N, east: E, biome: biomeName, height: tileGrid.heights[idx] | 0 };
+        const mask = tileGrid.layerMask[idx] | 0;
+        return {
+          index: idx, north: N, east: E, biome: biomeName,
+          height: tileGrid.heights[idx] | 0,
+          // bit0 = Sky walkable, bit1 = Underground walkable (FScpUIMapTileGrid).
+          hasSky: (mask & 1) !== 0,
+          hasUnderground: (mask & 2) !== 0,
+          skyHeight: tileGrid.skyHeights[idx] | 0,
+          underHeight: tileGrid.underHeights[idx] | 0,
+        };
       }
 
       function humanizeBiome(name) {
@@ -1030,6 +1143,13 @@
         const biome = humanizeBiome(t.biome);
         if (biome) lines.push(biome);
         lines.push('Floor ' + t.height);
+        // In teleport mode the other layers are the whole point, so spell out
+        // whether they exist here and how far each is offset.
+        if (teleportMode) {
+          lines.push(t.hasSky ? ('Sky +' + t.skyHeight) : 'Sky —');
+          lines.push(t.hasUnderground ? ('Underground -' + t.underHeight) : 'Underground —');
+          lines.push('tile E' + t.east + ' N' + t.north);
+        }
         lines.push('(' + Math.round(wx) + ', ' + Math.round(wy) + ')');
         return lines.join('\n');
       }
@@ -1102,7 +1222,7 @@
         const { wx, wy } = localToWorld(lx, ly);
         // Hide everything (tile info + POI/player/ping labels) over unexplored fog.
         const TF = window.TSICFow;
-        if (fowGrid && TF && fowOverlayVisible() && !TF.exploredAt(fowGrid, wx, wy)) {
+        if (!teleportMode && fowGrid && TF && fowOverlayVisible() && !TF.exploredAt(fowGrid, wx, wy)) {
           hideHoverChip();
           return;
         }
@@ -1207,6 +1327,9 @@
       let lastZoomSoundAt = 0;
       let dragging = false;
       let dragLastX = 0, dragLastY = 0;
+      // Where the press started, so a teleport click isn't fired at the end of a pan.
+      let pressX = 0, pressY = 0;
+      const CLICK_SLOP_PX = 4;
       const vp = qs('#map-viewport');
 
       vp.addEventListener('mousedown', (ev) => {
@@ -1229,6 +1352,8 @@
         dragging = true;
         dragLastX = ev.clientX;
         dragLastY = ev.clientY;
+        pressX = ev.clientX;
+        pressY = ev.clientY;
         vp.classList.add('dragging');
       });
 
@@ -1245,11 +1370,38 @@
         repositionPlayers();
         updateHoverChipSoon();
       });
-      window.addEventListener('mouseup', () => {
+      window.addEventListener('mouseup', (ev) => {
         if (!dragging) return;
         dragging = false;
         vp.classList.remove('dragging');
+        if (!teleportMode || !bounds.hasData) return;
+        // A pan ends in a mouseup too; only a press that barely moved is a click.
+        if (Math.abs(ev.clientX - pressX) > CLICK_SLOP_PX
+         || Math.abs(ev.clientY - pressY) > CLICK_SLOP_PX) return;
+        const rect = vp.getBoundingClientRect();
+        if (ev.clientX < rect.left || ev.clientX > rect.right
+         || ev.clientY < rect.top  || ev.clientY > rect.bottom) return;
+        const lx = (ev.clientX - rect.left - state.panX) / state.scale;
+        const ly = (ev.clientY - rect.top  - state.panY) / state.scale;
+        const { wx, wy } = localToWorld(lx, ly);
+        teleportToPoint(wx, wy);
+        flashTeleportMarker(lx, ly);
       });
+
+      // Layer buttons + exit. Bound once; the bar is hidden outside teleport mode.
+      root.querySelectorAll('#tp-bar .tp-layer').forEach((b) => {
+        b.addEventListener('click', (ev) => {
+          ev.stopPropagation();
+          selectTeleportLayer(b.getAttribute('data-layer'));
+        });
+      });
+      const tpDone = qs('#tp-done');
+      if (tpDone) {
+        tpDone.addEventListener('click', (ev) => {
+          ev.stopPropagation();
+          ctx.publish('UI.Cmd.Pause.CheatMenu', {});
+        });
+      }
 
       vp.addEventListener('wheel', (ev) => {
         ev.preventDefault();
@@ -1447,6 +1599,7 @@
       }, FOW_ASSUME_OFF_MS);
 
       // onShow() runs outside this closure; hand it the per-mount refresh.
+      teleportModeHook = setTeleportMode;
       onShowHook = () => {
         // A fresh open re-arms the retry ladder: a session that gave up on the
         // fog source earlier should try again rather than stay unfogged forever.
@@ -1459,8 +1612,13 @@
       buildLegend();
     },
 
-    onShow(/* params, ctx */) {
+    onShow(params /*, ctx */) {
       if (window.tsic && window.tsic.playSound) window.tsic.playSound('Map.Open', 0.4);
+      // The cheat menu opens us as {"mode":"teleport"}; the map hotkey sends
+      // nothing, which must land back in the normal read-only map even if the
+      // picker was used earlier in the session.
+      const p = params || {};
+      if (teleportModeHook) teleportModeHook(p.mode === 'teleport', p.player);
       if (onShowHook) onShowHook();
       // Force a refit on show so the map fills the viewport correctly after
       // any prior overlay's display:none changed layout dimensions.
@@ -1476,6 +1634,8 @@
 
     onHide(/* ctx */) {
       if (window.tsic && window.tsic.playSound) window.tsic.playSound('Map.Close', 0.4);
+      // Never leave the fog override latched — the next opener may be the normal map.
+      if (teleportModeHook) teleportModeHook(false, 1);
     },
   });
 })();

@@ -102,6 +102,7 @@ TSICTestHarness.register({
     name: 'CheatMenu: GiveItem with empty item select does not publish',
     file: '/screens/cheat-menu.html',
     async run(ctx) {
+        ctx.screen('CheatMenu');
         await ctx.waitFor(() => ctx.doc.getElementById('cm-give'));
         // No catalog broadcast, so the select has no options that resolve to an item name.
         ctx.doc.getElementById('cm-item').innerHTML = '';
@@ -115,6 +116,7 @@ TSICTestHarness.register({
     name: 'CheatMenu: Hide FOW preset publishes HideFOW for target player',
     file: '/screens/cheat-menu.html',
     async run(ctx) {
+        ctx.screen('CheatMenu');
         await ctx.waitFor(() => ctx.doc.querySelector('button[data-cmd-tpl]'));
         ctx.clearPublishes();
         const btn = Array.from(ctx.doc.querySelectorAll('button[data-cmd-tpl]')).find(b => /hide fow/i.test(b.textContent || ''));

@@ -27,6 +27,23 @@
     // opts.startSlot and the player only ever sees one copy of each cell.
     var HOTBAR_SLOTS = 8;
 
+    // Locked-preview region (grid design §10.1) — UI-ONLY grey "Requires backpack" cells that
+    // fill the bag out to the tier the game ships, so a backpack upgrade is a visible unlock
+    // rather than a silent number.
+    //
+    // THE BAG IS ALWAYS PREVIEW_TIER_SLOTS CELLS. Live + locked is a constant, so the grid is
+    // the same six rows whatever the player is carrying: equipping a backpack turns grey cells
+    // live, and nothing resizes, reflows or moves. That is the whole point — a bag that
+    // changed shape as it upgraded made the panel jump under the player's hands.
+    //
+    // Shared, because EVERY surface that draws the bag has to draw the same one. Storage used
+    // to omit these entirely, so opening a crate shortened the bag by two rows.
+    var PREVIEW_TIER_SLOTS = 48;
+    function lockedPreviewFor(slotCount) {
+        var live = slotCount > 0 ? slotCount : 0;
+        return Math.max(0, PREVIEW_TIER_SLOTS - live);
+    }
+
     function publish(tag, payload) {
         if (window.tsic && window.tsic.publishMessage) window.tsic.publishMessage(tag, payload);
     }
@@ -39,9 +56,9 @@
         var s = document.createElement('style');
         s.id = 'tsic-grid-drag-style';
         s.textContent = [
-            // Sits just under a grid slot. The ghost lives on <body>, outside
-            // any screen, so the storage rule below re-scopes it to that
-            // screen's smaller slot while its panel is mounted.
+            // Sits just under a grid slot. The ghost lives on <body>, outside any screen,
+            // and reads the one global --tsic-slot every grid is sized from — so it matches
+            // whichever screen the gesture started in without a per-screen override.
             '.tsic-drag-ghost {',
             '  position:fixed; z-index:2000;',
             '  width:calc(var(--tsic-slot) - 4px); height:calc(var(--tsic-slot) - 4px);',
@@ -49,7 +66,6 @@
             '  background: rgba(241,229,207,0.92); border:2px solid rgba(10,10,10,0.85);',
             '  box-shadow: 3px 3px 0 rgba(10,10,10,0.85);',
             '}',
-            'body:has(#ss-panel) .tsic-drag-ghost { --tsic-slot:54px; }',
             '.tsic-drag-ghost .held-count {',
             '  position:absolute; right:1px; bottom:1px; padding:1px 3px; line-height:1;',
             '  font-size:10px; font-weight:700; color:#1a1612; background:#ffcc00;',
@@ -725,6 +741,13 @@
         /** How many leading grid cells are the hotbar. C++ is the authority; screens override
          *  this from the UI.Hotbar.Changed payload's NumSlots. */
         HOTBAR_SLOTS: HOTBAR_SLOTS,
+
+        /** How many greyed "Requires backpack" cells trail the player's live cells, for a bag
+         *  of `slotCount` — always enough to total PREVIEW_TIER_SLOTS, so the grid never
+         *  changes size. Every surface that draws the bag must use this. */
+        lockedPreviewFor: lockedPreviewFor,
+        /** The bag's constant cell count: live + locked always equals this. */
+        PREVIEW_TIER_SLOTS: PREVIEW_TIER_SLOTS,
 
         /** Diff a snapshot against the previous one to mark freshly-arrived stacks. */
         noteSnapshot: noteSnapshot,

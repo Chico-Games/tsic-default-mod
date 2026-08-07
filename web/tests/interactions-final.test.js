@@ -347,6 +347,7 @@ TSICTestHarness.register({
     name: 'CheatMenu: SpawnCreature picks from catalog and publishes Spawn <name> <p>',
     file: '/screens/cheat-menu.html',
     async run(ctx) {
+        ctx.screen('CheatMenu');
         await ctx.waitFor(() => ctx.doc.getElementById('cm-spawn-creature'));
         ctx.inject('tsic.msg.UI.Cheat.Catalog', {
             Creatures: [{ DisplayName: 'Spider', InternalName: '/Game/Characters/Enemies/Spider/BP_Spider.BP_Spider_C', Description: '' }],
@@ -364,6 +365,7 @@ TSICTestHarness.register({
     name: 'CheatMenu: SpawnFurniture from catalog publishes SpawnFurniture <short>',
     file: '/screens/cheat-menu.html',
     async run(ctx) {
+        ctx.screen('CheatMenu');
         await ctx.waitFor(() => ctx.doc.getElementById('cm-spawn-furn'));
         ctx.inject('tsic.msg.UI.Cheat.Catalog', {
             FurnitureDefault: [{ DisplayName: 'Test', InternalName: '/Game/Furniture/FD_TestData', Description: '' }],
@@ -379,6 +381,7 @@ TSICTestHarness.register({
     name: 'CheatMenu: World teleport with X/Y/Z publishes TeleportToLocation',
     file: '/screens/cheat-menu.html',
     async run(ctx) {
+        ctx.screen('CheatMenu');
         await ctx.waitFor(() => ctx.doc.getElementById('cm-tp-world'));
         ctx.doc.getElementById('cm-world-x').value = '100';
         ctx.doc.getElementById('cm-world-y').value = '200';

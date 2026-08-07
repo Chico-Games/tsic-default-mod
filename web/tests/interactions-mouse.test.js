@@ -110,16 +110,16 @@ TSICTestHarness.register({
         // only the player column filters (dim in place, rule 48).
         await ctx.waitFor(() => ctx.doc.querySelectorAll('.ss-tabs[data-side="player"] .tsic-tab').length === 6);
         ctx.expect(ctx.assert.eq(ctx.doc.querySelectorAll('.ss-tabs[data-side="container"] .tsic-tab').length, 0));
-        for (const label of ['Equipment','Consumables','All']) {
-            Array.from(ctx.doc.querySelectorAll('.ss-tabs[data-side="player"] .tsic-tab'))
-                .find(e => e.textContent === label).click();
+        // Selected by id: the labels are abbreviated ("Materials" → "Mat.") so the tab bar is
+        // never wider than the grid beneath it.
+        for (const id of ['Equipment','Consumables','All']) {
+            ctx.doc.querySelector(`.ss-tabs[data-side="player"] .tsic-tab[data-tab="${id}"]`).click();
             await new Promise(r => setTimeout(r, 15));
             ctx.expect(ctx.assert.eq(
-                ctx.doc.querySelector('.ss-tabs[data-side="player"] .tsic-tab.is-active').textContent, label));
+                ctx.doc.querySelector('.ss-tabs[data-side="player"] .tsic-tab.is-active').dataset.tab, id));
         }
         // Equipment tab dims the non-equipment stacks in place.
-        Array.from(ctx.doc.querySelectorAll('.ss-tabs[data-side="player"] .tsic-tab'))
-            .find(e => e.textContent === 'Equipment').click();
+        ctx.doc.querySelector('.ss-tabs[data-side="player"] .tsic-tab[data-tab="Equipment"]').click();
         await new Promise(r => setTimeout(r, 15));
         ctx.expect(ctx.assert.domExists(ctx.doc, '#ss-player-list .tsic-slot[data-grid="1"].is-filtered'));
         ctx.expect(ctx.assert.domExists(ctx.doc, '#ss-player-list .tsic-slot[data-grid="0"]:not(.is-filtered)'));

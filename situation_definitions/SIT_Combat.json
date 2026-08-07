@@ -35,7 +35,13 @@
       "BH_PushToTalk",
       "BH_Torch",
       "BH_Flashlight",
-      "BH_BugReport"
+      "BH_BugReport",
+      "BH_CheatMenu",
+      "BH_CheatSlot1",
+      "BH_CheatSlot2",
+      "BH_CheatSlot3",
+      "BH_CheatSlot4",
+      "BH_RepeatCheat"
     ]
   }
 }

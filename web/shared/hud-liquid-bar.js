@@ -18,7 +18,7 @@
   const NS = global.TSICLiquidBar = global.TSICLiquidBar || {};
 
   const CSS = [
-    '.tlb-vial { font-family: Georgia, "Libre Baskerville", serif; --hp:#cf2233; --trail:#4f0a0f; --rim:207,34,51; --level:72%; --trail-level:72%; }',
+    '.tlb-vial { font-family: var(--font-body); --hp:#cf2233; --trail:#4f0a0f; --rim:207,34,51; --level:72%; --trail-level:72%; }',
     '.tlb-glass { position:relative; width:100%; height:var(--vial-h,248px); border-radius:13px; overflow:hidden; background:linear-gradient(180deg, rgba(58,40,34,0.55), rgba(14,9,8,0.62)); border:3px solid var(--ink-night); box-shadow: inset 0 1px 0 rgba(255,250,240,0.18), inset 0 0 18px rgba(0,0,0,0.55), var(--shadow-block); }',
     '.tlb-trail { position:absolute; left:0; right:0; bottom:0; height:var(--trail-level); background:linear-gradient(180deg, var(--trail), color-mix(in srgb, var(--trail) 65%, #000)); }',
     '.tlb-liquid { position:absolute; left:0; right:0; bottom:0; height:var(--level); background:linear-gradient(180deg, var(--hp), color-mix(in srgb, var(--hp) 55%, #1a0606)); transition: background 400ms linear; box-shadow: inset 0 8px 14px rgba(0,0,0,0.22); }',

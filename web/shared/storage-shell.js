@@ -1,11 +1,24 @@
-// Shared storage view (grid design §10.2): THE INVENTORY SCREEN PLUS A
-// CONTAINER COLUMN. The player column (tabs + grid + weight bar) and the
-// info rail keep the inventory screen's layout; the container pane (header +
-// slot-count + grid) is appended to the right. Containers show no weight
-// (§3.4 — slots are their only limit). Both grids render with the same
-// component and every interaction rides the shared cursor engine
-// (shared/inventory.js): pickup, RMB half/place-one, shift-click quick-move
-// across panes, double-click collect across both panes, Q / Ctrl+Q drops.
+// Shared storage view (grid design §10.2): THE INVENTORY SCREEN PLUS A CONTAINER COLUMN.
+//
+// "Plus" is literal, and it is the constraint this file is built around: the panel is
+// left-anchored and the player column (tabs + bag + weight bar) and the 300px rail beside it
+// are drawn to the inventory screen's exact measurements — same slot size, same abbreviated
+// tab labels, same greyed backpack-preview cells, same weight bar with its hovered-stack chip.
+// Opening a container ADDS a third column on the right and moves nothing that was already on
+// screen. Before that it scoped slots down to 54px and dropped the preview cells, so every
+// cell in the bag changed size AND position the moment a crate was opened.
+//
+// The rail is the one deliberate difference: with a container open it drops the paper doll and
+// character preview and carries the info card alone, grown to fill that height. The bulk
+// transfers and Close live in the footer bar, right-aligned under both grids.
+//
+// Each pane states its own fill (a slot count in its header, a meter on the panel's bottom
+// line); nothing about the two grids is described once in a shared band.
+//
+// Containers show weight only when it is a HARD block (§3.4 — slots are otherwise their only
+// limit). Both grids render with the same component and every interaction rides the shared
+// cursor engine (shared/inventory.js): pickup, RMB half/place-one, shift-click quick-move
+// across panes, double-click collect across both panes, G / Ctrl+G drops.
 //
 // Used by /screens/storage.html and /screens/universal-storage.html:
 //   TSICStorageShell.mount({
@@ -16,13 +29,15 @@
 //     containerMaxSlots: 32,
 //   });
 (function () {
+    // Same ids AND the same abbreviated labels as the inventory screen — the tab row sits
+    // directly above the bag, so a wider set of words here would shift the grid under it.
     const TABS = [
-        { id: 'All',           filter: null },
-        { id: 'Equipment',     filter: c => c === 'Equipment' },
-        { id: 'Consumables',   filter: c => c === 'Consumable' },
-        { id: 'Constructable', filter: c => c === 'Constructable' },
-        { id: 'Ammo',          filter: c => c === 'Ammo' },
-        { id: 'Materials',     filter: c => c === 'CraftingMaterial' },
+        { id: 'All',           label: 'All',      filter: null },
+        { id: 'Equipment',     label: 'Equip',    filter: c => c === 'Equipment' },
+        { id: 'Consumables',   label: 'Cons.',    filter: c => c === 'Consumable' },
+        { id: 'Constructable', label: 'Constr.',  filter: c => c === 'Constructable' },
+        { id: 'Ammo',          label: 'Ammo',     filter: c => c === 'Ammo' },
+        { id: 'Materials',     label: 'Mat.',     filter: c => c === 'CraftingMaterial' },
     ];
 
     function categoryFor(itemId) {
@@ -39,29 +54,62 @@
     }
 
     const STYLE = [
-        // Two grids side by side + the middle rail, so slots run smaller than
-        // the inventory screen's — at the full --tsic-slot the pair overflows
-        // even a wide panel. Panel hugs its content (like #inv-panel) instead
-        // of the inherited 60vw, which clipped the container grid on narrower
-        // displays.
-        // max-height min(92vh, 100%): 92vh is the look, 100% is the guarantee — the overlay is
-        // shorter than the viewport while the HUD hotbar acts as the player pane's first row,
-        // and a panel capped only against vh would run off the top of it instead of scrolling.
-        '#ss-panel { --tsic-slot:54px; --tsic-slot-gap:5px; width:auto; height:auto; max-width:94vw; max-height:min(92vh, 100%); overflow:auto; }',
+        // THE INVENTORY SCREEN, PLUS A CONTAINER COLUMN ON THE RIGHT. Everything to the left of
+        // the container — the panel's left edge, the tab row, the slot size, the bag's cells
+        // including its greyed backpack-preview cells, the weight bar, the rail — is drawn to
+        // the same measurements as screens/inventory.js, so opening a crate ADDS a column and
+        // moves nothing. It used to scope --tsic-slot down to 54px and drop the preview cells,
+        // which resized and reshaped the bag under the player's hands on every open.
+        //
+        // Panel hugs its content (like #inv-panel) instead of the inherited 60vw, which clipped
+        // the container grid on narrower displays. max-height min(92vh, 100%): 92vh is the
+        // look, 100% is the guarantee — the overlay is shorter than the viewport while the HUD
+        // hotbar acts as the player pane's first row, and a panel capped only against vh would
+        // run off the top of it instead of scrolling.
+        '#ss-panel { width:auto; height:auto; max-width:94vw; max-height:min(92vh, 100%); overflow:auto; }',
         '#ss-panel .ss-band { display:flex; align-items:baseline; gap:12px; border-bottom:3px solid rgba(10,10,10,0.85); margin-bottom:10px; padding-bottom:5px; }',
         '#ss-panel .ss-band h2 { margin:0; }',
         '#ss-panel .ss-band .spacer { flex:1; }',
         '#ss-panel .ss-band .slots-text { font-size:14px; letter-spacing:0.08em; color:rgba(37,33,25,0.65); }',
-        '#ss-panel .ss-sort-mini { font-size:11px; padding:1px 8px; }',
-        '#ss-panel .ss-cols { display:grid; gap:10px; grid-template-columns:auto 236px auto; align-items:start; }',
-        '#ss-panel .ss-tabs { display:flex; gap:0; margin-bottom:8px; }',
+        // ONE sort plate, used twice — one per pane, sitting over the grid it sorts, at the
+        // same offset from that column's right edge. Identical to the inventory screen's.
+        // Sized in SLOTS, not pixels — see the matching note in screens/inventory.js. A fixed
+        // pixel size fits at --tsic-slot 68px and overflows the grid as the clamp shrinks.
+        '#ss-panel .ss-sort-btn {',
+        '  box-sizing:border-box; align-self:center;',
+        '  height: max(16px, calc(var(--tsic-slot) * 0.294));',
+        '  padding: 0 max(5px, calc(var(--tsic-slot) * 0.147));',
+        '  font:inherit; font-size: clamp(9px, calc(var(--tsic-slot) * 0.162), 11px);',
+        '  line-height:1; letter-spacing:0.1em; cursor:pointer;',
+        '  background:rgba(255,253,243,0.96); border:2px solid rgba(10,10,10,0.85); color:inherit;',
+        '}',
+        '#ss-panel .ss-sort-btn:hover, #ss-panel .ss-sort-btn[data-tsic-focused] { background:var(--mag-red, #e60000); color:#fff; }',
+        // 300px middle column = the inventory screen's rail width, so the container lands at a
+        // fixed offset from the bag rather than one that depends on what is in the rail.
+        '#ss-panel .ss-cols { display:grid; gap:12px; grid-template-columns:max-content 300px max-content; align-items:stretch; }',
+        // Flex columns so each pane's meter can sit on the panel's bottom line, level with
+        // the other's, instead of wherever its own grid happens to end.
+        '#ss-panel .ss-col { display:flex; flex-direction:column; min-width:0; }',
+        // One tab per slot COLUMN — same width, same gap as the grid below, matching the
+        // inventory screen exactly.
+        '#ss-panel .ss-tabs { display:flex; flex-wrap:nowrap; flex:0 1 auto; min-width:0; gap:var(--tsic-slot-gap); border-bottom:0; margin-bottom:0; }',
+        '#ss-panel .ss-tabs .tsic-tab {',
+        '  box-sizing:border-box; flex:0 1 var(--tsic-slot); min-width:0; width:var(--tsic-slot);',
+        '  padding:2px 0; font-size: clamp(9px, calc(var(--tsic-slot) * 0.162), 11px); overflow:hidden;',
+        '  display:flex; align-items:center; justify-content:center;',
+        '}',
+        // Hover/focus reads as a lighter draft of the active state, same as the inventory.
+        '#ss-panel .ss-tabs .tsic-tab:not(.is-active):hover,',
+        '#ss-panel .ss-tabs .tsic-tab:not(.is-active)[data-tsic-focused] {',
+        '  background: rgba(230,0,0,0.16); color: var(--ink-night);',
+        '}',
         '#ss-panel .ss-grid {',
         '  display:grid; grid-template-columns: repeat(var(--grid-cols, 8), var(--tsic-slot));',
         '  grid-auto-rows: var(--tsic-slot); gap:var(--tsic-slot-gap); width:max-content;',
         '  max-height: calc(var(--tsic-slot-rows) * (var(--tsic-slot) + var(--tsic-slot-gap))); overflow-y:auto;',
         '}',
         '#ss-panel .tsic-slot {',
-        '  width:var(--tsic-slot); height:var(--tsic-slot); position:relative; cursor:pointer; padding:3px;',
+        '  width:var(--tsic-slot); height:var(--tsic-slot); position:relative; cursor:pointer; padding:4px;',
         '  background: rgba(255,253,243,0.96); border:2px solid rgba(10,10,10,0.85);',
         '  display:flex; align-items:center; justify-content:center;',
         '  transition: background-color 90ms ease, opacity 160ms ease, filter 160ms ease, transform 90ms ease, box-shadow 90ms ease;',
@@ -72,57 +120,135 @@
         '#ss-panel .tsic-slot.is-held-source img { opacity:0.35; }',
         '#ss-panel .tsic-slot.is-drop-target { outline:2px solid var(--buff-green, #1e8f3e); outline-offset:-2px; }',
         '#ss-panel .tsic-slot.is-filtered { opacity:0.2; filter:grayscale(0.8); }',
-        '#ss-panel .tsic-slot.is-locked { background: rgba(227,216,184,0.7); border-style:dashed; border-color: rgba(10,10,10,0.35); cursor:default; opacity:0.75; }',
-        '#ss-panel .tsic-slot .count { position:absolute; bottom:1px; right:2px; padding:1px 3px; line-height:1; font-size:10px; font-weight:700; color:#1a1612; background:var(--mag-yellow, #ffcc00); border:1px solid rgba(10,10,10,0.85); pointer-events:none; }',
-        '#ss-panel .tsic-slot .equip-badge { position:absolute; top:1px; left:2px; padding:1px 3px; line-height:1; font-size:9px; font-weight:700; color:#fff; background:var(--mag-red, #e60000); border:1px solid rgba(10,10,10,0.85); pointer-events:none; }',
+        '#ss-panel .tsic-slot.is-locked {',
+        '  background: rgba(227,216,184,0.7); border-style:dashed; border-color: rgba(10,10,10,0.35);',
+        '  cursor:default; font-size:15px; opacity:0.75;',
+        '}',
+        '#ss-panel .tsic-slot .lock-glyph { opacity:0.35; pointer-events:none; }',
+        // Stack count — the same chip as the inventory screen, including the measured
+        // geometry. See the long note in screens/inventory.js: this renders in Press Start 2P
+        // (ascent = 1em, descent = 0), so the digits' ink hangs below the em box and normal
+        // centring parks it on the chip's bottom edge. height + padding-bottom are what
+        // actually centre it; line-height cancels out under align-items:center.
+        '#ss-panel .tsic-slot .count {',
+        '  position:absolute; bottom:1px; right:2px;',
+        '  display:flex; align-items:center; justify-content:center;',
+        '  min-width:17px; height:19px; padding:0 4px 6px;',
+        '  font-size:14px; font-weight:700; color:#1a1612; background:var(--mag-yellow, #ffcc00);',
+        '  border:1px solid rgba(10,10,10,0.85); pointer-events:none;',
+        '}',
+        '#ss-panel .tsic-slot .equip-badge { position:absolute; top:1px; left:2px; padding:1px 4px; line-height:1; font-size:11px; font-weight:700; color:#fff; background:var(--mag-red, #e60000); border:1px solid rgba(10,10,10,0.85); pointer-events:none; }',
         // Hotbar cells drawn IN the player pane — only on a host with no HUD bar to stand in
         // for them (the standalone /screens/storage.html dev page). Matches the inventory
         // screen so the same cells read the same way in both places.
         '#ss-panel .tsic-slot.is-hotbar { border-bottom-width:4px; }',
-        '#ss-panel .tsic-slot.is-hotbar .hotbar-key { position:absolute; top:1px; right:2px; padding:1px 3px; line-height:1; font-size:9px; font-weight:700; color:var(--mag-yellow, #ffcc00); background:rgba(10,10,10,0.9); border:1px solid rgba(10,10,10,0.85); pointer-events:none; }',
+        '#ss-panel .tsic-slot.is-hotbar .hotbar-key { position:absolute; top:1px; right:2px; padding:1px 4px; line-height:1; font-size:11px; font-weight:700; color:var(--mag-yellow, #ffcc00); background:rgba(10,10,10,0.9); border:1px solid rgba(10,10,10,0.85); pointer-events:none; }',
         '#ss-panel .tsic-slot.is-held { border-color:var(--mag-red, #e60000); box-shadow:0 0 0 2px var(--mag-red, #e60000) inset; }',
         '#ss-panel .tsic-slot.is-held .hotbar-key { color:#fff; background:var(--mag-red, #e60000); }',
-        '#ss-panel .ss-panehdr { display:flex; align-items:baseline; gap:8px; border-bottom:2px solid rgba(10,10,10,0.85); margin-bottom:6px; padding-bottom:3px; }',
-        '#ss-panel .ss-panehdr h4 { margin:0; font-size:16px; letter-spacing:0.06em; text-transform:uppercase; }',
-        // Reads as the pane heading until focused, then as a text field.
+        // Both panes carry the SAME header row — 23px, 8px below — so the two grids start on
+        // one line, and on the same line as the inventory screen's. Anything that grows this
+        // row (a taller font, a border rule, a second line) drops one grid below the other
+        // and the panel stops reading as one surface.
+        // The 4px rule lives on the HEADER, not on .ss-tabs — the tab strip is only as wide as
+        // its tabs now, and its own underline would stop short of the grid. Both panes carry
+        // it, so the two columns read as a matched pair.
+        // width:0 + min-width:100% — the GRID decides each column's width, nothing else. The
+        // header's own content (tabs + SORT + count) is ~14px wider than 8 slot columns, so
+        // left to contribute it widened the column and pushed SORT past the grid's right edge,
+        // by a different amount in each pane. Same trick on the meters and the footer.
+        '#ss-panel .ss-panehdr {',
+        '  box-sizing:border-box; height:26px; margin-bottom:8px;',
+        '  width:0; min-width:100%;',
+        '  display:flex; align-items:flex-end; gap: max(4px, calc(var(--tsic-slot) * 0.118));',
+        '  border-bottom:4px solid var(--ink-night);',
+        '}',
+        '#ss-panel .ss-panehdr .spacer { flex:1; }',
+        '#ss-panel .ss-panehdr > .ss-name-input { align-self:center; }',
+        // Each pane states its OWN fill. One shared count in the title band could only ever
+        // describe one of the two grids on screen. The fixed min-width is what puts the two
+        // SORT plates at the same offset from their columns' right edges, whatever the digits.
+        // Budget is tight: 6 slot-wide tabs + SORT + this must fit 8 slot columns, which is why
+        // the count reads "19/32" and not "19/32 SLOTS" — the word cost 38px and the strip wrapped.
+        '#ss-panel .ss-panehdr .slots-text {',
+        '  align-self:center; min-width: max(40px, calc(var(--tsic-slot) * 0.912)); text-align:right;',
+        '  font-size: clamp(9px, calc(var(--tsic-slot) * 0.162), 11px);',
+        '  letter-spacing:0.1em; text-transform:uppercase; color:rgba(37,33,25,0.65); white-space:nowrap;',
+        '}',
+        // Active pane marker (last pointer interaction), on the header itself now that the
+        // heading is an <input> rather than an <h4>.
+        '#ss-panel .ss-panehdr.on::before { content:">>"; color:var(--mag-red, #e60000); font-weight:900; letter-spacing:-0.05em; }',
+        // Reads as the pane heading until focused, then as a text field. Flexes to fill the
+        // header rather than a fixed width — the container column is a full grid wide, and a
+        // 150px field truncated most container names ("Back Room Cra…").
         '#ss-panel .ss-name-input {',
-        '  font:inherit; font-size:16px; letter-spacing:0.06em; text-transform:uppercase; color:inherit;',
-        '  background:transparent; border:2px solid transparent; padding:0 4px; width:150px; min-width:0;',
+        '  font:inherit; font-size:14px; letter-spacing:0.06em; text-transform:uppercase; color:inherit;',
+        '  background:transparent; border:2px solid transparent; padding:0 4px; flex:1 1 auto; min-width:0;',
         '}',
         '#ss-panel .ss-name-input::placeholder { color:inherit; opacity:0.75; }',
         '#ss-panel .ss-name-input:hover { border-color:rgba(10,10,10,0.35); }',
         '#ss-panel .ss-name-input:focus { outline:none; border-color:rgba(10,10,10,0.85); background:#fffdf3; text-transform:none; }',
-        '#ss-panel .ss-panehdr .cnt { font-size:12px; color:rgba(108,99,87,0.95); }',
-        '#ss-panel .ss-auto-sort { display:inline-flex; align-items:center; gap:3px; font-size:10px;',
-        '  letter-spacing:0.08em; text-transform:uppercase; color:rgba(74,66,57,0.9); cursor:pointer; }',
-        '#ss-panel .ss-auto-sort input { accent-color:var(--mag-red,#e60000); margin:0; }',
-        '#ss-panel .ss-panehdr.on h4::before { content:">> "; color:var(--mag-red, #e60000); font-weight:900; }',
-        '#ss-panel .ss-meter { margin-top:8px; min-width:200px; }',
-        '#ss-panel .ss-meter .lab { display:flex; justify-content:space-between; font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:rgba(37,33,25,0.8); }',
+        // margin-top:auto — both meters land on the panel's bottom line, so the bag's weight
+        // and the container's capacity read as one row rather than stepping with whichever
+        // grid happens to have more rows.
+        '#ss-panel .ss-meter { margin-top:auto; padding-top:8px; width:0; min-width:100%; }',
+        // min-height pins the label row so WEIGHT and CAPACITY sit on ONE line. The bag's row
+        // carries the yellow hovered-stack chip and the container's does not, which made it
+        // 1.8px taller — enough to read as two bars that don't line up, even though the tracks
+        // underneath were always flush.
+        '#ss-panel .ss-meter .lab { display:flex; justify-content:space-between; align-items:center; min-height:19px; font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:rgba(37,33,25,0.8); }',
+        '#ss-panel .ss-meter .val { font-size:13px; }',
+        // Hovered-stack readout, identical to the inventory screen's: the chip's space is
+        // ALWAYS reserved (.none only hides it) so the bar never shifts as the cursor moves,
+        // and .fillsel is a zero-layout overlay on the fill's right end.
+        '#ss-panel .ss-meter .stackw {',
+        '  display:inline-block; min-width:58px; text-align:center; font-size:12px;',
+        '  color:#1a1612; background:var(--mag-yellow, #ffcc00); border:1px solid rgba(10,10,10,0.85);',
+        '  padding:0 4px; margin-right:6px; line-height:1.4;',
+        '}',
+        '#ss-panel .ss-meter .stackw.none { visibility:hidden; }',
         '#ss-panel .ss-meter .track { height:14px; border:2px solid rgba(10,10,10,0.85); background:rgba(227,216,184,0.9); position:relative; overflow:hidden; }',
         '#ss-panel .ss-meter .fill { height:100%; background:var(--mag-red, #e60000); transition:width 120ms linear; }',
+        '#ss-panel .ss-meter .fillsel { position:absolute; top:0; bottom:0; background:var(--mag-yellow, #ffcc00); border-left:1px solid rgba(10,10,10,0.85); }',
+        '#ss-panel #ss-player-meter[data-state="overburdened"] .fill { animation: ss-ob-pulse 900ms ease-in-out infinite; }',
+        '@keyframes ss-ob-pulse { 50% { filter: brightness(1.5); } }',
         // Container capacity turns amber then red as the HARD weight cap closes in,
-        // so "why won\'t it take this?" is answered before the refusal happens.
-        '#ss-panel .ss-meter[data-state="warning"] .fill { background:var(--mag-yellow, #ffcc00); }',
-        '#ss-panel .ss-meter[data-state="full"] .fill { background:#c11818; }',
+        // so "why won\'t it take this?" is answered before the refusal happens. Scoped to the
+        // container meter: the player has no hard cap, only Overburdened, and recolouring
+        // their bar at 75% would promise a refusal that never comes.
+        '#ss-panel #ss-container-meter[data-state="warning"] .fill { background:var(--mag-yellow, #ffcc00); }',
+        '#ss-panel #ss-container-meter[data-state="full"] .fill { background:#c11818; }',
         '#ss-panel .ss-meter .note { font-size:10px; letter-spacing:0.06em; color:#c11818; min-height:12px; }',
-        '#ss-panel #ss-search { font:inherit; font-size:12px; width:120px; padding:2px 7px; background:rgba(255,253,243,0.96); border:2px solid rgba(10,10,10,0.85); color:inherit; }',
-        '#ss-panel #ss-search::placeholder { color:rgba(37,33,25,0.45); letter-spacing:0.06em; }',
-        '#ss-panel #ss-search:focus { outline:2px solid var(--mag-red, #e60000); outline-offset:-2px; }',
-        '#ss-panel .ss-info { padding:9px 11px; background:#fffdf3; border:2px solid rgba(10,10,10,0.85); min-height:120px; overflow:auto; font-size:13px; }',
+        // The middle column. On the inventory screen this rail carries the paper doll, the
+        // character preview and the info card; with a container open it is the info card
+        // alone, grown to fill the height the doll leaves behind.
+        '#ss-panel .ss-rail { display:flex; flex-direction:column; gap:8px; }',
+        '#ss-panel .ss-info { padding:9px 11px; background:#fffdf3; border:2px solid rgba(10,10,10,0.85); min-height:88px; flex:1 1 auto; overflow:auto; font-size:13px; }',
         '#ss-panel .ss-info .info-eyebrow { font-size:10px; letter-spacing:0.18em; color:var(--mag-red, #e60000); text-transform:uppercase; }',
         '#ss-panel .ss-info .statline { display:flex; justify-content:space-between; border-top:1px dashed rgba(10,10,10,0.3); padding:2px 0; }',
-        // Same reserve as the inventory screen: the chip set shrinks while a
-        // stack is held, and this panel is width:auto — so left alone the hint
-        // row resizes the whole panel mid-drag. width:0 + min-width:100% keeps
-        // it out of the shrink-to-fit width so chips wrap instead of stretching
-        // the panel; renderHints() reserves the tallest set's height.
-        '#ss-panel .ss-hints {',
-        '  display:flex; flex-wrap:wrap; align-content:flex-start;',
-        '  gap:10px 14px; justify-content:flex-start;',
-        '  width:0; min-width:100%;',
+        // Footer bar: key hints on the left, every button on the right — the two bulk
+        // transfers, Quick Stack and Close on one line, so the middle column can be the info
+        // card and nothing else. Arrows point at the grid each button moves items TO, so
+        // direction never has to be remembered: the bag is left, the container right.
+        //
+        // Same reserve as the inventory screen: the chip set shrinks while a stack is held,
+        // and this panel is width:auto — so left alone this row resizes the whole panel
+        // mid-drag. width:0 + min-width:100% keeps it out of the shrink-to-fit width so chips
+        // wrap instead of stretching the panel; renderHints() reserves the tallest set's height.
+        // min-height is shared with the inventory screen's footer and is what makes the two
+        // PANELS the same height — everything above this row is already identical, so the
+        // footer was the only difference (seven hint chips wrap to two rows over there, six
+        // sit on one line under this much wider panel).
+        '#ss-panel .ss-footer {',
+        '  display:flex; align-items:flex-end; gap:16px;',
+        '  width:0; min-width:100%; min-height:60px;',
         '  margin-top:10px; border-top:2px dashed rgba(10,10,10,0.3); padding-top:8px;',
         '}',
+        '#ss-panel .ss-hints {',
+        '  flex:1 1 auto; min-width:0;',
+        '  display:flex; flex-wrap:wrap; align-content:flex-start; gap:10px 14px;',
+        '}',
+        '#ss-panel .ss-actions { flex:0 0 auto; display:flex; gap:8px; align-items:flex-end; }',
+        '#ss-panel .ss-actions .tsic-button { font-size:12px; padding:4px 10px; }',
         '#ss-panel .ss-hints .hint { display:flex; align-items:center; gap:5px; font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:rgba(74,66,57,0.9); }',
         '#ss-panel .ss-hints .kbd { display:inline-flex; align-items:center; justify-content:center; min-width:20px; height:20px; padding:0 4px; background:#fffdf3; border:2px solid rgba(10,10,10,0.85); box-shadow:2px 2px 0 rgba(10,10,10,0.85); font-size:9px; font-weight:700; color:#1a1612; }',
     ].join('\n');
@@ -147,30 +273,27 @@
         host.innerHTML = `
             <div class="ss-band">
                 <h2 class="tsic-title">${opts.title}</h2>
-                <span class="spacer"></span>
-                <input id="ss-search" type="search" placeholder="Search…" autocomplete="off" spellcheck="false">
-                <span class="slots-text" id="ss-player-slots">—</span>
-                <button class="tsic-button cancel" id="ss-sort-player" type="button">Sort</button>
-                <button class="tsic-button cancel" id="ss-quick-stack" type="button" title="Top up stacks this container already holds (locked items stay)">Quick Stack</button>
-                <button class="tsic-button cancel" id="ss-store-all" type="button" title="Store everything except locked and equipped items">Store All</button>
-                <button class="tsic-button cancel" id="ss-take-all" type="button">Take All</button>
             </div>
             <div class="ss-cols">
-                <div data-tsic-tab-context="player">
-                    <div class="ss-tabs" data-side="player" data-tsic-tab-bar></div>
+                <div class="ss-col" data-tsic-tab-context="player">
+                    <div class="ss-panehdr">
+                        <div class="ss-tabs" data-side="player" data-tsic-tab-bar></div>
+                        <span class="spacer"></span>
+                        <button id="ss-sort-player" class="ss-sort-btn" type="button" data-tsic-focusable>SORT</button>
+                        <span class="slots-text" id="ss-player-slots" title="Slots used">—</span>
+                    </div>
                     <div id="ss-player-list" class="ss-grid"></div>
-                    <div class="ss-meter">
-                        <div class="lab"><span>Weight</span><span class="val" id="ss-weight-text">—</span></div>
-                        <div class="track"><div class="fill" id="ss-weight-fill"></div></div>
+                    <div class="ss-meter" id="ss-player-meter">
+                        <div class="lab"><span>Weight</span>
+                            <span class="val"><span class="stackw none" id="ss-stackw">0.0 kg</span><span id="ss-weight-text">—</span></span>
+                        </div>
+                        <div class="track"><div class="fill" id="ss-weight-fill"></div><div class="fillsel" id="ss-weight-sel" style="display:none"></div></div>
                     </div>
                 </div>
-                <div style="display:flex;flex-direction:column;gap:8px;">
+                <div class="ss-rail">
                     <div id="ss-info" class="ss-info tsic-empty">Hover an item to see details</div>
-                    <div class="tsic-close-row" style="margin:0;">
-                        <button class="tsic-button" id="ss-close" type="button" data-tsic-initial-focus>Close (Esc)</button>
-                    </div>
                 </div>
-                <div data-tsic-tab-context="container">
+                <div class="ss-col" data-tsic-tab-context="container">
                     <div class="ss-panehdr" id="ss-container-hdr">
                         <!-- The heading IS the rename field: click and type. A
                              separate rename button would be one more thing to
@@ -178,11 +301,8 @@
                         <input id="ss-container-name" class="ss-name-input" type="text" maxlength="24"
                                placeholder="${opts.containerEyebrow || 'Container'}"
                                title="Name this container" autocomplete="off" spellcheck="false">
-                        <button class="tsic-button cancel ss-sort-mini" id="ss-sort-container" type="button">Sort</button>
-                        <label class="ss-auto-sort" title="Sort this container automatically when you close it">
-                            <input type="checkbox" id="ss-auto-sort"> auto
-                        </label>
-                        <span class="cnt" id="ss-container-slots">—</span>
+                        <button class="ss-sort-btn" id="ss-sort-container" type="button" data-tsic-focusable>SORT</button>
+                        <span class="slots-text" id="ss-container-slots" title="Slots used">—</span>
                     </div>
                     <div id="ss-container-list" class="ss-grid"></div>
                     <!-- Container weight meter. Containers enforce weight as a HARD
@@ -195,7 +315,15 @@
                     </div>
                 </div>
             </div>
-            <div class="ss-hints" id="ss-hints"></div>
+            <div class="ss-footer">
+                <div class="ss-hints" id="ss-hints"></div>
+                <div class="ss-actions">
+                    <button class="tsic-button cancel" id="ss-take-all" type="button" title="Move everything the container holds into your bag">◀ Take All</button>
+                    <button class="tsic-button cancel" id="ss-store-all" type="button" title="Store everything except locked and equipped items">Store All ▶</button>
+                    <button class="tsic-button cancel" id="ss-quick-stack" type="button" title="Top up stacks this container already holds (locked items stay)">Quick Stack ▶</button>
+                    <button class="tsic-button" id="ss-close" type="button" data-tsic-initial-focus>Close (Esc)</button>
+                </div>
+            </div>
         `;
     }
 
@@ -241,7 +369,6 @@
             containerMaxWeight: 0,
             // Containers block on weight; the player only slows down (Overburdened).
             containerCanExceedWeight: false,
-            searchTerm: '',
             // Active pane for the >> header marker (last pointer interaction).
             activePane: 'player',
             hovered: null,  // { side, it }
@@ -251,7 +378,7 @@
             heldHotbarSlot: -1,
         };
 
-        const tabDefs = TABS.map(t => ({ id: t.id, label: t.id }));
+        const tabDefs = TABS.map(t => ({ id: t.id, label: t.label || t.id }));
         const playerTabFilter = TSIC.TabFilter.create(
             panel.querySelector('.ss-tabs[data-side="player"]'),
             tabDefs,
@@ -314,10 +441,34 @@
             const max = state.playerMaxWeight || 0;
             panel.querySelector('#ss-weight-text').textContent = max > 0
                 ? `${cur.toFixed(1)}/${max.toFixed(0)} kg` : `${cur.toFixed(1)} kg`;
+            // The bar PEGS at 100% while the number keeps counting (soft cap).
             const ratio = max > 0 ? Math.min(1, cur / max) : 0;
             panel.querySelector('#ss-weight-fill').style.width = `${(ratio * 100).toFixed(1)}%`;
+            panel.querySelector('#ss-player-meter').dataset.state =
+                max > 0 && cur > max ? 'overburdened' : (ratio >= 0.75 ? 'warning' : 'normal');
+
+            // Hovered-stack readout, as on the inventory screen. Player-side hovers only: the
+            // yellow segment marks the part of the load THIS stack accounts for, and a stack
+            // still sitting in the container accounts for none of it.
+            const chip = panel.querySelector('#ss-stackw');
+            const seg = panel.querySelector('#ss-weight-sel');
+            const sel = (state.hovered && state.hovered.side === 'player') ? state.hovered.it : null;
+            const desc = sel ? describe(sel) : null;
+            if (sel && desc && max > 0) {
+                const stackKg = (desc.Weight || 0) * (sel.Count || 1);
+                chip.textContent = `${stackKg.toFixed(1)} kg`;
+                chip.classList.remove('none');
+                const segWidth = Math.min(ratio, stackKg / max);
+                seg.style.display = 'block';
+                seg.style.left = `${((ratio - segWidth) * 100).toFixed(2)}%`;
+                seg.style.width = `${(segWidth * 100).toFixed(2)}%`;
+            } else {
+                chip.classList.add('none');
+                seg.style.display = 'none';
+            }
+
             panel.querySelector('#ss-player-slots').textContent =
-                `${state.playerItems.length}/${state.playerMaxSlots} SLOTS`;
+                `${state.playerItems.length}/${state.playerMaxSlots}`;
             panel.querySelector('#ss-container-slots').textContent =
                 `${state.containerItems.length}/${state.containerMaxSlots}`;
             panel.querySelector('#ss-container-hdr').classList.toggle('on', state.activePane === 'container');
@@ -344,19 +495,10 @@
             renderMeterAndCounts();
         }
 
-        // Compose the pane's tab filter with the shared search term. Returns null
-        // when neither is active so renderGrid can skip the per-cell test.
+        // Null when the pane has no filter (container panes never do, and the player pane's
+        // All tab doesn't either), so renderGrid can skip the per-cell test.
         function buildFilter(tabFn) {
-            const term = state.searchTerm;
-            if (!tabFn && !term) return null;
-            const cat = (window.tsic && window.tsic.itemCatalog) || {};
-            return (it) => {
-                if (tabFn && !tabFn(it)) return false;
-                if (!term) return true;
-                const desc = cat[it.ItemId];
-                const haystack = (((desc && desc.Name) || '') + ' ' + (it.ItemId || '')).toLowerCase();
-                return haystack.indexOf(term) !== -1;
-            };
+            return tabFn || null;
         }
 
         // True when the live HUD bar is standing in for the player's hotbar cells, so the
@@ -383,15 +525,21 @@
                 startSlot: barIsRow ? state.hotbarSlots : 0,
                 hotbarSlots: (isPlayer && !barIsRow) ? state.hotbarSlots : 0,
                 heldSlot: (isPlayer && !barIsRow) ? state.heldHotbarSlot : -1,
-                // Tabs are player-side only; search dims across BOTH panes, which
-                // is the point when you're hunting one item across two grids.
+                // The bag's greyed backpack-preview cells (§10.1) — the SAME ones the
+                // inventory screen draws. Omitting them here was what made the bag two rows
+                // shorter, and the whole panel a different shape, the instant a crate opened.
+                lockedPreviewCells: isPlayer ? window.TSICInventory.lockedPreviewFor(state.playerMaxSlots) : 0,
+                // Tabs are player-side only — the container pane never filters.
                 filterFn: buildFilter(isPlayer ? filterFnFor(state.playerTab) : null),
                 onHover: (it) => {
                     state.hovered = it ? { side, it } : null;
                     setActivePane(side);
+                    // setActivePane no-ops when the pane hasn't changed, but the weight bar's
+                    // hovered-stack readout follows the CELL, so it needs the call either way.
+                    renderMeterAndCounts();
                     if (it) renderInfo(it, side);
                 },
-                onLeave: () => { state.hovered = null; },
+                onLeave: () => { state.hovered = null; renderMeterAndCounts(); /* info stays sticky */ },
                 // Shift-click quick-move: into the OTHER pane, auto-placed
                 // (stack-fill then empty cells), partial allowed (§7.4).
                 onQuickMove: (it) => {
@@ -409,7 +557,7 @@
         // The pane contract handed to the live HUD bar so its cells act as the player pane's
         // first row: same hover readout and active-pane marker, and a shift-click that
         // transfers into the container, exactly like the cells above it. Every field that can
-        // change while the screen is open (the container's id, the tab, the search term) is
+        // change while the screen is open (the container's id, the active tab) is
         // read at call time — this pane is bound once and lives for the whole screen.
         const HOTBAR_PANE = {
             ownerId: state.playerOwnerId,
@@ -417,9 +565,10 @@
             onHover: (it) => {
                 state.hovered = it ? { side: 'player', it } : null;
                 setActivePane('player');
+                renderMeterAndCounts();
                 if (it) renderInfo(it, 'player');
             },
-            onLeave: () => { state.hovered = null; },
+            onLeave: () => { state.hovered = null; renderMeterAndCounts(); },
             onQuickMove: (it) => {
                 if (!state.containerOwnerId || it.GridSlot == null || it.GridSlot < 0) return;
                 tsic.publishMessage('UI.Cmd.Inventory.QuickMove', {
@@ -439,7 +588,7 @@
             window.TSICInventory.renderGrid(panel.querySelector('#ss-player-list'), state.playerItems, paneOpts('player'));
             window.TSICInventory.renderGrid(panel.querySelector('#ss-container-list'), state.containerItems, paneOpts('container'));
             // The bar re-renders itself on inventory broadcasts; this covers what it cannot
-            // see — a tab change, a search keystroke, a container swap.
+            // see — a tab change, a container swap.
             if (window.TSICHotbar) window.TSICHotbar.refresh();
             renderHints();
         }
@@ -540,23 +689,8 @@
         });
         window.addEventListener('tsic-item-catalog', renderAll);
 
-        // Auto-sort on close: a per-client preference (no server state — it only
-        // decides whether to send a Sort the player could send by hand anyway).
-        const AUTO_SORT_KEY = 'tsic.storage.autoSortOnClose';
-        function autoSortEnabled() {
-            try { return localStorage.getItem(AUTO_SORT_KEY) === '1'; } catch { return false; }
-        }
-        const autoSortBox = panel.querySelector('#ss-auto-sort');
-        autoSortBox.checked = autoSortEnabled();
-        autoSortBox.addEventListener('change', () => {
-            try { localStorage.setItem(AUTO_SORT_KEY, autoSortBox.checked ? '1' : '0'); } catch {}
-        });
-
         panel.querySelector('#ss-close').addEventListener('click', () => {
             window.TSICInventory.cancelHeld();
-            if (autoSortEnabled() && state.containerOwnerId) {
-                tsic.publishMessage('UI.Cmd.Inventory.Sort', { OwnerId: state.containerOwnerId });
-            }
             tsic.publishMessage('UI.Cmd.Pause.Resume', {});
             tsic.playSound('Container.Close', 0.4);
         });
@@ -600,15 +734,6 @@
             }
         });
 
-        const ssSearch = panel.querySelector('#ss-search');
-        ssSearch.addEventListener('input', () => {
-            state.searchTerm = ssSearch.value.trim().toLowerCase();
-            renderAll();
-        });
-        // Typing must not reach the grid's own key handlers (G would drop an item).
-        ssSearch.addEventListener('keydown', (e) => {
-            if (e.key !== 'Escape') e.stopPropagation();
-        });
         // §5 P2 SortInventory — per pane.
         panel.querySelector('#ss-sort-player').addEventListener('click', () => {
             window.TSICInventory.cancelHeld();

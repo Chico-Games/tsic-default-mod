@@ -134,7 +134,7 @@
     '  filter: drop-shadow(0 1px 1px rgba(0,0,0,0.7)); }',
 
     '#hud-conditions .cond-label { position:relative; z-index:1; flex:0 0 auto; padding-right:8px;',
-    '  font-family:var(--font-display, Georgia, serif); font-size:10px; font-weight:700;',
+    '  font-family:var(--font-display); font-size:10px; font-weight:700;',
     '  letter-spacing:0.08em; text-transform:uppercase; line-height:1;',
     '  text-shadow:0 1px 2px rgba(0,0,0,0.8);',
     '  opacity:0; transform:translateX(-4px);',

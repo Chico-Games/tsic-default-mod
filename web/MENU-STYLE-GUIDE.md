@@ -103,9 +103,15 @@ remapped onto this palette. They still resolve; **don't author new code with the
 
 ### Item grid
 
-`--tsic-slot: 68px`, `--tsic-slot-gap: 6px`, `--tsic-slot-rows: 6`. Derive columns,
-row heights and scroll caps from these — never hardcode slot pixels. Rescope
-per-screen when space is tight (storage drops to `54px` on `#ss-panel`).
+`--tsic-slot: clamp(38px, calc((100vw - 560px) / 16), 68px)`, `--tsic-slot-gap: 6px`,
+`--tsic-slot-rows: 6`. Derive columns, row heights and scroll caps from these — never
+hardcode slot pixels.
+
+**Do not rescope `--tsic-slot` per screen.** It is one global size, and the clamp already
+sizes it for the widest layout the player can open (storage's two 8-wide grids either side
+of the 300px rail); above ~1500px wide it simply is 68px. Storage used to scope itself to
+54px, which meant every cell in the bag changed size the moment a container was opened. A
+screen that cannot fit at the shared size should drop a column, not shrink the grid.
 
 ---
 

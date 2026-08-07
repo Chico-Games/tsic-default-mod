@@ -5,12 +5,12 @@
 // from the same UI.Upgrade.Target payload:
 //
 //   1. #bb-upgradable — an "Upgradable" badge inside the action-bar panel
-//      (#bb-shell-gameplay), shown for ANY upgradeable look-target so the player learns
-//      the furniture can be upgraded even bare-handed. Hints "needs hammer" when none
-//      is equipped.
+//      (#bb-shell-gameplay).
 //   2. #hud-upgrade — the full cost card (what it becomes, every material with
-//      have/need, which gate blocks). Only shown while a hammer is equipped
-//      (bHasUpgradeTool); without one the badge alone carries the affordance.
+//      have/need, which gate blocks).
+//
+// Both are gated on bHasUpgradeTool: upgrading is a hammer verb, so bare-handed the
+// readout is noise on every piece of furniture in the store rather than an affordance.
 //
 // Fed by UI.Upgrade.Target (UInteractionControllerComponent::BroadcastUIUpgradeTarget),
 // which only publishes on change, so this never re-renders per frame.
@@ -31,7 +31,7 @@
       background: rgba(241, 229, 207, 0.94);
       border: 2px solid #14110c;
       box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.45);
-      font-family: var(--font-display, sans-serif);
+      font-family: var(--font-display);
       color: #14110c;
       pointer-events: none;
       z-index: 40;
@@ -78,10 +78,6 @@
     }
     #bb-upgradable.hidden { display: none; }
     #bb-upgradable .bu-glyph { font-size: 9px; color: #f5d34a; }
-    #bb-upgradable .bu-sub {
-      font-size: 9px; font-weight: 400; letter-spacing: 0.04em; text-transform: none;
-      color: #cfc8bb;
-    }
   `;
 
   function injectStyleOnce() {
@@ -115,13 +111,10 @@
     return badge;
   }
 
-  function renderBadge(badge, p) {
+  function renderBadge(badge) {
     badge.innerHTML = '';
     badge.appendChild(TSIC.el('span', { class: 'bu-glyph' }, '▲'));
     badge.appendChild(TSIC.el('span', {}, 'Upgradable'));
-    if (!p.bHasUpgradeTool) {
-      badge.appendChild(TSIC.el('span', { class: 'bu-sub' }, 'needs hammer'));
-    }
     badge.classList.remove('hidden');
   }
 
@@ -194,18 +187,20 @@
         hideBadge();
         return;
       }
-      if (p.EntityId !== lastPreviewEntity) {
-        lastPreviewEntity = p.EntityId;
-        if (p.bHasUpgradeTool) window.tsic.playSound('Upgrade.Preview', 0.3);
-      }
-      const badge = ensureBadge();
-      if (badge) renderBadge(badge, p);
-      // The cost card is a hammer readout — without one the badge is the whole story.
+      // Upgrading is a hammer verb; with nothing to swing there is no readout at all.
       if (!p.bHasUpgradeTool) {
+        lastPreviewEntity = 0;
         root.hidden = true;
         root.innerHTML = '';
+        hideBadge();
         return;
       }
+      if (p.EntityId !== lastPreviewEntity) {
+        lastPreviewEntity = p.EntityId;
+        window.tsic.playSound('Upgrade.Preview', 0.3);
+      }
+      const badge = ensureBadge();
+      if (badge) renderBadge(badge);
       render(root, p);
       root.hidden = false;
     });

@@ -176,15 +176,19 @@
             };
 
             let captured = false;
-            const apply = (want) => {
+            const apply = (want, force) => {
                 want = !!want;
-                if (want === captured) return;
+                if (want === captured && !force) return;
                 captured = want;
                 if (typeof t.setFocusCapture === 'function') t.setFocusCapture(want);
             };
 
+            // Always re-assert on focusin, even when we already believe the
+            // keyboard is ours: a page navigation or a torn-down screen can leave
+            // `captured` true while the engine has since handed focus back, and a
+            // deduped call there means the next text field silently gets no keys.
             document.addEventListener('focusin', (ev) => {
-                if (isTextEntry(ev.target)) apply(true);
+                if (isTextEntry(ev.target)) apply(true, /*force*/ true);
             }, true);
 
             document.addEventListener('focusout', () => {
@@ -193,6 +197,26 @@
                 // for a frame in between. Re-read activeElement after it settles.
                 setTimeout(() => apply(isTextEntry(document.activeElement)), 0);
             }, true);
+
+            // Focus a field from code (not from a click). The listeners above
+            // cannot carry this case: while the view has no keyboard focus the
+            // page is not the focused document, so Chromium moves
+            // document.activeElement without dispatching focusin — the field
+            // looks focused, the engine keeps the keyboard, and the player types
+            // into gameplay. Asking for capture directly breaks that deadlock.
+            // Use this instead of el.focus() whenever code opens a text field.
+            t.focusTextField = function (el) {
+                if (!el) return;
+                try { el.focus({ preventScroll: true }); } catch (e) { try { el.focus(); } catch (e2) {} }
+                if (isTextEntry(el)) apply(true, /*force*/ true);
+            };
+
+            // Mirror of the above for closing: a blur while the page is not the
+            // focused document fires no focusout either.
+            t.blurTextField = function (el) {
+                if (el && typeof el.blur === 'function') { try { el.blur(); } catch (e) {} }
+                setTimeout(() => apply(isTextEntry(document.activeElement)), 0);
+            };
         }
 
         // ---- Magazine helpers -------------------------------------------

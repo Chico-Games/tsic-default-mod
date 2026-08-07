@@ -340,7 +340,10 @@ html[data-tsic-reduce-motion] .tsic-button[data-variant="pink"] { animation: non
 .tsic-slot .count {
   position: absolute; bottom: 2px; right: 4px;
   font-family: var(--font-pixel);
-  font-size: 9px;
+  /* Press Start 2P draws small for its em box — 9px here was sized against the
+   * Consolas fallback it used to fall through to, and is unreadable in the real
+   * face. 11px restores the legibility the count had before the font landed. */
+  font-size: 11px;
   color: var(--ink-night);
   background: var(--mag-yellow);
   padding: 1px 3px;

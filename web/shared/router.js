@@ -212,6 +212,19 @@
         if (!p || p.Phase !== 'Started') return;
         window.tsic.publishMessage('UI.Cmd.CloseInteractionMenu', {});
       });
+      // F1 — dev cheat menu. C++ toggles the screen and drops the command
+      // entirely in builds without the cheat manager, so no gate is needed here.
+      window.tsic.on('tsic.msg.UI.Behavior.CheatMenu', (p) => {
+        if (!p || p.Phase !== 'Started') return;
+        window.tsic.publishMessage('UI.Cmd.Pause.CheatMenu', {});
+      });
+      // F2 — re-run the last cheat, whether it came from this panel or the ~ console.
+      // C++ owns the history and toasts what it ran, so this needs no state here and
+      // works with the cheat menu closed.
+      window.tsic.on('tsic.msg.UI.Behavior.RepeatCheat', (p) => {
+        if (!p || p.Phase !== 'Started') return;
+        window.tsic.publishMessage('UI.Cmd.Cheat.RepeatLast', {});
+      });
     }
 
     // Input-mode tag activation: append on load, release on page teardown.

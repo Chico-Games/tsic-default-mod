@@ -183,6 +183,7 @@ TSICTestHarness.register(Object.assign({
     name: 'Focus/CheatMenu: reachable + groups mutually reachable',
     file: '/screens/cheat-menu.html',
     async run(ctx) {
+        ctx.screen('CheatMenu');
         ctx.inject('tsic.msg.UI.Cheat.Catalog', {
             Items: [
                 { InternalName: 'ID_Bread', DisplayName: 'Bread' },

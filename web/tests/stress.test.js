@@ -136,15 +136,18 @@ TSICTestHarness.register({
     },
 });
 
-// ---- Cheat: empty custom field --------------------------------------------
+// ---- Cheat: an input-driven command with an empty field does not publish ----
+// (Was the raw console box, which the panel no longer carries. The same contract
+// still matters for every data-cmd-tpl-input button.)
 TSICTestHarness.register({
-    name: 'Stress/CheatMenu: empty custom field does not publish',
+    name: 'Stress/CheatMenu: empty input field does not publish',
     file: '/screens/cheat-menu.html',
     async run(ctx) {
-        await ctx.waitFor(() => ctx.doc.getElementById('cm-custom-go'));
-        ctx.doc.getElementById('cm-custom-cmd').value = '';
+        ctx.screen('CheatMenu');
+        await ctx.waitFor(() => ctx.doc.getElementById('cm-entity-id'));
+        ctx.doc.getElementById('cm-entity-id').value = '';
         ctx.clearPublishes();
-        ctx.doc.getElementById('cm-custom-go').click();
+        ctx.doc.querySelector('button[data-cmd-tpl-input^="FindEntity"]').click();
         ctx.expect(ctx.assert.notPublished(ctx.handle, 'UI.Cmd.Cheat.Execute'));
     },
 });

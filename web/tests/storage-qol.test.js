@@ -1,5 +1,5 @@
 // Storage-shell quality-of-life: bulk deposit ops, the container capacity
-// meter, cross-pane search, container renaming, and the shift-click fit
+// meter, container renaming, and the shift-click fit
 // preview.
 //
 // The capacity meter is the important one. Containers enforce weight as a HARD
@@ -82,38 +82,6 @@ TSICTestHarness.register({
 });
 
 TSICTestHarness.register({
-    name: 'Storage/QoL: search dims non-matching cells in BOTH panes without moving them',
-    file: '/screens/storage.html',
-    async run(ctx) {
-        ssSeed(ctx, {
-            container: { Items: [
-                { ItemId: 'ID_Wood', Count: 4, InstanceId: 1, GridSlot: 0 },
-                { ItemId: 'ID_Iron', Count: 2, InstanceId: 2, GridSlot: 1 },
-            ] },
-        });
-        await ctx.waitFor(() => ctx.doc.querySelector('#ss-search'));
-        const before = ctx.doc.querySelectorAll('#ss-container-list .tsic-slot').length;
-
-        const box = ctx.doc.querySelector('#ss-search');
-        box.value = 'iron';
-        box.dispatchEvent(new ctx.win.Event('input', { bubbles: true }));
-
-        await ctx.waitFor(() =>
-            ctx.doc.querySelector('#ss-container-list .tsic-slot[data-instance="1"]').classList.contains('is-filtered'));
-        // Iron survives in the container AND the player pane; wood dims.
-        ctx.expect(ctx.assert.truthy(
-            !ctx.doc.querySelector('#ss-container-list .tsic-slot[data-instance="2"]').classList.contains('is-filtered'),
-            'iron stays lit in the container'));
-        ctx.expect(ctx.assert.truthy(
-            !ctx.doc.querySelector('#ss-player-list .tsic-slot[data-instance="7"]').classList.contains('is-filtered'),
-            'iron stays lit in the player pane'));
-        // Rule 48: a filter never changes slot geometry.
-        ctx.expect(ctx.assert.eq(
-            ctx.doc.querySelectorAll('#ss-container-list .tsic-slot').length, before, 'cell count unchanged'));
-    },
-});
-
-TSICTestHarness.register({
     name: 'Storage/QoL: renaming the container publishes Rename on Enter, and Escape reverts',
     file: '/screens/storage.html',
     async run(ctx) {
@@ -153,29 +121,3 @@ TSICTestHarness.register({
     },
 });
 
-TSICTestHarness.register({
-    name: 'Storage/QoL: auto-sort on close sorts the container before resuming',
-    file: '/screens/storage.html',
-    async run(ctx) {
-        ssSeed(ctx);
-        await ctx.waitFor(() => ctx.doc.querySelector('#ss-auto-sort'));
-
-        // Off by default: closing sends no Sort.
-        ctx.clearPublishes();
-        ctx.doc.querySelector('#ss-close').click();
-        ctx.expect(ctx.assert.notPublished(ctx.handle, 'UI.Cmd.Inventory.Sort'));
-
-        const box = ctx.doc.querySelector('#ss-auto-sort');
-        box.checked = true;
-        box.dispatchEvent(new ctx.win.Event('change', { bubbles: true }));
-
-        ctx.clearPublishes();
-        ctx.doc.querySelector('#ss-close').click();
-        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Inventory.Sort', {
-            where: p => p.OwnerId === 'Storage:42',
-        }));
-        // Leave the preference off so the next scenario starts clean.
-        box.checked = false;
-        box.dispatchEvent(new ctx.win.Event('change', { bubbles: true }));
-    },
-});

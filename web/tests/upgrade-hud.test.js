@@ -101,29 +101,31 @@ TSICTestHarness.register({
 });
 
 TSICTestHarness.register({
-    name: 'UpgradeHUD: with no hammer equipped the cost card stays hidden, only the badge shows',
+    name: 'UpgradeHUD: with no hammer equipped neither the badge nor the cost card shows',
     file: '/screens/test-upgrade-hud.html',
     async run(ctx) {
+        // Start from a hammer-in-hand readout so both pieces are on screen...
+        ctx.inject('tsic.msg.UI.Upgrade.Target', withState());
+        await ctx.waitFor(() => /Upgradable/i.test(badgeText(ctx)));
+        // ...then unequip while still looking at the same furniture. Upgrading is a hammer
+        // verb: bare-handed the whole readout goes away rather than nagging on every
+        // upgradeable piece in the store.
         ctx.inject('tsic.msg.UI.Upgrade.Target',
             withState({ bHasUpgradeTool: false, ToolTier: 0, bToolTierSufficient: true }));
-        await ctx.waitFor(() => /Upgradable/i.test(badgeText(ctx)));
-        // The cost card is a hammer readout — bare-handed it must not tease a cost verdict.
+        await ctx.waitFor(() => ctx.doc.getElementById('bb-upgradable').classList.contains('hidden'));
         ctx.expect(ctx.assert.truthy(ctx.doc.getElementById('hud-upgrade').hidden, 'cost card hidden'));
-        // The badge carries the affordance instead, and names the missing tool.
-        ctx.expect(ctx.assert.truthy(/needs hammer/i.test(badgeText(ctx)), 'badge hints at the hammer'));
+        ctx.expect(ctx.assert.eq(badgeText(ctx), ''));
     },
 });
 
 TSICTestHarness.register({
-    name: 'UpgradeHUD: action-bar badge shows for any upgradeable target and clears with it',
+    name: 'UpgradeHUD: action-bar badge shows for a hammer-held upgradeable target and clears with it',
     file: '/screens/test-upgrade-hud.html',
     async run(ctx) {
         ctx.inject('tsic.msg.UI.Upgrade.Target', withState());
         await ctx.waitFor(() => /Upgradable/i.test(badgeText(ctx)));
         const badge = ctx.doc.getElementById('bb-upgradable');
         ctx.expect(ctx.assert.truthy(!badge.classList.contains('hidden'), 'badge visible'));
-        // Hammer in hand: the cost card explains everything, so no "needs hammer" hint.
-        ctx.expect(ctx.assert.truthy(!/needs hammer/i.test(badgeText(ctx)), 'no tool hint with hammer'));
         // Mounted into the action-bar panel, above the divider.
         ctx.expect(ctx.assert.eq(badge.parentNode.id, 'bb-shell-gameplay'));
         ctx.inject('tsic.msg.UI.Upgrade.Target', { EntityId: 0 });

@@ -7,7 +7,7 @@ TSICTestHarness.register({
         ctx.screen('Inventory');
         ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', GridWidth: 8, Items: [], MaxSlots: 32, MaxWeight: 50, CurrentWeight: 0 });
         await ctx.waitFor(() => ctx.doc.querySelectorAll('#inv-grid .tsic-slot').length > 0);
-        ctx.expect(ctx.assert.domText(ctx.doc, '#inv-slots-text', /0\/32 SLOTS/));
+        ctx.expect(ctx.assert.domText(ctx.doc, '#inv-slots-text', /0\/32/));
         // Cells render, but none is occupied (occupied cells carry data-instance).
         ctx.expect(ctx.assert.eq(ctx.doc.querySelectorAll('#inv-grid .tsic-slot[data-instance]').length, 0));
     },

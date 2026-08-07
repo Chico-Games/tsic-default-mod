@@ -68,6 +68,9 @@
     var row = document.createElement('span');
     row.className = 'bb-row';
     row.dataset.status = STATUS[entry.StatusInt | 0] || 'available';
+    // Lets other components find a specific row's key chip — the progress ring
+    // (hud-circular-progress.js) circles the chip of the action that is running.
+    if (entry.BehaviorTagName) row.dataset.behavior = entry.BehaviorTagName;
 
     var txt = document.createElement('span');
     txt.className = 'bb-text';
@@ -152,7 +155,9 @@
     render();
   });
   tsic.on('tsic.msg.UI.Upgrade.Target', function (p) {
-    var next = !!(p && p.EntityId);
+    // Mirrors hud-upgrade.js's gate: bare-handed the badge never mounts, so an
+    // upgradeable target alone must not keep an otherwise-empty shell on screen.
+    var next = !!(p && p.EntityId && p.bHasUpgradeTool);
     if (next === hasUpgradeTarget) return;
     hasUpgradeTarget = next;
     render();

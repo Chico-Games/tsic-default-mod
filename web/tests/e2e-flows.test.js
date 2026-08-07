@@ -182,6 +182,7 @@ TSICTestHarness.register({
     name: 'E2E/CheatMenu: every data-cmd-tpl button publishes a Cheat.Execute',
     file: '/screens/cheat-menu.html',
     async run(ctx) {
+        ctx.screen('CheatMenu');
         await ctx.waitFor(() => ctx.doc.querySelector('button[data-cmd-tpl]'));
         const buttons = Array.from(ctx.doc.querySelectorAll('button[data-cmd-tpl]'));
         ctx.expect(ctx.assert.truthy(buttons.length >= 6, `expected at least 6 preset buttons, got ${buttons.length}`));

@@ -39,7 +39,7 @@
 
     '#hud-tutorial .tut-header { display:flex; align-items:center; justify-content:space-between;',
     '  padding:0 2px 3px; border-bottom:1px solid rgba(240,232,208,0.35);',
-    '  color:var(--paper-cream, #f0e8d0); font-family:var(--font-display, Georgia, serif);',
+    '  color:var(--paper-cream, #f0e8d0); font-family:var(--font-display);',
     '  font-size:11px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; }',
 
     // ✕ — dormant until a cursor overlay is open, then clickable.
@@ -51,7 +51,7 @@
 
     '#hud-tutorial .tut-rows { padding:4px 0 0; }',
     '#hud-tutorial .tut-row { display:flex; align-items:baseline; gap:8px; padding:3px 2px;',
-    '  color:var(--paper-bright, #fdf8ea); font-family:var(--font-display, Georgia, serif);',
+    '  color:var(--paper-bright, #fdf8ea); font-family:var(--font-display);',
     '  font-size:12px; letter-spacing:0.03em; }',
     '#hud-tutorial .tut-check { flex-shrink:0; width:13px; text-align:center;',
     '  color:rgba(240,232,208,0.55); font-size:11px; }',

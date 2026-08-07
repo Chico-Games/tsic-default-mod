@@ -30,6 +30,10 @@
                 btn.type = 'button';
                 btn.className = 'tsic-tab' + (t.id === _active ? ' is-active' : '');
                 btn.textContent = t.label || t.id;
+                // The id, not the label — labels are abbreviated to fit the bar above a grid
+                // ("Materials" → "Mat."), and anything selecting a tab by its visible text
+                // breaks the next time one is shortened.
+                btn.dataset.tab = t.id;
                 btn.setAttribute('data-tsic-focus-group', 'tabs');
                 (function (tabId) {
                     btn.addEventListener('click', function () {

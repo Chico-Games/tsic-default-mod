@@ -15,7 +15,12 @@ const { chromium } = require('playwright');
         : null;
 
     const browser = await chromium.launch({ headless: true, ...(channel ? { channel } : {}) });
-    const page = await browser.newPage();
+    // Playwright's 1280x720 default, minus the 660px of scenario-list + log chrome around the
+    // viewer, left screens rendering into a 620px iframe — narrower than the game ever runs,
+    // and narrow enough that --tsic-slot bottoms out at its clamp minimum. Layout assertions
+    // measured there describe a window nobody plays in. This gives the iframe ~1740px, i.e. a
+    // 1080p-and-up game window, where the slot clamp sits at its full 68px.
+    const page = await browser.newPage({ viewport: { width: 2400, height: 1300 } });
     page.on('pageerror', e => console.error('[pageerror]', e.message));
     page.on('console', msg => {
         if (msg.type() === 'error') console.error('[console.error]', msg.text());

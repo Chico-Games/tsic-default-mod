@@ -14,9 +14,25 @@
 @import url("/shared/tsic-ui.css");
 
 /* ───── Bundled fonts (served from /fonts/, no runtime CDN) ─────
- * Three hand-written faces for the paper / note lore. lore.js assigns one per
+ * Every face the token stack names is bundled. Nothing here relies on a font
+ * being installed on the player's machine — the system names further down each
+ * stack are last-resort fallbacks only. All OFL — see /fonts/NOTICE.txt.
+ *
+ * Latin subsets. Non-latin glyphs fall through to the system font per-glyph,
+ * which is the browser's normal behaviour and needs no unicode-range here. */
+
+/* UI faces. */
+@font-face { font-family: "Bebas Neue";     font-weight: 400;     font-style: normal; font-display: swap; src: url("/fonts/bebas-neue-400.woff2") format("woff2"); }
+@font-face { font-family: "Russo One";      font-weight: 400;     font-style: normal; font-display: swap; src: url("/fonts/russo-one-400.woff2") format("woff2"); }
+@font-face { font-family: "VT323";          font-weight: 400;     font-style: normal; font-display: swap; src: url("/fonts/vt323-400.woff2") format("woff2"); }
+@font-face { font-family: "Press Start 2P"; font-weight: 400;     font-style: normal; font-display: swap; src: url("/fonts/press-start-2p-400.woff2") format("woff2"); }
+/* Inter is variable — one file covers the whole 100-900 range, so every
+ * font-weight the UI asks for is a real cut rather than a synthesised one. */
+@font-face { font-family: "Inter";          font-weight: 100 900; font-style: normal; font-display: swap; src: url("/fonts/inter-variable.woff2") format("woff2"); }
+
+/* Three hand-written faces for the paper / note lore. lore.js assigns one per
  * note series (by GroupTitle) so a given series always reads in the same hand
- * while different series vary. All OFL — see /fonts/NOTICE.txt. */
+ * while different series vary. */
 @font-face { font-family: "Shadows Into Light"; font-weight: 400; font-style: normal; font-display: swap; src: url("/fonts/shadows-into-light-400.woff2") format("woff2"); }
 @font-face { font-family: "Gloria Hallelujah"; font-weight: 400; font-style: normal; font-display: swap; src: url("/fonts/gloria-hallelujah-400.woff2") format("woff2"); }
 @font-face { font-family: "Reenie Beanie"; font-weight: 400; font-style: normal; font-display: swap; src: url("/fonts/reenie-beanie-400.woff2") format("woff2"); }
@@ -56,10 +72,11 @@
   --shadow-block-red:   4px 4px 0 var(--mag-red);
 
   /* ───── Fonts ─────
-   * Stack relies on Windows system fonts (Bahnschrift, Impact, Consolas)
-   * that approximate the retro vibe. Drop TTFs into
-   * /Plugins/TSICWebUI/Content/UI/Web/fonts/ and add @font-face entries
-   * below if you want true retro typefaces. */
+   * The first name in each stack is bundled in /fonts/ and declared above, so
+   * that is what actually renders. The system names after it are last-resort
+   * fallbacks for a machine that somehow fails to load the woff2 — they are
+   * not the design. To add a face: drop the woff2 in /fonts/, add an
+   * @font-face above, list it in /fonts/NOTICE.txt, and put it first here. */
   --font-display:  "Bebas Neue", "Bahnschrift Condensed", Impact, "Arial Black", sans-serif;
   --font-action:   "Russo One", Bahnschrift, "Bahnschrift Condensed", Impact, "Arial Black", sans-serif;
   --font-mag:      var(--font-display);
@@ -86,11 +103,18 @@
 
   /* ───── Item-grid sizing ─────
    * Slot geometry for every item grid (inventory, storage). Screens derive
-   * columns, row height and the scroll cap from these, so resizing the grids
-   * is one number here instead of literals scattered per screen. Storage
-   * scopes --tsic-slot smaller on #ss-panel — it shows two grids side by
-   * side and can't afford the full size. */
-  --tsic-slot:      68px;
+   * columns, row height and the scroll cap from these.
+   *
+   * ONE size, sized for the WIDEST layout the player can open — the storage
+   * screen's two 8-wide grids either side of the 300px rail. Storage used to
+   * scope itself smaller, which meant every slot in the bag changed size the
+   * moment a crate was opened; the bag has to sit still. The clamp is the whole
+   * fixed budget of that layout subtracted from the viewport, divided over its
+   * 16 slot columns: 72px left inset + 24 right margin + 44 panel chrome +
+   * 84 slot gaps + 300 rail + 24 column gaps ≈ 560. Above ~1500px wide nothing
+   * shrinks at all; below it BOTH screens shrink by the same amount, so they
+   * still agree. */
+  --tsic-slot:      clamp(38px, calc((100vw - 560px) / 16), 68px);
   --tsic-slot-gap:   6px;
   --tsic-slot-rows:    6;  /* visible rows before the grid scrolls */
 

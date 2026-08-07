@@ -40,6 +40,9 @@ TSICPlayground.register({
     },
     project(state) {
         return [
+            // The page is a host for the shared screen module — screen-manager
+            // only mounts the overlay once a Screen.Changed names it.
+            ['tsic.msg.UI.Screen.Changed', { Name: 'CheatMenu' }],
             ['tsic.msg.UI.Cheat.Catalog', state.catalog],
             ['tsic.msg.UI.Players.List', { Players: state.players }],
         ];

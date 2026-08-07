@@ -15,7 +15,11 @@
     return;
   }
 
-  const TEMPLATE = '<div id="ss-root" class="tsic-modal-scrim"></div>';
+  // Left-anchored and absolute like #inv-root, not the scrim's own position:fixed — a fixed
+  // child escapes the screen overlay, whose bottom edge is lifted clear of the HUD hotbar
+  // while the bar is acting as the player pane's first row.
+  const TEMPLATE = '<div id="ss-root" class="tsic-modal-scrim tsic-modal-scrim--left"'
+    + ' style="position:absolute;inset:0;"></div>';
 
   TSIC.registerScreen('Storage', {
     // Carried over verbatim from the legacy page's <meta> tags so input routing and the

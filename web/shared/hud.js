@@ -113,14 +113,54 @@
     '#hud-crosshair-cat.visible { opacity:0.7; }',
     '#hud-crosshair-cat.hidden { display:none; }',
     '#hud-crosshair-cat svg { width:100%; height:100%; display:block; }',
-    // Circular progress ring — throw charge / timed-ability progress. Lives in
-    // the bottom-right behavior-bar panel (right-aligned under the interaction
-    // prompt), not on the crosshair. Fill percent + colour from hud-circular-progress.js.
-    '#hud-circular-progress { display:none; width:26px; height:26px; margin:6px 0 0 auto; border-radius:50%; background:conic-gradient(var(--cp-color,#fff) calc(var(--cp-p,0) * 1%), rgba(241,229,207,0.35) 0); mask:radial-gradient(circle, transparent 9px, #000 10px); -webkit-mask:radial-gradient(circle, transparent 9px, #000 10px); pointer-events:none; }',
-    '#hud-circular-progress.active { display:block; }',
-    'body.hud-hidden #hud-chrome, body.hud-hidden #hud-health, body.hud-hidden #hud-stamina, body.hud-hidden #hud-stomach, body.hud-hidden #hud-conditions, body.hud-hidden #hud-crosshair, body.hud-hidden #hud-crosshair-hand, body.hud-hidden #hud-crosshair-cat, body.hud-hidden #hud-circular-progress, body.hud-hidden #bb-shell-gameplay, body.hud-hidden #hud-minimap, body.hud-hidden #hud-chunk-debug, body.hud-hidden #hud-hotbar, body.hud-hidden #ping-shell, body.hud-hidden #hud-low-health, body.hud-hidden #hud-hit-reaction, body.hud-hidden #hud-stealth, body.hud-hidden #hud-sprint-vignette,body.hud-hidden #hud-chat, body.hud-hidden #hud-voice, body.hud-hidden #hud-tutorial { display:none !important; }',
-    'body.hud-hide-health #hud-health, body.hud-hide-stamina #hud-stamina, body.hud-hide-stomach #hud-stomach, body.hud-hide-conditions #hud-conditions, body.hud-hide-crosshair #hud-crosshair, body.hud-hide-crosshair #hud-crosshair-hand, body.hud-hide-crosshair #hud-crosshair-cat, body.hud-hide-minimap #hud-minimap, body.hud-hide-actionbar #bb-shell-gameplay, body.hud-hide-interaction #interaction-prompt, body.hud-hide-hotbar #hud-hotbar, body.hud-hide-lowhealth #hud-low-health, body.hud-hide-hitreaction #hud-hit-reaction, body.hud-hide-stealth #hud-stealth, body.hud-hide-tutorial #hud-tutorial { display:none !important; }',
-    '#bb-shell-gameplay { position:fixed; bottom:18px; right:24px; min-width:240px; max-width:calc(100vw - 48px); padding:8px 12px; color:#fff; pointer-events:none; z-index:20; font-family:Georgia,"Libre Baskerville",serif; text-shadow:0 1px 2px rgba(0,0,0,0.75); }',
+    // Circular progress ring — throw charge / timed-ability progress. Rendered
+    // in TWO places from the one UI.CircularProgress.State broadcast: the
+    // bottom-right behavior-bar panel (below the interaction prompt) and a
+    // subtle collar on the crosshair, where the player is actually looking
+    // during a hold. Fill percent + colour from hud-circular-progress.js.
+    //
+    // The panel ring CIRCLES the key chip of the action that is running — the
+    // thing filling is the key you are holding. hud-circular-progress.js mounts
+    // it into that chip (.bb-key.cp-host) and parks it in the panel's corner when
+    // no chip is available (throw charge with no matching row).
+    //
+    // It is absolutely positioned and opacity-gated, never display-gated, so it
+    // contributes NOTHING to layout. It used to be a display:none -> block block
+    // element at the end of the bottom-anchored panel, which grew and shrank the
+    // panel by 32px and shoved every row up and back down on each hold.
+    '#hud-circular-progress { position:absolute; left:50%; top:50%; width:37px; height:37px; margin:-18.5px 0 0 -18.5px; border-radius:50%; background:conic-gradient(var(--cp-color,#fff) calc(var(--cp-p,0) * 1%), rgba(241,229,207,0.30) 0); mask:radial-gradient(circle, transparent 16px, #000 17px); -webkit-mask:radial-gradient(circle, transparent 16px, #000 17px); pointer-events:none; opacity:0; transform:scale(0.8); transition:opacity 140ms ease, transform 180ms cubic-bezier(0.2,0.9,0.3,1.2); }',
+    '#hud-circular-progress.active { opacity:1; transform:scale(1); }',
+    // Chips clip their key thumbnail, so the hosting one has to stop clipping or
+    // it would shear the ring off at the chip's edges.
+    '.bb-key.cp-host { overflow:visible; }',
+    // Parked: no key chip to circle, so it sits in the panel's bottom-right
+    // corner at its old size — still out of flow, still no reflow.
+    '#hud-circular-progress.parked { left:auto; top:auto; right:9px; bottom:-15px; margin:0; width:26px; height:26px; mask:radial-gradient(circle, transparent 9px, #000 10px); -webkit-mask:radial-gradient(circle, transparent 9px, #000 10px); }',
+    // Crosshair collar — the same fill, 22px across with a ~2px stroke at 55%
+    // opacity, sitting inside the category glyph (which starts at +10px) so the
+    // two never collide. The 4px dot never moves; the category halo breathing is
+    // suppressed while this is up (below) so only one thing animates at a time.
+    '#hud-crosshair-progress { position:fixed; left:50%; top:50%; width:22px; height:22px; margin:-11px 0 0 -11px; border-radius:50%; background:conic-gradient(var(--cp-color,#fff) calc(var(--cp-p,0) * 1%), rgba(241,229,207,0.20) 0); mask:radial-gradient(circle, transparent 9px, #000 9.8px); -webkit-mask:radial-gradient(circle, transparent 9px, #000 9.8px); opacity:0; transform:scale(0.86); pointer-events:none; z-index:20; transition:opacity 160ms ease, transform 200ms cubic-bezier(0.2,0.9,0.3,1.2); }',
+    '#hud-crosshair-progress.active { opacity:0.55; transform:scale(1); }',
+    '#hud-crosshair-progress.hidden { display:none; }',
+    // A ring filling IS the halo's message, and two overlapping animations on a
+    // 4px dot read as a glitch — so the category breathing yields to it.
+    'body.hud-charging #hud-crosshair[data-cat] { animation:none; box-shadow:0 0 0 0 rgba(255,255,255,0); }',
+    // One-shot bloom on the 0->100% edge. The publisher HOLDS at 100% (a maxed
+    // throw charge keeps a full ring until Stop), so this is fired by JS on the
+    // edge rather than keyed off a "full" class, which would re-trigger forever.
+    '@keyframes hud-cp-bloom { 0% { opacity:0.5; transform:scale(0.9); } 100% { opacity:0; transform:scale(1.9); } }',
+    '#hud-crosshair-bloom { position:fixed; left:50%; top:50%; width:22px; height:22px; margin:-11px 0 0 -11px; border-radius:50%; border:1px solid var(--cp-color,#fff); opacity:0; pointer-events:none; z-index:20; }',
+    '#hud-crosshair-bloom.fire { animation:hud-cp-bloom 420ms ease-out 1; }',
+    '#hud-crosshair-bloom.hidden { display:none; }',
+    // Reduce motion: keep the fill (it is information), drop the scale-in and
+    // the completion bloom (they are decoration).
+    'html[data-tsic-reduce-motion] #hud-circular-progress, html[data-tsic-reduce-motion] #hud-crosshair-progress { transition:opacity 140ms ease; transform:none; }',
+    'html[data-tsic-reduce-motion] #hud-circular-progress.active, html[data-tsic-reduce-motion] #hud-crosshair-progress.active { transform:none; }',
+    'html[data-tsic-reduce-motion] #hud-crosshair-bloom.fire { animation:none; }',
+    'body.hud-hidden #hud-chrome, body.hud-hidden #hud-health, body.hud-hidden #hud-stamina, body.hud-hidden #hud-stomach, body.hud-hidden #hud-conditions, body.hud-hidden #hud-crosshair, body.hud-hidden #hud-crosshair-hand, body.hud-hidden #hud-crosshair-cat, body.hud-hidden #hud-crosshair-progress, body.hud-hidden #hud-crosshair-bloom, body.hud-hidden #hud-circular-progress, body.hud-hidden #bb-shell-gameplay, body.hud-hidden #hud-minimap, body.hud-hidden #hud-chunk-debug, body.hud-hidden #hud-hotbar, body.hud-hidden #ping-shell, body.hud-hidden #hud-low-health, body.hud-hidden #hud-hit-reaction, body.hud-hidden #hud-stealth, body.hud-hidden #hud-sprint-vignette,body.hud-hidden #hud-chat, body.hud-hidden #hud-voice, body.hud-hidden #hud-tutorial { display:none !important; }',
+    'body.hud-hide-health #hud-health, body.hud-hide-stamina #hud-stamina, body.hud-hide-stomach #hud-stomach, body.hud-hide-conditions #hud-conditions, body.hud-hide-crosshair #hud-crosshair, body.hud-hide-crosshair #hud-crosshair-hand, body.hud-hide-crosshair #hud-crosshair-cat, body.hud-hide-crosshair #hud-crosshair-progress, body.hud-hide-crosshair #hud-crosshair-bloom, body.hud-hide-minimap #hud-minimap, body.hud-hide-actionbar #bb-shell-gameplay, body.hud-hide-interaction #interaction-prompt, body.hud-hide-hotbar #hud-hotbar, body.hud-hide-lowhealth #hud-low-health, body.hud-hide-hitreaction #hud-hit-reaction, body.hud-hide-stealth #hud-stealth, body.hud-hide-tutorial #hud-tutorial { display:none !important; }',
+    '#bb-shell-gameplay { position:fixed; bottom:18px; right:24px; min-width:240px; max-width:calc(100vw - 48px); padding:8px 12px; color:#fff; pointer-events:none; z-index:20; font-family:var(--font-body); text-shadow:0 1px 2px rgba(0,0,0,0.75); }',
     '#bb-shell-gameplay.hidden { display:none; }',
     '#bb-gameplay { display:flex; flex-direction:column; align-items:stretch; gap:0; }',
     // Look-target block (name header + interaction verbs) pinned above the divider.
@@ -225,6 +265,11 @@
     // Second crosshair affordance: the look target's category glyph (loot/storage/
     // door/…), tinted per category. Driven by hud-crosshair.js.
     document.body.appendChild(el('div', { id: 'hud-crosshair-cat' }));
+    // Third crosshair affordance: the interaction/charge progress collar plus its
+    // one-shot completion bloom, both driven by hud-circular-progress.js from the
+    // same broadcast that fills the panel ring.
+    document.body.appendChild(el('div', { id: 'hud-crosshair-progress' }));
+    document.body.appendChild(el('div', { id: 'hud-crosshair-bloom' }));
 
     var minimap = el('div', { id: 'hud-minimap' });
     // No src here, deliberately: hud-minimap.js fetches world-map on the first
@@ -260,8 +305,11 @@
     bbShell.appendChild(el('div', { id: 'bb-divider', class: 'hidden' }));
     // General input-action rows (hud-behavior-bar.js) render below the target block.
     bbShell.appendChild(el('div', { id: 'bb-gameplay' }));
-    // Progress ring (interact holds + throw charge) sits at the panel's bottom edge.
-    bbShell.appendChild(el('div', { id: 'hud-circular-progress' }));
+    // Progress ring (interact holds + throw charge). Born parked in the panel's
+    // corner; hud-circular-progress.js re-parents it onto the running action's
+    // key chip whenever there is one. Absolute either way, so it never reflows
+    // the panel.
+    bbShell.appendChild(el('div', { id: 'hud-circular-progress', class: 'parked' }));
     document.body.appendChild(bbShell);
 
     // Hotbar shell — hud-hotbar.js builds the slots inside #hotbar-row.

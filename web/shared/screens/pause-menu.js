@@ -43,6 +43,7 @@
           <button class="tsic-button" style="width:100%; margin-top:8px;" id="btn-menu">Save and Return to Main Menu</button>
           <!-- Dev/testing only: revealed by the UI.State.DevMode flag in non-shipping builds. -->
           <button class="tsic-button" style="width:100%; margin-top:8px; display:none;" id="btn-dev-join">Join Game (Dev)</button>
+          <button class="tsic-button" style="width:100%; margin-top:8px; display:none;" id="btn-dev-cheats">Cheat Menu (F1)</button>
         </div>
         <div class="mp" id="mp">
           <h2 class="mp-title">Multiplayer</h2>
@@ -200,10 +201,14 @@
       // Dev/testing: reveal + wire the "Join Game (Dev)" button. Destroys this
       // instance's own session (if hosting) then finds + joins the host.
       const devJoin = root.querySelector('#btn-dev-join');
+      const devCheats = root.querySelector('#btn-dev-cheats');
+      if (devCheats) devCheats.onclick = () => ctx.publish('UI.Cmd.Pause.CheatMenu');
       if (devJoin) {
         devJoin.onclick = () => ctx.publish('UI.Cmd.Dev.JoinGame');
         ctx.on('tsic.msg.UI.State.DevMode', (p) => {
-          devJoin.style.display = (p && p.bDevBuild) ? '' : 'none';
+          const shown = (p && p.bDevBuild) ? '' : 'none';
+          devJoin.style.display = shown;
+          if (devCheats) devCheats.style.display = shown;
         });
       }
     },

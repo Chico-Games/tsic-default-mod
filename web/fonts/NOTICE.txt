@@ -4,8 +4,30 @@ Bundled web fonts — third-party notices
 All fonts below are licensed under the SIL Open Font License 1.1
 (https://openfontlicense.org), which permits commercial use, bundling, and
 embedding; it requires this notice/license to accompany the font files and
-that the fonts are not sold on their own. The hand-written faces are assigned
-per note series on the in-game paper / note lore screen.
+that the fonts are not sold on their own.
+
+All are latin subsets. Non-latin glyphs fall through to a system font
+per-glyph, which is the browser's normal behaviour.
+
+UI faces — one per token in shared/base.css:
+
+- Bebas Neue          bebas-neue-400.woff2          --font-display
+                      (c) Ryoichi Tsunekawa, Dharma Type.
+                      https://fonts.google.com/specimen/Bebas+Neue
+- Russo One           russo-one-400.woff2           --font-action
+                      (c) Jovanny Lemonad. https://fonts.google.com/specimen/Russo+One
+- VT323               vt323-400.woff2               --font-terminal
+                      (c) Peter Hull. https://fonts.google.com/specimen/VT323
+- Press Start 2P      press-start-2p-400.woff2      --font-pixel
+                      (c) Cody "CodeMan38" Boisclair.
+                      https://fonts.google.com/specimen/Press+Start+2P
+- Inter               inter-variable.woff2          --font-body
+                      Variable weight 100-900, so every font-weight the UI asks
+                      for is a real cut rather than a synthesised one.
+                      (c) Rasmus Andersson. https://fonts.google.com/specimen/Inter
+
+Hand-written faces — assigned per note series on the in-game paper / note
+lore screen by shared/lore.js (--font-hand):
 
 - Shadows Into Light  shadows-into-light-400.woff2
                       (c) Kimberly Geswein. https://fonts.google.com/specimen/Shadows+Into+Light

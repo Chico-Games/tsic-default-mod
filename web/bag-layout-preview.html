@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<title>TSIC — Bag layout preview (Inventory ↔ Storage)</title>
+<!--
+  DEV PREVIEW ONLY. Not part of the game; the game can never navigate here.
+
+  This is not a mock-up. It loads the REAL shell (/screens/in-game.html) in a full-viewport
+  iframe, installs the same fake window.tsic the test harness uses (shared/test-harness.js),
+  and feeds it fixture inventories. What you see is shared/screens/inventory.js and
+  shared/storage-shell.js rendering exactly as they do in-game.
+
+  What it is for: the two screens are meant to be the same layout, left-anchored, with the
+  container simply ADDED on the right — so the way to check the design is to flip between
+  them and watch for anything that moves. Hit "Auto-flip" and stare at the bag.
+
+  Serve the web/ folder and open /bag-layout-preview.html:
+      powershell -File debug-tools.ps1        (then change the URL)
+      # or: python -m http.server 8080 --directory web
+
+  The iframe is deliberately the FULL viewport: --tsic-slot is a viewport-width clamp, so a
+  boxed-in preview would show slots at the wrong size.
+-->
+<style>
+  :root { color-scheme: dark; }
+  html, body { margin:0; height:100%; background:#0d0e15; font-family: ui-sans-serif, system-ui, sans-serif; }
+  #stage { position:fixed; inset:0; width:100vw; height:100vh; border:0; display:block; }
+
+  /* Floats over the iframe. Never inline in the flow — that would shrink the iframe's
+     viewport and with it every slot on screen. Pinned to the TOP: the HUD hotbar along the
+     bottom IS the bag's first row, so covering it would hide the part of the design most
+     worth looking at. */
+  #bar {
+    position:fixed; z-index:10; left:50%; transform:translateX(-50%); top:10px;
+    display:flex; align-items:center; gap:14px; flex-wrap:wrap; justify-content:center;
+    max-width:min(1100px, 96vw);
+    padding:9px 14px; border-radius:10px;
+    background:rgba(12,13,20,0.92); border:1px solid rgba(255,255,255,0.16);
+    box-shadow:0 10px 34px rgba(0,0,0,0.6);
+    color:#e9e6df; font-size:12px; letter-spacing:0.02em;
+  }
+  #bar .group { display:flex; align-items:center; gap:6px; }
+  #bar .lab { text-transform:uppercase; letter-spacing:0.12em; font-size:10px; color:#8d8a83; }
+  #bar .sep { width:1px; align-self:stretch; background:rgba(255,255,255,0.14); }
+  #bar button {
+    font:inherit; font-size:12px; cursor:pointer; padding:4px 11px; border-radius:6px;
+    background:#1b1d28; border:1px solid rgba(255,255,255,0.22); color:#e9e6df;
+  }
+  #bar button:hover { background:#262938; }
+  #bar button[aria-pressed="true"] { background:#e60000; border-color:#e60000; color:#fff; }
+  #bar .read { font-variant-numeric:tabular-nums; color:#9d9a93; }
+  #bar .read b { color:#ffcc00; font-weight:600; }
+  #bar label { display:flex; align-items:center; gap:5px; cursor:pointer; }
+
+  /* Alignment guides — host-side rules pinned to where the bag's edges were the first time
+     the Inventory screen rendered. They do not move when you flip screens; the panel
+     underneath is supposed to stay behind them. */
+  #guides { position:fixed; inset:0; z-index:9; pointer-events:none; display:none; }
+  #guides.on { display:block; }
+  #guides i {
+    position:absolute; background:#00e5ff; opacity:0.75;
+    box-shadow:0 0 6px rgba(0,229,255,0.8);
+  }
+  #guides i.v { top:0; bottom:0; width:1px; }
+  #guides i.h { left:0; right:0; height:1px; }
+  #guides span {
+    position:absolute; padding:1px 5px; border-radius:3px; font-size:9px; letter-spacing:0.1em;
+    text-transform:uppercase; background:#00e5ff; color:#04222a; transform:translateY(-100%);
+  }
+</style>
+</head>
+<body>
+
+<iframe id="stage" src="/screens/in-game.html"></iframe>
+<div id="guides"></div>
+
+<div id="bar">
+  <div class="group">
+    <span class="lab">Screen</span>
+    <button id="btn-inv" aria-pressed="true">Inventory</button>
+    <button id="btn-sto" aria-pressed="false">Storage</button>
+  </div>
+  <div class="sep"></div>
+  <div class="group">
+    <button id="btn-flip" aria-pressed="false">Auto-flip</button>
+    <label><input type="checkbox" id="chk-guides"> Guides</label>
+  </div>
+  <div class="sep"></div>
+  <div class="group">
+    <span class="lab">Bag</span>
+    <button class="bag" data-slots="24" aria-pressed="false">24</button>
+    <button class="bag" data-slots="32" aria-pressed="true">32</button>
+    <button class="bag" data-slots="48" aria-pressed="false">48</button>
+    <span class="read" id="read-locked"></span>
+  </div>
+  <div class="sep"></div>
+  <div class="group read">
+    <span id="read-vw"></span> · slot <b id="read-slot">—</b>
+  </div>
+</div>
+
+<script src="/shared/test-harness.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  const CONTAINER_ID = 'Storage:Crate01';
+
+  // Fixture catalogue. Weights are real-ish so the weight bar and its hovered-stack chip
+  // have something honest to show.
+  const CATALOG = {
+    ID_Hammer_EQ:      { Name: 'Hammer',        Category: 'Equipment',        Weight: 1.5 },
+    ID_Axe_EQ:         { Name: 'Fire Axe',      Category: 'Equipment',        Weight: 2.4 },
+    ID_Torch_EQ:       { Name: 'Torch',         Category: 'Equipment',        Weight: 0.6 },
+    ID_Screwdriver_EQ: { Name: 'Screwdriver',   Category: 'Equipment',        Weight: 0.3 },
+    ID_Bread_CN:       { Name: 'Bread',         Category: 'Consumable',       Weight: 0.2 },
+    ID_Water_CN:       { Name: 'Water Bottle',  Category: 'Consumable',       Weight: 0.5 },
+    ID_Bandage_CN:     { Name: 'Bandage',       Category: 'Consumable',       Weight: 0.1 },
+    ID_Wood_CM:        { Name: 'Wood',          Category: 'CraftingMaterial', Weight: 1.0 },
+    ID_Nails_CM:       { Name: 'Nails',         Category: 'CraftingMaterial', Weight: 0.05 },
+    ID_Scrap_CM:       { Name: 'Scrap Metal',   Category: 'CraftingMaterial', Weight: 1.8 },
+    ID_Cloth_CM:       { Name: 'Cloth',         Category: 'CraftingMaterial', Weight: 0.2 },
+    ID_Shelf_CI:       { Name: 'Shelf',         Category: 'Constructable',    Weight: 6.0 },
+    ID_Crate_CI:       { Name: 'Crate',         Category: 'Constructable',    Weight: 4.0 },
+    ID_Shells_AM:      { Name: 'Shotgun Shell', Category: 'Ammo',             Weight: 0.06 },
+    ID_Helmet_EQ:      { Name: 'Hard Hat',      Category: 'Equipment',        Weight: 0.9 },
+    ID_Vest_EQ:        { Name: 'Hi-Vis Vest',   Category: 'Equipment',        Weight: 0.7 },
+    ID_Backpack_EQ:    { Name: 'Satchel',       Category: 'Equipment',        Weight: 1.1 },
+  };
+
+  // Player stacks by grid cell. 0..7 are the hotbar — drawn by the live HUD bar at the bottom
+  // of the screen, not by the panel, which is the behaviour this page is here to show off.
+  const PLAYER = [
+    [0, 'ID_Hammer_EQ', 1], [1, 'ID_Axe_EQ', 1], [2, 'ID_Torch_EQ', 1], [3, 'ID_Bread_CN', 4],
+    [5, 'ID_Water_CN', 2], [7, 'ID_Shells_AM', 24],
+    [8, 'ID_Wood_CM', 24], [9, 'ID_Nails_CM', 96], [10, 'ID_Scrap_CM', 6],
+    [11, 'ID_Cloth_CM', 7], [13, 'ID_Bandage_CN', 3], [15, 'ID_Screwdriver_EQ', 1],
+    [16, 'ID_Shelf_CI', 1], [17, 'ID_Crate_CI', 2], [20, 'ID_Helmet_EQ', 1],
+    [23, 'ID_Vest_EQ', 1],
+  ];
+  const CRATE = [
+    [0, 'ID_Wood_CM', 64], [1, 'ID_Wood_CM', 64], [2, 'ID_Scrap_CM', 30], [3, 'ID_Nails_CM', 128],
+    [8, 'ID_Cloth_CM', 22], [9, 'ID_Bread_CN', 6], [10, 'ID_Water_CN', 4],
+    [16, 'ID_Crate_CI', 9], [17, 'ID_Shells_AM', 60],
+  ];
+  const EQUIPPED = [
+    ['Head',     900, 'ID_Helmet_EQ'],
+    ['Body',     901, 'ID_Vest_EQ'],
+    ['Backpack', 902, 'ID_Backpack_EQ'],
+  ];
+
+  function rows(spec, baseInstance) {
+    return spec.map(([slot, id, count], i) => ({
+      ItemId: id, Count: count, InstanceId: baseInstance + i, GridSlot: slot,
+    }));
+  }
+  function weightOf(items) {
+    return items.reduce((sum, it) => sum + ((CATALOG[it.ItemId] || {}).Weight || 0) * (it.Count || 1), 0);
+  }
+
+  // ── Stand-in icons ────────────────────────────────────────────────────────────────────
+  // The real ones live in the mod's icons/ folder, which sits OUTSIDE the served web/ root,
+  // and /tex/item-icon/ is a C++ handler that only exists in-game. These are generated
+  // initials so the cells read as full without pretending to be the shipped art.
+  const SWATCH = {
+    Equipment: ['#3f4a5c', '#cfd8e6'], Consumable: ['#4d5a34', '#e2edc8'],
+    CraftingMaterial: ['#5c4a33', '#ecd9bd'], Constructable: ['#4a3a52', '#e4d2ec'],
+    Ammo: ['#5c3232', '#efc9c9'],
+  };
+  const iconCache = new Map();
+  function iconFor(itemId) {
+    if (iconCache.has(itemId)) return iconCache.get(itemId);
+    const desc = CATALOG[itemId] || {};
+    const [bg, fg] = SWATCH[desc.Category] || ['#444', '#ddd'];
+    const initials = (desc.Name || itemId).split(/\s+/).map(w => w[0]).join('').slice(0, 2).toUpperCase();
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">`
+      + `<rect x="6" y="6" width="52" height="52" rx="8" fill="${bg}" stroke="${fg}" stroke-opacity=".45" stroke-width="2"/>`
+      + `<text x="32" y="41" text-anchor="middle" font-family="Georgia,serif" font-size="24"`
+      + ` font-weight="700" fill="${fg}">${initials}</text></svg>`;
+    const url = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+    iconCache.set(itemId, url);
+    return url;
+  }
+
+  // ── Harness wiring ────────────────────────────────────────────────────────────────────
+  const stage = document.getElementById('stage');
+  let handle = null;
+  let bagSlots = 32;
+  let current = 'Inventory';
+
+  function pushInventories() {
+    const player = rows(PLAYER, 100).filter(it => it.GridSlot < bagSlots);
+    handle.inject('tsic.msg.UI.Inventory.Updated', {
+      OwnerId: 'Player', GridWidth: 8, MaxSlots: bagSlots,
+      MaxWeight: 80, CurrentWeight: weightOf(player), Items: player,
+    });
+    const crate = rows(CRATE, 300);
+    handle.inject('tsic.msg.UI.Inventory.Updated', {
+      OwnerId: CONTAINER_ID, GridWidth: 8, MaxSlots: 32, CustomName: 'Back Room Crate',
+      MaxWeight: 300, CurrentWeight: weightOf(crate), bCanExceedWeight: false, Items: crate,
+    });
+    handle.inject('tsic.msg.UI.Equipment.Updated', {
+      OwnerId: 'Player',
+      Slots: EQUIPPED.map(([slot, instance]) => ({
+        SlotTag: 'Entity.Inventory.Item.Equipment.Slot.' + slot, ItemId: instance,
+      })),
+    });
+    handle.inject('tsic.msg.UI.Hotbar.Changed', { NumSlots: 8, SelectedSlot: 0, SelectedSlotPending: -1 });
+
+    // The worn items have to exist in the snapshot for the doll to resolve their icons —
+    // they are marked worn, not removed from the bag.
+    const worn = EQUIPPED.map(([, instance, id]) => ({ ItemId: id, Count: 1, InstanceId: instance, GridSlot: -1 }));
+    handle.inject('tsic.msg.UI.Inventory.Updated', {
+      OwnerId: 'Player', GridWidth: 8, MaxSlots: bagSlots,
+      MaxWeight: 80, CurrentWeight: weightOf(player), Items: player.concat(worn),
+    });
+
+    // Live + locked is always 48 — the bag is the same six rows at every tier.
+    const locked = Math.max(0, 48 - bagSlots);
+    document.getElementById('read-locked').textContent =
+      locked > 0 ? `${bagSlots} live + ${locked} locked = 48` : 'all 48 live';
+  }
+
+  function show(name) {
+    current = name;
+    document.getElementById('btn-inv').setAttribute('aria-pressed', String(name === 'Inventory'));
+    document.getElementById('btn-sto').setAttribute('aria-pressed', String(name === 'Storage'));
+    handle.inject('tsic.msg.UI.Screen.Changed', { Name: name });
+    // Screens re-request their own state on show, but the fixture bridge has no server behind
+    // it — replaying is what a RequestSync would have answered with.
+    setTimeout(pushInventories, 30);
+    setTimeout(dressCharacterPreview, 120);
+  }
+
+  // The doll's middle panel is a live UE render (/runtime/character-preview.imgsrc), which
+  // does not exist outside the game. A flat silhouette keeps the rail honest about its size
+  // instead of leaving a hole where the render belongs.
+  //
+  // The screen scales this img to 1.9x (framing the real render's upper body), so the figure
+  // is drawn into the middle ~half of the viewBox — at its natural size it would be cropped
+  // to a headless torso and read as a broken image rather than a placeholder.
+  function dressCharacterPreview() {
+    const img = stage.contentDocument && stage.contentDocument.getElementById('inv-char-img');
+    if (!img || img.dataset.previewStub) return;
+    const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 320">'
+      + '<g fill="#c9bfa6" transform="translate(50 84) scale(0.5)">'
+      + '<circle cx="50" cy="30" r="17"/>'
+      + '<path d="M50 50c-19 0-30 12-31 30l-3 44c0 5 4 8 9 8l7-46 2 46c0 5 4 8 8 8h16c4 0 8-3 8-8l2-46 7 46c5 0 9-3 9-8l-3-44c-1-18-12-30-31-30z"/>'
+      + '</g></svg>';
+    img.dataset.previewStub = '1';
+    img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+  }
+
+  stage.addEventListener('load', function () {
+    const win = stage.contentWindow;
+    handle = TSICTestHarness.installMockTsic(win, {});
+    win.tsic.itemCatalog = CATALOG;
+    // shared/icons.js delegates itemIconUrl to window.tsic, so this reaches every grid,
+    // the paper doll and the HUD bar without touching any screen code.
+    win.tsic.itemIconUrl = iconFor;
+    try { win.dispatchEvent(new Event('tsic-item-catalog')); } catch (e) {}
+
+    // Enough HUD state that the bar and vials aren't empty next to the panel.
+    handle.inject('tsic.msg.UI.Health.Changed',  { Current: 78, Max: 100 });
+    handle.inject('tsic.msg.UI.Stamina.Changed', { Current: 62, Max: 100 });
+
+    show('Inventory');
+    setTimeout(() => { captureGuides(); readSlotSize(); }, 400);
+  });
+
+  // ── Controls ──────────────────────────────────────────────────────────────────────────
+  document.getElementById('btn-inv').onclick = () => show('Inventory');
+  document.getElementById('btn-sto').onclick = () => show('Storage');
+
+  let flipTimer = null;
+  document.getElementById('btn-flip').onclick = function () {
+    const on = this.getAttribute('aria-pressed') !== 'true';
+    this.setAttribute('aria-pressed', String(on));
+    clearInterval(flipTimer);
+    flipTimer = on ? setInterval(() => show(current === 'Inventory' ? 'Storage' : 'Inventory'), 1400) : null;
+  };
+
+  for (const btn of document.querySelectorAll('#bar button.bag')) {
+    btn.onclick = function () {
+      bagSlots = parseInt(this.dataset.slots, 10);
+      for (const b of document.querySelectorAll('#bar button.bag')) {
+        b.setAttribute('aria-pressed', String(b === this));
+      }
+      pushInventories();
+    };
+  }
+
+  const guides = document.getElementById('guides');
+  document.getElementById('chk-guides').onchange = function () {
+    guides.classList.toggle('on', this.checked);
+    if (this.checked) captureGuides();
+  };
+
+  /** Pin rules to the bag's edges ONCE. They stay put while you flip screens — if the design
+   *  holds, the panel underneath keeps hugging them. */
+  function captureGuides() {
+    const doc = stage.contentDocument;
+    const panel = doc.querySelector('#inv-panel, #ss-panel');
+    const grid = doc.querySelector('#inv-grid, #ss-player-list');
+    if (!panel || !grid) return;
+    const p = panel.getBoundingClientRect();
+    const g = grid.getBoundingClientRect();
+    guides.innerHTML = '';
+    const rule = (cls, style, label) => {
+      const i = document.createElement('i');
+      i.className = cls;
+      i.style.cssText = style;
+      guides.appendChild(i);
+      if (!label) return;
+      const s = document.createElement('span');
+      s.textContent = label;
+      s.style.cssText = cls === 'v'
+        ? `left:${parseFloat(style.match(/left:([\d.]+)/)[1]) + 4}px; top:20px; transform:none;`
+        : `left:8px; top:${parseFloat(style.match(/top:([\d.]+)/)[1])}px;`;
+      guides.appendChild(s);
+    };
+    rule('v', `left:${p.left.toFixed(1)}px;`, 'panel left');
+    rule('v', `left:${g.right.toFixed(1)}px;`, 'bag right');
+    rule('h', `top:${g.top.toFixed(1)}px;`, 'bag top');
+    rule('h', `top:${g.bottom.toFixed(1)}px;`, 'bag bottom');
+  }
+
+  // Measured off a real cell, not read off the custom property — a var() holding a clamp()
+  // reports the clamp expression verbatim, not the value it resolved to.
+  function readSlotSize() {
+    const cell = stage.contentDocument
+      && stage.contentDocument.querySelector('#inv-grid .tsic-slot, #ss-player-list .tsic-slot');
+    document.getElementById('read-slot').textContent =
+      cell ? Math.round(cell.getBoundingClientRect().width) + 'px' : '—';
+    document.getElementById('read-vw').textContent = window.innerWidth + '×' + window.innerHeight;
+  }
+  window.addEventListener('resize', () => { readSlotSize(); captureGuides(); });
+})();
+</script>
+</body></html>

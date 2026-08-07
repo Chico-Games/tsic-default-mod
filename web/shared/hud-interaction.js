@@ -18,8 +18,11 @@
 // The key chip mirrors the behavior bar's rendering: the Interact behaviour's
 // resolved key icon is lifted from UI.BehaviorBar.Entries (the row itself is
 // suppressed from the generic list while this block shows — hud-behavior-bar.js)
-// and swaps with input mode. Drag-only furniture (no interaction option, but
-// bDraggable) still shows the name header plus a key-less "Drag" verb.
+// and swaps with input mode.
+//
+// Furniture interactable in ANY way gets the name header: tap-interactable,
+// hold-only (line 2 drops out, line 3 carries the verb), and drag-only furniture
+// (no interaction option at all, but bDraggable — key-less "Drag" verb).
 (function () {
   var INTERACT_TAG = 'Input.Behavior.Interact';
 
@@ -152,16 +155,25 @@
     var holdEl = holdPromptEl(label);
     var target = p && p.Targets && p.Targets[0];
     if (target) {
-      // A target with no verb is the C++ drag-only fallback (name/category only,
-      // published because the entity is draggable) — title the panel, show a
-      // key-less Drag verb instead of the misleading "Interact" fallback.
-      var dragOnly = !target.Label && !!p.bDraggable;
+      // A target with no tap verb and no hold verb is the C++ drag-only fallback
+      // (name/category only, published because the entity is draggable) — title the
+      // panel, show a key-less Drag verb instead of the misleading "Interact" fallback.
+      var dragOnly = !target.Label && !target.HoldLabel && !!p.bDraggable;
+      // Hold-only furniture: C++ fills Status only when a tap option exists, so an
+      // empty Status alongside a HoldLabel means there is nothing to tap and the row
+      // would render a bare "Interact" that does nothing. (A tap option that simply
+      // carries no text DOES set Status, and keeps the "Interact" fallback.)
+      var holdOnly = !target.Status && !!target.HoldLabel;
       if (nameEl) setName(nameEl, target);
-      setLabel(label, target, dragOnly);
-      // Grey out single-use options that have already been used. (Status also
-      // carries Blocked/Cooldown/Active for future use; only SingleUseUsed greys today.)
-      label.classList.toggle('interaction-disabled', String(target.Status || '') === 'SingleUseUsed');
-      label.classList.remove('hidden');
+      if (holdOnly) {
+        label.classList.add('hidden');
+      } else {
+        setLabel(label, target, dragOnly);
+        // Grey out single-use options that have already been used. (Status also
+        // carries Blocked/Cooldown/Active for future use; only SingleUseUsed greys today.)
+        label.classList.toggle('interaction-disabled', String(target.Status || '') === 'SingleUseUsed');
+        label.classList.remove('hidden');
+      }
       if (block) block.classList.remove('hidden');
       divider.classList.remove('hidden');
       if (holdEl) setHold(holdEl, dragOnly ? null : target);

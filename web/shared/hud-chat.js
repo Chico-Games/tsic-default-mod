@@ -102,6 +102,26 @@
       tsic.setInteractiveRects([{ x: 0, y: 0, w: 99999, h: 99999 }]);
     }
 
+    // tsic.focusTextField (not input.focus()) — opening chat from a keypress
+    // means the view does not hold the keyboard yet, so no focus event fires and
+    // nothing would tell the engine to hand it over; the helper asks for capture
+    // directly. Re-assert over a few frames: the input row goes display:none ->
+    // flex on the same turn, and the overlay push that frees the mouse is an
+    // async round-trip through C++.
+    function focusInput() {
+      if (tsic.focusTextField) { tsic.focusTextField(input); return; }
+      try { input.focus(); } catch (e) {}
+    }
+
+    function grabFocus() {
+      var frames = 0;
+      (function attempt() {
+        if (!isOpen) return;
+        if (document.activeElement !== input) focusInput();
+        if (++frames < 4) requestAnimationFrame(attempt);
+      })();
+    }
+
     function open() {
       if (isOpen) return;
       isOpen = true;
@@ -111,7 +131,7 @@
       tsic.publishMessage('UI.Cmd.Overlay.Push', { Name: 'ChatInput' });
       try { tsic.playSound('Chat.Open', 0.5); } catch (e) {}
       publishRects();
-      input.focus();
+      grabFocus();
     }
 
     function close() {
@@ -123,7 +143,9 @@
       tsic.publishMessage('UI.Cmd.Overlay.Pop', { Name: 'ChatInput' });
       restoreRects();
       scheduleFade(CLOSE_FADE_MS);
-      if (document.activeElement === input) input.blur();
+      // Hands the keyboard back to the game as well as dropping the caret.
+      if (tsic.blurTextField) tsic.blurTextField(input);
+      else if (document.activeElement === input) input.blur();
     }
 
     function render(history) {
@@ -174,7 +196,7 @@
       if (text && navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(text).catch(function () {});
       }
-      if (document.activeElement !== input) input.focus();
+      if (document.activeElement !== input) focusInput();
     });
 
     input.addEventListener('blur', function () {

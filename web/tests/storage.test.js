@@ -17,7 +17,7 @@ TSICTestHarness.register({
         ctx.expect(ctx.assert.domCount(ctx.doc, '#ss-container-list .tsic-slot[data-instance]', 1));
         ctx.expect(ctx.assert.domCount(ctx.doc, '#ss-player-list .tsic-slot[data-instance]', 0));
         ctx.expect(ctx.assert.domText(ctx.doc, '#ss-container-slots', /1\/32/));
-        ctx.expect(ctx.assert.domText(ctx.doc, '#ss-player-slots', /0\/32 SLOTS/));
+        ctx.expect(ctx.assert.domText(ctx.doc, '#ss-player-slots', /0\/32/));
     },
 });
 
@@ -94,9 +94,9 @@ TSICTestHarness.register({
             MaxSlots: 32,
         });
         await ctx.waitFor(() => ctx.doc.querySelectorAll('.ss-tabs[data-side="player"] .tsic-tab').length === 6);
-        const equipTab = Array.from(ctx.doc.querySelectorAll('.ss-tabs[data-side="player"] .tsic-tab'))
-            .find(e => (e.textContent || '').trim() === 'Equipment');
-        equipTab.click();
+        // By id, not by label: the labels are abbreviated to keep the tab bar from being
+        // wider than the grid under it.
+        ctx.doc.querySelector('.ss-tabs[data-side="player"] .tsic-tab[data-tab="Equipment"]').click();
         await new Promise(r => setTimeout(r, 30));
         ctx.expect(ctx.assert.domExists(ctx.doc, '#ss-player-list .tsic-slot[data-instance="2"]:not(.is-filtered)'));
         ctx.expect(ctx.assert.domExists(ctx.doc, '#ss-player-list .tsic-slot[data-instance="1"].is-filtered'));

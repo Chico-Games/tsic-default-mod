@@ -178,6 +178,30 @@ TSICTestHarness.register({
 });
 
 TSICTestHarness.register({
+    // Tap and hold are gathered independently, so furniture can offer only a hold.
+    // It is still interactable, so it still earns the name header — but the tap row
+    // must drop out rather than advertise an "Interact" press that does nothing.
+    // C++ leaves Status empty exactly when there is no tap option.
+    name: 'Interaction: hold-only target keeps the name header and drops the tap row',
+    file: '/screens/test-interaction.html',
+    async run(ctx) {
+        ctx.inject('tsic.msg.UI.Interaction.Targets', {
+            Targets: [{
+                EntityId: 51, Name: 'Shopping Trolley', Label: '', Status: '',
+                HoldLabel: 'Ride', HoldStatus: 'Available', Category: 'cart',
+            }],
+        });
+        await ctx.waitFor(() => /Ride/.test((ctx.doc.getElementById('interaction-hold-prompt') || {}).textContent || ''));
+        ctx.expect(ctx.assert.domText(ctx.doc, '#bb-target-name', /Shopping Trolley/));
+        ctx.expect(ctx.assert.truthy(!ctx.doc.getElementById('bb-target-name').classList.contains('hidden'), 'name header visible'));
+        ctx.expect(ctx.assert.truthy(!ctx.doc.getElementById('bb-divider').classList.contains('hidden'), 'divider visible'));
+        const prompt = ctx.doc.getElementById('interaction-prompt');
+        ctx.expect(ctx.assert.truthy(prompt.classList.contains('hidden'), 'tap row hidden with no tap option'));
+        ctx.expect(ctx.assert.truthy(!/Interact/.test(prompt.textContent || ''), 'no phantom Interact verb'));
+    },
+});
+
+TSICTestHarness.register({
     // A trolley seat someone else already took publishes a Blocked hold option:
     // the row must still render (greyed, with the reason, no key chip) so the
     // second player sees the affordance and why it is refusing them.

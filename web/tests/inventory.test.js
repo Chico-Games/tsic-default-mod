@@ -31,7 +31,7 @@ TSICTestHarness.register({
         await ctx.waitFor(() => ctx.doc.querySelectorAll('#inv-grid .tsic-slot').length === 48);
         ctx.expect(ctx.assert.domCount(ctx.doc, '#inv-grid .tsic-slot.is-locked', 16));
         ctx.expect(ctx.assert.domExists(ctx.doc, '#inv-grid .tsic-slot[data-grid="0"][data-instance="1"] img'));
-        ctx.expect(ctx.assert.domText(ctx.doc, '#inv-slots-text', /1\/32 SLOTS/));
+        ctx.expect(ctx.assert.domText(ctx.doc, '#inv-slots-text', /1\/32/));
     },
 });
 
@@ -42,7 +42,7 @@ TSICTestHarness.register({
         await showInventory(ctx, { MaxSlots: 40 });
         await ctx.waitFor(() => ctx.doc.querySelectorAll('#inv-grid .tsic-slot').length === 48);
         ctx.expect(ctx.assert.domCount(ctx.doc, '#inv-grid .tsic-slot.is-locked', 8));
-        ctx.expect(ctx.assert.domText(ctx.doc, '#inv-slots-text', /0\/40 SLOTS/));
+        ctx.expect(ctx.assert.domText(ctx.doc, '#inv-slots-text', /0\/40/));
     },
 });
 
