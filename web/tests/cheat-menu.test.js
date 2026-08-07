@@ -497,3 +497,18 @@ TSICTestHarness.register({
             { where: p => p.Command === 'TeleportToLocation 1 182450 241300 1350' }));
     },
 });
+
+TSICTestHarness.register({
+    name: 'CheatMenu: the Close button asks to toggle, not to force InGame',
+    file: '/screens/cheat-menu.html',
+    async run(ctx) {
+        ctx.screen('CheatMenu');
+        await ctx.waitFor(() => ctx.doc.getElementById('btn-back'));
+        ctx.clearPublishes();
+        ctx.doc.getElementById('btn-back').click();
+        // UI.Cmd.GameScreen.Close hardcodes InGame; the toggle returns to whatever
+        // screen the panel was opened from, which matters from the main menu.
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Pause.CheatMenu'));
+        ctx.expect(ctx.assert.notPublished(ctx.handle, 'UI.Cmd.GameScreen.Close'));
+    },
+});

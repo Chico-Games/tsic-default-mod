@@ -1060,7 +1060,10 @@
 
   TSIC.registerScreen('CheatMenu', {
     inputModeTag: 'InputMode.Menu.CheatMenu',
-    cancelCmd: 'UI.Cmd.GameScreen.Close',
+    // Not UI.Cmd.GameScreen.Close: that hardcodes InGame, which strands you in an
+    // unloaded world when the panel was opened from the main menu. The toggle
+    // command closes to wherever it was opened from.
+    cancelCmd: 'UI.Cmd.Pause.CheatMenu',
     actionBarContext: [],
     template: TEMPLATE,
 
@@ -1802,7 +1805,7 @@
       });
 
       // Close.
-      $('btn-back').addEventListener('click', () => ctx.publish('UI.Cmd.GameScreen.Close'));
+      $('btn-back').addEventListener('click', () => ctx.publish('UI.Cmd.Pause.CheatMenu', {}));
 
       // First paint — show placeholder lists until the broadcast lands.
       refreshItemSelect();
