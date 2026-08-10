@@ -81,6 +81,7 @@
     "tombstone_lifetime": 300,
     "max_tombstones_per_player": 3,
     "respawn_protection_duration": 10,
+    "player_spawn_enemy_free_radius": 6000,
     "event_roll_interval": 2760,
     "event_chance": 0.2,
     "loot_multipliers": {

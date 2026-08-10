@@ -3639,6 +3639,9 @@
         "respawn_protection_duration": {
           "kind": "float"
         },
+        "player_spawn_enemy_free_radius": {
+          "kind": "float"
+        },
         "event_roll_interval": {
           "kind": "float"
         },
