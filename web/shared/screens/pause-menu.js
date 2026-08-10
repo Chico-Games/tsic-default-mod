@@ -87,7 +87,7 @@
       // Latest host multiplayer settings + whether we're the host. Defaults match
       // the C++ FSimpleSessionSettings defaults (allow-friends on). Overwritten by
       // the UI.Multiplayer.State broadcast that fires when the pause menu opens.
-      let mpState = { bAllowFriends: true, bPasswordRequired: false, Password: '', bLocalIsHost: false };
+      let mpState = { bAllowFriends: true, bPasswordRequired: false, Password: '', bLocalIsHost: false, bCanInvite: false };
       let lastPlayers = null;
 
       const allowTog = root.querySelector('#mp-allow');
@@ -115,8 +115,12 @@
         if (document.activeElement !== pwInput) pwInput.value = mpState.Password || '';
         pwInput.disabled = !host || !mpState.bPasswordRequired;
         pwInput.style.display = mpState.bPasswordRequired ? '' : 'none';
-        inviteBtn.disabled = !host;
-        inviteBtn.style.opacity = host ? '' : '0.4';
+        // Not host-only: a client can invite a friend into the host's game with
+        // the same connect string. C++ reports whether the session is joinable.
+        const canInvite = !!mpState.bCanInvite;
+        inviteBtn.disabled = !canInvite;
+        inviteBtn.style.opacity = canInvite ? '' : '0.4';
+        inviteBtn.title = canInvite ? '' : 'No joinable session — the host has closed the game to friends.';
       }
 
       function renderPlayers() {
@@ -187,7 +191,7 @@
         publishSet();
       };
       inviteBtn.onclick = () => {
-        if (!mpState.bLocalIsHost) return;
+        if (!mpState.bCanInvite) return;
         ctx.publish('UI.Cmd.Multiplayer.Invite');
       };
 
