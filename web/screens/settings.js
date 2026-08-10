@@ -58,6 +58,13 @@
                     // keep/revert countdown, which is for display-mode changes
                     // that can strand the player — a GI change can't.
                     //
+                    // Benchmarks the machine and rewrites the preset, the Lumen tier
+                    // and the resolution scale. The game freezes for a second or two
+                    // while it measures; every value it lands on is an ordinary row
+                    // below, so nothing here is locked afterwards.
+                    { Key: 'graphics.autodetect', Label: 'Detect optimal settings',
+                      Type: 'action', ButtonText: 'Detect' },
+                    //
                     // Overall preset drives the "Advanced quality" categories below.
                     // "Custom" is display-only: C++ echoes it when the categories
                     // are mixed and rejects it as an input.

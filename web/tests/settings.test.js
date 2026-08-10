@@ -207,6 +207,25 @@ TSICTestHarness.register({
 });
 
 TSICTestHarness.register({
+    name: 'Settings: auto-detect button publishes graphics.autodetect as an action',
+    file: '/screens/settings.html',
+    async run(ctx) {
+        await openGraphicsTab(ctx);
+        // Action row, not a value row: it publishes UI.Cmd.Settings.Action and C++
+        // echoes back every quality row the benchmark moved.
+        const detect = Array.from(ctx.doc.querySelectorAll('#page button.tsic-button'))
+            .find(b => b.textContent === 'Detect');
+        ctx.expect(detect ? null : 'missing hardware auto-detect button');
+        ctx.clearPublishes();
+        detect.click();
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Settings.Action',
+            { where: p => p.Key === 'graphics.autodetect' }));
+        // graphics.* is not a display-mode change — no keep/revert countdown.
+        ctx.expect(ctx.doc.getElementById('settings-popover') ? 'auto-detect must not open the countdown' : null);
+    },
+});
+
+TSICTestHarness.register({
     name: 'Settings: render-scale slider publishes graphics.resolution_scale',
     file: '/screens/settings.html',
     async run(ctx) {
