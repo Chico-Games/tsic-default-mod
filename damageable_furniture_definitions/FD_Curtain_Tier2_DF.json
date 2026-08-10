@@ -5,6 +5,7 @@
   "schema_version": 2,
   "properties": {
     "extends": "FD_Curtain_DF",
+    "scavenge_yield": null,
     "starting_health": 100,
     "blocking_collision_boxes": [],
     "drag_mass": 3,

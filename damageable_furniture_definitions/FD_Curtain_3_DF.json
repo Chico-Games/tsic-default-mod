@@ -4,6 +4,15 @@
   "class": "UDamageableFurnitureDefinition",
   "schema_version": 2,
   "properties": {
+    "scavenge_yield": [
+      {
+        "item_to_drop": "ID_UpholsteryFabric_CM",
+        "count": 1,
+        "chance_to_drop": 1.0
+      }
+    ],
+    "scavenge_hold_time": 0.35,
+    "scavenge_verb_text": "Take Down",
     "starting_health": 67,
     "furniture_armour": 2,
     "destructible_collection": "/Game/Scandinavi_Apartment/GeometryCollections/GCS_Curtain_Opt03.GCS_Curtain_Opt03",
