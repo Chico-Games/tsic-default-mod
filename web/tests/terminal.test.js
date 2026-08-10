@@ -458,3 +458,32 @@ TSICTestHarness.register({
             'skipping flushes the full boot including the logo'));
     },
 });
+
+TSICTestHarness.register({
+    name: 'Terminal: the game catalog arrives as raw program.json text',
+    file: termScreenFile(),
+    async run(ctx) {
+        // C++ sends the on-disk manifests verbatim on ProgramsJson (the bridge would
+        // rename every key if they round-tripped through a USTRUCT). Parsing that shape
+        // has to leave the shell with exactly the same catalog the fixtures produce.
+        await TSICTestHarness.waitFor(() => ctx.win.TSICTerminal && ctx.win.TSICTerminal.shells && ctx.win.TSICTerminal.shells.tier1);
+        ctx.win.TSICTerminal.shells.tier1.charDelayMs = 0;
+        ctx.inject('tsic.msg.UI.Terminal.Catalog', {
+            ProgramsJson: [
+                '{"id":"com.tsic.hello","name":"HELLO","minTier":1,"entry":"main.js"}',
+                '{"id":"com.tsic.scphint","name":"SCP-HINT","minTier":3,"entry":"main.js"}',
+                'not json at all',
+            ],
+        });
+        ctx.inject('tsic.msg.UI.Terminal.UnlockedList', { ProgramIds: ['com.tsic.hello', 'com.tsic.scphint'] });
+        ctx.inject('tsic.msg.UI.Terminal.Open', { TerminalId: 't1', Tier: 1, AutoRun: null });
+        await TSICTestHarness.waitFor(() => ctx.doc.querySelector('.tsic-term--t1[data-term-ready]'));
+        const inp = ctx.doc.querySelector('#term-input');
+        inp.value = 'help';
+        TSICTestHarness.events.keyOn(inp, 'Enter', { code: 'Enter' });
+        await TSICTestHarness.waitFor(() => /Installed programs:/.test(ctx.doc.querySelector('#term-out').textContent));
+        const out = ctx.doc.querySelector('#term-out').textContent;
+        ctx.expect(ctx.assert.truthy(/HELLO/.test(out), 'parses a manifest sent as text'));
+        ctx.expect(ctx.assert.truthy(/LOCKED/.test(out), 'keeps minTier, so the tier-3 program still reads as locked'));
+    },
+});

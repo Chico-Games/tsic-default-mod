@@ -13,6 +13,7 @@
   <link rel="stylesheet" href="/shared/components.css">
   <link rel="stylesheet" href="/shared/hud.css">
   <link rel="stylesheet" href="/shared/screen-manager.css">
+  <link rel="stylesheet" href="/shared/terminal/terminal.css">
   <!-- Core shared scripts — parsed once on shell load, reused by every
        overlay that mounts later. Order matters: bridge & runtime first,
        then helpers, then router/manager, then per-screen modules. -->
@@ -56,6 +57,9 @@
   <!-- Store terminals: shared modules + the Terminal screen. -->
   <script src="/shared/terminal/constants.js" defer></script>
   <script src="/shared/terminal/boot.js" defer></script>
+  <script src="/shared/terminal/boot-graphical.js" defer></script>
+  <script src="/shared/terminal/scp3d.js" defer></script>
+  <script src="/shared/terminal/program-icons.js" defer></script>
   <script src="/shared/terminal/catalog.js" defer></script>
   <script src="/shared/terminal/capabilities.js" defer></script>
   <script src="/shared/terminal/runtime.js" defer></script>
