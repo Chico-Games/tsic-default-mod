@@ -14,6 +14,23 @@ TSICTestHarness.register({
     },
 });
 
+// The live module (shared/screens/pause-menu.js) mounted in the real in-game
+// shell — /screens/pause-menu.html is a standalone mirror, not what ships.
+TSICTestHarness.register({
+    name: 'PauseMenu: Save and Quit publishes Menu.Exit',
+    file: '/screens/in-game.html',
+    async run(ctx) {
+        ctx.screen('PauseMenu');
+        await ctx.waitFor(() => ctx.doc.querySelector('[data-screen="PauseMenu"] button'));
+        ctx.clearPublishes();
+        const quit = Array.from(ctx.doc.querySelectorAll('[data-screen="PauseMenu"] button'))
+            .find(b => /save and quit/i.test(b.textContent || ''));
+        ctx.expect(ctx.assert.truthy(quit, 'pause menu has a Save and Quit button'));
+        quit && quit.click();
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Menu.Exit'));
+    },
+});
+
 TSICTestHarness.register({
     name: 'PauseMenu: Resume button publishes Pause.Resume',
     file: '/screens/pause-menu.html',

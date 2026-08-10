@@ -41,6 +41,7 @@
           <button class="tsic-button" style="width:100%; margin-top:8px;" id="btn-bug-report">Report a Bug</button>
           <button class="tsic-button" style="width:100%; margin-top:8px;" id="btn-teleport-spawn">I'm stuck (Teleport to spawn point)</button>
           <button class="tsic-button" style="width:100%; margin-top:8px;" id="btn-menu">Save and Return to Main Menu</button>
+          <button class="tsic-button" style="width:100%; margin-top:8px;" id="btn-quit">Save and Quit</button>
           <!-- Dev/testing only: revealed by the UI.State.DevMode flag in non-shipping builds. -->
           <button class="tsic-button" style="width:100%; margin-top:8px; display:none;" id="btn-dev-join">Join Game (Dev)</button>
           <button class="tsic-button" style="width:100%; margin-top:8px; display:none;" id="btn-dev-cheats">Cheat Menu (F1)</button>
@@ -197,6 +198,9 @@
       root.querySelector('#btn-bug-report').onclick = () => ctx.publish('UI.Cmd.Pause.BugReport');
       root.querySelector('#btn-teleport-spawn').onclick = () => ctx.publish('UI.Cmd.Pause.TeleportToSpawn');
       root.querySelector('#btn-menu').onclick       = () => ctx.publish('UI.Cmd.Pause.QuitToMenu');
+      // Menu.Exit's handler saves (SaveBeforeQuit) then quits the process —
+      // the same path as the main menu's Fire Exit, minus the trip through it.
+      root.querySelector('#btn-quit').onclick       = () => ctx.publish('UI.Cmd.Menu.Exit');
 
       // Dev/testing: reveal + wire the "Join Game (Dev)" button. Destroys this
       // instance's own session (if hosting) then finds + joins the host.
