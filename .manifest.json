@@ -1530,6 +1530,7 @@
       "RD_MarrowSeeds_PL": "/Game/Items/Seeds/MarrowSeeds/Recipes/RD_MarrowSeeds_PL",
       "RD_OnionSeeds_PL": "/Game/Items/Seeds/OnionSeeds/Recipes/RD_OnionSeeds_PL",
       "RD_PotatoSeeds_PL": "/Game/Items/Seeds/PotatoSeeds/Recipes/RD_PotatoSeeds_PL",
+      "RD_RunnerBeansSeeds_PL": "/Game/Items/Seeds/RunnerBeansSeeds/Recipes/RD_RunnerBeansSeeds_PL",
       "RD_TomatoSeeds_PL": "/Game/Items/Seeds/TomatoSeeds/Recipes/RD_TomatoSeeds_PL",
       "RD_WheatSeeds_PL": "/Game/Items/Seeds/WheatSeeds/Recipes/RD_WheatSeeds_PL"
     },
@@ -1561,6 +1562,7 @@
       "ID_MarrowSeeds_SD": "/Game/Items/Seeds/MarrowSeeds/ID_MarrowSeeds_SD",
       "ID_OnionSeeds_SD": "/Game/Items/Seeds/OnionSeeds/ID_OnionSeeds_SD",
       "ID_PotatoSeeds_SD": "/Game/Items/Seeds/PotatoSeeds/ID_PotatoSeeds_SD",
+      "ID_RunnerBeansSeeds_SD": "/Game/Items/Seeds/RunnerBeansSeeds/ID_RunnerBeansSeeds_SD",
       "ID_TomatoSeeds_SD": "/Game/Items/Seeds/TomatoSeeds/ID_TomatoSeeds_SD",
       "ID_WheatSeeds_SD": "/Game/Items/Seeds/WheatSeeds/ID_WheatSeeds_SD"
     },
@@ -1891,6 +1893,7 @@
       "FD_PlasticScrap_SI": "/Game/Items/CraftingMaterials/PlasticScrap/Static/FD_PlasticScrap_SI",
       "FD_PlasticToy_SI": "/Game/Items/CraftingMaterials/PlasticToy/Static/FD_PlasticToy_SI",
       "FD_PotatoSeeds_SI": "/Game/Items/Seeds/PotatoSeeds/Static/FD_PotatoSeeds_SI",
+      "FD_RunnerBeansSeeds_SI": "/Game/Items/Seeds/RunnerBeansSeeds/Static/FD_RunnerBeansSeeds_SI",
       "FD_Potato_SI": "/Game/Items/Consumables/UncookedFood/Potato/Static/FD_Potato_SI",
       "FD_PrinterPaper_SI": "/Game/Items/CraftingMaterials/PrinterPaper/Static/FD_PrinterPaper_SI",
       "FD_ProteinBar_SI": "/Game/Items/Consumables/Food/ProteinBar/Static/FD_ProteinBar_SI",
