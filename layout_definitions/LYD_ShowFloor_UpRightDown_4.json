@@ -979,7 +979,7 @@
             "w": 1.0
           },
           "translation": {
-            "x": 600.0,
+            "x": 575.0,
             "y": -737.5,
             "z": 185.0
           },
@@ -1048,97 +1048,9 @@
             "w": 1.0
           },
           "translation": {
-            "x": 600.0,
+            "x": 575.0,
             "y": -737.5,
             "z": 165.0
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        }
-      },
-      {
-        "layout_actor_type": {
-          "name": "PROXY_ACTOR",
-          "value": 0
-        },
-        "b_visual_helper": false,
-        "definition_filter": {
-          "seed_offset": 1,
-          "search_queries": [
-            {
-              "search_query": {
-                "name": "HAS_ALL_EXACT",
-                "value": 4
-              },
-              "tags": [
-                "Entity.RandomGeneration.FurnitureCategory.LivingRoom",
-                "Entity.RandomGeneration.FurnitureType.Light.Floor"
-              ],
-              "b_not": false
-            }
-          ],
-          "tile_requirements": [],
-          "spawn_chance_over": 0.0,
-          "spawn_chance_under": 1.0
-        },
-        "transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.382683432365,
-            "w": 0.923879532511
-          },
-          "translation": {
-            "x": -600.0,
-            "y": -600.0,
-            "z": 0.0
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        }
-      },
-      {
-        "layout_actor_type": {
-          "name": "PROXY_ACTOR",
-          "value": 0
-        },
-        "b_visual_helper": false,
-        "definition_filter": {
-          "seed_offset": 1,
-          "search_queries": [
-            {
-              "search_query": {
-                "name": "HAS_ALL_EXACT",
-                "value": 4
-              },
-              "tags": [
-                "Entity.RandomGeneration.FurnitureCategory.LivingRoom",
-                "Entity.RandomGeneration.FurnitureType.Light.Floor"
-              ],
-              "b_not": false
-            }
-          ],
-          "tile_requirements": [],
-          "spawn_chance_over": 0.0,
-          "spawn_chance_under": 1.0
-        },
-        "transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": -0.525731112119,
-            "w": 0.850650808352
-          },
-          "translation": {
-            "x": -300.0,
-            "y": 600.0,
-            "z": 0.0
           },
           "scale3_d": {
             "x": 1.0,

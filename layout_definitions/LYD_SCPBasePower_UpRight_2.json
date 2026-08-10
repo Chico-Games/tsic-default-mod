@@ -534,49 +534,6 @@
         },
         "b_visual_helper": false,
         "definition_filter": {
-          "seed_offset": 4,
-          "search_queries": [
-            {
-              "search_query": {
-                "name": "HAS_ANY_INCL_PARENTS",
-                "value": 1
-              },
-              "tags": [
-                "Entity.RandomGeneration.FurnitureType.Shelf.Floor"
-              ],
-              "b_not": false
-            }
-          ],
-          "tile_requirements": [],
-          "spawn_chance_over": 0.0,
-          "spawn_chance_under": 1.0
-        },
-        "transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.7071067811865476,
-            "w": 0.7071067811865476
-          },
-          "translation": {
-            "x": -662.5,
-            "y": -150.0,
-            "z": 0.0
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        }
-      },
-      {
-        "layout_actor_type": {
-          "name": "PROXY_ACTOR",
-          "value": 0
-        },
-        "b_visual_helper": false,
-        "definition_filter": {
           "seed_offset": -1,
           "search_queries": [
             {

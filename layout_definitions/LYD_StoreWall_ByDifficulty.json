@@ -1,14 +1,14 @@
 {
-  "id": "LYD_Wall_Single_MixedBiome",
-  "asset_path": "/Game/WorldGeneration/Layouts/Shared/Walls/LYD_Wall_Single_MixedBiome",
+  "id": "LYD_StoreWall_ByDifficulty",
+  "asset_path": "/Game/WorldGeneration/Layouts/Shared/Walls/LYD_StoreWall_ByDifficulty",
   "class": "ULayoutDefinition",
   "schema_version": 2,
   "properties": {
     "layout_objects": [
       {
         "layout_actor_type": {
-          "name": "LAYOUT",
-          "value": 1
+          "name": "PROXY_ACTOR",
+          "value": 0
         },
         "b_visual_helper": false,
         "definition_filter": {
@@ -21,13 +21,9 @@
                 "value": 2
               },
               "tags": [
-                "Tile.Biome.Bathroom",
-                "Tile.Biome.BathroomExit",
-                "Tile.Biome.CarPark",
-                "Tile.Biome.CarParkExit",
-                "Tile.Biome.SCPBase",
-                "Tile.Biome.SCPBaseExit",
-                "Tile.Biome.SCPBasePower"
+                "Tile.Difficulty.Hard",
+                "Tile.Difficulty.Nightmare",
+                "Tile.Difficulty.Apocalypse"
               ],
               "b_not": true
             }
@@ -35,7 +31,7 @@
           "spawn_chance_over": 0.0,
           "spawn_chance_under": 1.0
         },
-        "layout_definition": "LYD_StoreWall_ByDifficulty",
+        "furniture_definition": "FD_StoreWall_DF",
         "transform": {
           "rotation": {
             "x": 0.0,
@@ -71,8 +67,7 @@
                 "value": 2
               },
               "tags": [
-                "Tile.Biome.Bathroom",
-                "Tile.Biome.BathroomExit"
+                "Tile.Difficulty.Hard"
               ],
               "b_not": false
             }
@@ -80,7 +75,7 @@
           "spawn_chance_over": 0.0,
           "spawn_chance_under": 1.0
         },
-        "furniture_definition": "FD_BathroomWall_DF",
+        "furniture_definition": "FD_StoreWall_Green_DF",
         "transform": {
           "rotation": {
             "x": 0.0,
@@ -116,8 +111,7 @@
                 "value": 2
               },
               "tags": [
-                "Tile.Biome.CarPark",
-                "Tile.Biome.CarParkExit"
+                "Tile.Difficulty.Nightmare"
               ],
               "b_not": false
             }
@@ -125,7 +119,7 @@
           "spawn_chance_over": 0.0,
           "spawn_chance_under": 1.0
         },
-        "furniture_definition": "FD_CarParkWall_DF",
+        "furniture_definition": "FD_StoreWall_Blue_DF",
         "transform": {
           "rotation": {
             "x": 0.0,
@@ -147,8 +141,8 @@
       },
       {
         "layout_actor_type": {
-          "name": "LAYOUT",
-          "value": 1
+          "name": "PROXY_ACTOR",
+          "value": 0
         },
         "b_visual_helper": false,
         "definition_filter": {
@@ -161,9 +155,7 @@
                 "value": 2
               },
               "tags": [
-                "Tile.Biome.SCPBase",
-                "Tile.Biome.SCPBaseExit",
-                "Tile.Biome.SCPBasePower"
+                "Tile.Difficulty.Apocalypse"
               ],
               "b_not": false
             }
@@ -171,7 +163,7 @@
           "spawn_chance_over": 0.0,
           "spawn_chance_under": 1.0
         },
-        "layout_definition": "LYD_LabWall_ByDifficulty",
+        "furniture_definition": "FD_StoreWall_DarkRed_DF",
         "transform": {
           "rotation": {
             "x": 0.0,
