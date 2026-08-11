@@ -17,7 +17,6 @@
     "has_toggled_on_vfx": false,
     "has_toggled_off_vfx": false,
     "starting_health": 600.0,
-    "destructible_collection": "/Game/INDUSTRIAL/VOL4_Consoles/Meshes/GeometryCollections/GCS_Consoles_Industrial_11a.GCS_Consoles_Industrial_11a",
     "loot_dropped_on_death": [
       "LD_CraftingBenchTierOneLoot"
     ],
@@ -85,7 +84,6 @@
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,
-    "static_mesh": "/Game/INDUSTRIAL/VOL4_Consoles/Meshes/LP/SM_Consoles_Industrial_11a.SM_Consoles_Industrial_11a",
     "casts_shadow": true,
     "collision_profile_name": {
       "name": "Furniture"

@@ -18,7 +18,7 @@
               "weight": 1
             }
           ],
-          "spawn_chance": 0.2800000011920929
+          "spawn_chance": 0.5
         }
       },
       {
@@ -34,7 +34,7 @@
               "weight": 1
             }
           ],
-          "spawn_chance": 0.2800000011920929
+          "spawn_chance": 0.5
         }
       },
       {
@@ -50,7 +50,7 @@
               "weight": 1
             }
           ],
-          "spawn_chance": 0.3499999940395355
+          "spawn_chance": 0.55
         }
       }
     ],
