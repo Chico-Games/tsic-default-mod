@@ -262,58 +262,7 @@
     })();
 })();
 
-// ---- TEMP-PERF-PROBE (remove before commit) -------------------------------
-(function () {
-    function report(text) {
-        try { window.tsic.publishMessage('UI.Cmd.Cheat.Execute', { Command: text }); } catch (e) {}
-    }
-    function rafRound(tag, done) {
-        var c = 0, t0 = performance.now(), prev = t0, max = 0, over25 = 0;
-        function f() {
-            c++;
-            var n = performance.now(), d = n - prev; prev = n;
-            if (d > max) max = d;
-            if (d > 25) over25++;
-            if (n - t0 < 3000) { requestAnimationFrame(f); return; }
-            report('RAFPROBE page=' + location.pathname + ' tag=' + tag +
-                ' fps=' + (c / ((n - t0) / 1000)).toFixed(1) +
-                ' worst=' + max.toFixed(1) + ' over25=' + over25);
-            done && done();
-        }
-        requestAnimationFrame(f);
-    }
-    function moveMonitor() {
-        var n = 0, sum = 0, max = 0, prev = 0;
-        document.addEventListener('pointermove', function () {
-            var t = performance.now();
-            if (prev) { var d = t - prev; sum += d; if (d > max) max = d; }
-            prev = t;
-            n++;
-        }, { passive: true, capture: true });
-        setInterval(function () {
-            if (n > 5) {
-                report('MOVEPROBE page=' + location.pathname + ' n=' + n +
-                    ' hz=' + (n / 5).toFixed(1) +
-                    ' avg_gap=' + (sum / Math.max(1, n - 1)).toFixed(1) +
-                    ' max_gap=' + max.toFixed(1));
-            }
-            n = 0; sum = 0; max = 0; prev = 0;
-        }, 5000);
-    }
-    setTimeout(function () {
-        rafRound('boot', null);
-        moveMonitor();
-        (function bindScreenProbe() {
-            var t = window.tsic;
-            if (!t || typeof t.on !== 'function') { setTimeout(bindScreenProbe, 500); return; }
-            var busy = false, n = 0;
-            t.on('tsic.msg.UI.Screen.Changed', function (p) {
-                if (busy) return;
-                busy = true;
-                setTimeout(function () {
-                    rafRound((p && p.Name ? p.Name : 'screen') + '-' + (n++), function () { busy = false; });
-                }, 500);
-            });
-        })();
-    }, 4000);
-})();
+// The always-on perf probe that used to live here shipped to the closed alpha
+// by accident. It is now shared/perf-probe.js — same measurements, opt-in, and
+// off unless a Gauntlet node or ?tsicperf=1 arms it. See that file for why an
+// always-running RAF probe is not a free observer in an offscreen CEF page.

@@ -301,16 +301,37 @@
   if (fow) fow.addEventListener('load', function () { fowDraw = fow; render(); });
 
   var fowGen = 0;
+  // In-flight guard. Each refetch decodes a world-scale PNG (a 256-tile world is a
+  // 512x512 source, ~1 MB of bitmap) on the renderer's main thread — the same thread
+  // that services mouse and click. Fog regens arrive in bursts while the player walks
+  // into new ground, and firing a fetch per broadcast stacked those decodes on top of
+  // each other; the ones that lose the stale guard below are pure waste. Collapse a
+  // burst into "the one in flight, plus at most one more".
+  var fowFetchInFlight = false;
+  var fowFetchQueued = false;
   function reloadFow() {
     if (!fow) return;
+    if (fowFetchInFlight) { fowFetchQueued = true; return; }
+    fowFetchInFlight = true;
     var gen = ++fowGen;
     var next = new Image();
+    function settle() {
+      fowFetchInFlight = false;
+      if (!fowFetchQueued) return;
+      fowFetchQueued = false;
+      reloadFow();
+    }
     // Stale guard: refreshes can complete out of order; only the newest wins.
     next.onload = function () {
-      if (gen !== fowGen) return;
-      fowDraw = next;
-      render();
+      if (gen === fowGen) {
+        fowDraw = next;
+        render();
+      }
+      settle();
     };
+    // A failed fetch must not wedge the guard — the 404 retry path in
+    // ensureTexLoaded() is what recovers the source, and it needs this reset.
+    next.onerror = settle;
     next.src = TSIC.runtimeImgUrl('fow') + '?t=' + Date.now();
   }
 

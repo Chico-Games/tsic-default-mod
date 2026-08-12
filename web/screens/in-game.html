@@ -25,6 +25,9 @@
   <!-- Synthetic pointer gestures for UI regression tests. Inert until called; ships so
        Gauntlet nodes can drive real drags in a packaged build via RequestWebUIEval. -->
   <script src="/shared/test-input.js" defer></script>
+  <!-- Page-side perf instrument. Same contract as test-input.js: ships, but inert
+       until a Gauntlet node (or ?tsicperf=1) arms it. Never starts on its own. -->
+  <script src="/shared/perf-probe.js" defer></script>
   <script src="/shared/router.js" defer></script>
   <script src="/shared/tsic-focus.js" defer></script>
   <script src="/shared/tsic-dropdown.js" defer></script>

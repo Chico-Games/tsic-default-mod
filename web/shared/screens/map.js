@@ -300,6 +300,7 @@
         // markers the caller is about to assert on.
         disableFogGate() {
           fowGrid = null;
+          fowGridSuppressed = true;
           fowGateOverridden = true;
           applyFowGate();
           if (latestSnapshot) renderIcons(latestSnapshot.Icons);
@@ -323,7 +324,23 @@
       let heightLevel = 0;
       // Fog-of-war hover gate. Built from UI.Map.FowGrid (see shared/fow-lookup.js).
       // null = no fog data yet → fail open (never suppress the hover panel).
+      //
+      // fowGridRaw holds the last payload; fowGrid is the built lookup, made on first
+      // read after a payload arrives and cached until the next one. Building eagerly in
+      // the message handler cost a full walk of every explored row per fog regen, all
+      // session, whether or not the map was open — see the UI.Map.FowGrid handler.
+      let fowGridRaw = null;
       let fowGrid = null;
+      // Set by disableFogGate() so a test's fail-open override isn't undone by the
+      // next lazy rebuild.
+      let fowGridSuppressed = false;
+      function getFowGrid() {
+        if (fowGridSuppressed) return null;
+        if (!fowGrid && fowGridRaw && window.TSICFow) {
+          fowGrid = window.TSICFow.build(fowGridRaw);
+        }
+        return fowGrid;
+      }
       let latestPlayers = [];
 
       // ---- fog readiness gate --------------------------------------
@@ -663,8 +680,9 @@
         // The picker exists to show you everywhere you could go, so every POI is
         // visible regardless of exploration.
         if (teleportMode) return true;
-        if (!fowGrid || !TF || !fowOverlayVisible()) return true;
-        return TF.exploredAt(fowGrid, wx, wy);
+        const grid = getFowGrid();
+        if (!grid || !TF || !fowOverlayVisible()) return true;
+        return TF.exploredAt(grid, wx, wy);
       }
 
       // --- marker shape geometry (points centred on cx,cy) ------------
@@ -1222,7 +1240,8 @@
         const { wx, wy } = localToWorld(lx, ly);
         // Hide everything (tile info + POI/player/ping labels) over unexplored fog.
         const TF = window.TSICFow;
-        if (!teleportMode && fowGrid && TF && fowOverlayVisible() && !TF.exploredAt(fowGrid, wx, wy)) {
+        const hoverFowGrid = teleportMode ? null : getFowGrid();
+        if (hoverFowGrid && TF && fowOverlayVisible() && !TF.exploredAt(hoverFowGrid, wx, wy)) {
           hideHoverChip();
           return;
         }
@@ -1536,7 +1555,14 @@
       ctx.on('tsic.msg.UI.Ping.Set', onPingSet);
       ctx.on('tsic.msg.UI.Map.Fow', onFowBroadcast);
       ctx.on('tsic.msg.UI.Map.FowGrid', (p) => {
-        fowGrid = window.TSICFow ? window.TSICFow.build(p) : null;
+        // Keep the RAW payload and rebuild lazily. build() walks every explored row,
+        // so doing it here ran a cost proportional to total exploration on every fog
+        // regen for the rest of the session — on the CEF renderer's main thread, the
+        // one serving mouse and clicks — even with the map closed. The texture refetch
+        // three lines up was already visibility-gated; this was the hole beside it.
+        // Only the hover chip reads the grid, and only while the map is on screen.
+        fowGridRaw = p;
+        fowGrid = null;
         // FowGrid ships with every fog regen, so it proves fog is in play even
         // if the texture message was missed.
         fowExpected = true;
