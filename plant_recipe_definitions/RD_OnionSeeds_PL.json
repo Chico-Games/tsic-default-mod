@@ -52,6 +52,7 @@
       }
     ],
     "duration": 180.0,
-    "level": 1
+    "level": 1,
+    "always_discovered": true
   }
 }
