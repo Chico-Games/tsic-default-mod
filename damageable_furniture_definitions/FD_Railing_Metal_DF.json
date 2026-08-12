@@ -68,7 +68,7 @@
       }
     },
     "upgrade_recipe": "RD_MetalRailing_CN",
-    "is_draggable": true,
+    "is_draggable": false,
     "display_name": "Railing",
     "description": "Store furniture.",
     "level": 1,
