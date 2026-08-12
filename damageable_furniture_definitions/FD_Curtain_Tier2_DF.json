@@ -6,7 +6,7 @@
   "properties": {
     "extends": "FD_Curtain_DF",
     "scavenge_yield": null,
-    "starting_health": 100,
+    "starting_health": 200,
     "blocking_collision_boxes": [],
     "drag_mass": 3,
     "gameplay_tags": [

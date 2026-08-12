@@ -13,7 +13,7 @@
     ],
     "scavenge_hold_time": 0.35,
     "scavenge_verb_text": "Take Down",
-    "starting_health": 67,
+    "starting_health": 134,
     "furniture_armour": 2,
     "destructible_collection": "/Game/Scandinavi_Apartment/GeometryCollections/GCS_Curtain_Opt03.GCS_Curtain_Opt03",
     "destruction_impulse_strength": 0,

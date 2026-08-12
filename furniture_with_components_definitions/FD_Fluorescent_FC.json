@@ -210,7 +210,7 @@
       "b_attach_to_entity": true,
       "attach_socket_name": "None"
     },
-    "starting_health": 67,
+    "starting_health": 134,
     "furniture_armour": 2,
     "destructible_collection": "/Game/Furniture/CarPark/GeometryCollections/GCS_FluorescentLight_01a.GCS_FluorescentLight_01a",
     "destruction_impulse_strength": 0,

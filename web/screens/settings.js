@@ -194,6 +194,8 @@
             { Id: 'GameplayCollection', Title: 'Gameplay', Groups: [
                 { Id: 'Interface', Title: 'Interface', Settings: [
                     { Key: 'gameplay.show_tutorial', Label: 'Show tutorial objectives', Type: 'bool', Value: true },
+                    // Off (default) = north-up minimap with a spinning player arrow.
+                    { Key: 'gameplay.minimap_rotate', Label: 'Rotate minimap with player', Type: 'bool', Value: false },
                 ] },
                 // Off stops the game publishing anything to Discord/Steam/EOS —
                 // the friends list then shows only "playing", with no map or count.

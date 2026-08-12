@@ -5,7 +5,7 @@
   "schema_version": 2,
   "properties": {
     "extends": "FD_Server_DF",
-    "starting_health": 220,
+    "starting_health": 440,
     "furniture_armour": 3,
     "deconstruction_tier": 0,
     "is_draggable": false,

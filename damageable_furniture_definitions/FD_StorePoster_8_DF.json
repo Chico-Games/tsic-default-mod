@@ -13,7 +13,7 @@
     ],
     "scavenge_hold_time": 0.35,
     "scavenge_verb_text": "Tear Down",
-    "starting_health": 30,
+    "starting_health": 60,
     "furniture_armour": 1,
     "destructible_collection": "/Game/Furniture/StorePosters/GeometryCollections/GCS_The_Perfect_Living_RoomPoster.GCS_The_Perfect_Living_RoomPoster",
     "destruction_impulse_strength": 0,

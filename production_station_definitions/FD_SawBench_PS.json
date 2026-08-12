@@ -27,7 +27,7 @@
     "has_static_vfx": false,
     "has_toggled_on_vfx": false,
     "has_toggled_off_vfx": false,
-    "starting_health": 300,
+    "starting_health": 600,
     "destructible_collection": "/Game/ScienceLab/Meshes/GeometryCollections/GCS_ReceptionDesk01.GCS_ReceptionDesk01",
     "loot_dropped_on_death": [
       "LD_CraftingBenchTierOneLoot"

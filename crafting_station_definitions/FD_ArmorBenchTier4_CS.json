@@ -16,7 +16,7 @@
     "has_static_vfx": false,
     "has_toggled_on_vfx": false,
     "has_toggled_off_vfx": false,
-    "starting_health": 200.0,
+    "starting_health": 400.0,
     "destructible_collection": "/Game/INDUSTRIAL/VOL4_Consoles/Meshes/GeometryCollections/GCS_Consoles_Industrial_13a.GCS_Consoles_Industrial_13a",
     "loot_dropped_on_death": [
       "LD_CraftingBenchTierOneLoot"

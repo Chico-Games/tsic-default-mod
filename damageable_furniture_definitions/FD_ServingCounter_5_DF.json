@@ -4,7 +4,7 @@
   "class": "UDamageableFurnitureDefinition",
   "schema_version": 2,
   "properties": {
-    "starting_health": 67,
+    "starting_health": 134,
     "furniture_armour": 2,
     "destructible_collection": "/Game/Furniture/Serving/GeometryCollections/GCS_26_Mesh_026.GCS_26_Mesh_026",
     "destruction_impulse_strength": 0,

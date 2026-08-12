@@ -59,6 +59,9 @@
   var lastTime = 0;
   var lastRender = 0;
   var fowMsgs = 0;
+  // gameplay.minimap_rotate: false = north-up (map fixed, arrow spins),
+  // true = heading-up (map spins under a fixed arrow). Mirrors the C++ default.
+  var rotateWithPlayer = false;
   // Last fully-decoded fog bitmap — the only thing render() blits. Assigning
   // a new .src to a live <img> resets its JS-visible bitmap for the whole
   // fetch+decode (naturalWidth reads 0 and drawImage draws nothing until the
@@ -85,6 +88,7 @@
   window.__tsicMinimap = {
     get animating() { return animating; },
     get fowMsgs() { return fowMsgs; },
+    get rotateWithPlayer() { return rotateWithPlayer; },
     // True while the basemap is being withheld because fog can't cover it yet
     // (see fogPending below).
     get fogPending() { return fogPending(); },
@@ -187,6 +191,22 @@
     var pending = fogPending();
 
     ctx.clearRect(0, 0, SIZE, SIZE);
+
+    // Heading-up mode turns the world layers under the player instead of turning
+    // the arrow over the world. The blit window does not need widening: the frame
+    // (#hud-minimap) is a border-radius:50% circle, and rotating the 180px square
+    // about its own centre keeps that inscribed circle fully covered at every
+    // angle. Player dots sit inside the same transform so they stay pinned to the
+    // ground; the local arrow is drawn after restore().
+    if (rotateWithPlayer) {
+      ctx.save();
+      ctx.translate(HALF, HALF);
+      // Local coords put world +X up the canvas, so a heading of `yaw` points along
+      // canvas angle (yaw - 90); rotating by -yaw brings it to -90, i.e. straight up.
+      ctx.rotate(-currentYaw * Math.PI / 180);
+      ctx.translate(-HALF, -HALF);
+    }
+
     if (!pending) drawLayer(tex, lx, ly, viewR);
     // Furniture walls streamed in after the basemap <img> was fetched. That fetch is
     // a one-shot (retryFailedImg only re-tries a FAILED load), so without this layer
@@ -219,9 +239,13 @@
       ctx.stroke();
     }
 
+    if (rotateWithPlayer) ctx.restore();
+
+    // The arrow is the one thing that does NOT turn in heading-up mode — the map
+    // moved instead, so it stays pinned pointing up the screen.
     ctx.save();
     ctx.translate(HALF, HALF);
-    ctx.rotate((currentYaw - 90) * Math.PI / 180);
+    ctx.rotate((rotateWithPlayer ? -90 : currentYaw - 90) * Math.PI / 180);
     ctx.beginPath();
     ctx.moveTo(8, 0);
     ctx.lineTo(-4, -5);
@@ -289,6 +313,16 @@
     };
     next.src = TSIC.runtimeImgUrl('fow') + '?t=' + Date.now();
   }
+
+  // Sticky per key, so a HUD that boots after the player picked the mode still
+  // gets the value replayed. ValueJson is raw JSON text, not a parsed value.
+  tsic.on('tsic.msg.UI.Settings.Value', function (p) {
+    if (!p || p.Key !== 'gameplay.minimap_rotate') return;
+    var next = String(p.ValueJson || '').indexOf('true') !== -1;
+    if (next === rotateWithPlayer) return;
+    rotateWithPlayer = next;
+    render(); // the animation loop idles at rest — repaint so the flip is immediate
+  });
 
   tsic.on('tsic.msg.UI.Map.Fow', function () {
     fowMsgs++;

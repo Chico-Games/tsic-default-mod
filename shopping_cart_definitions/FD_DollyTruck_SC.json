@@ -16,7 +16,7 @@
     "has_static_vfx": false,
     "has_toggled_on_vfx": false,
     "has_toggled_off_vfx": false,
-    "starting_health": 150.0,
+    "starting_health": 300.0,
     "loot_dropped_on_death": [],
     "deconstruction_tier": 2,
     "blocking_collision_boxes": [

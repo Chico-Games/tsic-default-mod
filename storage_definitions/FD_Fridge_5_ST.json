@@ -22,7 +22,7 @@
     "has_static_vfx": false,
     "has_toggled_on_vfx": false,
     "has_toggled_off_vfx": false,
-    "starting_health": 100.0,
+    "starting_health": 200.0,
     "destructible_collection": "/Game/Fab/Suburban_Household/VOL9_Kitchen/Meshes/GeometryCollections/GCS_Fridge_NN_01b.GCS_Fridge_NN_01b",
     "loot_dropped_on_death": [],
     "deconstruction_tier": 2,

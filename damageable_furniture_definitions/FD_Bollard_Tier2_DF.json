@@ -5,7 +5,7 @@
   "schema_version": 2,
   "properties": {
     "extends": "FD_Bollard_DF",
-    "starting_health": 180,
+    "starting_health": 360,
     "furniture_armour": 3,
     "deconstruction_tier": 0,
     "is_draggable": false,

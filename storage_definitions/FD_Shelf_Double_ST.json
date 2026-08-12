@@ -179,7 +179,7 @@
       "b_attach_to_entity": true,
       "attach_socket_name": "None"
     },
-    "starting_health": 100,
+    "starting_health": 200,
     "furniture_armour": 2,
     "destructible_collection": "/Game/Fab/GeometryCollections/GCS_DoubleShelf.GCS_DoubleShelf",
     "destruction_impulse_strength": 0,

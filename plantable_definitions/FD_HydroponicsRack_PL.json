@@ -234,7 +234,7 @@
       "b_attach_to_entity": true,
       "attach_socket_name": "None"
     },
-    "starting_health": 150,
+    "starting_health": 300,
     "furniture_armour": 2,
     "destructible_collection": "/Game/Furniture/Racks/GeometryCollections/GCS_Rack04.GCS_Rack04",
     "destruction_impulse_strength": 0,

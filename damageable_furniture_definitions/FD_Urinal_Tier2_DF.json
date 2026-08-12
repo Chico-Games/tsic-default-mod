@@ -5,7 +5,7 @@
   "schema_version": 2,
   "properties": {
     "extends": "FD_Urinal_DF",
-    "starting_health": 280,
+    "starting_health": 560,
     "furniture_armour": 4,
     "deconstruction_tier": 0,
     "is_draggable": false,

@@ -5,7 +5,7 @@
   "schema_version": 2,
   "properties": {
     "extends": "FD_GardenWalkway_DF",
-    "starting_health": 150,
+    "starting_health": 300,
     "furniture_armour": 2,
     "deconstruction_tier": 0,
     "is_draggable": false,

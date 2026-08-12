@@ -16,7 +16,7 @@
     "has_static_vfx": false,
     "has_toggled_on_vfx": false,
     "has_toggled_off_vfx": false,
-    "starting_health": 60.0,
+    "starting_health": 120.0,
     "destructible_collection": "/Game/Grocery/VOL1/Meshes/GeometryCollections/GCS_Register_Set_NN_01a.GCS_Register_Set_NN_01a",
     "loot_dropped_on_death": [
       "LD_CheckoutLoot"

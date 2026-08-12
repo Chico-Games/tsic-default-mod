@@ -6,7 +6,7 @@
   "properties": {
     "extends": "FD_StorePoster_DF",
     "scavenge_yield": null,
-    "starting_health": 90,
+    "starting_health": 180,
     "drag_mass": 3,
     "gameplay_tags": [
       "Entity.RandomGeneration.FurnitureType.Storeposter.Wall",

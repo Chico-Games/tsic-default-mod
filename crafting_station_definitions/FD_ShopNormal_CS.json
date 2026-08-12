@@ -90,7 +90,7 @@
     "has_static_vfx": false,
     "has_toggled_on_vfx": false,
     "has_toggled_off_vfx": false,
-    "starting_health": 67.0,
+    "starting_health": 134.0,
     "destructible_collection": "/Game/Furniture/CarPark/GeometryCollections/GCS_VendingMachine_01a.GCS_VendingMachine_01a",
     "loot_dropped_on_death": [
       "LD_VendingMachine"

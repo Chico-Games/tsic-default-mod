@@ -5,7 +5,7 @@
   "schema_version": 2,
   "properties": {
     "extends": "FD_ServingCounter_DF",
-    "starting_health": 200,
+    "starting_health": 400,
     "furniture_armour": 3,
     "drag_mass": 70,
     "gameplay_tags": [

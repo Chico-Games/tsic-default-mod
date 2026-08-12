@@ -6,7 +6,7 @@
   "properties": {
     "extends": "FD_Rug_DF",
     "scavenge_yield": null,
-    "starting_health": 60,
+    "starting_health": 120,
     "blocking_collision_boxes": [],
     "drag_mass": 5,
     "gameplay_tags": [

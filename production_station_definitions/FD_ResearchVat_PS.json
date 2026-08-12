@@ -27,7 +27,7 @@
     "has_static_vfx": false,
     "has_toggled_on_vfx": false,
     "has_toggled_off_vfx": false,
-    "starting_health": 420,
+    "starting_health": 840,
     "destructible_collection": "/Game/Furniture/ScientificDevices/GeometryCollections/GCS_ChemicalContainer01.GCS_ChemicalContainer01",
     "loot_dropped_on_death": [],
     "blocking_collision_boxes": [

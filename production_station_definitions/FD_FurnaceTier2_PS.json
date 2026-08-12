@@ -27,7 +27,7 @@
     "has_static_vfx": false,
     "has_toggled_on_vfx": false,
     "has_toggled_off_vfx": false,
-    "starting_health": 100,
+    "starting_health": 200,
     "destructible_collection": "/Game/MERIDIAN/VOL15_ChineseFood/Meshes/GeometryCollections/GCS_Hot_Water_heater_NN_17a.GCS_Hot_Water_heater_NN_17a",
     "loot_dropped_on_death": [],
     "deconstruction_tier": 3,

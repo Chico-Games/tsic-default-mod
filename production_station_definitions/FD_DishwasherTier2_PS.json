@@ -27,7 +27,7 @@
     "has_static_vfx": false,
     "has_toggled_on_vfx": false,
     "has_toggled_off_vfx": false,
-    "starting_health": 33,
+    "starting_health": 66,
     "destructible_collection": "/Game/Fab/Suburban_Household/VOL9_Kitchen/Meshes/GeometryCollections/GCS_Dishwasher_NN_01a.GCS_Dishwasher_NN_01a",
     "loot_dropped_on_death": [],
     "deconstruction_tier": 2,

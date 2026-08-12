@@ -16,7 +16,7 @@
     "has_static_vfx": false,
     "has_toggled_on_vfx": false,
     "has_toggled_off_vfx": false,
-    "starting_health": 200.0,
+    "starting_health": 400.0,
     "destructible_collection": "/Game/Furniture/CraftingBenches/GeometryCollections/GCS_CraftingTableTierOne.GCS_CraftingTableTierOne",
     "loot_dropped_on_death": [
       "LD_CraftingBenchTierOneLoot"

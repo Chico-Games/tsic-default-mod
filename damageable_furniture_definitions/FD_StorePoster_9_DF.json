@@ -13,7 +13,7 @@
     ],
     "scavenge_hold_time": 0.35,
     "scavenge_verb_text": "Tear Down",
-    "starting_health": 30,
+    "starting_health": 60,
     "furniture_armour": 1,
     "destructible_collection": "/Game/Furniture/StorePosters/GeometryCollections/GCS_Top_Down_Poster.GCS_Top_Down_Poster",
     "destruction_impulse_strength": 0,

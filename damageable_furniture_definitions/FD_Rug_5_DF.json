@@ -13,7 +13,7 @@
     ],
     "scavenge_hold_time": 0.35,
     "scavenge_verb_text": "Roll Up",
-    "starting_health": 20,
+    "starting_health": 40,
     "furniture_armour": 1,
     "destructible_collection": "/Game/Furniture/Carpets/GeometryCollections/GCS_Mat02.GCS_Mat02",
     "destruction_impulse_strength": 0,

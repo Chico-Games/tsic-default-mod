@@ -6,7 +6,7 @@
   "properties": {
     "extends": "FD_WallShelf_DF",
     "inventory_rules_definition": "IRD_StorageTier2_8",
-    "starting_health": 130,
+    "starting_health": 260,
     "furniture_armour": 2,
     "deconstruction_tier": 0,
     "is_draggable": false,

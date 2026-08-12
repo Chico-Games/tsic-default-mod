@@ -5,7 +5,7 @@
   "schema_version": 2,
   "properties": {
     "extends": "FD_Table_DF",
-    "starting_health": 130,
+    "starting_health": 260,
     "furniture_armour": 2,
     "drag_mass": 60,
     "gameplay_tags": [

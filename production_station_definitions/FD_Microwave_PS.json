@@ -27,7 +27,7 @@
     "has_static_vfx": false,
     "has_toggled_on_vfx": false,
     "has_toggled_off_vfx": false,
-    "starting_health": 33,
+    "starting_health": 66,
     "destructible_collection": "/Game/Fab/Suburban_Household/VOL9_Kitchen/Meshes/GeometryCollections/GCS_Microwave_NN_06j.GCS_Microwave_NN_06j",
     "loot_dropped_on_death": [],
     "constructable_item_to_grant": "ID_Microwave_CI",

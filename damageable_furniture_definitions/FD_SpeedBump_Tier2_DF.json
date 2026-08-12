@@ -5,7 +5,7 @@
   "schema_version": 2,
   "properties": {
     "extends": "FD_SpeedBump_DF",
-    "starting_health": 300,
+    "starting_health": 600,
     "furniture_armour": 4,
     "deconstruction_tier": 0,
     "is_draggable": false,

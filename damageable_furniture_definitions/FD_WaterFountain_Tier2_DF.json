@@ -5,7 +5,7 @@
   "schema_version": 2,
   "properties": {
     "extends": "FD_WaterFountain_DF",
-    "starting_health": 320,
+    "starting_health": 640,
     "furniture_armour": 4,
     "deconstruction_tier": 0,
     "is_draggable": false,

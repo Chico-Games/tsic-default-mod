@@ -22,7 +22,7 @@
     "has_static_vfx": false,
     "has_toggled_on_vfx": false,
     "has_toggled_off_vfx": false,
-    "starting_health": 43,
+    "starting_health": 86,
     "furniture_armour": 1,
     "destructible_collection": "/Game/Furniture/Shelves/GeometryCollections/GCS_WhiteShelf.GCS_WhiteShelf",
     "destruction_impulse_strength": 0,

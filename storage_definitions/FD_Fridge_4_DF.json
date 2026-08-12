@@ -22,7 +22,7 @@
     "has_static_vfx": false,
     "has_toggled_on_vfx": false,
     "has_toggled_off_vfx": false,
-    "starting_health": 67,
+    "starting_health": 134,
     "furniture_armour": 2,
     "destructible_collection": "/Game/Furniture/Fridges/GeometryCollections/GCS_Small_Fridge.GCS_Small_Fridge",
     "destruction_impulse_strength": 0,
