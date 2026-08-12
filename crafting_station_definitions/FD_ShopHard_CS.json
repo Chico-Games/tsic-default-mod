@@ -144,7 +144,7 @@
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,
-    "static_mesh": "/Game/SUBURBS/VOL28_Vending/Meshes/NN/SM_Toy_Machines_NN_11a.SM_Toy_Machines_NN_11a",
+    "static_mesh": "/Game/Fab/SUBURBS/VOL28_Vending/Meshes/NN/SM_Toy_Machines_NN_11a.SM_Toy_Machines_NN_11a",
     "casts_shadow": true,
     "collision_profile_name": {
       "name": "Furniture"

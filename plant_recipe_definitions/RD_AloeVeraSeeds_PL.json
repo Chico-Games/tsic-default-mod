@@ -6,7 +6,7 @@
   "properties": {
     "grow_stages": [
       {
-        "mesh": "/Game/UltimateFarming/Meshes/SM_Onion_Starter.SM_Onion_Starter",
+        "mesh": "/Game/Fab/UltimateFarming/Meshes/SM_Onion_Starter.SM_Onion_Starter",
         "ratio": 1.0,
         "start_scale": {
           "x": 0.33,
@@ -20,7 +20,7 @@
         }
       },
       {
-        "mesh": "/Game/UltimateFarming/Meshes/SM_Onion_A.SM_Onion_A",
+        "mesh": "/Game/Fab/UltimateFarming/Meshes/SM_Onion_A.SM_Onion_A",
         "ratio": 1.0,
         "start_scale": {
           "x": 0.38,

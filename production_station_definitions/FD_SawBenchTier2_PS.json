@@ -28,7 +28,7 @@
     "has_toggled_on_vfx": false,
     "has_toggled_off_vfx": false,
     "starting_health": 600,
-    "destructible_collection": "/Game/ScienceLab/Meshes/GeometryCollections/GCS_ReceptionDesk01.GCS_ReceptionDesk01",
+    "destructible_collection": "/Game/Fab/ScienceLab/Meshes/GeometryCollections/GCS_ReceptionDesk01.GCS_ReceptionDesk01",
     "loot_dropped_on_death": [
       "LD_CraftingBenchTierOneLoot"
     ],
@@ -97,7 +97,7 @@
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,
-    "static_mesh": "/Game/ScienceLab/Meshes/Furniture/SM_ReceptionDesk01.SM_ReceptionDesk01",
+    "static_mesh": "/Game/Fab/ScienceLab/Meshes/Furniture/SM_ReceptionDesk01.SM_ReceptionDesk01",
     "casts_shadow": true,
     "collision_profile_name": {
       "name": "Furniture"

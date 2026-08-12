@@ -6,7 +6,7 @@
   "properties": {
     "grow_stages": [
       {
-        "mesh": "/Game/UltimateFarming/Meshes/SM_Beans_Starter.SM_Beans_Starter",
+        "mesh": "/Game/Fab/UltimateFarming/Meshes/SM_Beans_Starter.SM_Beans_Starter",
         "ratio": 1.0,
         "start_scale": {
           "x": 0.06,
@@ -20,7 +20,7 @@
         }
       },
       {
-        "mesh": "/Game/UltimateFarming/Meshes/SM_Beans_A.SM_Beans_A",
+        "mesh": "/Game/Fab/UltimateFarming/Meshes/SM_Beans_A.SM_Beans_A",
         "ratio": 1.0,
         "start_scale": {
           "x": 0.114,

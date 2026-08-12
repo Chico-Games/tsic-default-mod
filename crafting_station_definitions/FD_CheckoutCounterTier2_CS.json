@@ -18,7 +18,7 @@
     "has_toggled_on_vfx": false,
     "has_toggled_off_vfx": false,
     "starting_health": 400.0,
-    "destructible_collection": "/Game/Grocery/VOL1/Meshes/GeometryCollections/GCS_Grocery_Checkout_NN_04a.GCS_Grocery_Checkout_NN_04a",
+    "destructible_collection": "/Game/Fab/Grocery/VOL1/Meshes/GeometryCollections/GCS_Grocery_Checkout_NN_04a.GCS_Grocery_Checkout_NN_04a",
     "loot_dropped_on_death": [
       "LD_MetalRailingLoot"
     ],
@@ -87,7 +87,7 @@
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,
-    "static_mesh": "/Game/Grocery/VOL1/Meshes/NN/SM_Grocery_Checkout_NN_04a.SM_Grocery_Checkout_NN_04a",
+    "static_mesh": "/Game/Fab/Grocery/VOL1/Meshes/NN/SM_Grocery_Checkout_NN_04a.SM_Grocery_Checkout_NN_04a",
     "casts_shadow": true,
     "collision_profile_name": {
       "name": "Furniture"

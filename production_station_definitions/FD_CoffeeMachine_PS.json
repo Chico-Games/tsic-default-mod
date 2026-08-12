@@ -28,7 +28,7 @@
     "has_toggled_on_vfx": false,
     "has_toggled_off_vfx": false,
     "starting_health": 66,
-    "destructible_collection": "/Game/Kitchen_VOL4/GeometryCollections/GCS_CoffeeMachine_04a.GCS_CoffeeMachine_04a",
+    "destructible_collection": "/Game/Furniture/Cooking/GeometryCollections/GCS_CoffeeMachine_04a.GCS_CoffeeMachine_04a",
     "loot_dropped_on_death": [],
     "constructable_item_to_grant": "ID_CoffeeMachine_CI",
     "deconstruction_tier": 2,
@@ -96,7 +96,7 @@
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,
-    "static_mesh": "/Game/Kitchen_VOL4/Meshes/SM_CoffeeMachine_04a.SM_CoffeeMachine_04a",
+    "static_mesh": "/Game/Fab/Kitchen_VOL4/Meshes/SM_CoffeeMachine_04a.SM_CoffeeMachine_04a",
     "casts_shadow": true,
     "collision_profile_name": {
       "name": "Furniture"

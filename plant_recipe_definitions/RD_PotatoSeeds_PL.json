@@ -6,7 +6,7 @@
   "properties": {
     "grow_stages": [
       {
-        "mesh": "/Game/UltimateFarming/Meshes/SM_Potato_Starter.SM_Potato_Starter",
+        "mesh": "/Game/Fab/UltimateFarming/Meshes/SM_Potato_Starter.SM_Potato_Starter",
         "ratio": 1.0,
         "start_scale": {
           "x": 0.08,
@@ -25,7 +25,7 @@
         }
       },
       {
-        "mesh": "/Game/UltimateFarming/Meshes/SM_Potato_A_Flower.SM_Potato_A_Flower",
+        "mesh": "/Game/Fab/UltimateFarming/Meshes/SM_Potato_A_Flower.SM_Potato_A_Flower",
         "ratio": 1.0,
         "start_scale": {
           "x": 0.094,
@@ -44,7 +44,7 @@
         }
       },
       {
-        "mesh": "/Game/UltimateFarming/Meshes/SM_Potato_A.SM_Potato_A",
+        "mesh": "/Game/Fab/UltimateFarming/Meshes/SM_Potato_A.SM_Potato_A",
         "ratio": 1.0,
         "start_scale": {
           "x": 0.125,

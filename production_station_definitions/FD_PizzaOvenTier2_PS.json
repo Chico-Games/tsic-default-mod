@@ -28,7 +28,7 @@
     "has_toggled_on_vfx": false,
     "has_toggled_off_vfx": false,
     "starting_health": 200,
-    "destructible_collection": "/Game/Commercial_Kitchen/GeometryCollections/GCS_PizzaOven01.GCS_PizzaOven01",
+    "destructible_collection": "/Game/Furniture/Cooking/GeometryCollections/GCS_PizzaOven01.GCS_PizzaOven01",
     "loot_dropped_on_death": [],
     "deconstruction_tier": 2,
     "blocking_collision_boxes": [
@@ -95,7 +95,7 @@
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,
-    "static_mesh": "/Game/Commercial_Kitchen/Meshes/SM_PizzaOven01.SM_PizzaOven01",
+    "static_mesh": "/Game/Fab/Commercial_Kitchen/Meshes/SM_PizzaOven01.SM_PizzaOven01",
     "casts_shadow": true,
     "collision_profile_name": {
       "name": "Furniture"

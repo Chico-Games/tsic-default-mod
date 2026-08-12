@@ -6,7 +6,7 @@
   "properties": {
     "grow_stages": [
       {
-        "mesh": "/Game/UltimateFarming/Meshes/SM_Zucchini_Starter.SM_Zucchini_Starter",
+        "mesh": "/Game/Fab/UltimateFarming/Meshes/SM_Zucchini_Starter.SM_Zucchini_Starter",
         "ratio": 1.0,
         "start_scale": {
           "x": 0.113,
@@ -20,7 +20,7 @@
         }
       },
       {
-        "mesh": "/Game/UltimateFarming/Meshes/SM_Zucchini_A_Flower.SM_Zucchini_A_Flower",
+        "mesh": "/Game/Fab/UltimateFarming/Meshes/SM_Zucchini_A_Flower.SM_Zucchini_A_Flower",
         "ratio": 1.0,
         "start_scale": {
           "x": 0.099,
@@ -34,7 +34,7 @@
         }
       },
       {
-        "mesh": "/Game/UltimateFarming/Meshes/SM_Zucchini_A.SM_Zucchini_A",
+        "mesh": "/Game/Fab/UltimateFarming/Meshes/SM_Zucchini_A.SM_Zucchini_A",
         "ratio": 1.0,
         "start_scale": {
           "x": 0.131,

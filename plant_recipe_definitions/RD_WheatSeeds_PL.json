@@ -6,7 +6,7 @@
   "properties": {
     "grow_stages": [
       {
-        "mesh": "/Game/UltimateFarming/Meshes/SM_Wheat_Starter.SM_Wheat_Starter",
+        "mesh": "/Game/Fab/UltimateFarming/Meshes/SM_Wheat_Starter.SM_Wheat_Starter",
         "ratio": 1.0,
         "start_scale": {
           "x": 0.188,
@@ -20,7 +20,7 @@
         }
       },
       {
-        "mesh": "/Game/UltimateFarming/Meshes/SM_Wheat_A.SM_Wheat_A",
+        "mesh": "/Game/Fab/UltimateFarming/Meshes/SM_Wheat_A.SM_Wheat_A",
         "ratio": 1.0,
         "start_scale": {
           "x": 0.228,

@@ -6,7 +6,7 @@
   "properties": {
     "grow_stages": [
       {
-        "mesh": "/Game/UltimateFarming/Meshes/SM_Sugarcane_Starter.SM_Sugarcane_Starter",
+        "mesh": "/Game/Fab/UltimateFarming/Meshes/SM_Sugarcane_Starter.SM_Sugarcane_Starter",
         "ratio": 1.0,
         "start_scale": {
           "x": 0.049,
@@ -20,7 +20,7 @@
         }
       },
       {
-        "mesh": "/Game/UltimateFarming/Meshes/SM_Sugarcane_A.SM_Sugarcane_A",
+        "mesh": "/Game/Fab/UltimateFarming/Meshes/SM_Sugarcane_A.SM_Sugarcane_A",
         "ratio": 1.0,
         "start_scale": {
           "x": 0.05,

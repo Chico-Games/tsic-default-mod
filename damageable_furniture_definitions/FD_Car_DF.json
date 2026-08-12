@@ -6,7 +6,7 @@
   "properties": {
     "starting_health": 146,
     "furniture_armour": 2,
-    "destructible_collection": "/Game/Vehicles/VOL3_RetroCars/GeometryCollections/GCS_Car_02a.GCS_Car_02a",
+    "destructible_collection": "/Game/Fab/Vehicles/VOL3_RetroCars/GeometryCollections/GCS_Car_02a.GCS_Car_02a",
     "destruction_impulse_strength": 0,
     "loot_dropped_on_death": [
       "LD_Car"
@@ -106,7 +106,7 @@
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,
-    "static_mesh": "/Game/Vehicles/VOL3_RetroCars/Meshes/SM_Car_02a.SM_Car_02a",
+    "static_mesh": "/Game/Fab/Vehicles/VOL3_RetroCars/Meshes/SM_Car_02a.SM_Car_02a",
     "casts_shadow": true,
     "collision_profile_name": {
       "name": "Furniture"
