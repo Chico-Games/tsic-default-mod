@@ -230,13 +230,33 @@
       var sx = HALF + (pos.x - lx) * scale;
       var sy = HALF + (pos.y - ly) * scale;
       if (sx < -10 || sx > SIZE + 10 || sy < -10 || sy > SIZE + 10) continue;
+
+      // An arrow, not a dot. These used to be plain filled circles, so the minimap
+      // told you WHERE your co-op partner was but never which way they were facing
+      // — while the full map screen has always drawn their heading. Players noticed
+      // the inconsistency ("cant see other player rotation on minimap").
+      //
+      // No extra transform juggling is needed for heading-up mode: this runs inside
+      // the same rotated context as the world layers, so rotating by (yaw - 90) here
+      // composes with the map's -currentYaw and yields the heading RELATIVE to the
+      // local player, which is what heading-up means. In north-up mode there is no
+      // outer rotation and (yaw - 90) is the absolute heading. Same line, both modes.
+      ctx.save();
+      ctx.translate(sx, sy);
+      ctx.rotate(((pl.YawDeg || 0) - 90) * Math.PI / 180);
       ctx.beginPath();
-      ctx.arc(sx, sy, 4, 0, Math.PI * 2);
+      // Smaller than the local arrow (8/-4/5) so "me" stays the one that reads first.
+      ctx.moveTo(6, 0);
+      ctx.lineTo(-3, -4);
+      ctx.lineTo(-1.5, 0);
+      ctx.lineTo(-3, 4);
+      ctx.closePath();
       ctx.fillStyle = pl.Color || '#888888';
       ctx.fill();
       ctx.strokeStyle = '#fff';
       ctx.lineWidth = 1;
       ctx.stroke();
+      ctx.restore();
     }
 
     if (rotateWithPlayer) ctx.restore();
