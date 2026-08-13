@@ -115,6 +115,37 @@
     origDispatch = null;
   }
 
+  // --- input-latency ack ------------------------------------------------------
+  //
+  // C++ stamps a synthetic mouse move, Slate routes it, and the page answers the
+  // instant its handler runs; the elapsed time is computed entirely on the C++ side
+  // (UTSICWebUISubsystem::HandleInputProbeAck), so no clock has to be reconciled
+  // across the process boundary. We report the position back and C++ matches it
+  // against what it injected — without that, any other pointer traffic on the page
+  // would be timed against the probe and report a latency near zero.
+  //
+  // Both events are answered on purpose. Chromium delivers `pointermove` aligned to
+  // the renderer's frame, while `pointerrawupdate` fires as the event lands; the gap
+  // between the two is queueing that the JS-drawn cursor pays on every move and that
+  // nothing else in the stack can see.
+  var inputArmed = false;
+
+  // Normalized, NOT client pixels. C++ aims the inject in view UV and has to match
+  // the reply against it; comparing pixels would mean reconciling CSS pixels with
+  // Slate units across the DPI scale, and getting that wrong rejects every sample
+  // and reports the result as "no input arrived" — the loudest possible false alarm.
+  function ackPointer(e, isRaw) {
+    if (!inputArmed) return;
+    var t = window.tsic;
+    if (!t || typeof t.send !== 'function') return;
+    var w = window.innerWidth || 1;
+    var h = window.innerHeight || 1;
+    t.send('UI.Perf.InputAck', { u: e.clientX / w, v: e.clientY / h, raw: !!isRaw });
+  }
+
+  function onProbeMove(e) { ackPointer(e, false); }
+  function onProbeRaw(e) { ackPointer(e, true); }
+
   function pct(sorted, p) {
     if (!sorted.length) return 0;
     var i = Math.min(sorted.length - 1, Math.max(0, Math.round((p / 100) * (sorted.length - 1))));
@@ -171,6 +202,40 @@
       rafHandle = requestAnimationFrame(onFrame);
       return 'ok';
     },
+
+    /**
+     * Answer C++ input-latency probes. Independent of start()/stop(): a latency run
+     * wants the ack and nothing else, and the rAF sampler that start() installs is a
+     * permanent animation, which would itself raise the capture cadence and flatter
+     * every number the probe is there to take.
+     */
+    armInput: function (on) {
+      var want = on !== false;
+      inputArmed = want;
+      if (want) {
+        // Re-attached every call, deliberately, even when `inputArmed` is already
+        // true. The early-out this used to have was worse than useless: if the
+        // listeners were lost — a screen mount that rebuilds the subtree, a
+        // re-executed bundle, anything that re-enters this file's scope — the flag
+        // still said "armed", so re-arming returned 'ok' and attached nothing, and
+        // the C++ side went on injecting into a page that could never answer. That
+        // reads as 100% input loss, i.e. as the worst latency result imaginable,
+        // and it is what the Map screen reported on 2026-08-13: 45 injected, 0
+        // acked, 0 even unmatched.
+        //
+        // Re-adding is free: addEventListener de-duplicates an identical
+        // (type, listener, capture) triple, so this is idempotent where it counts
+        // and repairing where it does not.
+        document.addEventListener('pointermove', onProbeMove, { passive: true, capture: true });
+        document.addEventListener('pointerrawupdate', onProbeRaw, { passive: true, capture: true });
+      } else {
+        document.removeEventListener('pointermove', onProbeMove, { capture: true });
+        document.removeEventListener('pointerrawupdate', onProbeRaw, { capture: true });
+      }
+      return 'ok';
+    },
+
+    isInputArmed: function () { return inputArmed; },
 
     /** Close the current phase and label everything after this point. */
     mark: function (name) {
