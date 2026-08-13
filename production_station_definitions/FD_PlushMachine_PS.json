@@ -103,7 +103,7 @@
     "loot_positions": [],
     "weighted_chance": 1000,
     "world_gen_priority": 1000,
-    "destructible_collection": "/Game/Furniture/Processing/GeometryCollections/GCS_Grab_Machine_01a.GCS_Grab_Machine_01a",
+    "destructible_collection": "/Game/Fab/ArcadeMachines3/GeometryCollections/GCS_Grab_Machine_01a.GCS_Grab_Machine_01a",
     "destruction_impulse_strength": 0,
     "drag_angular_damping": 1.25,
     "drag_linear_damping": 5,

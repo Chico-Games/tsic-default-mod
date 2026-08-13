@@ -17,7 +17,7 @@
     "has_toggled_on_vfx": false,
     "has_toggled_off_vfx": false,
     "starting_health": 400.0,
-    "destructible_collection": "/Game/Furniture/CraftingBenches/GeometryCollections/GCS_Consoles_Industrial_12a.GCS_Consoles_Industrial_12a",
+    "destructible_collection": "/Game/Fab/INDUSTRIAL_v2/VOL4_Consoles/Meshes/GeometryCollections/GCS_Consoles_Industrial_12a.GCS_Consoles_Industrial_12a",
     "loot_dropped_on_death": [
       "LD_CraftingBenchTierOneLoot"
     ],

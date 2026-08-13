@@ -106,6 +106,7 @@
     "meta_tags": [],
     "is_pingable": false,
     "static_mesh": "/Game/Fab/ArchViz_Vol3/Meshes/SM_Bar_Cart_01a.SM_Bar_Cart_01a",
+    "destructible_collection": "/Game/Fab/ArchViz_Vol3/GeometryCollections/GCS_Bar_Cart_01a.GCS_Bar_Cart_01a",
     "casts_shadow": true,
     "collision_profile_name": {
       "name": "Furniture"

@@ -17,7 +17,7 @@
     "has_toggled_on_vfx": false,
     "has_toggled_off_vfx": false,
     "starting_health": 1200.0,
-    "destructible_collection": "/Game/Furniture/CraftingBenches/GeometryCollections/GCS_SupplyCart_02a.GCS_SupplyCart_02a",
+    "destructible_collection": "/Game/Fab/Hospital_VOL2/GeometryCollections/GCS_SupplyCart_02a.GCS_SupplyCart_02a",
     "loot_dropped_on_death": [
       "LD_CraftingBenchTierOneLoot"
     ],

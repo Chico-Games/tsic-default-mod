@@ -91,7 +91,7 @@
     "has_toggled_on_vfx": false,
     "has_toggled_off_vfx": false,
     "starting_health": 134.0,
-    "destructible_collection": "/Game/Furniture/CarPark/GeometryCollections/GCS_VendingMachine_01a.GCS_VendingMachine_01a",
+    "destructible_collection": "/Game/Fab/SUBURBS/VOL28_Vending/Meshes/GeometryCollections/GCS_Vending_Soda_NN_17a.GCS_Vending_Soda_NN_17a",
     "loot_dropped_on_death": [
       "LD_VendingMachine"
     ],

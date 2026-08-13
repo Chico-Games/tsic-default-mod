@@ -109,6 +109,7 @@
     "meta_tags": [],
     "is_pingable": false,
     "static_mesh": "/Game/Fab/80s_Brutalist_Office/Models/PC/SM_PC_Monitor_01.SM_PC_Monitor_01",
+    "destructible_collection": "/Game/Fab/80s_Brutalist_Office/Models/GeometryCollections/GCS_PC_Monitor_01.GCS_PC_Monitor_01",
     "casts_shadow": true,
     "collision_profile_name": {
       "name": "Furniture"

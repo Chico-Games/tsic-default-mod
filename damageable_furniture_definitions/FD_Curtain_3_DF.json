@@ -15,7 +15,7 @@
     "scavenge_verb_text": "Take Down",
     "starting_health": 134,
     "furniture_armour": 2,
-    "destructible_collection": "/Game/Furniture/Curtains/GeometryCollections/GCS_Curtain_Opt03.GCS_Curtain_Opt03",
+    "destructible_collection": "/Game/Fab/Scandinavi_Apartment/GeometryCollections/GCS_Curtain_Opt03.GCS_Curtain_Opt03",
     "destruction_impulse_strength": 0,
     "loot_dropped_on_death": [
       "LD_CurtainRailLoot"

@@ -90,6 +90,7 @@
     "meta_tags": [],
     "is_pingable": false,
     "static_mesh": "/Game/Fab/ShoppingMarketVOL2_Supermarket/Meshes/SM_Shopping_Basket_02a.SM_Shopping_Basket_02a",
+    "destructible_collection": "/Game/Fab/ShoppingMarketVOL2_Supermarket/GeometryCollections/GCS_Shopping_Basket_02a.GCS_Shopping_Basket_02a",
     "casts_shadow": true,
     "collision_profile_name": {
       "name": "Furniture"
