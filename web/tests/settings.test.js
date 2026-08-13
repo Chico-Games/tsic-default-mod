@@ -524,3 +524,26 @@ TSICTestHarness.register({
             'no overlay for an instant setting'));
     },
 });
+
+TSICTestHarness.register({
+    name: 'Settings: a window-mode echo moves the control, so the UI cannot lie about it',
+    file: '/screens/settings.html',
+    async run(ctx) {
+        // Picking a resolution takes the game exclusive-fullscreen with it, because in
+        // borderless the backbuffer is pinned to the desktop and the resolution setting is a
+        // visual no-op (#147). C++ echoes the new window mode on the per-key value channel;
+        // without the control following it, the dropdown keeps claiming "Borderless" while the
+        // game is fullscreen — the setting would work and still look broken.
+        await openGraphicsTab(ctx);
+        const dd = ctx.doc.querySelector('button.tsic-dropdown[data-key="video.window_mode"]');
+        ctx.expect(ctx.assert.truthy(dd, 'the window mode row is on the video tab'));
+        ctx.expect(ctx.assert.truthy(ctx.win.tsic.dropdown.get(dd) !== 'fullscreen',
+            'starts on something other than fullscreen, or this proves nothing'));
+
+        ctx.inject('tsic.msg.UI.Settings.Value',
+            { Key: 'video.window_mode', ValueJson: JSON.stringify('fullscreen') });
+        await ctx.waitFor(() => ctx.win.tsic.dropdown.get(
+            ctx.doc.querySelector('button.tsic-dropdown[data-key="video.window_mode"]')) === 'fullscreen',
+            { timeout: 2000 });
+    },
+});
