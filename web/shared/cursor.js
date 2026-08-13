@@ -220,21 +220,30 @@
         // `setMode` stays on pointermove on purpose: it reads `e.target`, i.e. a hit
         // test, and the cursor's SHAPE arriving a frame late is invisible in a way
         // its POSITION is not.
-        var hasRawUpdate = 'onpointerrawupdate' in document;
-
         function place(e) {
             root.style.transform = 'translate3d(' + e.clientX + 'px,' + e.clientY + 'px,0)';
             root.classList.remove('is-gone');
         }
 
-        if (hasRawUpdate) {
+        // BOTH events place the cursor, and pointermove is never skipped.
+        //
+        // pointerrawupdate is an ADDITIONAL, earlier chance to get the position in —
+        // it is not a replacement, and making it one was a real bug: it is a trusted
+        // event, so `dispatchEvent` cannot produce one. shared/test-input.js drives
+        // every UI gauntlet node with synthetic pointermove, so a cursor that only
+        // listened to rawupdate stopped following the tests entirely while looking
+        // perfect by hand.
+        //
+        // Listening to both costs one redundant style write per move and loses none
+        // of the benefit: rawupdate lands first and writes the newer position, the
+        // compositor uses whatever is latest at frame time, and pointermove then
+        // confirms it (or corrects it, if it carries a newer position).
+        if ('onpointerrawupdate' in document) {
             document.addEventListener('pointerrawupdate', place, { passive: true });
         }
 
         document.addEventListener('pointermove', function (e) {
-            // Still the position fallback when pointerrawupdate is unavailable.
-            // Harmless when it is: same coordinates, already written this frame.
-            if (!hasRawUpdate) place(e);
+            place(e);
             setMode(e.target);
         }, { passive: true });
 
