@@ -1,4 +1,5 @@
-// /screens/map.html subscribes to:
+// The Map screen (shared/screens/map.js, mounted into /screens/in-game.html)
+// subscribes to:
 //   tsic.msg.UI.Map.Snapshot  { MinBounds:{X,Y}, MaxBounds:{X,Y},
 //                               Icons:[{IconId,Category,Position:{X,Y},IconUrl,Label,EntityId}],
 //                               Players:[{PlayerId,Name,Position:{X,Y},YawDeg}] }
@@ -10,7 +11,8 @@
 TSICPlayground.register({
     id: 'map',
     label: 'Map',
-    screen: '/screens/map.html',
+    screen: '/screens/in-game.html',
+    showScreen: 'Map',
     initialState() {
         return {
             snapshot: {

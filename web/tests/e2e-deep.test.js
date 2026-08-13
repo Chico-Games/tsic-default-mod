@@ -65,18 +65,6 @@ TSICTestHarness.register({
 });
 
 // ---- Map: pings appear, then are removed -----------------------------
-TSICTestHarness.register({
-    name: 'E2E/Map: ping appears in #g-pings then disappears on empty broadcast',
-    file: '/screens/map.html',
-    async run(ctx) {
-        ctx.inject('tsic.msg.UI.Map.Snapshot', { Players: [], Icons: [], MinBounds: { X: -100, Y: -100 }, MaxBounds: { X: 100, Y: 100 } });
-        ctx.inject('tsic.msg.UI.Ping.Set', { Pings: [{ PingId: 'p1', PingType: 'Map', Location: { X: 0, Y: 0, Z: 0 }, OwnerId: 'X' }] });
-        await ctx.waitFor(() => ctx.doc.querySelectorAll('#g-pings g').length >= 1);
-        ctx.inject('tsic.msg.UI.Ping.Set', { Pings: [] });
-        await ctx.waitFor(() => ctx.doc.querySelectorAll('#g-pings g').length === 0);
-        ctx.expect(ctx.assert.domCount(ctx.doc, '#g-pings g', 0));
-    },
-});
 
 // ---- Construction: preview state transitions --------------------------
 TSICTestHarness.register({

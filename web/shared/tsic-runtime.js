@@ -191,6 +191,21 @@
                 if (isTextEntry(ev.target)) apply(true, /*force*/ true);
             }, true);
 
+            // Clicking a field that is ALREADY document.activeElement fires no
+            // focusin, so the listener above cannot repair a capture the engine
+            // took back behind the page's back (a viewport remount, a respawn
+            // re-asserting focus). Without this a stolen caret stays dead however
+            // many times the player clicks it. Pointerdown, not click: the field
+            // has to own the keyboard before the first keystroke can land.
+            document.addEventListener('pointerdown', (ev) => {
+                if (!isTextEntry(ev.target)) return;
+                apply(true, /*force*/ true);
+                // ...and hand it straight back if the press never became a focus
+                // (a handler that preventDefault'd it), so the claim can't outlive
+                // the caret and gate gameplay input off.
+                setTimeout(() => apply(isTextEntry(document.activeElement)), 0);
+            }, true);
+
             document.addEventListener('focusout', () => {
                 // Defer one turn: tabbing between two fields fires focusout then
                 // focusin, and we don't want to bounce the keyboard to gameplay

@@ -15,20 +15,6 @@ TSICTestHarness.register({
 });
 
 // ---- Map: 100 icons / 20 players / 50 pings -----------------------------
-TSICTestHarness.register({
-    name: 'Stress/Map: 100 icons + 20 players + 50 pings still renders',
-    file: '/screens/map.html',
-    async run(ctx) {
-        const icons = [], players = [], pings = [];
-        for (let i = 0; i < 100; i++) icons.push({ IconId: `i${i}`, Category: 'landmark', Position: { X: i * 10, Y: i * 5 }, Label: `i${i}` });
-        for (let i = 0; i < 20;  i++) players.push({ PlayerId: `p${i}`, Name: `P${i}`, Position: { X: i * 5, Y: i * 3 }, YawDeg: i * 18 });
-        for (let i = 0; i < 50;  i++) pings.push({ PingId: `g${i}`, PingType: 'Map', Location: { X: i * 2, Y: i * 4, Z: 0 }, OwnerId: 'X' });
-        ctx.inject('tsic.msg.UI.Map.Snapshot', { Players: players, Icons: icons, MinBounds: { X: -2000, Y: -2000 }, MaxBounds: { X: 2000, Y: 2000 } });
-        ctx.inject('tsic.msg.UI.Ping.Set', { Pings: pings });
-        await new Promise(r => setTimeout(r, 200));
-        ctx.expect(ctx.assert.truthy(ctx.doc.querySelectorAll('#g-pings g').length >= 1));
-    },
-});
 
 // ---- Action bar: 50 ability rows -----------------------------------------
 TSICTestHarness.register({

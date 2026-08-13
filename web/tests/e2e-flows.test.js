@@ -197,44 +197,10 @@ TSICTestHarness.register({
 });
 
 // ---- Map → place ping → ping markers flash ------------------------------
-TSICTestHarness.register({
-    name: 'E2E/Map: RMB world coord → publishes Ping.Request',
-    file: '/screens/map.html',
-    async run(ctx) {
-        ctx.inject('tsic.msg.UI.Map.Snapshot', { Players: [], Icons: [], MinBounds: { X: -100, Y: -100 }, MaxBounds: { X: 100, Y: 100 } });
-        await new Promise(r => setTimeout(r, 60));
-        ctx.clearPublishes();
-        const vp = ctx.doc.getElementById('map-viewport');
-        vp.dispatchEvent(new ctx.win.MouseEvent('contextmenu', { bubbles: true, cancelable: true, clientX: 100, clientY: 100 }));
-        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Ping.Request', { where: p => p.PingType === 'Map' }));
-    },
-});
 
 // ---- Map → R resets view ------------------------------------------------
-TSICTestHarness.register({
-    name: 'E2E/Map: R key resets pan/zoom via the keydown handler',
-    file: '/screens/map.html',
-    async run(ctx) {
-        ctx.inject('tsic.msg.UI.Map.Snapshot', { Players: [], Icons: [], MinBounds: { X: -100, Y: -100 }, MaxBounds: { X: 100, Y: 100 } });
-        await new Promise(r => setTimeout(r, 60));
-        // Just verify the page survives an R keypress without throwing.
-        ctx.win.dispatchEvent(new ctx.win.KeyboardEvent('keydown', { key: 'R', bubbles: true }));
-        ctx.expect(ctx.assert.truthy(true));
-    },
-});
 
 // ---- Map → Esc closes -------------------------------------------------
-TSICTestHarness.register({
-    name: 'E2E/Map: Escape publishes UI.Cmd.GameScreen.Close',
-    file: '/screens/map.html',
-    async run(ctx) {
-        ctx.inject('tsic.msg.UI.Map.Snapshot', { Players: [], Icons: [], MinBounds: { X: -100, Y: -100 }, MaxBounds: { X: 100, Y: 100 } });
-        await new Promise(r => setTimeout(r, 60));
-        ctx.clearPublishes();
-        ctx.win.dispatchEvent(new ctx.win.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
-        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.GameScreen.Close'));
-    },
-});
 
 // ---- ActionBar: live device-family swap ---------------------------------
 TSICTestHarness.register({

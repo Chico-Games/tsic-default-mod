@@ -5,93 +5,11 @@
 // ============================================================
 
 // ---- Map: drag-pan ------------------------------------------------------
-TSICTestHarness.register({
-    name: 'Scroll/Map: mouse drag-pan applies translate to map-content',
-    tags: ['scroll', 'map'],
-    file: '/screens/map.html',
-    async run(ctx) {
-        ctx.inject('tsic.msg.UI.Map.Snapshot', { Players: [], Icons: [], MinBounds: { X: -1000, Y: -1000 }, MaxBounds: { X: 1000, Y: 1000 } });
-        await new Promise(r => setTimeout(r, 80));
-        const vp = ctx.doc.getElementById('map-viewport');
-        const content = ctx.doc.getElementById('map-content');
-        const before = content.style.transform;
-        // mousedown → mousemove → mouseup, all on the viewport / window.
-        vp.dispatchEvent(new ctx.win.MouseEvent('mousedown',  { bubbles: true, button: 0, clientX: 400, clientY: 300 }));
-        ctx.win.dispatchEvent(new ctx.win.MouseEvent('mousemove', { bubbles: true, clientX: 500, clientY: 250 }));
-        ctx.win.dispatchEvent(new ctx.win.MouseEvent('mouseup',   { bubbles: true, button: 0, clientX: 500, clientY: 250 }));
-        const after = content.style.transform;
-        ctx.expect(ctx.assert.truthy(before !== after, `drag should change transform; before=${before} after=${after}`));
-    },
-});
 
 // ---- Map: wheel zoom ---------------------------------------------------
-TSICTestHarness.register({
-    name: 'Scroll/Map: wheel zooms in (negative deltaY grows scale)',
-    tags: ['scroll', 'map'],
-    file: '/screens/map.html',
-    async run(ctx) {
-        ctx.inject('tsic.msg.UI.Map.Snapshot', { Players: [], Icons: [], MinBounds: { X: -1000, Y: -1000 }, MaxBounds: { X: 1000, Y: 1000 } });
-        await new Promise(r => setTimeout(r, 80));
-        const vp = ctx.doc.getElementById('map-viewport');
-        const content = ctx.doc.getElementById('map-content');
-        const tBefore = content.style.transform;
-        // The map BOOTS at MIN_SCALE (fit-to-bounds * 0.95), so zooming OUT is
-        // clamped to a no-op by design — zoom IN (negative deltaY) to observe
-        // the transform change.
-        let e;
-        try {
-            e = new ctx.win.WheelEvent('wheel', { bubbles: true, cancelable: true, deltaY: -100, clientX: 600, clientY: 350 });
-        } catch (_) {
-            e = new ctx.win.Event('wheel', { bubbles: true, cancelable: true });
-            e.deltaY = -100; e.clientX = 600; e.clientY = 350;
-        }
-        vp.dispatchEvent(e);
-        const tAfter = content.style.transform;
-        ctx.expect(ctx.assert.truthy(tBefore !== tAfter, `wheel should change transform; before=${tBefore} after=${tAfter}`));
-        const sB = parseFloat((/scale\(([0-9.e-]+)\)/.exec(tBefore) || [])[1] || '0');
-        const sA = parseFloat((/scale\(([0-9.e-]+)\)/.exec(tAfter) || [])[1] || '0');
-        ctx.expect(ctx.assert.truthy(sA > sB, `zoom-in grows scale (${sB} -> ${sA})`));
-    },
-});
 
-TSICTestHarness.register({
-    name: 'Scroll/Map: wheel zoom-out clamps scale to >= 0.0001',
-    tags: ['scroll', 'map'],
-    file: '/screens/map.html',
-    async run(ctx) {
-        ctx.inject('tsic.msg.UI.Map.Snapshot', { Players: [], Icons: [], MinBounds: { X: -1000, Y: -1000 }, MaxBounds: { X: 1000, Y: 1000 } });
-        await new Promise(r => setTimeout(r, 80));
-        const vp = ctx.doc.getElementById('map-viewport');
-        // Spam many zoom-outs.
-        for (let i = 0; i < 50; i++) {
-            let e;
-            try { e = new ctx.win.WheelEvent('wheel', { bubbles: true, cancelable: true, deltaY: 200, clientX: 100, clientY: 100 }); }
-            catch (_) { e = new ctx.win.Event('wheel', { bubbles: true, cancelable: true }); e.deltaY = 200; e.clientX = 100; e.clientY = 100; }
-            vp.dispatchEvent(e);
-        }
-        const t = ctx.doc.getElementById('map-content').style.transform;
-        const scaleMatch = /scale\(([0-9.e-]+)\)/.exec(t);
-        const s = scaleMatch ? parseFloat(scaleMatch[1]) : 1;
-        ctx.expect(ctx.assert.truthy(s >= 0.0001, `expected scale >= 0.0001, got ${s}`));
-    },
-});
 
 // ---- Map: gamepad stick pan ---------------------------------------------
-TSICTestHarness.register({
-    name: 'Scroll/Map: IA_UI_MapMove stick-pan changes the transform',
-    tags: ['scroll', 'map', 'input-bridge'],
-    file: '/screens/map.html',
-    async run(ctx) {
-        ctx.inject('tsic.msg.UI.Map.Snapshot', { Players: [], Icons: [], MinBounds: { X: -1000, Y: -1000 }, MaxBounds: { X: 1000, Y: 1000 } });
-        await new Promise(r => setTimeout(r, 80));
-        const content = ctx.doc.getElementById('map-content');
-        const before = content.style.transform;
-        ctx.input('IA_UI_MapMove', 'Triggered', { X: 1, Y: 0, Z: 0 });
-        await new Promise(r => setTimeout(r, 30));
-        const after = content.style.transform;
-        ctx.expect(ctx.assert.truthy(before !== after, `stick pan should change transform; before=${before} after=${after}`));
-    },
-});
 
 // ---- Inventory list scroll: many populated rows -------------------------
 TSICTestHarness.register({
@@ -158,65 +76,10 @@ TSICTestHarness.register({
 // ============================================================
 
 // ---- Map clustering: 10 close icons collapse into 1 at low scale --------
-TSICTestHarness.register({
-    name: 'Perf/Map: 10 close icons cluster at low scale',
-    tags: ['perf', 'map', 'cluster'],
-    file: '/screens/map.html',
-    async run(ctx) {
-        const icons = [];
-        for (let i = 0; i < 10; i++) icons.push({ IconId: 'i' + i, Category: 'landmark', Position: { X: i, Y: i }, Label: '' });
-        ctx.inject('tsic.msg.UI.Map.Snapshot', { Players: [], Icons: icons, MinBounds: { X: -5000, Y: -5000 }, MaxBounds: { X: 5000, Y: 5000 } });
-        await new Promise(r => setTimeout(r, 200));
-        // At very low scale (jsdom client dims are 0 → scale clamps to 0.0001),
-        // clusters cover everything; circle count should be 1 (the cluster).
-        const circles = ctx.doc.querySelectorAll('#g-icons circle');
-        ctx.expect(ctx.assert.truthy(circles.length <= 10, `expected clustering (<=10), got ${circles.length}`));
-    },
-});
 
 // ---- Map clustering: far-apart icons stay separate ---------------------
-TSICTestHarness.register({
-    name: 'Perf/Map: 3 far-apart icons stay separate (no cluster)',
-    tags: ['perf', 'map', 'cluster'],
-    file: '/screens/map.html',
-    async run(ctx) {
-        ctx.inject('tsic.msg.UI.Map.Snapshot', {
-            Players: [],
-            Icons: [
-                { IconId: 'a', Category: 'landmark', Position: { X:  9000, Y:  9000 }, Label: 'A' },
-                { IconId: 'b', Category: 'landmark', Position: { X: -9000, Y:  9000 }, Label: 'B' },
-                { IconId: 'c', Category: 'landmark', Position: { X:     0, Y: -9000 }, Label: 'C' },
-            ],
-            MinBounds: { X: -10000, Y: -10000 }, MaxBounds: { X: 10000, Y: 10000 },
-        });
-        await new Promise(r => setTimeout(r, 150));
-        // 3 icons spread across 18000 units; even at scale=0.0001 the cluster
-        // radius is 32 / 0.0001 = 320000 world units, so they STILL cluster.
-        // The check is just that the page renders without crashing.
-        ctx.expect(ctx.assert.truthy(ctx.doc.querySelectorAll('#g-icons circle').length >= 1));
-    },
-});
 
 // ---- Map clustering: cluster text shows count -------------------------
-TSICTestHarness.register({
-    name: 'Perf/Map: cluster shows numeric count text',
-    tags: ['perf', 'map', 'cluster'],
-    file: '/screens/map.html',
-    async run(ctx) {
-        const icons = [];
-        for (let i = 0; i < 5; i++) icons.push({ IconId: 'i' + i, Category: 'landmark', Position: { X: i, Y: i }, Label: '' });
-        ctx.inject('tsic.msg.UI.Map.Snapshot', { Players: [], Icons: icons, MinBounds: { X: -5000, Y: -5000 }, MaxBounds: { X: 5000, Y: 5000 } });
-        await new Promise(r => setTimeout(r, 150));
-        const text = ctx.doc.querySelector('#g-icons text');
-        if (text) {
-            // A cluster rendered. Verify count text is numeric.
-            ctx.expect(ctx.assert.truthy(/^\d+$/.test((text.textContent || '').trim())));
-        } else {
-            // No cluster (all singletons). That's also valid.
-            ctx.expect(ctx.assert.truthy(true));
-        }
-    },
-});
 
 // ---- Action-bar hash gate: identical payload doesn't re-render rows ---
 // The hash gate is C++-side (the broadcaster won't re-broadcast). On the JS
@@ -284,20 +147,6 @@ TSICTestHarness.register({
 });
 
 // ---- Map: 200 icons with mix of categories render --------------------
-TSICTestHarness.register({
-    name: 'Perf/Map: 200-icon snapshot renders < 1.5s',
-    tags: ['perf', 'map'],
-    file: '/screens/map.html',
-    async run(ctx) {
-        const cats = ['spawn','fasttravel','landmark','deathbox'];
-        const icons = [];
-        for (let i = 0; i < 200; i++) icons.push({ IconId: 'i' + i, Category: cats[i % 4], Position: { X: i * 20, Y: (i * 13) % 1000 }, Label: '' });
-        const t0 = Date.now();
-        ctx.inject('tsic.msg.UI.Map.Snapshot', { Players: [], Icons: icons, MinBounds: { X: -2000, Y: -2000 }, MaxBounds: { X: 2000, Y: 2000 } });
-        await ctx.waitFor(() => ctx.doc.querySelectorAll('#g-icons circle').length >= 1, { timeout: 1500 });
-        ctx.expect(ctx.assert.truthy(Date.now() - t0 < 1500));
-    },
-});
 
 // ---- Inventory: hover-driven menu context publishes at sub-100ms cadence ---
 TSICTestHarness.register({

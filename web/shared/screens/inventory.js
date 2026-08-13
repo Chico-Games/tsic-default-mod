@@ -690,10 +690,19 @@
         host.appendChild(makeCol(DOLL_RIGHT, 3));
       }
 
+      let hintMeasurePending = false;
       function renderHints() {
         const host = root.querySelector('#inv-hints');
-        host.innerHTML = '';
         const heldStack = window.TSICInventory.getHeld();
+        // A pickup can land before the deferred idle measurement below has run
+        // (it is two frames out). The idle chips are still in the DOM at this
+        // point, so take the reserve off them now — the tree is clean this far
+        // from mount, making the forced read cheap — before they are cleared.
+        if (heldStack && hintMeasurePending) {
+          hintMeasurePending = false;
+          host.style.minHeight = host.offsetHeight + 'px';
+        }
+        host.innerHTML = '';
         if (heldStack) {
           host.appendChild(hintChip(['LMB'], 'Place'));
           host.appendChild(hintChip(['RMB'], 'Place one'));
@@ -712,9 +721,21 @@
         // The idle set is always the tallest, so measure it and hold that
         // height for the held set. Clearing first re-measures at the current
         // width, so a grid-width change (new bag tier) re-reserves correctly.
+        //
+        // Deferred past the next frame's own layout: a synchronous offsetHeight
+        // right after the mount/refresh DOM writes forced a full style+layout
+        // pass on the dirty overlay — profiled at ~25ms of Inventory's 28ms
+        // mount. Two rAFs later the tree is clean and the read is free. If a
+        // stack got picked up meanwhile, skip — the next idle render re-queues.
         if (!heldStack) {
           host.style.minHeight = '';
-          host.style.minHeight = host.offsetHeight + 'px';
+          hintMeasurePending = true;
+          requestAnimationFrame(() => requestAnimationFrame(() => {
+            if (!hintMeasurePending) return;   // a pickup already took the measure
+            hintMeasurePending = false;
+            if (!host.isConnected) return;
+            host.style.minHeight = host.offsetHeight + 'px';
+          }));
         }
       }
 

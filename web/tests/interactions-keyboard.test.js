@@ -109,20 +109,6 @@ TSICTestHarness.register({
 });
 
 // ---- Map keyboard -----------------------------------------------------
-TSICTestHarness.register({
-    name: 'Keys/Map: R triggers fitToBounds re-render',
-    file: '/screens/map.html',
-    async run(ctx) {
-        ctx.inject('tsic.msg.UI.Map.Snapshot', { Players: [], Icons: [], MinBounds: { X: -100, Y: -100 }, MaxBounds: { X: 100, Y: 100 } });
-        await new Promise(r => setTimeout(r, 60));
-        // Just verify R doesn't throw and an Escape afterwards still publishes close.
-        ctx.win.dispatchEvent(new ctx.win.KeyboardEvent('keydown', { key: 'r', bubbles: true }));
-        await new Promise(r => setTimeout(r, 30));
-        ctx.clearPublishes();
-        ctx.win.dispatchEvent(new ctx.win.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
-        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.GameScreen.Close'));
-    },
-});
 
 // ---- Inventory: numeric 1, 9 boundary mapping ---------------------------
 TSICTestHarness.register({

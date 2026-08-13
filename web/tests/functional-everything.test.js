@@ -145,16 +145,6 @@ TSICTestHarness.register({
 });
 
 // ---- Map: ping cross rendering -----------------------------------------
-TSICTestHarness.register({
-    name: 'Map: ping payload renders crosses in #g-pings',
-    file: '/screens/map.html',
-    async run(ctx) {
-        ctx.inject('tsic.msg.UI.Map.Snapshot', { Players: [], Icons: [], MinBounds: { X: -100, Y: -100 }, MaxBounds: { X: 100, Y: 100 } });
-        ctx.inject('tsic.msg.UI.Ping.Set', { Pings: [{ PingId: 'p1', PingType: 'Map', Location: { X: 10, Y: 20, Z: 0 }, OwnerId: 'X' }] });
-        await ctx.waitFor(() => ctx.doc.querySelectorAll('#g-pings g').length >= 1, { timeout: 2000 });
-        ctx.expect(ctx.assert.domExists(ctx.doc, '#g-pings g'));
-    },
-});
 
 // ---- Cage: explicit context skip ---------------------------------------
 TSICTestHarness.register({

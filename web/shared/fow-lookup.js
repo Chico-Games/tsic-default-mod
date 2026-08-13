@@ -1,5 +1,5 @@
 // Fog-of-war hover lookup, shared by the live map (shared/screens/map.js) and
-// the standalone map page (screens/map.html). Mirrors the C++ parity encoding
+// the map screen (shared/screens/map.js). Mirrors the C++ parity encoding
 // in FFogOfWarGridState::GetValue: each explored row stores ascending "flip
 // points" (integer columns); a cell at column X is explored iff an odd number
 // of flips are <= X. Row Y and column X come from world coords as the C++

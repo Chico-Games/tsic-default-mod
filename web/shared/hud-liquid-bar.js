@@ -22,11 +22,21 @@
     '.tlb-glass { position:relative; width:100%; height:var(--vial-h,248px); border-radius:13px; overflow:hidden; background:linear-gradient(180deg, rgba(58,40,34,0.55), rgba(14,9,8,0.62)); border:3px solid var(--ink-night); box-shadow: inset 0 1px 0 rgba(255,250,240,0.18), inset 0 0 18px rgba(0,0,0,0.55), var(--shadow-block); }',
     '.tlb-trail { position:absolute; left:0; right:0; bottom:0; height:var(--trail-level); background:linear-gradient(180deg, var(--trail), color-mix(in srgb, var(--trail) 65%, #000)); }',
     '.tlb-liquid { position:absolute; left:0; right:0; bottom:0; height:var(--level); background:linear-gradient(180deg, var(--hp), color-mix(in srgb, var(--hp) 55%, #1a0606)); transition: background 400ms linear; box-shadow: inset 0 8px 14px rgba(0,0,0,0.22); }',
-    '.tlb-surface { position:absolute; left:-20px; right:-20px; height:16px; -webkit-mask-repeat:repeat-x; mask-repeat:repeat-x; -webkit-mask-size:120px 16px; mask-size:120px 16px; will-change:-webkit-mask-position,mask-position; }',
+    // The ripple scrolls the 120px mask tile exactly once per cycle. Animating
+    // mask-position to do that repaints the element every single frame, and
+    // these six surfaces (front/back/trail x health/stamina) are on screen for
+    // the whole game — measured at ~94% of ALL idle main-thread cost.
+    //
+    // Translating the element one tile-width is visually identical (the mask
+    // repeats, so tile N lands exactly where tile N-1 was) but animates a
+    // compositor property, so it costs no style, layout or paint. The element
+    // carries an extra tile of width on the right to stay covered at full
+    // travel; .tlb-glass is overflow:hidden, so the overhang never shows.
+    '.tlb-surface { position:absolute; left:-20px; right:-140px; height:16px; -webkit-mask-repeat:repeat-x; mask-repeat:repeat-x; -webkit-mask-size:120px 16px; mask-size:120px 16px; -webkit-mask-position:0 0; mask-position:0 0; will-change:transform; }',
     '.tlb-surface.tlb-front { top:-9px; background:var(--hp); animation: tlb-wave 2.6s linear infinite; }',
     '.tlb-surface.tlb-back { top:-12px; background:var(--hp); opacity:0.45; animation: tlb-wave 4.3s linear infinite reverse; }',
     '.tlb-surface.tlb-twave { top:-12px; height:14px; background:var(--trail); opacity:0.96; -webkit-mask-size:120px 14px; mask-size:120px 14px; animation: tlb-wave 5.4s linear infinite; }',
-    '@keyframes tlb-wave { from { -webkit-mask-position:0 0; mask-position:0 0; } to { -webkit-mask-position:-120px 0; mask-position:-120px 0; } }',
+    '@keyframes tlb-wave { from { transform:translateX(0); } to { transform:translateX(-120px); } }',
     '.tlb-vial.tlb-full .tlb-surface { display:none; }',
     '.tlb-ticks { position:absolute; inset:0; pointer-events:none; }',
     '.tlb-ticks::before { content:""; position:absolute; right:10px; top:0; bottom:0; width:12px; background: repeating-linear-gradient(180deg, rgba(255,250,240,0) 0, rgba(255,250,240,0) calc(25% - 1px), rgba(255,250,240,0.22) calc(25% - 1px), rgba(255,250,240,0.22) 25%); }',
@@ -62,6 +72,12 @@
     // surface ripple, the sheen sweep and the danger throb stop.
     'html[data-tsic-reduce-motion] .tlb-surface, html[data-tsic-reduce-motion] .tlb-sheen, html[data-tsic-reduce-motion] .tlb-vial.tlb-danger::after { animation:none; }',
     'html[data-tsic-reduce-motion] .tlb-liquid { transition: background 200ms linear; }',
+    // While a fullscreen opaque screen (map, …) covers the HUD, the infinite
+    // decorative animations still tick style recalc on every produced frame —
+    // measurable, continuous cost for pixels nobody can see. screen-manager
+    // stamps the class for screens that declare { opaque: true }; pausing (not
+    // none) keeps the wave phase, so uncovering does not visibly jump.
+    'body.tsic-overlay-opaque .tlb-surface, body.tsic-overlay-opaque .tlb-sheen, body.tsic-overlay-opaque .tlb-vial.tlb-danger::after { animation-play-state: paused; }',
   ].join('\n');
 
   let stylesInjected = false;

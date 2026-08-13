@@ -276,9 +276,18 @@
       // Land in the description so the player can type straight away. focusTextField,
       // not description.focus(): the view does not hold keyboard focus at this point, so
       // Chromium would move activeElement without firing focusin and the keystrokes would
-      // go to gameplay instead of the box. Deferred a turn so it runs after the screen is
-      // actually visible — focusing a display:none textarea does nothing.
-      setTimeout(() => {
+      // go to gameplay instead of the box.
+      //
+      // Deferred past the first frame's layout by double rAF, NOT setTimeout(0): the
+      // focus() inside forces a synchronous style+layout pass, and a timer fires before
+      // the first frame while the overlay subtree is still maximally dirty — traced at
+      // ~19ms of Layout inside this one callback, all of BugReport's first-frame cost.
+      // A single rAF runs before that frame's own layout, so the tree is still dirty
+      // there (same finding as screen-manager's deferred ctx.focus). Two frames later
+      // the read is free. This also runs after the screen is actually visible, which
+      // the old timer only probabilistically did — focusing a display:none textarea
+      // does nothing.
+      requestAnimationFrame(() => requestAnimationFrame(() => {
         if (ctx.isVisible && !ctx.isVisible()) return;
         if (typeof tsic.focusTextField === 'function') {
           tsic.focusTextField(description);
@@ -287,7 +296,7 @@
         // Harness and any host without the capture shim: plain focus still puts the
         // caret in the right place, it just cannot claim the keyboard from gameplay.
         try { description.focus({ preventScroll: true }); } catch (e) { /* noop */ }
-      }, 0);
+      }));
     },
   });
 })();

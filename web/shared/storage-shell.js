@@ -579,10 +579,19 @@
             renderHints();
         }
 
+        let hintMeasurePending = false;
         function renderHints() {
             const host = panel.querySelector('#ss-hints');
-            host.innerHTML = '';
             const held = window.TSICInventory.getHeld();
+            // A pickup can land before the deferred idle measurement below has
+            // run (it is two frames out). The idle chips are still in the DOM,
+            // so take the reserve off them now — cheap this far from mount —
+            // before they are cleared.
+            if (held && hintMeasurePending) {
+                hintMeasurePending = false;
+                host.style.minHeight = host.offsetHeight + 'px';
+            }
+            host.innerHTML = '';
             if (held) {
                 hintChip(host, ['LMB'], 'Place');
                 hintChip(host, ['RMB'], 'Place one');
@@ -597,9 +606,24 @@
             }
             // The idle set is always the taller one — measure it and hold that
             // height so picking a stack up cannot shed a wrapped line.
+            //
+            // The measurement is deferred past the next frame's own layout:
+            // renderAll() calls this right after rewriting all three grids, so a
+            // synchronous offsetHeight here forced a full style+layout pass on
+            // the dirty panel — profiled as the single biggest cost of opening
+            // Storage (~45ms of its 47ms mount), and paid again on every
+            // refresh. Two rAFs later the tree is clean and the read is free.
+            // If a stack got picked up meanwhile, skip — the held set is on
+            // screen, and the next idle render re-queues the measurement.
             if (!held) {
                 host.style.minHeight = '';
-                host.style.minHeight = host.offsetHeight + 'px';
+                hintMeasurePending = true;
+                requestAnimationFrame(() => requestAnimationFrame(() => {
+                    if (!hintMeasurePending) return;   // a pickup already took the measure
+                    hintMeasurePending = false;
+                    if (!host.isConnected) return;
+                    host.style.minHeight = host.offsetHeight + 'px';
+                }));
             }
         }
 

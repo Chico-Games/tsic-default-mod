@@ -567,7 +567,18 @@
             // Same fallback as step() — when iframe lost focus the marker is the
             // source of truth.
             const target = (a && a !== document.body) ? a : document.querySelector('[data-tsic-focused]');
-            if (!target) return;
+            if (!target) {
+                // Self-heal, mirroring step(): nothing focused and no marker —
+                // the cold-open window where screen-manager's deferred initial
+                // focus hasn't landed yet. Spend the press landing focus on the
+                // declared initial element (visible, conservative) rather than
+                // dropping it on the floor. Deliberately does NOT activate: a
+                // mashed confirm during a screen open must not press buttons
+                // the player never saw focused.
+                const init = findInitial();
+                if (init) api.focus(init);
+                return;
+            }
             // Pages with a "select vs commit" distinction (list rows where
             // single-click selects and double-click commits) listen for a
             // 'tsic:confirm' event and call preventDefault to suppress the

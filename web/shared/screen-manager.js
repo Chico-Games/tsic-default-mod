@@ -20,6 +20,10 @@
 //     screenSound: false,                         // optional, opt out of the generic
 //                                                 // UI.Screen.Open/Close sounds (for
 //                                                 // screens that play their own)
+//     opaque: true,                               // optional: fully covers the HUD;
+//                                                 // body gets .tsic-overlay-opaque so HUD
+//                                                 // components can pause decorative
+//                                                 // always-on animations while hidden
 //     mount(root, ctx)   { ... },                 // one-time, on first activation
 //     onShow(params, ctx){ ... },                 // every time it becomes visible
 //     onHide(ctx)        { ... },                 // every time it becomes hidden
@@ -174,6 +178,8 @@
   }
 
   function showRegistered(name, params) {
+    // Warm/cold decided BEFORE mountIfNeeded runs: it drives focus scheduling.
+    const wasMounted = MOUNTED.has(name);
     const entry = mountIfNeeded(name);
     if (!entry) return false;
     entry.container.hidden = false;
@@ -182,7 +188,32 @@
       pushInputMode(entry.module);
       publishMenuActionContext(entry.module);
       if (typeof entry.module.onShow === 'function') entry.module.onShow(params || {}, entry.ctx);
-      entry.ctx.focus();
+      // Initial focus: synchronous on WARM opens, deferred past the first
+      // frame's layout on COLD (first-ever) opens.
+      //
+      // element.focus() forces a synchronous style+layout pass. On a cold open
+      // the document is maximally dirty (freshly injected stylesheet + whole
+      // overlay subtree) and that pass profiled at 10-37ms — the single
+      // largest shared mount cost — so it is deferred. A single rAF is NOT
+      // enough: rAF callbacks run before that frame's style/layout, so the
+      // tree is still dirty there (measured — the cost just moved buckets).
+      // After the first frame has done its own layout the same call costs
+      // ~nothing. Guarded so a fast screen switch can't steal focus.
+      //
+      // On a warm open the tree is nearly clean (an unhide plus small onShow
+      // writes) and the same call costs ~1ms — deferring there buys nothing
+      // and would open a 2-frame window on EVERY open where activeElement is
+      // <body> and an anticipatory press lands nowhere (measured 29-48ms).
+      // The cold window still exists, once per screen per session;
+      // UI.Behavior.Accept self-heals inside it (see tsic-focus.js) so a
+      // gamepad press lands focus on the initial element instead of vanishing.
+      if (wasMounted) {
+        entry.ctx.focus();
+      } else {
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+          if (activeName === name) entry.ctx.focus();
+        }));
+      }
     } catch (e) { console.warn('[screen-manager] onShow(' + name + ') failed', e); }
     return true;
   }
@@ -208,12 +239,16 @@
     if (name === 'InGame' || !name) {
       activeName = 'InGame';
       document.body.classList.remove('tsic-overlay-open');
+      document.body.classList.remove('tsic-overlay-opaque');
       if (prevName !== 'InGame') playScreenSound(prevName, 'UI.Screen.Close');
       return;
     }
 
     if (REGISTRY.has(name)) {
       activeName = name;
+      // Screens that fully cover the HUD say so; HUD components key their
+      // "pause decorative animations while hidden" rules off this class.
+      document.body.classList.toggle('tsic-overlay-opaque', REGISTRY.get(name).opaque === true);
       // Screen-to-screen switches only sound the incoming screen.
       playScreenSound(name, 'UI.Screen.Open');
       showRegistered(name, params);

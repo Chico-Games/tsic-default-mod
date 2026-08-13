@@ -294,7 +294,11 @@ TSICTestHarness.register({
         // The idle render measures itself and pins that height. Asserting the
         // reserve exists is what makes this test bite: at a wide enough width
         // the idle chips fit on one line, so comparing heights alone would pass
-        // even with the reserve removed.
+        // even with the reserve removed. The measurement is deferred past the
+        // mount frame (a synchronous read forced a full layout on the dirty
+        // overlay), so wait for it — a pickup that outruns it is covered by the
+        // measure-before-swap fallback, exercised in its own step below.
+        await ctx.waitFor(() => hints.style.minHeight, 'idle render reserves the hint-row height');
         const reserved = hints.style.minHeight;
         ctx.expect(ctx.assert.truthy(reserved, 'idle render reserves the hint-row height'));
         const idle = size();

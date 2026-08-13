@@ -269,19 +269,6 @@ TSICTestHarness.register({
 });
 
 // ---- Map: clustering threshold flips when scale changes ----------------
-TSICTestHarness.register({
-    name: 'Map: ten close-by icons cluster at very low scale',
-    file: '/screens/map.html',
-    async run(ctx) {
-        const icons = [];
-        for (let i = 0; i < 10; i++) icons.push({ IconId: `i${i}`, Category: 'landmark', Position: { X: i, Y: i }, Label: `i${i}` });
-        ctx.inject('tsic.msg.UI.Map.Snapshot', { Players: [], Icons: icons, MinBounds: { X: -5000, Y: -5000 }, MaxBounds: { X: 5000, Y: 5000 } });
-        await new Promise(r => setTimeout(r, 200));
-        // At very low scale (jsdom dims are 0 so scale clamps), expect 1 cluster.
-        const circles = ctx.doc.querySelectorAll('#g-icons circle');
-        ctx.expect(ctx.assert.truthy(circles.length <= 10));
-    },
-});
 
 // ---- Teleporter: same-source travel publishes FromId == fromId ------
 TSICTestHarness.register({

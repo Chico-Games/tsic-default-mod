@@ -30,6 +30,12 @@
     [data-screen="Map"] #map-viewport.dragging { cursor: grabbing; }
     [data-screen="Map"] #map-content {
       position: absolute; left: 0; top: 0;
+      /* Promote to its own compositor layer: pan/zoom is a transform update, and
+         without the promotion every drag frame repainted the full viewport
+         (measured: 115 full-screen paints per 48-move drag). With it, panning
+         recomposites already-rasterised tiles. Chromium tiles huge layers, so
+         the world-sized element does not allocate world-sized textures. */
+      will-change: transform;
       transform-origin: 0 0;
       image-rendering: pixelated;
       image-rendering: -webkit-optimize-contrast;
@@ -263,6 +269,7 @@
     inputModeTag: 'InputMode.Menu.Map',
     cancelCmd: 'UI.Cmd.GameScreen.Close',
     screenSound: false, // plays its own Map.Open / Map.Close
+    opaque: true,       // #map-root is a full-inset opaque sheet over the HUD
     template: TEMPLATE,
 
     mount(root, ctx) {
@@ -392,6 +399,8 @@
         if (bar) bar.style.display = teleportMode ? 'flex' : 'none';
         const vpEl = qs('#map-viewport');
         if (vpEl) vpEl.classList.toggle('is-teleport', teleportMode);
+        // The teleport bar changes the viewport's height; refresh the cached size.
+        measureViewport();
         // Revealing is a render-side override: the gate opens, the fog canvas
         // hides, and the marker fog test short-circuits (see iconVisibleInFog).
         fowGateOverridden = teleportMode;
@@ -547,24 +556,37 @@
         qs('#map-content').style.transform =
           `translate(${state.panX}px, ${state.panY}px) scale(${state.scale})`;
       }
-      function updateMinScale() {
+      // Cached viewport size. clientWidth/Height on #map-viewport are layout
+      // reads: interleaved with the SVG writes in rerender() they forced a
+      // synchronous layout of the world-sized SVG on every zoom frame (the
+      // single biggest zoom cost when profiled). The size only changes on
+      // resize, on show, and when the teleport bar toggles — measure there,
+      // read the cache everywhere else.
+      let vpW = 0, vpH = 0;
+      function measureViewport() {
         const vp = qs('#map-viewport');
-        if (!bounds.hasData || !vp) return;
+        if (!vp) return;
+        vpW = vp.clientWidth;
+        vpH = vp.clientHeight;
+      }
+      function updateMinScale() {
+        if (!bounds.hasData) return;
+        if (!(vpW > 0)) measureViewport();
         const widthCm  = (bounds.maxY - bounds.minY) * PX_PER_CM;
         const heightCm = (bounds.maxX - bounds.minX) * PX_PER_CM;
         if (widthCm <= 0 || heightCm <= 0) return;
-        const sx = vp.clientWidth  / widthCm;
-        const sy = vp.clientHeight / heightCm;
+        const sx = vpW / widthCm;
+        const sy = vpH / heightCm;
         MIN_SCALE = Math.min(sx, sy) * 0.95;
       }
       function fitToBounds() {
-        const vp = qs('#map-viewport');
-        if (!bounds.hasData || !vp) return;
+        if (!bounds.hasData) return;
+        measureViewport();   // fit is rare and layout-sensitive: measure fresh
         const widthCm  = (bounds.maxY - bounds.minY) * PX_PER_CM;
         const heightCm = (bounds.maxX - bounds.minX) * PX_PER_CM;
         if (widthCm <= 0 || heightCm <= 0) return;
-        const sx = vp.clientWidth  / widthCm;
-        const sy = vp.clientHeight / heightCm;
+        const sx = vpW / widthCm;
+        const sy = vpH / heightCm;
         const fitScale = Math.min(sx, sy) * 0.95;
         MIN_SCALE = fitScale;
         state.scale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, fitScale * DEFAULT_ZOOM_MULT));
@@ -572,11 +594,11 @@
         const me = latestSnapshot && (latestSnapshot.Players || [])[0];
         if (me && me.Position) {
           const loc = worldToLocal(me.Position.X || 0, me.Position.Y || 0);
-          state.panX = vp.clientWidth  / 2 - loc.x * state.scale;
-          state.panY = vp.clientHeight / 2 - loc.y * state.scale;
+          state.panX = vpW / 2 - loc.x * state.scale;
+          state.panY = vpH / 2 - loc.y * state.scale;
         } else {
-          state.panX = (vp.clientWidth  - widthCm  * state.scale) / 2;
-          state.panY = (vp.clientHeight - heightCm * state.scale) / 2;
+          state.panX = (vpW - widthCm  * state.scale) / 2;
+          state.panY = (vpH - heightCm * state.scale) / 2;
         }
         applyTransform();
         if (latestSnapshot) rerender();
@@ -586,6 +608,9 @@
       // instead of waiting for the next bounds change, which may never come.
       let layerW = 0;
       let layerH = 0;
+      // Bumped when bounds actually change; cached world->local products
+      // (rendered pings) key off it.
+      let boundsEpoch = 0;
       function sizeLayer(el) {
         if (!el || !(layerW > 0)) return;
         el.style.width  = `${layerW}px`;
@@ -614,6 +639,7 @@
         const changed = bounds.minX !== minX || bounds.minY !== minY
                      || bounds.maxX !== maxX || bounds.maxY !== maxY;
         bounds = { minX, minY, maxX, maxY, hasData: (maxX - minX) > 0 && (maxY - minY) > 0 };
+        if (changed) boundsEpoch++;
         if (changed && bounds.hasData) {
           const c = qs('#map-content');
           const w = (bounds.maxY - bounds.minY) * PX_PER_CM;
@@ -853,10 +879,84 @@
         return { clusters, singletons };
       }
 
+      // Keyed marker DOM. renderIcons used to tear down and recreate every SVG
+      // marker on every call — and it is called on every snapshot broadcast,
+      // which is continuous while the map is open. Markers keep the original
+      // flat shape-with-baked-geometry form (position and 1/scale baked into
+      // the points, class on the shape — the form the Gauntlet map node's
+      // getBBox contract was written against), but each is registered under a
+      // key of (icon, position, scale, bounds). A render where nothing changed
+      // — every snapshot broadcast while the player reads the map — matches
+      // every key and writes NOTHING to the DOM; a zoom or bounds change drops
+      // the layer wholesale and rebuilds it exactly as the old code did.
+      //
+      // Negative results, all measured on this screen at 250/500 icons:
+      // - Two-layer markers (outer translate g + inner counter-scale g) with
+      //   in-place transform updates on zoom: won at 250 icons, LOST ~2x at
+      //   500 — scattered SVG transform invalidations across a retained tree
+      //   beat one bulk rebuild, and the doubled node count taxed every pass.
+      // - The same structure rebuilt wholesale on zoom: worst of all (5 nodes
+      //   per marker rebuilt vs the old 2-3).
+      // - A shared CSS custom property (scale(var(--mi)), one setProperty per
+      //   zoom tick) was ~3x MORE style time than attribute writes — even with
+      //   a dozen var users, because changing an inherited custom property
+      //   invalidates style for the whole subtree it is set on.
+      const iconDom = new Map();   // key -> { els: [nodes], shape, fill }
+      let iconsRenderedScale = ''; // geometry bakes the scale: change = rebuild
+      let iconsRenderedEpoch = -1; // geometry bakes the bounds too
+      // Zoom-compensation groups OUTSIDE #g-icons (ping crosses, corner coords):
+      // rebuilt rarely, but their scale must track every zoom change. Each
+      // rebuild repopulates its own list; renderIcons sweeps both on zoom.
+      let pingScaleGs = [];
+      let coordScaleGs = [];
+      let auxScaleApplied = '';
+      function newAuxScaleGroup(list) {
+        const inv = state.scale > 0 ? (1 / state.scale) : 1;
+        const sg = svgEl('g', { transform: `scale(${inv.toFixed(5)})` });
+        list.push(sg);
+        return sg;
+      }
+      function clearIconDom() {
+        iconDom.clear();
+        iconsRenderedScale = '';
+        iconsRenderedEpoch = -1;
+        const g = qs('#g-icons');
+        if (g) g.textContent = '';
+      }
+      // Empty-state reset for every diffed overlay group: dropping the DOM
+      // without also dropping the "already rendered" records would leave the
+      // caches claiming content that is no longer there.
+      function clearOverlaySvg() {
+        clearIconDom();
+        const pingsG = qs('#g-pings');
+        if (pingsG) pingsG.textContent = '';
+        pingsRendered = null;
+        pingsRenderedEpoch = -1;
+        pingScaleGs = [];
+        const coordsG = qs('#g-coords');
+        if (coordsG) coordsG.textContent = '';
+        coordsKey = '';
+        coordScaleGs = [];
+      }
       function renderIcons(icons) {
         const g = qs('#g-icons');
-        g.textContent = '';
         const inv = state.scale > 0 ? (1 / state.scale) : 1;
+        const scaleStr = inv.toFixed(5);
+        if (scaleStr !== iconsRenderedScale || boundsEpoch !== iconsRenderedEpoch) {
+          // Zoom or bounds changed: marker geometry bakes both, so drop the
+          // layer and rebuild below (one bulk pass — see note above).
+          clearIconDom();
+          iconsRenderedScale = scaleStr;
+          iconsRenderedEpoch = boundsEpoch;
+        }
+        if (scaleStr !== auxScaleApplied) {
+          auxScaleApplied = scaleStr;
+          // Ping/coord scale groups follow the same zoom compensation; they are
+          // a dozen nodes, so in-place attribute writes are the cheap option.
+          const auxStr = `scale(${scaleStr})`;
+          for (const el of pingScaleGs) el.setAttribute('transform', auxStr);
+          for (const el of coordScaleGs) el.setAttribute('transform', auxStr);
+        }
         const r = ICON_PX * inv;
         const sw = 1.5 * inv;
         // Hide markers sitting on unexplored fog before clustering, so cluster
@@ -864,6 +964,25 @@
         const visible = (icons || []).filter((ic) =>
           iconVisibleInFog((ic.Position && ic.Position.X) || 0, (ic.Position && ic.Position.Y) || 0));
         const { clusters, singletons } = clusterIcons(visible);
+
+        // Keys carry everything the baked geometry depends on beyond scale and
+        // bounds (handled above): identity and world position. Cluster keys add
+        // the count so a membership change rebuilds the badge.
+        const posKey = (ic) => {
+          const p = ic.Position || {};
+          return (ic.IconId || iconTypeKey(ic)) + '|' + (p.X || 0) + ',' + (p.Y || 0);
+        };
+        const desired = new Map();   // key -> { ic, cluster? }
+        for (const ic of singletons) desired.set('s|' + posKey(ic), { ic });
+        for (const cl of clusters) desired.set('c|' + posKey(cl.rep) + '|' + cl.count, { ic: cl.rep, cluster: cl });
+
+        for (const [key, entry] of iconDom) {
+          if (!desired.has(key)) {
+            for (const el of entry.els) el.remove();
+            iconDom.delete(key);
+          }
+        }
+
         // Marker for one icon at its world position: category/POI shape, dark
         // outline, and the POI's map-pixel colour as fill for landmarks. The
         // fill goes on style (not the attribute) so it wins over the .ic-land
@@ -876,55 +995,72 @@
           shape.setAttribute('class', `${baseClass} ${categoryClass(ic.Category)}`);
           shape.setAttribute('stroke', '#231f18');
           shape.setAttribute('stroke-width', sw);
+          let fill = '';
           if ((ic.Category || '').toLowerCase() === 'landmark') {
-            const col = landmarkColor(ic, wx, wy);
-            if (col) shape.style.fill = col;
+            fill = landmarkColor(ic, wx, wy) || '';
+            if (fill) shape.style.fill = fill;
           }
-          return { shape, pos };
+          return { shape, pos, fill };
         }
-        for (const ic of singletons) {
-          const c = (ic.Category || '').toLowerCase();
-          const isClickable = c === 'fasttravel' && (ic.EntityId | 0) > 0;
-          const { shape } = buildMarker(ic, `ic${isClickable ? ' clickable' : ''}`);
-          if (isClickable) {
-            shape.setAttribute('data-entity-id', String(ic.EntityId | 0));
-            shape.addEventListener('click', (ev) => {
-              ev.stopPropagation();
-              ctx.publish('UI.Cmd.Teleporter.Travel', {
-                FromId: 0, ToId: parseInt(shape.dataset.entityId, 10) || 0,
+
+        for (const [key, d] of desired) {
+          const ic = d.ic;
+          let entry = iconDom.get(key);
+          if (!entry) {
+            if (d.cluster) {
+              // Clusters draw as their centre-most member's real marker
+              // (truthful position, shape, and POI colour — zooming in on the
+              // group lands on an actual POI) plus a count badge.
+              const { shape, pos, fill } = buildMarker(ic, 'ic-cluster-rep');
+              const title = svgEl('title');
+              const repName = ic.Label || ic.Category || ic.IconId || '';
+              title.textContent = `${repName || 'POIs'} ×${d.cluster.count} (zoom in to expand)`;
+              shape.appendChild(title);
+              const badgeR = ICON_PX * 0.9 * inv;
+              const badgeOff = ICON_PX * 1.5 * inv;
+              const badge = svgEl('circle', {
+                cx: pos.x + badgeOff, cy: pos.y - badgeOff, r: badgeR,
+                class: 'ic-cluster', 'stroke-width': sw,
               });
-            });
+              const text = svgEl('text', {
+                x: pos.x + badgeOff, y: pos.y - badgeOff + 3.5 * inv,
+                'text-anchor': 'middle', class: 'ic-cluster-text',
+                'font-size': 10 * inv,
+              });
+              text.textContent = String(d.cluster.count);
+              g.appendChild(shape);
+              g.appendChild(badge);
+              g.appendChild(text);
+              entry = { els: [shape, badge, text], shape, fill };
+            } else {
+              const c = (ic.Category || '').toLowerCase();
+              const isClickable = c === 'fasttravel' && (ic.EntityId | 0) > 0;
+              const { shape, fill } = buildMarker(ic, `ic${isClickable ? ' clickable' : ''}`);
+              if (isClickable) {
+                shape.setAttribute('data-entity-id', String(ic.EntityId | 0));
+                shape.addEventListener('click', (ev) => {
+                  ev.stopPropagation();
+                  ctx.publish('UI.Cmd.Teleporter.Travel', {
+                    FromId: 0, ToId: parseInt(shape.dataset.entityId, 10) || 0,
+                  });
+                });
+              }
+              const title = svgEl('title');
+              title.textContent = ic.Label || ic.Category || ic.IconId || '';
+              shape.appendChild(title);
+              g.appendChild(shape);
+              entry = { els: [shape], shape, fill };
+            }
+            iconDom.set(key, entry);
+          } else if ((ic.Category || '').toLowerCase() === 'landmark') {
+            // Surviving landmark: its POI colour can arrive later (TileGrid).
+            // Compared via our own record, not style.fill — the browser
+            // normalises colour strings, which would defeat the equality check.
+            const wx = (ic.Position && ic.Position.X) || 0;
+            const wy = (ic.Position && ic.Position.Y) || 0;
+            const col = landmarkColor(ic, wx, wy) || '';
+            if (entry.fill !== col) { entry.fill = col; entry.shape.style.fill = col; }
           }
-          const title = svgEl('title');
-          title.textContent = ic.Label || ic.Category || ic.IconId || '';
-          shape.appendChild(title);
-          g.appendChild(shape);
-        }
-        // Clusters are same-type by construction and draw as their centre-most
-        // member's real marker (truthful position, shape, and POI colour —
-        // zooming in on the group lands on an actual POI) plus a count badge.
-        const badgeR = ICON_PX * 0.9 * inv;
-        const badgeOff = ICON_PX * 1.5 * inv;
-        for (const cl of clusters) {
-          const rep = cl.rep;
-          const { shape, pos } = buildMarker(rep, 'ic-cluster-rep');
-          const title = svgEl('title');
-          const repName = rep.Label || rep.Category || rep.IconId || '';
-          title.textContent = `${repName || 'POIs'} ×${cl.count} (zoom in to expand)`;
-          shape.appendChild(title);
-          const badge = svgEl('circle', {
-            cx: pos.x + badgeOff, cy: pos.y - badgeOff, r: badgeR,
-            class: 'ic-cluster', 'stroke-width': sw,
-          });
-          const text = svgEl('text', {
-            x: pos.x + badgeOff, y: pos.y - badgeOff + 3.5 * inv,
-            'text-anchor': 'middle', class: 'ic-cluster-text',
-            'font-size': 10 * inv,
-          });
-          text.textContent = String(cl.count);
-          g.appendChild(shape);
-          g.appendChild(badge);
-          g.appendChild(text);
         }
       }
 
@@ -958,9 +1094,9 @@
       function redrawPlayerCanvas() {
         const cvs = qs('#player-canvas');
         if (!cvs) return;
-        const vp = qs('#map-viewport');
-        const w = vp.clientWidth;
-        const h = vp.clientHeight;
+        if (!(vpW > 0)) measureViewport();
+        const w = vpW;
+        const h = vpH;
         if (cvs.width !== w || cvs.height !== h) { cvs.width = w; cvs.height = h; }
         const c = cvs.getContext('2d');
         c.clearRect(0, 0, w, h);
@@ -977,21 +1113,43 @@
           else        drawPlayerDot(c, s.x, s.y, color, 5);
         }
       }
-      function repositionPlayers() { redrawPlayerCanvas(); }
+      // Pan input (mouse drag, gamepad axis) can fire faster than the frame
+      // rate; the canvas can only be presented once per frame, so coalesce the
+      // clear+redraw to rAF. Data updates (renderPlayers) stay synchronous —
+      // tests read the canvas right after injecting a snapshot.
+      let playersRedrawQueued = false;
+      function repositionPlayers() {
+        if (playersRedrawQueued) return;
+        playersRedrawQueued = true;
+        requestAnimationFrame(() => {
+          playersRedrawQueued = false;
+          if (ctx.isVisible()) redrawPlayerCanvas();
+        });
+      }
       function renderPlayers(players) { latestPlayers = players || []; redrawPlayerCanvas(); }
 
+      // Fixed-size cross inside a --mi scale group: the output no longer depends
+      // on zoom (the shared custom property handles size), so rebuild only when
+      // the ping set itself changes.
+      let pingsRendered = null;
+      let pingsRenderedEpoch = -1;
       function renderPings(pings) {
+        if (pings === pingsRendered && pingsRenderedEpoch === boundsEpoch) return;
+        pingsRendered = pings;
+        pingsRenderedEpoch = boundsEpoch;
         const g = qs('#g-pings');
         g.textContent = '';
-        const inv = state.scale > 0 ? (1 / state.scale) : 1;
-        const half = PING_HALF_PX * inv;
-        const sw = PING_STROKE_PX * inv;
+        pingScaleGs = [];
+        const half = PING_HALF_PX;
+        const sw = PING_STROKE_PX;
         for (const p of (pings || [])) {
           const loc = p.Location || {};
           const pos = worldToLocal(loc.X || 0, loc.Y || 0);
           const cross = svgEl('g', { transform: `translate(${pos.x},${pos.y})` });
-          cross.appendChild(svgEl('line', { x1: -half, y1: -half, x2:  half, y2:  half, class: 'ping', 'stroke-width': sw }));
-          cross.appendChild(svgEl('line', { x1: -half, y1:  half, x2:  half, y2: -half, class: 'ping', 'stroke-width': sw }));
+          const scaleG = newAuxScaleGroup(pingScaleGs);
+          scaleG.appendChild(svgEl('line', { x1: -half, y1: -half, x2:  half, y2:  half, class: 'ping', 'stroke-width': sw }));
+          scaleG.appendChild(svgEl('line', { x1: -half, y1:  half, x2:  half, y2: -half, class: 'ping', 'stroke-width': sw }));
+          cross.appendChild(scaleG);
           const title = svgEl('title');
           title.textContent = `${p.PingType || 'Ping'} • ${p.OwnerId || ''}`;
           cross.appendChild(title);
@@ -999,27 +1157,43 @@
         }
       }
 
+      // Corner coordinates only change with bounds; rebuilding the four <text>
+      // nodes on every rerender invalidated SVG layout on every snapshot
+      // broadcast for nothing. Zoom-size compensation rides the shared --mi
+      // scale group like the markers, so zoom does not touch these nodes either.
+      let coordsKey = '';
       function renderBoundsCoords() {
         const g = qs('#g-coords');
+        const key = bounds.hasData
+          ? `${bounds.minX},${bounds.minY},${bounds.maxX},${bounds.maxY}`
+          : '';
+        if (key === coordsKey) return;
+        coordsKey = key;
         g.textContent = '';
+        coordScaleGs = [];
         if (!bounds.hasData) return;
-        const inv = state.scale > 0 ? (1 / state.scale) : 1;
-        const inset = 6 * inv;
-        const fs = 11 * inv;
+        const inset = 6;
+        const fs = 11;
         const w = (bounds.maxX - bounds.minX) * PX_PER_CM;
         const h = (bounds.maxY - bounds.minY) * PX_PER_CM;
+        // Anchor a scale group at each corner; the label offsets inside are
+        // fixed pixels, counter-scaled by --mi.
         const corners = [
-          { lx: inset,     ly: inset + fs,  anchor: 'start', wx: bounds.maxX, wy: bounds.minY },
-          { lx: w - inset, ly: inset + fs,  anchor: 'end',   wx: bounds.maxX, wy: bounds.maxY },
-          { lx: inset,     ly: h - inset,   anchor: 'start', wx: bounds.minX, wy: bounds.minY },
-          { lx: w - inset, ly: h - inset,   anchor: 'end',   wx: bounds.minX, wy: bounds.maxY },
+          { cx: 0, cy: 0, lx: inset,  ly: inset + fs, anchor: 'start', wx: bounds.maxX, wy: bounds.minY },
+          { cx: w, cy: 0, lx: -inset, ly: inset + fs, anchor: 'end',   wx: bounds.maxX, wy: bounds.maxY },
+          { cx: 0, cy: h, lx: inset,  ly: -inset,     anchor: 'start', wx: bounds.minX, wy: bounds.minY },
+          { cx: w, cy: h, lx: -inset, ly: -inset,     anchor: 'end',   wx: bounds.minX, wy: bounds.maxY },
         ];
         for (const cc of corners) {
+          const corner = svgEl('g', { transform: `translate(${cc.cx} ${cc.cy})` });
+          const scaleG = newAuxScaleGroup(coordScaleGs);
           const t = svgEl('text', {
             x: cc.lx, y: cc.ly, 'text-anchor': cc.anchor, class: 'bound-coord', 'font-size': fs,
           });
           t.textContent = `${Math.round(cc.wx)}, ${Math.round(cc.wy)}`;
-          g.appendChild(t);
+          scaleG.appendChild(t);
+          corner.appendChild(scaleG);
+          g.appendChild(corner);
         }
       }
 
@@ -1232,8 +1406,9 @@
         // per-cell fowGrid gate below can't cover this: it fails open until the
         // grid arrives, which is exactly the window the veil exists for.
         if (!fowReady()) { hideHoverChip(); return; }
+        if (!(vpW > 0)) measureViewport();
         let cx, cy;
-        if (state.isPad) { cx = vp.clientWidth / 2; cy = vp.clientHeight / 2; }
+        if (state.isPad) { cx = vpW / 2; cy = vpH / 2; }
         else { if (state.mouseX < 0) { hideHoverChip(); return; } cx = state.mouseX; cy = state.mouseY; }
         const lx = (cx - state.panX) / state.scale;
         const ly = (cy - state.panY) / state.scale;
@@ -1256,8 +1431,8 @@
         let px = cx + offset, py = cy + offset;
         const w = chip.offsetWidth;
         const h = chip.offsetHeight;
-        if (px + w > vp.clientWidth)  px = Math.max(0, cx - offset - w);
-        if (py + h > vp.clientHeight) py = Math.max(0, cy - offset - h);
+        if (px + w > vpW) px = Math.max(0, cx - offset - w);
+        if (py + h > vpH) py = Math.max(0, cy - offset - h);
         chip.style.left = px + 'px';
         chip.style.top  = py + 'px';
       }
@@ -1296,9 +1471,7 @@
         const p = latestSnapshot;
         const empty = qs('#empty');
         if (!p) {
-          qs('#g-icons').textContent = '';
-          qs('#g-pings').textContent = '';
-          qs('#g-coords').textContent = '';
+          clearOverlaySvg();
           renderPlayers([]);
           hideHoverChip();
           empty.textContent = 'Waiting for map data…';
@@ -1306,9 +1479,7 @@
           return;
         }
         if (!bounds.hasData) {
-          qs('#g-icons').textContent = '';
-          qs('#g-pings').textContent = '';
-          qs('#g-coords').textContent = '';
+          clearOverlaySvg();
           renderPlayers([]);
           hideHoverChip();
           empty.textContent = 'Map bounds unavailable.';
@@ -1494,8 +1665,9 @@
         const me = (latestSnapshot.Players || [])[0];
         if (!me || !me.Position) return;
         const loc = worldToLocal(me.Position.X || 0, me.Position.Y || 0);
-        state.panX = vp.clientWidth  / 2 - loc.x * state.scale;
-        state.panY = vp.clientHeight / 2 - loc.y * state.scale;
+        if (!(vpW > 0)) measureViewport();
+        state.panX = vpW / 2 - loc.x * state.scale;
+        state.panY = vpH / 2 - loc.y * state.scale;
         applyTransform();
         rerenderSoon();
       }
