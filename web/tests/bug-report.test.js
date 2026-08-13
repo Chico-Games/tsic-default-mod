@@ -13,6 +13,26 @@ TSICTestHarness.register({
     },
 });
 
+TSICTestHarness.register({
+    name: 'BugReport: a sent report closes the form, it does not force gameplay',
+    file: '/screens/bug-report.html',
+    async run(ctx) {
+        // REGRESSION (#150): submit used to publish Pause.Resume, which the director
+        // answers by switching to InGame whatever world is loaded. Filed from the main
+        // menu that left the player on the menu level with no UI and no way back. Close
+        // is the routed exit — it returns to the screen the form was opened from and
+        // clears the furniture snapshot on the way.
+        await ctx.waitFor(() => ctx.doc.querySelector('textarea'));
+        ctx.doc.querySelector('textarea').value = 'the shelf is inside the wall';
+        ctx.clearPublishes();
+        Array.from(ctx.doc.querySelectorAll('button'))
+            .find(b => /submit|send/i.test(b.textContent || '')).click();
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.BugReport.Submit'));
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.BugReport.Close'));
+        ctx.expect(ctx.assert.notPublished(ctx.handle, 'UI.Cmd.Pause.Resume'));
+    },
+});
+
 // --- "this furniture is out of position" -----------------------------------
 //
 // The form must show the player which piece of furniture the view ray picked

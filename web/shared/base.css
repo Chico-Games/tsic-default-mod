@@ -217,10 +217,19 @@ input[type=range]:active::-webkit-slider-thumb { cursor: grabbing; }
        <div class="tsic-stage--magazine-gradient"><div class="tsic-panel tsic-cover">…</div></div>
    Independent tuning knobs (set per-screen if you need to override):
      --tsic-stage-paper-alpha   cream-paper opacity   (0 see-through … 1 solid)
-     --tsic-stage-dot-strength  halftone ink darkness (0 invisible    … 1 solid) */
+     --tsic-stage-dot-strength  halftone ink darkness (0 invisible    … 1 solid)
+
+   THESE DEFAULTS ARE WHAT SHIPS, and they have to be, because they are what the FIRST PAINT
+   uses. shared/store-maze-stage.js used to set both from script — 0.92 paper, 0 dots — but it
+   is a deferred script that also waits on the maze module, so every menu page painted at the
+   old 0.35 default first and the game world showed through the stage for several frames on
+   every navigation between menus (#150, "one frame of the store"). A backdrop cannot be
+   authored in a script that runs after the backdrop is on screen. */
 .tsic-stage--magazine-gradient {
-  --tsic-stage-paper-alpha: 0.35;
-  --tsic-stage-dot-strength: 0.45;
+  --tsic-stage-paper-alpha: 0.92;
+  /* 0: the drifting store-maze plan is the texture on every page that uses this stage. Turn
+     it back up per-screen for the plain halftone look. */
+  --tsic-stage-dot-strength: 0;
   position: fixed;
   inset: 0;
   display: flex;
@@ -231,6 +240,9 @@ input[type=range]:active::-webkit-slider-thumb { cursor: grabbing; }
   color: var(--ink-night);
   isolation: isolate;
 }
+/* A stage that must hide the world behind it completely (the title screen — it is a solid
+   backdrop, not an overlay). Authored on the element so it applies at parse time. */
+.tsic-stage--magazine-gradient[data-paper-alpha="1"] { --tsic-stage-paper-alpha: 1; }
 .tsic-stage--magazine-gradient::before,
 .tsic-stage--magazine-gradient::after {
   content: '';

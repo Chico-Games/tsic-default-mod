@@ -236,7 +236,11 @@
           bIncludeLog: !!root.querySelector('#br-log').checked,
         });
         description.value = '';
-        ctx.publish('UI.Cmd.Pause.Resume');
+        // Close, not Pause.Resume. Close routes back to whichever screen the form was
+        // opened from (pause menu, main menu, gameplay) and clears the furniture snapshot
+        // so it can't ride along on the next report; Resume forces gameplay, which from
+        // the main menu left the player looking at the menu level with no UI (#150).
+        ctx.publish('UI.Cmd.BugReport.Close');
       }
 
       // Shift+Enter sends; plain Enter stays a newline in the description. Bound on
