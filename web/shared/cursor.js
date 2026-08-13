@@ -201,9 +201,40 @@
             refresh: function () { if (lastTarget) root.dataset.mode = modeFor(lastTarget); },
         };
 
-        document.addEventListener('pointermove', function (e) {
+        // POSITION comes from pointerrawupdate where it exists; MODE stays on
+        // pointermove. They are split because they cost different things and are
+        // needed at different times.
+        //
+        // Chromium delays `pointermove` to align it with the renderer's frame.
+        // Measured against the C++ clock on 2026-08-13 (Inventory screen, software
+        // paint): the same injected move is answered from `pointerrawupdate` at
+        // p50 35.9ms and from `pointermove` at p50 52.0ms. That ~16ms gap is pure
+        // queueing, and because this cursor is DRAWN BY THE PAGE (the native one is
+        // `cursor: none`) the player sees every millisecond of it on every movement.
+        // It is the single largest thing the page controls in that path.
+        //
+        // Writing `transform` on each raw event does not cost a composite per event
+        // — the compositor still runs once per frame, it just gets the newest
+        // position instead of a frame-old one, which is the whole saving.
+        //
+        // `setMode` stays on pointermove on purpose: it reads `e.target`, i.e. a hit
+        // test, and the cursor's SHAPE arriving a frame late is invisible in a way
+        // its POSITION is not.
+        var hasRawUpdate = 'onpointerrawupdate' in document;
+
+        function place(e) {
             root.style.transform = 'translate3d(' + e.clientX + 'px,' + e.clientY + 'px,0)';
             root.classList.remove('is-gone');
+        }
+
+        if (hasRawUpdate) {
+            document.addEventListener('pointerrawupdate', place, { passive: true });
+        }
+
+        document.addEventListener('pointermove', function (e) {
+            // Still the position fallback when pointerrawupdate is unavailable.
+            // Harmless when it is: same coordinates, already written this frame.
+            if (!hasRawUpdate) place(e);
             setMode(e.target);
         }, { passive: true });
 

@@ -788,7 +788,15 @@
         const img = root.querySelector('#inv-char-img');
         if (!img) return;
         if (this._previewStream) this._previewStream();
-        this._previewStream = TSIC.startRuntimeImgStream(img, 'character-preview');
+        // 15fps, not the 30 default. Each frame of this stream is a fresh 512x512
+        // PNG decoded on the renderer's MAIN thread — the same thread that services
+        // pointermove — and the inventory is the screen where the player is dragging
+        // things. Measured 2026-08-13 with WebUIInputLatencyTest: turning this stream
+        // off entirely took the screen's ack latency from p50 52.0ms / p95 81.1ms to
+        // p50 35.6 / p95 56.5, i.e. it was costing ~16ms at the median and ~25ms at
+        // the tail. Halving the rate buys back most of that, and an idle-animation
+        // doll is the cheapest thing in this UI to spend smoothness on.
+        this._previewStream = TSIC.startRuntimeImgStream(img, 'character-preview', { fps: 15 });
       });
 
       window.addEventListener('tsic-item-catalog', () => { if (ctx.isVisible()) refresh(); });

@@ -259,6 +259,8 @@
   // backpressures naturally if PNG encode/transfer can't keep up, and retries
   // through the empty responses that occur before the first snapshot lands.
   // Returns a stop() function; call it when the image is no longer visible.
+  var HIDDEN_POLL_MS = 500;
+
   function startRuntimeImgStream(imgEl, name, opts) {
     var o = opts || {};
     var minInterval = 1000 / (o.fps || 30);
@@ -274,7 +276,26 @@
     function fetchNext() {
       if (stopped) return;
       lastStart = now();
+      // Nothing can see it — don't pay for it. Every frame of this stream is a
+      // full PNG decoded on the renderer's MAIN thread, which is also the thread
+      // that services pointermove, so a stream left running behind a closed or
+      // hidden screen is pure input latency for no picture at all. Keep polling
+      // at the slow idle rate so it comes straight back when it reappears.
+      if (!isVisible()) {
+        timer = setTimeout(fetchNext, HIDDEN_POLL_MS);
+        return;
+      }
       imgEl.src = base + '?t=' + (++seq);
+    }
+    // Deliberately ONLY document.hidden, not an element-visibility test.
+    // Screens already stop their own streams on hide (see inventory.js onHide),
+    // so an offsetParent check here would be redundant for the real callers while
+    // adding a way to get it wrong: any caller whose element is laid out in a way
+    // that reports no offsetParent would silently drop to the idle rate and look
+    // broken. This covers the case the screens cannot — the whole page being
+    // backgrounded — and nothing else.
+    function isVisible() {
+      return !(typeof document !== 'undefined' && document.hidden);
     }
     function scheduleNext() {
       if (stopped) return;
