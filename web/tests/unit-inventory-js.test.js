@@ -359,39 +359,32 @@ TSICTestHarness.register({
     },
 });
 
-// ---- The HUD hotbar row as a bound pane -------------------------------------
+// ---- The in-panel hotbar strip ----------------------------------------------
 
-// The hotbar is player grid cells 0..7 and the live HUD bar DRAWS those cells — the inventory
-// panel does not draw them a second time. bindCells is how the bar joins the cursor engine:
-// the caller owns the markup, the engine owns the behaviour. These scenarios exercise that
-// contract against a stand-in bar; cross-surface-drag.test.js exercises the real one.
+// The hotbar is player grid cells 0..7, drawn as a SEPARATE STRIP along the bottom of the
+// panel that shows the bag (Minecraft's layout). Two renderGrid hosts, one inventory: the bag
+// takes startSlot..end and the strip takes 0..endSlot. These scenarios pin the seam between
+// them — a stack dragged across it must commit as an ordinary Move, never as a world drop.
 //
-// Pinned away from the fixture grid so the hit test is unambiguous, and z-index:55 to match
-// hud-hotbar.js's grid mode — the bar must out-stack the screen overlay or its cells are dead.
+// Laid out beside the fixture grid, not over it, so every hit test is unambiguous.
 function ensureHotbarFixture(ctx, items) {
-    let hud = ctx.doc.getElementById('hotbar-row');
-    if (!hud) {
-        hud = ctx.doc.createElement('div');
-        hud.id = 'hotbar-row';
-        hud.style.cssText = 'position:fixed;left:420px;top:80px;z-index:55;display:flex;gap:4px;';
-        ctx.doc.body.appendChild(hud);
+    let strip = ctx.doc.getElementById('hotbar-strip');
+    if (!strip) {
+        strip = ctx.doc.createElement('div');
+        strip.id = 'hotbar-strip';
+        strip.style.cssText = 'position:fixed;left:420px;top:80px;display:grid;'
+            + 'grid-template-columns:repeat(8,48px);grid-auto-rows:48px;gap:4px;';
+        ctx.doc.body.appendChild(strip);
     }
-    hud.innerHTML = '';
-    for (let i = 0; i < 8; i++) {
-        const slot = ctx.doc.createElement('div');
-        slot.className = 'tsic-slot';
-        slot.style.cssText = 'width:48px;height:48px;';
-        slot.dataset.slot = i;
-        slot.dataset.grid = i;
-        hud.appendChild(slot);
-    }
-    ctx.win.TSICInventory.bindCells(hud, items || [], { ownerId: 'Player' });
-    return hud;
+    ctx.win.TSICInventory.renderGrid(strip, items || [], {
+        gridWidth: 8, slotCount: 8, endSlot: 8, hotbarSlots: 8, ownerId: 'Player',
+    });
+    return strip;
 }
-function hudSlot(ctx, i) { return ctx.doc.querySelector('#hotbar-row .tsic-slot[data-slot="' + i + '"]'); }
+function hudSlot(ctx, i) { return ctx.doc.querySelector('#hotbar-strip .tsic-slot[data-grid="' + i + '"]'); }
 
 TSICTestHarness.register({
-    name: 'Unit/InventoryJs: press-drag-release onto the HUD hotbar moves into that grid cell',
+    name: 'Unit/InventoryJs: press-drag-release onto the hotbar strip moves into that grid cell',
     file: '/screens/test-fixtures.html',
     async run(ctx) {
         ctx.clearPublishes();
@@ -411,7 +404,7 @@ TSICTestHarness.register({
 });
 
 TSICTestHarness.register({
-    name: 'Unit/InventoryJs: click-move-click onto the HUD hotbar row moves instead of dropping in the world',
+    name: 'Unit/InventoryJs: click-move-click onto the hotbar strip moves instead of dropping in the world',
     file: '/screens/test-fixtures.html',
     async run(ctx) {
         ctx.clearPublishes();
@@ -430,45 +423,25 @@ TSICTestHarness.register({
 });
 
 TSICTestHarness.register({
-    name: 'Unit/InventoryJs: the HUD hotbar takes drops THROUGH a full-screen overlay',
+    name: 'Unit/InventoryJs: the hotbar strip is bounded — parked overflow extends the bag, not the strip',
     file: '/screens/test-fixtures.html',
     async run(ctx) {
-        // REGRESSION: every open screen mounts inside #screen-overlay-host, a full-viewport
-        // z-index:50 pointer-events:auto layer that used to sit ABOVE the HUD. elementFromPoint
-        // then returned the overlay at every point on screen, the bar could never be hit, and
-        // releases over it fell through to the world-drop branch — silently throwing the
-        // player's stack on the floor. The bar out-stacks the overlay now (z-index 55, applied
-        // by hud-hotbar.js's grid mode); this scenario reproduces that stacking and pins it.
+        // endSlot is what lets two hosts split one inventory. Without it, renderGrid's
+        // load-overflow fallback (an item parked past the slot cap extends the grid by whole
+        // rows) would grow the strip over the bag's cells too, and the player would see every
+        // one of them twice.
         ctx.clearPublishes();
-        ctx.handle.setItemCatalog({ ID_Axe: { Category: 'Equipment' } });
-        const items = [{ ItemId: 'ID_Axe', Count: 1, InstanceId: 9, GridSlot: 12 }];
-        renderHost(ctx, items);
-        ensureHotbarFixture(ctx, items);
-
-        const overlay = ctx.doc.createElement('div');
-        overlay.id = 'zz-fake-screen-overlay';
-        overlay.style.cssText = 'position:fixed;inset:0;z-index:50;pointer-events:auto;';
-        ctx.doc.body.appendChild(overlay);
-        try {
-            const target = hudSlot(ctx, 3);
-            const r = target.getBoundingClientRect();
-            // The whole point: the bar wins the hit test against a real screen's overlay.
-            const hitEl = ctx.doc.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
-            ctx.expect(ctx.assert.truthy(hitEl && hitEl.closest('#hotbar-row'),
-                'the bar out-stacks the overlay a real screen mounts'));
-
-            pointerAt(ctx, cellAt(ctx, 12), 'pointerdown', 1, 0);
-            pointerAt(ctx, target, 'pointermove', 1);
-            pointerAt(ctx, target, 'pointerup', 0, 0);
-
-            ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Inventory.Move', {
-                where: p => p.ToSlot === 3 && p.FromSlot === 12 && p.ItemId === 9,
-            }));
-            ctx.expect(ctx.assert.notPublished(ctx.handle, 'UI.Cmd.Inventory.DropFromSlot'));
-            ctx.expect(ctx.assert.eq(ctx.win.TSICInventory.getHeld(), null, 'gesture completed'));
-        } finally {
-            overlay.remove();
-        }
+        const strip = ensureHotbarFixture(ctx, [
+            { ItemId: 'ID_Axe', Count: 1, InstanceId: 9, GridSlot: 3 },
+            { ItemId: 'ID_Axe', Count: 1, InstanceId: 11, GridSlot: 40 },
+        ]);
+        ctx.expect(ctx.assert.eq(strip.querySelectorAll('.tsic-slot').length, 8,
+            'the strip is exactly the hotbar, whatever is parked past the bag cap'));
+        ctx.expect(ctx.assert.eq(strip.querySelectorAll('.tsic-slot[data-grid="40"]').length, 0,
+            'an overflow item never lands in the strip'));
+        // The number chips are what mark the band as the hotbar rather than more bag.
+        ctx.expect(ctx.assert.eq(strip.querySelectorAll('.tsic-slot.is-hotbar .hotbar-key').length, 8,
+            'all eight cells are numbered'));
     },
 });
 

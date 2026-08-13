@@ -10,8 +10,9 @@
 // slid the bag sideways — and every one of them looked like "the UI jumps" rather than like a
 // CSS bug. None of it is visible to a test that only asserts what rendered; these measure.
 //
-// Runs against the real shell so the HUD hotbar is present and both screens skip their first
-// row for it, exactly as in game.
+// Runs against the real shell so the HUD is present, exactly as in game. Both screens draw the
+// player's grid as two bands inside one column wrapper — the bag, then the hotbar strip under
+// it — so #inv-grid / #ss-player-list is the whole bag column on either screen.
 
 function rect(ctx, sel) {
     const el = ctx.doc.querySelector(sel);
@@ -94,7 +95,7 @@ TSICTestHarness.register({
         // backpack turns grey cells live and the grid does not resize, reflow or move. The
         // preview band used to be capped at 16 cells, which made a starter bag two rows
         // shorter than an upgraded one and the panel jump as the player levelled.
-        const HOTBAR = 8, TIER = 48;
+        const TIER = 48;
         for (const maxSlots of [24, 32, 40, 48]) {
             for (const [name, gridSel] of [['Inventory', '#inv-grid'], ['Storage', '#ss-player-list']]) {
                 await show(ctx, name, gridSel);
@@ -106,8 +107,8 @@ TSICTestHarness.register({
 
                 const cells = ctx.doc.querySelectorAll(gridSel + ' .tsic-slot').length;
                 const locked = ctx.doc.querySelectorAll(gridSel + ' .tsic-slot.is-locked').length;
-                // The panel skips the leading hotbar cells — the live HUD bar draws those.
-                ctx.expect(ctx.assert.eq(cells + HOTBAR, TIER,
+                // Bag band + hotbar strip together — the column is the whole bag either way.
+                ctx.expect(ctx.assert.eq(cells, TIER,
                     `${name} at ${maxSlots} slots: bag totals ${TIER} cells`));
                 ctx.expect(ctx.assert.eq(locked, TIER - maxSlots,
                     `${name} at ${maxSlots} slots: ${TIER - maxSlots} of them are locked`));

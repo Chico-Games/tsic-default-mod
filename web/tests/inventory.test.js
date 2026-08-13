@@ -215,7 +215,7 @@ TSICTestHarness.register({
 });
 
 TSICTestHarness.register({
-    name: 'Inventory: the first grid row is the hotbar, marked and numbered',
+    name: 'Inventory: the hotbar is a numbered strip under the bag, not a mirror of one',
     file: '/screens/inventory.html',
     async run(ctx) {
         ctx.setItemCatalog({ ID_Bread: { Name: 'Bread', Category: 'Consumable' } });
@@ -223,21 +223,22 @@ TSICTestHarness.register({
             Items: [{ ItemId: 'ID_Bread', Count: 3, InstanceId: 7, GridSlot: 0 }],
         });
         ctx.inject('tsic.msg.UI.Hotbar.Changed', { NumSlots: 8, SelectedSlot: 0, SelectedSlotPending: -1 });
-        await ctx.waitFor(() => ctx.doc.querySelectorAll('#inv-grid .tsic-slot.is-hotbar').length === 8);
+        await ctx.waitFor(() => ctx.doc.querySelectorAll('#inv-hotbar .tsic-slot.is-hotbar').length === 8);
 
-        // There is no separate in-screen widget any more — the mirror is gone for good.
-        ctx.expect(ctx.assert.eq(ctx.doc.querySelectorAll('#inv-hotbar').length, 0,
-            'the in-screen hotbar mirror is deleted'));
+        // The strip holds the real cells — it is a renderGrid pane, not a display copy that
+        // has to be kept in step with one.
+        ctx.expect(ctx.assert.eq(ctx.doc.querySelectorAll('#inv-bag .tsic-slot.is-hotbar').length, 0,
+            'the bag band draws none of the hotbar cells'));
 
-        const first = ctx.doc.querySelector('#inv-grid .tsic-slot[data-grid="0"]');
+        const first = ctx.doc.querySelector('#inv-hotbar .tsic-slot[data-grid="0"]');
         ctx.expect(ctx.assert.truthy(first.classList.contains('is-hotbar'), 'cell 0 is on the bar'));
         ctx.expect(ctx.assert.eq(first.querySelector('.hotbar-key').textContent, '1',
             'the cell position IS the hotbar number'));
         ctx.expect(ctx.assert.truthy(first.classList.contains('is-held'),
             'the drawn cell wears the selection frame'));
-        // Cell 8 starts the bag.
-        ctx.expect(ctx.assert.falsy(
-            ctx.doc.querySelector('#inv-grid .tsic-slot[data-grid="8"]').classList.contains('is-hotbar'),
+        // Cell 8 starts the bag, in the band above.
+        ctx.expect(ctx.assert.truthy(
+            ctx.doc.querySelector('#inv-bag .tsic-slot[data-grid="8"]'),
             'the bag starts at cell 8'));
     },
 });

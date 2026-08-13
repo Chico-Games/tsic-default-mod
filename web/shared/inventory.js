@@ -22,9 +22,11 @@
     // an item is on the bar because it is sitting in one of those cells. C++ owns the real
     // number and ships it on UI.Hotbar.Changed; this is the fallback for a cold render.
     //
-    // Those cells are NOT drawn a second time inside the inventory/storage panels. The live
-    // HUD bar is the row (bindCells wires it as a real pane), so the in-panel grid starts at
-    // opts.startSlot and the player only ever sees one copy of each cell.
+    // Every panel that shows the bag draws those cells as a SEPARATE STRIP along the bottom of
+    // the bag column (opts.endSlot), with the bag grid above starting after them
+    // (opts.startSlot). Minecraft's layout: one row, set slightly apart, edited in the same
+    // panel as everything else. The HUD bar is a read-only mirror of the same cells and is
+    // never an editing surface — it sits under the screen overlay while a panel is open.
     var HOTBAR_SLOTS = 8;
 
     // Locked-preview region (grid design §10.1) — UI-ONLY grey "Requires backpack" cells that
@@ -814,8 +816,8 @@
 
         /**
          * Append the shared per-cell overlays — condition bar, NEW badge, equipped badge — to a
-         * cell. Public because the live HUD hotbar draws its own slots (bindCells) and must
-         * decorate them identically; a second implementation there would drift.
+         * cell. Public so any surface that builds its own cells decorates them identically;
+         * a second implementation elsewhere would drift.
          */
         decorateCell: decorateCell,
 
@@ -826,10 +828,11 @@
          * hidden. opts.lockedPreviewCells greyed cells render after the live
          * ones ("Requires backpack" — UI-only, never a target).
          *
-         * opts.startSlot skips the leading cells entirely — the live HUD hotbar draws
-         * those (bindCells), so the panel must not draw a second copy of them. It is 0
-         * on surfaces with no HUD bar to reach for, where the panel is the only place
-         * those cells exist and opts.hotbarSlots marks them in place instead.
+         * opts.startSlot / opts.endSlot bound the cells this host draws, which is how the
+         * hotbar strip and the bag grid above it split one inventory between two hosts
+         * without either drawing the other's cells. endSlot is exclusive, and it also pins
+         * the strip's length: overflow parked past the cap extends the BAG, never the strip.
+         * opts.hotbarSlots marks the leading cells with their number chip.
          *
          * paneCtx: { ownerId, panelEl, publish?, quickMove(item), otherOwnerId(),
          *            onHover(it, cell), onLeave(),
@@ -842,16 +845,22 @@
             var liveSlots = opts.slotCount > 0 ? opts.slotCount
                 : (opts.gridHeight > 0 ? cols * opts.gridHeight : cols * 4);
 
-            // Parked overflow (shrink fallback) extends the visible grid.
+            // Exclusive upper bound (the hotbar strip stops at the hotbar's last cell).
+            var endSlot = (typeof opts.endSlot === 'number' && opts.endSlot > 0) ? opts.endSlot : 0;
+            // Parked overflow (shrink fallback) extends the visible grid — but only the host
+            // that owns the tail of the inventory. A bounded host keeps its fixed length.
             var totalLive = liveSlots;
-            for (var it0 of (items || [])) {
-                if (it0 && it0.GridSlot >= totalLive) {
-                    totalLive = (Math.floor(it0.GridSlot / cols) + 1) * cols;
+            if (!endSlot) {
+                for (var it0 of (items || [])) {
+                    if (it0 && it0.GridSlot >= totalLive) {
+                        totalLive = (Math.floor(it0.GridSlot / cols) + 1) * cols;
+                    }
                 }
             }
             var lockedCells = Math.max(0, opts.lockedPreviewCells || 0);
             var totalCells = totalLive + lockedCells;
-            // Cells the HUD bar owns. Clamped to whole rows so skipping them can never
+            if (endSlot) totalCells = Math.min(totalCells, endSlot);
+            // Cells another host owns. Clamped to whole rows so skipping them can never
             // shift the remaining cells out of their columns.
             var startSlot = Math.max(0, Math.min(totalCells, opts.startSlot || 0));
             startSlot -= startSlot % cols;
@@ -880,8 +889,8 @@
             }
 
             var equippedIds = opts.equippedIds || null;
-            // Leading cells that are the hotbar, marked in place. Only ever set when this
-            // panel IS the hotbar's only home (no HUD bar) — otherwise startSlot skipped them.
+            // Leading cells that are the hotbar, marked in place with their number chip. Only
+            // the strip host sets this; the bag grid above it starts past them.
             var hotbarSlots = (typeof opts.hotbarSlots === 'number' && opts.hotbarSlots > 0) ? opts.hotbarSlots : 0;
             // Which hotbar cell is currently in the player's hands. -1 = empty hands.
             var heldSlot = (typeof opts.heldSlot === 'number') ? opts.heldSlot : -1;
@@ -930,66 +939,6 @@
                 host.appendChild(cell);
             }
             refreshHeldSourceVisual();
-        },
-
-        /**
-         * Wire an ALREADY-RENDERED strip of `.tsic-slot` cells as a live grid pane — this is
-         * how the HUD hotbar becomes the inventory's first row rather than a copy of it.
-         *
-         * The caller owns the markup (the bar keeps its shelf look, its key chips and its
-         * selection frame); this stamps data-grid, registers the pane so held-stack gestures
-         * can reach it, and attaches the same wiring an in-panel cell gets. Call it again after
-         * every re-render — the cells are rebuilt, so the listeners must be too.
-         */
-        bindCells(host, items, opts) {
-            if (!host) return;
-            injectCursorStyleOnce();
-            opts = opts || {};
-            var pane = {
-                host: host,
-                // Bounds for the world-drop test: a release over the bar is inside a pane,
-                // so it can never fall through and throw the stack on the floor.
-                panelEl: opts.panelEl || host,
-                ownerId: opts.ownerId || 'Player',
-                quickMove: opts.onQuickMove || null,
-                onHover: opts.onHover || null,
-                onLeave: opts.onLeave || null,
-                // Worn gear dragged out of the paper doll onto the bar — the bar is a row of
-                // inventory cells, so it takes that drop like any other cell would.
-                onDollDrop: opts.onDollDrop || null,
-                otherOwnerId: opts.otherOwnerId || null,
-            };
-            registerPane(host, pane, items);
-
-            var byCell = new Map();
-            for (var it of (items || [])) {
-                if (it && it.GridSlot >= 0 && !byCell.has(it.GridSlot)) byCell.set(it.GridSlot, it);
-            }
-            for (var cell of host.querySelectorAll('.tsic-slot')) {
-                var index = parseInt(cell.dataset.grid, 10);
-                if (Number.isNaN(index)) continue;
-                var item = byCell.get(index) || null;
-                if (item) {
-                    cell.dataset.instance = item.InstanceId;
-                    if (opts.filterFn && !opts.filterFn(item)) cell.classList.add('is-filtered');
-                    decorateCell(cell, pane.ownerId, item, opts.equippedIds || null);
-                }
-                if (opts.focusGroup) cell.setAttribute('data-tsic-focus-group', opts.focusGroup);
-                cell.setAttribute('data-tsic-focusable', '');
-                cell.tabIndex = -1;
-                wireCell(cell, pane, item, index);
-            }
-            refreshHeldSourceVisual();
-        },
-
-        /** Drop an externally-wired pane (the screen that owned it closed). */
-        unbindCells(host) {
-            if (!host) return;
-            for (var existing of Array.from(panes)) {
-                if (existing.host === host) panes.delete(existing);
-            }
-            host._tsicPane = null;
-            host.removeAttribute('data-tsic-grid-host');
         },
 
         // Partial updates preserved from v1 (equipped badge toggling).

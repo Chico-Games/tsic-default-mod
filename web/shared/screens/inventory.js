@@ -9,14 +9,16 @@
 // so that opening a container ADDS a column and moves nothing. Changing the band, the 26px
 // pane-header row or the tab metrics here means changing them there too.
 //
-// THE LIVE HUD HOTBAR IS THIS GRID'S FIRST ROW. Not a copy of it, not a mirror — the bar
-// standing at the bottom of the screen IS cells 0..7, so this grid starts at cell 8 and the
-// player sees each cell exactly once. While the screen is open the bar takes the same
-// gestures every cell here does (TSICHotbar.setGridPane hands it to the cursor engine), which
-// is the whole point: drag a stack down onto the bar and it is on the bar.
+// THE HOTBAR IS A STRIP ALONG THE BOTTOM OF THIS PANEL (Minecraft's layout). Cells 0..7 are
+// the hotbar, so the bag grid starts at cell 8 and #inv-hotbar draws the eight below it, set
+// slightly apart by a rule but wired as an ordinary pane: same pickup, same drags, same
+// shift-click, same number chips. The player sees each cell exactly once.
 //
-// On a host with no HUD (the standalone /screens/inventory.html dev page) there is no bar to
-// stand in for those cells, so the grid draws them itself, marked with the number chip.
+// The live HUD bar at the bottom of the screen is a READ-ONLY MIRROR of the same cells, and
+// the overlay covers it while this screen is open. It used to be the editing surface itself —
+// lifted above the overlay and bound as this grid's first row — and having two places that
+// both claimed to be "the hotbar", one of them outside the panel, is what players reported as
+// confusing (issue #203).
 //
 // All interactions ride the shared cursor engine (shared/inventory.js):
 // click/drag pickup, RMB half/place-one, shift-click quick-move (armour to the doll,
@@ -32,12 +34,10 @@
     /* Top-left anchored — .tsic-modal-scrim--left supplies the alignment and the insets. The
        storage screen is this screen plus a container column, so a centred panel would slide
        the bag sideways AND upward every time a crate was opened. inset:0 rather than the
-       class's position:fixed keeps the panel inside the overlay, which is lifted clear of the
-       HUD hotbar while the bar is acting as the grid's first row. */
+       class's position:fixed keeps the panel inside the overlay. */
     [data-screen="Inventory"] #inv-root { position:absolute; inset:0; display:flex; pointer-events:auto; }
-    /* min(92vh, 100%): 92vh is the look, 100% is the guarantee. The overlay is SHORTER than
-       the viewport while the HUD hotbar is acting as this grid's first row, and a panel
-       capped only against vh would run off the top of it instead of scrolling. */
+    /* min(92vh, 100%): 92vh is the look, 100% is the guarantee — a panel capped only against
+       vh would run off the top of a shorter overlay instead of scrolling. */
     [data-screen="Inventory"] #inv-panel { width:auto; height:auto; max-width:92vw; max-height:min(92vh, 100%); overflow:auto; }
     [data-screen="Inventory"] #inv-band { display:flex; align-items:baseline; gap:12px; border-bottom:3px solid rgba(10,10,10,0.85); margin-bottom:10px; padding-bottom:5px; }
     [data-screen="Inventory"] #inv-band h2 { margin:0; }
@@ -104,6 +104,10 @@
       background: rgba(230,0,0,0.16); color: var(--ink-night);
     }
 
+    /* The player's grid is ONE grid drawn as two bands: the bag, then the hotbar strip under
+       it. #inv-grid is the pair; each band is its own renderGrid host, because they cover
+       different cell ranges and the strip must not scroll with the bag. */
+    [data-screen="Inventory"] #inv-grid { display:flex; flex-direction:column; gap:0; width:max-content; }
     [data-screen="Inventory"] .inv-grid {
       display:grid; grid-template-columns: repeat(var(--grid-cols, 8), var(--tsic-slot));
       grid-auto-rows: var(--tsic-slot); gap:var(--tsic-slot-gap); width:max-content;
@@ -147,9 +151,20 @@
       font-size:11px; font-weight:700; color:#fff; background: var(--mag-red, #e60000);
       border:1px solid rgba(10,10,10,0.85); pointer-events:none;
     }
-    /* Hotbar cells drawn IN the grid — only ever on a host with no HUD bar to draw them
-       instead. Ordinary cells in every respect; the heavier bottom rule and the number chip
-       just mark which stacks are one keypress from being in the player's hands. */
+    /* The hotbar strip — cells 0..7, on their own line under the bag with a gap and a rule
+       between the two. "Slightly separate but still part of the panel" is the whole brief:
+       far enough apart to read as its own band, close enough that a stack is dragged between
+       the two without the pointer leaving the panel.
+
+       Sized and gapped exactly like .inv-grid so every hotbar cell sits squarely under the
+       bag column it shares a number with. width:max-content keeps the rule the grid's width
+       rather than the panel's. */
+    [data-screen="Inventory"] .inv-hotbar {
+      flex:0 0 auto; overflow:visible;
+      margin-top:12px; padding-top:12px; border-top:3px double rgba(10,10,10,0.5);
+    }
+    /* Ordinary cells in every respect; the heavier bottom rule and the number chip just mark
+       which stacks are one keypress from being in the player's hands. */
     [data-screen="Inventory"] .tsic-slot.is-hotbar { border-bottom-width:4px; }
     [data-screen="Inventory"] .tsic-slot.is-hotbar .hotbar-key {
       position:absolute; top:1px; right:2px; padding:1px 4px; line-height:1;
@@ -275,7 +290,10 @@
               <button id="inv-sort" class="sort-btn" data-tsic-focusable>SORT</button>
               <span class="slots-text" id="inv-slots-text" title="Slots used">—</span>
             </div>
-            <div id="inv-grid" class="inv-grid"></div>
+            <div id="inv-grid">
+              <div id="inv-bag" class="inv-grid"></div>
+              <div id="inv-hotbar" class="inv-grid inv-hotbar" title="Hotbar — press 1-8 to draw these"></div>
+            </div>
             <div class="inv-meter" id="inv-meter">
               <div class="lab"><span>Weight</span>
                 <span class="val"><span class="stackw none" id="inv-stackw">0.0 kg</span><span id="inv-weight-text">—</span></span>
@@ -461,12 +479,6 @@
         return (typeof n === 'number' && n > 0) ? n : window.TSICInventory.HOTBAR_SLOTS;
       }
 
-      // True when the live HUD bar is standing in for the hotbar cells, so this grid must
-      // skip them. False on the standalone dev page, where the grid is their only home.
-      function barIsTheRow() {
-        return !!(window.TSICHotbar && window.TSICHotbar.available());
-      }
-
       // The cell whose item is actually in the player's hands, or -1 for empty hands.
       function heldHotbarSlot() {
         const s = lastHotbar && lastHotbar.SelectedSlot;
@@ -574,56 +586,52 @@
         }
       }
 
-      // The pane contract handed to the live HUD bar so its cells behave as this screen's
-      // first row — same hover readout, same shift-click, same dimming. filterFor and
-      // equippedIds are getters: the bar re-reads them on every refresh, so a tab change
-      // or an equip can never leave it a beat behind the grid above it.
-      const HOTBAR_PANE = {
-        ownerId: 'Player',
-        focusGroup: 'inv-grid',
-        onHover: onHoverCell,
-        onLeave: onLeaveCell,
-        onQuickMove: onQuickMoveCell,
-        onDollDrop: onDollDropCell,
-        otherOwnerId: () => '',
-        filterFor: buildFilterFn,
-        equippedIds: equippedIdSet,
-      };
-      this._hotbarPane = HOTBAR_PANE;
-
-      function refresh() {
-        if (!lastUpdate) return;
-        const cat = window.tsic.itemCatalog || {};
-        const slotCount = lastUpdate.MaxSlots > 0 ? lastUpdate.MaxSlots : 32;
-        // Shared with the storage screen so the bag is the same shape on both (§10.1).
-        const lockedPreview = window.TSICInventory.lockedPreviewFor(slotCount);
-        // With a live bar those cells are drawn there and skipped here; without one this
-        // grid is their only home, so it draws and marks them itself.
-        const barIsRow = barIsTheRow();
-
-        window.TSICInventory.renderGrid(root.querySelector('#inv-grid'), lastUpdate.Items || [], {
-          catalog: cat,
-          gridWidth: lastUpdate.GridWidth > 0 ? lastUpdate.GridWidth : 8,
-          slotCount,
-          lockedPreviewCells: lockedPreview,
+      // Everything the two grid hosts have in common — the bag and the hotbar strip are one
+      // inventory split across two elements, so every interaction hook is shared and only the
+      // cell range differs.
+      function sharedPaneOpts() {
+        return {
+          catalog: window.tsic.itemCatalog || {},
           ownerId: 'Player',
           focusGroup: 'inv-grid',
           panelEl: root.querySelector('#inv-panel'),
           equippedIds: equippedIdSet(),
-          startSlot: barIsRow ? hotbarSlotCount() : 0,
-          hotbarSlots: barIsRow ? 0 : hotbarSlotCount(),
-          heldSlot: barIsRow ? -1 : heldHotbarSlot(),
           filterFn: buildFilterFn(),
           onHover: onHoverCell,
           onLeave: onLeaveCell,
           onQuickMove: onQuickMoveCell,
           onDollDrop: onDollDropCell,
           otherOwnerId: () => '',
-        });
+        };
+      }
 
-        // The bar's own broadcast re-renders it on item changes; this covers the changes
-        // it can't see — a tab change, a piece of gear coming off.
-        if (window.TSICHotbar) window.TSICHotbar.refresh();
+      function refresh() {
+        if (!lastUpdate) return;
+        const slotCount = lastUpdate.MaxSlots > 0 ? lastUpdate.MaxSlots : 32;
+        // Shared with the storage screen so the bag is the same shape on both (§10.1).
+        const lockedPreview = window.TSICInventory.lockedPreviewFor(slotCount);
+        const bar = hotbarSlotCount();
+
+        // The bag: everything AFTER the hotbar cells, which the strip below draws.
+        window.TSICInventory.renderGrid(root.querySelector('#inv-bag'), lastUpdate.Items || [],
+          Object.assign(sharedPaneOpts(), {
+            gridWidth: lastUpdate.GridWidth > 0 ? lastUpdate.GridWidth : 8,
+            slotCount,
+            lockedPreviewCells: lockedPreview,
+            startSlot: bar,
+          }));
+
+        // The hotbar strip: cells 0..bar-1, one row, numbered, with the drawn cell framed.
+        // endSlot pins its length — overflow parked past the bag's cap must extend the bag,
+        // never this.
+        window.TSICInventory.renderGrid(root.querySelector('#inv-hotbar'), lastUpdate.Items || [],
+          Object.assign(sharedPaneOpts(), {
+            gridWidth: bar,
+            slotCount: bar,
+            endSlot: bar,
+            hotbarSlots: bar,
+            heldSlot: heldHotbarSlot(),
+          }));
 
         // Gamepad landing: opening the screen puts focus on the first grid
         // cell (§8.1). Re-stamped on every re-render.
@@ -757,15 +765,13 @@
             .filter((id) => id != null && id !== '')
             .map((id) => String(id))
         );
+        // #inv-grid is both bands, so this reaches the hotbar strip's E badges too.
         window.TSICInventory.updateEquippedClasses(root.querySelector('#inv-grid'), eqIds);
-        // The bar carries the same E badge, and equipping never touches the inventory
-        // snapshot that would otherwise re-render it.
-        if (window.TSICHotbar) window.TSICHotbar.refresh();
       });
       ctx.on('tsic.msg.UI.Hotbar.Changed', (p) => {
         lastHotbar = p || null;
         if (!ctx.isVisible()) return;
-        // The bar lives in the grid now, so a selection change is just a re-render.
+        // The strip frames the drawn cell, so a selection change is a re-render.
         if (window.TSICInventory && lastUpdate) refresh();
       });
       // Gamepad grid actions (§8.2) on the focused cell: Y split/place-one,
@@ -850,8 +856,8 @@
     },
 
     onShow(/* params, ctx */) {
-      // Claim the HUD bar as this grid's first row for as long as the screen is up.
-      if (window.TSICHotbar && this._hotbarPane) window.TSICHotbar.setGridPane(this._hotbarPane);
+      // The strip below the bag is now the hotbar's only home on screen.
+      if (window.TSICHotbar) window.TSICHotbar.setBagPanelOpen(true);
       if (this._renderAll) this._renderAll();
       window.tsic.publishMessage('UI.Cmd.CharacterPreview.Show', {});
     },
@@ -859,8 +865,8 @@
     onHide(/* ctx */) {
       // Closing with a held stack: nothing ever moved — the gesture dissolves.
       if (window.TSICInventory) window.TSICInventory.cancelHeld();
-      // Hand the bar back: from here a click on it draws that slot again.
-      if (window.TSICHotbar) window.TSICHotbar.setGridPane(null);
+      // Hand the HUD bar back: from here it is chrome again, and a click on it draws a slot.
+      if (window.TSICHotbar) window.TSICHotbar.setBagPanelOpen(false);
       if (this._previewStream) { this._previewStream(); this._previewStream = null; }
       window.tsic.publishMessage('UI.Cmd.CharacterPreview.Hide', {});
     },

@@ -63,9 +63,8 @@
         //
         // Panel hugs its content (like #inv-panel) instead of the inherited 60vw, which clipped
         // the container grid on narrower displays. max-height min(92vh, 100%): 92vh is the
-        // look, 100% is the guarantee — the overlay is shorter than the viewport while the HUD
-        // hotbar acts as the player pane's first row, and a panel capped only against vh would
-        // run off the top of it instead of scrolling.
+        // look, 100% is the guarantee — a panel capped only against vh would run off the top
+        // of a shorter overlay instead of scrolling.
         '#ss-panel { width:auto; height:auto; max-width:94vw; max-height:min(92vh, 100%); overflow:auto; }',
         '#ss-panel .ss-band { display:flex; align-items:baseline; gap:12px; border-bottom:3px solid rgba(10,10,10,0.85); margin-bottom:10px; padding-bottom:5px; }',
         '#ss-panel .ss-band h2 { margin:0; }',
@@ -103,6 +102,9 @@
         '#ss-panel .ss-tabs .tsic-tab:not(.is-active)[data-tsic-focused] {',
         '  background: rgba(230,0,0,0.16); color: var(--ink-night);',
         '}',
+        // The player's grid is ONE grid drawn as two bands (bag, then hotbar strip);
+        // #ss-player-list is the pair. Each band is its own renderGrid host.
+        '#ss-panel #ss-player-list { display:flex; flex-direction:column; gap:0; width:max-content; }',
         '#ss-panel .ss-grid {',
         '  display:grid; grid-template-columns: repeat(var(--grid-cols, 8), var(--tsic-slot));',
         '  grid-auto-rows: var(--tsic-slot); gap:var(--tsic-slot-gap); width:max-content;',
@@ -138,9 +140,12 @@
         '  border:1px solid rgba(10,10,10,0.85); pointer-events:none;',
         '}',
         '#ss-panel .tsic-slot .equip-badge { position:absolute; top:1px; left:2px; padding:1px 4px; line-height:1; font-size:11px; font-weight:700; color:#fff; background:var(--mag-red, #e60000); border:1px solid rgba(10,10,10,0.85); pointer-events:none; }',
-        // Hotbar cells drawn IN the player pane — only on a host with no HUD bar to stand in
-        // for them (the standalone /screens/storage.html dev page). Matches the inventory
-        // screen so the same cells read the same way in both places.
+        // The hotbar strip under the player's bag — the SAME band the inventory screen draws
+        // (see screens/inventory.js), at the same offset, so opening a crate never moves it.
+        '#ss-panel .ss-hotbar {',
+        '  flex:0 0 auto; overflow:visible;',
+        '  margin-top:12px; padding-top:12px; border-top:3px double rgba(10,10,10,0.5);',
+        '}',
         '#ss-panel .tsic-slot.is-hotbar { border-bottom-width:4px; }',
         '#ss-panel .tsic-slot.is-hotbar .hotbar-key { position:absolute; top:1px; right:2px; padding:1px 4px; line-height:1; font-size:11px; font-weight:700; color:var(--mag-yellow, #ffcc00); background:rgba(10,10,10,0.9); border:1px solid rgba(10,10,10,0.85); pointer-events:none; }',
         '#ss-panel .tsic-slot.is-held { border-color:var(--mag-red, #e60000); box-shadow:0 0 0 2px var(--mag-red, #e60000) inset; }',
@@ -282,7 +287,10 @@
                         <button id="ss-sort-player" class="ss-sort-btn" type="button" data-tsic-focusable>SORT</button>
                         <span class="slots-text" id="ss-player-slots" title="Slots used">—</span>
                     </div>
-                    <div id="ss-player-list" class="ss-grid"></div>
+                    <div id="ss-player-list">
+                        <div id="ss-player-bag" class="ss-grid"></div>
+                        <div id="ss-player-hotbar" class="ss-grid ss-hotbar" title="Hotbar — press 1-8 to draw these"></div>
+                    </div>
                     <div class="ss-meter" id="ss-player-meter">
                         <div class="lab"><span>Weight</span>
                             <span class="val"><span class="stackw none" id="ss-stackw">0.0 kg</span><span id="ss-weight-text">—</span></span>
@@ -501,18 +509,10 @@
             return tabFn || null;
         }
 
-        // True when the live HUD bar is standing in for the player's hotbar cells, so the
-        // player pane must skip them. False on the standalone dev pages, which boot no HUD
-        // and where this panel is those cells' only home.
-        function barIsTheRow() {
-            return !!(window.TSICHotbar && window.TSICHotbar.available());
-        }
-
         function paneOpts(side) {
             const isPlayer = side === 'player';
             const ownerId = isPlayer ? state.playerOwnerId : state.containerOwnerId;
             const otherId = isPlayer ? state.containerOwnerId : state.playerOwnerId;
-            const barIsRow = isPlayer && barIsTheRow();
             return {
                 catalog: (window.tsic && window.tsic.itemCatalog) || {},
                 gridWidth: isPlayer ? state.playerGridW : state.containerGridW,
@@ -520,11 +520,9 @@
                 ownerId: ownerId || (isPlayer ? 'Player' : ''),
                 focusGroup: isPlayer ? 'ss-player' : 'ss-container',
                 panelEl: panel,
-                // The player's first row is the hotbar: drawn by the live HUD bar and skipped
-                // here, or drawn and marked here when there is no bar. Containers have neither.
-                startSlot: barIsRow ? state.hotbarSlots : 0,
-                hotbarSlots: (isPlayer && !barIsRow) ? state.hotbarSlots : 0,
-                heldSlot: (isPlayer && !barIsRow) ? state.heldHotbarSlot : -1,
+                // The player's hotbar cells live in the strip under this grid, so the bag
+                // starts after them. Containers have no hotbar band at all.
+                startSlot: isPlayer ? state.hotbarSlots : 0,
                 // The bag's greyed backpack-preview cells (§10.1) — the SAME ones the
                 // inventory screen draws. Omitting them here was what made the bag two rows
                 // shorter, and the whole panel a different shape, the instant a crate opened.
@@ -554,42 +552,30 @@
             };
         }
 
-        // The pane contract handed to the live HUD bar so its cells act as the player pane's
-        // first row: same hover readout and active-pane marker, and a shift-click that
-        // transfers into the container, exactly like the cells above it. Every field that can
-        // change while the screen is open (the container's id, the active tab) is
-        // read at call time — this pane is bound once and lives for the whole screen.
-        const HOTBAR_PANE = {
-            ownerId: state.playerOwnerId,
-            focusGroup: 'ss-player',
-            onHover: (it) => {
-                state.hovered = it ? { side: 'player', it } : null;
-                setActivePane('player');
-                renderMeterAndCounts();
-                if (it) renderInfo(it, 'player');
-            },
-            onLeave: () => { state.hovered = null; renderMeterAndCounts(); },
-            onQuickMove: (it) => {
-                if (!state.containerOwnerId || it.GridSlot == null || it.GridSlot < 0) return;
-                tsic.publishMessage('UI.Cmd.Inventory.QuickMove', {
-                    FromOwnerId: state.playerOwnerId, ToOwnerId: state.containerOwnerId,
-                    ItemId: it.InstanceId, FromSlot: it.GridSlot,
-                });
-                playTransferSound();
-            },
-            otherOwnerId: () => state.containerOwnerId || '',
-            filterFor: () => buildFilter(filterFnFor(state.playerTab)),
-            equippedIds: () => null,
-        };
+        // The player's hotbar cells, drawn as their own strip under the bag. Same pane options
+        // as the bag above it — same hover readout, same active-pane marker, same shift-click
+        // into the container — bounded to cells 0..hotbarSlots-1 and marked with the number
+        // chips. endSlot pins its length so overflow parked past the bag's cap extends the
+        // BAG and never this row.
+        function hotbarStripOpts() {
+            return Object.assign(paneOpts('player'), {
+                gridWidth: state.hotbarSlots,
+                slotCount: state.hotbarSlots,
+                endSlot: state.hotbarSlots,
+                startSlot: 0,
+                hotbarSlots: state.hotbarSlots,
+                heldSlot: state.heldHotbarSlot,
+                lockedPreviewCells: 0,
+                focusGroup: 'ss-player',
+            });
+        }
 
         function renderAll() {
             playerTabFilter.setActive(state.playerTab);
             renderMeterAndCounts();
-            window.TSICInventory.renderGrid(panel.querySelector('#ss-player-list'), state.playerItems, paneOpts('player'));
+            window.TSICInventory.renderGrid(panel.querySelector('#ss-player-bag'), state.playerItems, paneOpts('player'));
+            window.TSICInventory.renderGrid(panel.querySelector('#ss-player-hotbar'), state.playerItems, hotbarStripOpts());
             window.TSICInventory.renderGrid(panel.querySelector('#ss-container-list'), state.containerItems, paneOpts('container'));
-            // The bar re-renders itself on inventory broadcasts; this covers what it cannot
-            // see — a tab change, a container swap.
-            if (window.TSICHotbar) window.TSICHotbar.refresh();
             renderHints();
         }
 
@@ -822,16 +808,15 @@
         });
 
         // The shell is mounted once and reused for every container the player opens, so the
-        // bar has to be claimed and handed back per showing — not at mount. The screen module
-        // drives these from onShow/onHide; the standalone dev pages never call them and keep
-        // drawing the hotbar cells in the panel instead.
+        // screen module re-renders it from onShow and drops any held stack on onHide.
         function activate() {
-            if (window.TSICHotbar) window.TSICHotbar.setGridPane(HOTBAR_PANE);
+            // This panel draws the hotbar cells, so the HUD bar stands down while it is up.
+            if (window.TSICHotbar) window.TSICHotbar.setBagPanelOpen(true);
             renderAll();
         }
         function deactivate() {
             window.TSICInventory.cancelHeld();
-            if (window.TSICHotbar) window.TSICHotbar.setGridPane(null);
+            if (window.TSICHotbar) window.TSICHotbar.setBagPanelOpen(false);
         }
 
         renderAll();
