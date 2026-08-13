@@ -199,6 +199,10 @@ TSICTestHarness.register({
         await openGraphicsTab(ctx);
         ctx.clearPublishes();
         ctx.win.tsic.dropdown.set(ctx.doc.querySelector('button.tsic-dropdown[data-key="graphics.upscaler"]'), 'dlss_balanced');
+        // Deliberately deferred by a frame so the "Applying" overlay is composited before the
+        // game thread stalls compiling DLSS shaders (#152) — see the ordering scenario below.
+        await ctx.waitFor(() => ctx.publishes().some(p => p.channel === 'UI.Cmd.Settings.Set'),
+            { timeout: 3000 });
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Settings.Set',
             { where: p => p.Key === 'graphics.upscaler' && p.ValueJson === '"dlss_balanced"' }));
         // graphics.* is not a display-mode change — no keep/revert countdown.
@@ -457,5 +461,66 @@ TSICTestHarness.register({
             { Key: 'accessibility.reduce_motion', ValueJson: 'false' });
         await ctx.waitFor(() => !html.hasAttribute('data-tsic-reduce-motion'));
         ctx.expect(ctx.assert.eq(observed, false));
+    },
+});
+
+// ---- Settings that freeze the game while they apply (#152) -----------------
+
+TSICTestHarness.register({
+    name: 'Settings: switching upscaler shows Applying BEFORE the change is published',
+    file: '/screens/settings.html',
+    async run(ctx) {
+        // Picking a DLSS mode stalls the game thread for up to ~16s while NVIDIA JIT-compiles
+        // the transformer cubins. A blocked game thread presents no frames, so the ORDER here
+        // is the entire fix: if the overlay were shown in the same turn as the publish, it
+        // would only be composited after the stall it exists to explain, and the player would
+        // still be looking at a frozen game with no explanation.
+        await openGraphicsTab(ctx);
+        const dd = ctx.doc.querySelector('button.tsic-dropdown[data-key="graphics.upscaler"]');
+        ctx.clearPublishes();
+
+        ctx.win.tsic.dropdown.set(dd, 'dlss_quality');
+
+        // Synchronously after the edit: overlay up, nothing published yet.
+        const overlay = ctx.doc.getElementById('settings-applying');
+        ctx.expect(ctx.assert.truthy(overlay && !overlay.hidden,
+            'the applying overlay is up before anything is sent'));
+        ctx.expect(ctx.assert.notPublished(ctx.handle, 'UI.Cmd.Settings.Set'));
+        ctx.expect(ctx.assert.truthy(
+            /several seconds/i.test(ctx.doc.getElementById('settings-applying-msg').textContent),
+            'it says why this takes a while'));
+
+        // ...and the change does go out, once a frame carrying the overlay can have painted.
+        await ctx.waitFor(() => ctx.publishes().some(p => p.channel === 'UI.Cmd.Settings.Set'
+            && p.payload.Key === 'graphics.upscaler'), { timeout: 3000 });
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Settings.Set',
+            { where: p => p.Key === 'graphics.upscaler' && p.ValueJson.includes('dlss_quality') }));
+
+        // It stays up across the stall — a publish returning proves nothing, the game thread
+        // is blocked at that point — and comes down on the next message FROM C++, which can
+        // only arrive once that thread is ticking again.
+        ctx.expect(ctx.assert.truthy(!ctx.doc.getElementById('settings-applying').hidden,
+            'still up while the game is applying'));
+        ctx.inject('tsic.msg.UI.Settings.Value',
+            { Key: 'graphics.upscaler', ValueJson: JSON.stringify('dlss_quality') });
+        await ctx.waitFor(() => ctx.doc.getElementById('settings-applying').hidden, { timeout: 2000 });
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Settings: an ordinary setting is not gated behind the applying overlay',
+    file: '/screens/settings.html',
+    async run(ctx) {
+        // Only the two keys that genuinely stall pay this cost. A volume slider that waited a
+        // frame per edit would be worse than the bug.
+        await ctx.waitFor(() => ctx.doc.querySelector('input[type="range"]'), { timeout: 4000 });
+        ctx.clearPublishes();
+        const slider = ctx.doc.querySelector('input[type="range"]');
+        slider.value = '0.4';
+        slider.dispatchEvent(new ctx.win.Event('input', { bubbles: true }));
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Settings.Set'));
+        const overlay = ctx.doc.getElementById('settings-applying');
+        ctx.expect(ctx.assert.truthy(!overlay || overlay.hidden,
+            'no overlay for an instant setting'));
     },
 });

@@ -300,6 +300,87 @@
     // the pre-change value as the rollback target. Repeat edits while the
     // countdown runs join its revert set but keep the ORIGINAL value.
     function applySet(key, value, oldValue) {
+        if (STALLING_KEYS[key]) {
+            applySetAfterPainting(key, value, oldValue);
+            return;
+        }
+        publishSet(key, value);
+        if (!isVideoKey(key)) return;
+        if (!(key in videoRevert)) videoRevert[key] = oldValue;
+        openKeepCountdown();
+    }
+
+    // ---- Settings that freeze the game while they apply --------------------
+    //
+    // Picking a DLSS mode stalls the game thread for as long as ~16 s, and it is not our
+    // stall to fix: NVIDIA JIT-compiles the DLSS transformer cubins on first use of each
+    // quality mode (measured — 11 new cubins in %APPDATA%\NVIDIA\ComputeCache across the
+    // exact 16.47 s window, on a 5070/610.88). It recurs per GPU, per driver and per mode,
+    // so it is not a one-time-ever cost either. Frame generation builds NGX features the
+    // same way. What IS ours is that the screen said nothing, so a known compile read as a
+    // hang (#152).
+    //
+    // The ordering below is the whole trick. A blocked game thread presents no frames at
+    // all, so an "applying" state published in the same turn as the change would be
+    // composited only AFTER the stall it exists to explain. Paint first, publish second.
+    const STALLING_KEYS = {
+        'graphics.upscaler': 'Preparing the upscaler — the first use of a mode compiles '
+            + 'shaders for your GPU and can take several seconds.',
+        'graphics.frame_gen': 'Preparing frame generation — the first use compiles shaders '
+            + 'for your GPU and can take several seconds.',
+    };
+
+    function ensureApplyingOverlay() {
+        let el = document.getElementById('settings-applying');
+        if (el) return el;
+        el = document.createElement('div');
+        el.id = 'settings-applying';
+        el.className = 'tsic-modal-scrim tsic-modal-scrim--dim';
+        el.hidden = true;
+        el.innerHTML = '<div class="tsic-panel" style="min-width:360px;max-width:520px;text-align:center;">'
+            + '<h2 class="tsic-title tsic-title--sm">Applying…</h2>'
+            + '<p id="settings-applying-msg" style="margin:8px 0 0;"></p></div>';
+        document.body.appendChild(el);
+        return el;
+    }
+
+    // Resolves once the browser has had a real opportunity to composite the current DOM.
+    // Two rAFs: the first lands before the frame that includes our mutation, the second
+    // after it. The timeout is the belt-and-braces path for a hidden/throttled view, where
+    // rAF may never fire and we must not swallow the setting change.
+    function afterNextPaint() {
+        return new Promise((resolve) => {
+            let done = false;
+            const finish = () => { if (!done) { done = true; resolve(); } };
+            requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(finish, 0)));
+            setTimeout(finish, 250);
+        });
+    }
+
+    // Cleared by the next state broadcast from C++ — see onCatalog / onValue. Publishing is
+    // fire-and-forget, so the overlay cannot be taken down on the publish returning: that
+    // happens in the same millisecond and the player would be back to an unexplained freeze.
+    // A message arriving from C++ is the one signal that means the game thread is ticking
+    // again, which is exactly the condition for taking the overlay down.
+    let applyingTimeout = null;
+
+    function endApplying() {
+        const el = document.getElementById('settings-applying');
+        if (el) el.hidden = true;
+        if (applyingTimeout) { clearTimeout(applyingTimeout); applyingTimeout = null; }
+    }
+
+    async function applySetAfterPainting(key, value, oldValue) {
+        const overlay = ensureApplyingOverlay();
+        document.getElementById('settings-applying-msg').textContent = STALLING_KEYS[key] || '';
+        overlay.hidden = false;
+        if (applyingTimeout) clearTimeout(applyingTimeout);
+        // Backstop for a setting that applies without echoing any state (or a host that
+        // isn't wired to). 30s is past the worst measured compile; the overlay must never
+        // be the thing that strands someone.
+        applyingTimeout = setTimeout(endApplying, 30000);
+
+        await afterNextPaint();
         publishSet(key, value);
         if (!isVideoKey(key)) return;
         if (!(key in videoRevert)) videoRevert[key] = oldValue;
@@ -990,6 +1071,9 @@
 
     function onCatalog(payload) {
         if (!payload) return;
+        // A message from C++ means the game thread is ticking again — the only reliable
+        // signal that a stalling setting has finished applying (see STALLING_KEYS).
+        endApplying();
         let parsed = null;
         try { parsed = JSON.parse(payload.Json || '{}'); } catch (e) {}
         lastCatalog = parsed || {};
@@ -1108,6 +1192,7 @@
 
     function onValue(payload) {
         if (!payload || !payload.Key) return;
+        endApplying();
         let v;
         try { v = JSON.parse(payload.ValueJson || 'null'); } catch (e) { return; }
         if (payload.Key === 'graphics.nvidia_caps') {
