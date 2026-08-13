@@ -91,7 +91,8 @@
           <div class="field">
             <label for="br-description">Description</label>
             <!-- Enter inserts a newline; Shift+Enter submits (see the keydown handler). -->
-            <textarea id="br-description" placeholder="What happened? Steps to reproduce…" maxlength="4000"></textarea>
+            <textarea id="br-description" placeholder="What happened? Steps to reproduce…" maxlength="4000"
+                      data-tsic-focusable data-tsic-initial-focus></textarea>
             <div id="br-hint">Please describe what happened before submitting.</div>
           </div>
 
@@ -108,7 +109,7 @@
         <div class="tsic-button-row" data-tsic-focus-group="actions">
           <span id="br-submit-hint">Shift + Enter to send</span>
           <button class="tsic-button" id="btn-cancel">Cancel</button>
-          <button class="tsic-button" id="btn-submit" data-tsic-initial-focus>Submit</button>
+          <button class="tsic-button" id="btn-submit">Submit</button>
         </div>
       </div>
     </div>
@@ -267,6 +268,22 @@
       // Re-trace every time the form opens — the snapshot is only valid for the
       // view the player froze on this trip through the pause menu.
       if (ctx.requestTarget) ctx.requestTarget();
+
+      // Land in the description so the player can type straight away. focusTextField,
+      // not description.focus(): the view does not hold keyboard focus at this point, so
+      // Chromium would move activeElement without firing focusin and the keystrokes would
+      // go to gameplay instead of the box. Deferred a turn so it runs after the screen is
+      // actually visible — focusing a display:none textarea does nothing.
+      setTimeout(() => {
+        if (ctx.isVisible && !ctx.isVisible()) return;
+        if (typeof tsic.focusTextField === 'function') {
+          tsic.focusTextField(description);
+          return;
+        }
+        // Harness and any host without the capture shim: plain focus still puts the
+        // caret in the right place, it just cannot claim the keyboard from gameplay.
+        try { description.focus({ preventScroll: true }); } catch (e) { /* noop */ }
+      }, 0);
     },
   });
 })();
