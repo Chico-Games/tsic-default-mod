@@ -62,9 +62,17 @@
     width: 60vw;
     height: 60vh;
     max-width: 1200px;
-    min-width: 720px;
-    max-height: 760px;
-    min-height: 420px;
+    /* The two FLOORS are capped against the scrim, because a bare min-height beats
+       max-height and beats the viewport: on a short window the panel grew past the screen
+       and its own overflow:hidden clipped the bottom off it. What is clipped is the close
+       row and the tail of whatever list is in the panel — which reads exactly as "the
+       recipe list extends past where it should instead of having a scroll bar" (#151),
+       while the list is in fact scrolling correctly inside a panel nobody can see the end
+       of. min() keeps the intent — don't let the panel pinch — without letting it overflow
+       the thing it lives in. Same guarantee #inv-panel spells out for itself. */
+    min-width: min(720px, 100%);
+    max-height: min(760px, 100%);
+    min-height: min(420px, 100%);
     display: flex;
     flex-direction: column;
     overflow: hidden;

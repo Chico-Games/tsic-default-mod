@@ -169,3 +169,67 @@ TSICTestHarness.register({
             `expected count badge 3 on the wheat cell, got: ${wheatCell && wheatCell.textContent}`));
     },
 });
+
+// ---- The panel must fit the window, whatever the window is ----------------
+
+TSICTestHarness.register({
+    name: 'Crafting: a long recipe list scrolls inside the panel, on a SHORT window too',
+    file: '/screens/crafting.html',
+    async run(ctx) {
+        // REGRESSION (#151). .tsic-panel--screen carried a bare min-height:420px (and
+        // min-width:720px), which beats max-height AND the viewport. On a short window the
+        // panel grew past the screen and its own overflow:hidden clipped the bottom off —
+        // taking the close row and the end of the list with it. The list was scrolling
+        // correctly the whole time, inside a panel whose end nobody could see, which is
+        // exactly how it was reported: "extending past where it should, instead of having a
+        // scroll bar". Every screen panel is affected; crafting is where it was noticed.
+        const recipes = Array.from({ length: 40 }, (_, i) => ({
+            RecipeId: 'R_' + i, Name: 'Recipe ' + i, bDiscovered: true, bLevelLocked: false,
+            Inputs: [{ ItemId: 'ID_Wood', Count: 1 }], Outputs: [{ ItemId: 'ID_Bread', Count: 1 }],
+        }));
+        ctx.setItemCatalog({ ID_Wood: { Name: 'Wood', Category: 'CraftingMaterial' },
+                             ID_Bread: { Name: 'Bread', Category: 'Consumable' } });
+        ctx.inject('tsic.msg.UI.Recipe.StationOpened', {
+            Kind: 'Crafting', Recipes: recipes, MaterialCounts: { ID_Wood: 99 },
+        });
+        await ctx.waitFor(() => ctx.doc.querySelectorAll('#c-station .tsic-list-row').length >= 40,
+            { timeout: 3000 });
+
+        const frame = ctx.iframe;
+        const restore = { w: frame.style.width, h: frame.style.height };
+        try {
+            // Under BOTH old floors (720px wide, 420px tall) so each is actually exercised.
+            // A window this size is reachable in a resizable dev/windowed build, and #147
+            // (the resolution picker doing nothing) means a player can be stuck at one.
+            frame.style.width = '680px';
+            frame.style.height = '380px';
+            await new Promise(r => setTimeout(r, 120));
+
+            const panel = ctx.doc.querySelector('.tsic-panel--screen');
+            ctx.expect(ctx.assert.truthy(panel, 'the crafting screen uses the screen panel'));
+            const p = panel.getBoundingClientRect();
+            const vh = ctx.win.innerHeight, vw = ctx.win.innerWidth;
+            ctx.expect(ctx.assert.truthy(p.bottom <= vh + 1,
+                'the panel ends on screen (bottom ' + p.bottom.toFixed(0) + ' of ' + vh + ')'));
+            ctx.expect(ctx.assert.truthy(p.top >= -1, 'and starts on screen'));
+            ctx.expect(ctx.assert.truthy(p.right <= vw + 1 && p.left >= -1,
+                'and fits horizontally'));
+
+            // The way out of the screen is reachable, which is the part that actually
+            // stranded people: a clipped close row cannot be clicked.
+            const closeRow = ctx.doc.querySelector('.tsic-close-row');
+            if (closeRow) {
+                ctx.expect(ctx.assert.truthy(closeRow.getBoundingClientRect().bottom <= vh + 1,
+                    'the close row is on screen'));
+            }
+            // ...and the list is the thing that scrolls, not the panel.
+            const list = ctx.doc.querySelector('#c-station .tsic-list-pane');
+            ctx.expect(ctx.assert.truthy(list && list.scrollHeight > list.clientHeight,
+                'the recipe list is scrollable rather than overflowing'));
+        } finally {
+            frame.style.width = restore.w;
+            frame.style.height = restore.h;
+            await new Promise(r => setTimeout(r, 60));
+        }
+    },
+});
