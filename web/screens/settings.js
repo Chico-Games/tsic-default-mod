@@ -1128,6 +1128,12 @@
 
     function onControlsState(payload) {
         if (!payload) return;
+        // The stalling keys echo nothing of their own: HandleCmdSettingsSet applies the
+        // upscaler and then broadcasts ControlsState, not a Value or a Catalog. This is
+        // therefore the message that proves the game thread ticks again for exactly the
+        // settings the overlay exists for — without it the overlay only ever came down
+        // on its 30 s backstop.
+        endApplying();
         const focused = focusIdentity();
         controlsState = payload;
         renderTabs();

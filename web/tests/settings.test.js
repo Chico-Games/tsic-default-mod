@@ -501,9 +501,16 @@ TSICTestHarness.register({
         // only arrive once that thread is ticking again.
         ctx.expect(ctx.assert.truthy(!ctx.doc.getElementById('settings-applying').hidden,
             'still up while the game is applying'));
-        ctx.inject('tsic.msg.UI.Settings.Value',
-            { Key: 'graphics.upscaler', ValueJson: JSON.stringify('dlss_quality') });
+        // ControlsState, not Value: applying the upscaler echoes neither a Value nor a
+        // Catalog — HandleCmdSettingsSet broadcasts ControlsState and stops. Injecting a
+        // channel C++ never sends for this key is how the overlay shipped un-dismissable.
+        ctx.inject('tsic.msg.UI.Settings.ControlsState', { Entries: [] });
         await ctx.waitFor(() => ctx.doc.getElementById('settings-applying').hidden, { timeout: 2000 });
+        // And it is actually off the screen. `.tsic-modal-scrim { display: flex }` outranks
+        // the user-agent `[hidden] { display: none }`, so the attribute alone proves nothing.
+        ctx.expect(ctx.assert.eq(
+            ctx.win.getComputedStyle(ctx.doc.getElementById('settings-applying')).display, 'none',
+            'the overlay is not painted once dismissed'));
     },
 });
 

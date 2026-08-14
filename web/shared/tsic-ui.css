@@ -28,6 +28,11 @@
     justify-content: center;
     background: rgba(13, 14, 21, 0.55);
 }
+/* `display: flex` above beats the user-agent `[hidden] { display: none }`, so a scrim
+ * toggled with el.hidden stayed on screen forever — the settings "Applying…" overlay
+ * could not be dismissed at all, not even by its own 30 s backstop. Restore the
+ * attribute's meaning for every scrim rather than per-screen. */
+.tsic-modal-scrim[hidden] { display: none; }
 .tsic-modal-scrim--dim   { background: rgba(13, 14, 21, 0.78); }
 .tsic-modal-scrim--clear { background: transparent; }
 
