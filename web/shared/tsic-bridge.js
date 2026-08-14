@@ -124,6 +124,25 @@
             var i = arr.indexOf(cb); if (i >= 0) arr.splice(i, 1);
         },
 
+        // A missing ue.tsicbridge kills EVERY JS->C++ call while C++->JS dispatch
+        // keeps working (that arrives via ue.interface, a different binding), so
+        // the UI looks alive and silently ignores the player. Both sides used to
+        // swallow this: the C++ bridge object no-ops on a stale subsystem and
+        // these guards no-op on a missing binding, so a half-dead bridge left no
+        // trace anywhere. Chromium console output is mirrored into the Unreal log,
+        // so warning here makes it greppable. Once only - if the binding is gone
+        // it is gone for the page's lifetime, and this fires from click handlers.
+        _warnedNoBridge: false,
+        _noBridge: function (what) {
+            if (typeof ue !== 'undefined' && ue.tsicbridge) return false;
+            if (!this._warnedNoBridge) {
+                this._warnedNoBridge = true;
+                console.warn('[tsic-bridge] ue.tsicbridge is not bound - "' + what +
+                    '" and every later JS->C++ call from this page will be dropped.');
+            }
+            return true;
+        },
+
         describe: function () {
             if (typeof ue === 'undefined' || !ue.tsicbridge) return Promise.resolve([]);
             return ue.tsicbridge.describe().then(function (json) {
@@ -139,12 +158,12 @@
         },
 
         publishMessage: function (tag, payload) {
-            if (typeof ue === 'undefined' || !ue.tsicbridge) return;
+            if (this._noBridge('publishMessage ' + tag)) return;
             ue.tsicbridge.publishmessage(tag, JSON.stringify(payload === undefined ? {} : payload));
         },
 
         setInteractiveRects: function (rects) {
-            if (typeof ue === 'undefined' || !ue.tsicbridge) return;
+            if (this._noBridge('setInteractiveRects')) return;
             ue.tsicbridge.setinteractiverects(JSON.stringify(rects || []));
         },
 
@@ -152,7 +171,7 @@
         // viewport / Enhanced Input (false). Driven exclusively by text-field
         // focus tracking in tsic-runtime.js — do not call this from page code.
         setFocusCapture: function (capture) {
-            if (typeof ue === 'undefined' || !ue.tsicbridge) return;
+            if (this._noBridge('setFocusCapture')) return;
             ue.tsicbridge.setfocuscapture(!!capture);
         },
 
