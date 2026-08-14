@@ -68,9 +68,19 @@
       on:      (ch, cb) => window.tsic.on(ch, cb),
       off:     (ch, cb) => window.tsic.off && window.tsic.off(ch, cb),
       focus: () => {
-        // Re-trigger initial focus on the overlay's marked element.
+        // Re-trigger initial focus on the overlay's marked element. Routed
+        // through the focus engine when it is present so the engine's ring
+        // marker and scroll-into-view come along (the marker styling only
+        // shows under gamepad/kbnav, so this is invisible to mouse users);
+        // plain DOM focus otherwise.
         const target = container.querySelector('[data-tsic-initial-focus]');
-        if (target && typeof target.focus === 'function') {
+        if (!target) return;
+        const f = window.tsic.focus;
+        if (f && typeof f.focus === 'function') {
+          f.focus(target, { trust: true });
+          return;
+        }
+        if (typeof target.focus === 'function') {
           try { target.focus({ preventScroll: true }); } catch (e) { /* noop */ }
         }
       },
@@ -175,11 +185,16 @@
       if (typeof entry.module.onHide === 'function') entry.module.onHide(entry.ctx);
     } catch (e) { console.warn('[screen-manager] onHide(' + activeName + ') failed', e); }
     entry.container.hidden = true;
+    // Leaving a screen ends its focus territory and invalidates its ring
+    // markers. showRegistered re-establishes both for the incoming screen;
+    // returning to gameplay leaves territory null so gamepad nav/Accept have
+    // nothing to grab (the HUD is not focus-navigable).
+    const f = window.tsic.focus;
+    if (f && f.clearMarkers) f.clearMarkers();
+    if (f && f.setBaseScope) f.setBaseScope(null);
   }
 
   function showRegistered(name, params) {
-    // Warm/cold decided BEFORE mountIfNeeded runs: it drives focus scheduling.
-    const wasMounted = MOUNTED.has(name);
     const entry = mountIfNeeded(name);
     if (!entry) return false;
     entry.container.hidden = false;
@@ -188,32 +203,23 @@
       pushInputMode(entry.module);
       publishMenuActionContext(entry.module);
       if (typeof entry.module.onShow === 'function') entry.module.onShow(params || {}, entry.ctx);
-      // Initial focus: synchronous on WARM opens, deferred past the first
-      // frame's layout on COLD (first-ever) opens.
-      //
-      // element.focus() forces a synchronous style+layout pass. On a cold open
-      // the document is maximally dirty (freshly injected stylesheet + whole
-      // overlay subtree) and that pass profiled at 10-37ms — the single
-      // largest shared mount cost — so it is deferred. A single rAF is NOT
-      // enough: rAF callbacks run before that frame's style/layout, so the
-      // tree is still dirty there (measured — the cost just moved buckets).
-      // After the first frame has done its own layout the same call costs
-      // ~nothing. Guarded so a fast screen switch can't steal focus.
-      //
-      // On a warm open the tree is nearly clean (an unhide plus small onShow
-      // writes) and the same call costs ~1ms — deferring there buys nothing
-      // and would open a 2-frame window on EVERY open where activeElement is
-      // <body> and an anticipatory press lands nowhere (measured 29-48ms).
-      // The cold window still exists, once per screen per session;
-      // UI.Behavior.Accept self-heals inside it (see tsic-focus.js) so a
-      // gamepad press lands focus on the initial element instead of vanishing.
-      if (wasMounted) {
-        entry.ctx.focus();
-      } else {
-        requestAnimationFrame(() => requestAnimationFrame(() => {
-          if (activeName === name) entry.ctx.focus();
-        }));
-      }
+      // The overlay becomes the engine's focus territory before focus lands,
+      // so nav/Accept can never wander into the HUD or a hidden overlay.
+      const f = window.tsic.focus;
+      if (f && f.setBaseScope) f.setBaseScope(entry.container);
+      // Initial focus is SYNCHRONOUS, deliberately. History, so nobody
+      // re-litigates it without the data: element.focus() forces a
+      // style+layout pass, and on a cold first mount the dirty document made
+      // that pass cost 10-37ms, so it was once deferred past the first
+      // frame's layout (a single rAF is NOT enough — rAF callbacks run
+      // before that frame's layout; double rAF was needed). But the deferral
+      // opened a measured 22-54ms window where activeElement was <body> and
+      // a native keypress (Enter, typing) landed nowhere, on every open once
+      // warm opens were included. A once-per-screen-per-session 10-37ms task
+      // that merely DELAYS queued input beats a window that LOSES input; the
+      // frame presents at the same time either way, since the forced pass
+      // replaces the frame's own layout.
+      entry.ctx.focus();
     } catch (e) { console.warn('[screen-manager] onShow(' + name + ') failed', e); }
     return true;
   }

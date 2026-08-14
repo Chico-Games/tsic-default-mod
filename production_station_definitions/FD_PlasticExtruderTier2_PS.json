@@ -28,7 +28,6 @@
     "has_toggled_on_vfx": false,
     "has_toggled_off_vfx": false,
     "starting_health": 200,
-    "destructible_collection": "/Game/Fab/Kitchen_VOL4/GeometryCollections/GCS_PastaMaker_01b.GCS_PastaMaker_01b",
     "loot_dropped_on_death": [],
     "deconstruction_tier": 3,
     "blocking_collision_boxes": [
@@ -95,7 +94,6 @@
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,
-    "static_mesh": "/Game/Fab/Kitchen_VOL4/Meshes/SM_PastaMaker_01b.SM_PastaMaker_01b",
     "casts_shadow": true,
     "collision_profile_name": {
       "name": "Furniture"

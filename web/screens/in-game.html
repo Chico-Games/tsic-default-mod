@@ -8,6 +8,13 @@
        screens as overlays. Unmigrated screens still fall back to a real
        navigation via the manager. -->
   <meta name="tsic-shell" content="true">
+  <!-- Gamepad/keyboard focus navigation. Without this the engine installs
+       but stays disabled — d-pad/stick navigation and Accept were inert in
+       every overlay screen, leaving controller players only the behavior
+       shortcuts (tabs, Back). tsic-focus scopes itself to the active overlay
+       via screen-manager's setBaseScope, so enabling it cannot touch the HUD
+       or gameplay input. -->
+  <meta name="tsic-focus" content="enabled">
   <title>TSIC — In Game</title>
   <link rel="stylesheet" href="/shared/base.css">
   <link rel="stylesheet" href="/shared/components.css">

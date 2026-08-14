@@ -44,6 +44,18 @@
             memory: {},          // per-screen last-focused stable selector
             scopeStack: [],      // [{ root, caller }]
             smoothScroll: true,  // tests flip this to 'instant'
+            // Focus territory when no modal scope is pushed. Three states:
+            //   undefined — never set: the whole document (legacy standalone
+            //               pages, where the page IS the menu)
+            //   element   — the active screen overlay (SPA shell, set by
+            //               screen-manager on every screen change)
+            //   null      — explicitly none (SPA shell during gameplay): nav,
+            //               Accept and initial focus must not touch anything.
+            //               Without this, switching to gamepad mid-gameplay
+            //               grabbed the hidden HUD chat input via the
+            //               structural last-resort, and menu nav could step
+            //               onto HUD elements behind an opaque overlay.
+            baseScope: undefined,
         };
 
         // ---- DOM helpers --------------------------------------------------
@@ -156,8 +168,20 @@
             return prefix + path.join(' > ');
         }
 
+        // Focus territory: the innermost modal scope, else the base scope.
+        // Returns null when the shell says there is no territory (gameplay).
+        function territoryRoot() {
+            if (State.scopeStack.length > 0) {
+                return State.scopeStack[State.scopeStack.length - 1].root;
+            }
+            if (State.baseScope === undefined) return document;
+            return State.baseScope;   // element, or null = no territory
+        }
+
         function findInitial() {
-            return document.querySelector('[data-tsic-initial-focus]');
+            const root = territoryRoot();
+            if (!root) return null;
+            return root.querySelector('[data-tsic-initial-focus]');
         }
 
         // ---- Spatial-nearest ---------------------------------------------
@@ -305,9 +329,8 @@
 
             step(dir) {
                 if (!State.enabled || !navDriving()) return false;
-                const scopeRoot = State.scopeStack.length > 0
-                    ? State.scopeStack[State.scopeStack.length - 1].root
-                    : document;
+                const scopeRoot = territoryRoot();
+                if (!scopeRoot) return false;   // shell gameplay: no focus territory
                 let candidates = focusableSet(scopeRoot);
                 // Layout-less fallback: nothing has a measurable rect (fresh
                 // portal, or jsdom-style test env). Use the structural list
@@ -360,6 +383,26 @@
                 const next = pickNeighbor(cur, dir, candidates);
                 if (!next) return false;
                 return api.focus(next);
+            },
+
+            // The SPA shell's screen-manager declares the active overlay as
+            // the engine's territory: an element while a screen is open, null
+            // (no territory) during gameplay. Legacy standalone pages never
+            // call this and keep the whole-document default. Not a modal
+            // scope on purpose — Back must keep closing the screen, not pop
+            // the screen's own scope.
+            setBaseScope(rootEl) {
+                State.baseScope = rootEl;
+            },
+
+            // Screen transitions invalidate the focus ring: a marker left on
+            // the outgoing screen (or on a pre-open HUD element) would win
+            // over the fresh overlay in Accept/step and click something the
+            // player cannot see focused.
+            clearMarkers() {
+                for (const stale of document.querySelectorAll('[data-tsic-focused]')) {
+                    stale.removeAttribute('data-tsic-focused');
+                }
             },
 
             pushScope(root, initial, opts) {
@@ -421,10 +464,16 @@
         };
 
         function applyInitialFocus() {
+            // Everything here stays inside the focus territory. In the SPA
+            // shell with no screen open there is none — switching to gamepad
+            // mid-gameplay must not grab HUD elements (it used to land on the
+            // hidden chat input via the structural last-resort).
+            const root = territoryRoot();
+            if (!root) return;
             const saved = State.memory[screenKey()];
             if (saved) {
                 let restored = null;
-                try { restored = document.querySelector(saved); } catch (e) { restored = null; }
+                try { restored = root.querySelector(saved); } catch (e) { restored = null; }
                 if (restored && isStructurallyFocusable(restored)) {
                     api.focus(restored, { trust: true });
                     return;
@@ -440,7 +489,7 @@
             }
             // Last resort: the first focusable in the layout if there is one,
             // else the first structurally focusable so navigation can start.
-            const first = focusableSet()[0] || structuralFocusableSet()[0];
+            const first = focusableSet(root)[0] || structuralFocusableSet(root)[0];
             if (first) api.focus(first, { trust: true });
         }
 
@@ -568,13 +617,14 @@
             // source of truth.
             const target = (a && a !== document.body) ? a : document.querySelector('[data-tsic-focused]');
             if (!target) {
-                // Self-heal, mirroring step(): nothing focused and no marker —
-                // the cold-open window where screen-manager's deferred initial
-                // focus hasn't landed yet. Spend the press landing focus on the
-                // declared initial element (visible, conservative) rather than
-                // dropping it on the floor. Deliberately does NOT activate: a
-                // mashed confirm during a screen open must not press buttons
-                // the player never saw focused.
+                // Self-heal, mirroring step(): nothing focused and no marker
+                // (initial focus failed or the screen declares none). Spend
+                // the press landing focus on the territory's initial element
+                // (visible, conservative) rather than dropping it on the
+                // floor. Deliberately does NOT activate: a mashed confirm
+                // must not press buttons the player never saw focused. In
+                // shell gameplay findInitial() has no territory and returns
+                // null, so the press stays with the game.
                 const init = findInitial();
                 if (init) api.focus(init);
                 return;
@@ -779,6 +829,14 @@
         }
         if (document.readyState === 'complete') scheduleMirror();
         else window.addEventListener('load', scheduleMirror, { once: true });
+
+        // In the SPA shell there is no focus territory until screen-manager
+        // declares one (a mounted overlay). Decided here, not in
+        // screen-manager, so it holds from the first instant regardless of
+        // which module's tsic-poll wins the boot race.
+        if (document.querySelector('meta[name="tsic-shell"]')) {
+            State.baseScope = null;
+        }
 
         if (metaSaysEnabled()) {
             // Defer to next tick so the page's render pass can populate

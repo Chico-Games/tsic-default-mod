@@ -26,7 +26,7 @@
       background: rgba(35,31,24,0.35);
       flex: 0 0 auto;
     }
-    [data-screen="Map"] #map-viewport { flex: 1 1 auto; position: relative; overflow: hidden; cursor: grab; }
+    [data-screen="Map"] #map-viewport { flex: 1 1 auto; position: relative; overflow: hidden; cursor: grab; outline: none; }
     [data-screen="Map"] #map-viewport.dragging { cursor: grabbing; }
     [data-screen="Map"] #map-content {
       position: absolute; left: 0; top: 0;
@@ -189,7 +189,11 @@
   const TEMPLATE = `
     <div id="map-root">
       <div id="map-title">MAP</div>
-      <div id="map-viewport" data-cursor="map">
+      <!-- tabindex/focusable: the map has no buttons, but focus must land
+           INSIDE the overlay on open (an activeElement of <body> drops
+           anticipatory keys) and the focus engine needs a territory anchor.
+           Accept on it is a no-op click; pan/zoom stay behavior-driven. -->
+      <div id="map-viewport" data-cursor="map" tabindex="-1" data-tsic-focusable data-tsic-initial-focus>
         <div id="map-content">
           <img id="world-tex" src="/runtime/world-map.imgsrc">
           <canvas id="height-tint-tex" width="0" height="0"></canvas>
