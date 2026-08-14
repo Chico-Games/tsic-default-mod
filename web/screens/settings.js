@@ -194,6 +194,9 @@
             { Id: 'GameplayCollection', Title: 'Gameplay', Groups: [
                 { Id: 'Interface', Title: 'Interface', Settings: [
                     { Key: 'gameplay.show_tutorial', Label: 'Show tutorial objectives', Type: 'bool', Value: true },
+                    // Names floating over other players. Off leaves teammates unlabelled —
+                    // findable only by voice and the map, which some players prefer.
+                    { Key: 'gameplay.player_nametags', Label: 'Show player nametags', Type: 'bool', Value: true },
                     // Off (default) = north-up minimap with a spinning player arrow.
                     { Key: 'gameplay.minimap_rotate', Label: 'Rotate minimap with player', Type: 'bool', Value: false },
                 ] },
