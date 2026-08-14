@@ -343,7 +343,7 @@ TSICTestHarness.register({
         ctx.clearPublishes();
         ctx.doc.getElementById('cm-spawn-creature').click();
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Cheat.Execute', {
-            where: p => p.Command === 'Spawn /Game/Characters/Enemies/Spider/BP_Spider.BP_Spider_C 1',
+            where: p => p.Command === 'Spawn /Game/Characters/Enemies/Spider/BP_Spider.BP_Spider_C 0',
         }));
     },
 });
@@ -375,7 +375,7 @@ TSICTestHarness.register({
         ctx.doc.getElementById('cm-world-z').value = '0';
         ctx.clearPublishes();
         ctx.doc.getElementById('cm-tp-world').click();
-        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Cheat.Execute', { where: p => p.Command === 'TeleportToLocation 1 100 200 0' }));
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Cheat.Execute', { where: p => p.Command === 'TeleportToLocation 0 100 200 0' }));
     },
 });
 

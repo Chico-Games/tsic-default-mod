@@ -189,7 +189,7 @@ TSICTestHarness.register({
         for (const b of buttons) {
             ctx.clearPublishes();
             b.click();
-            const expected = b.getAttribute('data-cmd-tpl').replaceAll('{p}', '1').trim();
+            const expected = b.getAttribute('data-cmd-tpl').replaceAll('{p}', '0').trim();
             ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Cheat.Execute',
                 { where: p => p.Command === expected }));
         }

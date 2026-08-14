@@ -485,7 +485,7 @@
               // "1" and only ever turn it on. Labelled for what the pill reports:
               // ON means docile, i.e. no aggro.
               { label: 'Toggle No Aggro', cmd: 'Docile', state: 'bDocile',
-                title: 'Enemies still patrol, investigate noises and turn to look at you, but never acquire a target, chase or attack. Host only — AI runs on the listen-server.' },
+                title: 'Enemies still patrol, investigate noises and turn to look at you, but never acquire a target, chase or attack. Session-wide — AI runs on the listen-server, so this affects everyone.' },
             ]) +
             btnRow([
               { label: 'Toggle HP Bars', cmd: 'EnemyHealthBars', state: 'bEnemyHealthBars' },
@@ -847,8 +847,8 @@
     }
     [data-screen="CheatMenu"] #cm-root h2 { color: #c2410c; margin: 0; }
     [data-screen="CheatMenu"] #cm-status { font-size: 12px; font-weight:bold; letter-spacing:2px; text-transform:uppercase; padding:4px 8px; border:1px solid var(--tsic-border); display:inline-block; }
-    [data-screen="CheatMenu"] #cm-status.is-server { color: #86efac; border-color:#86efac; }
-    [data-screen="CheatMenu"] #cm-status.is-client { color: #fca5a5; border-color:#fca5a5; }
+    [data-screen="CheatMenu"] #cm-status.is-ready { color: #86efac; border-color:#86efac; }
+    [data-screen="CheatMenu"] #cm-status.is-pending { color: #fca5a5; border-color:#fca5a5; }
 
     /* Header: title, live status and the target player, which every tab reads. */
     [data-screen="CheatMenu"] #cm-header { display:flex; align-items:center; gap:8px; flex-wrap:wrap; flex:0 0 auto; }
@@ -1005,10 +1005,10 @@
     <div id="cm-root">
       <div id="cm-header">
         <h2 class="tsic-title tsic-title--lg">Cheat Menu</h2>
-        <div id="cm-status" class="is-client">Client mode — cheats disabled</div>
+        <div id="cm-status" class="is-pending">Loading cheats…</div>
         <span class="cm-spacer"></span>
         <label for="cm-target">Apply to</label>
-        <select class="cm-select" id="cm-target" data-tsic-initial-focus><option value="1">Player 1 (self)</option></select>
+        <select class="cm-select" id="cm-target" data-tsic-initial-focus><option value="0">Me</option></select>
         <label class="cm-toggle" id="cm-all-players-wrap" title="Run every command once per connected player instead of just the target.">
           <input type="checkbox" id="cm-all-players"> all
         </label>
@@ -1074,7 +1074,11 @@
       const state = {
         catalog: null,       // FScpUICheatCatalog payload
         players: [],         // [{Id,Name,bIsHost}, ...]
-        targetPlayer: 1,     // 1-based player number
+        // 1-based player number, or 0 for "whoever is running this panel". 0 is the
+        // default because the panel is open on clients too: a literal 1 means index 0
+        // of the server's player array, so every cheat a client ran would land on the
+        // host instead of on them.
+        targetPlayer: 0,
       };
 
       const $ = (id) => root.querySelector('#' + id);
@@ -1533,12 +1537,14 @@
         const prevSubject = subjectSel.value;
         targetSel.innerHTML = '';
         subjectSel.innerHTML = '';
+        // "Me" is always first and is the default. It resolves server-side to the
+        // controller that sent the cheat, which is the only way a client can target
+        // itself — it has no way to know its own index in the server's player array.
+        const me = document.createElement('option');
+        me.value = '0';
+        me.textContent = 'Me';
+        targetSel.appendChild(me);
         if (list.length === 0) {
-          // No players list yet — keep "Player 1 (self)" placeholder.
-          const opt = document.createElement('option');
-          opt.value = '1';
-          opt.textContent = 'Player 1 (self)';
-          targetSel.appendChild(opt);
           const opt2 = document.createElement('option');
           opt2.value = '';
           opt2.textContent = '(no other players)';
@@ -1552,6 +1558,9 @@
           opt.value = String(num);
           opt.textContent = playerLabel(pl, num);
           targetSel.appendChild(opt);
+          // Nobody teleports to themselves, so the subject list drops the destination.
+          // With "Me" selected there is no index to drop — the panel cannot tell which
+          // entry is itself — so every player stays available.
           if (num !== state.targetPlayer) {
             const opt2 = document.createElement('option');
             opt2.value = String(num);
@@ -1568,6 +1577,11 @@
       // Name the destination on the button — with two dropdowns in play, "Teleport"
       // alone doesn't say which way round the move goes.
       function refreshTeleportLabel() {
+        if (state.targetPlayer === 0) {
+          $('cm-tp-player').textContent = 'Teleport to me';
+          $('cm-tp-meta').textContent = 'Sends the chosen player to you.';
+          return;
+        }
         const dest = (state.players || [])[state.targetPlayer - 1];
         const name = dest && (dest.Name || dest.Id);
         $('cm-tp-player').textContent = name ? `Teleport to ${name}` : 'Teleport to target';
@@ -1643,16 +1657,18 @@
       // -------------- BIND --------------
 
       // The catalogue only builds where the cheat manager exists and the pack is
-      // loaded, so its arrival doubles as the "cheats are live here" signal.
+      // loaded, so its arrival doubles as the "cheats are live here" signal. It reaches
+      // clients too now — a client's buttons route to the host, so the panel no longer
+      // has a disabled mode to sit in.
       ctx.on('tsic.msg.UI.Cheat.Catalog', (p) => {
         state.catalog = p || null;
         refreshItemSelect();
         refreshCreatureSelect();
         refreshFurnitureSelect();
         refreshAuxSelects();
-        $('cm-status').textContent = 'Server mode — cheats active';
-        $('cm-status').classList.remove('is-client');
-        $('cm-status').classList.add('is-server');
+        $('cm-status').textContent = 'Cheats active';
+        $('cm-status').classList.remove('is-pending');
+        $('cm-status').classList.add('is-ready');
       });
       ctx.on('tsic.msg.UI.Players.List', (p) => {
         state.players = (p && p.Players) || [];
@@ -1672,7 +1688,10 @@
 
       // Target player.
       $('cm-target').addEventListener('change', (e) => {
-        state.targetPlayer = parseInt(e.target.value, 10) || 1;
+        // Not `|| 0` after parseInt — "Me" is the value 0, and `0 || fallback` would
+        // throw the selection away every time it is picked.
+        const picked = parseInt(e.target.value, 10);
+        state.targetPlayer = Number.isFinite(picked) ? picked : 0;
         refreshTargetPlayerSelects();
         requestState();
       });

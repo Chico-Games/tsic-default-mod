@@ -394,11 +394,14 @@
       // real fog grid and the save are untouched.
       let teleportMode = false;
       let teleportLayer = 'Floor';
-      let teleportPlayer = 1;
+      // 0 = whoever opened the picker, resolved server-side. A literal 1 is index 0 of
+      // the server's player array, so on a client it would teleport the host instead.
+      let teleportPlayer = 0;
 
       function setTeleportMode(on, playerNum) {
         teleportMode = !!on;
-        teleportPlayer = Math.max(1, parseInt(playerNum, 10) || 1);
+        const picked = parseInt(playerNum, 10);
+        teleportPlayer = Number.isFinite(picked) && picked > 0 ? picked : 0;
         const bar = qs('#tp-bar');
         if (bar) bar.style.display = teleportMode ? 'flex' : 'none';
         const vpEl = qs('#map-viewport');

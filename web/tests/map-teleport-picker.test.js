@@ -25,10 +25,13 @@ const TILE_GRID = Object.assign({
     LayerMaskRLE: [{ Value: 0, Count: 12 }, { Value: 3, Count: 1 }, { Value: 0, Count: 12 }],
 }, WORLD);
 
-async function openPicker(ctx) {
+async function openPicker(ctx, params) {
     ctx.inject('tsic.msg.UI.Map.TileGrid', TILE_GRID);
     ctx.inject('tsic.msg.UI.Map.Snapshot', Object.assign({ Players: [], Icons: [] }, WORLD));
-    ctx.inject('tsic.msg.UI.Screen.Changed', { Name: 'Map', ParamsJson: JSON.stringify({ mode: 'teleport', player: 1 }) });
+    ctx.inject('tsic.msg.UI.Screen.Changed', {
+        Name: 'Map',
+        ParamsJson: JSON.stringify(params || { mode: 'teleport', player: 1 }),
+    });
     await ctx.waitFor(() => {
         const bar = ctx.doc.querySelector('#tp-bar');
         return bar && bar.style.display === 'flex';
@@ -81,6 +84,21 @@ TSICTestHarness.register({
         const fogCmds = ctx.handle.publishes().filter(p =>
             p.channel === 'UI.Cmd.Cheat.Execute' && /HideFOW|ResetFOW/i.test((p.payload && p.payload.Command) || ''));
         ctx.expect(ctx.assert.eq(fogCmds.length, 0, 'must not touch the real fog grid'));
+    },
+});
+
+TSICTestHarness.register({
+    name: 'MapTeleport: with no player named the picker teleports whoever opened it',
+    file: '/screens/in-game.html',
+    async run(ctx) {
+        // What C++ actually sends: UI.Cmd.Cheat.MapPicker carries the mode and nothing
+        // else. Falling back to player 1 meant a client picking a tile teleported the
+        // host; 0 resolves server-side to the controller that asked.
+        await openPicker(ctx, { mode: 'teleport' });
+        ctx.clearPublishes();
+        clickTile(ctx, 1, 3);
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Cheat.Execute',
+            { where: p => p.Command === 'TeleportToTileLayer 0 1 3 Floor' }));
     },
 });
 

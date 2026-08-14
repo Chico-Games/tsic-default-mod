@@ -25,7 +25,7 @@ TSICTestHarness.register({
         ctx.doc.getElementById('cm-item-count').value = '3';
         ctx.clearPublishes();
         ctx.doc.getElementById('cm-give').click();
-        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Cheat.Execute', { where: p => p.Command === 'GiveItem ID_Bread 3 1' }));
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Cheat.Execute', { where: p => p.Command === 'GiveItem ID_Bread 3 0' }));
     },
 });
 
@@ -53,7 +53,29 @@ TSICTestHarness.register({
         ctx.clearPublishes();
         ctx.screen('CheatMenu');
         await ctx.waitFor(() => ctx.doc.getElementById('cm-target'));
-        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Cheat.RequestState', { where: p => p.PlayerNum === 1 }));
+        // 0 is "me", resolved server-side to whoever sent the command. A client cannot
+        // name itself any other way — it does not know its index in the player array.
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Cheat.RequestState', { where: p => p.PlayerNum === 0 }));
+    },
+});
+
+TSICTestHarness.register({
+    name: 'CheatMenu: the target list offers "Me" first and defaults to it',
+    file: '/screens/cheat-menu.html',
+    async run(ctx) {
+        ctx.screen('CheatMenu');
+        await ctx.waitFor(() => ctx.doc.getElementById('cm-target'));
+        ctx.inject('tsic.msg.UI.Players.List', { Players: [
+            { Id: 'a', Name: 'Host', bIsHost: true },
+            { Id: 'b', Name: 'Friend', bIsHost: false },
+        ]});
+        await ctx.waitFor(() => ctx.doc.getElementById('cm-target').options.length === 3);
+        const sel = ctx.doc.getElementById('cm-target');
+        ctx.expect(ctx.assert.eq(sel.options[0].value, '0'));
+        ctx.expect(ctx.assert.eq(sel.options[0].textContent, 'Me'));
+        // Selected, not merely present: the panel is open on clients too, and a literal
+        // player 1 would send every cheat they run to the host instead.
+        ctx.expect(ctx.assert.eq(sel.value, '0'));
     },
 });
 
@@ -130,7 +152,7 @@ TSICTestHarness.register({
             { Id: 'a', Name: 'Host', bIsHost: true },
             { Id: 'b', Name: 'Friend', bIsHost: false },
         ]});
-        await ctx.waitFor(() => ctx.doc.getElementById('cm-target').options.length === 2);
+        await ctx.waitFor(() => ctx.doc.getElementById('cm-target').options.length === 3);
         ctx.clearPublishes();
         const sel = ctx.doc.getElementById('cm-target');
         sel.value = '2';
@@ -150,7 +172,12 @@ TSICTestHarness.register({
             { Id: 'b', Name: 'Friend', bIsHost: false },
             { Id: 'c', Name: 'Third',  bIsHost: false },
         ]});
-        // Target (destination) stays player 1; move player 3 to them.
+        // Name player 1 as the destination explicitly — the panel now defaults to "Me",
+        // which has no index to exclude from the subject list.
+        await ctx.waitFor(() => ctx.doc.getElementById('cm-target').options.length === 4);
+        const dest = ctx.doc.getElementById('cm-target');
+        dest.value = '1';
+        dest.dispatchEvent(new dest.ownerDocument.defaultView.Event('change'));
         await ctx.waitFor(() => ctx.doc.getElementById('cm-tp-subject').options.length === 2);
         const subject = ctx.doc.getElementById('cm-tp-subject');
         subject.value = '3';
@@ -172,11 +199,15 @@ TSICTestHarness.register({
             { Id: 'a', Name: 'Host',   bIsHost: true },
             { Id: 'b', Name: 'Friend', bIsHost: false },
         ]});
+        // "Me" excludes nobody, so name player 1 as the destination first.
+        const target = ctx.doc.getElementById('cm-target');
+        await ctx.waitFor(() => target.options.length === 3);
+        target.value = '1';
+        target.dispatchEvent(new target.ownerDocument.defaultView.Event('change'));
         await ctx.waitFor(() => ctx.doc.getElementById('cm-tp-subject').options.length === 1);
         // Destination is player 1, so only player 2 can be moved.
         ctx.expect(ctx.assert.eq(ctx.doc.getElementById('cm-tp-subject').options[0].value, '2'));
         // Switch the destination to player 2 — now only player 1 can be moved.
-        const target = ctx.doc.getElementById('cm-target');
         target.value = '2';
         target.dispatchEvent(new target.ownerDocument.defaultView.Event('change'));
         await ctx.waitFor(() => ctx.doc.getElementById('cm-tp-subject').options[0].value === '1');
@@ -210,7 +241,7 @@ TSICTestHarness.register({
         ctx.doc.getElementById('cm-bulk-count').value = '7';
         ctx.clearPublishes();
         ctx.doc.querySelector('button[data-cmd-multi^="GiveAllFood"]').click();
-        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Cheat.Execute', { where: p => p.Command === 'GiveAllFood 7 1' }));
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Cheat.Execute', { where: p => p.Command === 'GiveAllFood 7 0' }));
     },
 });
 
@@ -226,7 +257,7 @@ TSICTestHarness.register({
         await ctx.waitFor(() => ctx.doc.getElementById('cm-item').options.length > 0);
         ctx.clearPublishes();
         ctx.doc.querySelector('button[data-cmd-multi^="Eat"]').click();
-        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Cheat.Execute', { where: p => p.Command === 'Eat ID_Bread_CN 1' }));
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Cheat.Execute', { where: p => p.Command === 'Eat ID_Bread_CN 0' }));
     },
 });
 
@@ -244,7 +275,7 @@ TSICTestHarness.register({
         ctx.expect(ctx.assert.eq(ctx.handle.publishes().filter(p => p.channel === 'UI.Cmd.Cheat.Execute').length, 0));
         ctx.expect(ctx.assert.eq(btn.classList.contains('cm-armed'), true));
         btn.click();
-        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Cheat.Execute', { where: p => p.Command === 'ClearInventory 1' }));
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Cheat.Execute', { where: p => p.Command === 'ClearInventory 0' }));
         ctx.expect(ctx.assert.eq(btn.classList.contains('cm-armed'), false));
     },
 });
@@ -288,7 +319,7 @@ TSICTestHarness.register({
             { Id: 'a', Name: 'Host', bIsHost: true },
             { Id: 'b', Name: 'Friend', bIsHost: false },
         ]});
-        await ctx.waitFor(() => ctx.doc.getElementById('cm-target').options.length === 2);
+        await ctx.waitFor(() => ctx.doc.getElementById('cm-target').options.length === 3);
 
         const health = ctx.doc.querySelector('.cm-section[data-keys="player/HEALTH"]');
         health.dispatchEvent(new health.ownerDocument.defaultView.Event('mousedown', { bubbles: true }));
@@ -341,7 +372,7 @@ TSICTestHarness.register({
         ctx.clearPublishes();
         ctx.inject('tsic.msg.UI.Behavior.CheatSlot1', { Phase: 'Started' });
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Cheat.Execute',
-            { where: p => p.Command === 'Spawn /Game/Enemies/BP_Mimic.BP_Mimic_C 1' }));
+            { where: p => p.Command === 'Spawn /Game/Enemies/BP_Mimic.BP_Mimic_C 0' }));
     },
 });
 
@@ -380,7 +411,7 @@ TSICTestHarness.register({
         ctx.clearPublishes();
         ctx.doc.querySelector('button[data-cmd-tpl-input^="GivePlayerItemsSet"]').click();
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Cheat.Execute',
-            { where: p => p.Command === 'GivePlayerItemsSet Endgame 1' }));
+            { where: p => p.Command === 'GivePlayerItemsSet Endgame 0' }));
 
         // The audio list is long enough in a real pack to need filtering.
         ctx.doc.getElementById('cm-audio-filter').value = 'click';
@@ -435,7 +466,7 @@ TSICTestHarness.register({
             { Id: 'b', Name: 'Two', bIsHost: false },
             { Id: 'c', Name: 'Three', bIsHost: false },
         ]});
-        await ctx.waitFor(() => ctx.doc.getElementById('cm-target').options.length === 3);
+        await ctx.waitFor(() => ctx.doc.getElementById('cm-target').options.length === 4);
         const all = ctx.doc.getElementById('cm-all-players');
         all.checked = true;
         all.dispatchEvent(new ctx.win.Event('change', { bubbles: true }));
@@ -484,9 +515,9 @@ TSICTestHarness.register({
         ctx.doc.getElementById('cm-bm-save').click();
         // Saving asks the world where the player is; it cannot know on its own.
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Cheat.Execute',
-            { where: p => p.Command === 'Pos 1' }));
+            { where: p => p.Command === 'Pos 0' }));
         ctx.inject('tsic.msg.UI.Cheat.Log', {
-            Command: 'Pos 1', Output: 'Player 1 position: X=182450.00, Y=241300.00, Z=1350.00',
+            Command: 'Pos 0', Output: 'Player 1 position: X=182450.00, Y=241300.00, Z=1350.00',
         });
         await ctx.waitFor(() => ctx.doc.querySelectorAll('#cm-bm-list .cm-bookmark').length === 1);
         ctx.expect(ctx.assert.domText(ctx.doc, '#cm-bm-list', /Loading bay \(182450, 241300, 1350\)/));
@@ -494,7 +525,7 @@ TSICTestHarness.register({
         ctx.clearPublishes();
         ctx.doc.querySelector('#cm-bm-list .cm-exec').click();
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Cheat.Execute',
-            { where: p => p.Command === 'TeleportToLocation 1 182450 241300 1350' }));
+            { where: p => p.Command === 'TeleportToLocation 0 182450 241300 1350' }));
     },
 });
 
