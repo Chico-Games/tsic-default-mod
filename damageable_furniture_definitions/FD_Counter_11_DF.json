@@ -102,7 +102,72 @@
       "name": "Furniture"
     },
     "random_material_overrides": [],
-    "loot_positions": [],
+    "loot_positions": [
+      {
+        "local_transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.9726,
+            "w": -0.2324
+          },
+          "translation": {
+            "x": 1.8524,
+            "y": -18.1217,
+            "z": 99.7252
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        },
+        "weight": 1000
+      },
+      {
+        "local_transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.9465,
+            "w": 0.3226
+          },
+          "translation": {
+            "x": -10.6195,
+            "y": -2.6447,
+            "z": 99.7252
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        },
+        "weight": 1000
+      },
+      {
+        "local_transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.1354,
+            "w": -0.9908
+          },
+          "translation": {
+            "x": -8.3038,
+            "y": 20.6625,
+            "z": 99.7252
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        },
+        "weight": 1000
+      }
+    ],
+    "loot_position_chance": 0.3,
     "weighted_chance": 1000,
     "world_gen_priority": 7000
   }

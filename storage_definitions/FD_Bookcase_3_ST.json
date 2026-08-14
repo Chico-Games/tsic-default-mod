@@ -59,7 +59,177 @@
       "name": "Furniture"
     },
     "random_material_overrides": [],
-    "loot_positions": [],
+    "loot_positions": [
+      {
+        "local_transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.9982,
+            "w": 0.0596
+          },
+          "translation": {
+            "x": -17.8839,
+            "y": 24.2077,
+            "z": 33.2613
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        },
+        "weight": 1000
+      },
+      {
+        "local_transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.3242,
+            "w": -0.946
+          },
+          "translation": {
+            "x": 15.9802,
+            "y": 18.81,
+            "z": 33.2613
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        },
+        "weight": 1000
+      },
+      {
+        "local_transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.6661,
+            "w": -0.7459
+          },
+          "translation": {
+            "x": -24.3664,
+            "y": 27.0186,
+            "z": 66.5226
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        },
+        "weight": 1000
+      },
+      {
+        "local_transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.9875,
+            "w": 0.1576
+          },
+          "translation": {
+            "x": 18.0444,
+            "y": 25.4218,
+            "z": 66.5226
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        },
+        "weight": 1000
+      },
+      {
+        "local_transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.7895,
+            "w": -0.6138
+          },
+          "translation": {
+            "x": -25.9899,
+            "y": 19.4065,
+            "z": 99.7839
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        },
+        "weight": 1000
+      },
+      {
+        "local_transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0563,
+            "w": -0.9984
+          },
+          "translation": {
+            "x": 18.1174,
+            "y": 20.0758,
+            "z": 99.7839
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        },
+        "weight": 1000
+      },
+      {
+        "local_transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0502,
+            "w": -0.9987
+          },
+          "translation": {
+            "x": -7.4554,
+            "y": 24.9952,
+            "z": 133.0452
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        },
+        "weight": 1000
+      },
+      {
+        "local_transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.5464,
+            "w": 0.8375
+          },
+          "translation": {
+            "x": 9.9042,
+            "y": 20.6004,
+            "z": 133.0452
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        },
+        "weight": 1000
+      }
+    ],
+    "loot_position_chance": 0.35,
     "weighted_chance": 1000,
     "world_gen_priority": 6000,
     "destruction_impulse_strength": 0.0,

@@ -153,7 +153,93 @@
       "name": "Furniture"
     },
     "random_material_overrides": [],
-    "loot_positions": [],
+    "loot_positions": [
+      {
+        "local_transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.8072,
+            "w": -0.5903
+          },
+          "translation": {
+            "x": -9.4032,
+            "y": -11.7666,
+            "z": 40.0002
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        },
+        "weight": 1000
+      },
+      {
+        "local_transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0025,
+            "w": -1.0
+          },
+          "translation": {
+            "x": 13.9633,
+            "y": -11.8333,
+            "z": 40.0002
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        },
+        "weight": 1000
+      },
+      {
+        "local_transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.9759,
+            "w": 0.2182
+          },
+          "translation": {
+            "x": -13.0783,
+            "y": 12.7183,
+            "z": 40.0002
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        },
+        "weight": 1000
+      },
+      {
+        "local_transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.5811,
+            "w": 0.8138
+          },
+          "translation": {
+            "x": 8.6197,
+            "y": 10.9832,
+            "z": 40.0002
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        },
+        "weight": 1000
+      }
+    ],
+    "loot_position_chance": 0.25,
     "weighted_chance": 1000,
     "world_gen_priority": 6000
   }
