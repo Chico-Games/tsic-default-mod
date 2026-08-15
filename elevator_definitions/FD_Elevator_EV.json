@@ -109,6 +109,25 @@
     "arrived_sound": "Elevator.Arrived",
     "cab_mesh": "/Game/Fab/Office80s/Models/Walls/SM_Elevator.SM_Elevator",
     "door_mesh": "/Game/Fab/Office80s/Models/Walls/SM_ElevatorDoors.SM_ElevatorDoors",
+    "floor_mesh": "/Game/Furniture/Floors/Meshes/SM_FloorLab.SM_FloorLab",
+    "floor_mesh_transform": {
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0,
+        "w": 1.0
+      },
+      "translation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "scale3_d": {
+        "x": 0.17677,
+        "y": 0.16611,
+        "z": 0.2
+      }
+    },
     "interaction_hold_time": 0,
     "interaction_prompt_text": "Call Elevator",
     "has_static_audio": false,
