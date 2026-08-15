@@ -233,3 +233,63 @@ TSICTestHarness.register({
         }
     },
 });
+
+// ---- Level-gating: a recipe above the station's level renders locked -----
+// (§10 QA checklist: "Recipe level-gating: locked recipes hidden/greyed until
+// requirement met". Server-side enforcement is covered by
+// TSIC.E2E.CraftingProduction and TSIC.DefinitionPack.Stations.*; this covers
+// the client-visible half — a gated row must actually look and behave locked.)
+TSICTestHarness.register({
+    name: 'Crafting/RecipeInfo: a level-gated recipe renders greyed with its required level, and an available one does not',
+    file: '/screens/crafting.html',
+    async run(ctx) {
+        // displayName() shows the OUTPUT item's catalog name, not recipe.Name — use
+        // distinct outputs so the two rows are distinguishable in the DOM.
+        ctx.setItemCatalog({
+            ID_Wood: { Name: 'Wood', Category: 'CraftingMaterial' },
+            ID_Chestplate: { Name: 'Anomalous Chestplate', Category: 'Equipment' },
+            ID_Bread: { Name: 'Bread', Category: 'Consumable' },
+        });
+        ctx.inject('tsic.msg.UI.Recipe.StationOpened', {
+            Kind: 'Crafting',
+            StationId: 'S_Bench',
+            Recipes: [
+                { RecipeId: 'R_Locked', Name: 'R_Locked', bDiscovered: true,
+                  bStationLevelSufficient: false, RequiredStationLevel: 3,
+                  Inputs: [{ ItemId: 'ID_Wood', Count: 1 }], Outputs: [{ ItemId: 'ID_Chestplate', Count: 1 }] },
+                { RecipeId: 'R_Open', Name: 'R_Open', bDiscovered: true,
+                  bStationLevelSufficient: true,
+                  Inputs: [{ ItemId: 'ID_Wood', Count: 1 }], Outputs: [{ ItemId: 'ID_Bread', Count: 1 }] },
+            ],
+            MaterialCounts: { ID_Wood: 99 },
+        });
+        await ctx.waitFor(() => ctx.doc.querySelectorAll('#c-station .tsic-list-row').length >= 2);
+
+        const rows = ctx.doc.querySelectorAll('#c-station .tsic-list-row');
+        ctx.expect(ctx.assert.eq(rows.length, 2, 'expected exactly the two recipe rows'));
+        const lockedRow = rows[0];  // R_Locked was listed first
+        const openRow = rows[1];    // R_Open was listed second
+        ctx.expect(ctx.assert.truthy(/Anomalous Chestplate/.test(lockedRow.textContent),
+            'row 0 should be the gated recipe'));
+        ctx.expect(ctx.assert.truthy(/Bread/.test(openRow.textContent),
+            'row 1 should be the available recipe'));
+        ctx.expect(ctx.assert.truthy(lockedRow.classList.contains('is-locked'),
+            'gated recipe row should carry is-locked (greyed, cursor not-allowed per tsic-ui.css)'));
+        ctx.expect(ctx.assert.falsy(openRow.classList.contains('is-locked'),
+            'available recipe row should NOT be locked'));
+        ctx.expect(ctx.assert.truthy(/lvl 3/.test(lockedRow.textContent),
+            'gated row should surface the required level so the player knows why it is locked'));
+
+        // The first row is auto-selected on open, so move selection onto the open
+        // recipe first, then select the gated one — that transition is what plays
+        // the locked sound (repeat-selecting an already-selected locked row doesn't
+        // re-announce it, which is correct: the sound marks the CHANGE onto a locked row).
+        openRow.click();
+        ctx.clearPublishes();
+        lockedRow.click();
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Sound.Play',
+            { where: p => p.SoundKey === 'UI.Locked' }));
+        ctx.expect(ctx.assert.truthy(ctx.doc.querySelector('.rs-action').disabled,
+            'craft action must stay disabled for a level-gated recipe'));
+    },
+});
