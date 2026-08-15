@@ -46,6 +46,7 @@
         const subscribers = new Map();   // channel -> Set(callbacks)
         const stickyCache = new Map();   // channel -> last payload
         const publishLog  = [];           // {channel, payload, t}
+        const rectLog     = [];           // {rects, t} from setInteractiveRects
 
         const fake = {
             on(channel, cb) {
@@ -56,6 +57,10 @@
                     try { cb(stickyCache.get(channel)); } catch (e) { console.warn('[harness] cb threw', e); }
                 }
                 return () => subscribers.get(channel).delete(cb);
+            },
+            off(channel, cb) {
+                const set = subscribers.get(channel);
+                if (set) set.delete(cb);
             },
             publishMessage(channel, payload) {
                 publishLog.push({ channel, payload, t: Date.now() });
@@ -70,6 +75,19 @@
             removeInputModeTag() {},
             setMenuActionContext() {},
             clearMenuActionContext() {},
+            // JS -> C++ calls with no reply. Pages call these UNGUARDED (the real
+            // bridge always defines them), so a mock that omits one throws
+            // mid-handler and leaves the component half-built — hud-chat's open()
+            // aborted between "overlay pushed" and grabFocus() for exactly that
+            // reason, and every Chat scenario still went green because it only
+            // asserted the publishes that happen before the throw. Recorded, not
+            // dropped, so a scenario can assert what the page asked the view for.
+            setInteractiveRects(rects) { rectLog.push({ rects: rects || [], t: Date.now() }); },
+            setFocusCapture(capture) { fake._focusCapture = !!capture; },
+            focusTextField(el) { if (el) { try { el.focus({ preventScroll: true }); } catch (e) { try { el.focus(); } catch (e2) {} } } },
+            blurTextField(el) { if (el) { try { el.blur(); } catch (e) {} } },
+            send() {},
+            request() { return Promise.reject(new Error('tsicbridge not available')); },
             itemCatalog: options.itemCatalog || {},
             recipeCatalog: options.recipeCatalog || {},
             itemName(id) { const d = this.itemCatalog[id]; return d ? (d.Name || id) : id; },
@@ -128,6 +146,8 @@
             // Inspection: snapshot + clear of the publish log.
             publishes() { return publishLog.slice(); },
             clearPublishes() { publishLog.length = 0; },
+            // Every setInteractiveRects() the page made, oldest first.
+            interactiveRects() { return rectLog.slice(); },
             // Subscriber introspection (used by tests to assert "page subscribed at all").
             channels() { return Array.from(subscribers.keys()); },
         };
@@ -162,6 +182,18 @@
             // SetMenuContext publishes into this mock's log.
             if (prior.setMenuActionContext) fake.setMenuActionContext = prior.setMenuActionContext;
             if (prior.clearMenuActionContext) fake.clearMenuActionContext = prior.clearMenuActionContext;
+            // Backstop for the whole class: anything else the real bridge (or a
+            // module that installed itself on it) exposes and this mock has no
+            // opinion about is carried across rather than left undefined. Without
+            // it, every new bridge method is a latent "is not a function" that
+            // aborts a page mid-mount and shows up as an unrelated scenario
+            // failing later in the run. Explicit members above still win.
+            for (const key of Object.keys(prior)) {
+                if (key.charAt(0) === '_') continue;
+                if (key in fake) continue;
+                if (typeof prior[key] !== 'function') continue;
+                fake[key] = prior[key].bind(prior);
+            }
         }
 
         // Install on the iframe's window so the page's `if (window.tsic)` checks pass.

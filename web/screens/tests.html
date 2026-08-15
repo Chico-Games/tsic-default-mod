@@ -209,6 +209,19 @@
         try {
           const handle = await loadIframe(scn.file);
           const failures = [];
+          // An uncaught exception in the page fails THE SCENARIO THAT CAUSED IT.
+          // Previously it only reached the console: the screen was left
+          // half-mounted, its own assertions still passed (they check the part
+          // that ran before the throw), and the damage surfaced as some later
+          // scenario measuring a dirty DOM. An order-dependent red is not a
+          // verdict — this makes the throw the verdict instead.
+          const pageErrors = [];
+          const onPageError = (ev) => {
+            const e = (ev && (ev.error || ev.reason)) || null;
+            pageErrors.push('page threw: ' + ((e && e.message) || (ev && ev.message) || String(e || ev)));
+          };
+          iframe.contentWindow.addEventListener('error', onPageError);
+          iframe.contentWindow.addEventListener('unhandledrejection', onPageError);
           const ctx = {
             handle,
             iframe,
@@ -250,6 +263,9 @@
           // Give the page's defer scripts a tick to register their subscribers.
           await new Promise(r => setTimeout(r, 80));
           await scn.run(ctx);
+          // Give a deferred throw (setTimeout / rAF handlers) a tick to land.
+          await new Promise(r => setTimeout(r, 0));
+          for (const pe of pageErrors) failures.push(pe);
           if (failures.length > 0) {
             for (const f of failures) log('fail', f);
             setStatus(scn, 'fail');
