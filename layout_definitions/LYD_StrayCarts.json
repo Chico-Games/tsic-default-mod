@@ -46,8 +46,8 @@
             "w": 0.953717
           },
           "translation": {
-            "x": 320.0,
-            "y": -300.0,
+            "x": 400.0,
+            "y": -250.0,
             "z": 0.0
           },
           "scale3_d": {
@@ -205,8 +205,8 @@
             "w": -0.573576
           },
           "translation": {
-            "x": -300.0,
-            "y": -240.0,
+            "x": 300.0,
+            "y": -250.0,
             "z": 0.0
           },
           "scale3_d": {
@@ -273,6 +273,8 @@
     ],
     "weighted_chance": 1000,
     "world_gen_priority": 1000,
-    "gameplay_tags": []
+    "gameplay_tags": [
+      "Layout.Type.BlindOverlay"
+    ]
   }
 }
