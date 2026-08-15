@@ -38,7 +38,7 @@
     "gameplay_event_tag": "UI.GameScreen.Production",
     "layer_name": "",
     "interaction_hold_time": 0,
-    "interaction_prompt_text": "Plant",
+    "interaction_prompt_text": "Plant in",
     "has_static_audio": false,
     "static_audio": {
       "volume_multiplier": 1,

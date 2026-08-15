@@ -122,6 +122,30 @@ TSICTestHarness.register({
 });
 
 TSICTestHarness.register({
+    name: 'QoL/Split: Escape closes the dialog without splitting',
+    file: '/screens/test-fixtures.html',
+    async run(ctx) {
+        // Every other overlay in the game closes on Escape, and the split dialog wires
+        // its own capture-phase handler because it is not a registered screen — so it is
+        // the one quantity prompt screen-manager's Back path cannot close for it.
+        qolRender(ctx, [{ ItemId: 'ID_A', Count: 8, InstanceId: 3, GridSlot: 1 }]);
+        qolContextMenu(ctx, qolCell(ctx, 1), { shiftKey: true });
+        ctx.expect(ctx.assert.domCount(ctx.doc, '.tsic-split-dialog', 1));
+        // The dismiss listeners are armed a tick late, so the opening gesture's own
+        // pointerdown cannot close the dialog it just opened.
+        await new Promise(r => setTimeout(r, 20));
+
+        ctx.clearPublishes();
+        // From inside the dialog, where the caret actually is after it opens.
+        ctx.doc.querySelector('.tsic-split-dialog input[type=number]').dispatchEvent(
+            new ctx.win.KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
+        ctx.expect(ctx.assert.domCount(ctx.doc, '.tsic-split-dialog', 0));
+        ctx.expect(ctx.assert.notPublished(ctx.handle, 'UI.Cmd.Inventory.Split'));
+        ctx.expect(ctx.assert.eq(ctx.win.TSICInventory.getHeld(), null, 'cancelling holds nothing'));
+    },
+});
+
+TSICTestHarness.register({
     name: 'QoL/Split: a single-item stack has nothing to split',
     file: '/screens/test-fixtures.html',
     async run(ctx) {

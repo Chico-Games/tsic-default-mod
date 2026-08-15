@@ -12,11 +12,23 @@
   }
 
   const STYLE = `
-    [data-screen="Production"] #p-header { display:flex; align-items:baseline; gap:12px; margin-bottom:8px; }
-    [data-screen="Production"] #p-throb { font-size:10px; color:rgba(47,43,34,0.6); letter-spacing:2px; visibility:hidden; }
+    [data-screen="Production"] #p-header { display:flex; align-items:baseline; gap:12px; margin-bottom:8px; flex:0 0 auto; }
+    /* The station names the title ("Oven", "Sawmill", ...) once its snapshot lands, so a
+       title sized by its own text moved the throbber beside it — measured 50px to 767px
+       across stations. The title takes the row and truncates; the throbber is anchored to
+       the right edge and stays there whatever the station is called. */
+    [data-screen="Production"] #p-title {
+      flex:1 1 auto; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+    }
+    [data-screen="Production"] #p-throb { flex:0 0 auto; font-size:10px; color:rgba(47,43,34,0.6); letter-spacing:2px; visibility:hidden; }
     [data-screen="Production"] #p-throb.on { visibility:visible; animation: tsic-prod-pulse 1.5s infinite; }
     @keyframes tsic-prod-pulse { 0%, 100% { color:rgba(47,43,34,0.6); } 50% { color:rgba(47,43,34,1.0); } }
-    [data-screen="Production"] #p-info { padding:10px; background: rgba(241,229,207,0.88); border:1px solid var(--tsic-border); flex: 0 0 auto; max-height: 50%; overflow:auto; scrollbar-gutter:stable; }
+    /* A FIXED share of the column, not a box the selected recipe sizes. It used to be
+       flex:0 0 auto with max-height:50%, so selecting a recipe with ingredients grew the
+       details box by ~197px and shoved the Add button and the whole queue down the screen —
+       the queue row under the cursor became a different row mid-click. The details scroll
+       inside their reserved slice instead. */
+    [data-screen="Production"] #p-info { padding:10px; background: rgba(241,229,207,0.88); border:1px solid var(--tsic-border); flex: 0 0 44%; min-height:0; overflow:auto; scrollbar-gutter:stable; }
     [data-screen="Production"] #p-add { width:100%; padding: 8px; flex: 0 0 auto; }
     [data-screen="Production"] #p-add:disabled { color:rgba(47,43,34,0.4); background:rgba(241,229,207,0.4); cursor:not-allowed; }
     [data-screen="Production"] .q-entry { padding:6px 8px; background: rgba(241,229,207,0.55); border:1px solid var(--tsic-border); display:flex; flex-direction:column; gap:4px; }

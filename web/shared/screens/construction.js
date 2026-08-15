@@ -20,6 +20,15 @@
     [data-screen="Construction"] .c-cost-row { display:flex; justify-content:space-between; padding:2px 0; }
     [data-screen="Construction"] .c-cost-row .have-less { color:#9f2e25; }
     [data-screen="Construction"] .c-cost-row .have-ok   { color:#166534; }
+
+    /* The placement pill is centred on the crosshair and its label changes on almost every
+       frame of a placement — READY, BLOCKED, OUTOFRANGE, NOFLOOR — so a pill sized by that
+       label breathed in and out around its own centre (measured 176px to 229px, both edges
+       moving 26px) directly under the player's aim. The pill and each of its two cells hold
+       a reserved width, so the words change and the box does not. */
+    [data-screen="Construction"] #preview-pill { min-width:280px; box-sizing:border-box; text-align:center; }
+    [data-screen="Construction"] #preview-text { display:inline-block; min-width:132px; }
+    [data-screen="Construction"] #rotation-axis { display:inline-block; min-width:96px; text-align:left; }
   `;
 
   const TEMPLATE = `

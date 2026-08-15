@@ -54,7 +54,15 @@
     [data-screen="BugReport"] #br-hint { font-size:11px; color:#b03030; margin-top:6px; visibility:hidden; }
     [data-screen="BugReport"] #br-submit-hint { font-size:11px; letter-spacing:1px; text-transform:uppercase; color: rgba(59,47,28,0.6); margin-right:auto; align-self:center; }
     [data-screen="BugReport"] #br-furniture { display:none; margin-top:10px; padding:8px 10px; border:1px solid var(--tsic-border); font-size:12px; line-height:1.5; }
-    [data-screen="BugReport"] #br-furniture.br-shown { display:block; }
+    /* A RESERVED box, not one the trace result sizes. The block starts as one line of
+       "Looking for furniture…" and is replaced, a frame or two later, by the name plus four
+       detail rows: measured 36px -> 139px typical, 175px worst. The dialog is vertically
+       centred, so that growth pushed the panel's top edge 69px UP and took Submit and Cancel
+       with it — while the player was already reaching for one of them. Fixed height, and
+       the rare over-long definition id scrolls inside it. (issue #273) */
+    [data-screen="BugReport"] #br-furniture.br-shown {
+      display:block; height:150px; overflow:auto; scrollbar-gutter:stable;
+    }
     [data-screen="BugReport"] #br-furniture.br-missing { border-color:#b03030; color:#b03030; }
     [data-screen="BugReport"] #br-furniture dl { display:grid; grid-template-columns:auto 1fr; gap:2px 10px; margin:4px 0 0; }
     [data-screen="BugReport"] #br-furniture dt { color:rgba(59,47,28,0.7); text-transform:uppercase; font-size:10px; letter-spacing:1px; align-self:center; }

@@ -207,7 +207,7 @@
         // hovered-stack chip up to 42px sideways as items moved. Reserve the widest string,
         // right-align, tabular figures.
         '#ss-panel .ss-meter #ss-weight-text, #ss-panel .ss-meter #ss-cweight-text {',
-        '  display:inline-block; min-width:96px; text-align:right; font-variant-numeric:tabular-nums;',
+        '  display:inline-block; min-width:120px; text-align:right; font-variant-numeric:tabular-nums;',
         '}',
         // Hovered-stack readout, identical to the inventory screen's: the chip's space is
         // ALWAYS reserved (.none only hides it) so the bar never shifts as the cursor moves,

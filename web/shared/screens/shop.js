@@ -18,7 +18,10 @@
   const TEMPLATE = `
     <div id="s-root" class="tsic-modal-scrim">
       <div id="s-panel" class="tsic-panel tsic-panel--screen">
-        <h2 class="tsic-title" id="s-title" style="margin:0 0 8px;">Vending Machine</h2>
+        <!-- One line, truncated: the machine names this title and a wrap shortens the
+             list below it. Same rule as the crafting and summoner panels. (issue #273) -->
+        <h2 class="tsic-title" id="s-title"
+            style="margin:0 0 8px;flex:0 0 auto;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Vending Machine</h2>
         <div id="s-station" class="tsic-station-host"></div>
         <div class="tsic-close-row">
           <button class="tsic-button" id="btn-close" data-tsic-initial-focus>Close (Esc)</button>

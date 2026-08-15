@@ -264,8 +264,134 @@
       accent-color: #e8d9a8;
       cursor: pointer;
     }
+
+    /* ───────────── SHADER PRECOMPILE GATE (issue #230) ─────────────
+     * The bundled PSO cache compiles at "Fast" batching while the front end is up
+     * (UScpShaderPrecompileSubsystem owns that schedule). On a machine with a warm
+     * driver cache it drains in seconds; on a first run it does not, and starting a
+     * game before it finishes carries the 16ms-per-frame compile straight into
+     * gameplay. This holds New Game until it is done.
+     *
+     * Everything here is OUT OF FLOW — absolutely positioned inside the row, which
+     * already has its own height. The gate appearing and disappearing must not move
+     * the menu rows under a cursor that is already reaching for one (issue #273).
+     *
+     * There is no minimum display time and no gate at all until the bridge says
+     * otherwise: the message is what turns this on, so a machine that finishes
+     * before the menu paints, or a build with no cache, sees exactly the menu it
+     * sees today. */
+    #btn-start { position: relative; }
+    /* Caption STACKED over the bar in a fixed 130px column, not laid out beside it:
+       side by side, "Preparing shaders" plus a bar plus a percentage ran back across
+       the row and printed itself over the words "NEW GAME". */
+    #shader-gate {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: none;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 3px;
+      width: 130px;
+      font-family: var(--font-terminal);
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+      pointer-events: none;
+    }
+    #btn-start[data-shader-gate="on"] #shader-gate { display: flex; }
+    /* The page chip lives in the same corner and fades in on hover/focus; two things
+       in one corner is one too many. */
+    #btn-start[data-shader-gate="on"] .tsic-row-pg { visibility: hidden; }
+    #shader-gate-cap { display: flex; justify-content: space-between; line-height: 1; }
+    #shader-gate .tsic-bar-track { height: 8px; }
+    #shader-gate .tsic-bar-fill { transition: width 180ms linear; }
+    /* Tabular figures: the percentage counts up, and proportional digits would make
+       the caption breathe. */
+    #shader-gate-pct { font-variant-numeric: tabular-nums; }
+
+    /* ───────────── BOOT SPLASH (issue #226) ─────────────
+     * The title screen does not arrive finished. Its webfonts load with
+     * font-display:swap, so the masthead paints in Impact and then re-lays out in
+     * Bebas Neue; the kicker line paints its placeholder and then swaps to a random
+     * one when the bridge comes up; the showroom illustration and the dev-only
+     * buttons appear on their own schedule. The player watched the menu assemble
+     * itself. This covers the whole page from its FIRST paint until those have
+     * settled, then fades once.
+     *
+     * Its own type is deliberately NOT a webfont — the cover exists to hide a font
+     * swap, so a cover that swaps its own font defeats itself. Impact/Arial Black is
+     * the same fallback stack --font-display already names, so the wordmark here and
+     * the masthead behind it are drawn by the same face until Bebas lands.
+     *
+     * NOTE: this covers the menu PAGE only. The frames before CEF paints anything at
+     * all — engine init, menu-map load, browser creation — are still the front-end
+     * level with no UI over it, because the web view is transparent until its first
+     * paint (UTSICWebUIViewportWidget: ViewConfig.bIsTransparent). Closing that half
+     * needs an engine-side cover; see the issue. */
+    #boot-splash {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      background: var(--paper, #f4ecd8);
+      /* Paint immediately even if a variable has not resolved yet. */
+      background-color: #f4ecd8;
+      transition: opacity 220ms ease-out;
+    }
+    #boot-splash.gone { opacity: 0; pointer-events: none; }
+    #boot-splash[hidden] { display: none; }
+    /* Mirrors .tsic-cover .tsic-masthead-title: a small italic kicker line above the
+       focal word, black, with the full stop in magazine red. Same shape as the
+       masthead behind it, so the lift reads as the page arriving rather than as one
+       title being replaced by another. */
+    .boot-splash-title {
+      font-family: Impact, "Arial Black", "Bahnschrift Condensed", sans-serif;
+      font-size: 64px;
+      line-height: 0.9;
+      letter-spacing: 0.01em;
+      text-transform: uppercase;
+      text-align: center;
+      color: #0a0a0a;
+    }
+    .boot-splash-title em {
+      display: block;
+      font-style: italic;
+      font-weight: 400;
+      font-size: 24px;
+      letter-spacing: 0.02em;
+      color: #0a0a0a;
+    }
+    .boot-splash-title i { font-style: normal; color: #e60000; }
+    .boot-splash-rule { width: 320px; max-width: 60vw; height: 4px; background: #0a0a0a; }
+    .boot-splash-dots {
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 14px;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: #4a4239;
+    }
+    .boot-splash-dots > span { display: inline-block; opacity: 0; }
+    .boot-splash-dots > span:nth-child(1) { animation: boot-splash-dot 1.4s infinite 0s; }
+    .boot-splash-dots > span:nth-child(2) { animation: boot-splash-dot 1.4s infinite 0.2s; }
+    .boot-splash-dots > span:nth-child(3) { animation: boot-splash-dot 1.4s infinite 0.4s; }
+    @keyframes boot-splash-dot { 0%, 20% { opacity: 0; } 40%, 100% { opacity: 1; } }
   </style>
 </head><body>
+
+  <!-- First element in the body so it is part of the very first paint, before the
+       stage below it has laid anything out. Removed by the boot script. -->
+  <div id="boot-splash">
+    <div class="boot-splash-title"><em>The Store is</em>Closed<i>.</i></div>
+    <div class="boot-splash-rule"></div>
+    <div class="boot-splash-dots">Opening<span>.</span><span>.</span><span>.</span></div>
+  </div>
 
   <!-- data-paper-alpha="1": the title screen is a solid backdrop, not an
        overlay — the front-end level must not show through the paper wash. -->
@@ -325,6 +451,12 @@
           <span class="tsic-row-dept">Dept. 04</span>
           New Game
           <span class="tsic-row-pg">PG. 04</span>
+          <!-- Shader precompile gate (#230). Absent from the layout until the bridge
+               reports precompilation in progress; see the styles above. -->
+          <span id="shader-gate" aria-live="polite">
+            <span id="shader-gate-cap"><span>Shaders</span><span id="shader-gate-pct">0%</span></span>
+            <span class="tsic-bar-track"><span class="tsic-bar-fill" id="shader-gate-fill" style="width:0%"></span></span>
+          </span>
         </button>
         <button class="tsic-row-button" id="btn-load">
           <span class="tsic-row-dept">Dept. 12</span>
@@ -958,6 +1090,42 @@
 
     window.pickShowroom();
 
+    // Boot splash (issue #226) — lift it once the page has stopped assembling.
+    //
+    // Two waits, because two different things move: document.fonts.ready covers the
+    // Bebas/Inter swap that re-lays the masthead out, and the bridge poll covers the
+    // kicker line and the dev-only buttons, which cannot resolve until window.tsic
+    // exists. Two rAFs after both, so the frame the cover lifts on is the settled
+    // layout rather than the one that produced it.
+    //
+    // The 3s cap is not decoration. This page is also loaded by the playground and by
+    // the test harness, where the bridge may never appear at all, and a cover with no
+    // timeout would leave those staring at a splash. In game it never fires.
+    (function bootSplash() {
+      var el = document.getElementById('boot-splash');
+      if (!el) return;
+      var lifted = false;
+      function lift() {
+        if (lifted) return;
+        lifted = true;
+        el.classList.add('gone');
+        setTimeout(function () { el.hidden = true; }, 260);
+      }
+      var cap = setTimeout(lift, 3000);
+      var fonts = (document.fonts && document.fonts.ready) ? document.fonts.ready : Promise.resolve();
+      var bridge = new Promise(function (resolve) {
+        (function poll() {
+          if (window.tsic && typeof tsic.bootMenu === 'function') { resolve(); return; }
+          setTimeout(poll, 16);
+        })();
+      });
+      Promise.all([fonts, bridge]).then(function () {
+        requestAnimationFrame(function () {
+          requestAnimationFrame(function () { clearTimeout(cap); lift(); });
+        });
+      }).catch(function () { /* the cap still lifts it */ });
+    })();
+
     (function boot() {
       if (!window.tsic || typeof tsic.bootMenu !== 'function') { setTimeout(boot, 16); return; }
       tsic.bootMenu(function (ctx) {
@@ -983,6 +1151,48 @@
             devJoin.style.display = (p && p.bEditor) ? '' : 'none';
           });
         }
+
+        // Shader precompile gate (issue #230) — hold New Game while the bundled PSO
+        // cache is still compiling.
+        //
+        // UScpShaderPrecompileSubsystem drains the cache at "Fast" batching for as
+        // long as the front end is up, and starting a game before it is done carries
+        // the per-frame compile budget into gameplay. On a warm driver cache this is
+        // over in seconds and the gate barely appears, which is why there is no
+        // minimum display time: it is a real wait or it is nothing.
+        //
+        // The gate is OPT-IN from C++. No message, no gate — a build with no cache, or
+        // a machine that finished before the menu painted, gets today's menu exactly.
+        var startBtn = document.getElementById('btn-start');
+        var gateFill = document.getElementById('shader-gate-fill');
+        var gatePct  = document.getElementById('shader-gate-pct');
+        var gateWasUp = false;
+        // The engine's focusable set skips [disabled], so a gate that is up when the
+        // page takes its initial focus leaves the ring on Load Save. We put it back
+        // when the gate lifts — unless the player has already moved it themselves,
+        // in which case yanking it would be worse than leaving it.
+        var playerTookFocus = false;
+        document.addEventListener('keydown',     function () { playerTookFocus = true; }, { once: true });
+        document.addEventListener('pointerdown', function () { playerTookFocus = true; }, { once: true });
+
+        tsic.on('tsic.msg.UI.Shaders.Progress', function (p) {
+          if (!p || !startBtn) return;
+          if (p.bPrecompiling) {
+            gateWasUp = true;
+            startBtn.disabled = true;
+            startBtn.setAttribute('data-shader-gate', 'on');
+            var pct = Math.round(Math.max(0, Math.min(1, +p.Progress || 0)) * 100);
+            if (gateFill) gateFill.style.width = pct + '%';
+            if (gatePct)  gatePct.textContent = pct + '%';
+            return;
+          }
+          startBtn.disabled = false;
+          startBtn.removeAttribute('data-shader-gate');
+          if (gateWasUp && !playerTookFocus && tsic.focus && tsic.focus.focus) {
+            tsic.focus.focus(startBtn, { trust: true });
+          }
+          gateWasUp = false;
+        });
 
         // Menu Music: volume + mute, backed by audio.menu_music.
         // The sticky UI.Settings.Value replay seeds the control; edits apply

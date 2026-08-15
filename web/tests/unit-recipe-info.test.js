@@ -153,3 +153,51 @@ TSICTestHarness.register({
         ctx.expect(ctx.assert.truthy(/\(lvl 3\)/.test(host.textContent)));
     },
 });
+
+TSICTestHarness.register({
+    name: 'Unit/RecipeInfo: only the short ingredient is highlighted',
+    file: '/screens/test-fixtures.html',
+    async run(ctx) {
+        // The counts themselves are covered above; what nothing asserted is that a
+        // shortfall is VISIBLY different from a satisfied ingredient. Without it the
+        // pane reads as a flat list and the player has to do the arithmetic per row.
+        const host = ctx.doc.getElementById('host');
+        host.innerHTML = '';
+        ctx.win.tsic.itemCatalog = {
+            ID_Wheat: { ItemId: 'ID_Wheat', Name: 'Wheat' },
+            ID_Salt:  { ItemId: 'ID_Salt',  Name: 'Salt' },
+        };
+        ctx.win.TSICRecipeInfo.render(host, {
+            RecipeId: 'RD_Bread_CR', Name: 'Bread',
+            bDiscovered: true, bStationLevelSufficient: true,
+            Ingredients: [{ ItemId: 'ID_Wheat', Count: 3 }, { ItemId: 'ID_Salt', Count: 2 }],
+            Outputs:     [{ ItemId: 'ID_Bread', Count: 1 }],
+        }, { ID_Wheat: 5, ID_Salt: 1 });
+
+        const rows = Array.from(host.querySelectorAll('div'))
+            .filter(d => /Wheat x3|Salt x2/.test(d.textContent || ''));
+        const wheat = rows.find(d => /Wheat x3/.test(d.textContent));
+        const salt  = rows.find(d => /Salt x2/.test(d.textContent));
+        ctx.expect(ctx.assert.truthy(wheat && salt, 'both ingredient rows rendered with their counts'));
+        ctx.expect(ctx.assert.truthy(/have 5/.test(wheat.textContent), 'held count shown for the satisfied ingredient'));
+        ctx.expect(ctx.assert.truthy(/have 1/.test(salt.textContent), 'held count shown for the short ingredient'));
+
+        const colourOf = (el) => ctx.win.getComputedStyle(el).color;
+        ctx.expect(ctx.assert.truthy(colourOf(salt) !== colourOf(wheat),
+            `short ingredient is marked out (short=${colourOf(salt)}, satisfied=${colourOf(wheat)})`));
+
+        // Enough salt and the highlight must go away — otherwise the "highlight" is
+        // just how that row always looks.
+        host.innerHTML = '';
+        ctx.win.TSICRecipeInfo.render(host, {
+            RecipeId: 'RD_Bread_CR', Name: 'Bread',
+            bDiscovered: true, bStationLevelSufficient: true,
+            Ingredients: [{ ItemId: 'ID_Wheat', Count: 3 }, { ItemId: 'ID_Salt', Count: 2 }],
+            Outputs:     [{ ItemId: 'ID_Bread', Count: 1 }],
+        }, { ID_Wheat: 5, ID_Salt: 2 });
+        const stocked = Array.from(host.querySelectorAll('div')).filter(d => /Salt x2/.test(d.textContent || ''))[0];
+        const stockedWheat = Array.from(host.querySelectorAll('div')).filter(d => /Wheat x3/.test(d.textContent || ''))[0];
+        ctx.expect(ctx.assert.eq(colourOf(stocked), colourOf(stockedWheat),
+            'a satisfied ingredient carries no shortfall styling'));
+    },
+});

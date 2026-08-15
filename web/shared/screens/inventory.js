@@ -194,6 +194,17 @@
        line with the container's capacity label. */
     [data-screen="Inventory"] .inv-meter .lab { display:flex; justify-content:space-between; align-items:center; min-height:19px; font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:rgba(37,33,25,0.8); }
     [data-screen="Inventory"] .inv-meter .val { font-size:13px; }
+    /* The readout is a RESERVED box, not a box the digits size. "—" is 12px wide and
+       "128.4/200 kg" is 89px, and the value is right-aligned in a space-between row, so
+       letting it size itself dragged the yellow hovered-stack chip 27px sideways every time
+       the weight changed — the chip moving under a cursor that had not moved. Reserve the
+       widest realistic string and pin the digits to the right edge; tabular figures keep
+       even a same-length change from twitching. The reservation has to clear the WIDEST
+       string the readout can hold, not the typical one: at 96px "128.4/200 kg" still
+       overflowed it and the chip moved again, just later. */
+    [data-screen="Inventory"] .inv-meter #inv-weight-text {
+      display:inline-block; min-width:120px; text-align:right; font-variant-numeric:tabular-nums;
+    }
     [data-screen="Inventory"] .inv-meter .stackw {
       display:inline-block; min-width:58px; text-align:center; font-size:12px;
       color:#1a1612; background: var(--mag-yellow, #ffcc00); border:1px solid rgba(10,10,10,0.85);

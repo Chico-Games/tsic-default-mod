@@ -12,7 +12,10 @@
   const TEMPLATE = `
     <div id="bs-root" class="tsic-modal-scrim">
       <div id="bs-panel" class="tsic-panel tsic-panel--screen">
-        <h2 class="tsic-title" id="bs-title" style="margin:0 0 8px;">Boss Summoner</h2>
+        <!-- One line, truncated: the altar names this title and a wrap shortens the
+             ritual list below it. Same rule as the crafting and shop panels. (issue #273) -->
+        <h2 class="tsic-title" id="bs-title"
+            style="margin:0 0 8px;flex:0 0 auto;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Boss Summoner</h2>
         <div id="bs-station" class="tsic-station-host"></div>
         <div class="tsic-close-row">
           <button class="tsic-button" id="btn-close" data-tsic-initial-focus>Close (Esc)</button>
