@@ -36,6 +36,16 @@
               "item_entity": "FD_WorkGloves_SI",
               "count": 1,
               "weight": 1
+            },
+            {
+              "item_entity": "FD_BottleWater_SI",
+              "count": 1,
+              "weight": 1
+            },
+            {
+              "item_entity": "FD_CapGun_SI",
+              "count": 1,
+              "weight": 1
             }
           ],
           "spawn_chance": 0.8
@@ -62,6 +72,11 @@
               "item_entity": "FD_BrokenWalkman_SI",
               "count": 1,
               "weight": 1
+            },
+            {
+              "item_entity": "FD_Pencil_SI",
+              "count": 1,
+              "weight": 1
             }
           ],
           "spawn_chance": 0.8
@@ -81,6 +96,11 @@
             },
             {
               "item_entity": "FD_KnittingYarn_SI",
+              "count": 1,
+              "weight": 1
+            },
+            {
+              "item_entity": "FD_PowerGloves_SI",
               "count": 1,
               "weight": 1
             }

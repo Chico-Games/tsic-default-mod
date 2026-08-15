@@ -26,9 +26,19 @@
               "item_entity": "FD_TentPegs_SI",
               "count": 1,
               "weight": 1
+            },
+            {
+              "item_entity": "FD_ReusableBag_SI",
+              "count": 1,
+              "weight": 1
+            },
+            {
+              "item_entity": "FD_TeddyBear_SI",
+              "count": 1,
+              "weight": 1
             }
           ],
-          "spawn_chance": 0.6
+          "spawn_chance": 0.85
         }
       },
       {
@@ -42,9 +52,19 @@
               "item_entity": "FD_DurhamCatalogue_SI",
               "count": 1,
               "weight": 1
+            },
+            {
+              "item_entity": "FD_PlasticToy_SI",
+              "count": 1,
+              "weight": 1
+            },
+            {
+              "item_entity": "FD_TeaBags_SI",
+              "count": 1,
+              "weight": 1
             }
           ],
-          "spawn_chance": 0.6
+          "spawn_chance": 0.85
         }
       },
       {
@@ -58,9 +78,14 @@
               "item_entity": "FD_KnittingNeedles_SI",
               "count": 1,
               "weight": 1
+            },
+            {
+              "item_entity": "FD_HeavyGloves_SI",
+              "count": 1,
+              "weight": 1
             }
           ],
-          "spawn_chance": 0.6
+          "spawn_chance": 0.85
         }
       }
     ],
