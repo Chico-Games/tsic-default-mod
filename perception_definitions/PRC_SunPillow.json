@@ -1,0 +1,42 @@
+{
+  "id": "PRC_SunPillow",
+  "class": "ScpPerceptionDefinition",
+  "properties": {
+    "extends": "PRC_BaseHostile",
+    "update_interval": {
+      "near": 0.08,
+      "mid": 0.2,
+      "far": 0.6
+    },
+    "sight": {
+      "cone_angle": 120,
+      "range": 1500,
+      "peripheral_cone_angle": 200,
+      "peripheral_range": 500,
+      "auto_detect_radius": 450,
+      "time_to_spot": 0.5,
+      "time_to_forget_glimpse": 3,
+      "memory_seconds": 15,
+      "ghost_track_seconds": 2
+    },
+    "hearing": {
+      "acuity": 1.4,
+      "occlusion_attenuation": 0.5,
+      "noise_lifetime": 6
+    },
+    "stalemate": {
+      "give_up_seconds": 6,
+      "resume_seconds": 12,
+      "search_near_spawn": true
+    },
+    "targeting": {
+      "target_priority": [
+        "closest_spotted",
+        "strongest_attacker"
+      ],
+      "switch_damage": 15,
+      "alert_allies_radius": 900,
+      "patrol_return_distance": 3000
+    }
+  }
+}

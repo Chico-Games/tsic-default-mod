@@ -1,0 +1,193 @@
+{
+  "id": "BHV_SunPillow",
+  "class": "ScpBehaviorDefinition",
+  "properties": {
+    "root_eval_interval": 0.1,
+    "roots": [
+      {
+        "name": "Combat",
+        "when": [
+          {
+            "if": "has_target"
+          },
+          {
+            "if": "target_within",
+            "distance": 320
+          }
+        ],
+        "hold_seconds": 0.8,
+        "nav_policy": "breach",
+        "actions": [
+          {
+            "do": "run_skill",
+            "skill": "SKL_Engage",
+            "params": {
+              "Target": "$Perception.Target",
+              "Attack": "$Attack.Tag"
+            }
+          }
+        ]
+      },
+      {
+        "name": "Chase",
+        "when": [
+          {
+            "if": "has_target"
+          },
+          {
+            "if": "time_since_seen",
+            "under": 8
+          }
+        ],
+        "hold_seconds": 0.6,
+        "fail_cooldown": 4,
+        "nav_policy": "breach",
+        "states": [
+          {
+            "name": "Pursue",
+            "initial": true,
+            "actions": [
+              {
+                "do": "move_to",
+                "target": "$Perception.TargetLocation",
+                "acceptance": 200,
+                "speed_profile": "sprint",
+                "repath_if_moved": 120
+              }
+            ],
+            "transitions": [
+              {
+                "on": "event",
+                "event": "AI.Event.PathBlocked",
+                "to": "ClearPath",
+                "conditions": [
+                  {
+                    "if": "can_break_furniture",
+                    "entity": "$Path.BlockingEntity"
+                  }
+                ]
+              },
+              {
+                "on": "actions_succeeded",
+                "to": "Pursue"
+              },
+              {
+                "on": "action_failed",
+                "to": "Pursue"
+              }
+            ]
+          },
+          {
+            "name": "ClearPath",
+            "actions": [
+              {
+                "do": "run_skill",
+                "skill": "SKL_DestroyEntity",
+                "params": {
+                  "Entity": "$Path.BlockingEntity",
+                  "Ability": "AI.SunPillow.Attack.Pounce"
+                }
+              }
+            ],
+            "transitions": [
+              {
+                "on": "actions_succeeded",
+                "to": "Pursue"
+              },
+              {
+                "on": "action_failed",
+                "to": "Pursue"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Search",
+        "when": [
+          {
+            "if": "has_target"
+          }
+        ],
+        "actions": [
+          {
+            "do": "wander",
+            "origin": "$Perception.PointOfInterest",
+            "ring_min": 100,
+            "ring_max": 700,
+            "leg_seconds": 3,
+            "pause_seconds": 0.8,
+            "speed_profile": "hurry"
+          }
+        ]
+      },
+      {
+        "name": "Search",
+        "when": [
+          {
+            "if": "target_lost_within",
+            "seconds": 8
+          }
+        ]
+      },
+      {
+        "name": "AttackNuisance",
+        "when": [
+          {
+            "if": "has_nuisance",
+            "min_damage": 5
+          }
+        ],
+        "nav_policy": "breach",
+        "actions": [
+          {
+            "do": "run_skill",
+            "skill": "SKL_DestroyEntity",
+            "params": {
+              "Entity": "$Perception.Nuisance",
+              "Ability": "AI.SunPillow.Attack.Pounce"
+            }
+          }
+        ]
+      },
+      {
+        "name": "Investigate",
+        "when": [
+          {
+            "if": "heard_noise_within",
+            "seconds": 6
+          }
+        ],
+        "actions": [
+          {
+            "do": "run_skill",
+            "skill": "SKL_Investigate",
+            "params": {
+              "Spot": "$Perception.PointOfInterest"
+            }
+          }
+        ]
+      },
+      {
+        "name": "Patrol",
+        "states": [
+          {
+            "name": "Wander",
+            "initial": true,
+            "actions": [
+              {
+                "do": "wander",
+                "ring_min": 400,
+                "ring_max": 1200,
+                "leg_seconds": 4,
+                "pause_seconds": 2.5,
+                "speed_profile": "walk",
+                "origin": "$Perception.PatrolAnchor"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

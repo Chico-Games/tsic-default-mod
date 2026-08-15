@@ -1,0 +1,37 @@
+{
+  "id": "PRC_CarParkAttendant",
+  "class": "ScpPerceptionDefinition",
+  "properties": {
+    "extends": "PRC_BaseHostile",
+    "sight": {
+      "cone_angle": 60,
+      "range": 4000,
+      "peripheral_cone_angle": 140,
+      "peripheral_range": 1100,
+      "auto_detect_radius": 150,
+      "time_to_spot": 1.8,
+      "time_to_forget_glimpse": 8,
+      "memory_seconds": 90,
+      "ghost_track_seconds": 8
+    },
+    "hearing": {
+      "acuity": 0.8,
+      "occlusion_attenuation": 0.5,
+      "noise_lifetime": 8
+    },
+    "stalemate": {
+      "give_up_seconds": 14,
+      "resume_seconds": 20,
+      "search_near_spawn": false
+    },
+    "targeting": {
+      "target_priority": [
+        "closest_spotted",
+        "strongest_attacker"
+      ],
+      "switch_damage": 40,
+      "alert_allies_radius": 3500,
+      "patrol_return_distance": 9000
+    }
+  }
+}

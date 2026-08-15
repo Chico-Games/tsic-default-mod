@@ -1,0 +1,29 @@
+{
+  "id": "PRC_Chef",
+  "class": "ScpPerceptionDefinition",
+  "properties": {
+    "extends": "PRC_BaseHostile",
+    "sight": {
+      "cone_angle": 80,
+      "range": 2800,
+      "peripheral_range": 700,
+      "auto_detect_radius": 150,
+      "time_to_spot": 1.2,
+      "memory_seconds": 45
+    },
+    "hearing": {
+      "acuity": 1.2,
+      "occlusion_attenuation": 0.5,
+      "noise_lifetime": 8
+    },
+    "targeting": {
+      "target_priority": [
+        "strongest_attacker",
+        "closest_spotted"
+      ],
+      "switch_damage": 25,
+      "alert_allies_radius": 2200,
+      "patrol_return_distance": 6000
+    }
+  }
+}

@@ -77,6 +77,16 @@
       "band_sound_inner_radius": 800,
       "band_sound_falloff_distance": 9000
     },
+    "day_night_hazards": [
+      {
+        "day_section": "Gameplay.DaySection.Night",
+        "b_only_in_darkness": true,
+        "tick_interval": 8.0,
+        "damage_per_tick": 1.0,
+        "b_ignores_armor": false,
+        "death_type_tag": "Death.Environmental"
+      }
+    ],
     "default_respawn_delay": 5,
     "tombstone_lifetime": 300,
     "max_tombstones_per_player": 3,

@@ -1,0 +1,101 @@
+{
+  "id": "ED_CarParkAttendant",
+  "asset_path": "/Game/Characters/Enemies/CarParkAttendant/ED_CarParkAttendant",
+  "class": "UEnemyDefinition",
+  "schema_version": 2,
+  "properties": {
+    "gameplay_tags": [],
+    "display_name": "Car Park Attendant",
+    "enemy_class": "/Game/Characters/Enemies/CarParkAttendant/Blueprints/CH_CarParkAttendant.CH_CarParkAttendant_C",
+    "death_drop_table": [
+      { "world_item": "FD_ExpiredParkingTicket_SI", "count": 1, "weight": 1 },
+      { "world_item": "FD_Keys_SI", "count": 1, "weight": 1 }
+    ],
+    "weighted_chance": 1000,
+    "world_gen_priority": 1000,
+    "ai_stack": "v2",
+    "behavior": "BHV_CarParkAttendant",
+    "wounded_tag": {
+      "tag": "State.Wounded",
+      "below": 0.5
+    },
+    "perception": "PRC_CarParkAttendant",
+    "attacks": [
+      {
+        "ability": "AI.CarParkAttendant.Attack.Baton",
+        "weight": 1
+      }
+    ],
+    "movement_profiles": [
+      {
+        "name": "walk",
+        "max_speed": 120,
+        "accel": 800,
+        "rotation_rate": 170
+      },
+      {
+        "name": "walk_medium",
+        "max_speed": 165,
+        "accel": 950,
+        "rotation_rate": 210
+      },
+      {
+        "name": "hurry",
+        "max_speed": 215,
+        "accel": 1200,
+        "rotation_rate": 260
+      },
+      {
+        "name": "sprint",
+        "max_speed": 300,
+        "accel": 1900,
+        "rotation_rate": 340
+      }
+    ],
+    "variants": [
+      {
+        "key": { "name": "EASY", "value": 1 },
+        "value": {
+          "variant_tint": { "r": 1.0, "g": 0.05, "b": 0.05, "a": 1.0 },
+          "damage_multiplier": 1.0,
+          "health_multiplier": 1.0,
+          "death_drop_table": [
+            { "world_item": "FD_ExpiredParkingTicket_SI", "count": 2, "weight": 1 },
+            { "world_item": "FD_Keys_SI", "count": 1, "weight": 1 },
+            { "world_item": "FD_Coins_SI", "count": 1, "weight": 1 }
+          ]
+        }
+      },
+      {
+        "key": { "name": "MEDIUM", "value": 2 },
+        "value": {
+          "variant_tint": { "r": 0.05, "g": 1.0, "b": 0.05, "a": 1.0 },
+          "damage_multiplier": 2.0,
+          "health_multiplier": 2.0,
+          "death_drop_table": [
+            { "world_item": "FD_ExpiredParkingTicket_SI", "count": 3, "weight": 1 },
+            { "world_item": "FD_Keys_SI", "count": 2, "weight": 1 },
+            { "world_item": "FD_Coins_SI", "count": 2, "weight": 1 },
+            { "world_item": "FD_WorkGloves_SI", "count": 1, "weight": 1 }
+          ]
+        }
+      },
+      {
+        "key": { "name": "HARD", "value": 3 },
+        "value": {
+          "variant_tint": { "r": 0.05, "g": 0.05, "b": 1.0, "a": 1.0 },
+          "damage_multiplier": 3.0,
+          "health_multiplier": 3.0,
+          "death_drop_table": [
+            { "world_item": "FD_ExpiredParkingTicket_SI", "count": 3, "weight": 2 },
+            { "world_item": "FD_Keys_SI", "count": 2, "weight": 2 },
+            { "world_item": "FD_ScrapMetal_SI", "count": 3, "weight": 1 },
+            { "world_item": "FD_Fuel_SI", "count": 1, "weight": 1 }
+          ]
+        }
+      }
+    ],
+    "token_cost": 1,
+    "shirt_material_slot_index": 1
+  }
+}

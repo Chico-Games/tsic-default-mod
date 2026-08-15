@@ -6,12 +6,52 @@
   "properties": {
     "gameplay_tags": [],
     "display_name": "Sun Pillow",
+    "enemy_class": "/Game/Characters/Enemies/SunPillow/Blueprints/CH_SunPillow.CH_SunPillow_C",
     "death_drop_table": [
       { "world_item": "FD_Pillowcase_SI", "count": 1, "weight": 1 },
       { "world_item": "FD_Duvet_SI", "count": 1, "weight": 1 }
     ],
     "weighted_chance": 1000,
     "world_gen_priority": 1000,
+    "ai_stack": "v2",
+    "behavior": "BHV_SunPillow",
+    "wounded_tag": {
+      "tag": "State.Wounded",
+      "below": 0.5
+    },
+    "perception": "PRC_SunPillow",
+    "attacks": [
+      {
+        "ability": "AI.SunPillow.Attack.Pounce",
+        "weight": 1
+      }
+    ],
+    "movement_profiles": [
+      {
+        "name": "walk",
+        "max_speed": 130,
+        "accel": 900,
+        "rotation_rate": 240
+      },
+      {
+        "name": "walk_medium",
+        "max_speed": 210,
+        "accel": 1100,
+        "rotation_rate": 300
+      },
+      {
+        "name": "hurry",
+        "max_speed": 300,
+        "accel": 1500,
+        "rotation_rate": 380
+      },
+      {
+        "name": "sprint",
+        "max_speed": 430,
+        "accel": 2400,
+        "rotation_rate": 480
+      }
+    ],
     "variants": [
       {
         "key": { "name": "EASY", "value": 1 },
@@ -51,6 +91,7 @@
           ]
         }
       }
-    ]
+    ],
+    "token_cost": 1
   }
 }
