@@ -4,7 +4,7 @@
   "class": "UInteractableTextDefinition",
   "schema_version": 2,
   "properties": {
-    "gameplay_event_tag": "UI.GameScreen.InteractableText",
+    "gameplay_event_tag": "",
     "interaction_hold_time": 0.0,
     "interaction_prompt_text": "Read Notes",
     "has_static_audio": false,

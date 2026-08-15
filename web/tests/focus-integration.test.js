@@ -97,30 +97,6 @@ TSICTestHarness.register({
 });
 
 TSICTestHarness.register({
-    name: 'Focus/Integration/Cage: pick a target publishes Selection.Choose',
-    file: '/screens/cage.html',
-    async run(ctx) {
-        ctx.focus.disableSmoothScroll();
-        ctx.focus.resetMemory();
-        ctx.inject('tsic.msg.UI.Selection.Opened', { Context: 'Cage', Options: [
-            { OptionId: 'cap-A', Label: 'A' },
-            { OptionId: 'cap-B', Label: 'B' },
-        ] });
-        ctx.mode('Gamepad');
-        await ctx.waitFor(() => ctx.doc.querySelector('#rows button'));
-        await TSICTestHarness.fx.awaitInitialFocus(ctx);
-        const active = ctx.doc.activeElement;
-        ctx.expect(ctx.assert.truthy(active && active.closest && active.closest('#rows'),
-            'initial focus should land inside #rows; got ' + (active && active.tagName)));
-        ctx.clearPublishes();
-        ctx.focus.confirm();
-        await new Promise(r => setTimeout(r, 30));
-        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Selection.Choose',
-            { where: p => p && p.OptionId === 'cap-A' }));
-    },
-});
-
-TSICTestHarness.register({
     name: 'Focus/Integration/Settings: catalog renders + initial focus on Back',
     file: '/screens/settings.html',
     async run(ctx) {

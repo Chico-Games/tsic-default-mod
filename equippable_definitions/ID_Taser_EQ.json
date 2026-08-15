@@ -82,6 +82,7 @@
       }
     },
     "has_durability": true,
+    "durability_cost_per_hit": 2.5,
     "has_ammo": true,
     "max_ammo": 10,
     "display_name": "Taser",

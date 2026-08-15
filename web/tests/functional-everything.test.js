@@ -146,17 +146,6 @@ TSICTestHarness.register({
 
 // ---- Map: ping cross rendering -----------------------------------------
 
-// ---- Cage: explicit context skip ---------------------------------------
-TSICTestHarness.register({
-    name: 'Cage: Generic context does not render anything',
-    file: '/screens/cage.html',
-    async run(ctx) {
-        ctx.inject('tsic.msg.UI.Selection.Opened', { Context: 'Generic', Options: [{ OptionId: 'x', Label: 'leak' }] });
-        await new Promise(r => setTimeout(r, 60));
-        ctx.expect(ctx.assert.eq(ctx.doc.body.textContent.indexOf('leak'), -1));
-    },
-});
-
 // ---- Notifications: missing icon falls back gracefully -----------------
 TSICTestHarness.register({
     name: 'Notifications: missing IconUrl still renders',
@@ -279,23 +268,6 @@ TSICTestHarness.register({
     },
 });
 
-// ---- Equipment page ----------------------------------------------------
-TSICTestHarness.register({
-    name: 'Equipment: clicking equipped slot publishes Unequip',
-    file: '/screens/equipment.html',
-    async run(ctx) {
-        ctx.inject('tsic.msg.UI.Equipment.Updated', {
-            OwnerId: 'Player',
-            Slots: [{ SlotTag: 'Equip.Head', ItemId: 'ID_Helmet', IconUrl: '' }],
-        });
-        await ctx.waitFor(() => ctx.doc.querySelector('.tsic-slot'));
-        ctx.clearPublishes();
-        ctx.doc.querySelector('.tsic-slot').click();
-        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Equipment.Unequip',
-            { where: p => p.SlotTag === 'Equip.Head' }));
-    },
-});
-
 // Chat coverage lives in chat.test.js (HUD component, /screens/in-game.html).
 
 // ---- Detection screen-mist amount ------------------------------------
@@ -319,19 +291,6 @@ TSICTestHarness.register({
         await new Promise(r => setTimeout(r, 80));
         const markers = ctx.doc.querySelectorAll('#hud-detection .dt-arc');
         ctx.expect(ctx.assert.truthy(markers.length >= 10, `expected many threat markers, got ${markers.length}`));
-    },
-});
-
-// ---- Wardrobe: Close publishes correctly --------------------------------
-TSICTestHarness.register({
-    name: 'Wardrobe: Close button publishes both Hide and Resume',
-    file: '/screens/wardrobe.html',
-    async run(ctx) {
-        await ctx.waitFor(() => ctx.doc.getElementById('btn-close'));
-        ctx.clearPublishes();
-        ctx.doc.getElementById('btn-close').click();
-        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.CharacterPreview.Hide'));
-        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Pause.Resume'));
     },
 });
 

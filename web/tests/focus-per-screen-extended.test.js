@@ -161,23 +161,6 @@ TSICTestHarness.register(Object.assign({
     },
 }, focusOpts()));
 
-// -- wardrobe --------------------------------------------------------------
-TSICTestHarness.register(Object.assign({
-    name: 'Focus/Wardrobe: reachable + groups mutually reachable',
-    file: '/screens/wardrobe.html',
-    async run(ctx) {
-        ctx.inject('tsic.msg.UI.Equipment.Updated', {
-            OwnerId: 'Player',
-            Slots: [
-                { SlotTag: 'Equipment.Cosmetic.Head', ItemId: 'ID_Hat' },
-                { SlotTag: 'Equipment.Cosmetic.Body', ItemId: 'ID_Coat' },
-            ],
-        });
-        ctx.inject('tsic.msg.UI.CharacterPreview.Ready', { bReady: true });
-        await TSICTestHarness.fx.runReachability(ctx);
-    },
-}, focusOpts()));
-
 // -- cheat-menu ------------------------------------------------------------
 TSICTestHarness.register(Object.assign({
     name: 'Focus/CheatMenu: reachable + groups mutually reachable',
@@ -229,23 +212,6 @@ TSICTestHarness.register(Object.assign({
     name: 'Focus/DeathScreen: reachable + groups mutually reachable',
     file: '/screens/death-screen.html',
     async run(ctx) { await TSICTestHarness.fx.runReachability(ctx); },
-}, focusOpts()));
-
-// -- equipment -------------------------------------------------------------
-TSICTestHarness.register(Object.assign({
-    name: 'Focus/Equipment: reachable + groups mutually reachable',
-    file: '/screens/equipment.html',
-    async run(ctx) {
-        ctx.inject('tsic.msg.UI.Equipment.Updated', {
-            OwnerId: 'Player',
-            Slots: [
-                { SlotTag: 'Equipment.MainHand', ItemId: 'ID_Axe' },
-                { SlotTag: 'Equipment.OffHand',  ItemId: '' },
-                { SlotTag: 'Equipment.Head',     ItemId: 'ID_Hat' },
-            ],
-        });
-        await TSICTestHarness.fx.runReachability(ctx);
-    },
 }, focusOpts()));
 
 // (No interaction entry: the live interaction prompt (hud-interaction.js) is

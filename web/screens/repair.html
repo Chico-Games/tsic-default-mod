@@ -4,7 +4,7 @@
   <meta name="tsic-screen" content="Repair">
   <meta name="tsic-input-mode" content="InputMode.Menu.Repair">
   <meta name="tsic-focus" content="enabled">
-  <meta name="tsic-action-bar-context" content='[{"ActionName":"IA_UI_ConfirmAccept","Label":"Repair","Priority":10}]'>
+  <meta name="tsic-action-bar-context" content='[{"ActionName":"IA_UI_ConfirmAccept","Label":"Repair All","Priority":10}]'>
   <title>Repair</title>
   <link rel="stylesheet" href="/shared/base.css">
   <link rel="stylesheet" href="/shared/components.css">
@@ -54,8 +54,11 @@
         tsic.whenReady(function () {
           TSIC.RecipeStation.mount(document.getElementById('repair-station'), {
             kind: 'Repair',
-            actionLabel: 'Repair',
-            emptyText: 'No items here need repair.',
+            // One press restores every durable item for the station's flat cost
+            // (ARepairStationHelper::TryRepairAll) — the rows are the gear it will act on,
+            // not individually repairable entries, so the button must not read per-row.
+            actionLabel: 'Repair All',
+            emptyText: 'You are carrying nothing that wears out.',
             rowIcon: function(r) { return r.RecipeId; },
             rowName: function(r) {
               var name = (window.tsic && window.tsic.itemName) ? window.tsic.itemName(r.RecipeId) : (r.Name || r.RecipeId);

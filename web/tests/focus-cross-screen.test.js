@@ -15,7 +15,7 @@
 const FOCUS_SCREENS = [
     'main-menu','new-store','credits','pause-menu','settings','save-load',
     'universal-storage-setup','boss-summoner','construction',
-    'teleporter','cage','selection','bug-report',
+    'teleporter','bug-report',
 ];
 
 for (const sname of FOCUS_SCREENS) {
@@ -33,12 +33,7 @@ for (const sname of FOCUS_SCREENS) {
             // Some pages render their initial-focus target only after data
             // arrives — seed minimal payloads where we know the channel.
             const fileName = (ctx.win.location.pathname.split('/').pop() || '').replace('.html', '');
-            if (fileName === 'cage' || fileName === 'selection') {
-                ctx.inject('tsic.msg.UI.Selection.Opened', {
-                    Context: fileName === 'cage' ? 'Cage' : 'Pick',
-                    Options: [{ OptionId: 'x', Label: 'x' }],
-                });
-            } else if (fileName === 'teleporter') {
+            if (fileName === 'teleporter') {
                 ctx.inject('tsic.msg.UI.Teleporter.Destinations', {
                     Destinations: [{ EntityId: 1, Label: 'Hub', Cooldown: 0 }],
                 });

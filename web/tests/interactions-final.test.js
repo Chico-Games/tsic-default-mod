@@ -411,23 +411,6 @@ TSICTestHarness.register({
     },
 });
 
-// ---- Wardrobe: closing publishes Hide + Resume in one click ----------
-TSICTestHarness.register({
-    name: 'Wardrobe: Close publishes Hide + Resume (already covered, with explicit ordering)',
-    file: '/screens/wardrobe.html',
-    async run(ctx) {
-        await ctx.waitFor(() => ctx.doc.getElementById('btn-close'));
-        ctx.clearPublishes();
-        ctx.doc.getElementById('btn-close').click();
-        const channels = ctx.publishes().map(p => p.channel);
-        // Hide should fire before Resume.
-        const hideIdx   = channels.indexOf('UI.Cmd.CharacterPreview.Hide');
-        const resumeIdx = channels.indexOf('UI.Cmd.Pause.Resume');
-        ctx.expect(ctx.assert.truthy(hideIdx >= 0 && resumeIdx >= 0 && hideIdx < resumeIdx,
-            `expected Hide before Resume; got order: ${JSON.stringify(channels)}`));
-    },
-});
-
 // ---- DeathScreen: both buttons present + correct labels ----------------
 TSICTestHarness.register({
     name: 'DeathScreen: exposes Respawn + Quit-to-Menu buttons',

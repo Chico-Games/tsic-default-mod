@@ -85,7 +85,7 @@ TSICTestHarness.register({
 TSICTestHarness.register({
     name: 'Channels/Equipment.Equip: covered by JS publish',
     tags: ['channel', 'equipment'],
-    file: '/screens/equipment.html',
+    file: '/screens/inventory.html',
     async run(ctx) {
         ctx.win.tsic.publishMessage('UI.Cmd.Equipment.Equip', { ItemId: 'ID_X', SlotTag: 'Equip.Head' });
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Equipment.Equip',

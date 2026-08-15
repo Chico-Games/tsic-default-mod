@@ -126,25 +126,6 @@ TSICTestHarness.register({
     },
 });
 
-// ---- Wardrobe: clicking each cosmetic slot publishes Unequip ----------
-TSICTestHarness.register({
-    name: 'Mouse/Wardrobe: clicking each filtered slot publishes Unequip with its SlotTag',
-    file: '/screens/wardrobe.html',
-    async run(ctx) {
-        ctx.inject('tsic.msg.UI.Equipment.Updated', { OwnerId: 'Player', Slots: [
-            { SlotTag: 'Cosmetic.Head', ItemId: 'h', IconUrl: '' },
-            { SlotTag: 'Cosmetic.Body', ItemId: 'b', IconUrl: '' },
-            { SlotTag: 'Outfit.Face',   ItemId: 'f', IconUrl: '' },
-        ]});
-        await ctx.waitFor(() => ctx.doc.querySelectorAll('.tsic-slot').length === 3);
-        const slots = ctx.doc.querySelectorAll('.tsic-slot');
-        ctx.clearPublishes();
-        for (let i = 0; i < slots.length; i++) slots[i].click();
-        const pubs = ctx.publishes().filter(p => p.channel === 'UI.Cmd.Equipment.Unequip');
-        ctx.expect(ctx.assert.eq(pubs.length, 3));
-    },
-});
-
 // ---- Pause menu: every button -----------------------------------------
 TSICTestHarness.register({
     name: 'Mouse/PauseMenu: Resume/Settings/Quit each publish a different command',
@@ -219,26 +200,6 @@ TSICTestHarness.register({
         // Activation goes through Enhanced Input (the interact ability), not UI.
         const pubs = ctx.publishes().filter(p => p.channel.indexOf('UI.Cmd.Interaction.') === 0);
         ctx.expect(ctx.assert.eq(pubs.length, 0, 'prompt is display-only — clicks should not publish'));
-    },
-});
-
-// ---- Selection: clicking each option publishes its OptionId ------------
-TSICTestHarness.register({
-    name: 'Mouse/Selection: each option publishes its OptionId',
-    file: '/screens/selection.html',
-    async run(ctx) {
-        ctx.inject('tsic.msg.UI.Selection.Opened', { Context: 'Loot', Options: [
-            { OptionId: 'a', Label: 'A' },
-            { OptionId: 'b', Label: 'B' },
-            { OptionId: 'c', Label: 'C' },
-        ]});
-        await ctx.waitFor(() => ctx.doc.querySelectorAll('.row').length === 3);
-        ctx.clearPublishes();
-        for (const btn of ctx.doc.querySelectorAll('.row')) btn.click();
-        const pubs = ctx.publishes().filter(p => p.channel === 'UI.Cmd.Selection.Choose');
-        ctx.expect(ctx.assert.eq(pubs.length, 3));
-        const ids = pubs.map(p => p.payload.OptionId).sort();
-        ctx.expect(ctx.assert.eq(ids, ['a','b','c']));
     },
 });
 

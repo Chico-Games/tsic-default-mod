@@ -102,30 +102,6 @@ TSICTestHarness.register(Object.assign({
 }, focusOpts()));
 
 TSICTestHarness.register(Object.assign({
-    name: 'Focus/Selection: reachable + groups mutually reachable',
-    file: '/screens/selection.html',
-    async run(ctx) {
-        ctx.inject('tsic.msg.UI.Selection.Opened', { Context: 'Pick', Options: [
-            { OptionId: 'a', Label: 'A' },
-            { OptionId: 'b', Label: 'B' },
-        ] });
-        await TSICTestHarness.fx.runReachability(ctx);
-    },
-}, focusOpts()));
-
-TSICTestHarness.register(Object.assign({
-    name: 'Focus/Cage: reachable + groups mutually reachable',
-    file: '/screens/cage.html',
-    async run(ctx) {
-        ctx.inject('tsic.msg.UI.Selection.Opened', { Context: 'Cage', Options: [
-            { OptionId: 'cap1', Label: 'Capture 1' },
-            { OptionId: 'cap2', Label: 'Capture 2' },
-        ] });
-        await TSICTestHarness.fx.runReachability(ctx);
-    },
-}, focusOpts()));
-
-TSICTestHarness.register(Object.assign({
     name: 'Focus/Teleporter: reachable + groups mutually reachable',
     file: '/screens/teleporter.html',
     async run(ctx) {
