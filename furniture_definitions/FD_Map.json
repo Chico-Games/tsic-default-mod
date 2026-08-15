@@ -4,6 +4,7 @@
   "class": "UMapRevealFurnitureDefinition",
   "schema_version": 2,
   "properties": {
+    "is_damageable": false,
     "destructible_collection": "/Game/Furniture/Signs/GeometryCollections/GCS_MapStand.GCS_MapStand",
     "display_name": "Map",
     "gameplay_event_tag": "UI.GameScreen.Map",
