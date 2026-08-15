@@ -42,6 +42,11 @@
               "item_entity": "FD_MetalScrews_SI",
               "count": 1,
               "weight": 1
+            },
+            {
+              "item_entity": "FD_WorkGloves_SI",
+              "count": 1,
+              "weight": 1
             }
           ],
           "spawn_chance": 0.6000000238418579
@@ -61,6 +66,11 @@
             },
             {
               "item_entity": "FD_Calculator_SI",
+              "count": 1,
+              "weight": 1
+            },
+            {
+              "item_entity": "FD_HeavyGloves_SI",
               "count": 1,
               "weight": 1
             }

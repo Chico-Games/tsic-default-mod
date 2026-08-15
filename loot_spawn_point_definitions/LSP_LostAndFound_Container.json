@@ -31,6 +31,11 @@
               "item_entity": "FD_EmptyLeatherWallet_SI",
               "count": 1,
               "weight": 1
+            },
+            {
+              "item_entity": "FD_WorkGloves_SI",
+              "count": 1,
+              "weight": 1
             }
           ],
           "spawn_chance": 0.8
