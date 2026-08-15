@@ -68,29 +68,6 @@ TSICTestHarness.register({
     },
 });
 
-// ---- Construction: clicking every category tab ------------------------
-TSICTestHarness.register({
-    name: 'Mouse/Construction: clicking each category tab filters items',
-    file: '/screens/construction.html',
-    async run(ctx) {
-        ctx.inject('tsic.msg.UI.Construction.Available', { Items: [
-            { EntityDefId: 'A', Name: 'A', Category: 'Furniture',  bAffordable: true },
-            { EntityDefId: 'B', Name: 'B', Category: 'Structure',  bAffordable: true },
-            { EntityDefId: 'C', Name: 'C', Category: 'Storage',    bAffordable: true },
-        ]});
-        await ctx.waitFor(() => ctx.doc.querySelectorAll('#c-tabs .tsic-tab').length >= 4);
-        for (const cat of ['Furniture','Structure','Storage']) {
-            const tab = Array.from(ctx.doc.querySelectorAll('.tsic-tab')).find(e => e.textContent === cat);
-            tab.click();
-            await new Promise(r => setTimeout(r, 15));
-            const active = ctx.doc.querySelector('.tsic-tab.is-active');
-            ctx.expect(ctx.assert.eq(active && active.textContent, cat));
-            const rows = ctx.doc.querySelectorAll('#items .c-row');
-            ctx.expect(ctx.assert.eq(rows.length, 1, `filtered to one ${cat} row`));
-        }
-    },
-});
-
 // ---- Storage: clicking every category tab ----------------------------
 TSICTestHarness.register({
     name: 'Mouse/Storage: player-side tabs cycle active state (container pane has no tabs)',
@@ -168,20 +145,6 @@ TSICTestHarness.register({
             btn.click();
             ctx.expect(ctx.assert.published(ctx.handle, expected, { where: () => true }));
         }
-    },
-});
-
-// ---- ConstructionCarousel: pure-display — verify Current highlight on -
-TSICTestHarness.register({
-    name: 'Mouse/ConstructionCarousel: no clicks expected (display-only)',
-    file: '/screens/construction-carousel.html',
-    async run(ctx) {
-        ctx.inject('tsic.msg.UI.Construction.Carousel', { bActive: true, Prev: [], Current: { FurnitureId: 'X', Label: 'X', bAffordable: true }, Next: [] });
-        await ctx.waitFor(() => ctx.doc.querySelector('#cc-row .cc-slot.current'));
-        ctx.clearPublishes();
-        ctx.doc.querySelector('.cc-slot.current').click();
-        const pubs = ctx.publishes();
-        ctx.expect(ctx.assert.eq(pubs.length, 0, 'carousel is display-only — clicks should not publish'));
     },
 });
 

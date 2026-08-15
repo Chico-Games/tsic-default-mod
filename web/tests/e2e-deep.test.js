@@ -64,21 +64,6 @@ TSICTestHarness.register({
     },
 });
 
-// ---- Map: pings appear, then are removed -----------------------------
-
-// ---- Construction: preview state transitions --------------------------
-TSICTestHarness.register({
-    name: 'E2E/Construction: preview goes blocked -> ready, status pill colour flips',
-    file: '/screens/construction.html',
-    async run(ctx) {
-        ctx.inject('tsic.msg.UI.Construction.PreviewState', { bCanPlace: false, FailureReason: 'no clearance' });
-        await ctx.waitFor(() => /NO CLEARANCE/.test(ctx.doc.getElementById('preview-text').textContent || ''));
-        ctx.inject('tsic.msg.UI.Construction.PreviewState', { bCanPlace: true });
-        await ctx.waitFor(() => /READY/.test(ctx.doc.getElementById('preview-text').textContent || ''));
-        ctx.expect(ctx.assert.domText(ctx.doc, '#preview-text', 'READY'));
-    },
-});
-
 // ---- Inventory + Catalog late-arrival ---------------------------------
 TSICTestHarness.register({
     name: 'E2E/Inventory: late item-catalog arrival re-renders with names',

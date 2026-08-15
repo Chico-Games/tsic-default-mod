@@ -151,36 +151,6 @@ TSICTestHarness.register({
     },
 });
 
-// ---- ConstructionCarousel: only 1 prev / 1 next ----------------------
-TSICTestHarness.register({
-    name: 'ConstructionCarousel: 1-prev / 1-next renders 3 slots',
-    file: '/screens/construction-carousel.html',
-    async run(ctx) {
-        ctx.inject('tsic.msg.UI.Construction.Carousel', {
-            bActive: true,
-            Prev: [{ FurnitureId: 'A', Label: 'A', bAffordable: true }],
-            Current: { FurnitureId: 'C', Label: 'C', bAffordable: true },
-            Next: [{ FurnitureId: 'N', Label: 'N', bAffordable: true }],
-        });
-        await ctx.waitFor(() => ctx.doc.querySelectorAll('#cc-row .cc-slot').length === 3);
-        ctx.expect(ctx.assert.domCount(ctx.doc, '#cc-row .cc-slot.current', 1));
-    },
-});
-
-// ---- Construction: bAffordable=false row visually disabled --------------
-TSICTestHarness.register({
-    name: 'Construction: unaffordable row gets disabled class',
-    file: '/screens/construction.html',
-    async run(ctx) {
-        ctx.inject('tsic.msg.UI.Construction.Available', { Items: [
-            { EntityDefId: 'F1', Name: 'OK',   Category: 'Furniture', bAffordable: true  },
-            { EntityDefId: 'F2', Name: 'NOPE', Category: 'Furniture', bAffordable: false },
-        ]});
-        await ctx.waitFor(() => ctx.doc.querySelectorAll('#items .c-row').length === 2);
-        ctx.expect(ctx.assert.domCount(ctx.doc, '#items .c-row.disabled', 1));
-    },
-});
-
 // ---- ActionBar: cooldown 100% draws no sweep --------------------------
 TSICTestHarness.register({
     name: 'ActionBar: cooldown == 1.0 (ready) draws no sweep div',

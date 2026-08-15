@@ -120,37 +120,6 @@ TSICTestHarness.register({
     },
 });
 
-// ── Construction: the placement pill ───────────────────────────────────────
-//
-// The pill is centred on the crosshair and its label changes on almost every frame of a
-// placement. Sized by that label it breathed in and out around its own centre, 26px each
-// edge, exactly where the player is looking.
-
-TSICTestHarness.register({
-    name: 'Layout/Construction: the placement pill holds its box as the reason changes',
-    file: '/screens/in-game.html',
-    async run(ctx) {
-        ctx.screen('Construction');
-        ctx.inject('tsic.msg.UI.Construction.Available', { Items: [] });
-        const preview = (ok, reason, axis) => ctx.inject('tsic.msg.UI.Construction.PreviewState',
-            { bCanPlace: ok, FailureReason: reason, RotationAxis: axis });
-
-        preview(true, '', 'Yaw');
-        await ctx.waitFor(() => {
-            const el = ctx.doc.querySelector('[data-screen="Construction"] #preview-pill');
-            return el && el.getBoundingClientRect().width > 0;
-        }, { timeout: 4000 });
-        await new Promise(r => setTimeout(r, 120));
-        const ready = box(ctx.doc.querySelector('[data-screen="Construction"] #preview-pill'));
-
-        preview(false, 'OutOfRange', 'Roll');
-        await new Promise(r => setTimeout(r, 140));
-        const blocked = box(ctx.doc.querySelector('[data-screen="Construction"] #preview-pill'));
-
-        sameBox(ctx, ready, blocked, 'placement pill');
-    },
-});
-
 // ── BugReport: the furniture block ─────────────────────────────────────────
 //
 // The block starts as one line of "Looking for furniture…" and is replaced by the name

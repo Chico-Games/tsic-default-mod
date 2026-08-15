@@ -174,20 +174,6 @@ TSICTestHarness.register({
     },
 });
 
-// ---- UI.Construction.GraphChanged -------------------------------------
-TSICTestHarness.register({
-    name: 'Channels/Construction.GraphChanged: page survives a graph payload',
-    tags: ['channel', 'construction'],
-    file: '/screens/construction.html',
-    async run(ctx) {
-        ctx.inject('tsic.msg.UI.Construction.GraphChanged', {
-            Entities: [{ EntityId: 1, DefId: 'FD_Table', Position: { X: 0, Y: 0, Z: 0 } }],
-        });
-        await new Promise(r => setTimeout(r, 60));
-        ctx.expect(ctx.assert.truthy(true));
-    },
-});
-
 // ---- UI.MainMenu.Panel ------------------------------------------------
 TSICTestHarness.register({
     name: 'Channels/MainMenu.Panel: page receives panel updates',

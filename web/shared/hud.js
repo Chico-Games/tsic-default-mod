@@ -14,7 +14,8 @@
 //   hud-circular-progress.js — throw-charge / timed-ability progress ring
 //   hud-interaction.js  — interaction prompt label
 //   hud-behavior-bar.js — gameplay behavior bar (System A)
-//   hud-construction-carousel.js — construction build strip (bottom-centre)
+//   hud-construction-preview.js — build-mode placement readout (top-centre)
+//   hud-menu-action-bar.js — menu behavior bar (System B; every screen, not just InGame)
 //   hud-minimap.js      — minimap (fixed-zoom, player-tracking)
 //   hud-chunk-debug.js  — chunk debug overlay (dev)
 //   hud-hotbar.js       — bottom-centre hotbar shelf
@@ -366,6 +367,9 @@
     ensureCornerStack();
     loadScript('/shared/hud-toast.js');
     loadScript('/shared/hud-notifications.js');
+    // The menu action bar belongs to whichever menu is open, which includes the
+    // unmigrated pages that are their own document — so it loads before the InGame gate.
+    loadScript('/shared/hud-menu-action-bar.js');
 
     // The rest of the HUD chrome is InGame only.
     if (!isInGameScreen()) return;
@@ -413,7 +417,7 @@
     loadScript('/shared/hud-interaction.js');
     loadScript('/shared/hud-upgrade.js');      // hammer look-at upgrade cost readout
     loadScript('/shared/hud-behavior-bar.js');
-    loadScript('/shared/hud-construction-carousel.js');
+    loadScript('/shared/hud-construction-preview.js');
     loadScript('/shared/hud-minimap.js');
     loadScript('/shared/hud-chunk-debug.js');
     loadScript('/shared/hud-hotbar.js');

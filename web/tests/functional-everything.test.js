@@ -105,45 +105,6 @@ TSICTestHarness.register({
     },
 });
 
-// ---- Construction: deconstruct -----------------------------------------
-TSICTestHarness.register({
-    name: 'Construction: deconstruct button publishes',
-    file: '/screens/construction.html',
-    async run(ctx) {
-        await ctx.waitFor(() => ctx.doc.getElementById('btn-deconstruct'));
-        ctx.clearPublishes();
-        ctx.doc.getElementById('btn-deconstruct').click();
-        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Construction.Deconstruct'));
-    },
-});
-
-// ---- Construction: cancel button publishes -----------------------------
-TSICTestHarness.register({
-    name: 'Construction: cancel button publishes',
-    file: '/screens/construction.html',
-    async run(ctx) {
-        await ctx.waitFor(() => ctx.doc.getElementById('btn-cancel'));
-        ctx.clearPublishes();
-        ctx.doc.getElementById('btn-cancel').click();
-        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Construction.Cancel'));
-    },
-});
-
-// ---- ConstructionCarousel: edge case empty arrays ----------------------
-TSICTestHarness.register({
-    name: 'ConstructionCarousel: prev=[] next=[] current only',
-    file: '/screens/construction-carousel.html',
-    async run(ctx) {
-        ctx.inject('tsic.msg.UI.Construction.Carousel', {
-            bActive: true,
-            Prev: [], Current: { FurnitureId: 'X', Label: 'X', bAffordable: true }, Next: [],
-            RotationAxis: '', BlockedReason: '',
-        });
-        await ctx.waitFor(() => ctx.doc.querySelectorAll('#cc-row .cc-slot').length === 1);
-        ctx.expect(ctx.assert.domCount(ctx.doc, '#cc-row .cc-slot.current', 1));
-    },
-});
-
 // ---- Map: ping cross rendering -----------------------------------------
 
 // ---- Notifications: missing icon falls back gracefully -----------------

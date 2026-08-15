@@ -125,14 +125,3 @@ TSICTestHarness.register(Object.assign({
     },
 }, focusOpts()));
 
-TSICTestHarness.register(Object.assign({
-    name: 'Focus/Construction: reachable + groups mutually reachable',
-    file: '/screens/construction.html',
-    async run(ctx) {
-        ctx.inject('tsic.msg.UI.Construction.Available', { Items: [
-            { Id: 'wall',  Name: 'Wall',  Category: 'Walls', Cost: [] },
-            { Id: 'floor', Name: 'Floor', Category: 'Floors', Cost: [] },
-        ] });
-        await TSICTestHarness.fx.runReachability(ctx);
-    },
-}, focusOpts()));

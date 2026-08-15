@@ -24,6 +24,16 @@
       text-transform: uppercase;
       color: var(--ink-soft);
     }
+    /* Real load progress from UI.Loading.Progress. The flavour line above is
+       deliberately fictional, so this bar is the only honest signal on the page:
+       without it a long world-gen is indistinguishable from a hang. Hidden until
+       the first payload arrives, so a load that reports nothing shows no bar
+       rather than an empty one stuck at zero. */
+    .loading-progress { margin: 14px auto 0; width: 260px; height: 6px;
+      border: 1px solid var(--ink-soft, #6b6250); background: rgba(0,0,0,0.08); }
+    .loading-progress[hidden] { display: none; }
+    .loading-progress-fill { height: 100%; width: 0%; background: var(--ink-soft, #6b6250);
+      transition: width 120ms linear; }
     .loading-dots > span { display: inline-block; opacity: 0; }
     .loading-dots > span:nth-child(1) { animation: tsic-loading-dot-1 1.4s infinite; }
     .loading-dots > span:nth-child(2) { animation: tsic-loading-dot-2 1.4s infinite; }
@@ -58,6 +68,10 @@
       </div>
       <div class="loading-body">
         <span id="loading-status">Loading</span><span class="loading-dots" aria-hidden="true"><span>.</span><span>.</span><span>.</span></span>
+        <div id="loading-progress" class="loading-progress" role="progressbar"
+             aria-valuemin="0" aria-valuemax="100" hidden>
+          <div id="loading-progress-fill" class="loading-progress-fill"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -131,6 +145,18 @@
       (function boot() {
         if (!window.tsic || typeof tsic.bootMenu !== 'function') { setTimeout(boot, 16); return; }
         tsic.bootMenu(function () {}, { escape: false, closeButton: false });
+        // UScpLoadingScreenSubsystem aggregates every active load reason and reports
+        // the top one's fraction. The Label is ignored on purpose - the flavour line
+        // owns the text - but the fraction is real.
+        const bar  = document.getElementById('loading-progress');
+        const fill = document.getElementById('loading-progress-fill');
+        tsic.on('tsic.msg.UI.Loading.Progress', function (p) {
+          if (!bar || !fill || !p || typeof p.Progress !== 'number') return;
+          const pct = Math.max(0, Math.min(100, Math.round(p.Progress * 100)));
+          bar.hidden = false;
+          bar.setAttribute('aria-valuenow', String(pct));
+          fill.style.width = pct + '%';
+        });
       })();
     })();
   </script>

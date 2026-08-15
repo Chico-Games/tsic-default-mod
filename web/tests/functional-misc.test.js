@@ -51,17 +51,6 @@ TSICTestHarness.register({
     },
 });
 
-// ---- ConstructionCarousel ---------------------------------------------
-TSICTestHarness.register({
-    name: 'ConstructionCarousel: no-data payload clears the strip',
-    file: '/screens/construction-carousel.html',
-    async run(ctx) {
-        ctx.inject('tsic.msg.UI.Construction.Carousel', null);
-        await new Promise(r => setTimeout(r, 60));
-        ctx.expect(ctx.assert.domCount(ctx.doc, '#cc-row .cc-slot', 0));
-    },
-});
-
 // ---- CircularProgress -------------------------------------------------
 TSICTestHarness.register({
     name: 'CircularProgress: --cp-p CSS var reflects percent',

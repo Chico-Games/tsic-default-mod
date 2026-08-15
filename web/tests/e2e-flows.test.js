@@ -120,7 +120,7 @@ TSICTestHarness.register({
 
 // ---- Universal Storage setup → create group → link ----------------------
 TSICTestHarness.register({
-    name: 'E2E/UniversalStorageSetup: create new -> name modal -> link',
+    name: 'E2E/UniversalStorageSetup: create new -> name modal -> create binds the container',
     file: '/screens/universal-storage-setup.html?entityId=99',
     async run(ctx) {
         ctx.inject('tsic.msg.UI.UniversalStorage.Groups', { GroupNames: [] });
@@ -132,8 +132,9 @@ TSICTestHarness.register({
         ctx.doc.querySelector('button#uss-create-confirm').click();
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.UniversalStorage.CreateGroup',
             { where: p => p.GroupName === 'Lab' }));
-        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.UniversalStorage.LinkGroup',
-            { where: p => p.GroupName === 'Lab' && p.EntityId === 99 }));
+        // Creating already binds the container, so a second LinkGroup for the same name
+        // would be a duplicate bind of the same entity.
+        ctx.expect(ctx.assert.notPublished(ctx.handle, 'UI.Cmd.UniversalStorage.LinkGroup'));
     },
 });
 
@@ -236,25 +237,6 @@ TSICTestHarness.register({
         await ctx.waitFor(() => /Axe/.test(ctx.doc.getElementById('inv-info').textContent));
         ctx.expect(ctx.assert.domText(ctx.doc, '#inv-info', /Axe/));
         ctx.expect(ctx.assert.domText(ctx.doc, '#inv-info', /WEIGHT/));
-    },
-});
-
-// ---- Construction → place flow ---------------------------------------
-TSICTestHarness.register({
-    name: 'E2E/Construction: select item → preview state → confirm publishes',
-    file: '/screens/construction.html',
-    async run(ctx) {
-        ctx.inject('tsic.msg.UI.Construction.Available', {
-            Items: [{ EntityDefId: 'FD_Table', Name: 'Table', Category: 'Furniture', bAffordable: true }],
-        });
-        await ctx.waitFor(() => ctx.doc.querySelector('#items .c-row'));
-        ctx.doc.querySelector('#items .c-row').click();
-        await new Promise(r => setTimeout(r, 30));
-        ctx.inject('tsic.msg.UI.Construction.PreviewState', { bCanPlace: true, RotationAxis: 'Z' });
-        await new Promise(r => setTimeout(r, 30));
-        ctx.clearPublishes();
-        ctx.doc.getElementById('btn-confirm').click();
-        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Construction.Confirm'));
     },
 });
 

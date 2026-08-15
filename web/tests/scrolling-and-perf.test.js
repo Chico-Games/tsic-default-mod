@@ -173,21 +173,6 @@ TSICTestHarness.register({
     },
 });
 
-// ---- Construction: 100-item list with category tabs --------------------
-TSICTestHarness.register({
-    name: 'Perf/Construction: 100 items + 5 categories renders',
-    tags: ['perf', 'construction'],
-    file: '/screens/construction.html',
-    async run(ctx) {
-        const cats = ['Furniture','Structure','Storage','Decoration','Lighting'];
-        const items = [];
-        for (let i = 0; i < 100; i++) items.push({ EntityDefId: 'FD_' + i, Name: 'x' + i, Category: cats[i % 5], bAffordable: i % 2 === 0 });
-        ctx.inject('tsic.msg.UI.Construction.Available', { Items: items });
-        await ctx.waitFor(() => ctx.doc.querySelectorAll('#items .c-row').length === 100, { timeout: 2000 });
-        ctx.expect(ctx.assert.eq(ctx.doc.querySelectorAll('#c-tabs .tsic-tab').length, 6));  // All + 5 categories
-    },
-});
-
 // ---- Detection: many enemies + high mist -----------------------------
 TSICTestHarness.register({
     name: 'Perf/Detection: 30 enemies at varying scores still renders all threats',
