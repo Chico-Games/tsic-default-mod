@@ -1,9 +1,19 @@
 {
   "id": "FD_AisleSign_PlantsAndSeeds",
   "asset_path": "/Game/Furniture/Signs/Furniture/FD_AisleSign_PlantsAndSeeds",
-  "class": "UFurnitureDefinition",
+  "class": "UDamageableFurnitureDefinition",
   "schema_version": 2,
   "properties": {
+    "starting_health": 120,
+    "furniture_armour": 2,
+    "loot_dropped_on_death": [
+      "LD_MetalFloorSignsLoots"
+    ],
+    "deconstruction_tier": 0,
+    "is_draggable": false,
+    "drag_tier": 0,
+    "constructable_item_to_grant": null,
+    "upgrade_recipe": null,
     "display_name": "Plants & Seeds This Aisle",
     "level": 1,
     "default_world_gen_gameplay_tags": [],
