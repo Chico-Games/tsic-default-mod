@@ -915,14 +915,11 @@
     },
     "enemy_definitions": {
       "ED_BoneHead": "/Game/Characters/Enemies/BoneHead/ED_BoneHead",
-      "ED_Chef": "/Game/Characters/Enemies/Chef/ED_Chef",
-      "ED_FlyingDrone": "/Game/Characters/Enemies/FlyingDrone/ED_FlyingDrone",
       "ED_Gardener": "/Game/Characters/Enemies/Gardener/ED_Gardener",
       "ED_HeavyStaff": "/Game/Characters/Enemies/HeavyStaff/ED_HeavyStaff",
       "ED_Janitor": "/Game/Characters/Enemies/Janitor/ED_Janitor",
       "ED_LivingMannequin": "/Game/Characters/Enemies/LivingMannequin/ED_LivingMannequin",
       "ED_MaleStaff": "/Game/Characters/Enemies/MaleStaff/ED_MaleStaff",
-      "ED_SunPillow": "/Game/Characters/Enemies/SunPillow/ED_SunPillow",
       "ED_TVHead": "/Game/Characters/Enemies/TVHead/ED_TVHead"
     },
     "enemy_spawn_parameter_definitions": {

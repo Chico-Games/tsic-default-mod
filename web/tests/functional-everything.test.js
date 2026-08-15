@@ -362,8 +362,39 @@ TSICTestHarness.register({
         await new Promise(r => setTimeout(r, 60));
         ctx.inject('tsic.msg.UI.Ping.Set', { Pings: [{ PingId: 'p1', PingType: 'Map', Location: { X: 0, Y: 0, Z: 0 }, OwnerId: 'X' }] });
         await new Promise(r => setTimeout(r, 60));
-        // Two flashes should have appeared at least briefly. Page removes them on a timer.
-        ctx.expect(ctx.assert.truthy(true));
+        // Two flashes, one per arrival. This used to assert truthy(true), which passed
+        // whether or not the page had forgotten the removed id.
+        ctx.expect(ctx.assert.domCount(ctx.doc, '#pm-root .pm-flash', 2));
+    },
+});
+
+// ---- Ping wheel: the marker goes where the player is looking ------------
+TSICTestHarness.register({
+    name: 'PingWheel: a wedge asks the game to trace the aim',
+    file: '/screens/in-game.html',
+    async run(ctx) {
+        await ctx.waitFor(() => ctx.doc.getElementById('ping-wheel'));
+        // The wheel only takes pointer input while the HUD reveals it.
+        ctx.doc.body.classList.add('hud-show-ping');
+        await new Promise(r => setTimeout(r, 60));
+
+        const wheel = ctx.doc.getElementById('ping-wheel');
+        const rect = wheel.getBoundingClientRect();
+        ctx.expect(ctx.assert.truthy(rect.width > 0, 'the wheel has to be laid out to be clickable'));
+
+        // Straight up from the hub is the first wedge; well outside the dead zone.
+        const x = rect.left + rect.width / 2;
+        const y = rect.top + rect.height / 2 - rect.height * 0.34;
+
+        ctx.clearPublishes();
+        ctx.doc.getElementById('ping-shell').dispatchEvent(
+            new ctx.win.PointerEvent('pointerdown', { clientX: x, clientY: y, bubbles: true }));
+
+        // The wheel names the kind and nothing else — it used to send a literal
+        // { X:0, Y:0, Z:0 }, which planted every marker it placed on the world origin.
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Ping.Request', {
+            where: p => p.bUseAimTrace === true && p.Location === undefined,
+        }));
     },
 });
 

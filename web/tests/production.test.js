@@ -542,3 +542,90 @@ TSICTestHarness.register({
         ctx.expect(ctx.assert.eq(ctx.doc.querySelectorAll('#p-list .tsic-list-row').length, 0));
     },
 });
+
+// ---- Containment cage credit buffer -------------------------------------
+// A cage shares this screen (it is a production-station subclass), but its finished
+// research credits go into a buffer on the cage rather than to the player. Nothing
+// drained that buffer and no screen showed it, so the whole containment loop paid
+// out nothing (#278). The block must stay invisible at every other station.
+
+TSICTestHarness.register({
+    name: 'Production/Cage: no credit block until a cage buffer arrives',
+    file: '/screens/production.html',
+    async run(ctx) {
+        ctx.screen('Production');
+        ctx.inject('tsic.msg.UI.Recipe.StationOpened', {
+            Kind: 'Production', StationId: 'S_Sawmill', Recipes: [], MaterialCounts: {},
+        });
+        await new Promise(r => setTimeout(r, 100));
+        ctx.expect(ctx.assert.eq(ctx.doc.querySelector('#p-cage').className, ''));
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Production/Cage: buffered credits render and Collect publishes for the station',
+    file: '/screens/production.html',
+    async run(ctx) {
+        ctx.screen('Production');
+        ctx.inject('tsic.msg.UI.Recipe.StationOpened', {
+            Kind: 'Production', StationId: 'S_Cage', Recipes: [], MaterialCounts: {},
+        });
+        ctx.inject('tsic.msg.UI.Cage.Buffer', {
+            StationId: 'S_Cage', MaxStacks: 5, bIsFull: false,
+            Stacks: [
+                { ItemId: 'ID_ResearchCreditT1_CM', Count: 2 },
+                { ItemId: 'ID_ResearchCreditT2_CM', Count: 1 },
+            ],
+        });
+        await ctx.waitFor(() => ctx.doc.querySelectorAll('#p-cage .cage-stack').length === 2);
+        ctx.expect(ctx.assert.eq(ctx.doc.querySelector('#p-cage').className, 'on'));
+        ctx.expect(ctx.assert.eq(ctx.doc.querySelector('#p-cage-collect').disabled, false));
+
+        ctx.clearPublishes();
+        ctx.doc.querySelector('#p-cage-collect').click();
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Cage.Collect',
+            { where: p => p.StationId === 'S_Cage' }));
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Production/Cage: an empty buffer shows the block but refuses Collect',
+    file: '/screens/production.html',
+    async run(ctx) {
+        ctx.screen('Production');
+        ctx.inject('tsic.msg.UI.Recipe.StationOpened', {
+            Kind: 'Production', StationId: 'S_Cage', Recipes: [], MaterialCounts: {},
+        });
+        ctx.inject('tsic.msg.UI.Cage.Buffer', {
+            StationId: 'S_Cage', MaxStacks: 5, bIsFull: false, Stacks: [],
+        });
+        await ctx.waitFor(() => ctx.doc.querySelector('#p-cage').className === 'on');
+        ctx.expect(ctx.assert.eq(ctx.doc.querySelector('#p-cage-collect').disabled, true));
+        ctx.clearPublishes();
+        ctx.doc.querySelector('#p-cage-collect').click();
+        ctx.expect(ctx.assert.notPublished(ctx.handle, 'UI.Cmd.Cage.Collect'));
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Production/Cage: a full buffer says containment is paused',
+    file: '/screens/production.html',
+    async run(ctx) {
+        ctx.screen('Production');
+        ctx.inject('tsic.msg.UI.Recipe.StationOpened', {
+            Kind: 'Production', StationId: 'S_Cage', Recipes: [], MaterialCounts: {},
+        });
+        ctx.inject('tsic.msg.UI.Cage.Buffer', {
+            StationId: 'S_Cage', MaxStacks: 2, bIsFull: true,
+            Stacks: [
+                { ItemId: 'ID_ResearchCreditT1_CM', Count: 1 },
+                { ItemId: 'ID_ResearchCreditT1_CM', Count: 1 },
+            ],
+        });
+        await ctx.waitFor(() => ctx.doc.querySelectorAll('#p-cage .cage-stack').length === 2);
+        // The cage stops accepting captures when full and nothing else on the screen says so.
+        ctx.expect(ctx.assert.truthy(
+            ctx.doc.querySelector('#p-cage-note').textContent.includes('paused'),
+            'a full cage must explain why it stopped containing'));
+    },
+});

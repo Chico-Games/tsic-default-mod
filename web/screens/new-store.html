@@ -69,6 +69,14 @@
       font-style: italic;
     }
 
+    /* Seed field — same ink chip as the dropdown, but paper so it reads as typable. */
+    #seed-input {
+      width: 100%;
+      box-sizing: border-box;
+      text-transform: uppercase;
+    }
+    #seed-input[data-tsic-focused] { border-color: var(--mag-red); }
+
     /* Two-pane mod picker. */
     .mods-split { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .mods-panel {
@@ -174,6 +182,12 @@
           <span class="tsic-dropdown-caret" aria-hidden="true">▼</span>
         </button>
         <span class="ns-hint">Choose which map to play on.</span>
+
+        <label class="ns-label" for="seed-input">Seed</label>
+        <input class="tsic-input" id="seed-input" type="text" maxlength="32"
+               autocomplete="off" spellcheck="false"
+               placeholder="Leave blank for a random store" data-tsic-focusable>
+        <span class="ns-hint">The same seed always builds the same store — share it to play someone else's.</span>
 
         <label class="ns-label">Active Mods</label>
         <div class="mods-split">
@@ -365,11 +379,14 @@
           tsic.onClick('#btn-create',   () => {
             if (!selectedLayout) return;
             const enabledMods = mods.filter(m => m.bEnabled).map(m => m.ModId);
+            const seedEl = document.getElementById('seed-input');
             // StoreName / PlayerName left empty — C++ auto-generates "Store N" + "Owner".
+            // Seed is sent as typed; blank means "roll one" on the C++ side.
             tsic.publishMessage('UI.Cmd.Menu.StartGame', {
               StoreName: '',
               PlayerName: '',
               LayoutId: selectedLayout,
+              Seed: seedEl ? seedEl.value.trim() : '',
               EnabledMods: enabledMods,
               LoadOrder: order,
             });

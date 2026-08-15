@@ -42,6 +42,17 @@
     [data-screen="Production"] .q-entry.is-done:hover, [data-screen="Production"] .q-entry.is-done[data-tsic-focused] { background: rgba(127,255,174,0.18); }
     [data-screen="Production"] .q-entry.is-done .q-bar > div { background:#7fffae; }
     [data-screen="Production"] .q-count { font-weight:700; font-size:11px; color:rgba(47,43,34,0.75); }
+    /* Containment-cage credit buffer. Hidden entirely at every other station — the block
+       only exists once the server answers with a cage snapshot. */
+    [data-screen="Production"] #p-cage { display:none; flex:0 0 auto; }
+    [data-screen="Production"] #p-cage.on { display:block; }
+    [data-screen="Production"] #p-cage-list { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:6px; }
+    [data-screen="Production"] .cage-stack { display:flex; align-items:center; gap:4px; padding:3px 6px; font-size:11px; background: rgba(241,229,207,0.55); border:1px solid var(--tsic-border); }
+    [data-screen="Production"] .cage-stack .icon { width:20px; height:20px; flex:0 0 auto; }
+    [data-screen="Production"] .cage-stack .icon img { width:100%; height:100%; object-fit:contain; }
+    [data-screen="Production"] #p-cage-collect { width:100%; padding:6px; }
+    [data-screen="Production"] #p-cage-collect:disabled { color:rgba(47,43,34,0.4); background:rgba(241,229,207,0.4); cursor:not-allowed; }
+    [data-screen="Production"] #p-cage-note { font-size:10px; color:rgba(47,43,34,0.7); margin-top:4px; }
   `;
 
   const TEMPLATE = `
@@ -61,6 +72,12 @@
             <div class="tsic-eyebrow">Details</div>
             <div id="p-info"></div>
             <button id="p-add" class="tsic-button" disabled>Add to Queue</button>
+            <div id="p-cage">
+              <div class="tsic-eyebrow" style="margin-top:6px;">Research Credits</div>
+              <div id="p-cage-list"></div>
+              <button id="p-cage-collect" class="tsic-button" disabled>Collect</button>
+              <div id="p-cage-note"></div>
+            </div>
             <div class="tsic-eyebrow" style="margin-top:6px;">Queue</div>
             <div id="p-queue" class="tsic-list-pane"></div>
           </div>
@@ -103,6 +120,11 @@
       // Refilled on every QueueChanged rebuild — stale refs from prior renders
       // are dropped with the map.
       let barByIndex = new Map();
+      // Containment cages redirect their finished credits into a buffer on the cage instead
+      // of the collecting player's inventory. That buffer is server-only state on a
+      // non-replicating actor, so it arrives as a pushed UI.Cage.Buffer snapshot rather than
+      // being readable here; null means "this station is not a cage".
+      let cageBuffer = null;
 
       function renderList() {
         const host = root.querySelector('#p-list');
@@ -343,13 +365,52 @@
         window.TSICRecipeInfo.render(host, recipe, materialCounts);
         btn.disabled = !window.TSICRecipeInfo.canCraft(recipe, materialCounts);
       }
-      function renderAll() { renderList(); renderQueue(); renderInfo(); }
+      function renderCage() {
+        const host = root.querySelector('#p-cage');
+        const list = root.querySelector('#p-cage-list');
+        const btn = root.querySelector('#p-cage-collect');
+        const note = root.querySelector('#p-cage-note');
+        if (!cageBuffer) {
+          host.className = '';
+          return;
+        }
+        host.className = 'on';
+
+        const stacks = cageBuffer.Stacks || [];
+        list.innerHTML = '';
+        if (stacks.length === 0) {
+          list.appendChild(TSIC.el('div', { class: 'tsic-empty' }, 'Nothing contained yet.'));
+        }
+        for (const s of stacks) {
+          const row = TSIC.el('div', { class: 'cage-stack' });
+          const iconWrap = TSIC.el('div', { class: 'icon' });
+          iconWrap.appendChild(TSIC.iconImg(TSIC.itemIconUrl(s.ItemId || '')));
+          row.appendChild(iconWrap);
+          const catalogued = ((window.tsic && window.tsic.itemCatalog) || {})[s.ItemId] || {};
+          row.appendChild(TSIC.el('span', {},
+            catalogued.Name || TSIC.prettifyDefinitionName(s.ItemId || '')));
+          row.appendChild(TSIC.el('span', { class: 'q-count' }, `×${s.Count || 0}`));
+          list.appendChild(row);
+        }
+
+        btn.disabled = stacks.length === 0;
+        // A full cage has stopped working, and nothing else on the screen says so — the
+        // Contain button simply refuses. Name the reason where the fix (collect) is.
+        note.textContent = cageBuffer.bIsFull
+          ? `Full (${stacks.length}/${cageBuffer.MaxStacks || 0}) — containment is paused until these are collected.`
+          : '';
+      }
+
+      function renderAll() { renderList(); renderQueue(); renderInfo(); renderCage(); }
 
       (function waitForDeps() {
         if (!window.TSICRecipeInfo) { setTimeout(waitForDeps, 16); return; }
 
         ctx.on('tsic.msg.UI.Recipe.StationOpened', (p) => {
           if (!p || p.Kind !== 'Production') return;
+          // Drop the previous station's credit buffer before anything renders — a cage's
+          // credits must never show up on the next machine the player opens.
+          if (stationId !== p.StationId) cageBuffer = null;
           stationId = p.StationId;
           lastStation = p;
           materialCounts = p.MaterialCounts || {};
@@ -386,6 +447,12 @@
         ctx.on('tsic.msg.UI.Recipe.Completed', (p) => {
           if (p && p.Kind === 'Production') window.tsic.playSound && window.tsic.playSound('Recipe.Completed');
         });
+        ctx.on('tsic.msg.UI.Cage.Buffer', (p) => {
+          if (!p) return;
+          if (stationId && p.StationId !== stationId) return;
+          cageBuffer = p;
+          if (ctx.isVisible()) renderCage();
+        });
         window.addEventListener('tsic-item-catalog', () => { if (ctx.isVisible()) renderAll(); });
 
         root.querySelector('#p-add').addEventListener('click', () => {
@@ -396,6 +463,13 @@
           // same moment as Recipe.Added — stacking both double-triggers. Left
           // unwired deliberately; see the audio audit.
           window.tsic.playSound && window.tsic.playSound('Recipe.Added');
+        });
+        root.querySelector('#p-cage-collect').addEventListener('click', () => {
+          if (!cageBuffer || (cageBuffer.Stacks || []).length === 0) return;
+          // The server drains what fits and pushes a fresh snapshot back either way, so a
+          // full bag leaves the rows visible rather than looking like a silent success.
+          ctx.publish('UI.Cmd.Cage.Collect', { StationId: stationId });
+          window.tsic.playSound && window.tsic.playSound('Production.Collect', 0.5);
         });
         root.querySelector('#btn-close').addEventListener('click', () => {
           ctx.publish('UI.Cmd.Pause.Resume');

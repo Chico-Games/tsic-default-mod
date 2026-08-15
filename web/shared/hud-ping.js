@@ -5,7 +5,11 @@
 // only shows it on demand; the combined preview's "Ping wheel" toggle flips
 // that class. Mirrors screens/ping.html (the standalone modal screen).
 //
-// Publishes: UI.Cmd.Ping.Request { PingType, Location }
+// Publishes: UI.Cmd.Ping.Request { PingType, bUseAimTrace: true }
+//
+// The wheel picks the KIND of ping only — it has no idea where the player is
+// looking, so it asks the game to trace that itself. It used to send a literal
+// { X:0, Y:0, Z:0 }, which planted every marker it placed on the world origin.
 (function () {
   const SVGNS = 'http://www.w3.org/2000/svg';
   const SIZE = 360, C = 180, R_OUT = 168, R_IN = 78, GAP = 2.6;
@@ -101,7 +105,7 @@
 
   function publish(type) {
     if (window.tsic && window.tsic.publishMessage) {
-      tsic.publishMessage('UI.Cmd.Ping.Request', { PingType: type, Location: { X: 0, Y: 0, Z: 0 } });
+      tsic.publishMessage('UI.Cmd.Ping.Request', { PingType: type, bUseAimTrace: true });
     }
     if (window.tsic && window.tsic.playSound) tsic.playSound('Ping.Confirm', 0.45);
   }

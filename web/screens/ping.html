@@ -196,8 +196,8 @@
       const SPAN = 360 / N;
 
       function publish(type) {
-        // Location is a placeholder; gameplay overrides with the look-at hit.
-        tsic.publishMessage('UI.Cmd.Ping.Request', { PingType: type, Location: { X: 0, Y: 0, Z: 0 } });
+        // The wheel has no location of its own — gameplay traces the look-at hit.
+        tsic.publishMessage('UI.Cmd.Ping.Request', { PingType: type, bUseAimTrace: true });
       }
 
       function centreDeg(i) { return -90 + i * SPAN; }

@@ -140,6 +140,7 @@
     "Bark.Alert.LostTarget",
     "Bark.Alert.SpottedPlayer",
     "Bark.Alert.Suspicious",
+    "Bark.Behavior.Greeting",
     "Bark.Behavior.Investigating",
     "Bark.Behavior.Patrolling",
     "Bark.Behavior.Searching",
