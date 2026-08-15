@@ -216,8 +216,8 @@ TSICTestHarness.register({
         await new Promise(r => setTimeout(r, 60));
         // The edge vignette opacity ramps with ScreenMist. Assert the element
         // exists and lit up (opacity > 0) and the page survived.
-        ctx.expect(ctx.assert.domExists(ctx.doc, '#vignette'));
-        const op = parseFloat(ctx.doc.getElementById('vignette').style.opacity || '0');
+        ctx.expect(ctx.assert.domExists(ctx.doc, '#hud-detection .dt-vignette'));
+        const op = parseFloat(ctx.doc.querySelector('#hud-detection .dt-vignette').style.opacity || '0');
         ctx.expect(ctx.assert.truthy(op > 0, `expected vignette to light up, opacity=${op}`));
     },
 });

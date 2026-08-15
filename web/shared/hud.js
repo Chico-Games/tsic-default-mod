@@ -22,6 +22,7 @@
 //   hud-screen-fade.js  — full-screen black fade (death sequence)
 //   hud-chat.js         — multiplayer text chat (bottom-left, above the vials)
 //   hud-tutorial.js     — tutorial objectives box (top-right, below the minimap)
+//   hud-detection.js    — directional "you have been spotted" wedges + edge mist
 //
 // The HUD toggle (body.hud-hidden) stays here — it's orchestrator-level
 // since it hides ALL chrome elements at once.
@@ -158,8 +159,8 @@
     'html[data-tsic-reduce-motion] #hud-circular-progress, html[data-tsic-reduce-motion] #hud-crosshair-progress { transition:opacity 140ms ease; transform:none; }',
     'html[data-tsic-reduce-motion] #hud-circular-progress.active, html[data-tsic-reduce-motion] #hud-crosshair-progress.active { transform:none; }',
     'html[data-tsic-reduce-motion] #hud-crosshair-bloom.fire { animation:none; }',
-    'body.hud-hidden #hud-chrome, body.hud-hidden #hud-health, body.hud-hidden #hud-stamina, body.hud-hidden #hud-stomach, body.hud-hidden #hud-conditions, body.hud-hidden #hud-crosshair, body.hud-hidden #hud-crosshair-hand, body.hud-hidden #hud-crosshair-cat, body.hud-hidden #hud-crosshair-progress, body.hud-hidden #hud-crosshair-bloom, body.hud-hidden #hud-circular-progress, body.hud-hidden #bb-shell-gameplay, body.hud-hidden #hud-minimap, body.hud-hidden #hud-chunk-debug, body.hud-hidden #hud-hotbar, body.hud-hidden #ping-shell, body.hud-hidden #hud-low-health, body.hud-hidden #hud-hit-reaction, body.hud-hidden #hud-stealth, body.hud-hidden #hud-sprint-vignette,body.hud-hidden #hud-chat, body.hud-hidden #hud-voice, body.hud-hidden #hud-tutorial { display:none !important; }',
-    'body.hud-hide-health #hud-health, body.hud-hide-stamina #hud-stamina, body.hud-hide-stomach #hud-stomach, body.hud-hide-conditions #hud-conditions, body.hud-hide-crosshair #hud-crosshair, body.hud-hide-crosshair #hud-crosshair-hand, body.hud-hide-crosshair #hud-crosshair-cat, body.hud-hide-crosshair #hud-crosshair-progress, body.hud-hide-crosshair #hud-crosshair-bloom, body.hud-hide-minimap #hud-minimap, body.hud-hide-actionbar #bb-shell-gameplay, body.hud-hide-interaction #interaction-prompt, body.hud-hide-hotbar #hud-hotbar, body.hud-hide-lowhealth #hud-low-health, body.hud-hide-hitreaction #hud-hit-reaction, body.hud-hide-stealth #hud-stealth, body.hud-hide-tutorial #hud-tutorial { display:none !important; }',
+    'body.hud-hidden #hud-chrome, body.hud-hidden #hud-health, body.hud-hidden #hud-stamina, body.hud-hidden #hud-stomach, body.hud-hidden #hud-conditions, body.hud-hidden #hud-crosshair, body.hud-hidden #hud-crosshair-hand, body.hud-hidden #hud-crosshair-cat, body.hud-hidden #hud-crosshair-progress, body.hud-hidden #hud-crosshair-bloom, body.hud-hidden #hud-circular-progress, body.hud-hidden #bb-shell-gameplay, body.hud-hidden #hud-minimap, body.hud-hidden #hud-chunk-debug, body.hud-hidden #hud-hotbar, body.hud-hidden #ping-shell, body.hud-hidden #hud-low-health, body.hud-hidden #hud-hit-reaction, body.hud-hidden #hud-stealth, body.hud-hidden #hud-detection, body.hud-hidden #hud-sprint-vignette,body.hud-hidden #hud-chat, body.hud-hidden #hud-voice, body.hud-hidden #hud-tutorial { display:none !important; }',
+    'body.hud-hide-health #hud-health, body.hud-hide-stamina #hud-stamina, body.hud-hide-stomach #hud-stomach, body.hud-hide-conditions #hud-conditions, body.hud-hide-crosshair #hud-crosshair, body.hud-hide-crosshair #hud-crosshair-hand, body.hud-hide-crosshair #hud-crosshair-cat, body.hud-hide-crosshair #hud-crosshair-progress, body.hud-hide-crosshair #hud-crosshair-bloom, body.hud-hide-minimap #hud-minimap, body.hud-hide-actionbar #bb-shell-gameplay, body.hud-hide-interaction #interaction-prompt, body.hud-hide-hotbar #hud-hotbar, body.hud-hide-lowhealth #hud-low-health, body.hud-hide-hitreaction #hud-hit-reaction, body.hud-hide-stealth #hud-stealth, body.hud-hide-detection #hud-detection, body.hud-hide-tutorial #hud-tutorial { display:none !important; }',
     '#bb-shell-gameplay { position:fixed; bottom:18px; right:24px; min-width:240px; max-width:calc(100vw - 48px); padding:8px 12px; color:#fff; pointer-events:none; z-index:20; font-family:var(--font-body); text-shadow:0 1px 2px rgba(0,0,0,0.75); }',
     '#bb-shell-gameplay.hidden { display:none; }',
     '#bb-gameplay { display:flex; flex-direction:column; align-items:stretch; gap:0; }',
@@ -321,10 +322,14 @@
     document.body.appendChild(el('div', { id: 'hud-hotbar-wheel' }));
 
     // Full-screen overlays — components build their own contents inside.
-    // Sprint comfort vignette lowest (z16, opt-in), stealth shroud above it
-    // (z17), low-health surround above that (z18), hit-reaction on top (z19).
+    // Sprint comfort vignette lowest (z16, opt-in), stealth shroud and the
+    // detection wedges above it (z17), low-health surround above that (z18),
+    // hit-reaction on top (z19). Stealth and detection share a band because
+    // they are mutually exclusive in practice: one says you are hidden, the
+    // other says you have been seen.
     document.body.appendChild(el('div', { id: 'hud-sprint-vignette' }));
     document.body.appendChild(el('div', { id: 'hud-stealth' }));
+    document.body.appendChild(el('div', { id: 'hud-detection' }));
     document.body.appendChild(el('div', { id: 'hud-low-health' }));
     document.body.appendChild(el('div', { id: 'hud-hit-reaction' }));
 
@@ -415,6 +420,7 @@
     loadScript('/shared/hud-hotbar-wheel.js');
     loadScript('/shared/hud-low-health.js');
     loadScript('/shared/hud-stealth.js');
+    loadScript('/shared/hud-detection.js');
     loadScript('/shared/hud-sprint-vignette.js');
     loadScript('/shared/hud-hit-reaction.js');
     loadScript('/shared/hud-ping.js');

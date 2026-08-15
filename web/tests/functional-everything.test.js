@@ -317,7 +317,7 @@ TSICTestHarness.register({
         for (let i = 0; i < 50; i++) enemies.push({ EntityId: i, DetectionScore: 0.05 + Math.random() * 0.95, BearingDeg: i * 7 - 180 });
         ctx.inject('tsic.msg.UI.Detection.State', { Enemies: enemies, ScreenMist: 0.5 });
         await new Promise(r => setTimeout(r, 80));
-        const markers = ctx.doc.querySelectorAll('#threats .arc');
+        const markers = ctx.doc.querySelectorAll('#hud-detection .dt-arc');
         ctx.expect(ctx.assert.truthy(markers.length >= 10, `expected many threat markers, got ${markers.length}`));
     },
 });

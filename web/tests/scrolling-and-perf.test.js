@@ -198,8 +198,8 @@ TSICTestHarness.register({
         // All scores > 0 — a zero-detection enemy correctly paints nothing.
         for (let i = 0; i < 30; i++) enemies.push({ EntityId: i, DetectionScore: 0.05 + (i % 10) / 12, BearingDeg: -180 + i * 12 });
         ctx.inject('tsic.msg.UI.Detection.State', { Enemies: enemies, ScreenMist: 0.8 });
-        await ctx.waitFor(() => ctx.doc.querySelectorAll('#threats .arc').length === 30, { timeout: 1500 });
-        ctx.expect(ctx.assert.domCount(ctx.doc, '#threats .arc', 30));
+        await ctx.waitFor(() => ctx.doc.querySelectorAll('#hud-detection .dt-arc').length === 30, { timeout: 1500 });
+        ctx.expect(ctx.assert.domCount(ctx.doc, '#hud-detection .dt-arc', 30));
     },
 });
 
