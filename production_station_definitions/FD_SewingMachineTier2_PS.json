@@ -11,7 +11,7 @@
     "has_static_audio": false,
     "has_toggled_on_audio": true,
     "toggled_on_audio": {
-      "sound": "Elevator.Moving",
+      "sound": "Furniture.Loop.Machine",
       "volume_multiplier": 0.35,
       "b_looping": true,
       "b_attach_to_entity": true,
