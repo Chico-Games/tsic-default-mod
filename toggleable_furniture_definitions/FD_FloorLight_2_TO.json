@@ -371,7 +371,7 @@
       "Entity.RandomGeneration.FurnitureCategory.DiningRoom",
       "Entity.RandomGeneration.FurnitureCategory.LivingRoom",
       "Entity.RandomGeneration.FurnitureCategory.Office",
-      "Entity.RandomGeneration.FurnitureType.Light.FloorArc",
+      "Entity.RandomGeneration.FurnitureType.Light.Floor",
       "Entity.RandomGeneration.Materials.Electronic",
       "Entity.RandomGeneration.Materials.Glass",
       "Entity.RandomGeneration.Materials.Metal",
