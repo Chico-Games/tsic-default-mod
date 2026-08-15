@@ -48,7 +48,6 @@
       }
     ],
     "description": "An extra-wide industrial shelving unit. Holds 16 items.",
-    "loot_positions": [],
     "world_gen_priority": 1000,
     "drag_mass": 40,
     "gameplay_tags": [],
