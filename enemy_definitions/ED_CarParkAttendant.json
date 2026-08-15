@@ -95,7 +95,6 @@
         }
       }
     ],
-    "token_cost": 1,
-    "shirt_material_slot_index": 1
+    "token_cost": 1
   }
 }
