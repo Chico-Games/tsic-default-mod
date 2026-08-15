@@ -45,6 +45,61 @@ TSICTestHarness.register({
     },
 });
 
+// GH #220. Take All used to be a client-side loop of per-stack QuickMoves, and
+// every way it could fail was silent: it skipped stacks with no grid cell, and
+// QuickMove pre-checks the client's own copy of both holders before sending
+// anything — so on a client whose copy lagged the panel, the button did nothing
+// at all. It is now the same shape as Store All: one server-side op.
+TSICTestHarness.register({
+    name: 'Storage/QoL: Take All publishes ONE server-side op, not a QuickMove burst',
+    file: '/screens/storage.html',
+    async run(ctx) {
+        ssSeed(ctx, {
+            container: {
+                Items: [
+                    { ItemId: 'ID_Wood', Count: 4, InstanceId: 1, GridSlot: 0 },
+                    { ItemId: 'ID_Iron', Count: 2, InstanceId: 2, GridSlot: 5 },
+                    // Parked overflow: no grid cell. The old loop dropped these.
+                    { ItemId: 'ID_Wood', Count: 9, InstanceId: 3, GridSlot: -1 },
+                ],
+            },
+        });
+        await ctx.waitFor(() => ctx.doc.querySelector('#ss-take-all'));
+
+        ctx.clearPublishes();
+        ctx.doc.querySelector('#ss-take-all').click();
+
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Inventory.TakeAll', {
+            where: p => p.FromOwnerId === 'Storage:42' && p.ToOwnerId === 'Player',
+        }));
+        ctx.expect(ctx.assert.eq(
+            ctx.publishes().filter(p => p.channel === 'UI.Cmd.Inventory.TakeAll').length, 1,
+            'Take All must publish exactly one op regardless of stack count'));
+        ctx.expect(ctx.assert.eq(
+            ctx.publishes().filter(p => p.channel === 'UI.Cmd.Inventory.QuickMove').length, 0,
+            'Take All must not fall back to per-stack QuickMoves'));
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Storage/QoL: Take All still fires when every stack lacks a grid cell',
+    file: '/screens/storage.html',
+    async run(ctx) {
+        // The old loop filtered on GridSlot >= 0, so a container holding only
+        // parked stacks published nothing whatsoever.
+        ssSeed(ctx, {
+            container: { Items: [{ ItemId: 'ID_Wood', Count: 4, InstanceId: 1, GridSlot: -1 }] },
+        });
+        await ctx.waitFor(() => ctx.doc.querySelector('#ss-take-all'));
+
+        ctx.clearPublishes();
+        ctx.doc.querySelector('#ss-take-all').click();
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Inventory.TakeAll', {
+            where: p => p.FromOwnerId === 'Storage:42' && p.ToOwnerId === 'Player',
+        }));
+    },
+});
+
 TSICTestHarness.register({
     name: 'Storage/QoL: container capacity meter appears only when weight is a hard block',
     file: '/screens/storage.html',

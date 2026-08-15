@@ -202,6 +202,13 @@
         // underneath were always flush.
         '#ss-panel .ss-meter .lab { display:flex; justify-content:space-between; align-items:center; min-height:19px; font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:rgba(37,33,25,0.8); }',
         '#ss-panel .ss-meter .val { font-size:13px; }',
+        // Same reservation as the inventory screen's weight readout: the value sits at the
+        // right of a space-between row, so a readout sized by its digits pushed the yellow
+        // hovered-stack chip up to 42px sideways as items moved. Reserve the widest string,
+        // right-align, tabular figures.
+        '#ss-panel .ss-meter #ss-weight-text, #ss-panel .ss-meter #ss-cweight-text {',
+        '  display:inline-block; min-width:96px; text-align:right; font-variant-numeric:tabular-nums;',
+        '}',
         // Hovered-stack readout, identical to the inventory screen's: the chip's space is
         // ALWAYS reserved (.none only hides it) so the bar never shifts as the cursor moves,
         // and .fillsel is a zero-layout overlay on the fill's right end.
@@ -627,19 +634,23 @@
             }
         }
 
-        // Take All: quick-move every container stack into the player grid —
-        // auto-placed with partials allowed; what doesn't fit stays put.
+        // Take All: one server-side op, like Store All next to it. It used to be
+        // a loop of per-stack QuickMoves, which skipped anything without a grid
+        // cell and — because QuickMove pre-checks the CLIENT's copy of both
+        // holders before it sends anything — could refuse the whole sweep
+        // against data the player could already see, silently (GH #220).
+        // What doesn't fit stays put and the server toasts the shortfall.
         function takeAll() {
             if (!state.containerOwnerId) return;
-            for (const it of state.containerItems) {
-                if (it.GridSlot == null || it.GridSlot < 0) continue;
-                tsic.publishMessage('UI.Cmd.Inventory.QuickMove', {
-                    FromOwnerId: state.containerOwnerId,
-                    ToOwnerId: state.playerOwnerId,
-                    ItemId: it.InstanceId, FromSlot: it.GridSlot,
-                });
-            }
-            if (state.containerItems.length > 0) playTransferSound();
+            // Return the held ghost first, same as Store All — a sweep with a
+            // stack floating on the cursor leaves the ghost pointing at a cell
+            // the server just emptied.
+            window.TSICInventory.cancelHeld();
+            tsic.publishMessage('UI.Cmd.Inventory.TakeAll', {
+                FromOwnerId: state.containerOwnerId,
+                ToOwnerId: state.playerOwnerId,
+            });
+            playTransferSound();
         }
 
         // Store All / Quick Stack. Both are one server-side op rather than a
