@@ -677,8 +677,7 @@
                 "Tile.Offset.Biome.None.Right",
                 "Tile.Offset.Biome.SkyCeiling.Right",
                 "Tile.Offset.Biome.SkyEmpty.Right",
-                "Tile.Offset.Height.-1.Right",
-                "Tile.Offset.Height.-2.Right"
+                "Tile.Offset.HeightDrop.Right"
               ],
               "b_not": true
             },
@@ -801,8 +800,7 @@
                 "Tile.Offset.Biome.None.Left",
                 "Tile.Offset.Biome.SkyCeiling.Left",
                 "Tile.Offset.Biome.SkyEmpty.Left",
-                "Tile.Offset.Height.-1.Left",
-                "Tile.Offset.Height.-2.Left"
+                "Tile.Offset.HeightDrop.Left"
               ],
               "b_not": true
             },
@@ -1023,8 +1021,7 @@
                 "Tile.Offset.Biome.None.Left",
                 "Tile.Offset.Biome.SkyCeiling.Left",
                 "Tile.Offset.Biome.SkyEmpty.Left",
-                "Tile.Offset.Height.-1.Left",
-                "Tile.Offset.Height.-2.Left"
+                "Tile.Offset.HeightDrop.Left"
               ],
               "b_not": true
             },
@@ -1104,8 +1101,7 @@
                 "Tile.Offset.Biome.None.Left",
                 "Tile.Offset.Biome.SkyCeiling.Left",
                 "Tile.Offset.Biome.SkyEmpty.Left",
-                "Tile.Offset.Height.-1.Left",
-                "Tile.Offset.Height.-2.Left"
+                "Tile.Offset.HeightDrop.Left"
               ],
               "b_not": true
             },

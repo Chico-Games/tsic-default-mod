@@ -427,8 +427,7 @@
                 "Tile.Offset.Biome.None.Down",
                 "Tile.Offset.Biome.SkyCeiling.Down",
                 "Tile.Offset.Biome.SkyEmpty.Down",
-                "Tile.Offset.Height.-1.Down",
-                "Tile.Offset.Height.-2.Down"
+                "Tile.Offset.HeightDrop.Down"
               ],
               "b_not": true
             },
@@ -506,8 +505,7 @@
                 "Tile.Offset.Biome.None.Left",
                 "Tile.Offset.Biome.SkyCeiling.Left",
                 "Tile.Offset.Biome.SkyEmpty.Left",
-                "Tile.Offset.Height.-1.Left",
-                "Tile.Offset.Height.-2.Left"
+                "Tile.Offset.HeightDrop.Left"
               ],
               "b_not": true
             },
@@ -587,8 +585,7 @@
                 "Tile.Offset.Biome.None.Left",
                 "Tile.Offset.Biome.SkyCeiling.Left",
                 "Tile.Offset.Biome.SkyEmpty.Left",
-                "Tile.Offset.Height.-1.Left",
-                "Tile.Offset.Height.-2.Left"
+                "Tile.Offset.HeightDrop.Left"
               ],
               "b_not": true
             },
@@ -656,8 +653,7 @@
                 "Tile.Offset.Biome.None.Down",
                 "Tile.Offset.Biome.SkyCeiling.Down",
                 "Tile.Offset.Biome.SkyEmpty.Down",
-                "Tile.Offset.Height.-1.Down",
-                "Tile.Offset.Height.-2.Down"
+                "Tile.Offset.HeightDrop.Down"
               ],
               "b_not": true
             },
@@ -790,8 +786,7 @@
                 "Tile.Offset.Biome.None.Left",
                 "Tile.Offset.Biome.SkyCeiling.Left",
                 "Tile.Offset.Biome.SkyEmpty.Left",
-                "Tile.Offset.Height.-1.Left",
-                "Tile.Offset.Height.-2.Left"
+                "Tile.Offset.HeightDrop.Left"
               ],
               "b_not": true
             },
@@ -914,8 +909,7 @@
                 "Tile.Offset.Biome.None.Left",
                 "Tile.Offset.Biome.SkyCeiling.Left",
                 "Tile.Offset.Biome.SkyEmpty.Left",
-                "Tile.Offset.Height.-1.Left",
-                "Tile.Offset.Height.-2.Left"
+                "Tile.Offset.HeightDrop.Left"
               ],
               "b_not": true
             },
@@ -995,8 +989,7 @@
                 "Tile.Offset.Biome.None.Left",
                 "Tile.Offset.Biome.SkyCeiling.Left",
                 "Tile.Offset.Biome.SkyEmpty.Left",
-                "Tile.Offset.Height.-1.Left",
-                "Tile.Offset.Height.-2.Left"
+                "Tile.Offset.HeightDrop.Left"
               ],
               "b_not": true
             },

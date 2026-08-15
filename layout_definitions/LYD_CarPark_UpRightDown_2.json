@@ -634,8 +634,8 @@
       },
       {
         "layout_actor_type": {
-          "name": "PROXY_ACTOR",
-          "value": 0
+          "name": "LAYOUT",
+          "value": 1
         },
         "b_visual_helper": false,
         "definition_filter": {
@@ -645,7 +645,7 @@
           "spawn_chance_over": 0.0,
           "spawn_chance_under": 0.30000001192092896
         },
-        "furniture_definition": "FD_VendingMachine_DF",
+        "layout_definition": "LYD_VendingMachines_ByDifficulty",
         "transform": {
           "rotation": {
             "x": 0.0,
@@ -667,8 +667,8 @@
       },
       {
         "layout_actor_type": {
-          "name": "PROXY_ACTOR",
-          "value": 0
+          "name": "LAYOUT",
+          "value": 1
         },
         "b_visual_helper": false,
         "definition_filter": {
@@ -678,7 +678,7 @@
           "spawn_chance_over": 0.0,
           "spawn_chance_under": 0.30000001192092896
         },
-        "furniture_definition": "FD_VendingMachine_DF",
+        "layout_definition": "LYD_VendingMachines_ByDifficulty",
         "transform": {
           "rotation": {
             "x": 0.0,
@@ -700,8 +700,8 @@
       },
       {
         "layout_actor_type": {
-          "name": "PROXY_ACTOR",
-          "value": 0
+          "name": "LAYOUT",
+          "value": 1
         },
         "b_visual_helper": false,
         "definition_filter": {
@@ -711,7 +711,7 @@
           "spawn_chance_over": 0.0,
           "spawn_chance_under": 0.30000001192092896
         },
-        "furniture_definition": "FD_VendingMachine_DF",
+        "layout_definition": "LYD_VendingMachines_ByDifficulty",
         "transform": {
           "rotation": {
             "x": 0.0,
@@ -906,8 +906,7 @@
                 "Tile.Offset.Biome.None.Left",
                 "Tile.Offset.Biome.SkyCeiling.Left",
                 "Tile.Offset.Biome.SkyEmpty.Left",
-                "Tile.Offset.Height.-1.Left",
-                "Tile.Offset.Height.-2.Left"
+                "Tile.Offset.HeightDrop.Left"
               ],
               "b_not": true
             },
@@ -985,8 +984,7 @@
                 "Tile.Offset.Biome.None.Left",
                 "Tile.Offset.Biome.SkyCeiling.Left",
                 "Tile.Offset.Biome.SkyEmpty.Left",
-                "Tile.Offset.Height.-1.Left",
-                "Tile.Offset.Height.-2.Left"
+                "Tile.Offset.HeightDrop.Left"
               ],
               "b_not": true
             },
@@ -1066,8 +1064,7 @@
                 "Tile.Offset.Biome.None.Left",
                 "Tile.Offset.Biome.SkyCeiling.Left",
                 "Tile.Offset.Biome.SkyEmpty.Left",
-                "Tile.Offset.Height.-1.Left",
-                "Tile.Offset.Height.-2.Left"
+                "Tile.Offset.HeightDrop.Left"
               ],
               "b_not": true
             },

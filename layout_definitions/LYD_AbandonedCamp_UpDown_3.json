@@ -513,8 +513,7 @@
                 "Tile.Offset.Biome.None.Down",
                 "Tile.Offset.Biome.SkyCeiling.Down",
                 "Tile.Offset.Biome.SkyEmpty.Down",
-                "Tile.Offset.Height.-1.Down",
-                "Tile.Offset.Height.-2.Down"
+                "Tile.Offset.HeightDrop.Down"
               ],
               "b_not": true
             },
@@ -592,8 +591,7 @@
                 "Tile.Offset.Biome.None.Left",
                 "Tile.Offset.Biome.SkyCeiling.Left",
                 "Tile.Offset.Biome.SkyEmpty.Left",
-                "Tile.Offset.Height.-1.Left",
-                "Tile.Offset.Height.-2.Left"
+                "Tile.Offset.HeightDrop.Left"
               ],
               "b_not": true
             },
@@ -673,8 +671,7 @@
                 "Tile.Offset.Biome.None.Left",
                 "Tile.Offset.Biome.SkyCeiling.Left",
                 "Tile.Offset.Biome.SkyEmpty.Left",
-                "Tile.Offset.Height.-1.Left",
-                "Tile.Offset.Height.-2.Left"
+                "Tile.Offset.HeightDrop.Left"
               ],
               "b_not": true
             },
@@ -752,8 +749,7 @@
                 "Tile.Offset.Biome.None.Down",
                 "Tile.Offset.Biome.SkyCeiling.Down",
                 "Tile.Offset.Biome.SkyEmpty.Down",
-                "Tile.Offset.Height.-1.Down",
-                "Tile.Offset.Height.-2.Down"
+                "Tile.Offset.HeightDrop.Down"
               ],
               "b_not": true
             },
@@ -833,8 +829,7 @@
                 "Tile.Offset.Biome.None.Right",
                 "Tile.Offset.Biome.SkyCeiling.Right",
                 "Tile.Offset.Biome.SkyEmpty.Right",
-                "Tile.Offset.Height.-1.Right",
-                "Tile.Offset.Height.-2.Right"
+                "Tile.Offset.HeightDrop.Right"
               ],
               "b_not": true
             },
@@ -912,8 +907,7 @@
                 "Tile.Offset.Biome.None.Down",
                 "Tile.Offset.Biome.SkyCeiling.Down",
                 "Tile.Offset.Biome.SkyEmpty.Down",
-                "Tile.Offset.Height.-1.Down",
-                "Tile.Offset.Height.-2.Down"
+                "Tile.Offset.HeightDrop.Down"
               ],
               "b_not": true
             },
@@ -993,8 +987,7 @@
                 "Tile.Offset.Biome.None.Left",
                 "Tile.Offset.Biome.SkyCeiling.Left",
                 "Tile.Offset.Biome.SkyEmpty.Left",
-                "Tile.Offset.Height.-1.Left",
-                "Tile.Offset.Height.-2.Left"
+                "Tile.Offset.HeightDrop.Left"
               ],
               "b_not": true
             },
@@ -1072,8 +1065,7 @@
                 "Tile.Offset.Biome.None.Left",
                 "Tile.Offset.Biome.SkyCeiling.Left",
                 "Tile.Offset.Biome.SkyEmpty.Left",
-                "Tile.Offset.Height.-1.Left",
-                "Tile.Offset.Height.-2.Left"
+                "Tile.Offset.HeightDrop.Left"
               ],
               "b_not": true
             },
@@ -1153,8 +1145,7 @@
                 "Tile.Offset.Biome.None.Right",
                 "Tile.Offset.Biome.SkyCeiling.Right",
                 "Tile.Offset.Biome.SkyEmpty.Right",
-                "Tile.Offset.Height.-1.Right",
-                "Tile.Offset.Height.-2.Right"
+                "Tile.Offset.HeightDrop.Right"
               ],
               "b_not": true
             },
@@ -1234,8 +1225,7 @@
                 "Tile.Offset.Biome.None.Left",
                 "Tile.Offset.Biome.SkyCeiling.Left",
                 "Tile.Offset.Biome.SkyEmpty.Left",
-                "Tile.Offset.Height.-1.Left",
-                "Tile.Offset.Height.-2.Left"
+                "Tile.Offset.HeightDrop.Left"
               ],
               "b_not": true
             },
@@ -1270,6 +1260,72 @@
             "y": 1.0,
             "z": 1.0
           }
+        }
+      },
+      {
+        "layout_actor_type": { "name": "PROXY_ACTOR", "value": 0 },
+        "b_visual_helper": false,
+        "definition_filter": { "seed_offset": -1, "search_queries": [], "tile_requirements": [], "spawn_chance_over": 0.0, "spawn_chance_under": 1.0 },
+        "furniture_definition": "FD_Mattress_DF",
+        "transform": {
+          "rotation": { "x": 0.0, "y": 0.0, "z": 0.0, "w": 1.0 },
+          "translation": { "x": -350.0, "y": -425.0, "z": 0.0 },
+          "scale3_d": { "x": 1.0, "y": 1.0, "z": 1.0 }
+        }
+      },
+      {
+        "layout_actor_type": { "name": "PROXY_ACTOR", "value": 0 },
+        "b_visual_helper": false,
+        "definition_filter": { "seed_offset": -1, "search_queries": [], "tile_requirements": [], "spawn_chance_over": 0.0, "spawn_chance_under": 1.0 },
+        "furniture_definition": "FD_Table_2_DF",
+        "transform": {
+          "rotation": { "x": 0.0, "y": 0.0, "z": 0.707107, "w": 0.707107 },
+          "translation": { "x": -500.0, "y": -425.0, "z": 0.0 },
+          "scale3_d": { "x": 1.0, "y": 1.0, "z": 1.0 }
+        }
+      },
+      {
+        "layout_actor_type": { "name": "PROXY_ACTOR", "value": 0 },
+        "b_visual_helper": false,
+        "definition_filter": { "seed_offset": -1, "search_queries": [], "tile_requirements": [], "spawn_chance_over": 0.0, "spawn_chance_under": 1.0 },
+        "furniture_definition": "FD_Table_2_DF",
+        "transform": {
+          "rotation": { "x": 0.0, "y": 0.0, "z": 0.0, "w": 1.0 },
+          "translation": { "x": -500.0, "y": -275.0, "z": 0.0 },
+          "scale3_d": { "x": 1.0, "y": 1.0, "z": 1.0 }
+        }
+      },
+      {
+        "layout_actor_type": { "name": "PROXY_ACTOR", "value": 0 },
+        "b_visual_helper": false,
+        "definition_filter": { "seed_offset": -1, "search_queries": [], "tile_requirements": [], "spawn_chance_over": 0.0, "spawn_chance_under": 1.0 },
+        "furniture_definition": "FD_Fridge_2_DF",
+        "transform": {
+          "rotation": { "x": 0.0, "y": 0.0, "z": -0.707107, "w": 0.707107 },
+          "translation": { "x": -375.0, "y": -275.0, "z": 0.0 },
+          "scale3_d": { "x": 1.0, "y": 1.0, "z": 1.0 }
+        }
+      },
+      {
+        "layout_actor_type": { "name": "PROXY_ACTOR", "value": 0 },
+        "b_visual_helper": false,
+        "definition_filter": { "seed_offset": -1, "search_queries": [], "tile_requirements": [], "spawn_chance_over": 0.0, "spawn_chance_under": 1.0 },
+        "furniture_definition": "FD_Table_2_DF",
+        "transform": {
+          "rotation": { "x": 0.0, "y": 0.0, "z": 0.0, "w": 1.0 },
+          "translation": { "x": -350.0, "y": -175.0, "z": 0.0 },
+          "scale3_d": { "x": 1.0, "y": 1.0, "z": 1.0 }
+        }
+      },
+      {
+        "layout_actor_type": { "name": "PROXY_ACTOR", "value": 0 },
+        "b_visual_helper": false,
+        "definition_filter": { "seed_offset": -1, "search_queries": [], "tile_requirements": [], "spawn_chance_over": 0.0, "spawn_chance_under": 1.0 },
+        "furniture_definition": "FD_Fridge_2_DF",
+        "transform": {
+          "rotation": { "x": 0.0, "y": 0.0, "z": 0.707107, "w": 0.707107 },
+          "translation": { "x": -300.0, "y": -275.0, "z": 0.0 },
+          "scale3_d": { "x": 1.0, "y": 1.0, "z": 1.0 }
         }
       }
     ],
