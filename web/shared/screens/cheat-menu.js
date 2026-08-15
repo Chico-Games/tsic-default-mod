@@ -815,6 +815,33 @@
 
   const KEY_LABELS = ['F2', 'F3', 'F4', 'F5'];
 
+  // ------------------------------------------------- local console commands
+  // A cheat declares for itself whether it is client-local: C++ marks the
+  // machine-local ones BlueprintCosmetic and the router reads the flag off the
+  // UFUNCTION, so the panel never has to know (and can never get it wrong).
+  //
+  // These are the lines that are NOT cheats — plain console commands and cvars,
+  // with no UFUNCTION to carry a flag. Every one of them describes or acts on
+  // the machine it runs on, so sent to the host a client got the host's frame
+  // counter, purged the host's caches and screenshotted the host's screen.
+  //
+  // C++ treats the resulting bClientLocal as a hint and ignores it for anything
+  // that does resolve to a cheat function, so a mistake here cannot pull a
+  // server-authoritative cheat off the server.
+  const LOCAL_CONSOLE_COMMANDS = [
+    'stat ',                  // per-machine perf overlays
+    'highresshot',            // screenshots this window
+    'webui.',                 // this machine's CEF views and caches
+    'scpmods.purgecache',     // this machine's mod cache
+    'tsic.componentpool.',    // this machine's pools
+    'tsic.presence.',         // this machine's rich presence
+  ];
+
+  function isLocalConsoleCommand(cmd) {
+    const c = String(cmd || '').trim().toLowerCase();
+    return LOCAL_CONSOLE_COMMANDS.some((p) => c === p.trim() || c.startsWith(p));
+  }
+
   // ----------------------------------------------------------------- style
   const STYLE = `
     /* Side panel, not a full-screen wall: half the viewport so the world stays
@@ -1097,7 +1124,7 @@
 
       function exec(cmd) {
         if (!cmd) return;
-        ctx.publish('UI.Cmd.Cheat.Execute', { Command: cmd });
+        ctx.publish('UI.Cmd.Cheat.Execute', { Command: cmd, bClientLocal: isLocalConsoleCommand(cmd) });
       }
 
       // "all" re-runs the command once per connected player, substituting each in

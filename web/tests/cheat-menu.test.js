@@ -530,6 +530,41 @@ TSICTestHarness.register({
 });
 
 TSICTestHarness.register({
+    name: 'CheatMenu: only non-cheat console lines are hinted client-local',
+    file: '/screens/cheat-menu.html',
+    async run(ctx) {
+        ctx.screen('CheatMenu');
+        await ctx.waitFor(() => ctx.doc.querySelector('button[data-cmd-tpl="stat fps"]'));
+
+        // `stat fps` is a console command, not a cheat UFUNCTION, so C++ has no flag to
+        // read off it. Without the hint a client's frame counter came from the host.
+        ctx.clearPublishes();
+        ctx.doc.querySelector('button[data-cmd-tpl="stat fps"]').click();
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Cheat.Execute',
+            { where: p => p.Command === 'stat fps' && p.bClientLocal === true }));
+
+        ctx.clearPublishes();
+        ctx.doc.querySelector('button[data-cmd-tpl="WebUI.Reload"]').click();
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Cheat.Execute',
+            { where: p => p.Command === 'WebUI.Reload' && p.bClientLocal === true }));
+
+        // A real cheat is never hinted. Where it runs is the UFUNCTION's own business —
+        // the panel guessing would be how a spawn cheat ends up client-only, leaving an
+        // entity the server never heard of.
+        ctx.clearPublishes();
+        ctx.doc.querySelector('button[data-cmd-tpl="Heal {p}"]').click();
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Cheat.Execute',
+            { where: p => p.Command === 'Heal 0' && p.bClientLocal === false }));
+
+        // Including the cosmetic ones: C++ reads BlueprintCosmetic off EnemyHealthBars.
+        ctx.clearPublishes();
+        ctx.doc.querySelector('button[data-cmd-tpl="EnemyHealthBars"]').click();
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Cheat.Execute',
+            { where: p => p.Command === 'EnemyHealthBars' && p.bClientLocal === false }));
+    },
+});
+
+TSICTestHarness.register({
     name: 'CheatMenu: the Close button asks to toggle, not to force InGame',
     file: '/screens/cheat-menu.html',
     async run(ctx) {
