@@ -26,7 +26,7 @@
     <div id="sidebar" class="tsic-panel" style="position:absolute;left:24px;top:24px;bottom:24px;width:300px;display:flex;flex-direction:column;gap:6px;overflow:hidden;">
       <h2 class="tsic-title tsic-title--sm">Build</h2>
       <div id="c-tabs" data-tsic-focus-group="category-tabs" data-tsic-tab-bar></div>
-      <div id="items" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:4px;" data-tsic-focus-group="item-list"></div>
+      <div id="items" style="flex:1;overflow-y:auto;scrollbar-gutter:stable;display:flex;flex-direction:column;gap:4px;" data-tsic-focus-group="item-list"></div>
       <div id="c-cost"></div>
     </div>
 

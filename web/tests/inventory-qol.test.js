@@ -86,16 +86,16 @@ TSICTestHarness.register({
 
         // Plain RMB keeps the fast path and opens no dialog.
         qolContextMenu(ctx, qolCell(ctx, 0));
-        ctx.expect(ctx.assert.domCount(ctx.doc, '.tsic-split', 0));
+        ctx.expect(ctx.assert.domCount(ctx.doc, '.tsic-split-dialog', 0));
         ctx.expect(ctx.assert.eq(ctx.win.TSICInventory.getHeld().count, 4, 'RMB holds the larger half'));
         ctx.win.TSICInventory.cancelHeld();
 
         qolContextMenu(ctx, qolCell(ctx, 0), { shiftKey: true });
-        ctx.expect(ctx.assert.domCount(ctx.doc, '.tsic-split', 1));
+        ctx.expect(ctx.assert.domCount(ctx.doc, '.tsic-split-dialog', 1));
         // Opening the dialog must not also pick the stack up.
         ctx.expect(ctx.assert.eq(ctx.win.TSICInventory.getHeld(), null, 'dialog does not hold the stack'));
         ctx.win.TSICInventory.closeSplit();
-        ctx.expect(ctx.assert.domCount(ctx.doc, '.tsic-split', 0));
+        ctx.expect(ctx.assert.domCount(ctx.doc, '.tsic-split-dialog', 0));
     },
 });
 
@@ -107,17 +107,17 @@ TSICTestHarness.register({
         qolRender(ctx, [{ ItemId: 'ID_A', Count: 20, InstanceId: 9, GridSlot: 2 }]);
         qolContextMenu(ctx, qolCell(ctx, 2), { shiftKey: true });
 
-        const num = ctx.doc.querySelector('.tsic-split input[type=number]');
+        const num = ctx.doc.querySelector('.tsic-split-dialog input[type=number]');
         ctx.expect(ctx.assert.truthy(num, 'expected an amount field'));
         // 999 must clamp to 19 — a split can never take the whole stack.
         num.value = '999';
         num.dispatchEvent(new ctx.win.Event('input', { bubbles: true }));
-        ctx.doc.querySelector('.tsic-split button.go').click();
+        ctx.doc.querySelector('.tsic-split-dialog button.go').click();
 
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Inventory.Split', {
             where: p => p.OwnerId === 'Player' && p.FromSlot === 2 && p.ToSlot === -1 && p.Count === 19,
         }));
-        ctx.expect(ctx.assert.domCount(ctx.doc, '.tsic-split', 0));
+        ctx.expect(ctx.assert.domCount(ctx.doc, '.tsic-split-dialog', 0));
     },
 });
 
@@ -127,7 +127,7 @@ TSICTestHarness.register({
     async run(ctx) {
         qolRender(ctx, [{ ItemId: 'ID_A', Count: 1, InstanceId: 1, GridSlot: 0 }]);
         qolContextMenu(ctx, qolCell(ctx, 0), { shiftKey: true });
-        ctx.expect(ctx.assert.domCount(ctx.doc, '.tsic-split', 0));
+        ctx.expect(ctx.assert.domCount(ctx.doc, '.tsic-split-dialog', 0));
     },
 });
 

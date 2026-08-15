@@ -16,7 +16,7 @@
     [data-screen="Production"] #p-throb { font-size:10px; color:rgba(47,43,34,0.6); letter-spacing:2px; visibility:hidden; }
     [data-screen="Production"] #p-throb.on { visibility:visible; animation: tsic-prod-pulse 1.5s infinite; }
     @keyframes tsic-prod-pulse { 0%, 100% { color:rgba(47,43,34,0.6); } 50% { color:rgba(47,43,34,1.0); } }
-    [data-screen="Production"] #p-info { padding:10px; background: rgba(241,229,207,0.88); border:1px solid var(--tsic-border); flex: 0 0 auto; max-height: 50%; overflow:auto; }
+    [data-screen="Production"] #p-info { padding:10px; background: rgba(241,229,207,0.88); border:1px solid var(--tsic-border); flex: 0 0 auto; max-height: 50%; overflow:auto; scrollbar-gutter:stable; }
     [data-screen="Production"] #p-add { width:100%; padding: 8px; flex: 0 0 auto; }
     [data-screen="Production"] #p-add:disabled { color:rgba(47,43,34,0.4); background:rgba(241,229,207,0.4); cursor:not-allowed; }
     [data-screen="Production"] .q-entry { padding:6px 8px; background: rgba(241,229,207,0.55); border:1px solid var(--tsic-border); display:flex; flex-direction:column; gap:4px; }

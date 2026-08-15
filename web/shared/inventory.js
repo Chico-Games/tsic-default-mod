@@ -106,24 +106,36 @@
             '}',
 
             // ---- Split dialog ----
-            '.tsic-split {',
+            // `-dialog` is load-bearing. This was `.tsic-split`, which is ALSO the shared
+            // panel scaffold in tsic-ui.css — the two-column body every station screen
+            // mounts (crafting, production, shop, boss summoner) via recipe-station.js.
+            // These rules are global and unscoped, and this sheet is injected the first time
+            // a grid renders, i.e. the first time the player opens their bag. From that
+            // moment every station panel's body inherited `position:fixed` from a dialog it
+            // has nothing to do with: out of flow, sized to its content, escaping the panel's
+            // overflow:hidden. The recipe list stopped being clipped or scrolled and simply
+            // ran down the screen — issue #228's "there STILL isn't a scroll bar when there
+            // are too many recipes, its just extending it down", which reproduced only after
+            // visiting the inventory and so looked like a crafting bug. Any new global class
+            // here needs a name nothing in tsic-ui.css claims.
+            '.tsic-split-dialog {',
             '  position:fixed; z-index:2100; min-width:190px; padding:9px 11px;',
             '  background:#fffdf3; border:2px solid rgba(10,10,10,0.85);',
             '  box-shadow:4px 4px 0 rgba(10,10,10,0.85); font-size:12px; color:#1a1612;',
             '}',
-            '.tsic-split .row { display:flex; align-items:center; gap:6px; margin-top:6px; }',
-            '.tsic-split .lab { font-size:10px; letter-spacing:0.12em; text-transform:uppercase; opacity:0.7; }',
-            '.tsic-split input[type=range] { flex:1; min-width:0; accent-color:#e60000; }',
-            '.tsic-split input[type=number] {',
+            '.tsic-split-dialog .row { display:flex; align-items:center; gap:6px; margin-top:6px; }',
+            '.tsic-split-dialog .lab { font-size:10px; letter-spacing:0.12em; text-transform:uppercase; opacity:0.7; }',
+            '.tsic-split-dialog input[type=range] { flex:1; min-width:0; accent-color:#e60000; }',
+            '.tsic-split-dialog input[type=number] {',
             '  width:58px; font:inherit; padding:1px 4px; text-align:center;',
             '  background:#fffdf3; border:2px solid rgba(10,10,10,0.85); color:inherit;',
             '}',
-            '.tsic-split button {',
+            '.tsic-split-dialog button {',
             '  font:inherit; font-size:11px; letter-spacing:0.08em; cursor:pointer; padding:2px 9px;',
             '  background:#fffdf3; border:2px solid rgba(10,10,10,0.85); color:inherit;',
             '}',
-            '.tsic-split button.go { background:var(--mag-red,#e60000); color:#fff; }',
-            '.tsic-split button:hover { filter:brightness(1.08); }',
+            '.tsic-split-dialog button.go { background:var(--mag-red,#e60000); color:#fff; }',
+            '.tsic-split-dialog button:hover { filter:brightness(1.08); }',
         ].join('\n');
         document.head.appendChild(s);
     }
@@ -554,7 +566,7 @@
         injectCursorStyleOnce();
 
         var start = Math.floor(total / 2);
-        var box = el('div', { class: 'tsic-split' });
+        var box = el('div', { class: 'tsic-split-dialog' });
         var cat = (window.tsic && window.tsic.itemCatalog) || {};
         var name = (cat[item.ItemId] && cat[item.ItemId].Name) || item.ItemId || 'Stack';
         box.appendChild(el('div', { class: 'lab' }, 'Split ' + name));

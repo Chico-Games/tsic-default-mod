@@ -32,29 +32,35 @@
 
   // Transparent chrome: no plate behind the box — drop shadows carry legibility
   // (same treatment as the behavior bar, #bb-shell-gameplay).
+  //
+  // Sized in vh, not fixed px. The box was authored at 12px rows in a 250px column, which
+  // is legible on a 1080p desktop monitor and genuinely hard to read at 1440p and above —
+  // a HUD element that shrinks as the display gets better is backwards (issue #227). The
+  // clamps hold the 1080p reading at roughly its old proportions while letting 1440p/4K
+  // scale up, and floor it so a short window never takes it below the old size.
   var CSS = [
-    '#hud-tutorial { position:fixed; top:220px; right:24px; width:250px; pointer-events:none; z-index:20;',
-    '  text-shadow:0 1px 2px rgba(0,0,0,0.75); }',
+    '#hud-tutorial { position:fixed; top:220px; right:24px; width:clamp(250px, 19vw, 360px);',
+    '  pointer-events:none; z-index:20; text-shadow:0 1px 2px rgba(0,0,0,0.75); }',
     '#hud-tutorial.tut-hidden { display:none; }',
 
     '#hud-tutorial .tut-header { display:flex; align-items:center; justify-content:space-between;',
-    '  padding:0 2px 3px; border-bottom:1px solid rgba(240,232,208,0.35);',
+    '  padding:0 2px 4px; border-bottom:1px solid rgba(240,232,208,0.35);',
     '  color:var(--paper-cream, #f0e8d0); font-family:var(--font-display);',
-    '  font-size:11px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; }',
+    '  font-size:clamp(13px, 1.2vh, 17px); font-weight:700; letter-spacing:0.12em; text-transform:uppercase; }',
 
     // ✕ — dormant until a cursor overlay is open, then clickable.
     '#hud-tutorial .tut-close { pointer-events:none; opacity:0; transition:opacity 150ms ease;',
     '  background:none; border:0; padding:0 2px; color:var(--paper-cream, #f0e8d0);',
-    '  font-size:13px; line-height:1; font-family:inherit; text-shadow:inherit; }',
+    '  font-size:clamp(15px, 1.4vh, 19px); line-height:1; font-family:inherit; text-shadow:inherit; }',
     'body.tsic-overlay-open #hud-tutorial .tut-close { pointer-events:auto; opacity:0.65; cursor:pointer; }',
     'body.tsic-overlay-open #hud-tutorial .tut-close:hover { opacity:1; }',
 
-    '#hud-tutorial .tut-rows { padding:4px 0 0; }',
-    '#hud-tutorial .tut-row { display:flex; align-items:baseline; gap:8px; padding:3px 2px;',
+    '#hud-tutorial .tut-rows { padding:5px 0 0; }',
+    '#hud-tutorial .tut-row { display:flex; align-items:baseline; gap:9px; padding:4px 2px;',
     '  color:var(--paper-bright, #fdf8ea); font-family:var(--font-display);',
-    '  font-size:12px; letter-spacing:0.03em; }',
-    '#hud-tutorial .tut-check { flex-shrink:0; width:13px; text-align:center;',
-    '  color:rgba(240,232,208,0.55); font-size:11px; }',
+    '  font-size:clamp(15px, 1.4vh, 20px); letter-spacing:0.03em; }',
+    '#hud-tutorial .tut-check { flex-shrink:0; width:1em; text-align:center;',
+    '  color:rgba(240,232,208,0.55); font-size:0.95em; }',
 
     // Newly-mounted rows slide in from the right.
     '#hud-tutorial .tut-row.tut-in { animation:tut-row-in 300ms ease-out; }',

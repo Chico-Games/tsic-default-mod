@@ -51,7 +51,9 @@
     var listEyebrow = el('div', { class: 'tsic-eyebrow' }, 'Recipes');
     var listCol = el('div', { class: 'tsic-split-col' }, listEyebrow, listPane);
 
-    var infoPane = el('div', { class: 'rs-info', style: 'padding:10px; background:rgba(241,229,207,0.88); border:1px solid var(--tsic-border); flex:1 1 auto; overflow:auto; min-height:0;' });
+    // scrollbar-gutter: a long ingredient list must not narrow the pane it is in the moment
+    // it overflows — the text would reflow under the cursor mid-read.
+    var infoPane = el('div', { class: 'rs-info', style: 'padding:10px; background:rgba(241,229,207,0.88); border:1px solid var(--tsic-border); flex:1 1 auto; overflow:auto; scrollbar-gutter:stable; min-height:0;' });
 
     var actionBtn = el('button', { class: 'tsic-button rs-action', style: 'width:100%; padding:8px; flex:0 0 auto;' }, actionLabel);
     actionBtn.disabled = true;

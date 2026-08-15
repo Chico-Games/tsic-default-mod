@@ -115,3 +115,100 @@ TSICTestHarness.register({
             'the cell empties when the stack moves out of it'));
     },
 });
+
+// ── Held-item name (issue #245) ────────────────────────────────────────────────
+// "add a name of held item just above the hotbar so you know what you are holding when the
+// icons are confusing or unknown." The caption reads the CURRENT cell — drawn or stowed —
+// and takes its text from the item catalog, never from the raw definition id.
+
+TSICTestHarness.register({
+    name: 'Hotbar/Name: the drawn cell is captioned with its catalog name',
+    file: '/screens/hotbar.html',
+    async run(ctx) {
+        ctx.setItemCatalog({
+            ID_Axe: { Name: 'Fire Axe', Category: 'Weapon' },
+            ID_Bread: { Name: 'Bread', Category: 'Consumable' },
+        });
+        ctx.inject('tsic.msg.UI.Inventory.Updated', hotbarSnapshot([
+            { InstanceId: 101, ItemId: 'ID_Axe', Count: 1, GridSlot: 0 },
+            { InstanceId: 102, ItemId: 'ID_Bread', Count: 4, GridSlot: 1 },
+        ]));
+        ctx.inject('tsic.msg.UI.Hotbar.Changed', { NumSlots: 8, SelectedSlot: 0, SelectedSlotPending: -1 });
+        await ctx.waitFor(() => ctx.doc.querySelector('#hotbar-name'));
+        const label = ctx.doc.querySelector('#hotbar-name');
+        ctx.expect(ctx.assert.eq(label.textContent, 'Fire Axe', 'caption names the drawn item'));
+        ctx.expect(ctx.assert.truthy(label.classList.contains('visible'), 'caption is shown'));
+        ctx.expect(ctx.assert.falsy(label.classList.contains('stowed'), 'a drawn item is not marked stowed'));
+
+        // Moving the selection re-captions without a rebuild (the selection-only path).
+        ctx.inject('tsic.msg.UI.Hotbar.Changed', { NumSlots: 8, SelectedSlot: 1, SelectedSlotPending: -1 });
+        await ctx.waitFor(() => ctx.doc.querySelector('#hotbar-name').textContent === 'Bread');
+        ctx.expect(ctx.assert.eq(ctx.doc.querySelector('#hotbar-name').textContent, 'Bread'));
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Hotbar/Name: an empty current cell shows no caption, and a stowed one greys out',
+    file: '/screens/hotbar.html',
+    async run(ctx) {
+        ctx.setItemCatalog({ ID_Axe: { Name: 'Fire Axe' } });
+        ctx.inject('tsic.msg.UI.Inventory.Updated', hotbarSnapshot([
+            { InstanceId: 101, ItemId: 'ID_Axe', Count: 1, GridSlot: 2 },
+        ]));
+        // Cell 5 is empty — nothing in hand, nothing to name.
+        ctx.inject('tsic.msg.UI.Hotbar.Changed', { NumSlots: 8, SelectedSlot: 5, SelectedSlotPending: -1 });
+        await ctx.waitFor(() => ctx.doc.querySelector('#hotbar-name'));
+        ctx.expect(ctx.assert.eq(ctx.doc.querySelector('#hotbar-name').textContent, '',
+            'an empty cell captions nothing'));
+        ctx.expect(ctx.assert.falsy(ctx.doc.querySelector('#hotbar-name').classList.contains('visible'),
+            'the caption hides rather than showing an empty plate'));
+
+        // Stowed on cell 2: still the current cell, so still named — but marked as not in hand.
+        ctx.inject('tsic.msg.UI.Hotbar.Changed', { NumSlots: 8, SelectedSlot: -1, SelectedSlotPending: 2 });
+        await ctx.waitFor(() => ctx.doc.querySelector('#hotbar-name').textContent === 'Fire Axe');
+        ctx.expect(ctx.assert.truthy(ctx.doc.querySelector('#hotbar-name').classList.contains('stowed'),
+            'a stowed item reads as stowed'));
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Hotbar/Name: an item the catalog never described is prettified, not shown as an id',
+    file: '/screens/hotbar.html',
+    async run(ctx) {
+        ctx.setItemCatalog({});
+        ctx.inject('tsic.msg.UI.Inventory.Updated', hotbarSnapshot([
+            { InstanceId: 9, ItemId: 'ID_Tier1Hammer_EQ', Count: 1, GridSlot: 0 },
+        ]));
+        ctx.inject('tsic.msg.UI.Hotbar.Changed', { NumSlots: 8, SelectedSlot: 0, SelectedSlotPending: -1 });
+        await ctx.waitFor(() => ctx.doc.querySelector('#hotbar-name')
+            && ctx.doc.querySelector('#hotbar-name').textContent.length > 0);
+        const text = ctx.doc.querySelector('#hotbar-name').textContent;
+        ctx.expect(ctx.assert.eq(text, 'Tier1 Hammer', 'falls back to the prettified definition name'));
+        ctx.expect(ctx.assert.falsy(/^ID_/.test(text), 'never puts a raw definition id in front of a player'));
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Hotbar/Name: the caption is out of flow, so it never moves the shelf',
+    file: '/screens/hotbar.html',
+    async run(ctx) {
+        ctx.setItemCatalog({ ID_Axe: { Name: 'A Very Long Item Name That Would Wrap' } });
+        ctx.inject('tsic.msg.UI.Inventory.Updated', hotbarSnapshot([
+            { InstanceId: 1, ItemId: 'ID_Axe', Count: 1, GridSlot: 0 },
+        ]));
+        // Empty current cell first: no caption at all.
+        ctx.inject('tsic.msg.UI.Hotbar.Changed', { NumSlots: 8, SelectedSlot: 4, SelectedSlotPending: -1 });
+        await ctx.waitFor(() => ctx.doc.querySelectorAll('#hotbar-row .tsic-slot').length === 8);
+        const before = ctx.doc.querySelectorAll('#hotbar-row .tsic-slot')[0].getBoundingClientRect();
+
+        ctx.inject('tsic.msg.UI.Hotbar.Changed', { NumSlots: 8, SelectedSlot: 0, SelectedSlotPending: -1 });
+        await ctx.waitFor(() => ctx.doc.querySelector('#hotbar-name').classList.contains('visible'));
+        const after = ctx.doc.querySelectorAll('#hotbar-row .tsic-slot')[0].getBoundingClientRect();
+
+        ctx.expect(ctx.assert.eq(Math.round(after.top), Math.round(before.top),
+            'showing the caption does not shift the slots'));
+        ctx.expect(ctx.assert.eq(
+            ctx.win.getComputedStyle(ctx.doc.querySelector('#hotbar-name')).position, 'absolute',
+            'the caption is positioned out of flow'));
+    },
+});

@@ -83,7 +83,13 @@
     overflow: hidden;
 }
 
-/* Split-pane body for screen panels: two columns of vertical lists. */
+/* Split-pane body for screen panels: two columns of vertical lists.
+ *
+ * The name is shared vocabulary — recipe-station.js mounts one of these into every station
+ * screen — so nothing outside this file may claim it. shared/inventory.js once did, for its
+ * stack-split dialog, and because that sheet is global and injected on the first bag render,
+ * every station panel silently inherited `position:fixed` the moment a player opened their
+ * inventory (issue #228). That dialog is `.tsic-split-dialog` now. */
 .tsic-split {
     flex: 1 1 auto;
     display: grid;
@@ -99,10 +105,18 @@
     gap: 8px;
 }
 
-/* Scrollable list pane that fills its parent column. */
+/* Scrollable list pane that fills its parent column.
+ *
+ * `scrollbar-gutter: stable` reserves the bar's width whether or not the list is long
+ * enough to need one, so a pane does not shove its own contents sideways the moment a
+ * recipe is discovered — the same rule the style guide already asks of scrolling content
+ * on cover pages. CEF draws classic scrollbars that take real width; headless Chromium
+ * draws overlay ones and cannot reproduce the reflow, which is why this is a rule rather
+ * than something a measurement caught. */
 .tsic-list-pane {
     flex: 1 1 auto;
     overflow-y: auto;
+    scrollbar-gutter: stable;
     background: var(--paper-bright);
     border: 2px solid var(--ink-night);
     padding: 4px;

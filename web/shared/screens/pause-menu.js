@@ -11,8 +11,22 @@
   // module is fully self-contained. Inserted once on first mount.
   const STYLE = `
     [data-screen="PauseMenu"] #pause-overlay { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:auto; }
-    [data-screen="PauseMenu"] #pause-panel { width:360px; text-align:center; background: var(--cat-bg); max-height: 90vh; overflow-y:auto; }
-    [data-screen="PauseMenu"] .pl { text-align:left; margin: 8px 0; max-height: 140px; overflow:auto; }
+    /* Fixed height, not max-height. The panel is vertically CENTRED, so anything that made it
+       taller pushed its top edge upward — and every button in it moved with that edge, under
+       a cursor already reaching for one. Measured (Scripts/webui-bench/layout.mjs, issue
+       #273): h 583/639/723 and y 249/221/179 for nought/two/eight players, all from one list
+       growing. A fixed box makes the menu the same page whoever is in the session, and the
+       overflow that used to move the panel scrolls inside it instead.
+       min() so a short window still gets a panel that fits rather than one it clips. */
+    [data-screen="PauseMenu"] #pause-panel {
+      width:360px; height:min(760px, 90vh); text-align:center; background: var(--cat-bg);
+      overflow-y:auto; scrollbar-gutter:stable;
+    }
+    /* Likewise fixed: the list reserves its row whether it holds nought names or eight, so
+       the multiplayer block below it never slides. Its own gutter is reserved too — a
+       scrollbar appearing on the fourth player would otherwise reflow every row in it. */
+    [data-screen="PauseMenu"] .pl { text-align:left; margin: 8px 0; height: 140px; overflow:auto; scrollbar-gutter:stable; }
+    [data-screen="PauseMenu"] .pl-empty { padding:4px 6px; opacity:0.5; font-size:13px; }
     [data-screen="PauseMenu"] .pl-row { padding: 4px 6px; display:flex; align-items:center; gap:8px; }
     [data-screen="PauseMenu"] .pl-dot { width:10px; height:10px; border-radius:50%; flex:0 0 auto; border:1px solid rgba(255,255,255,0.5); }
     [data-screen="PauseMenu"] .pl-name { flex:1 1 auto; }
@@ -128,7 +142,15 @@
         const hostEl = root.querySelector('#players');
         if (!hostEl) return;
         hostEl.innerHTML = '';
-        if (!lastPlayers || !lastPlayers.Players) return;
+        // The list keeps its row whether or not anyone is in it (see .pl's fixed height), so
+        // say what the empty box means rather than leaving a blank plate under the heading.
+        if (!lastPlayers || !lastPlayers.Players || !lastPlayers.Players.length) {
+          const none = document.createElement('div');
+          none.className = 'pl-empty';
+          none.textContent = 'No other players';
+          hostEl.appendChild(none);
+          return;
+        }
         lastPlayers.Players.forEach((pl, i) => {
           const row = document.createElement('div');
           row.className = 'pl-row';

@@ -14,12 +14,18 @@
 // Each slot is a teak-laminate plinth on a brushed-brass shelf; the SELECTED
 // slot scales up and lifts off the shelf with a warm gold spotlight.
 //
+// Above the shelf sits the NAME of whatever the selected cell holds — icons alone do not
+// always say what a thing is (issue #245), and the name is the one piece of an item's
+// identity the bar can afford to spell out. It is absolutely positioned off the row's top
+// edge, so it never moves a slot: an item with a two-line name and an empty cell leave the
+// shelf in exactly the same place.
+//
 // Channels:
 //   tsic.msg.UI.Hotbar.Changed    { NumSlots, SelectedSlot, SelectedSlotPending }
 //   tsic.msg.UI.Inventory.Updated (OwnerId === 'Player') → cell contents
 // Commands published:
 //   UI.Cmd.Hotbar.Select { SlotIndex }   (re-selecting the current cell toggles stow/draw)
-// Depends on: window.TSIC.itemIconUrl (icons.js)
+// Depends on: window.TSIC.itemIconUrl (icons.js), window.tsic.itemName (catalog.js)
 (function () {
   // ── Styling (scoped to #hotbar-row) ──
   // Matches the liquid health/stamina vials: dark translucent glass, heavy ink
@@ -60,6 +66,21 @@
     '#hotbar-row .tsic-slot .count { position:absolute; bottom:3px; right:4px; top:auto; left:auto; pointer-events:none;',
     '  font-family:var(--font-display); font-size:12px; font-weight:700; line-height:1; letter-spacing:0.02em; padding:2px 4px; color:#fff; text-shadow:0 1px 2px rgba(0,0,0,0.95);',
     '  background:rgba(14,9,8,0.70); border:1px solid var(--ink-night); border-radius:5px; }',
+
+    /* Held-item name. Out of flow (bottom:100% of the fixed #hud-hotbar) so it contributes
+       nothing to the shelf's layout, and centred over it. Cream serif on an ink shadow, the
+       same treatment as the slot key chips — no plate, so it reads as a caption on the bar
+       rather than a second widget. */
+    '#hotbar-name { position:absolute; bottom:100%; left:50%; transform:translateX(-50%); max-width:520px;',
+    '  padding:0 6px 4px; pointer-events:none; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;',
+    '  font-family:var(--font-display); font-size:16px; font-weight:700; letter-spacing:0.04em; color:#f3ecda;',
+    '  text-shadow:0 1px 3px rgba(0,0,0,0.95), 0 0 8px rgba(0,0,0,0.7);',
+    '  opacity:0; transition:opacity 160ms ease; }',
+    '#hotbar-name.visible { opacity:1; }',
+    /* Stowed, or a cell holding something the hands cannot take — the slot itself greys out,
+       so the caption does too rather than claiming the item is in hand. */
+    '#hotbar-name.stowed { color:#cfc8bb; opacity:0.75; }',
+    'html[data-tsic-reduce-motion] #hotbar-name { transition:none; }',
 
     /* A panel that shows the bag draws these same eight cells itself, as a strip inside the
        panel where they can actually be edited. Leaving this bar up would put a second copy
@@ -113,6 +134,52 @@
     return parts.join('|');
   }
 
+  // Display name for a hotbar item. The catalog is the source of truth; before it lands
+  // (or for an item the pack never described) fall back to prettifying the id, which is
+  // the same last resort every other surface uses — never a raw ID_Foo_EQ in front of a
+  // player, and never a blank caption under a filled slot.
+  function itemDisplayName(item) {
+    if (!item || !item.ItemId) return '';
+    var name = (window.tsic && typeof tsic.itemName === 'function') ? tsic.itemName(item.ItemId) : '';
+    if (name && name !== item.ItemId) return name;
+    if (window.TSIC && typeof TSIC.prettifyDefinitionName === 'function') {
+      return TSIC.prettifyDefinitionName(item.ItemId);
+    }
+    return item.ItemId;
+  }
+
+  // Hosted by whatever wraps the row — #hud-hotbar in the live HUD, #root on the standalone
+  // preview page. Keyed off the row rather than off #hud-hotbar by id so the two surfaces
+  // cannot drift: the caption exists wherever the shelf does.
+  function nameEl() {
+    var row = document.getElementById('hotbar-row');
+    var host = row && row.parentNode;
+    if (!host) return null;
+    var label = document.getElementById('hotbar-name');
+    if (!label) {
+      label = document.createElement('div');
+      label.id = 'hotbar-name';
+      host.appendChild(label);
+    }
+    return label;
+  }
+
+  // Caption the CURRENT cell — drawn or stowed. SelectedSlot wins when both are set, so a
+  // drawn item never reads as stowed; an empty (or absent) current cell shows nothing at all
+  // rather than an empty plate hanging over the bar.
+  function renderName() {
+    var label = nameEl();
+    if (!label) return;
+    var sel = (lastHotbar && typeof lastHotbar.SelectedSlot === 'number') ? lastHotbar.SelectedSlot : -1;
+    var pending = (lastHotbar && typeof lastHotbar.SelectedSlotPending === 'number') ? lastHotbar.SelectedSlotPending : -1;
+    var stowed = sel < 0 && pending >= 0;
+    var slot = stowed ? pending : sel;
+    var text = (slot >= 0) ? itemDisplayName(playerItemsBySlot.get(slot)) : '';
+    label.textContent = text;
+    label.classList.toggle('visible', !!text);
+    label.classList.toggle('stowed', !!text && stowed);
+  }
+
   // Selection-only update: toggle .selected / .selected-inactive on the existing
   // slots so the CSS transition animates the grow/shrink instead of snapping after
   // a rebuild. SelectedSlot = drawn (item in hand); SelectedSlotPending = empty hands.
@@ -126,6 +193,7 @@
       kids[i].classList.toggle('selected', i === sel);
       kids[i].classList.toggle('selected-inactive', i === pending);
     }
+    renderName();
   }
 
   // Animate the selection if only it changed; rebuild if the contents differ.
@@ -185,6 +253,7 @@
       })(i);
     }
     lastContentKey = contentKey();
+    renderName();
   }
 
   /**
@@ -229,6 +298,9 @@
         }
         update();
       });
+      // The catalog usually lands after the first hotbar snapshot, so the caption's first
+      // render has only the id to work with. Re-render when the real names arrive.
+      window.addEventListener('tsic-item-catalog', renderName);
     });
   })();
 })();

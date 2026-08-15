@@ -113,6 +113,12 @@
       grid-auto-rows: var(--tsic-slot); gap:var(--tsic-slot-gap); width:max-content;
       max-height: calc(var(--tsic-slot-rows) * (var(--tsic-slot) + var(--tsic-slot-gap))); overflow-y:auto;
     }
+    /* No scrollbar-gutter here, deliberately. The bands DO scroll past their row cap, so they
+       are a real gutter-reflow candidate — but this rule is scoped to the inventory screen
+       and the storage screen builds its own bag pane (shared/storage-shell.js), so reserving
+       15px on one of them and not the other breaks the pixel-for-pixel parity the two screens
+       are required to hold (tests/bag-layout-parity.test.js). Reserving it here means
+       reserving it there, in the same change. */
     [data-screen="Inventory"] .tsic-slot {
       width:var(--tsic-slot); height:var(--tsic-slot); position:relative; cursor:pointer; padding:4px;
       background: rgba(255,253,243,0.96); border:2px solid rgba(10,10,10,0.85);
@@ -763,6 +769,27 @@
       // replay, leaving the grid unrendered. Ask C++ to re-broadcast the player
       // inventory/equipment/hotbar state.
       ctx.publish('UI.Cmd.Inventory.RequestSync', {});
+
+      // ...and draw the empty grid at its DEFAULT shape while that request is in flight, so
+      // the panel opens at the size it is about to be. The panel is content-sized on purpose
+      // (width:auto/height:auto — the grid is the layout rule, and the top-left anchor is
+      // what keeps a container column from shoving the bag around), which means an unrendered
+      // grid opens it 224px short and the snapshot then grows it under a cursor that is
+      // already on it. Measured with Scripts/webui-bench/layout.mjs: #inv-panel h 469 -> 693
+      // between mount and data, at every window size. That is issue #273's "panels resize as
+      // content arrives" exactly.
+      //
+      // The defaults are refresh()'s own (MaxSlots 32, GridWidth 8) rather than new
+      // guesses, so the placeholder is the same shape the common case settles at. A bag with
+      // a non-default capacity still resizes once — there is nothing to know its size from
+      // before the snapshot — but that is rare where this was constant.
+      lastUpdate = { OwnerId: 'Player', MaxSlots: 32, GridWidth: 8, Items: [], bPlaceholder: true };
+      (function drawPlaceholderGrid() {
+        if (!window.TSICInventory) { setTimeout(drawPlaceholderGrid, 16); return; }
+        // The snapshot handler REPLACES lastUpdate wholesale, so a real one that landed
+        // while we waited for the module has already cleared the flag — never draw over it.
+        if (lastUpdate && lastUpdate.bPlaceholder) refresh();
+      })();
 
       ctx.on('tsic.msg.UI.Inventory.Updated', (p) => {
         if (!p || p.OwnerId !== 'Player') return;

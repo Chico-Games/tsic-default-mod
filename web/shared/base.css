@@ -275,18 +275,16 @@ input[type=range]:active::-webkit-slider-thumb { cursor: grabbing; }
 }
 
 /* ───────────── GLOBAL SCROLLBAR ─────────────
- * Ink thumb on a muted-paper track (magazine). */
+ * Ink thumb on a muted-paper track (magazine).
+ *
+ * `auto`, not `thin`. Chromium honours the STANDARD properties in preference to the
+ * `::-webkit-scrollbar` pseudo-elements — setting either `scrollbar-width` or
+ * `scrollbar-color` on an element makes it ignore the `::-webkit-` rules entirely. So the
+ * old pairing (a `thin` standard rule alongside a 12px webkit block) did not give a 12px
+ * bar: the webkit block was inert and every scroll pane in the game drew Chromium's
+ * hairline. On a cream panel a hairline is easy to miss, and "there STILL isn't a scroll
+ * bar when there are too many recipes" (issue #228) is what that looks like from the
+ * player's chair — the list WAS scrolling, with nothing visible saying so. Width therefore
+ * has to come from `scrollbar-width`, and the only widths it offers are auto and thin. */
 
-* { scrollbar-width: thin; scrollbar-color: var(--ink-night) var(--paper-muted); }
-::-webkit-scrollbar { width: 12px; height: 12px; }
-::-webkit-scrollbar-track {
-  background: var(--paper-muted);
-  border-left: 1px solid var(--ink-mute);
-}
-::-webkit-scrollbar-thumb {
-  background: var(--ink-night);
-  border: 2px solid var(--paper-muted);
-  border-radius: 0;
-}
-::-webkit-scrollbar-thumb:hover { background: var(--ink-soft); }
-::-webkit-scrollbar-corner { background: var(--paper-muted); }
+* { scrollbar-width: auto; scrollbar-color: var(--ink-night) var(--paper-muted); }
