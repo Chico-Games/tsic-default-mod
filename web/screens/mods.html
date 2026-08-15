@@ -225,9 +225,10 @@
       font-size: 14px; line-height: 1; cursor: pointer;
       transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.12s;
     }
+    /* No transform on hover: it shifts the button's hit box as well as its pixels, and on a
+       26px target that is enough to slide it out from under the cursor and flicker. The
+       colour flip is the affordance. */
     .btn-move:hover { background: var(--mag-red); border-color: var(--mag-red); color: var(--paper-bright); }
-    .btn-move--right:hover { transform: translateX(2px); }
-    .btn-move--left:hover { transform: translateX(-2px); }
     .btn-step:hover { background: var(--mag-yellow); }
     .btn-move:disabled, .btn-step:disabled { opacity: 0.35; pointer-events: none; }
 

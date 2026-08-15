@@ -151,18 +151,29 @@ button.tsic-list-row {
     width: 100%;
     font-family: var(--font-display);
 }
-.tsic-list-row:hover { background: var(--paper-muted); padding-left: 14px; }
+/* The `>>` marker is always in the layout and only fades in, and neither hover nor
+   selection changes the row's padding any more. Both used to add 8px of padding-left,
+   which re-wrapped long labels and re-flowed the rows below — on hover that moved rows
+   out from under the cursor and flickered between two of them. Reserving the space also
+   stops rows jumping sideways as the selection moves. */
+.tsic-list-row::before {
+    content: '>>';
+    color: var(--mag-red);
+    font-weight: 900;
+    margin-right: 2px;
+    opacity: 0;
+    transition: opacity 120ms ease;
+}
+.tsic-list-row:hover { background: var(--paper-muted); }
+.tsic-list-row:hover::before { opacity: 1; }
 .tsic-list-row.is-selected {
     background: var(--mag-red);
     color: #ffffff;
     border-bottom-color: var(--mag-red);
-    padding-left: 14px;
 }
 .tsic-list-row.is-selected::before {
-    content: '>>';
     color: #ffffff;
-    font-weight: 900;
-    margin-right: 2px;
+    opacity: 1;
 }
 .tsic-list-row.is-locked { color: var(--ink-mute); cursor: not-allowed; }
 
