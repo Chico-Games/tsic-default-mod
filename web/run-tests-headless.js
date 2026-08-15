@@ -1,8 +1,18 @@
 // Headless runner for the TSICWebUI SPA test harness.
 // Usage: node run-tests-headless.js [--filter <substring>] [--channel chrome]
+//                                   [--order reverse|shuffle [--seed <n>]]
 // Assumes a static server is serving the /Web tree at http://localhost:8765.
 // --channel chrome runs against the installed Chrome instead of the
 // downloaded chromium headless shell (no `npx playwright install` needed).
+//
+// --order exists because a suite whose result depends on the order it ran in is
+// not a verdict. The harness reuses ONE iframe for every scenario, so anything a
+// scenario leaves behind — a screen that never finished mounting, a document
+// still holding focus — is visible to the next one, and the damage surfaces as
+// some later scenario measuring a DOM it did not build. The default alphabetical
+// order only ever exercises one arrangement. Run reverse (or a seeded shuffle)
+// to find that coupling deliberately rather than waiting for it to appear as a
+// mystery red in CI.
 
 const { chromium } = require('playwright');
 
@@ -13,6 +23,16 @@ const { chromium } = require('playwright');
     const channel = process.argv.includes('--channel')
         ? process.argv[process.argv.indexOf('--channel') + 1]
         : null;
+    const order = process.argv.includes('--order')
+        ? process.argv[process.argv.indexOf('--order') + 1]
+        : null;
+    if (order && order !== 'reverse' && order !== 'shuffle') {
+        console.error(`--order must be "reverse" or "shuffle", got "${order}"`);
+        process.exit(1);
+    }
+    const seed = process.argv.includes('--seed')
+        ? Number(process.argv[process.argv.indexOf('--seed') + 1])
+        : 1;
 
     const browser = await chromium.launch({ headless: true, ...(channel ? { channel } : {}) });
     // Playwright's 1280x720 default, minus the 660px of scenario-list + log chrome around the
@@ -31,6 +51,24 @@ const { chromium } = require('playwright');
 
     const total = await page.evaluate(() => window.TSICTestHarness.scenarios.length);
     console.log(`Loaded ${total} scenarios`);
+
+    if (order) {
+        // The host page sorted the array by name and cached each scenario's row on it,
+        // so reordering IN PLACE after that keeps every row reference valid while
+        // changing the order "Run all" walks.
+        await page.evaluate(({ how, s }) => {
+            const scns = window.TSICTestHarness.scenarios;
+            if (how === 'reverse') { scns.reverse(); return; }
+            // Deterministic shuffle: a failing order has to be replayable from the seed.
+            let x = s >>> 0 || 1;
+            const rand = () => { x ^= x << 13; x ^= x >>> 17; x ^= x << 5; return (x >>> 0) / 4294967296; };
+            for (let i = scns.length - 1; i > 0; i--) {
+                const j = Math.floor(rand() * (i + 1));
+                [scns[i], scns[j]] = [scns[j], scns[i]];
+            }
+        }, { how: order, s: seed });
+        console.log(order === 'reverse' ? 'Order: reversed' : `Order: shuffled (seed ${seed})`);
+    }
 
     // Run either a filtered subset or everything.
     if (filter) {
