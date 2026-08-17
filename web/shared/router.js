@@ -133,6 +133,10 @@
         ActionName: String(e.ActionName),
         Label:      String(e.Label || ''),
         Priority:   Number.isFinite(e.Priority) ? e.Priority : 100,
+        // Optional. C++ resolves the key from the action's bindings when this is
+        // empty; a screen sets it when the action is mapped in more than one
+        // context and binding scan order would advertise the wrong key.
+        KeyName:    String(e.KeyName || ''),
       });
     }
     if (!seen.has('IA_UI_CancelBack')) {

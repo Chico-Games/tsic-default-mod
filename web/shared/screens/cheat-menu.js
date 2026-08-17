@@ -1091,7 +1091,13 @@
     // unloaded world when the panel was opened from the main menu. The toggle
     // command closes to wherever it was opened from.
     cancelCmd: 'UI.Cmd.Pause.CheatMenu',
-    actionBarContext: [],
+    // "Close", not the default "Back": Escape leaves the panel outright rather
+    // than stepping back to whatever opened it. KeyName is spelled out because
+    // IA_UI_CancelBack is mapped in IMC_ConstructionPicker too, and the publisher
+    // was advertising that context's Tab instead of the Escape that works here.
+    actionBarContext: [
+      { ActionName: 'IA_UI_CancelBack', Label: 'Close', KeyName: 'Escape', Priority: 1000 },
+    ],
     template: TEMPLATE,
 
     mount(root, ctx) {
