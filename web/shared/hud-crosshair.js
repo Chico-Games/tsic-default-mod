@@ -62,21 +62,46 @@
     }
   }
 
-  tsic.on('tsic.msg.UI.Input.Mode.Changed', function (p) {
+  // Hide the crosshair whenever the UI owns the mouse — same rule cursor.js uses to
+  // decide the opposite (see GAMEPLAY_SCREENS there); the two are complementary, so
+  // they must agree or you get both or neither.
+  //
+  // This used to key off UI.Input.Mode.Changed and read `p.Device === 'mouse' &&
+  // p.Focus === 'ui'`. FScpUIInputMode carries ONE field, `Mode` ("Gamepad" |
+  // "MouseAndKeyboard") — Device and Focus have never existed on it, so the
+  // condition was always false and the crosshair stayed lit over the map, the
+  // inventory and every other screen. Nothing caught it: the mismatch is silent on
+  // the bridge, and no test covered the hide-in-menus behaviour.
+  var GAMEPLAY_SCREENS = { InGame: 1, Boot: 1, Loading: 1 };
+  var currentScreen = 'InGame';
+  var overlayCount = 0;
+
+  function applyCrosshairVisibility() {
     var dot = document.getElementById('hud-crosshair');
-    if (!dot || !p) return;
-    var isMenuMode = String(p.Device || '') === 'mouse' && String(p.Focus || '') === 'ui';
-    dot.classList.toggle('hidden', isMenuMode);
+    if (!dot) return;
+    var uiHasMouse = overlayCount > 0 || !GAMEPLAY_SCREENS[currentScreen];
+    dot.classList.toggle('hidden', uiHasMouse);
     var hand = document.getElementById('hud-crosshair-hand');
-    if (hand) hand.classList.toggle('hidden', isMenuMode);
+    if (hand) hand.classList.toggle('hidden', uiHasMouse);
     var cel = document.getElementById('hud-crosshair-cat');
-    if (cel) cel.classList.toggle('hidden', isMenuMode);
+    if (cel) cel.classList.toggle('hidden', uiHasMouse);
     // The progress collar + its completion bloom (hud-circular-progress.js) are
     // crosshair furniture too — without this they float over an open menu.
     var prog = document.getElementById('hud-crosshair-progress');
-    if (prog) prog.classList.toggle('hidden', isMenuMode);
+    if (prog) prog.classList.toggle('hidden', uiHasMouse);
     var bloom = document.getElementById('hud-crosshair-bloom');
-    if (bloom) bloom.classList.toggle('hidden', isMenuMode);
+    if (bloom) bloom.classList.toggle('hidden', uiHasMouse);
+  }
+
+  tsic.on('tsic.msg.UI.Screen.Changed', function (p) {
+    if (!p || !p.Name) return;
+    currentScreen = String(p.Name);
+    applyCrosshairVisibility();
+  });
+
+  tsic.on('tsic.msg.UI.Overlay.Changed', function (p) {
+    overlayCount = (p && p.Stack && p.Stack.length) || 0;
+    applyCrosshairVisibility();
   });
 
   tsic.on('tsic.msg.UI.Interaction.Targets', function (p) {
