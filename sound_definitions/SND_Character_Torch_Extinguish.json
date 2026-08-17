@@ -1,9 +1,0 @@
-{
-  "id": "Character.Torch.Extinguish",
-  "class": "SoundSlotDefinition",
-  "properties": {
-    "sounds": [
-      "/Game/Shared/Audio/Character/SW_Torch_Extinguish.SW_Torch_Extinguish"
-    ]
-  }
-}
