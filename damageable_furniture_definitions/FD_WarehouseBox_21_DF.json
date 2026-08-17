@@ -169,6 +169,7 @@
     ],
     "loot_position_chance": 0.3,
     "weighted_chance": 1000,
-    "world_gen_priority": 5000
+    "world_gen_priority": 5000,
+    "drag_sound_slot": "Character.Drag.Stone"
   }
 }

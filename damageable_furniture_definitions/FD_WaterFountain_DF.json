@@ -272,6 +272,7 @@
     "random_material_overrides": [],
     "loot_positions": [],
     "weighted_chance": 1000,
-    "world_gen_priority": 4000
+    "world_gen_priority": 4000,
+    "drag_sound_slot": "Character.Drag.Stone"
   }
 }
