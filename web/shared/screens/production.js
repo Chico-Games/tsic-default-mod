@@ -463,6 +463,9 @@
           // same moment as Recipe.Added — stacking both double-triggers. Left
           // unwired deliberately; see the audio audit.
           window.tsic.playSound && window.tsic.playSound('Recipe.Added');
+          // The machine taking the job. Exclusive, so queueing a second item cuts the
+          // first one's take short rather than running two machines at once.
+          window.tsic.playSound && window.tsic.playSound('Craft.Working');
         });
         root.querySelector('#p-cage-collect').addEventListener('click', () => {
           if (!cageBuffer || (cageBuffer.Stacks || []).length === 0) return;

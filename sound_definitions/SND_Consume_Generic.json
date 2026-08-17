@@ -3,7 +3,8 @@
   "class": "SoundSlotDefinition",
   "properties": {
     "sounds": [
-      "/Game/Characters/Customer/Audio/Cues/SC_Eat.SC_Eat"
-    ]
+      "/Game/Survival_Sound_Kit_HD_Remake/Wavs/Eating_19.Eating_19"
+    ],
+    "pitch_variance": 0.05
   }
 }

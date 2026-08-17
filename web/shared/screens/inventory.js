@@ -377,6 +377,10 @@
     inputModeTag: 'InputMode.Menu.Inventory',
     cancelCmd: 'UI.Cmd.Pause.Resume',
     template: TEMPLATE,
+    // The bag is a bag, not a menu: opening it is the sound of rummaging through
+    // one. Same generic timing as every other screen, different voice.
+    screenSoundOpen: 'Inventory.Open',
+    screenSoundClose: 'Inventory.Close',
 
     mount(root, ctx) {
       injectStyleOnce();

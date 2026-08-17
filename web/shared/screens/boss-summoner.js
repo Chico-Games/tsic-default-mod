@@ -50,6 +50,7 @@
           kind: 'Boss',
           actionLabel: 'Summon',
           soundSuccess: 'Craft.Success',
+          soundWorking: 'Craft.Working',
           soundFail: 'Craft.Fail',
           emptyText: 'No rituals available yet.',
           rowIcon(r) {

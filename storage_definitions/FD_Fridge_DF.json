@@ -167,6 +167,8 @@
     ],
     "loot_position_chance": 0.3,
     "weighted_chance": 1000,
-    "world_gen_priority": 6000
+    "world_gen_priority": 6000,
+    "open_sound": "Container.Open.Locker",
+    "close_sound": "Container.Close.Locker"
   }
 }

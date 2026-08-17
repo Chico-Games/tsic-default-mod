@@ -119,6 +119,8 @@
     ],
     "release_angular_damping": 0.05000000074505806,
     "release_linear_damping": 0.009999999776482582,
-    "restitution": 0.30000001192092896
+    "restitution": 0.30000001192092896,
+    "open_sound": "Container.Open.Locker",
+    "close_sound": "Container.Close.Locker"
   }
 }

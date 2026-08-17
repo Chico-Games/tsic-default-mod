@@ -11,6 +11,7 @@
 //     renderExtra:  function(host, data){}, // optional extra pane content
 //     emptyText:    'No recipes available.',// placeholder when list is empty
 //     soundSuccess: 'Craft.Success',        // sound on successful action
+//     soundWorking: 'Craft.Working',        // optional, the bench working (exclusive slot)
 //     soundFail:    'Craft.Fail',           // sound on toast warning/error
 //     rowName:      function(recipe, cat){},// optional: override display name
 //     rowIcon:      function(recipe){},     // optional: override icon item ID
@@ -31,6 +32,7 @@
     var actionLabel = opts.actionLabel || 'Confirm';
     var emptyText = opts.emptyText || 'No recipes available.';
     var soundSuccess = opts.soundSuccess || null;
+    var soundWorking = opts.soundWorking || null;
     var soundFail = opts.soundFail || null;
 
     var stationId = null;
@@ -259,6 +261,12 @@
       }
       if (soundSuccess) {
         tsic.playSound(soundSuccess);
+      }
+      // The bench itself working, under the confirmation blip. Craft.Working is an
+      // exclusive slot, so queueing a second item cuts the first one's take short
+      // instead of layering another bench on top of it.
+      if (soundWorking) {
+        tsic.playSound(soundWorking);
       }
     }
 

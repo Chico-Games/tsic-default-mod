@@ -52,6 +52,7 @@
           kind: 'Crafting',
           actionLabel: 'Craft',
           soundSuccess: 'Craft.Success',
+          soundWorking: 'Craft.Working',
           soundFail: 'Craft.Fail',
         });
       })();

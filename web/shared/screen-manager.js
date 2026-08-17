@@ -20,6 +20,9 @@
 //     screenSound: false,                         // optional, opt out of the generic
 //                                                 // UI.Screen.Open/Close sounds (for
 //                                                 // screens that play their own)
+//     screenSoundOpen:  'Inventory.Open',         // optional, replace just the generic key
+//     screenSoundClose: 'Inventory.Close',        // (a screen with its own voice that still
+//                                                 // wants the manager to time it)
 //     opaque: true,                               // optional: fully covers the HUD;
 //                                                 // body gets .tsic-overlay-opaque so HUD
 //                                                 // components can pause decorative
@@ -225,11 +228,14 @@
   }
 
   // Generic screen open/close sounds. Screens that play their own (map,
-  // pause menu) opt out with screenSound: false in their registration.
-  function playScreenSound(name, key) {
+  // pause menu) opt out with screenSound: false in their registration; screens
+  // that only want a different voice name it with screenSoundOpen/Close and let
+  // the manager keep the timing.
+  function playScreenSound(name, key, override) {
     const mod = REGISTRY.get(name);
     if (mod && mod.screenSound === false) return;
-    if (window.tsic && window.tsic.playSound) window.tsic.playSound(key);
+    const resolved = (mod && mod[override]) || key;
+    if (window.tsic && window.tsic.playSound) window.tsic.playSound(resolved);
   }
 
   function changeScreen(name, paramsJson) {
@@ -246,7 +252,7 @@
       activeName = 'InGame';
       document.body.classList.remove('tsic-overlay-open');
       document.body.classList.remove('tsic-overlay-opaque');
-      if (prevName !== 'InGame') playScreenSound(prevName, 'UI.Screen.Close');
+      if (prevName !== 'InGame') playScreenSound(prevName, 'UI.Screen.Close', 'screenSoundClose');
       return;
     }
 
@@ -256,7 +262,7 @@
       // "pause decorative animations while hidden" rules off this class.
       document.body.classList.toggle('tsic-overlay-opaque', REGISTRY.get(name).opaque === true);
       // Screen-to-screen switches only sound the incoming screen.
-      playScreenSound(name, 'UI.Screen.Open');
+      playScreenSound(name, 'UI.Screen.Open', 'screenSoundOpen');
       showRegistered(name, params);
       return;
     }

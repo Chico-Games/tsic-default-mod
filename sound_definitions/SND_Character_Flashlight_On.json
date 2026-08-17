@@ -3,7 +3,7 @@
   "class": "SoundSlotDefinition",
   "properties": {
     "sounds": [
-      "/Game/Shared/Audio/Toggles/SW_Toggle_On.SW_Toggle_On"
+      "/Game/Survival_Sound_Kit_HD_Remake/Wavs/Turning_Flashlight_Off_4.Turning_Flashlight_Off_4"
     ]
   }
 }

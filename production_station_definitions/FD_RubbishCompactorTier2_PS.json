@@ -20,7 +20,7 @@
       "fade_in_time": 0.5,
       "fade_out_time": 0.8
     },
-    "has_toggled_off_audio": false,
+    "has_toggled_off_audio": true,
     "has_static_lights": false,
     "has_toggled_on_lights": false,
     "has_toggled_off_lights": false,
@@ -180,6 +180,16 @@
     "gameplay_tags": [],
     "release_angular_damping": 0.05000000074505806,
     "release_linear_damping": 0.009999999776482582,
-    "restitution": 0.30000001192092896
+    "restitution": 0.30000001192092896,
+    "toggled_off_audio": {
+      "sound": "Station.Machine.Cycle",
+      "volume_multiplier": 0.45,
+      "pitch_multiplier": 1.0,
+      "b_looping": false,
+      "b_attach_to_entity": true,
+      "attenuation_distance": 700.0,
+      "fade_in_time": 0.0,
+      "fade_out_time": 0.0
+    }
   }
 }
