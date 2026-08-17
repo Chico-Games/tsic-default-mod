@@ -37,6 +37,23 @@ TSICTestHarness.register({
 });
 
 TSICTestHarness.register({
+    // publishMenuContext rebuilds each entry field by field, so a new field is
+    // dropped silently unless it is copied across — the row then advertises
+    // whichever key the C++ binding scan happens to find first.
+    name: 'Unit/Router: publishMenuContext forwards an explicit KeyName',
+    file: '/screens/test-fixtures.html',
+    async run(ctx) {
+        ctx.clearPublishes();
+        ctx.win.__tsicPublishMenuActionContext([
+            { ActionName: 'IA_UI_CancelBack', Label: 'Close', KeyName: 'Escape', Priority: 1000 },
+        ]);
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.BehaviorBar.SetMenuContext', {
+            where: p => p.Entries[0].KeyName === 'Escape',
+        }));
+    },
+});
+
+TSICTestHarness.register({
     name: 'Unit/Router: publishMenuContext de-dups by ActionName',
     file: '/screens/test-fixtures.html',
     async run(ctx) {

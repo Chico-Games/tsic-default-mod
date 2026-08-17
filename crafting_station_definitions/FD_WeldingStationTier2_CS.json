@@ -24,9 +24,9 @@
     "blocking_collision_boxes": [
       {
         "offset": {
-          "x": 140.0008,
-          "y": 81.6994,
-          "z": 63.9145
+          "x": 99.9994,
+          "y": 47.1997,
+          "z": 59.8871
         },
         "rotation": {
           "pitch": 0,
@@ -34,18 +34,18 @@
           "roll": 0
         },
         "box_size": {
-          "x": 100.1559,
-          "y": 58.3333,
-          "z": 41.9474
+          "x": 71.4,
+          "y": 33.6983,
+          "z": 39.3042
         }
       }
     ],
     "support_collision_boxes": [
       {
         "offset": {
-          "x": 140.0008,
-          "y": 81.6994,
-          "z": 63.2691
+          "x": 99.9994,
+          "y": 47.1997,
+          "z": 59.2824
         },
         "rotation": {
           "pitch": 0,
@@ -53,9 +53,9 @@
           "roll": 0
         },
         "box_size": {
-          "x": 143.0799,
-          "y": 83.3333,
-          "z": 64.5345
+          "x": 102.0,
+          "y": 48.1404,
+          "z": 60.4681
         }
       }
     ],
@@ -85,6 +85,7 @@
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,
+    "static_mesh": "/Game/Fab/INDUSTRIAL/VOL4_Consoles/Meshes/LP/SM_Consoles_Industrial_12f.SM_Consoles_Industrial_12f",
     "casts_shadow": true,
     "collision_profile_name": {
       "name": "Furniture"
