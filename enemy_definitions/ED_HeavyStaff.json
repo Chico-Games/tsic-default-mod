@@ -35,25 +35,29 @@
         "name": "walk",
         "max_speed": 95,
         "accel": 600,
-        "rotation_rate": 150
+        "rotation_rate": 150,
+        "braking_deceleration": 200
       },
       {
         "name": "walk_medium",
         "max_speed": 130,
         "accel": 750,
-        "rotation_rate": 180
+        "rotation_rate": 180,
+        "braking_deceleration": 270
       },
       {
         "name": "hurry",
         "max_speed": 168,
         "accel": 900,
-        "rotation_rate": 220
+        "rotation_rate": 220,
+        "braking_deceleration": 350
       },
       {
         "name": "sprint",
         "max_speed": 238,
         "accel": 1400,
-        "rotation_rate": 280
+        "rotation_rate": 280,
+        "braking_deceleration": 500
       }
     ],
     "token_cost": 2,
