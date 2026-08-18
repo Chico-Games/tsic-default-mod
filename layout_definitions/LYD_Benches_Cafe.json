@@ -51,7 +51,7 @@
           "spawn_chance_over": 0.1,
           "spawn_chance_under": 0.2
         },
-        "furniture_definition": "FD_Microwave_PS",
+        "furniture_definition": "FD_Table_4_DF",
         "transform": {
           "rotation": {
             "x": 0.0,
@@ -63,6 +63,39 @@
             "x": 600.0,
             "y": -100.0,
             "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "PROXY_ACTOR",
+          "value": 0
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": 1,
+          "search_queries": [],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.1,
+          "spawn_chance_under": 0.2
+        },
+        "furniture_definition": "FD_Microwave_PS",
+        "transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 1.0,
+            "w": 6.123233995736766e-17
+          },
+          "translation": {
+            "x": 600.0,
+            "y": -100.0,
+            "z": 74.0
           },
           "scale3_d": {
             "x": 1.0,
@@ -150,7 +183,7 @@
           "spawn_chance_over": 0.4,
           "spawn_chance_under": 0.5
         },
-        "furniture_definition": "FD_Microwave_PS",
+        "furniture_definition": "FD_Table_4_DF",
         "transform": {
           "rotation": {
             "x": 0.0,
@@ -162,6 +195,39 @@
             "x": -100.0,
             "y": 0.0,
             "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "PROXY_ACTOR",
+          "value": 0
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": 1,
+          "search_queries": [],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.4,
+          "spawn_chance_under": 0.5
+        },
+        "furniture_definition": "FD_Microwave_PS",
+        "transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 1.0
+          },
+          "translation": {
+            "x": -100.0,
+            "y": 0.0,
+            "z": 74.0
           },
           "scale3_d": {
             "x": 1.0,
@@ -249,7 +315,7 @@
           "spawn_chance_over": 0.7,
           "spawn_chance_under": 0.8
         },
-        "furniture_definition": "FD_CoffeeMachine_PS",
+        "furniture_definition": "FD_Table_4_DF",
         "transform": {
           "rotation": {
             "x": 0.0,
@@ -261,6 +327,39 @@
             "x": 600.0,
             "y": 50.0,
             "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "PROXY_ACTOR",
+          "value": 0
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": 1,
+          "search_queries": [],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.7,
+          "spawn_chance_under": 0.8
+        },
+        "furniture_definition": "FD_CoffeeMachine_PS",
+        "transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.7071067811865476,
+            "w": 0.7071067811865476
+          },
+          "translation": {
+            "x": 600.0,
+            "y": 50.0,
+            "z": 74.0
           },
           "scale3_d": {
             "x": 1.0,

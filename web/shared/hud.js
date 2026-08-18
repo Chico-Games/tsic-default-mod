@@ -105,7 +105,11 @@
     '#hud-crosshair.hidden { display:none; }',
     // Drag hand — slightly transparent icon beside the (opaque) dot while the
     // look target is draggable; tightens while dragging. SVG built by hud-crosshair.js.
-    '#hud-crosshair-hand { position:fixed; left:calc(50% + 32px); top:50%; margin-top:-9px; width:18px; height:18px; color:#fff; opacity:0; pointer-events:none; z-index:20; transition:opacity 120ms ease, transform 120ms ease; filter:drop-shadow(0 1px 1px rgba(0,0,0,0.6)); }',
+    // The hand sits to the LEFT of the dot and the category glyph to the RIGHT, so
+    // the two look-target symbols straddle the crosshair instead of stacking up on
+    // one side and reading as a single clump (GH #346). Both are offset 10px from
+    // centre; the hand's own 18px width is subtracted so the gap matches visually.
+    '#hud-crosshair-hand { position:fixed; left:calc(50% - 28px); top:50%; margin-top:-9px; width:18px; height:18px; color:#fff; opacity:0; pointer-events:none; z-index:20; transition:opacity 120ms ease, transform 120ms ease; filter:drop-shadow(0 1px 1px rgba(0,0,0,0.6)); }',
     '#hud-crosshair-hand.visible { opacity:0.55; }',
     '#hud-crosshair-hand.dragging { opacity:0.8; transform:scale(0.9); }',
     '#hud-crosshair-hand.hidden { display:none; }',

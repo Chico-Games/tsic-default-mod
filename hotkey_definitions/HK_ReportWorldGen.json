@@ -1,0 +1,11 @@
+{
+  "id": "HK_ReportWorldGen",
+  "class": "HotkeyDefinition",
+  "properties": {
+    "display_name": "Report a World Generation Issue",
+    "category": "Interface",
+    "keyboard_key": {
+      "key_name": "F9"
+    }
+  }
+}

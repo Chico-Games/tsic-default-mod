@@ -1,0 +1,12 @@
+{
+  "id": "BH_ReportWorldGen",
+  "class": "InputBehaviorDefinition",
+  "properties": {
+    "behavior_tag_name": "Input.Behavior.ReportWorldGen",
+    "show_on_action_bar": false,
+    "display_name": "Report a World Generation Issue",
+    "hotkey": "HK_ReportWorldGen",
+    "trigger_type": 0,
+    "behavior_bar_priority": 92
+  }
+}

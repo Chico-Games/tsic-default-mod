@@ -5,9 +5,9 @@
 // opaque; the look target's category (Targets[0].Category, bridge field from
 // FScpUIInteractionTarget) is stamped as data-cat to drive a subtle per-category
 // halo animation (styles in hud.js). A slightly transparent hand icon appears
-// beside the dot while looking at a draggable target and tightens while
+// to the LEFT of the dot while looking at a draggable target and tightens while
 // dragging (both flags ride on UI.Interaction.Targets; bridge bools keep
-// their b-prefix). A second glyph (#hud-crosshair-cat) sits nearest the dot and
+// their b-prefix). A second glyph (#hud-crosshair-cat) sits to the RIGHT and
 // shows the look target's category symbol (loot/storage/door/…), tinted to match
 // the interaction panel — so a lootable vs a storage vs a door read differently
 // at a glance. The icon is shared with the panel via TSIC.categoryIcon (icons.js).

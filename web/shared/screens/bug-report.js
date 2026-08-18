@@ -74,7 +74,7 @@
   const TEMPLATE = `
     <div id="br-overlay" class="tsic-modal-scrim">
       <div class="tsic-panel" style="width:460px;max-height:90vh;display:flex;flex-direction:column;">
-        <h2 class="tsic-title tsic-title--sm">Report a Bug</h2>
+        <h2 id="br-title" class="tsic-title tsic-title--sm">Report a Bug</h2>
 
         <div data-tsic-focus-group="form-fields">
           <div class="field">
@@ -210,9 +210,24 @@
         renderFurniture();
       });
 
+      // The form is reached by four different keys now (GH #352), so the heading
+      // names the category rather than always claiming to be a bug report.
+      const TITLES = {
+        Suggestion: 'Suggest Something',
+        Bug: 'Report a Bug',
+        FurniturePlacement: 'Report a World Generation Issue',
+        Other: 'Report Something Else',
+      };
+      const title = root.querySelector('#br-title');
+      function renderTitle() {
+        const chosen = tsic.dropdown.get(category) || 'Other';
+        title.textContent = TITLES[chosen] || TITLES.Other;
+      }
+
       // tsic.dropdown.set fires tsic-change on the trigger; re-render the panel
       // so picking the placement category reveals what the ray found.
-      category.addEventListener('tsic-change', renderFurniture);
+      category.addEventListener('tsic-change', () => { renderFurniture(); renderTitle(); });
+      ctx.renderTitle = renderTitle;
 
       description.addEventListener('input', () => {
         description.classList.remove('br-invalid');
@@ -277,6 +292,19 @@
       const description = ctx.root.querySelector('#br-description');
       description.classList.remove('br-invalid');
       ctx.root.querySelector('#br-hint').style.visibility = 'hidden';
+
+      // Opened by one of the per-category report keys (router.js, GH #352) — start on
+      // the category that key stands for. Read here rather than in mount() because
+      // mount runs once and the screen is reused for every later open. Consumed on
+      // read, so opening the form from the pause menu falls back to the markup
+      // default instead of whichever key was pressed last.
+      if (window.TSIC && window.TSIC.pendingReportCategory) {
+        const preset = window.TSIC.pendingReportCategory;
+        window.TSIC.pendingReportCategory = null;
+        tsic.dropdown.set('#br-category', preset);
+      }
+      if (ctx.renderTitle) ctx.renderTitle();
+
       // Re-trace every time the form opens — the snapshot is only valid for the
       // view the player froze on this trip through the pause menu.
       if (ctx.requestTarget) ctx.requestTarget();
