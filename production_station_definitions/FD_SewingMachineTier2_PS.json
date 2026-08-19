@@ -11,7 +11,7 @@
     "has_static_audio": false,
     "has_toggled_on_audio": true,
     "toggled_on_audio": {
-      "sound": "Furniture.Loop.Machine",
+      "sound": "Furniture.Loop.Sewing",
       "volume_multiplier": 0.35,
       "b_looping": true,
       "b_attach_to_entity": true,
@@ -116,6 +116,7 @@
     "release_linear_damping": 0.009999999776482582,
     "restitution": 0.30000001192092896,
     "available_recipe_rules_definition": "ARR_SewingMachineTier2Recipes",
+    "open_sound": "Station.Sewing.Open",
     "toggled_off_audio": {
       "sound": "Station.Machine.Cycle",
       "volume_multiplier": 0.45,
