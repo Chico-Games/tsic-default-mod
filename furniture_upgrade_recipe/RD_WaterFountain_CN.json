@@ -7,8 +7,8 @@
     "recipe_tags": [],
     "input": [
       {
-        "key": "ID_ConcreteBag_CM",
-        "value": 19
+        "key": "ID_ConcreteBrick_CM",
+        "value": 8
       },
       {
         "key": "ID_MetalScrews_CM",

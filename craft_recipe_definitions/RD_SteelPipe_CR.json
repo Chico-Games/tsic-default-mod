@@ -6,9 +6,18 @@
   "properties": {
     "recipe_tags": [],
     "input": [
-      { "key": "ID_SteelPanel_CM", "value": 2 },
-      { "key": "ID_MetalChairLeg_CM", "value": 2 },
-      { "key": "ID_MetalScrews_CM", "value": 2 }
+      {
+        "key": "ID_SteelPanel_CM",
+        "value": 2
+      },
+      {
+        "key": "ID_ScrapMetal_CM",
+        "value": 4
+      },
+      {
+        "key": "ID_MetalScrews_CM",
+        "value": 2
+      }
     ],
     "output": [
       { "key": "ID_SteelPipe_EQ", "value": 1 }

@@ -7,8 +7,8 @@
     "recipe_tags": [],
     "input": [
       {
-        "key": "ID_PlantPot_CM",
-        "value": 1
+        "key": "ID_ConcreteBag_CM",
+        "value": 2
       },
       {
         "key": "ID_WoodenDowel_CM",

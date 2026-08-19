@@ -7,8 +7,8 @@
     "recipe_tags": [],
     "input": [
       {
-        "key": "ID_ResearchCredit_T3_CM",
-        "value": 2
+        "key": "ID_ResearchCredit_CM",
+        "value": 8
       },
       {
         "key": "ID_TVHeadCore_CM",

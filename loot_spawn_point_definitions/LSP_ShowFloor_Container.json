@@ -26,6 +26,16 @@
               "item_entity": "FD_UpholsteryFabric_SI",
               "count": 1,
               "weight": 1
+            },
+            {
+              "item_entity": "FD_Tape_SI",
+              "count": 1,
+              "weight": 1
+            },
+            {
+              "item_entity": "FD_PaperReceipt_SI",
+              "count": 1,
+              "weight": 1
             }
           ],
           "spawn_chance": 0.6000000238418579
@@ -42,6 +52,11 @@
               "item_entity": "FD_ExtensionCord_SI",
               "count": 1,
               "weight": 1
+            },
+            {
+              "item_entity": "FD_MetalScrews_SI",
+              "count": 1,
+              "weight": 1
             }
           ],
           "spawn_chance": 0.6000000238418579
@@ -55,12 +70,7 @@
         "value": {
           "loot_items": [
             {
-              "item_entity": "FD_ExpiredDurhamCoupon_SI",
-              "count": 1,
-              "weight": 1
-            },
-            {
-              "item_entity": "FD_Lightbulb_SI",
+              "item_entity": "FD_CircuitBoard_SI",
               "count": 1,
               "weight": 1
             }

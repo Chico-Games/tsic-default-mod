@@ -62,8 +62,6 @@
         "value": "ID_CapturedBoneHead_CE"
       }
     ],
-    "research_credit_tier1": "ID_ResearchCredit_T1_CM",
-    "research_credit_tier2": "ID_ResearchCredit_T2_CM",
-    "research_credit_tier3": "ID_ResearchCredit_T3_CM"
+    "research_credit": "ID_ResearchCredit_CM"
   }
 }

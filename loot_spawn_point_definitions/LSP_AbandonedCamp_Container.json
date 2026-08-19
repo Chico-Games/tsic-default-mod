@@ -21,6 +21,11 @@
               "item_entity": "FD_Tape_SI",
               "count": 1,
               "weight": 1
+            },
+            {
+              "item_entity": "FD_UpholsteryFabric_SI",
+              "count": 1,
+              "weight": 1
             }
           ],
           "spawn_chance": 0.6000000238418579
@@ -34,7 +39,7 @@
         "value": {
           "loot_items": [
             {
-              "item_entity": "FD_DogCollar_SI",
+              "item_entity": "FD_WoodenDowel_SI",
               "count": 1,
               "weight": 1
             }
@@ -50,7 +55,7 @@
         "value": {
           "loot_items": [
             {
-              "item_entity": "FD_Homework_SI",
+              "item_entity": "FD_Petrol_SI",
               "count": 1,
               "weight": 1
             }

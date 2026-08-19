@@ -6,12 +6,8 @@
   "properties": {
     "production_machine_rules": {
       "recipes": [
-        "RD_PlushStuffing_CR",
         "RD_PlushPillow_CR",
-        "RD_PlushToy_CR",
-        "RD_PlushStuffingBulk_CR",
-        "RD_PlushPillowBulk_CR",
-        "RD_PlushToyDeluxe_CR"
+        "RD_PlushPillowBulk_CR"
       ]
     }
   }

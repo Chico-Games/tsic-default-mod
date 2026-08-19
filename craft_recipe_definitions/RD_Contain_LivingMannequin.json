@@ -17,12 +17,8 @@
     ],
     "output": [
       {
-        "key": "ID_ResearchCredit_T1_CM",
-        "value": 2
-      },
-      {
-        "key": "ID_ResearchCredit_T2_CM",
-        "value": 1
+        "key": "ID_ResearchCredit_CM",
+        "value": 4
       }
     ],
     "duration": 300.0,

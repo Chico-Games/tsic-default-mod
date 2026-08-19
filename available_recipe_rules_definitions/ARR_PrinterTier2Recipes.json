@@ -8,8 +8,6 @@
       "recipes": [
         "RD_ReceiptFromDowel_CR",
         "RD_ReceiptFromPlank_CR",
-        "RD_ReceiptFromSpoon_CR",
-        "RD_ReceiptFromTrain_CR",
         "RD_ReceiptFromPlankBulk_CR"
       ]
     }

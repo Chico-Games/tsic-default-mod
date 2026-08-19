@@ -7,8 +7,8 @@
     "recipe_tags": [],
     "input": [
       {
-        "key": "ID_ResearchCredit_T2_CM",
-        "value": 2
+        "key": "ID_ResearchCredit_CM",
+        "value": 4
       },
       {
         "key": "ID_SteelPanel_CM",
@@ -19,8 +19,8 @@
         "value": 4
       },
       {
-        "key": "ID_BoneHeadTrophy_CM",
-        "value": 1
+        "key": "ID_BoneChunk_CM",
+        "value": 2
       }
     ],
     "output": [],

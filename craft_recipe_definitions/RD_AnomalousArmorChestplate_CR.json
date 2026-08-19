@@ -7,11 +7,11 @@
     "recipe_tags": [],
     "input": [
       {
-        "key": "ID_ResearchPaper_MaleStaff_CM",
-        "value": 1
+        "key": "ID_ResearchPaper_CM",
+        "value": 3
       },
       {
-        "key": "ID_ResearchPaper_BoneHead_CM",
+        "key": "ID_BoneChunk_CM",
         "value": 2
       },
       {
