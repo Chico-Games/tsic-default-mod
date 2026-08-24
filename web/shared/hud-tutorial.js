@@ -22,13 +22,22 @@
     ProduceRecipe:     'Produce a recipe in a machine',
     PlantSeed:         'Plant a seed in a plant pot',
     CraftWeapon:       'Craft a weapon',
+    EquipWeapon:       'Put a weapon on your hotbar',
+    KillEnemy:         'Put something down',
+    OpenStorage:       'Open a storage crate',
+    SurviveNight:      'Survive until morning',
+    UpgradeFurniture:  'Upgrade a piece of furniture',
+    RepairItem:        'Repair your gear',
+    UseTeleporter:     'Travel by teleporter',
   };
   var UPCOMING_COUNT = 3;   // incomplete objectives shown below the last-completed row
 
   // Steps that tick off silently. Their completion fires in the middle of a
   // physical action, where a chime reads as that action's own SFX rather than as
   // an objective being checked off (grabbing furniture sounded like a pickup cue).
-  var SILENT_STEPS = { DragFurniture: true };
+  // EquipWeapon joins DragFurniture for the same reason: it completes in the middle of
+  // drawing a weapon, where the chime reads as the equip's own sound effect.
+  var SILENT_STEPS = { DragFurniture: true, EquipWeapon: true };
 
   // Transparent chrome: no plate behind the box — drop shadows carry legibility
   // (same treatment as the behavior bar, #bb-shell-gameplay).
@@ -47,6 +56,16 @@
     '  padding:0 2px 4px; border-bottom:1px solid rgba(240,232,208,0.35);',
     '  color:var(--paper-cream, #f0e8d0); font-family:var(--font-display);',
     '  font-size:clamp(13px, 1.2vh, 17px); font-weight:700; letter-spacing:0.12em; text-transform:uppercase; }',
+    '#hud-tutorial .tut-header-right { display:flex; align-items:center; gap:6px; }',
+
+    // "MORE [TAB]" — the only signpost the Overview screen has. Without it the
+    // handbook is a hold-to-open panel nobody is told about, so this rides the
+    // one HUD element that is already about objectives.
+    '#hud-tutorial .tut-more { display:flex; align-items:center; gap:4px; opacity:0.7;',
+    '  font-family:var(--font-body); font-size:clamp(9px, 0.85vh, 12px); font-weight:800;',
+    '  letter-spacing:0.16em; }',
+    '#hud-tutorial .tut-more img { width:1.35em; height:1.35em; opacity:0.9;',
+    '  filter:drop-shadow(0 1px 2px rgba(0,0,0,0.75)); }',
 
     // ✕ — dormant until a cursor overlay is open, then clickable.
     '#hud-tutorial .tut-close { pointer-events:none; opacity:0; transition:opacity 150ms ease;',
@@ -197,6 +216,17 @@
     root = document.getElementById('hud-tutorial');
     if (!root) return false;
 
+    var more = el('span', { class: 'tut-more', title: 'Hold Tab for the full handbook' }, 'More');
+    if (window.TSIC && TSIC.keyIconUrl) {
+      var keyUrl = TSIC.keyIconUrl('Tab');
+      if (keyUrl) {
+        var keyImg = document.createElement('img');
+        keyImg.src = keyUrl;
+        keyImg.alt = 'Tab';
+        more.appendChild(keyImg);
+      }
+    }
+
     var close = el('button', { class: 'tut-close', title: 'Hide tutorial (re-enable in Options)' }, '✕');
     close.addEventListener('click', function () {
       tsic.publishMessage('UI.Cmd.Settings.Set', { Key: 'gameplay.show_tutorial', ValueJson: 'false' });
@@ -206,7 +236,9 @@
 
     rowsHost = el('div', { class: 'tut-rows' });
     root.appendChild(el('div', { class: 'tut-box' },
-      el('div', { class: 'tut-header' }, el('span', null, 'Objectives'), close),
+      el('div', { class: 'tut-header' },
+        el('span', null, 'Objectives'),
+        el('div', { class: 'tut-header-right' }, more, close)),
       rowsHost));
 
     root.classList.add('tut-hidden');   // stay hidden until the first state arrives

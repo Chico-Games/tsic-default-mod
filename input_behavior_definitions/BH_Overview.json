@@ -1,0 +1,13 @@
+{
+  "id": "BH_Overview",
+  "class": "InputBehaviorDefinition",
+  "properties": {
+    "behavior_tag_name": "Input.Behavior.Overview",
+    "display_name": "Overview",
+    "description": "Hold to read the handbook and see who is on shift.",
+    "hotkey": "HK_Overview",
+    "trigger_type": 0,
+    "show_on_action_bar": false,
+    "behavior_bar_priority": 54
+  }
+}
