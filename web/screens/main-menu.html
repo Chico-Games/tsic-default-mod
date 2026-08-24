@@ -463,6 +463,14 @@
           Load Save
           <span class="tsic-row-pg">PG. 12</span>
         </button>
+        <!-- Opens the platform friends overlay (Steam's friends list today), where the
+             player picks a friend already in a game and joins off their presence. Shown
+             unconditionally: outside the Steam client C++ finds no subsystem and no-ops. -->
+        <button class="tsic-row-button" id="btn-friends">
+          <span class="tsic-row-dept">Dept. 07</span>
+          Join Friends
+          <span class="tsic-row-pg">PG. 07</span>
+        </button>
         <button class="tsic-row-button" id="btn-mods">
           <span class="tsic-row-dept">Dept. 33</span>
           Mods
@@ -1133,6 +1141,8 @@
           return () => tsic.publishMessage('UI.Cmd.Menu.Navigate', { Screen: screen });
         }
         document.getElementById('btn-start').onclick    = nav('NewStore');
+        document.getElementById('btn-friends').onclick  = () =>
+          tsic.publishMessage('UI.Cmd.Menu.JoinFriends', {});
         document.getElementById('btn-load').onclick     = nav('LoadSave');
         document.getElementById('btn-mods').onclick     = nav('Mods');
         document.getElementById('btn-settings').onclick = nav('Settings');
