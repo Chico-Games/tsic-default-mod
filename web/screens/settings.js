@@ -30,9 +30,12 @@
         Pages: [
             { Id: 'AudioCollection', Title: 'Audio', Groups: [
                 { Id: 'Levels', Title: 'Levels', Settings: [
-                    { Key: 'audio.master', Label: 'Master volume', Type: 'range', Min: 0, Max: 1, Step: 0.01, Value: 0.8 },
-                    { Key: 'audio.music',  Label: 'Music volume',  Type: 'range', Min: 0, Max: 1, Step: 0.01, Value: 0.5 },
-                    { Key: 'audio.sfx',    Label: 'SFX volume',    Type: 'range', Min: 0, Max: 1, Step: 0.01, Value: 0.7 },
+                    // Values here are only the placeholder shown before C++ echoes the real
+                    // ones, so they must match ScpGameUserSettings' defaults or the sliders
+                    // visibly jump on open.
+                    { Key: 'audio.master', Label: 'Master volume', Type: 'range', Min: 0, Max: 1, Step: 0.01, Value: 0.6 },
+                    { Key: 'audio.music',  Label: 'Music volume',  Type: 'range', Min: 0, Max: 1, Step: 0.01, Value: 0.8 },
+                    { Key: 'audio.sfx',    Label: 'SFX volume',    Type: 'range', Min: 0, Max: 1, Step: 0.01, Value: 1 },
                     { Key: 'audio.menu_music', Label: 'Menu music volume', Type: 'range', Min: 0, Max: 1, Step: 0.01, Value: 0.8 },
                 ] },
                 { Id: 'Voice', Title: 'Voice chat', Settings: [
@@ -109,7 +112,7 @@
                     // balanced 67 / quality 77 / ultra 100). Ignored while a DLSS mode
                     // is selected: DLSS picks its own optimal percentage.
                     { Key: 'graphics.resolution_scale', Label: 'Render resolution (TSR)',
-                      Type: 'range', Min: 50, Max: 100, Step: 1, Value: 67 },
+                      Type: 'range', Min: 50, Max: 100, Step: 1, Value: 100 },
                     // Frame generation and Reflex are NVIDIA-only, FSR frame gen is
                     // FSR-plugin-only; the rows are removed wholesale when
                     // graphics.nvidia_caps reports no support.
@@ -180,10 +183,11 @@
                           { Value: '120', Label: '120 FPS' },
                           { Value: '144', Label: '144 FPS' },
                           { Value: '165', Label: '165 FPS' },
+                          { Value: '200', Label: '200 FPS' },
                           { Value: '240', Label: '240 FPS' },
                           { Value: '0',   Label: 'Unlimited' },
                       ],
-                      Value: '0' },
+                      Value: '200' },
                     { Key: 'graphics.brightness', Label: 'Brightness (gamma)',
                       Type: 'range', Min: 1.4, Max: 3, Step: 0.05, Value: 2.2 },
                     // Removed on displays without HDR output (video.hdr_supported).
