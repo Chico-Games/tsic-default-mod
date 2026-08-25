@@ -38,6 +38,7 @@
     Mods: 'mods',
     Credits: 'credits',
     Loading: 'loading-screen',
+    FirstBoot: 'first-boot',
     InGame: 'in-game',
     DeathScreen: 'death-screen',
     PauseMenu: 'pause-menu',

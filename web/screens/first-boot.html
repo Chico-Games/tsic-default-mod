@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="tsic-screen" content="FirstBoot">
+  <title>First Time Setup</title>
+  <link rel="stylesheet" href="/shared/base.css">
+  <link rel="stylesheet" href="/shared/components.css">
+  <script src="/shared/router.js" defer></script>
+  <script src="/shared/tsic-bridge.js" defer></script>
+  <script src="/shared/tsic-runtime.js" defer></script>
+  <script src="/shared/reduce-motion.js" defer></script>
+  <script src="/shared/store-maze.js" defer></script>
+  <script src="/shared/store-maze-stage.js" defer></script>
+  <style>
+    /* This screen hides a REAL play session — the game creates a throwaway store,
+       travels into it and plays it for half a minute so the driver compiles the
+       shaders a rendered world asks for. The player must not see any of that, so
+       opacity here is a requirement rather than a style choice: the stage carries
+       data-paper-alpha="1" (parse-time, per the warning in base.css about backdrops
+       authored in script) and the body is painted the same cream underneath it, so
+       there is no frame and no gap through which the store shows. */
+    html, body { background: rgb(240, 232, 208); }
+
+    .fb-body {
+      padding: 12px 22px 22px;
+      text-align: center;
+      font-family: var(--font-terminal);
+      font-size: 18px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+    }
+    /* Whole-sequence estimate from UI.FirstBoot.Progress. Unlike the ordinary loading
+       screen this bar is never hidden: a first-time player has no idea whether a long
+       silent wait is normal, and the bar is the only thing on the page telling them
+       the game has not died. It starts at zero and it is honest about being rough. */
+    .fb-progress { margin: 16px auto 0; width: 300px; height: 6px;
+      border: 1px solid var(--ink-soft, #6b6250); background: rgba(0,0,0,0.08); }
+    .fb-progress-fill { height: 100%; width: 0%; background: var(--ink-soft, #6b6250);
+      transition: width 240ms linear; }
+    /* The real backend phase, small, under the bar. The flavour line above it is
+       fiction; this is not. Keeping both means the screen is entertaining without
+       ever being the only thing the player has to go on. */
+    .fb-phase { margin-top: 10px; font-size: 12px; letter-spacing: 0.22em;
+      opacity: 0.65; min-height: 1em; }
+    .fb-note { margin-top: 18px; font-family: var(--font-body, inherit);
+      font-size: 13px; letter-spacing: 0.02em; text-transform: none;
+      opacity: 0.7; line-height: 1.5; }
+    .fb-dots > span { display: inline-block; opacity: 0; }
+    .fb-dots > span:nth-child(1) { animation: tsic-fb-dot-1 1.4s infinite; }
+    .fb-dots > span:nth-child(2) { animation: tsic-fb-dot-2 1.4s infinite; }
+    .fb-dots > span:nth-child(3) { animation: tsic-fb-dot-3 1.4s infinite; }
+    @keyframes tsic-fb-dot-1 { 0%, 24.99% { opacity: 0; } 25%, 99% { opacity: 1; } 100% { opacity: 0; } }
+    @keyframes tsic-fb-dot-2 { 0%, 49.99% { opacity: 0; } 50%, 99% { opacity: 1; } 100% { opacity: 0; } }
+    @keyframes tsic-fb-dot-3 { 0%, 74.99% { opacity: 0; } 75%, 99% { opacity: 1; } 100% { opacity: 0; } }
+  </style>
+</head><body>
+  <div class="tsic-stage--magazine-gradient" data-paper-alpha="1">
+    <div class="tsic-panel tsic-cover" style="--tsic-cover-width: 460px;">
+      <div class="tsic-masthead">
+        <div class="tsic-masthead-title">
+          First Time Setup
+        </div>
+        <div class="tsic-masthead-meta">
+          <span class="tsic-masthead-issue">Vol. 1</span>
+          <span class="tsic-masthead-date">Opening night.</span>
+        </div>
+      </div>
+      <div class="fb-body">
+        <span id="fb-status">Performing first time setup</span><span class="fb-dots" aria-hidden="true"><span>.</span><span>.</span><span>.</span></span>
+        <div id="fb-progress" class="fb-progress" role="progressbar"
+             aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"
+             aria-label="First time setup progress">
+          <div id="fb-progress-fill" class="fb-progress-fill"></div>
+        </div>
+        <div id="fb-phase" class="fb-phase" aria-live="polite"></div>
+        <p class="fb-note">
+          Performing first time setup and shader compilation.<br>
+          This only happens once. The next launch goes straight to the menu.
+        </p>
+      </div>
+    </div>
+  </div>
+  <script>
+    (function () {
+      // Opening-night flavour, distinct from the ordinary loading screen's set (that one
+      // is a store being tidied between days; this one is a store that has never opened).
+      // A few lines wink at what is genuinely happening underneath — a graphics driver
+      // being shown every surface in the building for the first time.
+      const FLAVOR = [
+        'Unboxing the store',
+        'Teaching the graphics card about furniture',
+        'Compiling every shade of beige',
+        'Introducing your GPU to the showroom',
+        'Cutting the ribbon',
+        'Warming up the price guns',
+        'Programming the automatic doors',
+        'Alphabetising the allen keys',
+        'Calibrating the trolley wheels',
+        'Testing the tannoy',
+        'Laminating the shift rota',
+        'Hiring the mannequins',
+        'Printing the very first receipt',
+        'Explaining the returns policy to the driver',
+        'Inflating the ball pit',
+        'Deciding what the meatballs are made of',
+        'Sweeping up the packing peanuts',
+        'Setting every clock to store time',
+        'Sharpening the box cutters',
+        'Pinning up the staff notices',
+        'Rehearsing the closing announcement',
+        'Counting the trolleys twice',
+        'Finding somewhere to put the fire extinguisher',
+        'Filing the very first incident report',
+      ];
+
+      function shuffled(arr) {
+        const a = arr.slice();
+        for (let i = a.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [a[i], a[j]] = [a[j], a[i]];
+        }
+        return a;
+      }
+      let queue = shuffled(FLAVOR);
+      let last = null;
+      function nextFlavor() {
+        if (!queue.length) {
+          queue = shuffled(FLAVOR);
+          if (queue[0] === last && queue.length > 1) queue.push(queue.shift());
+        }
+        last = queue.shift();
+        return last;
+      }
+      const statusEl = document.getElementById('fb-status');
+      function tickFlavor() { if (statusEl) statusEl.textContent = nextFlavor(); }
+      // Faster cadence than the ordinary loading screen (~4.5-7s vs ~6.5-9.5s): this
+      // wait is longer and entirely unexplained to a new player, so the page has to keep
+      // proving it is alive.
+      function scheduleFlavor() {
+        const delay = 4500 + Math.random() * 2500;
+        setTimeout(function () { tickFlavor(); scheduleFlavor(); }, delay);
+      }
+      tickFlavor();
+      scheduleFlavor();
+
+      // Poll for the bridge rather than a one-shot tsic.whenReady: this inline script
+      // runs at parse time, before window.tsic exists. Same pattern as loading-screen.html.
+      (function boot() {
+        if (!window.tsic || typeof tsic.bootMenu !== 'function') { setTimeout(boot, 16); return; }
+        // No escape, no close button — there is nothing to go back to and a travel is
+        // in flight underneath.
+        tsic.bootMenu(function () {}, { escape: false, closeButton: false });
+
+        const bar   = document.getElementById('fb-progress');
+        const fill  = document.getElementById('fb-progress-fill');
+        const phase = document.getElementById('fb-phase');
+        // Clamp forward-only on this side too. The C++ estimate is already monotonic,
+        // but the page is reloaded by each of the two map travels the pass drives, and a
+        // stale in-flight payload arriving after the reload must not drag the bar back.
+        let shown = -1;
+        tsic.on('tsic.msg.UI.FirstBoot.Progress', function (p) {
+          if (!p || typeof p.Progress !== 'number') return;
+          const pct = Math.max(0, Math.min(100, Math.round(p.Progress * 100)));
+          // Drop the WHOLE payload when it is behind what is already on screen, rather
+          // than clamping the bar and letting the label through: a stale message carries a
+          // stale phase too, and a bar reading 68% under the words "Preparing" is worse
+          // than either half alone.
+          if (pct < shown) return;
+          shown = pct;
+          if (bar && fill) {
+            bar.setAttribute('aria-valuenow', String(pct));
+            fill.style.width = pct + '%';
+          }
+          if (phase && typeof p.Phase === 'string') { phase.textContent = p.Phase; }
+        });
+      })();
+    })();
+  </script>
+</body></html>
