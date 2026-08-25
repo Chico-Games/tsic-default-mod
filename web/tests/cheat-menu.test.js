@@ -1,3 +1,16 @@
+// The panel's pickers are tsic-dropdown buttons, not native <select>s: CEF's
+// native select popup renders through a Slate menu that misplaces/flips under
+// accelerated paint, so the cheat menu builds them the same way settings, mods
+// and the bug report do. These read and drive them the way a click would.
+const ddOptions = (ctx, id) =>
+    JSON.parse(ctx.doc.getElementById(id).getAttribute('data-tsic-options') || '[]');
+const ddCount = (ctx, id) => ddOptions(ctx, id).length;
+const ddValue = (ctx, id) => ctx.doc.getElementById(id).getAttribute('data-tsic-value') || '';
+// set() is what committing an option from the open list calls, so it fires
+// tsic-change exactly as a real pick does.
+const ddPick = (ctx, id, value) => ctx.win.tsic.dropdown.set(ctx.doc.getElementById(id), value);
+const ddPickIndex = (ctx, id, index) => ddPick(ctx, id, ddOptions(ctx, id)[index].value);
+
 TSICTestHarness.register({
     name: 'CheatMenu: God Mode button publishes Cheat.Execute',
     file: '/screens/cheat-menu.html',
@@ -21,7 +34,7 @@ TSICTestHarness.register({
         ctx.inject('tsic.msg.UI.Cheat.Catalog', {
             Items: [{ DisplayName: 'Bread', InternalName: '/Game/Items/ID_Bread', Description: '' }],
         });
-        await ctx.waitFor(() => ctx.doc.getElementById('cm-item').options.length > 0);
+        await ctx.waitFor(() => ddCount(ctx, 'cm-item') > 0);
         ctx.doc.getElementById('cm-item-count').value = '3';
         ctx.clearPublishes();
         ctx.doc.getElementById('cm-give').click();
@@ -38,7 +51,7 @@ TSICTestHarness.register({
         ctx.inject('tsic.msg.UI.Cheat.Catalog', {
             FurnitureDefault: [{ DisplayName: 'Table', InternalName: '/Game/Furniture/FD_Table', Description: '' }],
         });
-        await ctx.waitFor(() => ctx.doc.getElementById('cm-furn').options.length > 0);
+        await ctx.waitFor(() => ddCount(ctx, 'cm-furn') > 0);
         ctx.clearPublishes();
         ctx.doc.getElementById('cm-spawn-furn').click();
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Cheat.Execute', { where: p => p.Command === 'SpawnFurniture FD_Table' }));
@@ -69,13 +82,12 @@ TSICTestHarness.register({
             { Id: 'a', Name: 'Host', bIsHost: true },
             { Id: 'b', Name: 'Friend', bIsHost: false },
         ]});
-        await ctx.waitFor(() => ctx.doc.getElementById('cm-target').options.length === 3);
-        const sel = ctx.doc.getElementById('cm-target');
-        ctx.expect(ctx.assert.eq(sel.options[0].value, '0'));
-        ctx.expect(ctx.assert.eq(sel.options[0].textContent, 'Me'));
+        await ctx.waitFor(() => ddCount(ctx, 'cm-target') === 3);
+        ctx.expect(ctx.assert.eq(ddOptions(ctx, 'cm-target')[0].value, '0'));
+        ctx.expect(ctx.assert.eq(ddOptions(ctx, 'cm-target')[0].label, 'Me'));
         // Selected, not merely present: the panel is open on clients too, and a literal
         // player 1 would send every cheat they run to the host instead.
-        ctx.expect(ctx.assert.eq(sel.value, '0'));
+        ctx.expect(ctx.assert.eq(ddValue(ctx, 'cm-target'), '0'));
     },
 });
 
@@ -152,11 +164,9 @@ TSICTestHarness.register({
             { Id: 'a', Name: 'Host', bIsHost: true },
             { Id: 'b', Name: 'Friend', bIsHost: false },
         ]});
-        await ctx.waitFor(() => ctx.doc.getElementById('cm-target').options.length === 3);
+        await ctx.waitFor(() => ddCount(ctx, 'cm-target') === 3);
         ctx.clearPublishes();
-        const sel = ctx.doc.getElementById('cm-target');
-        sel.value = '2';
-        sel.dispatchEvent(new sel.ownerDocument.defaultView.Event('change'));
+        ddPick(ctx, 'cm-target', '2');
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Cheat.RequestState', { where: p => p.PlayerNum === 2 }));
     },
 });
@@ -174,13 +184,10 @@ TSICTestHarness.register({
         ]});
         // Name player 1 as the destination explicitly — the panel now defaults to "Me",
         // which has no index to exclude from the subject list.
-        await ctx.waitFor(() => ctx.doc.getElementById('cm-target').options.length === 4);
-        const dest = ctx.doc.getElementById('cm-target');
-        dest.value = '1';
-        dest.dispatchEvent(new dest.ownerDocument.defaultView.Event('change'));
-        await ctx.waitFor(() => ctx.doc.getElementById('cm-tp-subject').options.length === 2);
-        const subject = ctx.doc.getElementById('cm-tp-subject');
-        subject.value = '3';
+        await ctx.waitFor(() => ddCount(ctx, 'cm-target') === 4);
+        ddPick(ctx, 'cm-target', '1');
+        await ctx.waitFor(() => ddCount(ctx, 'cm-tp-subject') === 2);
+        ddPick(ctx, 'cm-tp-subject', '3');
         ctx.clearPublishes();
         ctx.doc.getElementById('cm-tp-player').click();
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Cheat.Execute', { where: p => p.Command === 'TeleportPlayer 3 1' }));
@@ -200,18 +207,15 @@ TSICTestHarness.register({
             { Id: 'b', Name: 'Friend', bIsHost: false },
         ]});
         // "Me" excludes nobody, so name player 1 as the destination first.
-        const target = ctx.doc.getElementById('cm-target');
-        await ctx.waitFor(() => target.options.length === 3);
-        target.value = '1';
-        target.dispatchEvent(new target.ownerDocument.defaultView.Event('change'));
-        await ctx.waitFor(() => ctx.doc.getElementById('cm-tp-subject').options.length === 1);
+        await ctx.waitFor(() => ddCount(ctx, 'cm-target') === 3);
+        ddPick(ctx, 'cm-target', '1');
+        await ctx.waitFor(() => ddCount(ctx, 'cm-tp-subject') === 1);
         // Destination is player 1, so only player 2 can be moved.
-        ctx.expect(ctx.assert.eq(ctx.doc.getElementById('cm-tp-subject').options[0].value, '2'));
+        ctx.expect(ctx.assert.eq(ddOptions(ctx, 'cm-tp-subject')[0].value, '2'));
         // Switch the destination to player 2 — now only player 1 can be moved.
-        target.value = '2';
-        target.dispatchEvent(new target.ownerDocument.defaultView.Event('change'));
-        await ctx.waitFor(() => ctx.doc.getElementById('cm-tp-subject').options[0].value === '1');
-        ctx.expect(ctx.assert.eq(ctx.doc.getElementById('cm-tp-subject').options.length, 1));
+        ddPick(ctx, 'cm-target', '2');
+        await ctx.waitFor(() => ddOptions(ctx, 'cm-tp-subject')[0].value === '1');
+        ctx.expect(ctx.assert.eq(ddCount(ctx, 'cm-tp-subject'), 1));
         ctx.expect(ctx.assert.domText(ctx.doc, '#cm-tp-player', /Teleport to Friend/));
     },
 });
@@ -254,7 +258,7 @@ TSICTestHarness.register({
         ctx.inject('tsic.msg.UI.Cheat.Catalog', {
             Items: [{ DisplayName: 'Bread', InternalName: '/Mods/ID_Bread_CN', Description: '' }],
         });
-        await ctx.waitFor(() => ctx.doc.getElementById('cm-item').options.length > 0);
+        await ctx.waitFor(() => ddCount(ctx, 'cm-item') > 0);
         ctx.clearPublishes();
         ctx.doc.querySelector('button[data-cmd-multi^="Eat"]').click();
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Cheat.Execute', { where: p => p.Command === 'Eat ID_Bread_CN 0' }));
@@ -319,16 +323,14 @@ TSICTestHarness.register({
             { Id: 'a', Name: 'Host', bIsHost: true },
             { Id: 'b', Name: 'Friend', bIsHost: false },
         ]});
-        await ctx.waitFor(() => ctx.doc.getElementById('cm-target').options.length === 3);
+        await ctx.waitFor(() => ddCount(ctx, 'cm-target') === 3);
 
         const health = ctx.doc.querySelector('.cm-section[data-keys="player/HEALTH"]');
         health.dispatchEvent(new health.ownerDocument.defaultView.Event('mousedown', { bubbles: true }));
         await ctx.waitFor(() => health.classList.contains('is-armed'));
 
         // Change BOTH the target player and the input AFTER arming.
-        const target = ctx.doc.getElementById('cm-target');
-        target.value = '2';
-        target.dispatchEvent(new target.ownerDocument.defaultView.Event('change'));
+        ddPick(ctx, 'cm-target', '2');
         ctx.doc.getElementById('cm-hurt').value = '77';
 
         ctx.clearPublishes();
@@ -363,12 +365,12 @@ TSICTestHarness.register({
                 { DisplayName: 'Mimic',   InternalName: '/Game/Enemies/BP_Mimic.BP_Mimic_C' },
             ],
         });
-        await ctx.waitFor(() => ctx.doc.getElementById('cm-creature').options.length === 2);
+        await ctx.waitFor(() => ddCount(ctx, 'cm-creature') === 2);
         const spawn = ctx.doc.querySelector('.cm-section[data-keys="enemies/SPAWN"]');
         spawn.dispatchEvent(new spawn.ownerDocument.defaultView.Event('mousedown', { bubbles: true }));
         await ctx.waitFor(() => spawn.classList.contains('is-armed'));
         // Pick the second creature after arming.
-        ctx.doc.getElementById('cm-creature').selectedIndex = 1;
+        ddPickIndex(ctx, 'cm-creature', 1);
         ctx.clearPublishes();
         ctx.inject('tsic.msg.UI.Behavior.CheatSlot1', { Phase: 'Started' });
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Cheat.Execute',
@@ -402,12 +404,12 @@ TSICTestHarness.register({
             AudioSlots:  [{ DisplayName: 'Enemy.Death.Generic', InternalName: 'Enemy.Death.Generic' },
                           { DisplayName: 'UI.Click', InternalName: 'UI.Click' }],
         });
-        await ctx.waitFor(() => ctx.doc.getElementById('cm-item-set').options.length === 2);
-        ctx.expect(ctx.assert.eq(ctx.doc.getElementById('cm-bot-profile').options.length, 1));
-        ctx.expect(ctx.assert.eq(ctx.doc.getElementById('cm-audio-slot').options.length, 2));
+        await ctx.waitFor(() => ddCount(ctx, 'cm-item-set') === 2);
+        ctx.expect(ctx.assert.eq(ddCount(ctx, 'cm-bot-profile'), 1));
+        ctx.expect(ctx.assert.eq(ddCount(ctx, 'cm-audio-slot'), 2));
 
         // The picker feeds the command, so no typing is involved.
-        ctx.doc.getElementById('cm-item-set').value = 'Endgame';
+        ddPick(ctx, 'cm-item-set', 'Endgame');
         ctx.clearPublishes();
         ctx.doc.querySelector('button[data-cmd-tpl-input^="GivePlayerItemsSet"]').click();
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Cheat.Execute',
@@ -417,7 +419,7 @@ TSICTestHarness.register({
         ctx.doc.getElementById('cm-audio-filter').value = 'click';
         ctx.doc.getElementById('cm-audio-filter').dispatchEvent(
             new ctx.win.Event('input', { bubbles: true }));
-        await ctx.waitFor(() => ctx.doc.getElementById('cm-audio-slot').options.length === 1);
+        await ctx.waitFor(() => ddCount(ctx, 'cm-audio-slot') === 1);
         ctx.expect(ctx.assert.domText(ctx.doc, '#cm-audio-readout', /1 \/ 2 slots/));
     },
 });
@@ -429,10 +431,10 @@ TSICTestHarness.register({
         ctx.screen('CheatMenu');
         await ctx.waitFor(() => ctx.doc.getElementById('cm-bot-profile'));
         ctx.inject('tsic.msg.UI.Cheat.Catalog', { BotProfiles: [] });
-        await ctx.waitFor(() => ctx.doc.getElementById('cm-bot-profile').options.length === 1);
+        await ctx.waitFor(() => ddCount(ctx, 'cm-bot-profile') === 1);
         ctx.expect(ctx.assert.truthy(
-            /no bot profiles/i.test(ctx.doc.getElementById('cm-bot-profile').options[0].textContent),
-            'an empty list must name itself, got: ' + ctx.doc.getElementById('cm-bot-profile').options[0].textContent));
+            /no bot profiles/i.test(ddOptions(ctx, 'cm-bot-profile')[0].label),
+            'an empty list must name itself, got: ' + ddOptions(ctx, 'cm-bot-profile')[0].label));
     },
 });
 
@@ -466,7 +468,7 @@ TSICTestHarness.register({
             { Id: 'b', Name: 'Two', bIsHost: false },
             { Id: 'c', Name: 'Three', bIsHost: false },
         ]});
-        await ctx.waitFor(() => ctx.doc.getElementById('cm-target').options.length === 4);
+        await ctx.waitFor(() => ddCount(ctx, 'cm-target') === 4);
         const all = ctx.doc.getElementById('cm-all-players');
         all.checked = true;
         all.dispatchEvent(new ctx.win.Event('change', { bubbles: true }));

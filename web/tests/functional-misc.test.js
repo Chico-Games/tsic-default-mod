@@ -93,8 +93,9 @@ TSICTestHarness.register({
     async run(ctx) {
         ctx.screen('CheatMenu');
         await ctx.waitFor(() => ctx.doc.getElementById('cm-give'));
-        // No catalog broadcast, so the select has no options that resolve to an item name.
-        ctx.doc.getElementById('cm-item').innerHTML = '';
+        // No catalog broadcast, so the picker has no options that resolve to an item
+        // name. tsic-dropdown clears the committed value along with the list.
+        ctx.win.tsic.dropdown.options(ctx.doc.getElementById('cm-item'), []);
         ctx.clearPublishes();
         ctx.doc.getElementById('cm-give').click();
         ctx.expect(ctx.assert.notPublished(ctx.handle, 'UI.Cmd.Cheat.Execute'));

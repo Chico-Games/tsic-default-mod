@@ -69,6 +69,28 @@
       attr('value', o.value) + attr('placeholder', o.placeholder) + '>';
   }
 
+  /**
+   * tsic-dropdown, NOT a native <select>: CEF's native select popup renders
+   * through a Slate menu that misplaces/flips under accelerated paint, so every
+   * other screen (settings, mods, bug report) already builds its pickers this
+   * way. `opts` is the initial [{value,label}] list; catalogue-backed pickers
+   * pass their placeholder here and get repopulated by fillPicker().
+   */
+  function picker(id, opts, o) {
+    o = o || {};
+    const list = opts || [];
+    const first = list[0] || { value: '', label: '' };
+    const cls = 'tsic-dropdown cm-select' + (o.small ? ' cm-input--sm' : '');
+    return `<button type="button" class="${cls}" id="${esc(id)}" data-tsic-focusable` +
+      attr('data-tsic-options', JSON.stringify(list)) +
+      attr('data-tsic-value', String(first.value)) +
+      (o.initialFocus ? ' data-tsic-initial-focus' : '') + '>' +
+      `<span class="tsic-dropdown-label">${esc(String(first.label))}</span>` +
+      '<span class="tsic-dropdown-caret">▾</span></button>';
+  }
+  const LOADING_OPT = [{ value: '', label: '(catalog loading…)' }];
+  const NONE_OPT = [{ value: '', label: '(none)' }];
+
   /** label + one or more inputs + one or more buttons, on a single line. */
   function inputRow(o) {
     return row(
@@ -163,21 +185,7 @@
           html: `
           <div class="cm-row">
             <label for="cm-mode">Mode</label>
-            <select class="cm-select" id="cm-mode">
-              <option value="GiveItem">Give Item</option>
-              <option value="EquipItem">Equip Item</option>
-              <option value="GiveAllFurniture">Give All Furniture</option>
-              <option value="GiveConstructionItem">Give Construction Item</option>
-              <option value="GiveConstructionItemAndCost">Give CI + Cost</option>
-              <option value="GiveRecipeIngredients">Give Recipe Ingredients</option>
-              <option value="GiveEquippable">Give Equippable</option>
-              <option value="GiveWeapon">Give Weapon</option>
-              <option value="GiveHeadGear">Give Head Gear</option>
-              <option value="GiveBodyArmor">Give Body Armor</option>
-              <option value="GiveLegArmor">Give Leg Armor</option>
-              <option value="GiveShoes">Give Shoes</option>
-              <option value="GiveGloves">Give Gloves</option>
-            </select>
+            ${picker('cm-mode', [{ value: 'GiveItem', label: 'Give Item' }, { value: 'EquipItem', label: 'Equip Item' }, { value: 'GiveAllFurniture', label: 'Give All Furniture' }, { value: 'GiveConstructionItem', label: 'Give Construction Item' }, { value: 'GiveConstructionItemAndCost', label: 'Give CI + Cost' }, { value: 'GiveRecipeIngredients', label: 'Give Recipe Ingredients' }, { value: 'GiveEquippable', label: 'Give Equippable' }, { value: 'GiveWeapon', label: 'Give Weapon' }, { value: 'GiveHeadGear', label: 'Give Head Gear' }, { value: 'GiveBodyArmor', label: 'Give Body Armor' }, { value: 'GiveLegArmor', label: 'Give Leg Armor' }, { value: 'GiveShoes', label: 'Give Shoes' }, { value: 'GiveGloves', label: 'Give Gloves' }])}
           </div>
           <div class="cm-row">
             <label for="cm-item-filter">Filter</label>
@@ -185,7 +193,7 @@
           </div>
           <div class="cm-row">
             <label for="cm-item">Item</label>
-            <select class="cm-select" id="cm-item"><option value="">(catalog loading…)</option></select>
+            ${picker('cm-item', LOADING_OPT)}
           </div>
           <div class="cm-row">
             <label for="cm-item-count">Quantity</label>
@@ -229,7 +237,7 @@
             ]) +
             inputRow({
               label: 'Item set', labelFor: 'cm-item-set',
-              inputs: ['<select class="cm-select cm-input--sm" id="cm-item-set"><option value="">(none)</option></select>'],
+              inputs: [picker('cm-item-set', NONE_OPT, { small: true })],
               btns: [{ label: 'Give Set', cmd: 'GivePlayerItemsSet {v} {p}', input: 'cm-item-set' }],
             }) +
             btnRow([
@@ -255,7 +263,7 @@
           </div>
           <div class="cm-row">
             <label for="cm-furn">Furniture</label>
-            <select class="cm-select" id="cm-furn"><option value="">(catalog loading…)</option></select>
+            ${picker('cm-furn', LOADING_OPT)}
           </div>
           <div class="cm-row">
             <button class="cm-exec" id="cm-spawn-furn">Spawn (place in front)</button>
@@ -399,7 +407,7 @@
           html: `
           <div class="cm-row">
             <label for="cm-tp-subject">Move player</label>
-            <select class="cm-select" id="cm-tp-subject"><option value="">(none)</option></select>
+            ${picker('cm-tp-subject', NONE_OPT)}
             <button class="cm-exec" id="cm-tp-player">Teleport to target</button>
           </div>
           <div class="cm-meta" id="cm-tp-meta">Sends the chosen player to whoever "Apply to" names.</div>`,
@@ -467,7 +475,7 @@
           </div>
           <div class="cm-row">
             <label for="cm-creature">Enemy</label>
-            <select class="cm-select" id="cm-creature"><option value="">(catalog loading…)</option></select>
+            ${picker('cm-creature', LOADING_OPT)}
           </div>
           <div class="cm-row">
             <button class="cm-exec" id="cm-spawn-creature">Spawn</button>
@@ -531,7 +539,7 @@
           html: inputRow({
             label: 'Profile', labelFor: 'cm-bot-profile',
             inputs: [
-              '<select class="cm-select cm-input--sm" id="cm-bot-profile"><option value="">(none)</option></select>',
+              picker('cm-bot-profile', NONE_OPT, { small: true }),
               num('cm-bot-distance', { value: 1000, min: 100, step: 100, placeholder: 'distance' }),
             ],
             btns: [{ label: 'Spawn Bot', cmd: 'SpawnBot {#cm-bot-profile} {#cm-bot-distance}', multi: true }],
@@ -625,7 +633,7 @@
             row(label('Filter', 'cm-audio-filter'), text('cm-audio-filter', { placeholder: 'type to filter…' })) +
             inputRow({
               label: 'Slot', labelFor: 'cm-audio-slot',
-              inputs: ['<select class="cm-select" id="cm-audio-slot"><option value="">(catalog loading…)</option></select>'],
+              inputs: [picker('cm-audio-slot', LOADING_OPT)],
               btns: [{ label: 'Play slot', cmd: 'PlaySlot {v}', input: 'cm-audio-slot' }],
             }) +
             row('<span class="cm-readout" id="cm-audio-readout">0 slots</span>'),
@@ -948,8 +956,13 @@
        a dark panel), where a see-through control is unreadable. */
     [data-screen="CheatMenu"] .cm-input { background: var(--paper-bright, #fffdf3); color: var(--ink-night, #14110c); border:1px solid var(--tsic-border); padding: 2px 6px; width: 132px; min-width: 0; flex: 0 0 auto; font-family: inherit; }
     [data-screen="CheatMenu"] .cm-input--sm { width: 64px; }
-    [data-screen="CheatMenu"] .cm-select { background: var(--paper-bright, #fffdf3); color: var(--ink-night, #14110c); border:1px solid var(--tsic-border); padding: 2px 4px; width: 100%; max-width: 260px; min-width: 0; flex: 1 1 auto; font-family: inherit; }
-    [data-screen="CheatMenu"] .cm-select option { background: var(--paper-bright, #fffdf3); color: var(--ink-night, #14110c); }
+    /* .cm-select is a tsic-dropdown trigger, not a native <select> — the shared
+       component is sized for menu screens, so pull it back to this panel's dense
+       12px rows and drop the display-font uppercasing (item ids are long and
+       case-carrying, e.g. "Advanced Armor Bench [ID_ArmorBench]"). */
+    [data-screen="CheatMenu"] .cm-select { background: var(--paper-bright, #fffdf3); color: var(--ink-night, #14110c); border:1px solid var(--tsic-border); padding: 2px 4px; width: 100%; max-width: 260px; min-width: 0; flex: 1 1 auto; font-family: inherit; font-size: 12px; letter-spacing: normal; text-transform: none; gap: 4px; text-align: left; }
+    [data-screen="CheatMenu"] .cm-select.cm-input--sm { width: auto; max-width: 160px; }
+    [data-screen="CheatMenu"] .cm-select .tsic-dropdown-caret { font-size: 9px; }
     [data-screen="CheatMenu"] .cm-exec { background:#7c2d12; color: #fdf6e3; border:1px solid #c2410c; padding: 3px 10px; cursor:pointer; font-size: 12px; }
     [data-screen="CheatMenu"] .cm-toggle { display:inline-flex; gap:4px; align-items:center; font-size: 12px; cursor:pointer; user-select:none; }
     [data-screen="CheatMenu"] .cm-toggle input { margin:0; }
@@ -1035,7 +1048,7 @@
         <div id="cm-status" class="is-pending">Loading cheats…</div>
         <span class="cm-spacer"></span>
         <label for="cm-target">Apply to</label>
-        <select class="cm-select" id="cm-target" data-tsic-initial-focus><option value="0">Me</option></select>
+        ${picker('cm-target', [{ value: '0', label: 'Me' }], { initialFocus: true })}
         <label class="cm-toggle" id="cm-all-players-wrap" title="Run every command once per connected player instead of just the target.">
           <input type="checkbox" id="cm-all-players"> all
         </label>
@@ -1115,7 +1128,27 @@
       };
 
       const $ = (id) => root.querySelector('#' + id);
-      const val = (id) => { const el = $(id); return el ? String(el.value).trim() : ''; };
+      // Pickers are tsic-dropdown buttons, plain fields are inputs — one reader
+      // for both so callers never care which primitive a control is built from.
+      const dd = () => (window.tsic && window.tsic.dropdown) || null;
+      const isPicker = (el) => !!el && el.classList.contains('tsic-dropdown');
+      const val = (id) => {
+        const el = $(id);
+        if (!el) return '';
+        if (isPicker(el)) {
+          const api = dd();
+          const v = api ? api.get(el) : el.getAttribute('data-tsic-value');
+          return v == null ? '' : String(v).trim();
+        }
+        return String(el.value).trim();
+      };
+      // Push a value onto a picker without firing tsic-change — used while
+      // repopulating, where the change would re-enter the refresh that set it.
+      function setPickerQuiet(el, value, listLabel) {
+        el.setAttribute('data-tsic-value', String(value));
+        const lbl = el.querySelector('.tsic-dropdown-label') || el;
+        lbl.textContent = String(listLabel);
+      }
 
       function shortName(full) {
         if (!full) return '';
@@ -1266,6 +1299,7 @@
         sec.addEventListener('mousedown', arm);
         sec.addEventListener('focusin', arm);
         sec.addEventListener('change', arm);
+        sec.addEventListener('tsic-change', arm);
       });
 
       // The bound cheat resolves at PRESS time, so it picks up whatever the panel
@@ -1477,30 +1511,42 @@
         }
       }
 
-      function fillSelect(selectEl, items, filter) {
+      // Repopulate a picker from a catalogue, keeping the current pick when the
+      // filter still admits it and otherwise falling to the first entry — a
+      // picker showing a value that is no longer in its list would compose a
+      // cheat string for something the panel is not displaying.
+      function fillPicker(pickerEl, items, filter) {
         const f = (filter || '').toLowerCase();
-        selectEl.innerHTML = '';
-        let visibleCount = 0;
+        const opts = [];
         for (const it of items) {
           const display = it.DisplayName || '';
           const internal = it.InternalName || '';
           if (f && !display.toLowerCase().includes(f) && !shortName(internal).toLowerCase().includes(f)) {
             continue;
           }
-          const opt = document.createElement('option');
-          opt.value = internal;
-          opt.textContent = formatEntry(it);
-          selectEl.appendChild(opt);
-          visibleCount++;
+          opts.push({ value: internal, label: formatEntry(it) });
         }
-        return { visibleCount, totalCount: items.length };
+        setPickerOptions(pickerEl, opts);
+        return { visibleCount: opts.length, totalCount: items.length };
+      }
+
+      // Shared tail of every repopulate: hand the list to the dropdown module,
+      // then make sure something is selected.
+      function setPickerOptions(pickerEl, opts) {
+        const prev = pickerEl.getAttribute('data-tsic-value');
+        const api = dd();
+        if (api) api.options(pickerEl, opts);
+        else pickerEl.setAttribute('data-tsic-options', JSON.stringify(opts));
+        const keep = opts.find((o) => String(o.value) === String(prev));
+        const pick = keep || opts[0];
+        if (pick) setPickerQuiet(pickerEl, pick.value, pick.label);
       }
 
       function refreshItemSelect() {
-        const mode = $('cm-mode').value;
+        const mode = val('cm-mode');
         const list = listForMode(mode);
         const filter = $('cm-item-filter').value;
-        const { visibleCount, totalCount } = fillSelect($('cm-item'), list, filter);
+        const { visibleCount, totalCount } = fillPicker($('cm-item'), list, filter);
         $('cm-item-readout').textContent = `${visibleCount} / ${totalCount} items`;
         $('cm-item').disabled = (mode === 'GiveAllFurniture');
         $('cm-item-filter').disabled = (mode === 'GiveAllFurniture');
@@ -1509,21 +1555,18 @@
       function refreshCreatureSelect() {
         const list = (state.catalog && state.catalog.Creatures) || [];
         const filter = $('cm-creature-filter').value;
-        const { visibleCount, totalCount } = fillSelect($('cm-creature'), list, filter);
+        const { visibleCount, totalCount } = fillPicker($('cm-creature'), list, filter);
         $('cm-creature-readout').textContent = `${visibleCount} / ${totalCount} creatures`;
       }
 
       // The three catalogues that aren't item/furniture lists. Each is a plain
       // name list — DisplayName and InternalName are the same string — so a
       // shared filler keeps them honest rather than three near-copies.
-      function fillNameSelect(selectId, list, readoutId, noun, filterId) {
-        const sel = $(selectId);
+      function fillNameSelect(pickerId, list, readoutId, noun, filterId) {
+        const sel = $(pickerId);
         if (!sel) return;
-        const prev = sel.value;
         const filter = filterId ? ($(filterId) ? $(filterId).value : '') : '';
-        const { visibleCount, totalCount } = fillSelect(sel, list || [], filter);
-        if (prev) sel.value = prev;
-        if (!sel.value && sel.options.length) sel.selectedIndex = 0;
+        const { visibleCount, totalCount } = fillPicker(sel, list || [], filter);
         if (readoutId && $(readoutId)) {
           $(readoutId).textContent = filterId
             ? `${visibleCount} / ${totalCount} ${noun}`
@@ -1531,11 +1574,8 @@
         }
         // An empty list means the settings/pack carry none — say so rather than
         // leaving a silently unusable dropdown.
-        if (sel.options.length === 0) {
-          const opt = document.createElement('option');
-          opt.value = '';
-          opt.textContent = `(no ${noun})`;
-          sel.appendChild(opt);
+        if (visibleCount === 0) {
+          setPickerOptions(sel, [{ value: '', label: `(no ${noun})` }]);
         }
       }
 
@@ -1552,7 +1592,7 @@
           ? (wantConstructed ? (state.catalog.FurnitureConstructed || []) : (state.catalog.FurnitureDefault || []))
           : [];
         const filter = $('cm-furn-filter').value;
-        const { visibleCount, totalCount } = fillSelect($('cm-furn'), list, filter);
+        const { visibleCount, totalCount } = fillPicker($('cm-furn'), list, filter);
         $('cm-furn-readout').textContent = `${visibleCount} / ${totalCount} furniture`;
       }
 
@@ -1566,44 +1606,25 @@
         // The subject is who gets MOVED; the destination is the "Apply to" target,
         // so the subject list drops the destination — nobody teleports to themselves.
         const subjectSel = $('cm-tp-subject');
-        const prevTarget = targetSel.value;
-        const prevSubject = subjectSel.value;
-        targetSel.innerHTML = '';
-        subjectSel.innerHTML = '';
         // "Me" is always first and is the default. It resolves server-side to the
         // controller that sent the cheat, which is the only way a client can target
         // itself — it has no way to know its own index in the server's player array.
-        const me = document.createElement('option');
-        me.value = '0';
-        me.textContent = 'Me';
-        targetSel.appendChild(me);
-        if (list.length === 0) {
-          const opt2 = document.createElement('option');
-          opt2.value = '';
-          opt2.textContent = '(no other players)';
-          subjectSel.appendChild(opt2);
-          refreshTeleportLabel();
-          return;
-        }
+        const targetOpts = [{ value: '0', label: 'Me' }];
+        const subjectOpts = [];
         list.forEach((pl, idx) => {
           const num = idx + 1;
-          const opt = document.createElement('option');
-          opt.value = String(num);
-          opt.textContent = playerLabel(pl, num);
-          targetSel.appendChild(opt);
+          targetOpts.push({ value: String(num), label: playerLabel(pl, num) });
           // Nobody teleports to themselves, so the subject list drops the destination.
           // With "Me" selected there is no index to drop — the panel cannot tell which
           // entry is itself — so every player stays available.
           if (num !== state.targetPlayer) {
-            const opt2 = document.createElement('option');
-            opt2.value = String(num);
-            opt2.textContent = playerLabel(pl, num);
-            subjectSel.appendChild(opt2);
+            subjectOpts.push({ value: String(num), label: playerLabel(pl, num) });
           }
         });
-        if (prevTarget) targetSel.value = prevTarget;
-        if (prevSubject) subjectSel.value = prevSubject;
-        if (!targetSel.value && targetSel.options.length) targetSel.selectedIndex = 0;
+        setPickerOptions(targetSel, targetOpts);
+        setPickerOptions(subjectSel, subjectOpts.length
+          ? subjectOpts
+          : [{ value: '', label: '(no other players)' }]);
         refreshTeleportLabel();
       }
 
@@ -1626,14 +1647,14 @@
       // -------------- COMMAND HANDLERS --------------
 
       function onGive() {
-        const mode = $('cm-mode').value;
+        const mode = val('cm-mode');
         const qty = parseInt($('cm-item-count').value, 10) || 1;
         const p = state.targetPlayer;
         if (mode === 'GiveAllFurniture') {
           exec(`GiveAllFurniture ${qty} ${p}`);
           return;
         }
-        const itemName = shortName($('cm-item').value);
+        const itemName = shortName(val('cm-item'));
         if (!itemName) return;
         switch (mode) {
           case 'GiveItem':                    exec(`GiveItem ${itemName} ${qty} ${p}`); break;
@@ -1652,14 +1673,14 @@
       }
 
       function onSpawnCreature() {
-        const name = $('cm-creature').value;
+        const name = val('cm-creature');
         if (!name) return;
         // WorldCheats::Spawn expects an FName, which can be the asset path.
         exec(`Spawn ${name} ${state.targetPlayer}`);
       }
 
       function onSpawnFurniture(kind) {
-        const name = shortName($('cm-furn').value);
+        const name = shortName(val('cm-furn'));
         if (!name) return;
         exec(kind === 'construct' ? `Construct ${name}` : `SpawnFurniture ${name}`);
       }
@@ -1667,7 +1688,7 @@
       // UTeleportCheats::TeleportPlayer(From, To) moves From to To, so the subject
       // dropdown is the first argument and the "Apply to" target is the second.
       function onTeleportPlayer() {
-        const from = parseInt($('cm-tp-subject').value, 10);
+        const from = parseInt(val('cm-tp-subject'), 10);
         if (!Number.isFinite(from) || from === state.targetPlayer) return;
         exec(`TeleportPlayer ${from} ${state.targetPlayer}`);
       }
@@ -1715,15 +1736,15 @@
       });
 
       // Item Grant — mode / filter / give.
-      $('cm-mode').addEventListener('change', refreshItemSelect);
+      $('cm-mode').addEventListener('tsic-change', refreshItemSelect);
       $('cm-item-filter').addEventListener('input', refreshItemSelect);
       $('cm-give').addEventListener('click', onGive);
 
       // Target player.
-      $('cm-target').addEventListener('change', (e) => {
+      $('cm-target').addEventListener('tsic-change', (e) => {
         // Not `|| 0` after parseInt — "Me" is the value 0, and `0 || fallback` would
         // throw the selection away every time it is picked.
-        const picked = parseInt(e.target.value, 10);
+        const picked = parseInt(e.detail && e.detail.value, 10);
         state.targetPlayer = Number.isFinite(picked) ? picked : 0;
         refreshTargetPlayerSelects();
         requestState();

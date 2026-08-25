@@ -1,6 +1,6 @@
 {
-  "id": "FD_StorePoster_4_DF",
-  "asset_path": "/Game/Furniture/StorePosters/Furniture/FD_StorePoster_4_DF",
+  "id": "FD_StorePoster_13_DF",
+  "asset_path": "/Game/Furniture/StorePosters/Furniture/FD_StorePoster_13_DF",
   "class": "UDamageableFurnitureDefinition",
   "schema_version": 2,
   "properties": {
@@ -15,12 +15,12 @@
     "scavenge_verb_text": "Tear Down",
     "starting_health": 60,
     "furniture_armour": 1,
-    "destructible_collection": "/Game/Furniture/StorePosters/GeometryCollections/GCS_Hungry_Poster.GCS_Hungry_Poster",
+    "destructible_collection": "/Game/Furniture/StorePosters/GeometryCollections/GCS_GIGA_PACK_Poster.GCS_GIGA_PACK_Poster",
     "destruction_impulse_strength": 0,
     "loot_dropped_on_death": [
       "LD_PosterLoot"
     ],
-    "constructable_item_to_grant": "ID_StorePoster_4_CI",
+    "constructable_item_to_grant": "ID_StorePoster_13_CI",
     "deconstruction_tier": 1,
     "blocking_collision_boxes": [],
     "support_collision_boxes": [
@@ -28,7 +28,7 @@
         "offset": {
           "x": 0,
           "y": 0,
-          "z": 55.689068
+          "z": 35.576
         },
         "rotation": {
           "pitch": 0,
@@ -36,9 +36,9 @@
           "roll": 0
         },
         "box_size": {
-          "x": 43.147456,
+          "x": 69.52,
           "y": 3.15152,
-          "z": 62.69968
+          "z": 39.105
         }
       }
     ],
@@ -62,7 +62,7 @@
       }
     },
     "construction_category_tag": "",
-    "upgrade_recipe": "RD_StorePoster_CN",
+    "upgrade_recipe": null,
     "is_draggable": true,
     "drag_tier": 0,
     "drag_mass": 1,
@@ -86,17 +86,17 @@
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,
-    "static_mesh": "/Game/Furniture/StorePosters/Meshes/SM_StorePoster_Framed.SM_StorePoster_Framed",
+    "static_mesh": "/Game/Furniture/StorePosters/Meshes/SM_Giga16x9.SM_Giga16x9",
     "casts_shadow": true,
     "collision_profile_name": {
       "name": "Furniture"
     },
     "random_material_overrides": [
       {
-        "key": 1,
+        "key": 0,
         "value": {
           "materials": [
-            "/Game/Furniture/StorePosters/Materials/MI_Poster_HarrowBed.MI_Poster_HarrowBed"
+            "/Game/Furniture/StorePosters/Materials/MI_Poster_DurhamParking.MI_Poster_DurhamParking"
           ]
         }
       }
