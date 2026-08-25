@@ -25,16 +25,16 @@
     // masthead can never drift apart. ../TSIC-BuildArchive/Development names every
     // uploaded build <date>_<time>_<sha> — that folder is the list of builds
     // players actually have, and the UPDATES entries below are one per build.
-    const NOTICE_VERSION = 'e9e6cf5c0';
+    const NOTICE_VERSION = 'a32dd05c0';
 
     const ISSUE_LINE = 'Vol.1 — Closed Alpha';
-    const DATE_LINE  = 'Build e9e6cf5 · 25 Aug 2026';
+    const DATE_LINE  = 'Build a32dd05 · 25 Aug 2026';
 
     // ── What's new. One entry per uploaded build, newest first. ───────────
     const UPDATES = [
         {
             date: '25 Aug',
-            build: 'e9e6cf5',
+            build: 'a32dd05',
             title: 'A first launch that settles itself',
             items: [
                 'A fresh install now warms its shaders behind a setup screen instead of hitching '
@@ -44,6 +44,7 @@
                 + 'saying nothing — the order simply vanished off the guest’s screen.',
                 'Fixed a launch that could hang on a black screen and never recover, on Nvidia cards. '
                 + 'A shader check fired while the upscaler was still starting up and stalled the frame.',
+                'The main menu no longer draws the shop behind it. The HTML menu covered that scene completely, so every frame spent on it went to pixels nobody could see — and on a first boot those frames were taken from the shader compiler, after briefly showing a half-lit room you were never meant to be looking at.',
                 'The inventory character is framed head-to-toe again instead of being scaled up and '
                 + 'clipped at the edges of its panel.',
                 'Television static is half as loud.',
