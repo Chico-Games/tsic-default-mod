@@ -9,6 +9,7 @@
       "BH_NavLeft",
       "BH_NavRight",
       "BH_Accept",
+      "BH_MenuConfirm",
       "BH_Back",
       "BH_NextTab",
       "BH_PrevTab",
