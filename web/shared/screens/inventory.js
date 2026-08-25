@@ -244,7 +244,15 @@
     }
     [data-screen="Inventory"] .equip-slot.is-drop-target { outline:2px solid var(--buff-green, #1e8f3e); outline-offset:-2px; }
     [data-screen="Inventory"] #inv-char-preview { grid-column:2; min-height:0; display:flex; align-items:center; justify-content:center; overflow:hidden; }
-    [data-screen="Inventory"] #inv-char-preview img { width:100%; height:100%; object-fit:contain; transform:scale(1.9); transform-origin:50% 42%; }
+    /* No transform here, deliberately. The capture already frames head-to-toe (55 deg FOV at
+       200uu with the camera at z=90 covers z -14..194, ~7% clear above the head and below the
+       feet in a square 512 target), so contain shows the WHOLE doll and any scale-up clips it
+       against overflow:hidden -- that is what the old transform:scale(1.9) was doing.
+       Fit by WIDTH: this box has no definite height (auto grid row), so height:100% resolves
+       to auto and the square follows the middle column. Do not swap that for height:100% +
+       width:auto -- with an indefinite parent height the image falls back to its intrinsic
+       512px and stretches the whole doll, and with it the rail, taller. */
+    [data-screen="Inventory"] #inv-char-preview img { width:100%; height:100%; object-fit:contain; }
 
     /* min-height:0, deliberately — see the note on .inv-rail. This card is the rail's slack:
        it takes whatever height the doll leaves, so the rail can never be taller than the bag

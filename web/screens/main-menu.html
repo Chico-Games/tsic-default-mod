@@ -21,6 +21,9 @@
   <script src="/shared/reduce-motion.js" defer></script>
   <script src="/shared/tsic-focus.js" defer></script>
   <script src="/shared/tsic-dropdown.js" defer></script>
+  <script src="/shared/dom.js" defer></script>
+  <!-- Closed-alpha welcome bulletin. Copy and the seen-flag live in the module. -->
+  <script src="/shared/welcome-notice.js" defer></script>
   <script src="/shared/store-maze.js" defer></script>
   <script src="/shared/store-maze-stage.js" defer></script>
   <style>
@@ -1234,6 +1237,12 @@
           setVolume(v);
           refreshMuteUI(v);
         };
+        // Closed-alpha welcome bulletin (shared/welcome-notice.js). Shows once per
+        // NOTICE_VERSION, gated on the ui.welcome_seen setting; mount() no-ops when
+        // this build's bulletin has already been dismissed. Mounted last so its
+        // modal focus scope is pushed after the page has taken its initial focus.
+        if (window.TSIC && TSIC.WelcomeNotice) TSIC.WelcomeNotice.mount();
+
         tsic.on('tsic.msg.UI.Settings.Value', function (p) {
           if (!p || p.Key !== 'audio.menu_music') return;
           var v = parseFloat(JSON.parse(p.ValueJson || '"0.8"'));
