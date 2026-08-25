@@ -16,6 +16,7 @@
       "BH_Ping",
       "BH_OpenInventory",
       "BH_OpenMap",
+      "BH_Overview",
       "BH_OpenChat",
       "BH_HUDToggle",
       "BH_Pause",
