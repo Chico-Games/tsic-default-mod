@@ -495,8 +495,16 @@
             // Open every .tsic-dropdown trigger, walk options, cancel, assert focus returns.
             async assertDropdownsRoundtrip() {
                 const d = doc();
+                // Zero-rect triggers are skipped for the same reason the focus engine's
+                // isFocusable() skips them: they cannot take focus, so a "focus came
+                // back" assertion on one can only ever fail. Screens that park controls
+                // in inactive tab panels (the cheat menu) keep most of theirs display:none.
                 const triggers = Array.from(d.querySelectorAll('.tsic-dropdown'))
-                    .filter(b => !b.closest('.tsic-dropdown-portal'));
+                    .filter(b => !b.closest('.tsic-dropdown-portal'))
+                    .filter((b) => {
+                        const r = b.getBoundingClientRect();
+                        return r.width > 0 && r.height > 0;
+                    });
                 for (const trigger of triggers) {
                     fx.focus(trigger);
                     await delay(16);

@@ -309,7 +309,8 @@ TSICTestHarness.register({
         ctx.inject('tsic.msg.UI.Cheat.Catalog', {
             Creatures: [{ DisplayName: 'Spider', InternalName: '/Game/Characters/Enemies/Spider/BP_Spider.BP_Spider_C', Description: '' }],
         });
-        await ctx.waitFor(() => ctx.doc.getElementById('cm-creature').options.length > 0);
+        await ctx.waitFor(() => JSON.parse(ctx.doc.getElementById('cm-creature')
+            .getAttribute('data-tsic-options') || '[]').length > 0);
         ctx.clearPublishes();
         ctx.doc.getElementById('cm-spawn-creature').click();
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Cheat.Execute', {
@@ -327,7 +328,8 @@ TSICTestHarness.register({
         ctx.inject('tsic.msg.UI.Cheat.Catalog', {
             FurnitureDefault: [{ DisplayName: 'Test', InternalName: '/Game/Furniture/FD_TestData', Description: '' }],
         });
-        await ctx.waitFor(() => ctx.doc.getElementById('cm-furn').options.length > 0);
+        await ctx.waitFor(() => JSON.parse(ctx.doc.getElementById('cm-furn')
+            .getAttribute('data-tsic-options') || '[]').length > 0);
         ctx.clearPublishes();
         ctx.doc.getElementById('cm-spawn-furn').click();
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Cheat.Execute', { where: p => p.Command === 'SpawnFurniture FD_TestData' }));
