@@ -227,6 +227,12 @@
   //   'world-debug-height', 'world-debug-maze', 'world-debug-all'
 
   function runtimeImgUrl(name) {
+    // The surface decides, when it has an opinion — SolUi serves runtime
+    // textures as image sources rather than as URLs a scheme handler routes.
+    // Same indirection itemIconUrl above already uses, and for the same reason.
+    if (window.tsic && typeof window.tsic.runtimeImgUrl === 'function') {
+      return window.tsic.runtimeImgUrl(name);
+    }
     // .imgsrc is the documented runtime-texture extension; the scheme handler
     // strips it (FPaths::GetBaseFilename) so any extension resolves, but keep
     // this consistent with the initial-load <img src> sites and CLAUDE.md.
