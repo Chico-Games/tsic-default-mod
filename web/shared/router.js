@@ -203,11 +203,12 @@
     // Both are gated on the C++ side rather than here: the director knows whether a
     // menu was opened by interacting, and whether the bug-report form is already up.
     if (!OVERLAY_SCREENS.has(myScreen())) {
-      // One key per report category (GH #352): F7 suggestion, F8 bug, F9 world-gen,
-      // F10 other. They all open the same form — the category is handed over on
-      // window.TSIC.pendingReportCategory, which the BugReport screen consumes on
-      // mount. A plain string rather than a payload field because UI.Cmd.Pause.BugReport
-      // carries FScpUICmdEmpty on the C++ side, and both ends live in this one page.
+      // One key per report category (GH #352): F7 suggestion, F8 bug. Both open the
+      // same form — the category is handed over on window.TSIC.pendingReportCategory,
+      // which the BugReport screen consumes on mount. A plain string rather than a
+      // payload field because UI.Cmd.Pause.BugReport carries FScpUICmdEmpty on the C++
+      // side, and both ends live in this one page. F9 (world-gen) and F10 (other) were
+      // retired with their categories; the keys are free for something else.
       const openReport = (category) => (p) => {
         if (!p || p.Phase !== 'Started') return;
         if (window.TSIC) window.TSIC.pendingReportCategory = category;
@@ -215,8 +216,6 @@
       };
       window.tsic.on('tsic.msg.UI.Behavior.BugReport', openReport('Bug'));
       window.tsic.on('tsic.msg.UI.Behavior.ReportSuggestion', openReport('Suggestion'));
-      window.tsic.on('tsic.msg.UI.Behavior.ReportWorldGen', openReport('FurniturePlacement'));
-      window.tsic.on('tsic.msg.UI.Behavior.ReportOther', openReport('Other'));
       window.tsic.on('tsic.msg.UI.Behavior.CloseMenu', (p) => {
         if (!p || p.Phase !== 'Started') return;
         window.tsic.publishMessage('UI.Cmd.CloseInteractionMenu', {});

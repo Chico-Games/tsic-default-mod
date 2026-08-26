@@ -68,19 +68,45 @@ TSICTestHarness.register({
 });
 
 TSICTestHarness.register({
-    name: 'BugReport: placement category shows the captured furniture',
+    name: 'BugReport: the form offers exactly Bug and Suggestion',
+    file: '/screens/bug-report.html',
+    async run(ctx) {
+        await ctx.waitFor(() => ctx.doc.querySelector('#br-category'));
+        const trigger = ctx.doc.querySelector('#br-category');
+        const values = JSON.parse(trigger.getAttribute('data-tsic-options')).map(o => o.value);
+        // Pinned, not merely counted: "World generation issue" and "Other" were both
+        // removed deliberately, and a category that reappears here silently starts
+        // writing a value the server no longer classifies.
+        ctx.expect(ctx.assert.truthy(JSON.stringify(values) === JSON.stringify(['Bug', 'Suggestion']),
+            `category options should be exactly Bug, Suggestion; got: ${JSON.stringify(values)}`));
+        ctx.expect(ctx.assert.truthy(ctx.win.tsic.dropdown.get(trigger) === 'Bug',
+            'the form should open on Bug'));
+    },
+});
+
+TSICTestHarness.register({
+    name: 'BugReport: a suggestion hides the furniture panel',
     file: '/screens/bug-report.html',
     async run(ctx) {
         await ctx.waitFor(() => ctx.doc.querySelector('#br-furniture'));
         const panel = ctx.doc.querySelector('#br-furniture');
 
-        // Categories that attach nothing hide the panel entirely.
+        ctx.inject('tsic.msg.UI.BugReport.FurnitureTarget', FURNITURE_TARGET);
         selectCategory(ctx, 'Suggestion');
         ctx.expect(ctx.assert.truthy(!panel.classList.contains('br-shown'),
-            'furniture panel should be hidden for a category that attaches nothing'));
+            'a suggestion is not about an object, so it attaches nothing'));
+    },
+});
+
+TSICTestHarness.register({
+    name: 'BugReport: the bug panel names the captured furniture',
+    file: '/screens/bug-report.html',
+    async run(ctx) {
+        await ctx.waitFor(() => ctx.doc.querySelector('#br-furniture'));
+        const panel = ctx.doc.querySelector('#br-furniture');
 
         ctx.inject('tsic.msg.UI.BugReport.FurnitureTarget', FURNITURE_TARGET);
-        selectCategory(ctx, 'FurniturePlacement');
+        selectCategory(ctx, 'Bug');
         await ctx.waitFor(() => panel.classList.contains('br-shown'));
 
         const text = panel.textContent || '';
@@ -94,13 +120,13 @@ TSICTestHarness.register({
 });
 
 TSICTestHarness.register({
-    name: 'BugReport: placement panel reports moved furniture differently',
+    name: 'BugReport: the panel reports moved furniture differently',
     file: '/screens/bug-report.html',
     async run(ctx) {
         await ctx.waitFor(() => ctx.doc.querySelector('#br-furniture'));
         ctx.inject('tsic.msg.UI.BugReport.FurnitureTarget',
             { ...FURNITURE_TARGET, bMoved: true });
-        selectCategory(ctx, 'FurniturePlacement');
+        selectCategory(ctx, 'Bug');
 
         const panel = ctx.doc.querySelector('#br-furniture');
         await ctx.waitFor(() => /moved since/i.test(panel.textContent || ''));
@@ -110,61 +136,24 @@ TSICTestHarness.register({
 });
 
 TSICTestHarness.register({
-    name: 'BugReport: placement submit is blocked when the ray found nothing',
-    file: '/screens/bug-report.html',
-    async run(ctx) {
-        await ctx.waitFor(() => ctx.doc.querySelector('#br-furniture'));
-        ctx.inject('tsic.msg.UI.BugReport.FurnitureTarget', { bHasTarget: false });
-        selectCategory(ctx, 'FurniturePlacement');
-
-        const panel = ctx.doc.querySelector('#br-furniture');
-        await ctx.waitFor(() => panel.classList.contains('br-missing'));
-        ctx.expect(ctx.assert.truthy(/aim at the furniture/i.test(panel.textContent || ''),
-            'should tell the player to re-aim'));
-
-        // Even with a description, there is nothing to attach the report to.
-        ctx.doc.querySelector('#br-description').value = 'shelf is in the wall';
-        ctx.clearPublishes();
-        ctx.doc.querySelector('#btn-submit').click();
-
-        const submitted = ctx.publishes().some(p =>
-            String(p.channel || p.Channel || '').includes('UI.Cmd.BugReport.Submit'));
-        ctx.expect(ctx.assert.truthy(!submitted,
-            'placement report must not submit without a furniture target'));
-    },
-});
-
-TSICTestHarness.register({
-    name: 'BugReport: placement submit goes through once furniture is captured',
-    file: '/screens/bug-report.html',
-    async run(ctx) {
-        await ctx.waitFor(() => ctx.doc.querySelector('#br-furniture'));
-        ctx.inject('tsic.msg.UI.BugReport.FurnitureTarget', FURNITURE_TARGET);
-        selectCategory(ctx, 'FurniturePlacement');
-
-        ctx.doc.querySelector('#br-description').value = 'shelf is halfway inside the wall';
-        ctx.clearPublishes();
-        ctx.doc.querySelector('#btn-submit').click();
-        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.BugReport.Submit'));
-    },
-});
-
-// --- the Bug category attaches the same target, but never requires it -------
-
-TSICTestHarness.register({
-    name: 'BugReport: bug category shows the looked-at furniture too',
+    name: 'BugReport: a bug about misplaced furniture submits as a bug',
     file: '/screens/bug-report.html',
     async run(ctx) {
         await ctx.waitFor(() => ctx.doc.querySelector('#br-furniture'));
         ctx.inject('tsic.msg.UI.BugReport.FurnitureTarget', FURNITURE_TARGET);
         selectCategory(ctx, 'Bug');
 
-        const panel = ctx.doc.querySelector('#br-furniture');
-        await ctx.waitFor(() => panel.classList.contains('br-shown'));
-        ctx.expect(ctx.assert.truthy((panel.textContent || '').includes('Metal Shelf'),
-            `bug report should show what is being attached; got: ${panel.textContent}`));
+        ctx.doc.querySelector('#br-description').value = 'shelf is halfway inside the wall';
+        ctx.clearPublishes();
+        ctx.doc.querySelector('#btn-submit').click();
+        // This is the report that used to need its own world-gen category. It goes
+        // out as a plain Bug now, with the furniture snapshot riding along.
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.BugReport.Submit',
+            { where: p => p.Category === 'Bug' }));
     },
 });
+
+// --- the target is attached when there is one, never required ---------------
 
 TSICTestHarness.register({
     name: 'BugReport: bug submits with nothing under the crosshair',
@@ -175,10 +164,9 @@ TSICTestHarness.register({
         selectCategory(ctx, 'Bug');
 
         const panel = ctx.doc.querySelector('#br-furniture');
-        await ctx.waitFor(() => panel.classList.contains('br-shown'));
-        // Not an error state — a bug without an object is still a bug.
-        ctx.expect(ctx.assert.truthy(!panel.classList.contains('br-missing'),
-            'a bug with no target must not be flagged as invalid'));
+        await ctx.waitFor(() => /nothing under the crosshair/i.test(panel.textContent || ''));
+        // Not an error state — a bug without an object is still a bug, and the
+        // report must go out rather than sending the player off to re-aim.
 
         ctx.doc.querySelector('#br-description').value = 'stamina never regenerates';
         ctx.clearPublishes();

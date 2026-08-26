@@ -12,11 +12,21 @@
 // Shift+Enter sends. Plain Enter is a newline: the description is free text and
 // players write multi-line repro steps.
 //
-// The world-generation and bug categories additionally ask C++ to trace for the
-// furniture under the crosshair (UI.Cmd.BugReport.RequestFurnitureTarget ->
-// UI.BugReport.FurnitureTarget) and show the player what was picked. A world-gen
-// report is *about* that furniture, so it cannot be sent without one; a plain bug
-// only attaches it when the ray found something.
+// Two categories, Bug and Suggestion, and that is the whole vocabulary. Earlier
+// drafts also offered "World generation issue" and "Other": "Other" was picked
+// zero times in 174 real reports, and the world-gen one asked the player to
+// classify a fault they had only just noticed — which is triage's job, not
+// theirs, and got it wrong often enough that the label was worth less than no
+// label. Both are gone; what they were for lives on below.
+//
+// A bug report asks C++ to trace for the furniture under the crosshair
+// (UI.Cmd.BugReport.RequestFurnitureTarget -> UI.BugReport.FurnitureTarget) and
+// shows the player what was picked. This is what the world-gen category used to
+// exist for, and it is strictly better here: the diagnostics ride along with
+// every bug about a specific object, whether or not the player would have
+// thought to call it world generation. It is attached when the ray finds
+// something and simply omitted when it does not — never a precondition, because
+// a report the player cannot send is a report nobody reads.
 //
 // There is deliberately no Crash category: a crash report is filed by the crash
 // handler, not by a player who is still in the pause menu.
@@ -27,13 +37,14 @@
     return;
   }
 
-  // Must match FScpFurniturePlacementReport::GetCategoryId() on the C++ side.
-  // The label reads "World generation issue" but the id stays the placement one
-  // so the telemetry inbox keeps slicing these out as `type:"placement"`.
-  const FURNITURE_CATEGORY = 'FurniturePlacement';
-  // Bugs are usually about a specific object too, so they carry the same
-  // snapshot — opportunistically, never as a precondition.
+  // The two category ids the form can send. Both are matched by name on the C++
+  // side (BugReportContextSubsystem::BuildReportJson), so these strings are wire
+  // format: changing one changes what lands in the telemetry inbox.
   const BUG_CATEGORY = 'Bug';
+  const SUGGESTION_CATEGORY = 'Suggestion';
+  // What a category falls back to when the dropdown has no value — a bug, since
+  // that is what the form opens on and what nearly every report turns out to be.
+  const DEFAULT_CATEGORY = BUG_CATEGORY;
 
   const STYLE = `
     [data-screen="BugReport"] #br-overlay { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:auto; }
@@ -63,7 +74,6 @@
     [data-screen="BugReport"] #br-furniture.br-shown {
       display:block; height:150px; overflow:auto; scrollbar-gutter:stable;
     }
-    [data-screen="BugReport"] #br-furniture.br-missing { border-color:#b03030; color:#b03030; }
     [data-screen="BugReport"] #br-furniture dl { display:grid; grid-template-columns:auto 1fr; gap:2px 10px; margin:4px 0 0; }
     [data-screen="BugReport"] #br-furniture dt { color:rgba(59,47,28,0.7); text-transform:uppercase; font-size:10px; letter-spacing:1px; align-self:center; }
     [data-screen="BugReport"] #br-furniture dd { margin:0; }
@@ -84,16 +94,14 @@
             <button id="br-category" type="button" class="tsic-dropdown" data-tsic-focusable
                     data-tsic-value="Bug"
                     data-tsic-options='[
-                      {"value":"Suggestion","label":"Suggestion"},
                       {"value":"Bug","label":"Bug"},
-                      {"value":"FurniturePlacement","label":"World generation issue"},
-                      {"value":"Other","label":"Other"}]'>
+                      {"value":"Suggestion","label":"Suggestion"}]'>
               <span class="tsic-dropdown-label">Bug</span>
               <span class="tsic-dropdown-caret">▾</span>
             </button>
           </div>
 
-          <!-- Shown for the bug and world-gen categories: what the view ray hit. -->
+          <!-- Shown for a bug report: what the view ray hit, attached to the report. -->
           <div id="br-furniture" aria-live="polite"></div>
 
           <div class="field">
@@ -151,29 +159,23 @@
       let target = null;
 
       function renderFurniture() {
-        const chosen = tsic.dropdown.get(category);
-        const isPlacement = chosen === FURNITURE_CATEGORY;
-        // A bug shows the same panel, but as information rather than a requirement.
-        const wantsTarget = isPlacement || chosen === BUG_CATEGORY;
+        // A suggestion is about the game, not about an object in front of you, so
+        // it neither shows the panel nor sends the snapshot.
+        const wantsTarget = tsic.dropdown.get(category) !== SUGGESTION_CATEGORY;
         furniture.classList.toggle('br-shown', wantsTarget);
         if (!wantsTarget) return;
 
         if (target === null) {
-          furniture.classList.remove('br-missing');
           furniture.textContent = 'Looking for furniture…';
           return;
         }
         if (!target.bHasTarget) {
-          // Only a world-gen report is meaningless without a target — a bug just
-          // goes out with nothing attached.
-          furniture.classList.toggle('br-missing', isPlacement);
-          furniture.textContent = isPlacement
-            ? 'No furniture under the crosshair. Close this, aim at the furniture that is out of position, then reopen the report.'
-            : 'Nothing under the crosshair — the report will be sent without an object attached.';
+          // Never an error state. Plenty of bugs are not about anything you can
+          // aim at, and the report goes out regardless.
+          furniture.textContent = 'Nothing under the crosshair — the report will be sent without an object attached.';
           return;
         }
 
-        furniture.classList.remove('br-missing');
         // TSIC.el takes children as variadic arguments, not an array.
         const rows = [
           ['Definition', target.DefinitionId || '—'],
@@ -191,10 +193,8 @@
             target.DisplayName || target.DefinitionId || 'Unknown furniture'),
           TSIC.el('dl', {}, ...rows),
         ];
-        if (!isPlacement) {
-          // Say why furniture details are on a bug report at all.
-          children.unshift(TSIC.el('div', { class: 'br-note' }, 'Attaching what you are looking at'));
-        }
+        // Say why furniture details are on a bug report at all.
+        children.unshift(TSIC.el('div', { class: 'br-note' }, 'Attaching what you are looking at'));
         furniture.replaceChildren(...children);
       }
 
@@ -210,22 +210,20 @@
         renderFurniture();
       });
 
-      // The form is reached by four different keys now (GH #352), so the heading
-      // names the category rather than always claiming to be a bug report.
+      // The form is reached by two different keys (GH #352), so the heading names
+      // the category rather than always claiming to be a bug report.
       const TITLES = {
-        Suggestion: 'Suggest Something',
         Bug: 'Report a Bug',
-        FurniturePlacement: 'Report a World Generation Issue',
-        Other: 'Report Something Else',
+        Suggestion: 'Suggest Something',
       };
       const title = root.querySelector('#br-title');
       function renderTitle() {
-        const chosen = tsic.dropdown.get(category) || 'Other';
-        title.textContent = TITLES[chosen] || TITLES.Other;
+        const chosen = tsic.dropdown.get(category) || DEFAULT_CATEGORY;
+        title.textContent = TITLES[chosen] || TITLES[DEFAULT_CATEGORY];
       }
 
       // tsic.dropdown.set fires tsic-change on the trigger; re-render the panel
-      // so picking the placement category reveals what the ray found.
+      // so switching between Bug and Suggestion shows or hides what the ray found.
       category.addEventListener('tsic-change', () => { renderFurniture(); renderTitle(); });
       ctx.renderTitle = renderTitle;
 
@@ -235,20 +233,13 @@
       });
 
       function submit() {
-        const chosen = tsic.dropdown.get(category) || 'Other';
+        const chosen = tsic.dropdown.get(category) || DEFAULT_CATEGORY;
         const desc = (description.value || '').trim();
         if (!desc) {
           description.classList.add('br-invalid');
           hint.style.visibility = 'visible';
           tsic.playSound('UI.Error', 0.4);
           try { description.focus({ preventScroll: true }); } catch (e) { /* noop */ }
-          return;
-        }
-        // A placement report with no furniture attached is just a vague bug report —
-        // make the player re-aim rather than sending one the triage can't act on.
-        if (chosen === FURNITURE_CATEGORY && !(target && target.bHasTarget)) {
-          tsic.playSound('UI.Error', 0.4);
-          renderFurniture();
           return;
         }
         tsic.playSound('BugReport.Submit', 0.45);
@@ -293,8 +284,8 @@
       description.classList.remove('br-invalid');
       ctx.root.querySelector('#br-hint').style.visibility = 'hidden';
 
-      // Opened by one of the per-category report keys (router.js, GH #352) — start on
-      // the category that key stands for. Read here rather than in mount() because
+      // Opened by one of the two per-category report keys (router.js, GH #352) — start
+      // on the category that key stands for. Read here rather than in mount() because
       // mount runs once and the screen is reused for every later open. Consumed on
       // read, so opening the form from the pause menu falls back to the markup
       // default instead of whichever key was pressed last.
