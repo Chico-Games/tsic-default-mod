@@ -183,7 +183,7 @@
           "spawn_chance_over": 0.0,
           "spawn_chance_under": 1.0
         },
-        "furniture_definition": "FD_ArmorBenchTier4_CS",
+        "furniture_definition": "FD_ArmorBenchTier3_CS",
         "transform": {
           "rotation": {
             "x": 0.0,

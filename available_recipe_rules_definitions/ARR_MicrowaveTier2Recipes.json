@@ -7,13 +7,13 @@
     "production_machine_rules": {
       "recipes": [
         "RD_HotDog_CR",
-        "RD_HashBrowns_CR",
+        "RD_InstantNoodleSoup_CR",
+        "RD_Fries_CR",
         "RD_MashedPotatoes_CR",
+        "RD_HashBrowns_CR",
+        "RD_TomatoSauce_CR",
         "RD_CookedPasta_CR",
         "RD_FlatpackMeal_CR",
-        "RD_Fries_CR",
-        "RD_InstantNoodleSoup_CR",
-        "RD_TomatoSauce_CR",
         "RD_FriesBulk_CR"
       ]
     }
