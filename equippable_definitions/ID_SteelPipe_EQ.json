@@ -86,7 +86,7 @@
     "has_ammo": false,
     "max_ammo": 0,
     "display_name": "Steel Pipe",
-    "description": "A length of shelving upright. Nothing clever about it - it just hits hard enough to put things on the floor.",
+    "description": "Melee weapon. Plain hard hits with good knockback. 1.5× damage to furniture. Found in the store or bought from a vending machine.\nA length of shelving upright. Nothing clever about it - it just hits hard enough to put things on the floor.",
     "stackable": false,
     "weight": 0.12,
     "static_item_definition": "FD_SteelPipe_SI",

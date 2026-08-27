@@ -86,7 +86,7 @@
     "has_ammo": false,
     "max_ammo": 0,
     "display_name": "Chainsaw",
-    "description": "A powerful chainsaw that tears through enemies. High damage but consumes fuel rapidly. Requires ammo: Gasoline.",
+    "description": "Melee weapon. Continuous high damage while it runs. Made at the Weapon Bench.\nA powerful chainsaw that tears through enemies. High damage but consumes fuel rapidly. Requires ammo: Gasoline.",
     "stackable": false,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_Chainsaw_SI",

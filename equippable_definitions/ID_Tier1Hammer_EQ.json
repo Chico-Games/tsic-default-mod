@@ -86,7 +86,7 @@
     "max_ammo": 0,
     "tool_tier": 1,
     "display_name": "Basic Hammer",
-    "description": "A basic claw hammer. Sturdy enough to reinforce simple furniture.",
+    "description": "Upgrade tool. Upgrades placed furniture. Handles tier 1 upgrades: shelves, bookcases, plant pots and basic station upgrades. Made at the Crafting Table.\nA basic claw hammer. Sturdy enough to reinforce simple furniture.",
     "stackable": false,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_Tier1Hammer_SI",

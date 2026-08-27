@@ -6,7 +6,7 @@
   "properties": {
     "thumbnail": "mod:icons/id_printer_ci",
     "display_name": "Printer (Tier 2)",
-    "description": "An upgraded industrial printer with a high-capacity paper feed. Pulps wooden oddments into receipts in bulk batches.",
+    "description": "Placeable machine. Produces Paper Receipt. Dismantle with a Reinforced Screwdriver.\nAn upgraded industrial printer with a high-capacity paper feed. Pulps wooden oddments into receipts in bulk batches.",
     "stackable": true,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_PrinterTier2_SI",

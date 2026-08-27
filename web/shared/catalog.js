@@ -47,6 +47,23 @@
      * "Crafting Material", "Armour". Prefers the authored Item.Category tag leaf
      * (finer-grained) and falls back to the coarse Category bucket.
      */
+    /**
+     * Item description block. Descriptions are authored as "<what it does>\n<flavour>":
+     * the first paragraph is plain function text, anything after the first newline is
+     * flavour and renders muted + italic under a divider. Legacy one-paragraph text
+     * (no newline) renders as function text only.
+     */
+    TSIC.descriptionEl = function (description) {
+        var text = String(description || '');
+        var nl = text.indexOf('\n');
+        var fn = (nl < 0 ? text : text.slice(0, nl)).trim();
+        var flavour = nl < 0 ? '' : text.slice(nl + 1).trim();
+        var wrap = TSIC.el('div', { class: 'item-desc' });
+        if (fn) wrap.appendChild(TSIC.el('p', { class: 'item-desc-fn' }, fn));
+        if (flavour) wrap.appendChild(TSIC.el('p', { class: 'item-desc-flavour' }, flavour));
+        return wrap;
+    };
+
     TSIC.itemTypeLabel = function (descriptor) {
         var d = descriptor || {};
         var leaf = tagLeaf(d.CategoryTag) || d.Category || '';

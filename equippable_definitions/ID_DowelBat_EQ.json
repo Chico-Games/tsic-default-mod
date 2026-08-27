@@ -86,7 +86,7 @@
     "has_ammo": false,
     "max_ammo": 0,
     "display_name": "Dowel Bat",
-    "description": "A makeshift wooden bat. Light and fast but lower damage. Good starter weapon for melee combat.",
+    "description": "Melee weapon. Light and fast, low damage. Starter weapon. Made at the Crafting Table.\nA makeshift wooden bat. Light and fast but lower damage. Good starter weapon for melee combat.",
     "stackable": false,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_DowelBat_SI",

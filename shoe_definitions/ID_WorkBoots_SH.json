@@ -5,7 +5,7 @@
   "schema_version": 2,
   "properties": {
     "display_name": "Work Boots",
-    "description": "Sturdy boots for a long shift.",
+    "description": "Shoes. Cosmetic only. Made at the Armor Bench.\nSturdy boots for a long shift.",
     "stackable": false,
     "weight": 1.0,
     "equipment_slot": "Entity.Inventory.Item.Equipment.Slot.Shoes",

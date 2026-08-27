@@ -6,7 +6,7 @@
   "properties": {
     "thumbnail": "mod:icons/id_sewingmachinetier2_ci",
     "display_name": "Sewing Machine (Tier 2)",
-    "description": "An upgraded sewing machine for processing fabric. Turns scrap fabric into processed fabric faster and unlocks new recipes.",
+    "description": "Placeable machine. Produces Woven Cloth. Dismantle with a Reinforced Screwdriver.\nAn upgraded sewing machine for processing fabric. Turns scrap fabric into processed fabric faster and unlocks new recipes.",
     "stackable": true,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_SewingMachineTier2_SI",

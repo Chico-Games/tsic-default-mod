@@ -60,7 +60,7 @@
     "has_ammo": false,
     "max_ammo": 0,
     "display_name": "Cooked Pasta",
-    "description": "Perfectly cooked pasta. Plain, but it keeps you running for ages.",
+    "description": "Eat: Heals 12 instantly. +8 max health, +25 max stamina for 14 min. Fills 50 hunger. Made at the Microwave.\nPerfectly cooked pasta. Plain, but it keeps you running for ages.",
     "thumbnail": "/Game/Items/Consumables/CookedFood/CookedPasta/Textures/T_Thumb_SM_RamenD_01.T_Thumb_SM_RamenD_01",
     "stackable": true,
     "weight": 0.10000000149011612,

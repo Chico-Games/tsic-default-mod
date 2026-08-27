@@ -6,7 +6,7 @@
   "properties": {
     "thumbnail": "mod:icons/id_shopeasy_ci",
     "display_name": "Snack Vending Machine",
-    "description": "A battered snack machine. Still lit, still humming, still takes coins.",
+    "description": "Placeable vending machine. Sells snacks and drinks for Loose Coins. Dismantle with a Reinforced Screwdriver.\nA battered snack machine. Still lit, still humming, still takes coins.",
     "stackable": true,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_ShopEasy_SI",

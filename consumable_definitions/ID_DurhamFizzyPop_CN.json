@@ -61,7 +61,7 @@
     "has_ammo": false,
     "max_ammo": 0,
     "display_name": "Durham Fizzy Pop",
-    "description": "Own-brand cola. Flat-pack flavour, full-price fizz.",
+    "description": "Drink: Heals 4 instantly. +3% move speed for 4 min. Fills 15 hunger. Found in the kids' department.\nOwn-brand cola. Flat-pack flavour, full-price fizz.",
     "thumbnail": "/Game/Items/Consumables/UncookedFood/DurhamFizzyPop/Textures/T_Thumb_SM_DrinkCan_5.T_Thumb_SM_DrinkCan_5",
     "stackable": true,
     "weight": 0.10000000149011612,

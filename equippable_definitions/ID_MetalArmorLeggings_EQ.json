@@ -148,7 +148,7 @@
     "has_ammo": false,
     "max_ammo": 0,
     "display_name": "Metal Armor Leggings",
-    "description": "Reinforced metal leg armor providing maximum protection.",
+    "description": "Leg armour. +8 armour while worn. Made at the Armor Bench.\nReinforced metal leg armor providing maximum protection.",
     "stackable": false,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_MetalArmorLeggings_SI",

@@ -61,7 +61,7 @@
     "has_ammo": false,
     "max_ammo": 0,
     "display_name": "Durham Fitness Drink",
-    "description": "An isotonic sports drink in Durham blue. Tastes of blue.",
+    "description": "Drink: +12 max stamina, +1.2 stamina/s, stamina recovers 20% sooner for 6 min. Found in the warehouse.\nAn isotonic sports drink in Durham blue. Tastes of blue.",
     "thumbnail": "/Game/Items/Consumables/UncookedFood/DurhamFitnessDrink/Textures/T_Thumb_SM_DrinkCan_3.T_Thumb_SM_DrinkCan_3",
     "stackable": true,
     "weight": 0.10000000149011612,

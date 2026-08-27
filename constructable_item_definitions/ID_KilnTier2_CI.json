@@ -6,7 +6,7 @@
   "properties": {
     "thumbnail": "mod:icons/id_kilntier2_ci",
     "display_name": "Kiln (Advanced)",
-    "description": "An upgraded industrial kiln with access to advanced firing recipes.",
+    "description": "Placeable machine. Produces Concrete Brick. Dismantle with a Heavy-Duty Screwdriver.\nAn upgraded industrial kiln with access to advanced firing recipes.",
     "stackable": true,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_KilnTier2_SI",

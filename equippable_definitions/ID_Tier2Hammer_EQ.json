@@ -86,7 +86,7 @@
     "max_ammo": 0,
     "tool_tier": 2,
     "display_name": "Reinforced Hammer",
-    "description": "A reinforced hammer for upgrading mid-tier furniture and machinery.",
+    "description": "Upgrade tool. Upgrades placed furniture. Handles tier 1–2 upgrades: wooden and fabric furniture, kitchen appliances and mid-tier stations. Made at the Crafting Table.\nA reinforced hammer for upgrading mid-tier furniture and machinery.",
     "stackable": false,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_Tier2Hammer_SI",

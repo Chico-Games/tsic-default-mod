@@ -6,7 +6,7 @@
   "properties": {
     "thumbnail": "mod:icons/id_wovencloth_cm",
     "display_name": "Woven Cloth",
-    "description": "Salvaged upholstery stitched into a strong, even bolt of cloth.",
+    "description": "Crafting material. Used for Crossbow, Heavy Gloves, Metal Armor Chestplate and more. Found in the kids' department and lost & found. Made at the Sewing Machine.\nSalvaged upholstery stitched into a strong, even bolt of cloth.",
     "stackable": true,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_WovenCloth_SI",

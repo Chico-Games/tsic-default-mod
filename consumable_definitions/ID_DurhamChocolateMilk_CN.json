@@ -62,7 +62,7 @@
     "has_ammo": false,
     "max_ammo": 0,
     "display_name": "Durham Tuna",
-    "description": "Own-brand tuna chunks. The tin outlasts everything else on the shelf.",
+    "description": "Drink: Heals 6 instantly. +6 max health for 6 min. Fills 25 hunger. Found in the showroom.\nOwn-brand tuna chunks. The tin outlasts everything else on the shelf.",
     "stackable": true,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_DurhamChocolateMilk_SI",

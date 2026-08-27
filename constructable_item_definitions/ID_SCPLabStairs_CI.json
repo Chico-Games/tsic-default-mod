@@ -8,7 +8,7 @@
     "static_item_definition": "FD_SCPLabStairs_SI",
     "furniture_to_construct": "FD_SCPLabStairs_DF",
     "display_name": "Lab Stairs",
-    "description": "A heavy metal staircase from the lab.",
+    "description": "Placeable stairs. Dismantle with a Heavy-Duty Screwdriver.\nA heavy metal staircase from the lab.",
     "stackable": true,
     "weight": 0.10000000149011612,
     "max_stack_size": 20

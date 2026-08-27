@@ -7,7 +7,7 @@
     "thumbnail": "mod:icons/id_plant_6_ci",
     "furniture_to_construct": "FD_Plant_6_DF",
     "display_name": "Houseplant",
-    "description": "Store furniture.",
+    "description": "Placeable furniture. Decorative. Dismantle with a Heavy-Duty Screwdriver. Upgradable with a Basic Hammer into the Plant Pot.\nStore furniture.",
     "stackable": true,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_Plant_6_SI",

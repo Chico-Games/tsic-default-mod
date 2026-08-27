@@ -58,7 +58,7 @@
     "has_ammo": false,
     "max_ammo": 0,
     "display_name": "Power Gloves",
-    "description": "Industrial-grade gloves for dragging the heaviest furniture.",
+    "description": "Gloves. Lets you drag the heaviest furniture. Made at the Armor Bench.\nIndustrial-grade gloves for dragging the heaviest furniture.",
     "stackable": false,
     "weight": 0.5,
     "drag_strength_multiplier": 2.0,

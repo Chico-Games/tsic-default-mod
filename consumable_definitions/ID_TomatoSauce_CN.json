@@ -60,7 +60,7 @@
     "has_ammo": false,
     "max_ammo": 0,
     "display_name": "Tomato Sauce",
-    "description": "Rich homemade tomato sauce, cooked down slow. Restorative on its own.",
+    "description": "Eat: Heals 10 instantly. +0.2 HP/s, +12 max health for 12 min. Fills 35 hunger. Made at the Microwave.\nRich homemade tomato sauce, cooked down slow. Restorative on its own.",
     "thumbnail": "/Game/Items/Consumables/UncookedFood/TomatoSauce/Textures/T_Thumb_SM_Can_Tomato.T_Thumb_SM_Can_Tomato",
     "stackable": true,
     "weight": 0.10000000149011612,

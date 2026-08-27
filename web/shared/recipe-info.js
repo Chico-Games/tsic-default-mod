@@ -121,8 +121,7 @@
             } else {
                 const out = primaryOutput(recipe);
                 if (out && out.Description) {
-                    host.appendChild(TSIC.el('p', { style: 'font-size:13px;margin:0 0 6px;color:rgba(37,33,25,0.78);' },
-                        out.Description));
+                    host.appendChild(TSIC.descriptionEl(out.Description));
                 }
             }
 

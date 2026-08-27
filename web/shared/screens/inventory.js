@@ -262,7 +262,11 @@
     [data-screen="Inventory"] #inv-info {
       padding:9px 11px; background:#fffdf3; border:2px solid rgba(10,10,10,0.85);
       min-height:0; flex:1 1 auto; overflow:auto; font-size:13px;
+      display:flex; flex-direction:column;
     }
+    [data-screen="Inventory"] #inv-info.tsic-empty { display:block; }
+    [data-screen="Inventory"] #inv-info .info-bottom { margin-top:auto; padding-top:8px; }
+    [data-screen="Inventory"] #inv-info .info-bottom .item-desc-flavour { margin:0 0 8px; padding-top:0; border-top:0; }
     [data-screen="Inventory"] #inv-info .info-eyebrow { font-size:10px; letter-spacing:0.18em; color: var(--mag-red, #e60000); text-transform:uppercase; }
     [data-screen="Inventory"] #inv-info .statline { display:flex; justify-content:space-between; border-top:1px dashed rgba(10,10,10,0.3); padding:2px 0; }
     [data-screen="Inventory"] #inv-info .statline b { letter-spacing:0.06em; font-size:12px; }

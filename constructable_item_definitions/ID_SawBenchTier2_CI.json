@@ -6,7 +6,7 @@
   "properties": {
     "thumbnail": "mod:icons/id_sawbenchtier2_ci",
     "display_name": "Saw Bench (Tier 2)",
-    "description": "An upgraded powered saw bench that mills logs and scrap into planks, boards, and shaped timber faster and unlocks new recipes.",
+    "description": "Placeable machine. Produces Wooden Plank. Dismantle with a Reinforced Screwdriver.\nAn upgraded powered saw bench that mills logs and scrap into planks, boards, and shaped timber faster and unlocks new recipes.",
     "stackable": true,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_SawBenchTier2_SI",

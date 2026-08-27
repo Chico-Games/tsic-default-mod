@@ -7,7 +7,7 @@
     "thumbnail": "mod:icons/id_chemicalcontainer_4_ci",
     "furniture_to_construct": "FD_ChemicalContainer_4_DF",
     "display_name": "Chemical Container",
-    "description": "Store furniture.",
+    "description": "Placeable furniture. Decorative. Dismantle with a Reinforced Screwdriver. Upgradable with a Heavy-Duty Hammer.\nStore furniture.",
     "stackable": true,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_ChemicalContainer_4_SI",

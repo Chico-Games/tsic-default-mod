@@ -6,7 +6,7 @@
   "properties": {
     "thumbnail": "mod:icons/id_weaponbenchtier2_ci",
     "display_name": "Advanced Weapon Bench",
-    "description": "An upgraded weapon bench outfitted for assembling heavier ordnance.",
+    "description": "Placeable crafting station. Crafts Chainsaw, Flamethrower, Fuel, Sledge Hammer and more. Dismantle with a Reinforced Screwdriver.\nAn upgraded weapon bench outfitted for assembling heavier ordnance.",
     "stackable": true,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_WeaponBenchTier2_SI",

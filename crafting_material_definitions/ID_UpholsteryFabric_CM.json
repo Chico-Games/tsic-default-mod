@@ -6,7 +6,7 @@
   "properties": {
     "thumbnail": "mod:icons/id_upholsteryfabric_cm",
     "display_name": "Upholstery Fabric",
-    "description": "A bolt of tough upholstery fabric.",
+    "description": "Crafting material. Used for Bandage, First Aid Kit, Heavy Gloves and more. Found all over the store. Dropped by Living Mannequins and staff.\nA bolt of tough upholstery fabric.",
     "stackable": true,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_UpholsteryFabric_SI",

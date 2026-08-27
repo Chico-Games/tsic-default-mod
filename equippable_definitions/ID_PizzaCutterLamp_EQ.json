@@ -86,7 +86,7 @@
     "has_ammo": false,
     "max_ammo": 0,
     "display_name": "Pizza Cutter Lamp",
-    "description": "A bizarre weapon combining a pizza cutter with a lamp. Slashing damage with built-in illumination for dark areas.",
+    "description": "Melee weapon. Slashing damage, and it lights up the area around you while equipped. Made at the Weapon Bench.\nA bizarre weapon combining a pizza cutter with a lamp. Slashing damage with built-in illumination for dark areas.",
     "stackable": false,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_PizzaCutterLamp_SI",

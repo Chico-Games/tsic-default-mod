@@ -5,7 +5,7 @@
   "schema_version": 2,
   "properties": {
     "display_name": "Repair Bench",
-    "description": "A workbench of clamps, files and spare stock. Trades scrap metal for the condition of everything you are carrying.",
+    "description": "Placeable station. Repairs all your gear for 10 Scrap Metal. Dismantle with a Reinforced Screwdriver.\nA workbench of clamps, files and spare stock. Trades scrap metal for the condition of everything you are carrying.",
     "stackable": true,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_RepairStation_SI",

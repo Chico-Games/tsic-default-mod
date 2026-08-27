@@ -6,7 +6,7 @@
   "properties": {
     "thumbnail": "mod:icons/id_weldingstationtier2_ci",
     "display_name": "Advanced Welding Station",
-    "description": "An upgraded metal fabrication station capable of welding heavier machinery and precision tools.",
+    "description": "Placeable crafting station. Crafts Heavy-Duty Screwdriver, Heavy-Duty Hammer, Steel Panel, Wrench and more. Dismantle with a Reinforced Screwdriver.\nAn upgraded metal fabrication station capable of welding heavier machinery and precision tools.",
     "stackable": true,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_WeldingStationTier2_SI",

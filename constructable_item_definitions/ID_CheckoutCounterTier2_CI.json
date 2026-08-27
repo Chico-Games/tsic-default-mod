@@ -6,7 +6,7 @@
   "properties": {
     "thumbnail": "mod:icons/id_checkoutcountertier2_ci",
     "display_name": "Advanced Checkout Counter",
-    "description": "An upgraded store counter with expanded crafting capabilities.",
+    "description": "Placeable crafting station. Crafts Basic Screwdriver, Basic Hammer, Dowel Bat, Basic Trap and more. Dismantle with a Reinforced Screwdriver.\nAn upgraded store counter with expanded crafting capabilities.",
     "stackable": true,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_CheckoutCounterTier2_SI",

@@ -6,7 +6,7 @@
   "properties": {
     "thumbnail": "mod:icons/id_printer_ci",
     "display_name": "Printer",
-    "description": "An industrial printer that pulps discarded wooden oddments and prints them into stacks of receipts over time.",
+    "description": "Placeable machine. Produces Paper Receipt. Dismantle with a Reinforced Screwdriver. Upgradable with a Reinforced Hammer into the Printer (Tier 2).\nAn industrial printer that pulps discarded wooden oddments and prints them into stacks of receipts over time.",
     "stackable": true,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_Printer_SI",

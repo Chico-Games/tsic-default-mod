@@ -6,7 +6,7 @@
   "properties": {
     "thumbnail": "mod:icons/id_researchcredit_cm",
     "display_name": "Research Credit",
-    "description": "A voucher stamped by the containment cage. Redeemable against the workshop upgrades nobody signed off on.",
+    "description": "Currency for anomalous upgrades. Earned by keeping a captured enemy in a Containment Cage. Spent on the Master Armor Forge, Advanced Weapon Bench and Hydroponics Rack upgrades.\nA voucher stamped by the containment cage. Redeemable against the workshop upgrades nobody signed off on.",
     "stackable": true,
     "weight": 0.05,
     "item_category_tag": "Entity.Inventory.Item.Category.CraftingMaterial",

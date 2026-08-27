@@ -60,7 +60,7 @@
     "has_ammo": false,
     "max_ammo": 0,
     "display_name": "Swedish Pancakes",
-    "description": "Thin Swedish-style pancakes, stacked and rolled. Light and long-lasting.",
+    "description": "Eat: Heals 15 instantly. +10 max health, +25 max stamina, +3% move speed for 14 min. Fills 50 hunger. Made at the Oven.\nThin Swedish-style pancakes, stacked and rolled. Light and long-lasting.",
     "thumbnail": "/Game/Items/Consumables/CookedFood/SwedishPancakes/Textures/T_Thumb_SM_PancakesA_01.T_Thumb_SM_PancakesA_01",
     "stackable": true,
     "weight": 0.10000000149011612,

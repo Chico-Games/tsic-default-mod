@@ -626,3 +626,8 @@ html[data-tsic-reduce-motion] .tsic-button[data-variant="pink"] { animation: non
 /* Legacy alias — kept so existing .tsic-link--ink markup still resolves. */
 .tsic-link--ink { color: var(--mag-red); text-decoration-color: var(--mag-red); }
 .tsic-link--ink:hover { color: var(--mag-red-dark); }
+
+/* Item description: plain function text, then flavour under a divider (TSIC.descriptionEl). */
+.item-desc { margin: 0 0 6px; }
+.item-desc-fn { font-size: 13px; margin: 0; color: rgba(37,33,25,0.86); }
+.item-desc-flavour { font-size: 12px; margin: 6px 0 0; padding-top: 6px; border-top: 1px dashed rgba(37,33,25,0.25); color: rgba(37,33,25,0.6); font-style: italic; }

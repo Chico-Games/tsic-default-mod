@@ -6,7 +6,7 @@
   "properties": {
     "thumbnail": "mod:icons/id_coffeemachinetier2_ci",
     "display_name": "Coffee Machine (Advanced)",
-    "description": "An upgraded coffee machine with faster brewing and access to advanced recipes.",
+    "description": "Placeable machine. Produces Coffee. Dismantle with a Reinforced Screwdriver.\nAn upgraded coffee machine with faster brewing and access to advanced recipes.",
     "stackable": true,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_CoffeeMachineTier2_SI",

@@ -6,7 +6,7 @@
   "properties": {
     "thumbnail": "mod:icons/id_rubbishcompactor_ci",
     "display_name": "Rubbish Compactor",
-    "description": "A heavy-duty compactor that crushes rubbish into dense, reusable blocks of material.",
+    "description": "Placeable machine. Produces Compost, Fertilizer Bag and Loose Coins. Dismantle with a Heavy-Duty Screwdriver. Upgradable with a Heavy-Duty Hammer into the Rubbish Compactor (Tier 2).\nA heavy-duty compactor that crushes rubbish into dense, reusable blocks of material.",
     "stackable": true,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_RubbishCompactor_SI",

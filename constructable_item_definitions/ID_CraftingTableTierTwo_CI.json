@@ -6,7 +6,7 @@
   "properties": {
     "thumbnail": "mod:icons/id_craftingtabletiertwo_ci",
     "display_name": "Advanced Crafting Table",
-    "description": "An upgraded crafting table capable of producing advanced weapons and tools.",
+    "description": "Placeable crafting station. Crafts Basic Screwdriver, Basic Hammer, Dowel Bat, Basic Trap and more. Dismantle with a Basic Screwdriver.\nAn upgraded crafting table capable of producing advanced weapons and tools.",
     "stackable": true,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_CraftingTableTierTwo_SI",

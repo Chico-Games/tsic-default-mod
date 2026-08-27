@@ -61,7 +61,7 @@
     "has_ammo": false,
     "max_ammo": 0,
     "display_name": "Organic Conditioner",
-    "description": "Own-brand organic conditioner. Smells of almost nothing.",
+    "description": "Not food. Using it lowers max health by 8 for 45 s. Found in the bathrooms.\nOwn-brand organic conditioner. Smells of almost nothing.",
     "stackable": true,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_OrganicShampoo_SI",

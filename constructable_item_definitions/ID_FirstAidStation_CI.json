@@ -6,7 +6,7 @@
   "properties": {
     "thumbnail": "mod:icons/id_firstaidstation_ci",
     "display_name": "First Aid Station",
-    "description": "A medical crafting station for creating healing items, bandages, and medicine.",
+    "description": "Placeable crafting station. Crafts Bandage and First Aid Kit. Dismantle with a Basic Screwdriver. Upgradable with a Basic Hammer into the Advanced First Aid Station.\nA medical crafting station for creating healing items, bandages, and medicine.",
     "stackable": true,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_FirstAidStation_SI",

@@ -985,10 +985,17 @@
             var eyebrow = el('div', { class: 'info-eyebrow' }, TSIC.itemTypeLabel(itemDescriptor) || 'Item');
             host.appendChild(eyebrow);
             host.appendChild(el('h3', { style: 'margin:2px 0 6px;' }, itemDescriptor.Name || itemDescriptor.ItemId || ''));
+            // Function text stays under the title; flavour + stats live in a bottom
+            // block that snaps to the panel floor so they sit in the same place
+            // whatever the length of the text above.
+            var bottom = el('div', { class: 'info-bottom' });
             if (itemDescriptor.Description) {
-                host.appendChild(el('p', { style: 'font-size:13px;margin:0 0 6px;color:rgba(37,33,25,0.78);' },
-                    itemDescriptor.Description));
+                var desc = TSIC.descriptionEl(itemDescriptor.Description);
+                var flavour = desc.querySelector('.item-desc-flavour');
+                if (flavour) bottom.appendChild(flavour);
+                host.appendChild(desc);
             }
+            host.appendChild(bottom);
 
             var stat = function (label, value, delta, higherIsBetter) {
                 var row = el('div', { class: 'statline' });
@@ -1005,7 +1012,7 @@
                     }, '(' + text + ')'));
                 }
                 row.appendChild(right);
-                host.appendChild(row);
+                bottom.appendChild(row);
             };
 
             var cmp = compareDescriptor || null;
@@ -1029,13 +1036,16 @@
             if (itemDescriptor.BonusEntityDamage > 0 || (cmp && cmp.BonusEntityDamage > 0)) {
                 stat('VS FURNITURE', '+' + (itemDescriptor.BonusEntityDamage || 0), deltaOf('BonusEntityDamage'));
             }
-            if ((itemDescriptor.EntityDamageMultiplier || 0) !== 1 || (cmp && (cmp.EntityDamageMultiplier || 0) !== 1)) {
+            // Weapon-only stat: non-weapons carry no multiplier at all, and an
+            // absent field must not render as "0.00×".
+            var hasDemo = function (d) { return d && typeof d.EntityDamageMultiplier === 'number' && d.EntityDamageMultiplier > 0 && d.EntityDamageMultiplier !== 1; };
+            if (hasDemo(itemDescriptor) || hasDemo(cmp)) {
                 stat('DEMOLITION', (itemDescriptor.EntityDamageMultiplier || 0).toFixed(2) + '×',
                     deltaOf('EntityDamageMultiplier'));
             }
 
             if (cmp) {
-                host.appendChild(el('div', {
+                bottom.appendChild(el('div', {
                     style: 'margin-top:7px;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(37,33,25,0.6);',
                 }, 'vs equipped: ' + (cmp.Name || cmp.ItemId || '')));
             }

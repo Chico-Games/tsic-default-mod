@@ -6,7 +6,7 @@
   "properties": {
     "thumbnail": "mod:icons/id_woodenplank_cm",
     "display_name": "Wooden Plank",
-    "description": "A sturdy plank, cut and sanded for construction.",
+    "description": "Crafting material. Used for Crossbow, Fire Axe, Paper Receipt and more. Found in the warehouse. Made at the Saw Bench.\nA sturdy plank, cut and sanded for construction.",
     "stackable": true,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_WoodenPlank_SI",

@@ -86,7 +86,7 @@
     "has_ammo": false,
     "max_ammo": 0,
     "display_name": "Fire Axe",
-    "description": "A wall-mounted fire axe, liberated. Slow, heavy chops that bite deep into flesh and shelving alike.",
+    "description": "Melee weapon. Slow, heavy chops. 2.5× damage to furniture. Found in the store or bought from a vending machine.\nA wall-mounted fire axe, liberated. Slow, heavy chops that bite deep into flesh and shelving alike.",
     "stackable": false,
     "weight": 0.14,
     "static_item_definition": "FD_FireAxe_SI",

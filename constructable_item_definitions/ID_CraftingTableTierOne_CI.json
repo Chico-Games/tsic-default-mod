@@ -6,6 +6,7 @@
   "properties": {
     "thumbnail": "mod:icons/id_craftingtabletierone_ci",
     "display_name": "Basic Crafting Table",
+    "description": "Placeable crafting station. Crafts Basic Screwdriver, Basic Hammer, Dowel Bat, Basic Trap and more. Dismantle with a Basic Screwdriver. Upgradable with a Basic Hammer into the Advanced Crafting Table.",
     "stackable": true,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_CraftingTableTierOne_SI",

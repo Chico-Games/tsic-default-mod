@@ -61,7 +61,7 @@
     "has_ammo": false,
     "max_ammo": 0,
     "display_name": "Speed Soda",
-    "description": "A can of Speed Soda. The name is the entire marketing budget.",
+    "description": "Drink: +1.5 stamina/s, +8% move speed for 4 min. Fills 15 hunger. Found in the store.\nA can of Speed Soda. The name is the entire marketing budget.",
     "thumbnail": "/Game/Items/Consumables/UncookedFood/SpeedSoda/Textures/T_Thumb_SM_DrinkCan_1.T_Thumb_SM_DrinkCan_1",
     "stackable": true,
     "weight": 0.10000000149011612,

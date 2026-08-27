@@ -6,7 +6,7 @@
   "properties": {
     "thumbnail": "mod:icons/id_researchpaper_cm",
     "display_name": "Research Paper",
-    "description": "A vat-printed write-up of a contained specimen. The anomalous workshops will not touch a project without one.",
+    "description": "Required ingredient for every anomalous weapon and armour piece. Made in the Research Vat from a captured enemy plus a Paper Receipt.\nA vat-printed write-up of a contained specimen. The anomalous workshops will not touch a project without one.",
     "stackable": true,
     "weight": 0.05,
     "item_category_tag": "Entity.Inventory.Item.Category.CraftingMaterial",

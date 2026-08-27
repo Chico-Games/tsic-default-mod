@@ -6,7 +6,7 @@
   "properties": {
     "thumbnail": "mod:icons/id_flour_cm",
     "display_name": "Flour",
-    "description": "A bag of flour for baking.",
+    "description": "Crafting material. Used for Bread, Warm Cinnamon Roll, Lingonberry Jam and more. Found in the restaurant. Made at the Crafting Table.\nA bag of flour for baking.",
     "stackable": true,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_Flour_SI",

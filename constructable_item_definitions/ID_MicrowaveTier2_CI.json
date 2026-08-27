@@ -6,7 +6,7 @@
   "properties": {
     "thumbnail": "mod:icons/id_microwavetier2_ci",
     "display_name": "Microwave (Advanced)",
-    "description": "An upgraded microwave with faster cooking and access to advanced recipes.",
+    "description": "Placeable machine. Produces Cooked Hot Dog, Instant Noodle Soup, French Fries, Mashed Potatoes and more. Dismantle with a Reinforced Screwdriver.\nAn upgraded microwave with faster cooking and access to advanced recipes.",
     "stackable": true,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_MicrowaveTier2_SI",

@@ -172,7 +172,7 @@
     "has_ammo": false,
     "max_ammo": 0,
     "display_name": "Metal Armor Chestplate",
-    "description": "Solid metal chest plate providing superior protection.",
+    "description": "Chest armour. +8 armour while worn. Made at the Armor Bench.\nSolid metal chest plate providing superior protection.",
     "stackable": false,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_MetalArmorChestplate_SI",

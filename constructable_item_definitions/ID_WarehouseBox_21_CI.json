@@ -7,7 +7,7 @@
     "thumbnail": "mod:icons/id_warehousebox_21_ci",
     "furniture_to_construct": "FD_WarehouseBox_21_DF",
     "display_name": "Stacked Bricks",
-    "description": "Store furniture.",
+    "description": "Placeable furniture. Decorative. Dismantle with a Heavy-Duty Screwdriver. Upgradable with a Reinforced Hammer.\nStore furniture.",
     "stackable": true,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_WarehouseBox_21_SI",

@@ -5,7 +5,7 @@
   "schema_version": 2,
   "properties": {
     "display_name": "Hazmat Suit",
-    "description": "A sealed full-body suit. Envelops everything you wear underneath.",
+    "description": "Outfit. Cosmetic only. Hides armour, gloves and shoes. Found in the store or bought from a vending machine.\nA sealed full-body suit. Envelops everything you wear underneath.",
     "stackable": false,
     "weight": 2.0,
     "equipment_slot": "Entity.Inventory.Item.Equipment.Slot.Outfit",

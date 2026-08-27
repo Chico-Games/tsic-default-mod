@@ -82,7 +82,7 @@
     "has_ammo": false,
     "max_ammo": 0,
     "display_name": "Pillow Armor Helmet",
-    "description": "Makeshift head protection cobbled together from pillows and fabric.",
+    "description": "Helmet. +2 armour while worn. Made at the Armor Bench.\nMakeshift head protection cobbled together from pillows and fabric.",
     "stackable": false,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_PillowArmorHelmet_SI",

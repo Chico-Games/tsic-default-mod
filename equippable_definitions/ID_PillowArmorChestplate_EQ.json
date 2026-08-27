@@ -170,7 +170,7 @@
     "has_ammo": false,
     "max_ammo": 0,
     "display_name": "Pillow Armor Chestplate",
-    "description": "Improvised chest armor made from pillows and fabric scraps.",
+    "description": "Chest armour. +2 armour while worn. Made at the Armor Bench.\nImprovised chest armor made from pillows and fabric scraps.",
     "stackable": false,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_PillowArmorChestplate_SI",

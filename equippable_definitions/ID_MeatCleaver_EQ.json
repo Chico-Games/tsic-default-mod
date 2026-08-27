@@ -86,7 +86,7 @@
     "has_ammo": false,
     "max_ammo": 0,
     "display_name": "Meat Cleaver",
-    "description": "Taken off the restaurant block. The fastest melee combo in the store, and the one least likely to knock anything down.",
+    "description": "Melee weapon. The fastest combo in the game, with almost no knockback. Found in the store or bought from a vending machine.\nTaken off the restaurant block. The fastest melee combo in the store, and the one least likely to knock anything down.",
     "stackable": false,
     "weight": 0.05,
     "static_item_definition": "FD_MeatCleaver_SI",
