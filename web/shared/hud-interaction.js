@@ -59,7 +59,23 @@
     if (!url) return null;
     var chip = TSIC.el('span', { class: 'bb-key' });
     var img = TSIC.el('img', { src: url, alt: keyText || '' });
-    img.onerror = function () { chip.remove(); };
+    // The publisher ALWAYS hands us a /tex/key-icon/<device>/<key> url, so the
+    // `!url` fallback above never fires for a real entry -- a url that is present
+    // but does not resolve used to delete the chip outright, leaving a verb with
+    // no key and nothing logged anywhere. That is how #451 read as "the key glyph
+    // was never built" while the code to draw it was right here.
+    //
+    // Fall back to the bundled SVG once before giving up. Guarded so a failing
+    // fallback cannot loop.
+    img.onerror = function () {
+      var svg = TSIC.keyIconUrl ? TSIC.keyIconUrl(keyText, isGP) : '';
+      if (svg && svg !== img.getAttribute('src')) {
+        img.onerror = function () { chip.remove(); };
+        img.src = svg;
+        return;
+      }
+      chip.remove();
+    };
     chip.appendChild(img);
     return chip;
   }
