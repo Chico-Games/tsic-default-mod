@@ -292,6 +292,24 @@
         return s.Value;
     }
 
+    // The value a control is showing right now, by key. localState only holds keys
+    // that have been edited or echoed at least once, so a control still showing
+    // what the catalog shipped has no entry there -- and that is precisely the
+    // value a first edit has to be able to roll back to. Falls back to scanning
+    // the last catalog. undefined means the key is not on the page at all.
+    function displayedValueOf(key) {
+        if (key in localState) return localState[key];
+        const pages = (lastCatalog && lastCatalog.Pages) || [];
+        for (const page of pages) {
+            for (const group of (page.Groups || [])) {
+                for (const setting of (group.Settings || [])) {
+                    if (setting.Key === key) return setting.Value;
+                }
+            }
+        }
+        return undefined;
+    }
+
     function publishSet(key, value) {
         try {
             tsic.publishMessage('UI.Cmd.Settings.Set', { Key: key, ValueJson: JSON.stringify(value) });
@@ -894,6 +912,18 @@
         if (!viaScopePop && tsic.focus && tsic.focus.popScope) tsic.focus.popScope();
         if (action === 'keep') keepVideo();
         else if (action === 'revert') revertVideo();
+
+        // Whichever way it went, what is on screen now is what the player lives
+        // with, so tell C++ to make it the confirmed baseline. Nothing used to:
+        // ConfirmVideoMode/RevertVideoMode were overridden and called from
+        // nowhere, so the engine's LastUserConfirmedResolution never advanced
+        // past first-boot auto-detect and kept pulling the game back to it.
+        //
+        // After revertVideo(), so the Sets it publishes are applied first and the
+        // baseline confirms the reverted state rather than the rejected one.
+        if (p.kind === 'countdown' && (action === 'keep' || action === 'revert')) {
+            publishAction('video.confirm');
+        }
     }
 
     function popoverButton(id, label, variant, action) {
@@ -1216,6 +1246,24 @@
             if (v === false && dropHdrRow()) rebuildPreservingValues();
             return;
         }
+        // A video value can arrive here as a SIDE EFFECT of the edit the player
+        // just made, not as an edit of their own: picking a resolution
+        // force-switches the game to exclusive fullscreen (ScpUIDirectorSubsystem,
+        // deliberately, for #147) and echoes the new window mode back here.
+        //
+        // That switch is part of the same edit, so it has to be part of the same
+        // rollback. Without this the revert restores the resolution and leaves the
+        // forced fullscreen behind -- which is exactly what #465 reported: every
+        // video change 'changes it back to fullscreen at whatever resolution it
+        // thinks your screen is'.
+        //
+        // Guarded on a live countdown so a normal sticky replay, which is not
+        // anyone's edit, never becomes a rollback target.
+        if (activePopover && isVideoKey(payload.Key) && !(payload.Key in videoRevert)) {
+            const prev = displayedValueOf(payload.Key);
+            if (prev !== undefined) videoRevert[payload.Key] = prev;
+        }
+
         // Authoritative saved value (per-key sticky replay when the screen
         // opens, or a later C++ echo): it moves the control.
         localState[payload.Key] = v;

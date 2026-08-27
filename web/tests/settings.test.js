@@ -156,6 +156,118 @@ TSICTestHarness.register({
     },
 });
 
+// ---- #465: a C++-forced video change must join the same rollback ----
+//
+// Its own catalog rather than INSTANT_CATALOG, which carries no window-mode row,
+// and rather than the real static catalog, whose resolution options are whatever
+// the machine reports.
+const FORCED_MODE_CATALOG = {
+    Pages: [
+        { Id: 'VideoCollection', Title: 'Video', Groups: [{ Id: 'Display', Title: 'Display',
+            Settings: [
+                { Key: 'video.resolution', Label: 'Resolution', Type: 'enum',
+                    Options: [{Value:'1920x1080',Label:'1920x1080'},{Value:'2560x1440',Label:'2560x1440'}],
+                    Value: '1920x1080' },
+                { Key: 'video.window_mode', Label: 'Window mode', Type: 'enum',
+                    Options: [{Value:'fullscreen',Label:'Fullscreen'},{Value:'borderless',Label:'Borderless'},
+                              {Value:'windowed',Label:'Windowed'}],
+                    Value: 'borderless' },
+            ] }] },
+    ],
+    Footer: { RestartRequired: false },
+};
+
+async function openForcedModeTab(ctx) {
+    ctx.inject('tsic.msg.UI.Settings.Catalog', { Json: JSON.stringify(FORCED_MODE_CATALOG) });
+    await ctx.waitFor(() => ctx.doc.querySelector('button.tsic-dropdown[data-key="video.window_mode"]'));
+}
+
+TSICTestHarness.register({
+    name: 'Settings: Revert also undoes the fullscreen the resolution pick forced (#465)',
+    file: '/screens/settings.html',
+    async run(ctx) {
+        await openForcedModeTab(ctx);
+        const res = ctx.doc.querySelector('button.tsic-dropdown[data-key="video.resolution"]');
+        const mode = ctx.doc.querySelector('button.tsic-dropdown[data-key="video.window_mode"]');
+        ctx.expect(ctx.assert.eq(ctx.win.tsic.dropdown.get(mode), 'borderless'));
+
+        ctx.win.tsic.dropdown.set(res, '2560x1440');
+        await ctx.waitFor(() => ctx.doc.getElementById('popover-countdown'));
+
+        // C++ force-switches to exclusive fullscreen behind a resolution pick
+        // (deliberately, for #147) and echoes the new mode back. The player never
+        // chose it, so Revert has to undo it along with the resolution.
+        ctx.inject('tsic.msg.UI.Settings.Value',
+            { Key: 'video.window_mode', ValueJson: '"fullscreen"' });
+        await ctx.waitFor(() => ctx.win.tsic.dropdown.get(mode) === 'fullscreen');
+
+        ctx.clearPublishes();
+        ctx.doc.getElementById('popover-revert').click();
+
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Settings.Set',
+            { where: p => p.Key === 'video.resolution' && p.ValueJson.includes('1920x1080') }));
+        // The half that used to be left behind: without it the player lands on
+        // exclusive fullscreen having asked only for a resolution, then had even
+        // that taken back.
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Settings.Set',
+            { where: p => p.Key === 'video.window_mode' && p.ValueJson.includes('borderless') }));
+        ctx.expect(ctx.assert.eq(ctx.win.tsic.dropdown.get(mode), 'borderless'));
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Settings: a sticky value replay is not a rollback target (#465)',
+    file: '/screens/settings.html',
+    async run(ctx) {
+        await openForcedModeTab(ctx);
+        const mode = ctx.doc.querySelector('button.tsic-dropdown[data-key="video.window_mode"]');
+        // No countdown open: this is C++ telling the page what is saved, not a
+        // side effect of anyone's edit, so it must not be captured for rollback.
+        ctx.inject('tsic.msg.UI.Settings.Value',
+            { Key: 'video.window_mode', ValueJson: '"windowed"' });
+        await ctx.waitFor(() => ctx.win.tsic.dropdown.get(mode) === 'windowed');
+        ctx.expect(ctx.doc.getElementById('settings-popover')
+            ? 'a saved-value replay must not open the countdown' : null);
+
+        // A later edit reverts to the replayed value, not to the pre-replay one.
+        ctx.win.tsic.dropdown.set(mode, 'fullscreen');
+        await ctx.waitFor(() => ctx.doc.getElementById('popover-revert'));
+        ctx.clearPublishes();
+        ctx.doc.getElementById('popover-revert').click();
+        ctx.expect(ctx.assert.eq(ctx.win.tsic.dropdown.get(mode), 'windowed'));
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Settings: resolving the countdown confirms the video mode C++-side (#465)',
+    file: '/screens/settings.html',
+    async run(ctx) {
+        await openForcedModeTab(ctx);
+        const res = ctx.doc.querySelector('button.tsic-dropdown[data-key="video.resolution"]');
+
+        // Keep confirms: UGameUserSettings only advances its last-confirmed
+        // resolution/window mode in ConfirmVideoMode, and nothing used to call it,
+        // so the engine kept pulling the game back to the first-boot auto-detect.
+        ctx.win.tsic.dropdown.set(res, '2560x1440');
+        await ctx.waitFor(() => ctx.doc.getElementById('popover-keep'));
+        ctx.clearPublishes();
+        ctx.doc.getElementById('popover-keep').click();
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Settings.Action',
+            { where: p => p.Key === 'video.confirm' }));
+
+        // Revert confirms too: the reverted-to state is what the player lives with,
+        // and leaving THAT unconfirmed is the same bug one step later. Picking a
+        // DIFFERENT value than above on purpose -- re-selecting the current one
+        // fires no change and would open no countdown.
+        ctx.win.tsic.dropdown.set(res, '1920x1080');
+        await ctx.waitFor(() => ctx.doc.getElementById('popover-revert'));
+        ctx.clearPublishes();
+        ctx.doc.getElementById('popover-revert').click();
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Settings.Action',
+            { where: p => p.Key === 'video.confirm' }));
+    },
+});
+
 // ---- Graphics: NVIDIA upscaler / frame-gen / Reflex rows ----
 // These run against the page's REAL static catalog (no injected Catalog), so they
 // pin the shipped rows to the exact key/value vocabulary HandleCmdSettingsSet

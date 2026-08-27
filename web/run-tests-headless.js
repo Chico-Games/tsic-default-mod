@@ -2,6 +2,11 @@
 // Usage: node run-tests-headless.js [--filter <substring>] [--channel chrome]
 //                                   [--order reverse|shuffle [--seed <n>]]
 // Assumes a static server is serving the /Web tree at http://localhost:8765.
+//
+// Override with TSIC_WEB_PORT when a second checkout is in play. The port used to
+// be hardcoded, and with two trees on one machine that silently tests the WRONG
+// one: the runner connects to whichever server happens to hold 8765, reports a
+// full green suite, and none of it touched the files you just edited.
 // --channel chrome runs against the installed Chrome instead of the
 // downloaded chromium headless shell (no `npx playwright install` needed).
 //
@@ -15,6 +20,8 @@
 // mystery red in CI.
 
 const { chromium } = require('playwright');
+
+const WEB_PORT = process.env.TSIC_WEB_PORT || '8765';
 
 (async () => {
     const filter = process.argv.includes('--filter')
@@ -46,7 +53,7 @@ const { chromium } = require('playwright');
         if (msg.type() === 'error') console.error('[console.error]', msg.text());
     });
 
-    await page.goto('http://localhost:8765/screens/tests.html', { waitUntil: 'domcontentloaded' });
+    await page.goto(`http://localhost:${WEB_PORT}/screens/tests.html`, { waitUntil: 'domcontentloaded' });
     await page.waitForFunction(() => window.TSICTestHarness && window.TSICTestHarness.scenarios.length > 0);
 
     const total = await page.evaluate(() => window.TSICTestHarness.scenarios.length);
