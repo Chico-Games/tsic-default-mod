@@ -1,9 +1,22 @@
 // shared/tsic-bridge.js
 //
-// Creates window.tsic on top of the WebUI plugin's native V8 binding system.
-// The C++ side binds a UTSICWebBridgeObject as "tsicbridge" via
-// UWebInterface::Bind(), so ue.tsicbridge.* methods are available before
-// page scripts run (permanent bindings are injected at browser creation).
+// Creates window.tsic on top of whichever UI engine is painting this page.
+//
+// Two transports, one surface. Under CEF the C++ side binds a
+// UTSICWebBridgeObject as "tsicbridge" via UWebInterface::Bind(), so
+// ue.tsicbridge.* methods are available before page scripts run (permanent
+// bindings are injected at browser creation). Under SolUi there is no object
+// to bind -- solui_view_bind_function binds one function at a time -- so C++
+// stamps window.__tsic_* individually.
+//
+// The difference stops here. Everything above this file sees the same
+// window.tsic either way, which is the only reason the same pages can be
+// drawn by both engines and compared.
+//
+// The transports also differ in shape: CEF's calls are asynchronous because
+// they cross a process boundary, SolUi's return on the spot because it renders
+// in ours. `request` is therefore the one that needs real work -- see
+// makeSolUiTransport.
 //
 // This file MUST be loaded before tsic-runtime.js and all screen scripts.
 // Use <script src="/shared/tsic-bridge.js" defer></script> as the first
@@ -84,27 +97,116 @@
     // and subscriptions stay wired to the mock the runner observes.
     if (window.tsic) return;
 
-    // ue.tsicbridge is bound by C++ via WebUI's Bind("tsicbridge", BridgeObj).
-    // bJSBindingToLoweringEnabled lowercases both the binding name and all
-    // UFUNCTION names. All calls return Promises (CEF multi-process IPC).
+    // ---- transports --------------------------------------------------------
+
+    function makeCefTransport() {
+        // ue.tsicbridge is bound by C++ via WebUI's Bind("tsicbridge", BridgeObj).
+        // bJSBindingToLoweringEnabled lowercases both the binding name and all
+        // UFUNCTION names. All calls return Promises (CEF multi-process IPC).
+        return {
+            name: 'CEF',
+            available: function () { return typeof ue !== 'undefined' && !!ue.tsicbridge; },
+            send: function (n, j) { ue.tsicbridge.send(n, j); },
+            request: function (n, j) {
+                return ue.tsicbridge.request(n, j).then(function (resultJson) {
+                    try { return JSON.parse(resultJson); } catch (e) { return resultJson; }
+                });
+            },
+            describe: function () { return ue.tsicbridge.describe(); },
+            describeMessages: function () { return ue.tsicbridge.describemessages(); },
+            publishMessage: function (t, j) { ue.tsicbridge.publishmessage(t, j); },
+            setInteractiveRects: function (j) { ue.tsicbridge.setinteractiverects(j); },
+            setFocusCapture: function (b) { ue.tsicbridge.setfocuscapture(!!b); },
+            requestCacheReplay: function () {
+                if (ue.tsicbridge.requestcachereplay) ue.tsicbridge.requestcachereplay();
+            }
+        };
+    }
+
+    function makeSolUiTransport() {
+        // Every bound function returns a JSON string synchronously. The names
+        // are the ones UTSICSolUiBridgeObject::BindTo stamps on window.
+        var pending = {};
+
+        // C++ settles a request by calling back into the page by name. It has
+        // no handle to a JS promise -- CEF gets one because the browser hands
+        // it a response object -- so the id issued by __tsic_request is the
+        // handle, and this is where it is redeemed.
+        window.__tsicResolve = function (id, payload, error) {
+            var entry = pending[id];
+            if (!entry) return;
+            delete pending[id];
+            if (error) { entry.reject(new Error(error)); return; }
+            entry.resolve(payload);
+        };
+
+        return {
+            name: 'SolUi',
+            available: function () { return typeof window.__tsic_send === 'function'; },
+            send: function (n, j) { window.__tsic_send(n, j); },
+            request: function (n, j) {
+                var id = parseInt(window.__tsic_request(n, j), 10);
+                if (!id) return Promise.reject(new Error('request was refused'));
+                return new Promise(function (resolve, reject) {
+                    pending[id] = { resolve: resolve, reject: reject };
+                });
+            },
+            describe: function () { return window.__tsic_describe(); },
+            describeMessages: function () { return window.__tsic_describeMessages(); },
+            publishMessage: function (t, j) { window.__tsic_publishMessage(t, j); },
+            setInteractiveRects: function (j) { window.__tsic_setInteractiveRects(j); },
+            setFocusCapture: function (b) { window.__tsic_setFocusCapture(!!b); },
+            requestCacheReplay: function () { window.__tsic_requestCacheReplay(); },
+            notifyReady: function () { window.__tsic_notifyReady(); }
+        };
+    }
+
+    // SolUi is probed first because its functions are stamped before any page
+    // script runs, so a positive answer here is certain. `ue` may not exist yet
+    // under CEF, which is what ensureInterface below waits out.
+    var solui = makeSolUiTransport();
+    var T = solui.available() ? solui : makeCefTransport();
+
+    // ---- asset URLs --------------------------------------------------------
+    //
+    // Only SolUi overrides these. Under CEF, shared/icons.js keeps its own
+    // defaults ('/tex/item-icon/<id>' and '/runtime/<name>.imgsrc'), which the
+    // scheme handler serves.
+    //
+    // SolUi has no scheme handler: it resolves a page's URLs through the host
+    // filesystem, so a synthesised path would 404 as a missing file. Image
+    // sources are the mechanism it does have, and both of these resolve to one.
+    // icons.js already routes through window.tsic when it is present, so this
+    // is the whole of the difference and no screen sees it.
+    var assetUrls = (T.name !== 'SolUi') ? null : {
+        // Registering the source is what makes the URL resolvable, so the two
+        // happen in one call and cannot get out of step.
+        itemIconUrl: function (itemId) {
+            if (!itemId) return '';
+            try { return JSON.parse(window.__tsic_ensureIcon(itemId)) || ''; }
+            catch (e) { return ''; }
+        },
+
+        // Runtime textures are registered by C++ as they are created, under the
+        // bare name, so the leading '/runtime/' the CEF handler routes on would
+        // be part of the id here and match nothing.
+        runtimeImgUrl: function (name) { return name + '.imgsrc'; }
+    };
 
     window.tsic = {
         _subs: {},
         _lastSticky: {},
 
         send: function (name, payload) {
-            if (typeof ue === 'undefined' || !ue.tsicbridge) return;
-            ue.tsicbridge.send(name, JSON.stringify(payload === undefined ? null : payload));
+            if (!T.available()) return;
+            T.send(name, JSON.stringify(payload === undefined ? null : payload));
         },
 
         request: function (name, payload) {
-            if (typeof ue === 'undefined' || !ue.tsicbridge) {
-                return Promise.reject(new Error('tsicbridge not available'));
+            if (!T.available()) {
+                return Promise.reject(new Error(T.name + ' bridge not available'));
             }
-            return ue.tsicbridge.request(name, JSON.stringify(payload === undefined ? null : payload))
-                .then(function (resultJson) {
-                    try { return JSON.parse(resultJson); } catch (e) { return resultJson; }
-                });
+            return T.request(name, JSON.stringify(payload === undefined ? null : payload));
         },
 
         on: function (name, cb) {
@@ -134,46 +236,55 @@
         // it is gone for the page's lifetime, and this fires from click handlers.
         _warnedNoBridge: false,
         _noBridge: function (what) {
-            if (typeof ue !== 'undefined' && ue.tsicbridge) return false;
+            if (T.available()) return false;
             if (!this._warnedNoBridge) {
                 this._warnedNoBridge = true;
-                console.warn('[tsic-bridge] ue.tsicbridge is not bound - "' + what +
+                console.warn('[tsic-bridge] the ' + T.name + ' bridge is not bound - "' + what +
                     '" and every later JS->C++ call from this page will be dropped.');
             }
             return true;
         },
 
+        // Both transports answer with a JSON string; only CEF's arrives as a
+        // promise. Promise.resolve normalises the two without making the SolUi
+        // path pretend to be asynchronous anywhere but here.
         describe: function () {
-            if (typeof ue === 'undefined' || !ue.tsicbridge) return Promise.resolve([]);
-            return ue.tsicbridge.describe().then(function (json) {
+            if (!T.available()) return Promise.resolve([]);
+            return Promise.resolve(T.describe()).then(function (json) {
                 try { return JSON.parse(json); } catch (e) { return []; }
             });
         },
 
         describeMessages: function () {
-            if (typeof ue === 'undefined' || !ue.tsicbridge) return Promise.resolve([]);
-            return ue.tsicbridge.describemessages().then(function (json) {
+            if (!T.available()) return Promise.resolve([]);
+            return Promise.resolve(T.describeMessages()).then(function (json) {
                 try { return JSON.parse(json); } catch (e) { return []; }
             });
         },
 
         publishMessage: function (tag, payload) {
             if (this._noBridge('publishMessage ' + tag)) return;
-            ue.tsicbridge.publishmessage(tag, JSON.stringify(payload === undefined ? {} : payload));
+            T.publishMessage(tag, JSON.stringify(payload === undefined ? {} : payload));
         },
 
         setInteractiveRects: function (rects) {
             if (this._noBridge('setInteractiveRects')) return;
-            ue.tsicbridge.setinteractiverects(JSON.stringify(rects || []));
+            T.setInteractiveRects(JSON.stringify(rects || []));
         },
 
-        // Hand the CEF browser keyboard focus (true) or return it to the game
+        // Hand the page keyboard focus (true) or return it to the game
         // viewport / Enhanced Input (false). Driven exclusively by text-field
         // focus tracking in tsic-runtime.js — do not call this from page code.
         setFocusCapture: function (capture) {
             if (this._noBridge('setFocusCapture')) return;
-            ue.tsicbridge.setfocuscapture(!!capture);
+            T.setFocusCapture(!!capture);
         },
+
+        // Present only on the SolUi surface; see assetUrls above. icons.js
+        // checks for these before falling back to its own CEF-shaped defaults,
+        // so leaving them undefined is how the CEF path stays untouched.
+        itemIconUrl: assetUrls ? assetUrls.itemIconUrl : undefined,
+        runtimeImgUrl: assetUrls ? assetUrls.runtimeImgUrl : undefined,
 
         // C++ -> JS dispatch. Called from C++ via Call("tsicDispatch", data)
         // which executes ue.interface.tsicDispatch(data). We wire it below.
@@ -202,6 +313,18 @@
     // last-known values dispatched into the freshly-created window.tsic._lastSticky.
     // Page scripts that later call tsic.on() will pick up cached data from there.
     function ensureInterface() {
+        if (T.name === 'SolUi') {
+            // No `ue` and no interface object: C++ reaches the page by running
+            // window.tsic.__dispatch directly, which exists by now. Telling C++
+            // the context is live has to come first -- DispatchToJS drops
+            // everything sent before it, so a cache replay requested the other
+            // way round would be answered into a view still marked not-ready
+            // and would silently deliver nothing.
+            T.notifyReady();
+            T.requestCacheReplay();
+            return;
+        }
+
         if (typeof ue === 'undefined') { setTimeout(ensureInterface, 16); return; }
         if (!ue.interface) ue.interface = {};
         ue.interface.tsicDispatch = function (data) {
@@ -212,8 +335,8 @@
         };
         // Request cached message replay now that __dispatch is wired.
         // requestcachereplay is lowercased by CEF's bJSBindingToLoweringEnabled.
-        if (ue.tsicbridge && ue.tsicbridge.requestcachereplay) {
-            ue.tsicbridge.requestcachereplay();
+        if (T.available()) {
+            T.requestCacheReplay();
         }
     }
     ensureInterface();
