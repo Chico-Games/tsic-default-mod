@@ -15,7 +15,12 @@
         "RD_PizzaCutterLamp_CR",
         "RD_TaserBattery_CR",
         "RD_ContainmentSledgeHammer_CR",
-        "RD_PrecisionCrossbow_CR"
+        "RD_PrecisionCrossbow_CR",
+        "RD_Hammer_CR",
+        "RD_Wrench_CR",
+        "RD_SpoonSpear_CR",
+        "RD_ArmClub_CR",
+        "RD_PotMace_CR"
       ]
     }
   }
