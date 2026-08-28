@@ -1,0 +1,279 @@
+﻿{
+    "_generated":  "Scripts/changelog.ps1 — do not hand-edit; edit changelog/releases/*.json",
+    "releases":  [
+                     {
+                         "version":  "2.0.0",
+                         "channel":  "Alpha",
+                         "sha":  "a32dd05",
+                         "date":  "2026-08-25",
+                         "title":  "A first launch that settles itself",
+                         "entries":  [
+                                         {
+                                             "type":  "added",
+                                             "scope":  "Setup",
+                                             "text":  "A fresh install now warms its shaders behind a setup screen instead of hitching its way through your first session. It ends when the shaders are actually done, not when a timer says so, and tells you what it compiled."
+                                         },
+                                         {
+                                             "type":  "fixed",
+                                             "scope":  "Co-op",
+                                             "text":  "A guest\u0027s craft and production orders go through. The host was refusing them and saying nothing - the order simply vanished off the guest\u0027s screen."
+                                         },
+                                         {
+                                             "type":  "fixed",
+                                             "scope":  "Frames",
+                                             "text":  "A launch that could hang on a black screen and never recover, on Nvidia cards. A shader check fired while the upscaler was still starting up and stalled the frame."
+                                         },
+                                         {
+                                             "type":  "changed",
+                                             "scope":  "Menus",
+                                             "text":  "The main menu no longer draws the shop behind it. Every frame spent on it went to pixels nobody could see - and on a first boot those frames were taken from the shader compiler."
+                                         },
+                                         {
+                                             "type":  "fixed",
+                                             "scope":  "Inventory",
+                                             "text":  "The inventory character is framed head-to-toe again instead of being scaled up and clipped at the edges of its panel."
+                                         },
+                                         {
+                                             "type":  "changed",
+                                             "scope":  "Audio",
+                                             "text":  "Television static is half as loud."
+                                         }
+                                     ],
+                         "known_issues":  [
+                                              {
+                                                  "scope":  "Co-op",
+                                                  "ref":  325,
+                                                  "text":  "Furniture flashes when a drag starts and again when it settles."
+                                              },
+                                              {
+                                                  "scope":  "Co-op",
+                                                  "ref":  391,
+                                                  "text":  "Lights a guest switches off can keep moving for the host."
+                                              },
+                                              {
+                                                  "scope":  "Co-op",
+                                                  "ref":  328,
+                                                  "text":  "Dragged furniture is driven rather than simulated on other machines, so it can look stiff in transit."
+                                              },
+                                              {
+                                                  "scope":  "Enemies",
+                                                  "ref":  298,
+                                                  "text":  "BoneHead, Gardener and TVHead never break the warehouse boxes blocking their path - they just stop."
+                                              },
+                                              {
+                                                  "scope":  "Saves",
+                                                  "ref":  380,
+                                                  "text":  "Loading a save made after a visit to the Pit sets you on fire on arrival."
+                                              },
+                                              {
+                                                  "scope":  "Store",
+                                                  "ref":  330,
+                                                  "text":  "Furniture near stairs and height changes spawns floating, or hangs off the edge of the steps."
+                                              },
+                                              {
+                                                  "scope":  "Store",
+                                                  "ref":  359,
+                                                  "text":  "Some furniture spawns facing the wrong way, or lying down when it should stand."
+                                              },
+                                              {
+                                                  "scope":  "Store",
+                                                  "ref":  353,
+                                                  "text":  "Aisle sign lettering and framed photos z-fight at some angles - the text flickers as you walk past."
+                                              },
+                                              {
+                                                  "scope":  "Store",
+                                                  "ref":  373,
+                                                  "text":  "Railings generate along edges with no drop, and are missing from some real ones."
+                                              },
+                                              {
+                                                  "scope":  "Combat",
+                                                  "ref":  377,
+                                                  "text":  "Landing on a bed or a sofa from height does no damage at all."
+                                              },
+                                              {
+                                                  "scope":  "Breakage",
+                                                  "ref":  356,
+                                                  "text":  "Eighteen materials across fifteen breakable pieces render flat grey once destroyed."
+                                              },
+                                              {
+                                                  "scope":  "Menus",
+                                                  "ref":  323,
+                                                  "text":  "Hovering some menu buttons changes their shape and shifts the row."
+                                              },
+                                              {
+                                                  "scope":  "Menus",
+                                                  "ref":  375,
+                                                  "text":  "The Windows cursor shows through the in-game one over menu scrollbars."
+                                              },
+                                              {
+                                                  "scope":  "Menus",
+                                                  "ref":  376,
+                                                  "text":  "The mouse look-speed slider cannot be click-dragged, and sits too low in Controls."
+                                              },
+                                              {
+                                                  "scope":  "Night",
+                                                  "ref":  258,
+                                                  "text":  "Signs cast wrong shadows at night."
+                                              }
+                                          ]
+                     },
+                     {
+                         "version":  null,
+                         "channel":  "Alpha",
+                         "sha":  "6d2b9b7",
+                         "date":  "2026-08-25",
+                         "title":  "The handbook, and a quieter night",
+                         "entries":  [
+                                         {
+                                             "type":  "added",
+                                             "scope":  "Menus",
+                                             "text":  "Hold \u003ckbd\u003eTab\u003c/kbd\u003e for the staff handbook - every objective as a card, with hints, field notes and a live controls page. In co-op the right panel is the shift roster."
+                                         },
+                                         {
+                                             "type":  "removed",
+                                             "scope":  "Night",
+                                             "text":  "The night hazard is gone. It drained 1 health every 8 seconds all night and re-armed the regen block with every bite, so nothing ever healed it back."
+                                         },
+                                         {
+                                             "type":  "changed",
+                                             "scope":  "Audio",
+                                             "text":  "Biome ambience is a night-only bed. By day the store plays its jazz and nothing else; the two used to stack and the room tone masked the music."
+                                         },
+                                         {
+                                             "type":  "fixed",
+                                             "scope":  "Combat",
+                                             "text":  "The flashlight beam stops swinging out of frame on a fast turn, and your own body and worn gear no longer throw a shadow down your own beam."
+                                         },
+                                         {
+                                             "type":  "fixed",
+                                             "scope":  "Co-op",
+                                             "text":  "Guests get the full item catalogue on join - items used to render as raw ids with no description for the whole session."
+                                         },
+                                         {
+                                             "type":  "fixed",
+                                             "scope":  "Co-op",
+                                             "text":  "Dragged furniture moves for guests again. It had been frozen until you let go since 18 Aug."
+                                         }
+                                     ],
+                         "known_issues":  [
+
+                                          ]
+                     },
+                     {
+                         "version":  null,
+                         "channel":  "Alpha",
+                         "sha":  "0652fca",
+                         "date":  "2026-08-24",
+                         "title":  "Hits that land, and better defaults",
+                         "entries":  [
+                                         {
+                                             "type":  "changed",
+                                             "scope":  "Combat",
+                                             "text":  "Hit reactions are physics-driven: enemies flinch on every hit and go down on a break."
+                                         },
+                                         {
+                                             "type":  "changed",
+                                             "scope":  "Enemies",
+                                             "text":  "Enemies keep their feet on the floor while attacking, shorten their stride on stairs and slow to a walk on a climb."
+                                         },
+                                         {
+                                             "type":  "changed",
+                                             "scope":  "Store",
+                                             "text":  "A tile decides its enemies while you are still a LOD ring away, instead of after it has already come into view."
+                                         }
+                                     ],
+                         "known_issues":  [
+
+                                          ]
+                     },
+                     {
+                         "version":  null,
+                         "channel":  "Alpha",
+                         "sha":  "d035c9b",
+                         "date":  "2026-08-19",
+                         "title":  "The store learns to make noise",
+                         "entries":  [
+                                         {
+                                             "type":  "added",
+                                             "scope":  "Audio",
+                                             "text":  "A full audio pass: footsteps that read the surface underfoot, weapon impacts that sound like the weapon and not just what it hit, a destruction sound per breakable material, and drag scrapes that sound like a chair on wood."
+                                         },
+                                         {
+                                             "type":  "added",
+                                             "scope":  "Audio",
+                                             "text":  "Every biome has its own room acoustics - the SCP base does not sound like the shop floor."
+                                         },
+                                         {
+                                             "type":  "changed",
+                                             "scope":  "Breakage",
+                                             "text":  "Break a table and its debris throws the material the table was actually made of."
+                                         },
+                                         {
+                                             "type":  "changed",
+                                             "scope":  "Combat",
+                                             "text":  "The torch is now a flashlight, with a beam that replicates to everyone else."
+                                         },
+                                         {
+                                             "type":  "fixed",
+                                             "scope":  "Store",
+                                             "text":  "Layout placement refuses any spot that stands inside a wall."
+                                         },
+                                         {
+                                             "type":  "fixed",
+                                             "scope":  "Store",
+                                             "text":  "Aisle sign lettering stops z-fighting with the board it sits on."
+                                         },
+                                         {
+                                             "type":  "fixed",
+                                             "scope":  "Co-op",
+                                             "text":  "Guests get the shops, benches and queues the host already had."
+                                         }
+                                     ],
+                         "known_issues":  [
+
+                                          ]
+                     },
+                     {
+                         "version":  null,
+                         "channel":  "Alpha",
+                         "sha":  "925c00a",
+                         "date":  "2026-08-15",
+                         "title":  "Fifty-two fixes",
+                         "entries":  [
+                                         {
+                                             "type":  "fixed",
+                                             "scope":  "Menus",
+                                             "text":  "The death screen, the wardrobe, the equipment paperdoll and the repair station were all built and tested and unreachable. They are wired up."
+                                         },
+                                         {
+                                             "type":  "fixed",
+                                             "scope":  "Store",
+                                             "text":  "Every new game on a map used to generate the identical world - the seed was hardcoded."
+                                         },
+                                         {
+                                             "type":  "fixed",
+                                             "scope":  "Co-op",
+                                             "text":  "Projectiles replicate: other players can see a bolt in flight and where it stuck."
+                                         },
+                                         {
+                                             "type":  "fixed",
+                                             "scope":  "Co-op",
+                                             "text":  "Ping markers work in co-op instead of only for the host."
+                                         },
+                                         {
+                                             "type":  "fixed",
+                                             "scope":  "Crafting",
+                                             "text":  "Crafting is server-enforced - it checked neither station nor level before."
+                                         },
+                                         {
+                                             "type":  "fixed",
+                                             "scope":  "Inventory",
+                                             "text":  "Reading a note no longer eats it and shows you nothing."
+                                         }
+                                     ],
+                         "known_issues":  [
+
+                                          ]
+                     }
+                 ]
+}

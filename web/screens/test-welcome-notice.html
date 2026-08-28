@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="tsic-screen" content="TestWelcomeNotice">
+  <title>Test host: welcome notice</title>
+  <link rel="stylesheet" href="/shared/base.css">
+  <link rel="stylesheet" href="/shared/components.css">
+  <!--
+    Bare host for tests/welcome-notice.test.js. Deliberately minimal: the bulletin
+    normally rides the main menu, but that page mounts a showroom, a shader gate and
+    a volume pill, none of which the bulletin needs and any of which could fail a
+    test for reasons that have nothing to do with the changelog.
+
+    No mount() call here -- each test installs its own fetch stub first, then drives
+    show() or mount() itself.
+  -->
+  <script src="/shared/dom.js" defer></script>
+  <script src="/shared/welcome-notice.js" defer></script>
+</head><body>
+  <div id="test-host"></div>
+</body></html>
