@@ -57,10 +57,11 @@ TSICTestHarness.register({
     name: 'Settings: UI.Settings.Value moves controls',
     file: '/screens/settings.html',
     async run(ctx) {
-        // The page boots with its static catalog (Audio tab active, master at 0.8).
+        // The page boots with its static catalog (Audio tab active, master at 0.6 --
+        // the same default ScpGameUserSettings ships, so first launch is not full blast).
         await ctx.waitFor(() => ctx.doc.querySelector('input[type="range"]'));
         const slider = ctx.doc.querySelector('input[type="range"]');
-        ctx.expect(ctx.assert.eq(slider.value, '0.8'));
+        ctx.expect(ctx.assert.eq(slider.value, '0.6'));
         // Saved values arrive per key (sticky replay in-game). Rendered control
         // moves; a not-yet-rendered key (video tab) lands in state for later.
         ctx.inject('tsic.msg.UI.Settings.Value', { Key: 'audio.master', ValueJson: '0.23' });
@@ -149,10 +150,22 @@ TSICTestHarness.register({
         await ctx.waitFor(() => ctx.doc.getElementById('popover-countdown').textContent === '9', { timeout: 2500 });
         ctx.clearPublishes();
         ctx.doc.getElementById('popover-revert').click();
-        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Settings.Set',
-            { where: p => p.Key === 'video.resolution' && p.ValueJson.includes('1920x1080') }));
-        ctx.expect(ctx.assert.eq(ctx.win.tsic.dropdown.get(dd), '1920x1080'));
+
+        // Resolution and window mode are reverted by C++, which re-applies the pair
+        // from the engine's own last-confirmed record. Republishing a Set from here
+        // would race that restore and re-enter the apply path with a size the mode
+        // may not be able to present.
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Settings.Action',
+            { where: p => p.Key === 'video.revert' }));
+        const sets = ctx.publishes().filter(
+            (m) => m.channel === 'UI.Cmd.Settings.Set' && m.payload && m.payload.Key === 'video.resolution');
+        ctx.expect(sets.length === 0 ? null : 'the display pair must be reverted by C++, not by a Set from here');
         ctx.expect(ctx.doc.getElementById('settings-popover') ? 'popover should close on Revert' : null);
+
+        // The control moves when C++ echoes what it actually restored -- the same
+        // path any other authoritative value takes.
+        ctx.inject('tsic.msg.UI.Settings.Value', { Key: 'video.resolution', ValueJson: '"1920x1080"' });
+        await ctx.waitFor(() => ctx.win.tsic.dropdown.get(dd) === '1920x1080');
     },
 });
 
@@ -182,8 +195,14 @@ async function openForcedModeTab(ctx) {
     await ctx.waitFor(() => ctx.doc.querySelector('button.tsic-dropdown[data-key="video.window_mode"]'));
 }
 
+async function openGraphicsTab(ctx) {
+    await ctx.waitFor(() => Array.from(ctx.doc.querySelectorAll('.tsic-tab')).some(b => b.textContent === 'Video'));
+    Array.from(ctx.doc.querySelectorAll('.tsic-tab')).find(b => b.textContent === 'Video').click();
+    await ctx.waitFor(() => ctx.doc.querySelector('button.tsic-dropdown[data-key="graphics.upscaler"]'));
+}
+
 TSICTestHarness.register({
-    name: 'Settings: Revert also undoes the fullscreen the resolution pick forced (#465)',
+    name: 'Settings: picking a resolution does not change the window mode (#465)',
     file: '/screens/settings.html',
     async run(ctx) {
         await openForcedModeTab(ctx);
@@ -191,26 +210,21 @@ TSICTestHarness.register({
         const mode = ctx.doc.querySelector('button.tsic-dropdown[data-key="video.window_mode"]');
         ctx.expect(ctx.assert.eq(ctx.win.tsic.dropdown.get(mode), 'borderless'));
 
-        ctx.win.tsic.dropdown.set(res, '2560x1440');
-        await ctx.waitFor(() => ctx.doc.getElementById('popover-countdown'));
-
-        // C++ force-switches to exclusive fullscreen behind a resolution pick
-        // (deliberately, for #147) and echoes the new mode back. The player never
-        // chose it, so Revert has to undo it along with the resolution.
-        ctx.inject('tsic.msg.UI.Settings.Value',
-            { Key: 'video.window_mode', ValueJson: '"fullscreen"' });
-        await ctx.waitFor(() => ctx.win.tsic.dropdown.get(mode) === 'fullscreen');
-
         ctx.clearPublishes();
-        ctx.doc.getElementById('popover-revert').click();
+        ctx.win.tsic.dropdown.set(res, '2560x1440');
 
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Settings.Set',
-            { where: p => p.Key === 'video.resolution' && p.ValueJson.includes('1920x1080') }));
-        // The half that used to be left behind: without it the player lands on
-        // exclusive fullscreen having asked only for a resolution, then had even
-        // that taken back.
-        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Settings.Set',
-            { where: p => p.Key === 'video.window_mode' && p.ValueJson.includes('borderless') }));
+            { where: p => p.Key === 'video.resolution' && p.ValueJson.includes('2560x1440') }));
+
+        // The page used to force exclusive fullscreen alongside the pick, so that a
+        // resolution would be visible in borderless (#147). It made every resolution
+        // change a window-mode change nobody asked for, which is what "changes it back
+        // to fullscreen whatever you pick" was. The mode is now left alone, and
+        // borderless locks the row instead.
+        const modeSets = ctx.publishes().filter(
+            (m) => m.channel === 'UI.Cmd.Settings.Set' && m.payload && m.payload.Key === 'video.window_mode');
+        ctx.expect(modeSets.length === 0
+            ? null : 'a resolution pick must not publish a window_mode change');
         ctx.expect(ctx.assert.eq(ctx.win.tsic.dropdown.get(mode), 'borderless'));
     },
 });
@@ -229,25 +243,27 @@ TSICTestHarness.register({
         ctx.expect(ctx.doc.getElementById('settings-popover')
             ? 'a saved-value replay must not open the countdown' : null);
 
-        // A later edit reverts to the replayed value, not to the pre-replay one.
+        // A later edit still opens the countdown, and reverting it asks C++ to put
+        // the display mode back rather than republishing a Set from here.
         ctx.win.tsic.dropdown.set(mode, 'fullscreen');
         await ctx.waitFor(() => ctx.doc.getElementById('popover-revert'));
         ctx.clearPublishes();
         ctx.doc.getElementById('popover-revert').click();
-        ctx.expect(ctx.assert.eq(ctx.win.tsic.dropdown.get(mode), 'windowed'));
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Settings.Action',
+            { where: p => p.Key === 'video.revert' }));
     },
 });
 
 TSICTestHarness.register({
-    name: 'Settings: resolving the countdown confirms the video mode C++-side (#465)',
+    name: 'Settings: Keep confirms and Revert reverts, and they are not the same message (#465)',
     file: '/screens/settings.html',
     async run(ctx) {
         await openForcedModeTab(ctx);
         const res = ctx.doc.querySelector('button.tsic-dropdown[data-key="video.resolution"]');
 
         // Keep confirms: UGameUserSettings only advances its last-confirmed
-        // resolution/window mode in ConfirmVideoMode, and nothing used to call it,
-        // so the engine kept pulling the game back to the first-boot auto-detect.
+        // resolution and window mode inside ConfirmVideoMode, and nothing used to call
+        // it, so the engine kept pulling the game back to the first-boot auto-detect.
         ctx.win.tsic.dropdown.set(res, '2560x1440');
         await ctx.waitFor(() => ctx.doc.getElementById('popover-keep'));
         ctx.clearPublishes();
@@ -255,30 +271,53 @@ TSICTestHarness.register({
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Settings.Action',
             { where: p => p.Key === 'video.confirm' }));
 
-        // Revert confirms too: the reverted-to state is what the player lives with,
-        // and leaving THAT unconfirmed is the same bug one step later. Picking a
-        // DIFFERENT value than above on purpose -- re-selecting the current one
-        // fires no change and would open no countdown.
+        // Revert must NOT confirm. An earlier fix sent video.confirm down both paths,
+        // which made Revert confirm the very change being rejected -- a slower Keep.
+        // Picking a DIFFERENT value on purpose: re-selecting the current one fires no
+        // change and would open no countdown.
         ctx.win.tsic.dropdown.set(res, '1920x1080');
         await ctx.waitFor(() => ctx.doc.getElementById('popover-revert'));
         ctx.clearPublishes();
         ctx.doc.getElementById('popover-revert').click();
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Settings.Action',
-            { where: p => p.Key === 'video.confirm' }));
+            { where: p => p.Key === 'video.revert' }));
+        const confirms = ctx.publishes().filter(
+            (m) => m.channel === 'UI.Cmd.Settings.Action' && m.payload && m.payload.Key === 'video.confirm');
+        ctx.expect(confirms.length === 0 ? null : 'Revert must not also confirm the rejected change');
     },
 });
 
-// ---- Graphics: NVIDIA upscaler / frame-gen / Reflex rows ----
-// These run against the page's REAL static catalog (no injected Catalog), so they
-// pin the shipped rows to the exact key/value vocabulary HandleCmdSettingsSet
-// accepts. A mismatch here is invisible at runtime: C++ drops the unknown value
-// and the control silently snaps back.
+TSICTestHarness.register({
+    name: 'Settings: the resolution list comes from the machine, not the page (#465)',
+    file: '/screens/settings.html',
+    async run(ctx) {
+        await openForcedModeTab(ctx);
 
-async function openGraphicsTab(ctx) {
-    await ctx.waitFor(() => Array.from(ctx.doc.querySelectorAll('.tsic-tab')).some(b => b.textContent === 'Video'));
-    Array.from(ctx.doc.querySelectorAll('.tsic-tab')).find(b => b.textContent === 'Video').click();
-    await ctx.waitFor(() => ctx.doc.querySelector('button.tsic-dropdown[data-key="graphics.upscaler"]'));
-}
+        // A hardcoded list offers 4K on a 1440p panel, and exclusive fullscreen at a
+        // mode the display does not have is a stretched or black screen. C++ replaces
+        // the options wholesale with what the RHI reports for the current window mode.
+        // Read the attribute rather than tsic.dropdown.options(), which is a SETTER --
+        // calling it with one argument writes an empty list.
+        const offered = () => {
+            const dd = ctx.doc.querySelector('button.tsic-dropdown[data-key="video.resolution"]');
+            if (!dd) return null;
+            try { return JSON.parse(dd.getAttribute('data-tsic-options') || '[]'); } catch (e) { return null; }
+        };
+        ctx.expect((offered() || []).some((o) => o.value === '2560x1440')
+            ? null : 'fixture should start with 2560x1440 on offer');
+
+        ctx.inject('tsic.msg.UI.Settings.Value',
+            { Key: 'video.resolution_options', ValueJson: JSON.stringify(['1280x720', '1920x1080']) });
+        await ctx.waitFor(() => { const o = offered(); return o && o.length === 2; });
+
+        const values = (offered() || []).map((o) => o.value);
+        ctx.expect(values.indexOf('2560x1440') === -1
+            ? null : 'a resolution the machine did not report must not stay on offer');
+        ctx.expect(values.indexOf('1280x720') !== -1
+            ? null : 'a resolution the machine DID report must be on offer');
+    },
+});
+
 
 TSICTestHarness.register({
     name: 'Settings: graphics tab exposes upscaler / render-scale / frame-gen / reflex rows',

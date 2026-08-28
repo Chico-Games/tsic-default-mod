@@ -157,6 +157,12 @@
                           { Value: 'windowed',   Label: 'Windowed' },
                       ],
                       Value: 'borderless' },
+                    // FALLBACK ONLY. C++ replaces these wholesale via
+                    // video.resolution_options with the modes this display actually
+                    // reports, filtered by the current window mode. The static list
+                    // cannot know the monitor: it offers 4K on a 1440p panel, and
+                    // exclusive fullscreen at a mode the display does not have is a
+                    // stretched or black screen.
                     { Key: 'video.resolution', Label: 'Resolution', Type: 'enum',
                       Options: [
                           { Value: '1280x720',  Label: '1280 × 720 (HD)' },
@@ -885,15 +891,24 @@
 
     // ---- Video keep/revert countdown ----
 
+    // Resolution and window mode are reverted by C++, not here: it restores the pair
+    // from the engine's own LastUserConfirmed record. Publishing Sets for them would
+    // race that restore and re-enter the apply path with values the new mode may not
+    // be able to present.
+    const CPP_REVERTED_KEYS = ['video.resolution', 'video.window_mode'];
+
     // Roll the just-changed video keys back to their pre-change values.
     function revertVideo() {
+        let needsCppRevert = false;
         for (const k of Object.keys(videoRevert)) {
             const old = videoRevert[k];
+            delete videoRevert[k];
+            if (CPP_REVERTED_KEYS.indexOf(k) !== -1) { needsCppRevert = true; continue; }
             localState[k] = old;
             publishSet(k, old);
             if (controlUpdaters[k]) controlUpdaters[k](old);
-            delete videoRevert[k];
         }
+        return needsCppRevert;
     }
 
     function keepVideo() {
@@ -910,19 +925,19 @@
         if (countdownTimer) { clearInterval(countdownTimer); countdownTimer = null; }
         p.el.remove();
         if (!viaScopePop && tsic.focus && tsic.focus.popScope) tsic.focus.popScope();
-        if (action === 'keep') keepVideo();
-        else if (action === 'revert') revertVideo();
+        if (p.kind !== 'countdown') return;
 
-        // Whichever way it went, what is on screen now is what the player lives
-        // with, so tell C++ to make it the confirmed baseline. Nothing used to:
-        // ConfirmVideoMode/RevertVideoMode were overridden and called from
-        // nowhere, so the engine's LastUserConfirmedResolution never advanced
-        // past first-boot auto-detect and kept pulling the game back to it.
-        //
-        // After revertVideo(), so the Sets it publishes are applied first and the
-        // baseline confirms the reverted state rather than the rejected one.
-        if (p.kind === 'countdown' && (action === 'keep' || action === 'revert')) {
+        // Keep and Revert are different messages, not one 'the countdown ended'
+        // message. An earlier version sent video.confirm on both, which made
+        // Revert confirm the very change it was rejecting -- a slower Keep.
+        if (action === 'keep') {
+            keepVideo();
             publishAction('video.confirm');
+        } else if (action === 'revert') {
+            // revertVideo publishes the Sets for the non-display video keys itself and
+            // reports whether the display pair was part of the change. Only then is
+            // video.revert sent, so a lone HDR rollback does not move the window.
+            if (revertVideo()) publishAction('video.revert');
         }
     }
 
@@ -1233,6 +1248,56 @@
         return changed;
     }
 
+    // Finds the video.resolution row wherever it sits, so these two helpers do not
+    // have to know the catalog's shape.
+    function resolutionRow() {
+        for (const page of STATIC_CATALOG.Pages) {
+            for (const g of (page.Groups || [])) {
+                for (const s of (g.Settings || [])) {
+                    if (s.Key === 'video.resolution') return s;
+                }
+            }
+        }
+        return null;
+    }
+
+    function resolutionLabel(value) {
+        const parts = String(value).split('x');
+        if (parts.length !== 2) return String(value);
+        const w = parseInt(parts[0], 10), h = parseInt(parts[1], 10);
+        const NAMES = { '1280x720': 'HD', '1920x1080': 'FHD', '2560x1440': 'QHD', '3840x2160': '4K' };
+        const suffix = NAMES[value] ? ' (' + NAMES[value] + ')' : '';
+        return w + ' × ' + h + suffix;
+    }
+
+    // video.resolution_options is a capability report like nvidia_caps: the modes this
+    // display can present in the CURRENT window mode. Republished whenever anything
+    // changes, because switching to borderless collapses it to the desktop size alone.
+    // Idempotent -- the message replays stickily.
+    function applyResolutionOptions(list) {
+        if (!Array.isArray(list) || list.length === 0) return false;
+        const row = resolutionRow();
+        if (!row) return false;
+        const next = list.map((v) => ({ Value: String(v), Label: resolutionLabel(v) }));
+        const same = row.Options && row.Options.length === next.length
+            && row.Options.every((o, i) => o.Value === next[i].Value);
+        if (same) return false;
+        row.Options = next;
+        return true;
+    }
+
+    // Borderless pins the backbuffer to the desktop, so no value in this row can do
+    // anything. Shown disabled rather than removed: the player still sees what they
+    // are running at instead of hunting for a control that vanished.
+    function applyResolutionLocked(locked) {
+        const row = resolutionRow();
+        if (!row) return false;
+        const next = !!locked;
+        if (!!row.Disabled === next) return false;
+        row.Disabled = next;
+        return true;
+    }
+
     function onValue(payload) {
         if (!payload || !payload.Key) return;
         endApplying();
@@ -1246,19 +1311,21 @@
             if (v === false && dropHdrRow()) rebuildPreservingValues();
             return;
         }
-        // A video value can arrive here as a SIDE EFFECT of the edit the player
-        // just made, not as an edit of their own: picking a resolution
-        // force-switches the game to exclusive fullscreen (ScpUIDirectorSubsystem,
-        // deliberately, for #147) and echoes the new window mode back here.
+        if (payload.Key === 'video.resolution_options') {
+            if (applyResolutionOptions(v)) rebuildPreservingValues();
+            return;
+        }
+        if (payload.Key === 'video.resolution_locked') {
+            if (applyResolutionLocked(v)) rebuildPreservingValues();
+            return;
+        }
+        // A video value can arrive here as a SIDE EFFECT of the player's edit rather
+        // than as an edit of their own: ApplyDisplayMode snaps a request the new mode
+        // cannot present, and echoes back what it actually used. That is part of the
+        // same change, so it joins the same rollback set.
         //
-        // That switch is part of the same edit, so it has to be part of the same
-        // rollback. Without this the revert restores the resolution and leaves the
-        // forced fullscreen behind -- which is exactly what #465 reported: every
-        // video change 'changes it back to fullscreen at whatever resolution it
-        // thinks your screen is'.
-        //
-        // Guarded on a live countdown so a normal sticky replay, which is not
-        // anyone's edit, never becomes a rollback target.
+        // Guarded on a live countdown, so a normal sticky replay -- which is nobody's
+        // edit -- never becomes a rollback target.
         if (activePopover && isVideoKey(payload.Key) && !(payload.Key in videoRevert)) {
             const prev = displayedValueOf(payload.Key);
             if (prev !== undefined) videoRevert[payload.Key] = prev;
