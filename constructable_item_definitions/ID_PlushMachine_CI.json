@@ -6,7 +6,7 @@
   "properties": {
     "thumbnail": "mod:icons/id_plushmachine_ci",
     "display_name": "Plush Machine",
-    "description": "Placeable machine. Produces Pillow. Dismantle with a Reinforced Screwdriver. Upgradable with a Reinforced Hammer into the Plush Machine (Tier 2).\nA build-a-plush machine from the kids' department. Shreds discarded soft toys into stuffing, then sews and stuffs it back into pillows and plush toys.",
+    "description": "Placeable machine. Produces Pillow. Dismantle with a Reinforced Screwdriver Tool. Upgradable with a Reinforced Hammer Tool into the Plush Machine (Tier 2).\nA build-a-plush machine from the kids' department. Shreds discarded soft toys into stuffing, then sews and stuffs it back into pillows and plush toys.",
     "stackable": true,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_PlushMachine_SI",

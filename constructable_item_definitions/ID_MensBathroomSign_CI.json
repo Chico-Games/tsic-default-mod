@@ -7,7 +7,7 @@
     "thumbnail": "mod:icons/id_mensbathroomsign_ci",
     "furniture_to_construct": "FD_MensBathroomSign_DF",
     "display_name": "Bathroom Sign",
-    "description": "Placeable furniture. Decorative. Dismantle with a Basic Screwdriver. Upgradable with a Heavy-Duty Hammer.\nStore furniture.",
+    "description": "Placeable furniture. Decorative. Dismantle with a Basic Screwdriver Tool. Upgradable with a Heavy-Duty Hammer Tool.\nStore furniture.",
     "stackable": true,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_MensBathroomSign_SI",

@@ -85,7 +85,7 @@
     "has_ammo": false,
     "max_ammo": 0,
     "tool_tier": 3,
-    "display_name": "Heavy-Duty Hammer",
+    "display_name": "Heavy-Duty Hammer Tool",
     "description": "Upgrade tool. Upgrades placed furniture. Handles every upgrade tier, including metal, plastic and concrete furniture and heavy machinery. Made at the Welding Station.\nA heavy-duty hammer capable of reinforcing even the sturdiest fixtures.",
     "stackable": false,
     "weight": 0.10000000149011612,

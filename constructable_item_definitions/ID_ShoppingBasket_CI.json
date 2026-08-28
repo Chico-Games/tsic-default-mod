@@ -6,7 +6,7 @@
   "properties": {
     "thumbnail": "mod:icons/id_shoppingbasket_ci",
     "display_name": "Shopping Basket",
-    "description": "Placeable storage with 8 slots. Dismantle with a Basic Screwdriver. Made at the Crafting Table.\nEight slots of storage light enough to carry anywhere.",
+    "description": "Placeable storage with 8 slots. Dismantle with a Basic Screwdriver Tool. Made at the Crafting Table.\nEight slots of storage light enough to carry anywhere.",
     "stackable": true,
     "weight": 0.5,
     "static_item_definition": "FD_ShoppingBasket_SI",

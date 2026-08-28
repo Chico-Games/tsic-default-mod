@@ -6,7 +6,7 @@
   "properties": {
     "thumbnail": "mod:icons/id_kiln_ci",
     "display_name": "Kiln",
-    "description": "Placeable machine. Produces Concrete Brick. Dismantle with a Heavy-Duty Screwdriver. Upgradable with a Heavy-Duty Hammer into the Kiln (Advanced).\nAn industrial kiln for firing concrete. Hardens scrap concrete into durable building blocks.",
+    "description": "Placeable machine. Produces Concrete Brick. Dismantle with a Heavy-Duty Screwdriver Tool. Upgradable with a Heavy-Duty Hammer Tool into the Kiln (Advanced).\nAn industrial kiln for firing concrete. Hardens scrap concrete into durable building blocks.",
     "stackable": true,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_Kiln_SI",

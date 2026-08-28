@@ -7,7 +7,7 @@
     "thumbnail": "mod:icons/id_kidscarpet_ci",
     "furniture_to_construct": "FD_KidsCarpet_DF",
     "display_name": "Kids bed",
-    "description": "Placeable seating. Decorative. Dismantle with a Basic Screwdriver. Upgradable with a Heavy-Duty Hammer.\nStore furniture.",
+    "description": "Placeable seating. Decorative. Dismantle with a Basic Screwdriver Tool. Upgradable with a Heavy-Duty Hammer Tool.\nStore furniture.",
     "stackable": true,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_KidsCarpet_SI",

@@ -8,7 +8,7 @@
     "display_name": "Duct Tape",
     "description": "Crafting material. Used for Arm Club, Basic Trap, Dowel Bat and more. Found all over the store. Dropped by Living Mannequins.\nDuct tape. Essential for repairs and crafting.",
     "stackable": true,
-    "weight": 1.0,
+    "weight": 0.3,
     "static_item_definition": "FD_Tape_SI",
     "item_category_tag": "Entity.Inventory.Item.Category.CraftingMaterial",
     "max_stack_size": 50

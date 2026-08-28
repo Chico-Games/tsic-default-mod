@@ -85,7 +85,7 @@
     "has_ammo": false,
     "max_ammo": 0,
     "tool_tier": 1,
-    "display_name": "Basic Screwdriver",
+    "display_name": "Basic Screwdriver Tool",
     "description": "Dismantling tool. Takes placed furniture apart for its materials. Handles light furniture only: chairs, tables, sofas, boxes and fabrics. Made at the Crafting Table.\nA basic flat-head screwdriver. Good enough to strip simple fixtures.",
     "stackable": false,
     "weight": 0.10000000149011612,

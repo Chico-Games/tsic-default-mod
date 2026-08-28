@@ -71,10 +71,24 @@
         return spaceCamelCase(leaf);
     };
 
-    /** Human-readable equipment slot ("Weapon", "Backpack"), '' if not equippable. */
+    // Slot leaves that must not be shown raw. Slot.Weapon is the game's single
+    // held-item slot by design: weapons, tools and consumables share it and the
+    // hotbar, and no Slot.Tool will be added (#484). The tag is simply named for
+    // the first thing that went in it. Printing its leaf verbatim told players
+    // that a Basic Screwdriver equips to "Weapon", which is where the "tools are
+    // listed as weapons" reports come from: the recipe panel says it in the
+    // moment you are deciding whether to craft one. "Hand" is what that slot
+    // actually is, true of every occupant, and leaks no tag name.
+    var SLOT_LABELS = {
+        Weapon: 'Hand',
+    };
+
+    /** Human-readable equipment slot ("Hand", "Backpack"), '' if not equippable. */
     TSIC.itemSlotLabel = function (descriptor) {
         var d = descriptor || {};
-        return spaceCamelCase(tagLeaf(d.EquipmentSlot));
+        var leaf = tagLeaf(d.EquipmentSlot);
+        if (Object.prototype.hasOwnProperty.call(SLOT_LABELS, leaf)) return SLOT_LABELS[leaf];
+        return spaceCamelCase(leaf);
     };
 
     (function boot() {

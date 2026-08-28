@@ -6,7 +6,7 @@
   "properties": {
     "thumbnail": "mod:icons/id_shopnormal_ci",
     "display_name": "Supply Vending Machine",
-    "description": "Placeable vending machine. Sells gloves, tools, rations and bags for Loose Coins. Dismantle with a Reinforced Screwdriver.\nA staff supply machine. Gloves, tools and rations behind the glass.",
+    "description": "Placeable vending machine. Sells gloves, tools, rations and bags for Loose Coins. Dismantle with a Reinforced Screwdriver Tool.\nA staff supply machine. Gloves, tools and rations behind the glass.",
     "stackable": true,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_ShopNormal_SI",

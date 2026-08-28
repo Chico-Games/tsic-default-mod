@@ -7,7 +7,7 @@
     "thumbnail": "mod:icons/id_shelf_ci",
     "furniture_to_construct": "FD_Shelf_Tier2_ST",
     "display_name": "Industrial Shelf",
-    "description": "Placeable storage with 16 slots. Dismantle with a Reinforced Screwdriver.\nA heavy-duty industrial shelving unit. Place to build.",
+    "description": "Placeable storage with 16 slots. Dismantle with a Reinforced Screwdriver Tool.\nA heavy-duty industrial shelving unit. Place to build.",
     "stackable": true,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_Bookcase_SI",
