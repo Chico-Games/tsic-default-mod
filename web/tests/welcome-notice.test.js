@@ -124,6 +124,44 @@ TSICTestHarness.register({
     },
 });
 
+TSICTestHarness.register({
+    name: 'Welcome notice: groups by category, then by scope, in reading order',
+    file: '/screens/test-welcome-notice.html',
+    async run(ctx) {
+        // Deliberately out of order and with a scope split across the list: a frozen
+        // release keeps the order its entries were authored in, so the bulletin has
+        // to do the grouping rather than trust the file.
+        stubFetch(ctx, () => okJson({
+            releases: [{
+                version: '2.0.3', channel: 'Alpha', sha: 'ddd4444', date: '2026-08-28',
+                title: 'Grouping check',
+                entries: [
+                    { type: 'fixed',   scope: 'Menus', text: 'Fixed the first menu thing.' },
+                    { type: 'added',   scope: 'Store', text: 'Added a store thing.' },
+                    { type: 'fixed',   scope: 'Co-op', text: 'Fixed a co-op thing.' },
+                    { type: 'changed', scope: 'Menus', text: 'Changed a menu thing, so it reads better.' },
+                    { type: 'fixed',   scope: 'Menus', text: 'Fixed the second menu thing.' },
+                ],
+                known_issues: [],
+            }],
+        }));
+        await ctx.doc.defaultView.TSIC.WelcomeNotice.show();
+
+        const cats = Array.from(ctx.doc.querySelectorAll('.wn-cat')).map(e => e.textContent);
+        ctx.expect(ctx.assert.eq(cats.join('|'), 'Content|Changes|Fixes',
+            'categories read new, then moved, then repaired -- and use headings, not type names'));
+
+        // Menus appears twice overall (once under Changes, once under Fixes) but only
+        // once within a category, even though its two fixes were not adjacent.
+        const scopes = Array.from(ctx.doc.querySelectorAll('.wn-scope')).map(e => e.textContent);
+        ctx.expect(ctx.assert.eq(scopes.join('|'), 'Store|Menus|Co-op|Menus',
+            'each scope heads its rows once per category'));
+
+        const items = Array.from(ctx.doc.querySelectorAll('.wn-entry li')).map(e => e.textContent);
+        ctx.expect(ctx.assert.eq(items.length, 5, 'every entry still renders'));
+    },
+});
+
 // Fail-closed. A missing changelog is not the player's problem, and the menu
 // behind the bulletin still has to work.
 TSICTestHarness.register({

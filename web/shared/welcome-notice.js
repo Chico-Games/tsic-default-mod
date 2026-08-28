@@ -188,6 +188,23 @@
     letter-spacing: 0.06em;
     color: var(--ink-mute);
 }
+#welcome-notice .wn-cat {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--mag-red);
+    margin: 10px 0 2px;
+}
+#welcome-notice .wn-entry > .wn-cat:first-child { margin-top: 4px; }
+#welcome-notice .wn-scope {
+    font-family: var(--font-terminal);
+    font-size: 11.5px;
+    letter-spacing: 0.06em;
+    color: var(--ink-mute);
+    margin: 4px 0 0 20px;
+}
 #welcome-notice .wn-entry ul { list-style: none; margin: 0; padding: 0; }
 #welcome-notice .wn-entry li {
     font-family: var(--font-body);
@@ -303,6 +320,17 @@
             return n;
         })();
 
+    // Keep a Changelog's order, which is also the order changelog.ps1 sorts by --
+    // not alphabetical, and not the order entries happened to be written in.
+    const CATEGORY_ORDER = ['added', 'changed', 'fixed', 'removed', 'security'];
+    // Reading order: what is new, what moved, what was repaired, what is gone, what
+    // was hardened. A player scans for the first two and only reads Fixes if
+    // something they hit is in it.
+    const CATEGORY_LABELS = {
+        added: 'Content', changed: 'Changes', fixed: 'Fixes',
+        removed: 'Removed', security: 'Security',
+    };
+
     function buildUpdates() {
         const host = el('div', { class: 'wn-pane', id: 'wn-pane-updates',
                                  'data-tsic-focus-group': 'notice-body' });
@@ -312,20 +340,44 @@
             const items = (release.entries || []).filter((e) => !e.internal);
             if (!items.length) continue;
 
-            const list = el('ul', {});
-            for (const item of items) {
-                const li = el('li', {});
-                // innerHTML: the copy is authored by us in changelog/releases/*.json
-                // and carries markup such as <kbd>Tab</kbd>. It is not user input.
-                li.innerHTML = item.text;
-                list.append(li);
+            // Category, then scope, then the rows -- the same shape the Discord message
+            // and the console preview use, so one release reads the same everywhere.
+            // A category absent from this release is simply skipped; an entry with no
+            // scope gets no subheading and leads its category.
+            const body = [];
+            for (const cat of CATEGORY_ORDER) {
+                // Sorted by scope here, not relied on from the file: a release is
+                // frozen in the order its entries were authored, so a scope's rows
+                // are not contiguous on their own and the subheading would repeat.
+                const inCat = items.filter((e) => e.type === cat)
+                    .sort((a, b) => String(a.scope || '').localeCompare(String(b.scope || '')));
+                if (!inCat.length) continue;
+                body.push(el('div', { class: 'wn-cat' }, CATEGORY_LABELS[cat] || cat));
+
+                let list = null;
+                let lastScope = null;
+                for (const item of inCat) {
+                    const scope = item.scope || '';
+                    if (scope !== lastScope) {
+                        if (scope) body.push(el('div', { class: 'wn-scope' }, scope));
+                        lastScope = scope;
+                        list = null;
+                    }
+                    if (!list) { list = el('ul', {}); body.push(list); }
+                    const li = el('li', {});
+                    // innerHTML: the copy is authored by us in changelog/releases/*.json
+                    // and carries markup such as <kbd>Tab</kbd>. It is not user input.
+                    li.innerHTML = item.text;
+                    list.append(li);
+                }
             }
+
             host.append(el('div', { class: 'wn-entry' },
                 el('div', { class: 'wn-entry-head' },
                     el('span', { class: 'wn-entry-date' }, shortDate(release.date, false)),
                     el('span', { class: 'wn-entry-title' }, release.title),
                     release.sha ? el('span', { class: 'wn-entry-build' }, release.sha) : null),
-                list));
+                ...body));
         }
         return host;
     }
