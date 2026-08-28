@@ -271,6 +271,18 @@
     let lastCatalog = null;
     let controlsState = null;
     let activeRebind = null;   // { hotkeyId, bGamepad, btn }
+
+    // A ControlsState echo rebuilds the whole Controls page, and every drag frame
+    // publishes a value that comes straight back as one -- so the page replaced the
+    // very slider the pointer was holding and the drag died after its first movement
+    // (#376). The static tabs never showed this because their echo patches values in
+    // place through controlUpdaters instead of rebuilding.
+    //
+    // While a range control is held, defer the rebuild. Nothing is lost: the slider
+    // is the thing being dragged, so it already shows the newest value, and the echo
+    // carries nothing the drag does not. The deferred rebuild runs on release.
+    let draggingSlider = false;
+    let controlsStateDeferred = false;
     let modalScopePushed = false; // conflict prompt focus trap (tsic.focus.pushScope)
     const localState = {};
 
@@ -433,6 +445,10 @@
             const valueLabel = document.createElement('span');
             valueLabel.className = 'value-label';
             valueLabel.textContent = s.Display !== undefined ? s.Display : fmt2(v);
+            // Pointer, not mouse: CEF delivers pointer events and this also covers a
+            // touch drag. Release is handled on the window, since a fast drag lifts the
+            // button well outside the track.
+            slider.onpointerdown = () => { draggingSlider = true; };
             let lastTickAt = 0;
             slider.oninput = () => {
                 let n = Number(slider.value);
@@ -695,6 +711,32 @@
     function renderControlsPage(host, isGamepad) {
         const cs = controlsState || { Entries: [] };
 
+        // Look speed leads the tab. It is the setting a new player reaches for first,
+        // and it used to sit below every binding group -- past a list long enough that
+        // reaching it meant scrolling the whole rebind table (#376).
+        const inp = makeGroup(isGamepad ? 'Gamepad' : 'Mouse');
+        if (isGamepad) {
+            inp.appendChild(sliderRow('Gamepad sensitivity', 'gamepad_sensitivity', cs.GamepadSensitivity, 0.05, 1, 0.05));
+            inp.appendChild(sliderRow('Gamepad stick deadzone', 'gamepad_deadzone', cs.GamepadDeadzone, 0, 0.9, 0.01));
+            inp.appendChild(toggleRow('Invert gamepad Y', 'invert_gamepad_y', cs.bInvertGamepadY));
+        } else {
+            inp.appendChild(sliderRow('Mouse sensitivity', 'mouse_sensitivity', cs.MouseSensitivity, 0.1, 3, 0.05));
+            inp.appendChild(toggleRow('Invert mouse Y', 'invert_mouse_y', cs.bInvertMouseY));
+        }
+        // Spatial nav will not walk this group on its own now that it heads the tab:
+        // the binding list below is a far larger target, so Down from the slider jumped
+        // straight into the bindings and left both the invert toggle and the search box
+        // unreachable going down. Chain the group by hand, ending at the search box that
+        // heads the list. Every row here carries a data-key, which gives each step a
+        // selector to name the next one with.
+        const groupStops = Array.from(inp.querySelectorAll('[data-key]'));
+        groupStops.forEach((el, i) => {
+            const next = groupStops[i + 1];
+            el.setAttribute('data-tsic-nav-down',
+                next ? `[data-key="${next.dataset.key}"]` : '#binding-search');
+        });
+        host.appendChild(inp);
+
         const toolbar = document.createElement('div');
         toolbar.className = 'bindings-toolbar';
         const search = document.createElement('input');
@@ -744,17 +786,6 @@
             host.appendChild(sec);
         }
         applyBindingFilter(host);
-
-        const inp = makeGroup(isGamepad ? 'Gamepad' : 'Mouse');
-        if (isGamepad) {
-            inp.appendChild(sliderRow('Gamepad sensitivity', 'gamepad_sensitivity', cs.GamepadSensitivity, 0.05, 1, 0.05));
-            inp.appendChild(sliderRow('Gamepad stick deadzone', 'gamepad_deadzone', cs.GamepadDeadzone, 0, 0.9, 0.01));
-            inp.appendChild(toggleRow('Invert gamepad Y', 'invert_gamepad_y', cs.bInvertGamepadY));
-        } else {
-            inp.appendChild(sliderRow('Mouse sensitivity', 'mouse_sensitivity', cs.MouseSensitivity, 0.1, 3, 0.05));
-            inp.appendChild(toggleRow('Invert mouse Y', 'invert_mouse_y', cs.bInvertMouseY));
-        }
-        host.appendChild(inp);
 
         const resetRow = document.createElement('div');
         resetRow.className = 'field';
@@ -1143,12 +1174,30 @@
         // settings the overlay exists for — without it the overlay only ever came down
         // on its 30 s backstop.
         endApplying();
-        const focused = focusIdentity();
         controlsState = payload;
+        if (draggingSlider) { controlsStateDeferred = true; return; }
+        redrawForControlsState();
+    }
+
+    function redrawForControlsState() {
+        const focused = focusIdentity();
         renderTabs();
         if (isControlsPage(activePageId)) renderPage();
         restoreFocus(focused);
     }
+
+    // Listening on the window rather than the slider: a drag that leaves the track
+    // still ends here, and a slider destroyed by a rebuild would never see its own
+    // pointerup. Registered once for every range control on every tab.
+    function endSliderDrag() {
+        if (!draggingSlider) return;
+        draggingSlider = false;
+        if (!controlsStateDeferred) return;
+        controlsStateDeferred = false;
+        redrawForControlsState();
+    }
+    window.addEventListener("pointerup", endSliderDrag);
+    window.addEventListener("pointercancel", endSliderDrag);
 
     // Rebuild from STATIC_CATALOG after its structure changed, carrying the echoed
     // saved values across — a structural rebuild wipes localState, and the sticky

@@ -1,3 +1,13 @@
+// Names the element that actually holds focus, so a failed focus walk says where it
+// went instead of only that it was not where it should be.
+function describe(el) {
+    if (!el) return 'nothing';
+    return el.tagName.toLowerCase()
+        + (el.id ? '#' + el.id : '')
+        + (el.dataset && el.dataset.key ? '[key=' + el.dataset.key + ']' : '')
+        + (el.className ? '.' + String(el.className).trim().split(/\s+/).join('.') : '');
+}
+
 // Device binding tabs (Keyboard & Mouse / Controller): rebind + analog prefs.
 // Payload field names mirror the C++ structs verbatim — the bridge serializes
 // with SkipStandardizeCase, so bools keep their b prefix (bToggleable,
@@ -230,13 +240,20 @@ TSICTestHarness.register({
         const f = ctx.win.tsic.focus;
         const delay = (ms) => new Promise(r => setTimeout(r, ms));
 
-        // Down from the tab strip lands on the page content (search box), and the
-        // next Down enters the binding list — not the footer buttons.
+        // Down from the tab strip lands on the page content, which since #376 is the
+        // look-speed slider rather than the search box; Down again reaches the search,
+        // and the next enters the binding list — not the footer buttons.
         f.focus(ctx.doc.querySelector('.tsic-tab.is-active'), { trust: true });
         await delay(8);
         fx.pressDir('down'); await delay(16);
+        ctx.expect(ctx.doc.activeElement && ctx.doc.activeElement.dataset.key === 'mouse_sensitivity'
+            ? null : 'down from tabs should land on the look-speed slider, now the top setting');
+        fx.pressDir('down'); await delay(16);
+        ctx.expect(ctx.doc.activeElement && ctx.doc.activeElement.dataset.key === 'invert_mouse_y'
+            ? null : 'down from the slider reached ' + describe(ctx.doc.activeElement));
+        fx.pressDir('down'); await delay(16);
         ctx.expect(ctx.doc.activeElement && ctx.doc.activeElement.id === 'binding-search'
-            ? null : 'down from tabs should land on the search box');
+            ? null : 'down from the slider group should land on the search box');
         fx.pressDir('down'); await delay(16);
         ctx.expect(ctx.doc.activeElement && ctx.doc.activeElement.closest('.binding-row')
             ? null : 'down from search should enter the binding list, not skip to the footer');
@@ -274,10 +291,12 @@ TSICTestHarness.register({
         await delay(30);
         const active = Array.from(ctx.doc.querySelectorAll('.tsic-tab')).find(b => b.classList.contains('is-active'));
         ctx.expect(active && active.textContent === 'Controller' ? null : 'NextTab should activate the Controller tab');
-        const focusedRow = ctx.doc.activeElement && ctx.doc.activeElement.closest
-            && ctx.doc.activeElement.closest('.binding-row');
-        ctx.expect(focusedRow && focusedRow === ctx.doc.querySelector('.binding-row')
-            ? null : 'focus should land on the first binding row of the new tab, not the footer');
+        // Since #376 the top setting is the look-speed slider, not the first binding
+        // row — the point of the assertion is unchanged: the top of the new tab, never
+        // the footer.
+        const landed = ctx.doc.activeElement;
+        ctx.expect(landed && landed.dataset && landed.dataset.key === 'gamepad_sensitivity'
+            ? null : 'focus should land on the top setting of the new tab, not the footer');
     },
 });
 
@@ -340,6 +359,38 @@ TSICTestHarness.register({
         slider.value = '2';
         slider.dispatchEvent(new ctx.win.Event('input', { bubbles: true }));
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Settings.Set', { where: p => p.Key === 'mouse_sensitivity' }));
+    },
+});
+
+// The drag half of #376. Every drag frame publishes a value that C++ echoes back as a
+// fresh ControlsState, and that echo used to rebuild the page — replacing the slider
+// the pointer was holding, so the drag died after its first movement. The echo must be
+// deferred while the button is down, and applied on release.
+TSICTestHarness.register({
+    name: 'Controls: a ControlsState echo mid-drag does not replace the slider (#376)',
+    file: '/screens/settings.html',
+    async run(ctx) {
+        await openDeviceTab(ctx, 'Keyboard & Mouse');
+        const slider = ctx.doc.querySelector('#page input[type="range"][data-key="mouse_sensitivity"]');
+        ctx.expect(slider ? null : 'the look-speed slider should head the Controls tab');
+
+        slider.dispatchEvent(new ctx.win.Event('pointerdown', { bubbles: true }));
+        slider.value = '2';
+        slider.dispatchEvent(new ctx.win.Event('input', { bubbles: true }));
+        ctx.inject('tsic.msg.UI.Settings.ControlsState', JSON.parse(JSON.stringify(CONTROLS_STATE)));
+        await new Promise(r => setTimeout(r, 24));
+
+        const during = ctx.doc.querySelector('#page input[type="range"][data-key="mouse_sensitivity"]');
+        ctx.expect(during === slider
+            ? null : 'the echo rebuilt the page and replaced the slider being dragged');
+        ctx.expect(during.value === '2'
+            ? null : 'the dragged value should survive the echo, got ' + during.value);
+
+        // On release the deferred rebuild runs, so the page is live again.
+        ctx.win.dispatchEvent(new ctx.win.Event('pointerup'));
+        await new Promise(r => setTimeout(r, 24));
+        ctx.expect(ctx.doc.querySelector('#page input[type="range"][data-key="mouse_sensitivity"]')
+            ? null : 'the Controls page should still render after the deferred rebuild');
     },
 });
 
