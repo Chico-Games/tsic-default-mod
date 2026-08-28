@@ -4,7 +4,7 @@
                      {
                          "version":  "2.0.1",
                          "channel":  "Alpha",
-                         "sha":  "d086145e5f",
+                         "sha":  "79d0c2586a",
                          "date":  "2026-08-28",
                          "title":  "The game says what it means",
                          "entries":  [
@@ -17,24 +17,13 @@
                                          {
                                              "type":  "changed",
                                              "scope":  "Crafting",
-                                             "text":  "Changed the upgrade and dismantle tools to read as Hammer Tool and Screwdriver Tool, so they are not mistaken for the Hammer weapon of the same name.",
-                                             "ref":  484
-                                         },
-                                         {
-                                             "type":  "changed",
-                                             "scope":  "Crafting",
                                              "text":  "Changed the dowel bat so its recipe is unlocked from the start instead of needing to be discovered, so there is a weapon to build on the first crafting bench."
                                          },
                                          {
                                              "type":  "changed",
-                                             "scope":  "Menus",
-                                             "text":  "Changed the Video menu so display settings sit at the top, above the graphics quality options, to match where most games put them."
-                                         },
-                                         {
-                                             "type":  "changed",
-                                             "scope":  "Menus",
-                                             "text":  "Changed the Controls menu so look speed sits at the top, above the key bindings, instead of below a list long enough to scroll past.",
-                                             "ref":  376
+                                             "scope":  "Crafting",
+                                             "text":  "Changed the upgrade and dismantle tools to read as Hammer Tool and Screwdriver Tool, so they are not mistaken for the Hammer weapon of the same name.",
+                                             "ref":  484
                                          },
                                          {
                                              "type":  "changed",
@@ -46,6 +35,17 @@
                                              "type":  "changed",
                                              "scope":  "Menus",
                                              "text":  "Changed the on-screen key prompts so mouse buttons draw as a mouse with the pressed button lit, rather than a box lettered LMB, so a left or right click reads at a glance."
+                                         },
+                                         {
+                                             "type":  "changed",
+                                             "scope":  "Menus",
+                                             "text":  "Changed the Video menu so display settings sit at the top, above the graphics quality options, to match where most games put them."
+                                         },
+                                         {
+                                             "type":  "changed",
+                                             "scope":  "Menus",
+                                             "text":  "Changed the Controls menu so look speed sits at the top, above the key bindings, instead of below a list long enough to scroll past.",
+                                             "ref":  376
                                          },
                                          {
                                              "type":  "fixed",
@@ -68,20 +68,26 @@
                                          {
                                              "type":  "fixed",
                                              "scope":  "Menus",
-                                             "text":  "Fixed an issue where changing resolution or window mode did not apply correctly: picking a resolution forced the game into fullscreen, the window shrank a little further with every change, and borderless and fullscreen could not be reached from windowed.",
-                                             "ref":  465
+                                             "text":  "Fixed the look-speed slider ignoring click and drag, so the handle now follows the pointer instead of only jumping to where you click.",
+                                             "ref":  376
                                          },
                                          {
                                              "type":  "fixed",
                                              "scope":  "Menus",
-                                             "text":  "Fixed the look-speed slider ignoring click and drag, so the handle now follows the pointer instead of only jumping to where you click.",
-                                             "ref":  376
+                                             "text":  "Fixed an issue where changing resolution or window mode did not apply correctly: picking a resolution forced the game into fullscreen, the window shrank a little further with every change, and borderless and fullscreen could not be reached from windowed.",
+                                             "ref":  465
                                          },
                                          {
                                              "type":  "fixed",
                                              "scope":  "Night",
                                              "text":  "Fixed the flashlight switching itself back on a couple of seconds after you turned it off at night, and relighting whenever you took a hit, so it now stays off until the next morning.",
                                              "ref":  487
+                                         },
+                                         {
+                                             "type":  "removed",
+                                             "scope":  "Combat",
+                                             "text":  "Removed the Ghost cheat, which never did anything: it set a flag no part of the game read, and the No Aggro toggle beside it already makes enemies ignore you.",
+                                             "ref":  485
                                          }
                                      ],
                          "known_issues":  [
