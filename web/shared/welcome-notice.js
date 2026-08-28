@@ -233,6 +233,12 @@
 }
 
 /* ── Known issues ── */
+#welcome-notice .wn-issue-empty {
+    font-family: var(--font-body);
+    font-size: 12px;
+    color: var(--ink-mute);
+    padding: 8px 0 12px;
+}
 #welcome-notice .wn-issue {
     display: flex;
     align-items: flex-start;
@@ -388,10 +394,16 @@
     function buildIssues() {
         const host = el('div', { class: 'wn-pane', id: 'wn-pane-issues',
                                  'data-tsic-focus-group': 'notice-issues' });
-        // Generated at release time from open issues carrying the known-issue
-        // label, so a row cannot outlive the fix. `scope` is the tag column;
-        // it can be blank when the issue carries no scope label.
+        // Opt-in per release (changelog.ps1 -WithKnownIssues) and, when opted in,
+        // populated from open issues carrying the known-issue label -- so a row
+        // cannot outlive the fix. `scope` is the tag column; it can be blank when
+        // the issue carries no scope label. An empty list is the normal case: the
+        // column keeps the F8 nudge, which is the part players act on.
         const issues = (latest() && latest().known_issues) || [];
+        if (issues.length === 0) {
+            host.append(el('div', { class: 'wn-issue-empty' },
+                'Nothing tracked for this build.'));
+        }
         for (const issue of issues) {
             host.append(el('div', { class: 'wn-issue' },
                 el('span', { class: 'wn-issue-tag' }, issue.scope || ''),
