@@ -136,6 +136,11 @@
                                                   "scope":  "Menus",
                                                   "ref":  375,
                                                   "text":  "The Windows cursor shows through the in-game one over menu scrollbars."
+                                              },
+                                              {
+                                                  "scope":  "Menus",
+                                                  "ref":  458,
+                                                  "text":  "The menus can feel sluggish and the cursor lags behind the mouse."
                                               }
                                           ]
                      },
