@@ -1,5 +1,5 @@
 ﻿{
-    "_generated":  "Scripts/changelog.ps1 — do not hand-edit; edit changelog/releases/*.json",
+    "_generated":  "Scripts/changelog.ps1 - do not hand-edit; edit changelog/releases/*.json",
     "releases":  [
                      {
                          "version":  "2.0.0",

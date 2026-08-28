@@ -428,7 +428,7 @@
                         el('span', { class: 'tsic-masthead-issue' }, ISSUE_LINE),
                         el('span', { class: 'tsic-masthead-date' }, dateLine()))),
                 el('p', { class: 'wn-letter' },
-                    'Thank you for playing, and for every bug you have reported — '
+                    'Thank you for playing, and for every bug you have reported - '
                     + 'they are why the store gets better each build.')),
             el('div', { class: 'wn-body' }, split),
             el('div', { class: 'wn-foot' },
