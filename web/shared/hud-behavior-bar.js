@@ -90,7 +90,9 @@
     var iconUrl = isGP ? entry.GamepadIconUrl : entry.KeyboardIconUrl;
     var keyText = isGP ? entry.GamepadKeyText : entry.KeyboardKeyText;
     var resolve = (window.TSIC && window.TSIC.keyIconUrl) || function () { return ''; };
-    var resolvedUrl = iconUrl || resolve(keyText, isGP);
+    var prefer = (window.TSIC && window.TSIC.preferKeyIconUrl)
+      || function (pub, k, gp) { return pub || resolve(k, gp); };
+    var resolvedUrl = prefer(iconUrl, keyText, isGP);
 
     // Icon-only: render no key chip when no thumbnail resolves (no text fallback).
     if (resolvedUrl) {

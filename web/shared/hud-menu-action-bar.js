@@ -77,7 +77,9 @@
     var keyText = (isGP ? entry.GamepadKeyText : entry.KeyboardKeyText) || '';
     var iconUrl = (isGP ? entry.GamepadIconUrl : entry.KeyboardIconUrl) || '';
     var resolve = (window.TSIC && window.TSIC.keyIconUrl) || function () { return ''; };
-    var url = iconUrl || resolve(keyText, isGP);
+    var prefer = (window.TSIC && window.TSIC.preferKeyIconUrl)
+      || function (pub, k, gp) { return pub || resolve(k, gp); };
+    var url = prefer(iconUrl, keyText, isGP);
 
     var key = document.createElement('span');
     key.className = 'bb-menu-key';

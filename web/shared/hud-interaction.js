@@ -53,25 +53,26 @@
   function interactKeyChip() {
     if (!interactEntry || !window.TSIC || !TSIC.el) return null;
     var isGP = inputMode === 'Gamepad';
-    var url = isGP ? interactEntry.GamepadIconUrl : interactEntry.KeyboardIconUrl;
+    var pubUrl = (isGP ? interactEntry.GamepadIconUrl : interactEntry.KeyboardIconUrl) || '';
     var keyText = isGP ? interactEntry.GamepadKeyText : interactEntry.KeyboardKeyText;
-    if (!url && TSIC.keyIconUrl) url = TSIC.keyIconUrl(keyText, isGP);
+    var svgUrl = TSIC.keyIconUrl ? TSIC.keyIconUrl(keyText, isGP) : '';
+    var url = TSIC.preferKeyIconUrl ? TSIC.preferKeyIconUrl(pubUrl, keyText, isGP) : (pubUrl || svgUrl);
     if (!url) return null;
     var chip = TSIC.el('span', { class: 'bb-key' });
     var img = TSIC.el('img', { src: url, alt: keyText || '' });
     // The publisher ALWAYS hands us a /tex/key-icon/<device>/<key> url, so the
-    // `!url` fallback above never fires for a real entry -- a url that is present
+    // `!url` return above never fires for a real entry -- a url that is present
     // but does not resolve used to delete the chip outright, leaving a verb with
     // no key and nothing logged anywhere. That is how #451 read as "the key glyph
     // was never built" while the code to draw it was right here.
     //
-    // Fall back to the bundled SVG once before giving up. Guarded so a failing
-    // fallback cannot loop.
+    // Fall back to whichever of the two sources preferKeyIconUrl did NOT pick,
+    // once, before giving up. Guarded so a failing fallback cannot loop.
     img.onerror = function () {
-      var svg = TSIC.keyIconUrl ? TSIC.keyIconUrl(keyText, isGP) : '';
-      if (svg && svg !== img.getAttribute('src')) {
+      var alt = url === svgUrl ? pubUrl : svgUrl;
+      if (alt && alt !== img.getAttribute('src')) {
         img.onerror = function () { chip.remove(); };
-        img.src = svg;
+        img.src = alt;
         return;
       }
       chip.remove();

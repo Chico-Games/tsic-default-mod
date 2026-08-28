@@ -111,6 +111,29 @@
     return '';
   }
 
+  // Mouse buttons and wheel, by the same normalised names keyIconUrl resolves.
+  function isMouseKey(keyText) {
+    var kb = KB_N[norm(keyText)] || '';
+    return kb.indexOf('mouse') === 0 || kb.indexOf('scroll') === 0;
+  }
+
+  // Picks between the two glyph sources for one key.
+  //
+  // Two sets are live. The bundled SVGs above, and the imported input-key pack
+  // the C++ publisher serves at /tex/key-icon/<device>/<key>. The pack draws
+  // mouse buttons as an actual mouse where the bundled glyph is a box reading
+  // "LMB", so mouse keys take the pack. Every other keyboard key keeps the
+  // bundled keycap: it carries a light outline and so still reads as a key
+  // against the dark HUD, where the pack's dark keycap flattens into a filled
+  // block. Gamepad keeps the pack outright -- there is no bundled equivalent
+  // worth preferring. Either way this falls through to whichever source
+  // actually resolved, so a key only one of them knows still draws.
+  function preferKeyIconUrl(publisherUrl, keyText, isGamepad) {
+    var pub = publisherUrl || '';
+    if (isGamepad || isMouseKey(keyText)) return pub || keyIconUrl(keyText, isGamepad);
+    return keyIconUrl(keyText, false) || pub;
+  }
+
   function itemIconUrl(itemId) {
     if (!itemId) return '';
     if (window.tsic && typeof window.tsic.itemIconUrl === 'function') {
@@ -405,6 +428,7 @@
   window.TSIC.CATEGORY_ICON_PATHS = CATEGORY_ICON_PATHS;
   window.TSIC.categoryIcon = categoryIcon;
   window.TSIC.keyIconUrl = keyIconUrl;
+  window.TSIC.preferKeyIconUrl = preferKeyIconUrl;
   window.TSIC.itemIconUrl = itemIconUrl;
   window.TSIC.iconImg = iconImg;
   window.TSIC.fistsIcon = fistsIcon;
