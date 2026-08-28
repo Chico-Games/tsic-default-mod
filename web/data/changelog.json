@@ -1,6 +1,137 @@
-﻿{
+{
     "_generated":  "Scripts/changelog.ps1 - do not hand-edit; edit changelog/releases/*.json",
     "releases":  [
+                     {
+                         "version":  "2.0.1",
+                         "channel":  "Alpha",
+                         "sha":  "c4560f87ca",
+                         "date":  "2026-08-28",
+                         "title":  "The game says what it means",
+                         "entries":  [
+                                         {
+                                             "type":  "changed",
+                                             "scope":  "Crafting",
+                                             "text":  "Changed the upgrade and dismantle tools to read as Hammer Tool and Screwdriver Tool, so they are not mistaken for the Hammer weapon of the same name.",
+                                             "ref":  484
+                                         },
+                                         {
+                                             "type":  "changed",
+                                             "scope":  "Crafting",
+                                             "text":  "Changed the dowel bat so its recipe is unlocked from the start instead of needing to be discovered, so there is a weapon to build on the first crafting bench."
+                                         },
+                                         {
+                                             "type":  "changed",
+                                             "scope":  "Menus",
+                                             "text":  "Changed the on-screen action prompts to name what the button actually does, so primary fire reads Attack and the drag prompt appears only while something draggable is in front of you.",
+                                             "ref":  488
+                                         },
+                                         {
+                                             "type":  "changed",
+                                             "scope":  "Menus",
+                                             "text":  "Changed the Video menu so display settings sit at the top, above the graphics quality options, to match where most games put them."
+                                         },
+                                         {
+                                             "type":  "changed",
+                                             "scope":  "Menus",
+                                             "text":  "Changed the on-screen key prompts so mouse buttons draw as a mouse with the pressed button lit, rather than a box lettered LMB, so a left or right click reads at a glance."
+                                         },
+                                         {
+                                             "type":  "fixed",
+                                             "scope":  "Crafting",
+                                             "text":  "Fixed tools reporting that they equip to a Weapon slot; the recipe panel now calls it the hand slot, which is what weapons, tools and consumables all share.",
+                                             "ref":  484
+                                         },
+                                         {
+                                             "type":  "fixed",
+                                             "scope":  "Inventory",
+                                             "text":  "Fixed duct tape weighing 1kg a roll, ten times heavier than every other crafting material.",
+                                             "ref":  483
+                                         },
+                                         {
+                                             "type":  "fixed",
+                                             "scope":  "Menus",
+                                             "text":  "Fixed an issue where changing resolution or window mode did not apply correctly: picking a resolution forced the game into fullscreen, the window shrank a little further with every change, and borderless and fullscreen could not be reached from windowed.",
+                                             "ref":  465
+                                         }
+                                     ],
+                         "known_issues":  [
+                                              {
+                                                  "scope":  "Co-op",
+                                                  "ref":  325,
+                                                  "text":  "Furniture flashes when a drag starts and again when it settles."
+                                              },
+                                              {
+                                                  "scope":  "Co-op",
+                                                  "ref":  391,
+                                                  "text":  "Lights a guest switches off can keep moving for the host."
+                                              },
+                                              {
+                                                  "scope":  "Co-op",
+                                                  "ref":  328,
+                                                  "text":  "Dragged furniture is driven rather than simulated on other machines, so it can look stiff in transit."
+                                              },
+                                              {
+                                                  "scope":  "Enemies",
+                                                  "ref":  298,
+                                                  "text":  "BoneHead, Gardener and TVHead never break the warehouse boxes blocking their path - they just stop."
+                                              },
+                                              {
+                                                  "scope":  "Saves",
+                                                  "ref":  380,
+                                                  "text":  "Loading a save made after a visit to the Pit sets you on fire on arrival."
+                                              },
+                                              {
+                                                  "scope":  "Store",
+                                                  "ref":  330,
+                                                  "text":  "Furniture near stairs and height changes spawns floating, or hangs off the edge of the steps."
+                                              },
+                                              {
+                                                  "scope":  "Store",
+                                                  "ref":  359,
+                                                  "text":  "Some furniture spawns facing the wrong way, or lying down when it should stand."
+                                              },
+                                              {
+                                                  "scope":  "Store",
+                                                  "ref":  353,
+                                                  "text":  "Aisle sign lettering and framed photos z-fight at some angles - the text flickers as you walk past."
+                                              },
+                                              {
+                                                  "scope":  "Store",
+                                                  "ref":  373,
+                                                  "text":  "Railings generate along edges with no drop, and are missing from some real ones."
+                                              },
+                                              {
+                                                  "scope":  "Combat",
+                                                  "ref":  377,
+                                                  "text":  "Landing on a bed or a sofa from height does no damage at all."
+                                              },
+                                              {
+                                                  "scope":  "Breakage",
+                                                  "ref":  356,
+                                                  "text":  "Eighteen materials across fifteen breakable pieces render flat grey once destroyed."
+                                              },
+                                              {
+                                                  "scope":  "Menus",
+                                                  "ref":  323,
+                                                  "text":  "Hovering some menu buttons changes their shape and shifts the row."
+                                              },
+                                              {
+                                                  "scope":  "Menus",
+                                                  "ref":  375,
+                                                  "text":  "The Windows cursor shows through the in-game one over menu scrollbars."
+                                              },
+                                              {
+                                                  "scope":  "Menus",
+                                                  "ref":  376,
+                                                  "text":  "The mouse look-speed slider cannot be click-dragged, and sits too low in Controls."
+                                              },
+                                              {
+                                                  "scope":  "Night",
+                                                  "ref":  258,
+                                                  "text":  "Signs cast wrong shadows at night."
+                                              }
+                                          ]
+                     },
                      {
                          "version":  "2.0.0",
                          "channel":  "Alpha",
@@ -227,48 +358,6 @@
                                              "type":  "fixed",
                                              "scope":  "Co-op",
                                              "text":  "Guests get the shops, benches and queues the host already had."
-                                         }
-                                     ],
-                         "known_issues":  [
-
-                                          ]
-                     },
-                     {
-                         "version":  null,
-                         "channel":  "Alpha",
-                         "sha":  "925c00a",
-                         "date":  "2026-08-15",
-                         "title":  "Fifty-two fixes",
-                         "entries":  [
-                                         {
-                                             "type":  "fixed",
-                                             "scope":  "Menus",
-                                             "text":  "The death screen, the wardrobe, the equipment paperdoll and the repair station were all built and tested and unreachable. They are wired up."
-                                         },
-                                         {
-                                             "type":  "fixed",
-                                             "scope":  "Store",
-                                             "text":  "Every new game on a map used to generate the identical world - the seed was hardcoded."
-                                         },
-                                         {
-                                             "type":  "fixed",
-                                             "scope":  "Co-op",
-                                             "text":  "Projectiles replicate: other players can see a bolt in flight and where it stuck."
-                                         },
-                                         {
-                                             "type":  "fixed",
-                                             "scope":  "Co-op",
-                                             "text":  "Ping markers work in co-op instead of only for the host."
-                                         },
-                                         {
-                                             "type":  "fixed",
-                                             "scope":  "Crafting",
-                                             "text":  "Crafting is server-enforced - it checked neither station nor level before."
-                                         },
-                                         {
-                                             "type":  "fixed",
-                                             "scope":  "Inventory",
-                                             "text":  "Reading a note no longer eats it and shows you nothing."
                                          }
                                      ],
                          "known_issues":  [
