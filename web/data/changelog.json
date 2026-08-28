@@ -9,7 +9,7 @@
                          "title":  "The game says what it means",
                          "entries":  [
                                          {
-                                             "type":  "added",
+                                             "type":  "qol",
                                              "scope":  "Menus",
                                              "text":  "Added a ten second confirmation prompt after a display change, which puts the old resolution back if you do not confirm, so an unreadable or off-screen mode can no longer strand you.",
                                              "ref":  446

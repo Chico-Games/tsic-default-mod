@@ -322,12 +322,15 @@
 
     // Keep a Changelog's order, which is also the order changelog.ps1 sorts by --
     // not alphabetical, and not the order entries happened to be written in.
-    const CATEGORY_ORDER = ['added', 'changed', 'fixed', 'removed', 'security'];
-    // Reading order: what is new, what moved, what was repaired, what is gone, what
-    // was hardened. A player scans for the first two and only reads Fixes if
-    // something they hit is in it.
+    const CATEGORY_ORDER = ['added', 'qol', 'changed', 'fixed', 'removed', 'security'];
+    // Reading order: what is new, what is nicer, what moved, what was repaired, what
+    // is gone, what was hardened. A player scans for the first three and only reads
+    // Fixes if something they hit is in it. Quality of Life sits second because it is
+    // additive like Content but smaller in kind -- a convenience rather than a thing
+    // to go and find. Must match $CategoryLabels in Scripts/changelog.ps1, which is
+    // what writes the file this reads.
     const CATEGORY_LABELS = {
-        added: 'Content', changed: 'Changes', fixed: 'Fixes',
+        added: 'Content', qol: 'Quality of Life', changed: 'Changes', fixed: 'Fixes',
         removed: 'Removed', security: 'Security',
     };
 
