@@ -29,7 +29,9 @@
     layer.style.cssText = 'position:absolute; inset:0; z-index:-2; pointer-events:none;';
     stage.insertBefore(layer, stage.firstChild);
 
-    global.TSICStoreMaze.mount(layer);
+    // Still backdrop: keeps the menu on the engine clean-frame path (<0.4ms/frame).
+    // An animated maze costs ~19ms/frame of CPU canvas raster (BLK-063).
+    global.TSICStoreMaze.mount(layer, { startFrozen: true });
   }
   boot();
 })(window);

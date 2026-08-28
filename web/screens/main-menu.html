@@ -228,6 +228,10 @@
        new room added later is covered without touching this. The SVG art itself
        still draws; only the looping motion stops. */
     html[data-tsic-reduce-motion] [class*="showroom-"] { animation: none; }
+    /* Static backdrop for the clean-frame path (<0.4ms/frame): the ambient
+       showroom lighting kept a region repainting every frame, which forces a
+       full-tree paint walk. Paired with the frozen maze (store-maze startFrozen). */
+    [class*="showroom-"] { animation: none !important; }
 
     /* ─── Menu Music: volume pill (bottom-right) ─── */
     .menu-vol {
