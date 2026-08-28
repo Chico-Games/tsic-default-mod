@@ -4,10 +4,15 @@
                      {
                          "version":  "2.0.1",
                          "channel":  "Alpha",
-                         "sha":  "491df29b1c",
+                         "sha":  "c09bf0ed05",
                          "date":  "2026-08-28",
                          "title":  "Now With 99.9% Reduced Time Between Patches!",
                          "entries":  [
+                                         {
+                                             "type":  "qol",
+                                             "scope":  "Menus",
+                                             "text":  "Improved menu performance."
+                                         },
                                          {
                                              "type":  "qol",
                                              "scope":  "Menus",
@@ -28,7 +33,7 @@
                                          {
                                              "type":  "changed",
                                              "scope":  "Menus",
-                                             "text":  "Changed the Video menu so display settings sit at the top, above the graphics quality options, to match where most games put them."
+                                             "text":  "Changed the on-screen key prompts so mouse buttons draw as a mouse with the pressed button lit, rather than a box lettered LMB, so a left or right click reads at a glance."
                                          },
                                          {
                                              "type":  "changed",
@@ -39,13 +44,13 @@
                                          {
                                              "type":  "changed",
                                              "scope":  "Menus",
-                                             "text":  "Changed the on-screen action prompts to name what the button actually does, so primary fire reads Attack and the drag prompt appears only while something draggable is in front of you.",
-                                             "ref":  488
+                                             "text":  "Changed the Video menu so display settings sit at the top, above the graphics quality options, to match where most games put them."
                                          },
                                          {
                                              "type":  "changed",
                                              "scope":  "Menus",
-                                             "text":  "Changed the on-screen key prompts so mouse buttons draw as a mouse with the pressed button lit, rather than a box lettered LMB, so a left or right click reads at a glance."
+                                             "text":  "Changed the on-screen action prompts to name what the button actually does, so primary fire reads Attack and the drag prompt appears only while something draggable is in front of you.",
+                                             "ref":  488
                                          },
                                          {
                                              "type":  "fixed",
@@ -68,6 +73,12 @@
                                          {
                                              "type":  "fixed",
                                              "scope":  "Menus",
+                                             "text":  "Fixed the look-speed slider ignoring click and drag, so the handle now follows the pointer instead of only jumping to where you click.",
+                                             "ref":  376
+                                         },
+                                         {
+                                             "type":  "fixed",
+                                             "scope":  "Menus",
                                              "text":  "Fixed the what is new bulletin reappearing every time you returned to the main menu, so it now shows once per update and stays shut after you close it.",
                                              "ref":  497
                                          },
@@ -76,12 +87,6 @@
                                              "scope":  "Menus",
                                              "text":  "Fixed an issue where changing resolution or window mode did not apply correctly: picking a resolution forced the game into fullscreen, the window shrank a little further with every change, and borderless and fullscreen could not be reached from windowed.",
                                              "ref":  465
-                                         },
-                                         {
-                                             "type":  "fixed",
-                                             "scope":  "Menus",
-                                             "text":  "Fixed the look-speed slider ignoring click and drag, so the handle now follows the pointer instead of only jumping to where you click.",
-                                             "ref":  376
                                          },
                                          {
                                              "type":  "fixed",
