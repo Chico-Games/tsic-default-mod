@@ -4,10 +4,16 @@
                      {
                          "version":  "2.0.1",
                          "channel":  "Alpha",
-                         "sha":  "c4560f87ca",
+                         "sha":  "d086145e5f",
                          "date":  "2026-08-28",
                          "title":  "The game says what it means",
                          "entries":  [
+                                         {
+                                             "type":  "added",
+                                             "scope":  "Menus",
+                                             "text":  "Added a ten second confirmation prompt after a display change, which puts the old resolution back if you do not confirm, so an unreadable or off-screen mode can no longer strand you.",
+                                             "ref":  446
+                                         },
                                          {
                                              "type":  "changed",
                                              "scope":  "Crafting",
@@ -22,18 +28,30 @@
                                          {
                                              "type":  "changed",
                                              "scope":  "Menus",
+                                             "text":  "Changed the Video menu so display settings sit at the top, above the graphics quality options, to match where most games put them."
+                                         },
+                                         {
+                                             "type":  "changed",
+                                             "scope":  "Menus",
+                                             "text":  "Changed the Controls menu so look speed sits at the top, above the key bindings, instead of below a list long enough to scroll past.",
+                                             "ref":  376
+                                         },
+                                         {
+                                             "type":  "changed",
+                                             "scope":  "Menus",
                                              "text":  "Changed the on-screen action prompts to name what the button actually does, so primary fire reads Attack and the drag prompt appears only while something draggable is in front of you.",
                                              "ref":  488
                                          },
                                          {
                                              "type":  "changed",
                                              "scope":  "Menus",
-                                             "text":  "Changed the Video menu so display settings sit at the top, above the graphics quality options, to match where most games put them."
+                                             "text":  "Changed the on-screen key prompts so mouse buttons draw as a mouse with the pressed button lit, rather than a box lettered LMB, so a left or right click reads at a glance."
                                          },
                                          {
-                                             "type":  "changed",
-                                             "scope":  "Menus",
-                                             "text":  "Changed the on-screen key prompts so mouse buttons draw as a mouse with the pressed button lit, rather than a box lettered LMB, so a left or right click reads at a glance."
+                                             "type":  "fixed",
+                                             "scope":  "Combat",
+                                             "text":  "Fixed god mode not preventing damage: the cheat menu showed it switched on while the player still took hits and died.",
+                                             "ref":  485
                                          },
                                          {
                                              "type":  "fixed",
@@ -52,6 +70,18 @@
                                              "scope":  "Menus",
                                              "text":  "Fixed an issue where changing resolution or window mode did not apply correctly: picking a resolution forced the game into fullscreen, the window shrank a little further with every change, and borderless and fullscreen could not be reached from windowed.",
                                              "ref":  465
+                                         },
+                                         {
+                                             "type":  "fixed",
+                                             "scope":  "Menus",
+                                             "text":  "Fixed the look-speed slider ignoring click and drag, so the handle now follows the pointer instead of only jumping to where you click.",
+                                             "ref":  376
+                                         },
+                                         {
+                                             "type":  "fixed",
+                                             "scope":  "Night",
+                                             "text":  "Fixed the flashlight switching itself back on a couple of seconds after you turned it off at night, and relighting whenever you took a hit, so it now stays off until the next morning.",
+                                             "ref":  487
                                          }
                                      ],
                          "known_issues":  [
