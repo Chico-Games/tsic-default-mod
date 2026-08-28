@@ -97,9 +97,9 @@ TSICTestHarness.register({
     async run(ctx) {
         ctx.screen('CheatMenu');
         await ctx.waitFor(() => ctx.doc.querySelector('button[data-state-key="bGod"]'));
-        ctx.inject('tsic.msg.UI.Cheat.State', { PlayerNum: 1, bGod: true, bGhost: false, bFly: false });
+        ctx.inject('tsic.msg.UI.Cheat.State', { PlayerNum: 1, bGod: true, bFly: false });
         await ctx.waitFor(() => ctx.doc.querySelector('button[data-state-key="bGod"]').classList.contains('cm-on'));
-        ctx.expect(ctx.assert.eq(ctx.doc.querySelector('button[data-state-key="bGhost"]').classList.contains('cm-on'), false));
+        ctx.expect(ctx.assert.eq(ctx.doc.querySelector('button[data-state-key="bFly"]').classList.contains('cm-on'), false));
         // A key absent from the payload is unknown, not off.
         ctx.expect(ctx.assert.eq(ctx.doc.querySelector('button[data-state-key="bKeepItems"]').classList.contains('cm-state-unknown'), true));
         ctx.expect(ctx.assert.eq(ctx.doc.querySelector('button[data-state-key="bGod"]').classList.contains('cm-state-unknown'), false));

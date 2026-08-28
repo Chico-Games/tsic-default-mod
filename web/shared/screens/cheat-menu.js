@@ -114,8 +114,6 @@
           html:
             btnRow([
               { label: 'Toggle God', cmd: 'ScpGod {p}', state: 'bGod' },
-              { label: 'Toggle Ghost', cmd: 'ScpGhost {p}', state: 'bGhost',
-                title: 'Enemies ignore this player.' },
               { label: 'Toggle Fly', cmd: 'ScpFly {p}', state: 'bFly' },
               { label: 'Toggle Creative', cmd: 'Creative {p}', state: 'bCreative',
                 title: 'Free crafting and building.' },
@@ -674,7 +672,6 @@
   const SECTION_KEYS = {
     'player/MODES': [
       { label: 'God', cmd: 'ScpGod {p}' },
-      { label: 'Ghost', cmd: 'ScpGhost {p}' },
       { label: 'Fly', cmd: 'ScpFly {p}' },
       { label: 'Creative', cmd: 'Creative {p}' },
     ],
