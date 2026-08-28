@@ -4,7 +4,7 @@
                      {
                          "version":  "2.0.1",
                          "channel":  "Alpha",
-                         "sha":  "79d0c2586a",
+                         "sha":  "491df29b1c",
                          "date":  "2026-08-28",
                          "title":  "The game says what it means",
                          "entries":  [
@@ -17,24 +17,13 @@
                                          {
                                              "type":  "changed",
                                              "scope":  "Crafting",
-                                             "text":  "Changed the dowel bat so its recipe is unlocked from the start instead of needing to be discovered, so there is a weapon to build on the first crafting bench."
-                                         },
-                                         {
-                                             "type":  "changed",
-                                             "scope":  "Crafting",
                                              "text":  "Changed the upgrade and dismantle tools to read as Hammer Tool and Screwdriver Tool, so they are not mistaken for the Hammer weapon of the same name.",
                                              "ref":  484
                                          },
                                          {
                                              "type":  "changed",
-                                             "scope":  "Menus",
-                                             "text":  "Changed the on-screen action prompts to name what the button actually does, so primary fire reads Attack and the drag prompt appears only while something draggable is in front of you.",
-                                             "ref":  488
-                                         },
-                                         {
-                                             "type":  "changed",
-                                             "scope":  "Menus",
-                                             "text":  "Changed the on-screen key prompts so mouse buttons draw as a mouse with the pressed button lit, rather than a box lettered LMB, so a left or right click reads at a glance."
+                                             "scope":  "Crafting",
+                                             "text":  "Changed the dowel bat so its recipe is unlocked from the start instead of needing to be discovered, so there is a weapon to build on the first crafting bench."
                                          },
                                          {
                                              "type":  "changed",
@@ -46,6 +35,17 @@
                                              "scope":  "Menus",
                                              "text":  "Changed the Controls menu so look speed sits at the top, above the key bindings, instead of below a list long enough to scroll past.",
                                              "ref":  376
+                                         },
+                                         {
+                                             "type":  "changed",
+                                             "scope":  "Menus",
+                                             "text":  "Changed the on-screen action prompts to name what the button actually does, so primary fire reads Attack and the drag prompt appears only while something draggable is in front of you.",
+                                             "ref":  488
+                                         },
+                                         {
+                                             "type":  "changed",
+                                             "scope":  "Menus",
+                                             "text":  "Changed the on-screen key prompts so mouse buttons draw as a mouse with the pressed button lit, rather than a box lettered LMB, so a left or right click reads at a glance."
                                          },
                                          {
                                              "type":  "fixed",
@@ -68,14 +68,20 @@
                                          {
                                              "type":  "fixed",
                                              "scope":  "Menus",
-                                             "text":  "Fixed the look-speed slider ignoring click and drag, so the handle now follows the pointer instead of only jumping to where you click.",
-                                             "ref":  376
+                                             "text":  "Fixed the what is new bulletin reappearing every time you returned to the main menu, so it now shows once per update and stays shut after you close it.",
+                                             "ref":  497
                                          },
                                          {
                                              "type":  "fixed",
                                              "scope":  "Menus",
                                              "text":  "Fixed an issue where changing resolution or window mode did not apply correctly: picking a resolution forced the game into fullscreen, the window shrank a little further with every change, and borderless and fullscreen could not be reached from windowed.",
                                              "ref":  465
+                                         },
+                                         {
+                                             "type":  "fixed",
+                                             "scope":  "Menus",
+                                             "text":  "Fixed the look-speed slider ignoring click and drag, so the handle now follows the pointer instead of only jumping to where you click.",
+                                             "ref":  376
                                          },
                                          {
                                              "type":  "fixed",
@@ -155,11 +161,6 @@
                                                   "scope":  "Menus",
                                                   "ref":  375,
                                                   "text":  "The Windows cursor shows through the in-game one over menu scrollbars."
-                                              },
-                                              {
-                                                  "scope":  "Menus",
-                                                  "ref":  376,
-                                                  "text":  "The mouse look-speed slider cannot be click-dragged, and sits too low in Controls."
                                               },
                                               {
                                                   "scope":  "Night",
