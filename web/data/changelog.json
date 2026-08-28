@@ -141,6 +141,16 @@
                                                   "scope":  "Menus",
                                                   "ref":  458,
                                                   "text":  "The menus can feel sluggish and the cursor lags behind the mouse."
+                                              },
+                                              {
+                                                  "scope":  "Saves",
+                                                  "ref":  498,
+                                                  "text":  "Claiming a bed does not move your respawn; you still come back at the world spawn."
+                                              },
+                                              {
+                                                  "scope":  "Store",
+                                                  "ref":  499,
+                                                  "text":  "Fly mode has no way to gain or lose height."
                                               }
                                           ]
                      },
