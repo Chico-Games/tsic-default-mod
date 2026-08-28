@@ -56,6 +56,57 @@
                 ] },
             ] },
             { Id: 'VideoCollection', Title: 'Video', Groups: [
+                { Id: 'Display', Title: 'Display', Settings: [
+                    { Key: 'video.window_mode', Label: 'Window mode', Type: 'enum',
+                      Options: [
+                          { Value: 'fullscreen', Label: 'Fullscreen' },
+                          { Value: 'borderless', Label: 'Borderless window' },
+                          { Value: 'windowed',   Label: 'Windowed' },
+                      ],
+                      Value: 'borderless' },
+                    // FALLBACK ONLY. C++ replaces these wholesale via
+                    // video.resolution_options with the modes this display actually
+                    // reports, filtered by the current window mode. The static list
+                    // cannot know the monitor: it offers 4K on a 1440p panel, and
+                    // exclusive fullscreen at a mode the display does not have is a
+                    // stretched or black screen.
+                    { Key: 'video.resolution', Label: 'Resolution', Type: 'enum',
+                      Options: [
+                          { Value: '1280x720',  Label: '1280 × 720 (HD)' },
+                          { Value: '1366x768',  Label: '1366 × 768' },
+                          { Value: '1600x900',  Label: '1600 × 900' },
+                          { Value: '1680x1050', Label: '1680 × 1050 (16:10)' },
+                          { Value: '1920x1080', Label: '1920 × 1080 (FHD)' },
+                          { Value: '1920x1200', Label: '1920 × 1200 (16:10)' },
+                          { Value: '2560x1080', Label: '2560 × 1080 (Ultrawide)' },
+                          { Value: '2560x1440', Label: '2560 × 1440 (QHD)' },
+                          { Value: '2560x1600', Label: '2560 × 1600 (16:10)' },
+                          { Value: '3440x1440', Label: '3440 × 1440 (Ultrawide)' },
+                          { Value: '3840x2160', Label: '3840 × 2160 (4K)' },
+                      ],
+                      Value: '1920x1080' },
+                    // graphics.* on purpose (instant apply, no countdown): neither
+                    // VSync nor an FPS cap can strand the player.
+                    { Key: 'graphics.vsync', Label: 'VSync', Type: 'bool', Value: false },
+                    { Key: 'graphics.fps_limit', Label: 'Frame rate limit', Type: 'enum',
+                      Options: [
+                          { Value: '30',  Label: '30 FPS' },
+                          { Value: '60',  Label: '60 FPS' },
+                          { Value: '90',  Label: '90 FPS' },
+                          { Value: '120', Label: '120 FPS' },
+                          { Value: '144', Label: '144 FPS' },
+                          { Value: '165', Label: '165 FPS' },
+                          { Value: '200', Label: '200 FPS' },
+                          { Value: '240', Label: '240 FPS' },
+                          { Value: '0',   Label: 'Unlimited' },
+                      ],
+                      Value: '200' },
+                    { Key: 'graphics.brightness', Label: 'Brightness (gamma)',
+                      Type: 'range', Min: 1.4, Max: 3, Step: 0.05, Value: 2.2 },
+                    // Removed on displays without HDR output (video.hdr_supported).
+                    // video.* on purpose: a bad HDR switch gets the countdown.
+                    { Key: 'video.hdr', Label: 'HDR output', Type: 'bool', Value: false },
+                ] },
                 { Id: 'Graphics', Title: 'Graphics', Settings: [
                     // graphics.* (not video.*) on purpose: video.* keys open the
                     // keep/revert countdown, which is for display-mode changes
@@ -149,57 +200,6 @@
                     { Key: 'graphics.shading',         Label: 'Shading',         Type: 'enum', Options: qualityLevels(), Value: 'high' },
                     { Key: 'graphics.reflections',     Label: 'Reflections',     Type: 'enum', Options: qualityLevels(), Value: 'high' },
                 ] },
-                { Id: 'Display', Title: 'Display', Settings: [
-                    { Key: 'video.window_mode', Label: 'Window mode', Type: 'enum',
-                      Options: [
-                          { Value: 'fullscreen', Label: 'Fullscreen' },
-                          { Value: 'borderless', Label: 'Borderless window' },
-                          { Value: 'windowed',   Label: 'Windowed' },
-                      ],
-                      Value: 'borderless' },
-                    // FALLBACK ONLY. C++ replaces these wholesale via
-                    // video.resolution_options with the modes this display actually
-                    // reports, filtered by the current window mode. The static list
-                    // cannot know the monitor: it offers 4K on a 1440p panel, and
-                    // exclusive fullscreen at a mode the display does not have is a
-                    // stretched or black screen.
-                    { Key: 'video.resolution', Label: 'Resolution', Type: 'enum',
-                      Options: [
-                          { Value: '1280x720',  Label: '1280 × 720 (HD)' },
-                          { Value: '1366x768',  Label: '1366 × 768' },
-                          { Value: '1600x900',  Label: '1600 × 900' },
-                          { Value: '1680x1050', Label: '1680 × 1050 (16:10)' },
-                          { Value: '1920x1080', Label: '1920 × 1080 (FHD)' },
-                          { Value: '1920x1200', Label: '1920 × 1200 (16:10)' },
-                          { Value: '2560x1080', Label: '2560 × 1080 (Ultrawide)' },
-                          { Value: '2560x1440', Label: '2560 × 1440 (QHD)' },
-                          { Value: '2560x1600', Label: '2560 × 1600 (16:10)' },
-                          { Value: '3440x1440', Label: '3440 × 1440 (Ultrawide)' },
-                          { Value: '3840x2160', Label: '3840 × 2160 (4K)' },
-                      ],
-                      Value: '1920x1080' },
-                    // graphics.* on purpose (instant apply, no countdown): neither
-                    // VSync nor an FPS cap can strand the player.
-                    { Key: 'graphics.vsync', Label: 'VSync', Type: 'bool', Value: false },
-                    { Key: 'graphics.fps_limit', Label: 'Frame rate limit', Type: 'enum',
-                      Options: [
-                          { Value: '30',  Label: '30 FPS' },
-                          { Value: '60',  Label: '60 FPS' },
-                          { Value: '90',  Label: '90 FPS' },
-                          { Value: '120', Label: '120 FPS' },
-                          { Value: '144', Label: '144 FPS' },
-                          { Value: '165', Label: '165 FPS' },
-                          { Value: '200', Label: '200 FPS' },
-                          { Value: '240', Label: '240 FPS' },
-                          { Value: '0',   Label: 'Unlimited' },
-                      ],
-                      Value: '200' },
-                    { Key: 'graphics.brightness', Label: 'Brightness (gamma)',
-                      Type: 'range', Min: 1.4, Max: 3, Step: 0.05, Value: 2.2 },
-                    // Removed on displays without HDR output (video.hdr_supported).
-                    // video.* on purpose: a bad HDR switch gets the countdown.
-                    { Key: 'video.hdr', Label: 'HDR output', Type: 'bool', Value: false },
-                ] },
             ] },
             { Id: 'GameplayCollection', Title: 'Gameplay', Groups: [
                 { Id: 'Interface', Title: 'Interface', Settings: [
@@ -275,15 +275,17 @@
     const localState = {};
 
     // Instant apply: every edit publishes immediately and per-key persistence
-    // happens C++-side on Set. The one carve-out is video-mode keys — a bad
-    // display change can strand the player, so those open a keep/revert
-    // countdown with the pre-change value as the rollback target.
-    const KEEP_COUNTDOWN_SECONDS = 10;
-    let countdownTimer = null;
+    // happens C++-side on Set. The one carve-out is video-mode keys — a bad display
+    // change can strand the player, so those get a keep/revert countdown.
+    //
+    // That countdown is OWNED BY C++ and only displayed here. It used to run on this
+    // page, which cannot work: switching window mode recreates the Slate window, which
+    // fires pagehide and pops the focus scope, and the page read both as "the player
+    // rejected this" — so borderless and fullscreen reverted one frame after every
+    // attempt and were unreachable from windowed (#465). A timer cannot outlive the
+    // thing it is timing. The remaining seconds arrive as the video.countdown value.
     let activePopover = null;    // { el, kind: 'countdown' }
-    const videoRevert = {};      // key -> pre-change value while the countdown is open
-
-    function isVideoKey(key) { return String(key).indexOf('video.') === 0; }
+    let countdownLabel = null;   // the <b> showing seconds, while a countdown is up
 
     // Structural signature of the last render + per-key value updaters. A
     // Catalog whose structure is unchanged (only Values differ) is patched in
@@ -298,24 +300,6 @@
         return s.Value;
     }
 
-    // The value a control is showing right now, by key. localState only holds keys
-    // that have been edited or echoed at least once, so a control still showing
-    // what the catalog shipped has no entry there -- and that is precisely the
-    // value a first edit has to be able to roll back to. Falls back to scanning
-    // the last catalog. undefined means the key is not on the page at all.
-    function displayedValueOf(key) {
-        if (key in localState) return localState[key];
-        const pages = (lastCatalog && lastCatalog.Pages) || [];
-        for (const page of pages) {
-            for (const group of (page.Groups || [])) {
-                for (const setting of (group.Settings || [])) {
-                    if (setting.Key === key) return setting.Value;
-                }
-            }
-        }
-        return undefined;
-    }
-
     function publishSet(key, value) {
         try {
             tsic.publishMessage('UI.Cmd.Settings.Set', { Key: key, ValueJson: JSON.stringify(value) });
@@ -326,19 +310,17 @@
         tsic.publishMessage('UI.Cmd.Settings.Action', { Key: key });
     }
 
-    // Route every control edit through here. Everything publishes immediately;
-    // video-mode keys additionally open the keep/revert countdown, remembering
-    // the pre-change value as the rollback target. Repeat edits while the
-    // countdown runs join its revert set but keep the ORIGINAL value.
-    function applySet(key, value, oldValue) {
+    // Route every control edit through here. Everything publishes immediately. A
+    // video-mode key also starts the countdown, but C++ does that off the Set itself
+    // and tells us via video.countdown — the page does not decide, and does not need
+    // to remember a rollback value, because the engine's own confirmed-mode record is
+    // the rollback target.
+    function applySet(key, value) {
         if (STALLING_KEYS[key]) {
-            applySetAfterPainting(key, value, oldValue);
+            applySetAfterPainting(key, value);
             return;
         }
         publishSet(key, value);
-        if (!isVideoKey(key)) return;
-        if (!(key in videoRevert)) videoRevert[key] = oldValue;
-        openKeepCountdown();
     }
 
     // ---- Settings that freeze the game while they apply --------------------
@@ -401,7 +383,7 @@
         if (applyingTimeout) { clearTimeout(applyingTimeout); applyingTimeout = null; }
     }
 
-    async function applySetAfterPainting(key, value, oldValue) {
+    async function applySetAfterPainting(key, value) {
         const overlay = ensureApplyingOverlay();
         document.getElementById('settings-applying-msg').textContent = STALLING_KEYS[key] || '';
         overlay.hidden = false;
@@ -413,9 +395,6 @@
 
         await afterNextPaint();
         publishSet(key, value);
-        if (!isVideoKey(key)) return;
-        if (!(key in videoRevert)) videoRevert[key] = oldValue;
-        openKeepCountdown();
     }
 
     // Cap displayed numbers at 2 decimal places, dropping trailing zeros
@@ -460,7 +439,6 @@
                 if (Number.isNaN(n)) return;
                 n = Math.max(min, Math.min(max, n));
                 slider.value = String(n);
-                const old = (s.Key in localState) ? localState[s.Key] : s.Value;
                 localState[s.Key] = n;
                 valueLabel.textContent = fmt2(n);
                 const now = Date.now();
@@ -468,7 +446,7 @@
                     lastTickAt = now;
                     try { tsic.playSound('UI.Slider.Tick', 0.3); } catch (e) {}
                 }
-                applySet(s.Key, n, old);
+                applySet(s.Key, n);
             };
             controlUpdaters[s.Key] = (val) => {
                 const n = Number(val);
@@ -492,7 +470,7 @@
                     localState[s.Key] = !old;
                     tog.classList.toggle('on', localState[s.Key]);
                     try { tsic.playSound(localState[s.Key] ? 'UI.Toggle.On' : 'UI.Toggle.Off'); } catch (e) {}
-                    applySet(s.Key, localState[s.Key], old);
+                    applySet(s.Key, localState[s.Key]);
                 };
             }
             controlUpdaters[s.Key] = (val) => tog.classList.toggle('on', !!val);
@@ -526,10 +504,9 @@
                 // tsic-change too — only publish genuine changes.
                 const newValue = tsic.dropdown.get(dd);
                 if (localState[s.Key] === newValue) return;
-                const old = (s.Key in localState) ? localState[s.Key] : String(v);
                 localState[s.Key] = newValue;
                 try { tsic.playSound('UI.Dropdown.Select'); } catch (e) {}
-                applySet(s.Key, newValue, old);
+                applySet(s.Key, newValue);
             });
             controlUpdaters[s.Key] = (val) => {
                 localState[s.Key] = String(val);
@@ -891,30 +868,6 @@
 
     // ---- Video keep/revert countdown ----
 
-    // Resolution and window mode are reverted by C++, not here: it restores the pair
-    // from the engine's own LastUserConfirmed record. Publishing Sets for them would
-    // race that restore and re-enter the apply path with values the new mode may not
-    // be able to present.
-    const CPP_REVERTED_KEYS = ['video.resolution', 'video.window_mode'];
-
-    // Roll the just-changed video keys back to their pre-change values.
-    function revertVideo() {
-        let needsCppRevert = false;
-        for (const k of Object.keys(videoRevert)) {
-            const old = videoRevert[k];
-            delete videoRevert[k];
-            if (CPP_REVERTED_KEYS.indexOf(k) !== -1) { needsCppRevert = true; continue; }
-            localState[k] = old;
-            publishSet(k, old);
-            if (controlUpdaters[k]) controlUpdaters[k](old);
-        }
-        return needsCppRevert;
-    }
-
-    function keepVideo() {
-        for (const k of Object.keys(videoRevert)) delete videoRevert[k];
-    }
-
     // One popover at a time. `action`: 'keep' | 'revert'.
     // `viaScopePop` is true when the focus scope was already popped (gamepad/
     // Esc Back handled by tsic-focus), so we must not pop it again.
@@ -922,23 +875,21 @@
         const p = activePopover;
         if (!p) return;
         activePopover = null;
-        if (countdownTimer) { clearInterval(countdownTimer); countdownTimer = null; }
         p.el.remove();
         if (!viaScopePop && tsic.focus && tsic.focus.popScope) tsic.focus.popScope();
+        countdownLabel = null;
         if (p.kind !== 'countdown') return;
 
-        // Keep and Revert are different messages, not one 'the countdown ended'
-        // message. An earlier version sent video.confirm on both, which made
-        // Revert confirm the very change it was rejecting -- a slower Keep.
-        if (action === 'keep') {
-            keepVideo();
-            publishAction('video.confirm');
-        } else if (action === 'revert') {
-            // revertVideo publishes the Sets for the non-display video keys itself and
-            // reports whether the display pair was part of the change. Only then is
-            // video.revert sent, so a lone HDR rollback does not move the window.
-            if (revertVideo()) publishAction('video.revert');
-        }
+        // Only an explicit press reports a decision. Keep and Revert are different
+        // messages -- an earlier version sent video.confirm on both, which made Revert
+        // confirm the very change it was rejecting.
+        //
+        // Anything else ('cancel', a popped focus scope) closes the panel and says
+        // nothing: C++ still holds the deadline and will revert on its own. Treating
+        // those as a rejection is what made window-mode changes impossible, because
+        // the window recreation pops the scope every time.
+        if (action === 'keep') publishAction('video.confirm');
+        else if (action === 'revert') publishAction('video.revert');
     }
 
     function popoverButton(id, label, variant, action) {
@@ -981,29 +932,38 @@
         if (tsic.focus && tsic.focus.pushScope) {
             tsic.focus.pushScope(modal, initialBtn, { onPop: () => {
                 if (!activePopover) return; // popped by resolvePopover itself
-                resolvePopover(activePopover.kind === 'countdown' ? 'revert' : 'cancel', true);
+                // 'closed', not 'revert': the scope pops whenever focus leaves the
+                // modal, and recreating the window for a new display mode does that
+                // every time. C++ still holds the deadline.
+                resolvePopover(activePopover.kind === 'countdown' ? 'closed' : 'cancel', true);
             } });
         }
     }
 
-    // A video-mode change just applied: give the player a timed escape hatch.
-    // Runs at most one countdown; further video edits while it's open join its
-    // revert set (applySet) without resetting the timer.
-    function openKeepCountdown() {
-        if (activePopover) return;
-        let remaining = KEEP_COUNTDOWN_SECONDS;
-        const count = document.createElement('b');
-        count.id = 'popover-countdown';
-        count.textContent = String(remaining);
-        const sub = [document.createTextNode('Reverting in '), count, document.createTextNode('s')];
+    // Mirrors C++'s countdown: `seconds` is whatever video.countdown last said.
+    // 0 means nothing is pending, which is also how C++ reports that it resolved the
+    // countdown itself -- on the timeout, or because some other page confirmed it.
+    //
+    // No timer here on purpose. The page cannot time a change that destroys its own
+    // context, and a page that reloads mid-countdown is handed the remaining seconds by
+    // the sticky value replay, so the panel comes straight back.
+    function showKeepCountdown(seconds) {
+        if (seconds <= 0) {
+            if (activePopover && activePopover.kind === 'countdown') resolvePopover('closed', false);
+            return;
+        }
+        if (activePopover && activePopover.kind === 'countdown') {
+            if (countdownLabel) countdownLabel.textContent = String(seconds);
+            return;
+        }
+        if (activePopover) return; // some other panel owns the screen; don't stack
+        countdownLabel = document.createElement('b');
+        countdownLabel.id = 'popover-countdown';
+        countdownLabel.textContent = String(seconds);
+        const sub = [document.createTextNode('Reverting in '), countdownLabel, document.createTextNode('s')];
         const keepBtn = popoverButton('popover-keep', 'Keep changes', '', 'keep');
         const revertBtn = popoverButton('popover-revert', 'Revert', 'secondary', 'revert');
         openPopover('countdown', 'Keep these settings?', sub, [revertBtn, keepBtn], keepBtn);
-        countdownTimer = setInterval(() => {
-            remaining -= 1;
-            if (remaining <= 0) { resolvePopover('revert', false); return; }
-            count.textContent = String(remaining);
-        }, 1000);
     }
 
     // ---- Page / tab plumbing ----
@@ -1319,18 +1279,13 @@
             if (applyResolutionLocked(v)) rebuildPreservingValues();
             return;
         }
-        // A video value can arrive here as a SIDE EFFECT of the player's edit rather
-        // than as an edit of their own: ApplyDisplayMode snaps a request the new mode
-        // cannot present, and echoes back what it actually used. That is part of the
-        // same change, so it joins the same rollback set.
-        //
-        // Guarded on a live countdown, so a normal sticky replay -- which is nobody's
-        // edit -- never becomes a rollback target.
-        if (activePopover && isVideoKey(payload.Key) && !(payload.Key in videoRevert)) {
-            const prev = displayedValueOf(payload.Key);
-            if (prev !== undefined) videoRevert[payload.Key] = prev;
+        // The countdown's remaining seconds, owned by C++. Sticky, so a page that opens
+        // or reloads while one is running gets it immediately -- which is what makes the
+        // panel survive the window recreation that a mode change causes.
+        if (payload.Key === 'video.countdown') {
+            showKeepCountdown(Number(v) || 0);
+            return;
         }
-
         // Authoritative saved value (per-key sticky replay when the screen
         // opens, or a later C++ echo): it moves the control.
         localState[payload.Key] = v;
@@ -1350,8 +1305,8 @@
 
     function onGlobalKey(e) {
         if (activePopover) {
-            // Esc resolves the countdown to its safe action: revert — the same
-            // thing the timeout would do. Mirrors the Back-pop path in openPopover.
+            // Esc is a deliberate press, so it reports Revert — unlike the Back-pop
+            // path in openPopover, which only means focus left the panel.
             if (e.key === 'Escape') {
                 e.preventDefault(); e.stopPropagation();
                 resolvePopover('revert', false);
@@ -1401,11 +1356,6 @@
     tsic.on('tsic.msg.UI.Settings.Value', onValue);
     tsic.on('tsic.msg.UI.Settings.Footer', onFooter);
     window.addEventListener('keydown', onGlobalKey, true);
-    // Leaving the screen mid-countdown means the user never chose Keep — take
-    // the safe path and roll the applied values back before the page goes away.
-    window.addEventListener('pagehide', () => {
-        if (activePopover && activePopover.kind === 'countdown') resolvePopover('revert', true);
-    });
     const backBtn = document.getElementById('btn-back');     if (backBtn)  backBtn.onclick  = goBack;
     const resetBtn = document.getElementById('btn-reset');   if (resetBtn) resetBtn.onclick = doReset;
 })();

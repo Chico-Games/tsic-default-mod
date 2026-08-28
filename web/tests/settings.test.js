@@ -1,3 +1,13 @@
+// The keep/revert countdown is owned by C++ and only displayed by the page (#465):
+// switching window mode recreates the Slate window, and a timer running on the page
+// cannot survive the thing it is timing. Tests therefore drive it the way C++ does,
+// through the sticky video.countdown value.
+async function openCountdown(ctx, seconds) {
+    ctx.inject('tsic.msg.UI.Settings.Value',
+        { Key: 'video.countdown', ValueJson: String(seconds === undefined ? 10 : seconds) });
+    await ctx.waitFor(() => ctx.doc.getElementById('popover-countdown'));
+}
+
 TSICTestHarness.register({
     name: 'Settings: renders catalog groups inside active page',
     file: '/screens/settings.html',
@@ -127,7 +137,8 @@ TSICTestHarness.register({
         // Instant apply: the change reaches C++ immediately...
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Settings.Set',
             { where: p => p.Key === 'video.resolution' && p.ValueJson.includes('2560x1440') }));
-        // ...and the keep/revert escape hatch opens at once.
+        // ...and C++ answers by opening the keep/revert escape hatch.
+        await openCountdown(ctx, 10);
         ctx.expect(ctx.assert.domExists(ctx.doc, '#settings-popover'));
         ctx.expect(ctx.assert.domText(ctx.doc, '#popover-countdown', '10'));
         ctx.clearPublishes();
@@ -145,9 +156,11 @@ TSICTestHarness.register({
         await openVideoTab(ctx);
         const dd = ctx.doc.querySelector('button.tsic-dropdown');
         ctx.win.tsic.dropdown.set(dd, '2560x1440');
-        await ctx.waitFor(() => ctx.doc.getElementById('popover-countdown'));
-        // The countdown is a real timer — one tick moves 10 -> 9.
-        await ctx.waitFor(() => ctx.doc.getElementById('popover-countdown').textContent === '9', { timeout: 2500 });
+        await openCountdown(ctx, 10);
+        // The seconds come from C++, one value message per tick. The page holds no
+        // timer of its own, so this is the only thing that can move the number.
+        ctx.inject('tsic.msg.UI.Settings.Value', { Key: 'video.countdown', ValueJson: '9' });
+        await ctx.waitFor(() => ctx.doc.getElementById('popover-countdown').textContent === '9');
         ctx.clearPublishes();
         ctx.doc.getElementById('popover-revert').click();
 
@@ -246,7 +259,7 @@ TSICTestHarness.register({
         // A later edit still opens the countdown, and reverting it asks C++ to put
         // the display mode back rather than republishing a Set from here.
         ctx.win.tsic.dropdown.set(mode, 'fullscreen');
-        await ctx.waitFor(() => ctx.doc.getElementById('popover-revert'));
+        await openCountdown(ctx);
         ctx.clearPublishes();
         ctx.doc.getElementById('popover-revert').click();
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Settings.Action',
@@ -265,7 +278,7 @@ TSICTestHarness.register({
         // resolution and window mode inside ConfirmVideoMode, and nothing used to call
         // it, so the engine kept pulling the game back to the first-boot auto-detect.
         ctx.win.tsic.dropdown.set(res, '2560x1440');
-        await ctx.waitFor(() => ctx.doc.getElementById('popover-keep'));
+        await openCountdown(ctx);
         ctx.clearPublishes();
         ctx.doc.getElementById('popover-keep').click();
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Settings.Action',
@@ -276,7 +289,7 @@ TSICTestHarness.register({
         // Picking a DIFFERENT value on purpose: re-selecting the current one fires no
         // change and would open no countdown.
         ctx.win.tsic.dropdown.set(res, '1920x1080');
-        await ctx.waitFor(() => ctx.doc.getElementById('popover-revert'));
+        await openCountdown(ctx);
         ctx.clearPublishes();
         ctx.doc.getElementById('popover-revert').click();
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Settings.Action',
@@ -284,6 +297,48 @@ TSICTestHarness.register({
         const confirms = ctx.publishes().filter(
             (m) => m.channel === 'UI.Cmd.Settings.Action' && m.payload && m.payload.Key === 'video.confirm');
         ctx.expect(confirms.length === 0 ? null : 'Revert must not also confirm the rejected change');
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Settings: losing the focus scope is not a Revert (#465)',
+    file: '/screens/settings.html',
+    async run(ctx) {
+        await openForcedModeTab(ctx);
+        ctx.win.tsic.dropdown.set(
+            ctx.doc.querySelector('button.tsic-dropdown[data-key="video.window_mode"]'), 'fullscreen');
+        await openCountdown(ctx);
+        ctx.clearPublishes();
+
+        // Back pops the modal focus scope. So does recreating the Slate window, which
+        // is exactly what applying a new window mode does -- so the page saw a pop one
+        // frame after every switch and reported Revert, making borderless and
+        // fullscreen unreachable from windowed. A pop closes the panel and says
+        // nothing; C++ still holds the deadline.
+        ctx.inject('tsic.msg.UI.Behavior.Back', { Phase: 'Started' });
+        await ctx.waitFor(() => !ctx.doc.getElementById('settings-popover'));
+
+        const actions = ctx.publishes().filter((m) => m.channel === 'UI.Cmd.Settings.Action');
+        ctx.expect(actions.length === 0
+            ? null : 'a popped scope must not report a decision, got ' + JSON.stringify(actions.map(a => a.payload)));
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Settings: a countdown already running is picked up on load (#465)',
+    file: '/screens/settings.html',
+    async run(ctx) {
+        await openForcedModeTab(ctx);
+
+        // video.countdown is sticky, so a page that loads mid-countdown is handed the
+        // remaining seconds. That is what lets the panel come back after the window
+        // recreation a mode change causes, instead of the change silently standing.
+        await openCountdown(ctx, 4);
+        ctx.expect(ctx.assert.domText(ctx.doc, '#popover-countdown', '4'));
+
+        // 0 is how C++ reports it resolved the countdown itself, on the timeout.
+        ctx.inject('tsic.msg.UI.Settings.Value', { Key: 'video.countdown', ValueJson: '0' });
+        await ctx.waitFor(() => !ctx.doc.getElementById('settings-popover'));
     },
 });
 
@@ -475,7 +530,8 @@ TSICTestHarness.register({
             ctx.doc.querySelector('button.tsic-dropdown[data-key="video.window_mode"]'), 'windowed');
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Settings.Set',
             { where: p => p.Key === 'video.window_mode' && p.ValueJson === '"windowed"' }));
-        // video.* is a display-mode change — the keep/revert countdown must open.
+        // video.* is a display-mode change, so C++ opens the keep/revert countdown.
+        await openCountdown(ctx, 10);
         ctx.expect(ctx.assert.domExists(ctx.doc, '#settings-popover'));
         ctx.doc.getElementById('popover-keep').click();
     },
