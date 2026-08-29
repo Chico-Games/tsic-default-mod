@@ -74,13 +74,6 @@
     renderScale: 0.75,     // canvas backing-store scale; upscaled via CSS —
                            // the soft ink look tolerates sub-native res and
                            // it cuts raster cost quadratically
-    // Mount showing the settled maze and never start the rAF loop. The menu
-    // backdrop uses this: an animated full-screen canvas costs ~19ms/frame of
-    // CPU raster and holds the whole page repainting, whereas a still backdrop
-    // lets the page reach the engine's clean-frame path (<0.4ms/frame). See
-    // docs/systems/canvas.md (GPU canvas) and BLK-063 for why the animated
-    // form cannot be made cheap on the CPU canvas today.
-    startFrozen: false,
   };
 
   var DX = [0, 1, 0, -1], DY = [-1, 0, 1, 0];   // N E S W
@@ -129,7 +122,7 @@
     var u = 1;                // sweep progress; 1 = resting on plan B
     var flip = false;         // alternates the sweep's overall direction
     var walkers = [];
-    var alive = true, frozen = !!o.startFrozen, rafId = 0, rsTimer = 0, lastDraw = -1e9, lastNow = 0;
+    var alive = true, frozen = false, rafId = 0, rsTimer = 0, lastDraw = -1e9, lastNow = 0;
     // Walls ordered by their projection onto the current sweep direction — see
     // buildWallOrder(). Rebuilt once per cycle; the frame loop reads the band
     // straight out of it instead of rescanning every wall in the grid.
@@ -746,7 +739,6 @@
     // pages that never load it — those keep full motion, which is the default).
     (function bindReduceMotion() {
       if (!alive) return;
-      if (o.startFrozen) return;   // a permanently-still backdrop ignores the toggle
       if (global.TSIC && typeof global.TSIC.onReduceMotion === 'function') {
         global.TSIC.onReduceMotion(setFrozen);
         return;
