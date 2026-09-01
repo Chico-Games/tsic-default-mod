@@ -4,9 +4,9 @@
                      {
                          "version":  "2.0.1",
                          "channel":  "Alpha",
-                         "sha":  "c09bf0ed05",
-                         "date":  "2026-08-28",
-                         "title":  "Now With 99.9% Reduced Time Between Patches!",
+                         "sha":  "04114f354c",
+                         "date":  "2026-09-01",
+                         "title":  "Now With 99.7% Reduced Time Between Patches!",
                          "entries":  [
                                          {
                                              "type":  "qol",
