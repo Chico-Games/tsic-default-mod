@@ -57,7 +57,7 @@ TSICTestHarness.register({
 });
 
 TSICTestHarness.register({
-    name: 'Welcome notice: masthead reads channel + version, and the SHA is the seen-flag',
+    name: 'Welcome notice: masthead reads channel + version, and the name is the seen-flag',
     file: '/screens/test-welcome-notice.html',
     async run(ctx) {
         stubFetch(ctx, () => okJson(FIXTURE));
@@ -67,9 +67,29 @@ TSICTestHarness.register({
             ctx.doc.querySelector('.tsic-masthead-date').textContent,
             'Alpha 2.0.1 · 28 Aug 2026'));
 
-        // The identity is the SHA, never the version: a forgotten version bump
-        // must not silently re-show or suppress the bulletin.
-        ctx.expect(ctx.assert.eq(ctx.doc.defaultView.TSIC.WelcomeNotice.noticeVersion(), 'aaa1111'));
+        // The identity is the release NAME, not the SHA: the recorded SHA is
+        // stamped at cut time and re-stamped by every amend, so keying on it
+        // re-showed the bulletin for rebuilds with nothing new in them.
+        ctx.expect(ctx.assert.eq(
+            ctx.doc.defaultView.TSIC.WelcomeNotice.noticeVersion(), 'Alpha 2.0.1'));
+    },
+});
+
+TSICTestHarness.register({
+    name: 'Welcome notice: the seen-flag survives a re-stamped SHA',
+    file: '/screens/test-welcome-notice.html',
+    async run(ctx) {
+        // The same release, amended: new SHA, new date, same version. A player
+        // who has seen it must not be shown it again - this is the whole reason
+        // the identity moved off the SHA.
+        const amended = JSON.parse(JSON.stringify(FIXTURE));
+        amended.releases[0].sha = 'zzz9999';
+        amended.releases[0].date = '2026-09-01';
+        stubFetch(ctx, () => okJson(amended));
+        await ctx.doc.defaultView.TSIC.WelcomeNotice.show();
+
+        ctx.expect(ctx.assert.eq(
+            ctx.doc.defaultView.TSIC.WelcomeNotice.noticeVersion(), 'Alpha 2.0.1'));
     },
 });
 
@@ -84,6 +104,11 @@ TSICTestHarness.register({
         ctx.expect(ctx.assert.eq(
             ctx.doc.querySelector('.tsic-masthead-date').textContent,
             'Build bbb2222 · 15 Aug 2026'));
+
+        // With no version there is nothing else to key on, so the identity is
+        // still the SHA for these - the one case the old behaviour survives.
+        ctx.expect(ctx.assert.eq(
+            ctx.doc.defaultView.TSIC.WelcomeNotice.noticeVersion(), 'Build bbb2222'));
     },
 });
 

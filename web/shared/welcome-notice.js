@@ -8,10 +8,33 @@
 // release file and re-run the release step; to add one for work in flight, use
 // `./Scripts/changelog.ps1 add`. See docs/changelog-style.md.
 //
-// VERSION: the "already seen" identity is the newest release's short SHA, not
-// its semver. A SHA changes exactly when the build changes and never by
-// accident, whereas a forgotten version bump would silently re-show - or fail
-// to re-show - the bulletin. The semver is display only.
+// VERSION: the "already seen" identity is the newest release's NAME - the same
+// "Alpha 2.0.1" the masthead prints - and not its SHA.
+//
+// It was the SHA until 2026-09-01, on the reasoning that a SHA changes exactly
+// when the build changes while a forgotten version bump would silently re-show
+// the bulletin. The first half of that is not true of the SHA we record.
+// changelog.ps1 stamps `git rev-parse HEAD` at the moment a release is CUT, and
+// a commit cannot contain its own hash, so the recorded SHA is always at least
+// one commit behind the build and is re-stamped by every amend. Alpha 2.0.1 was
+// re-stamped three times without a byte of gameplay changing; a patch cut the
+// day before it ships names a commit that was never built. So it identified
+// neither the build nor the release, and re-showed the bulletin on rebuilds
+// that had nothing new to say.
+//
+// The version cannot be forgotten the way that argument feared: `changelog.ps1
+// release` takes it as a required argument and writes releases/<version>.json,
+// so re-using a number collides with an existing file rather than passing
+// silently. What this does give up is an amend AFTER players have seen a
+// release - those entries stay unseen, and the next patch number is how you
+// force a re-show. A shipped release is frozen anyway.
+//
+// The SHA stays in the record for crash symbolication, which is the job it can
+// actually do. Backfilled builds carry no version and still fall back to it -
+// see releaseName(), which is the single source of this identity.
+//
+// One-off on the switchover: an existing ui.welcome_seen holds a SHA, which
+// matches no name, so every player sees the bulletin once more. Intended.
 //
 // PERSISTENCE: the "already seen" flag rides on the ui.welcome_seen setting,
 // which is written through UI.Cmd.Settings.Set and read back off the sticky
@@ -54,11 +77,14 @@
 
     const latest = () => (DATA && DATA.releases.length) ? DATA.releases[0] : null;
 
-    // The seen-flag identity. Null until load() resolves, which is why every
-    // caller waits on the promise rather than reading this at module scope.
+    // The seen-flag identity: the release's name, so it changes once per release
+    // and not once per rebuild. Deliberately the same string the masthead shows,
+    // so what the player is told they have seen is what gets recorded. Null
+    // until load() resolves, which is why every caller waits on the promise
+    // rather than reading this at module scope.
     function noticeVersion() {
         const r = latest();
-        return r ? r.sha : null;
+        return r ? releaseName(r) : null;
     }
 
     // "25 Aug 2026" from an ISO date, without pulling in a formatter.
@@ -76,6 +102,11 @@
     // the channel at launch needs no other change. A backfilled build predates
     // the versioning scheme and carries no number, so it falls back to the SHA,
     // which is exactly what this line read before.
+    //
+    // This is BOTH the masthead line and the seen-flag identity (noticeVersion).
+    // Changing what it returns re-shows the bulletin once for every player, so
+    // treat it as a released surface rather than a formatting helper - dropping
+    // the channel at launch is exactly such a change, and costs one re-show.
     function releaseName(r) {
         if (!r) return '';
         if (!r.version) return 'Build ' + r.sha;
