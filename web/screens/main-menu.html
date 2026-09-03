@@ -494,12 +494,6 @@
           Leave the Store
           <span class="tsic-row-pg">END</span>
         </button>
-        <!-- Dev/testing only: revealed by UI.State.DevMode's bEditor flag (PIE only). -->
-        <button class="tsic-row-button" id="btn-dev-join" style="display:none">
-          <span class="tsic-row-dept">Dev</span>
-          Join Game (Dev)
-          <span class="tsic-row-pg">DEV</span>
-        </button>
       </div>
     </div>
   </div>
@@ -1152,18 +1146,6 @@
         document.getElementById('btn-credits').onclick  = nav('Credits');
         document.getElementById('btn-exit').onclick     = () =>
           tsic.publishMessage('UI.Cmd.Menu.Exit', {});
-
-        // Dev/testing: reveal + wire the "Join Game (Dev)" button. Editor only
-        // (PIE) - a packaged build, Development included, must never show it, so
-        // this gates on bEditor. The UI.State.DevMode flag is cached, so this
-        // fires with the current value as soon as we subscribe.
-        var devJoin = document.getElementById('btn-dev-join');
-        if (devJoin) {
-          devJoin.onclick = () => tsic.publishMessage('UI.Cmd.Dev.JoinGame', {});
-          tsic.on('tsic.msg.UI.State.DevMode', (p) => {
-            devJoin.style.display = (p && p.bEditor) ? '' : 'none';
-          });
-        }
 
         // Shader precompile gate (issue #230) — hold New Game while the bundled PSO
         // cache is still compiling.

@@ -56,9 +56,7 @@
           <button class="tsic-button" style="width:100%; margin-top:8px;" id="btn-teleport-spawn">I'm stuck (Teleport to spawn point)</button>
           <button class="tsic-button" style="width:100%; margin-top:8px;" id="btn-menu">Save and Return to Main Menu</button>
           <button class="tsic-button" style="width:100%; margin-top:8px;" id="btn-quit">Save and Quit</button>
-          <!-- Dev/testing only, revealed by UI.State.DevMode: join is bEditor (PIE only), cheats bDevBuild (non-shipping). -->
-
-          <button class="tsic-button" style="width:100%; margin-top:8px; display:none;" id="btn-dev-join">Join Game (Dev)</button>
+          <!-- Dev/testing only, revealed by UI.State.DevMode's bDevBuild (non-shipping). -->
           <button class="tsic-button" style="width:100%; margin-top:8px; display:none;" id="btn-dev-cheats">Cheat Menu (F1)</button>
         </div>
         <div class="mp" id="mp">
@@ -229,18 +227,13 @@
       // the same path as the main menu's Fire Exit, minus the trip through it.
       root.querySelector('#btn-quit').onclick       = () => ctx.publish('UI.Cmd.Menu.Exit');
 
-      // Dev/testing: reveal + wire the "Join Game (Dev)" button. Destroys this
-      // instance's own session (if hosting) then finds + joins the host. Editor
-      // only (PIE) - it must not show up in a packaged build, Development
-      // included, so it gates on bEditor rather than bDevBuild.
-      const devJoin = root.querySelector('#btn-dev-join');
+      // Dev/testing: reveal + wire the cheat menu button. Non-shipping builds
+      // only, so it gates on bDevBuild.
       const devCheats = root.querySelector('#btn-dev-cheats');
-      if (devCheats) devCheats.onclick = () => ctx.publish('UI.Cmd.Pause.CheatMenu');
-      if (devJoin) devJoin.onclick = () => ctx.publish('UI.Cmd.Dev.JoinGame');
-      if (devJoin || devCheats) {
+      if (devCheats) {
+        devCheats.onclick = () => ctx.publish('UI.Cmd.Pause.CheatMenu');
         ctx.on('tsic.msg.UI.State.DevMode', (p) => {
-          if (devJoin) devJoin.style.display = (p && p.bEditor) ? '' : 'none';
-          if (devCheats) devCheats.style.display = (p && p.bDevBuild) ? '' : 'none';
+          devCheats.style.display = (p && p.bDevBuild) ? '' : 'none';
         });
       }
     },
