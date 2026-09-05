@@ -1,4 +1,4 @@
-// shared/guide-catalog.js — content for the Overview handbook (hold Tab).
+// shared/guide-catalog.js — content for the Overview handbook (Tab).
 //
 // The C++ tutorial system owns WHETHER a step is done; this file owns what a
 // step LOOKS like — which chapter it belongs to, how it is phrased, which

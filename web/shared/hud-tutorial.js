@@ -59,7 +59,7 @@
     '#hud-tutorial .tut-header-right { display:flex; align-items:center; gap:6px; }',
 
     // "MORE [TAB]" — the only signpost the Overview screen has. Without it the
-    // handbook is a hold-to-open panel nobody is told about, so this rides the
+    // handbook is a panel nobody is told about, so this rides the
     // one HUD element that is already about objectives.
     '#hud-tutorial .tut-more { display:flex; align-items:center; gap:4px; opacity:0.7;',
     '  font-family:var(--font-body); font-size:clamp(9px, 0.85vh, 12px); font-weight:800;',
@@ -216,7 +216,7 @@
     root = document.getElementById('hud-tutorial');
     if (!root) return false;
 
-    var more = el('span', { class: 'tut-more', title: 'Hold Tab for the full handbook' }, 'More');
+    var more = el('span', { class: 'tut-more', title: 'Press Tab for the full handbook' }, 'More');
     if (window.TSIC && TSIC.keyIconUrl) {
       var keyUrl = TSIC.keyIconUrl('Tab');
       if (keyUrl) {

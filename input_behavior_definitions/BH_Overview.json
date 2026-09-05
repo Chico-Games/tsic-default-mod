@@ -4,7 +4,7 @@
   "properties": {
     "behavior_tag_name": "Input.Behavior.Overview",
     "display_name": "Overview",
-    "description": "Hold to read the handbook and see who is on shift.",
+    "description": "Open the handbook and see who is on shift. Press again or Esc to close.",
     "hotkey": "HK_Overview",
     "trigger_type": 0,
     "show_on_action_bar": false,

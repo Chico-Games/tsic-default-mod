@@ -1,4 +1,4 @@
-// Overview screen (shared/screens/overview.js) — the hold-Tab handbook + shift roster.
+// Overview screen (shared/screens/overview.js) — the Tab-toggled handbook + shift roster.
 //
 // Loaded through /screens/in-game.html rather than an isolated page: the screen is mounted
 // by screen-manager into the real shell, and the solo/multiplayer switch is a property of

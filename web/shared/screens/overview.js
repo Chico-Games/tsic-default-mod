@@ -1,10 +1,11 @@
-// Overview screen module — the hold-Tab handbook + shift roster.
+// Overview screen module — the Tab-toggled handbook + shift roster.
 //
 // Registered with TSIC.registerScreen and mounted as an overlay by
-// shared/screen-manager.js. Opened and closed entirely from C++
-// (UOverviewControllerComponent, off Input.Behavior.Overview), so unlike every
-// other screen this one has no Back wiring and no input-mode tag of its own:
-// the component owns the input situation for exactly as long as the key is down.
+// shared/screen-manager.js. Opened and closed from C++ (UOverviewControllerComponent,
+// off Input.Behavior.Overview — one press opens, the next closes), so unlike every
+// other screen this one has no input-mode tag of its own: the component owns the
+// input situation for as long as the screen is up. Escape goes back through
+// UI.Cmd.Overview.Close so the same component does the closing.
 //
 // Two panels. The left one is always there — the handbook, built from
 // shared/guide-catalog.js for the wording and artwork and from UI.Tutorial.State
@@ -255,7 +256,7 @@
     +         '<div class="ov-session-text"><span id="ov-session-day">Day 1</span>'
     +           '<div class="ov-session-sub" id="ov-session-sub">&nbsp;</div>'
     +         '</div>'
-    +         '<div class="ov-hold"><img id="ov-hold-key" alt="Tab"><span>Hold to keep this open</span></div>'
+    +         '<div class="ov-hold"><img id="ov-hold-key" alt="Tab"><span>or Esc to close</span></div>'
     +       '</div>'
     +     '</section>'
     +     '<aside id="ov-roster" class="tsic-panel ov-panel">'
@@ -832,12 +833,12 @@
   TSIC.registerScreen('Overview', {
     template: TEMPLATE,
     // No inputModeTag: UOverviewControllerComponent owns the input situation for
-    // the length of the hold, so the player keeps walking and nothing here can
-    // strand a mode tag if the screen is taken away mid-hold.
+    // as long as the screen is up, so the player keeps walking and nothing here can
+    // strand a mode tag if the screen is taken away underneath it.
     //
-    // No cancelCmd either — Back is not even listened for in this situation, and
-    // the only way out is releasing the key.
-    cancelCmd: null,
+    // Escape is routed to the same component rather than the generic Pause.Resume,
+    // because only that side pops the input situation it pushed.
+    cancelCmd: 'UI.Cmd.Overview.Close',
     screenSoundOpen: 'UI.Open',
     screenSoundClose: 'UI.Back',
 

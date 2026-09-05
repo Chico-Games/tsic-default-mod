@@ -27,6 +27,28 @@
             "z": 4.0
           }
         }
+      },
+      {
+        "actor": "/Script/TSIC.ScpEquipmentLightActor",
+        "attach_socket": "hand_l_weapon",
+        "attach_transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 1.0
+          },
+          "translation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 12.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
       }
     ],
     "equipped_layer_class": "/Game/Items/Equipment/Weapons/SledgeHammer/Blueprints/ABP_SledgeHammer.ABP_SledgeHammer_C",
