@@ -76,6 +76,19 @@
       letter-spacing: 0.10em;
       text-transform: uppercase;
     }
+    /* "Hunted by" stamp: which pursuer this store was opened with. */
+    .slot-hunted {
+      align-self: flex-start;
+      margin-top: 2px;
+      padding: 1px 6px;
+      font-family: var(--font-terminal);
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--paper-cream);
+      background: var(--ink-night);
+    }
+    .slot-hunted[data-hunt="snail"] { background: var(--mag-red); }
     .slot-delete {
       padding: 4px 10px;
       font-family: var(--font-body);
@@ -199,6 +212,14 @@
           playtime.className = 'slot-playtime';
           playtime.textContent = `Playtime ${formatPlaytime(s.PlaytimeSeconds)}`;
           meta.append(opened, playtime);
+          const HUNT_LABELS = { snail: 'Hunted by the Snail · Ironman', ghost: 'Hunted by the Spoon Ghost' };
+          if (s.HuntedMode && HUNT_LABELS[s.HuntedMode]) {
+            const hunted = document.createElement('span');
+            hunted.className = 'slot-hunted';
+            hunted.dataset.hunt = s.HuntedMode;
+            hunted.textContent = HUNT_LABELS[s.HuntedMode];
+            meta.appendChild(hunted);
+          }
 
           // Two-step in-page confirm: native confirm() escapes the CEF
           // texture (no JS-dialog handler is bound up the WebUI chain).

@@ -77,6 +77,39 @@
     }
     #seed-input[data-tsic-focused] { border-color: var(--mag-red); }
 
+    /* Hunted-by picker — three ink chips, the chosen one in magazine red. */
+    .hunt-seg { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+    .hunt-opt {
+      padding: 8px 10px;
+      background: var(--paper-bright);
+      color: var(--ink-night);
+      border: 2px solid var(--ink-night);
+      box-shadow: var(--shadow-block-sm);
+      font-family: var(--font-display);
+      font-size: 14px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      cursor: pointer;
+      text-align: left;
+    }
+    .hunt-opt small {
+      display: block;
+      font-family: var(--font-body);
+      font-size: 11px;
+      letter-spacing: 0.02em;
+      text-transform: none;
+      color: var(--ink-soft);
+      margin-top: 2px;
+    }
+    .hunt-opt:hover,
+    .hunt-opt[data-tsic-focused] { border-color: var(--mag-red); }
+    .hunt-opt[aria-pressed="true"] {
+      background: var(--ink-night);
+      color: var(--paper-cream);
+    }
+    .hunt-opt[aria-pressed="true"] small { color: rgba(240, 232, 208, 0.75); }
+    .hunt-opt[data-hunt="snail"][aria-pressed="true"] { background: var(--mag-red); border-color: var(--mag-red); }
+
     /* Two-pane mod picker. */
     .mods-split { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .mods-panel {
@@ -189,6 +222,23 @@
                placeholder="Leave blank for a random store" data-tsic-focusable>
         <span class="ns-hint">The same seed always builds the same store — share it to play someone else's.</span>
 
+        <label class="ns-label">Hunted By</label>
+        <div class="hunt-seg" id="hunt-seg" role="radiogroup">
+          <button type="button" class="hunt-opt" data-hunt="" aria-pressed="true" data-tsic-focusable>
+            Nobody
+            <small>The usual store.</small>
+          </button>
+          <button type="button" class="hunt-opt" data-hunt="ghost" aria-pressed="false" data-tsic-focusable>
+            Spoon Ghost
+            <small>Flies through walls. 1 damage every 3s while it touches you.</small>
+          </button>
+          <button type="button" class="hunt-opt" data-hunt="snail" aria-pressed="false" data-tsic-focusable>
+            The Snail
+            <small>Ironman. One touch kills you and deletes the store.</small>
+          </button>
+        </div>
+        <span class="ns-hint" id="hunt-hint">Nothing is hunting you. Yet.</span>
+
         <label class="ns-label">Active Mods</label>
         <div class="mods-split">
           <div class="mods-panel" data-tsic-focus-group="mods-enabled">
@@ -223,6 +273,21 @@
       let mods = [];
       let order = [];
       let selectedLayout = null;
+      let huntedMode = '';
+
+      const HUNT_HINTS = {
+        '':      'Nothing is hunting you. Yet.',
+        'ghost': 'A ghost with a spoon drifts after you, slow but tireless. You can die and come back.',
+        'snail': 'The snail is slow. The snail does not stop. Die once and this store is deleted.',
+      };
+      function setHuntedMode(mode) {
+        huntedMode = mode in HUNT_HINTS ? mode : '';
+        document.querySelectorAll('#hunt-seg .hunt-opt').forEach(b => {
+          b.setAttribute('aria-pressed', String((b.dataset.hunt || '') === huntedMode));
+        });
+        const hint = document.getElementById('hunt-hint');
+        if (hint) hint.textContent = HUNT_HINTS[huntedMode];
+      }
 
       // Map registry iteration order is arbitrary — impose ours: the flagship
       // "Durham Furniture" store first (it becomes the default selection), then
@@ -374,6 +439,10 @@
           tsic.on('tsic.msg.UI.Mod.InstalledList', (p) => { mods    = (p && p.Mods)    || []; renderMods(); });
           tsic.on('tsic.msg.UI.Mod.LoadOrder',     (p) => { order   = (p && p.Order)   || []; renderMods(); });
 
+          document.querySelectorAll('#hunt-seg .hunt-opt').forEach(b => {
+            b.addEventListener('click', () => setHuntedMode(b.dataset.hunt || ''));
+          });
+
           tsic.onClick('#btn-back',     () => tsic.publishMessage('UI.Cmd.Menu.Navigate', { Screen: 'MainMenu' }));
           tsic.onClick('#link-manage',  () => tsic.publishMessage('UI.Cmd.Menu.Navigate', { Screen: 'Mods' }));
           tsic.onClick('#btn-create',   () => {
@@ -387,6 +456,7 @@
               PlayerName: '',
               LayoutId: selectedLayout,
               Seed: seedEl ? seedEl.value.trim() : '',
+              HuntedMode: huntedMode,
               EnabledMods: enabledMods,
               LoadOrder: order,
             });
