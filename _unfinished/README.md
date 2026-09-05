@@ -26,3 +26,23 @@ definition already names, then move all three of its files back into the
 matching `*_definitions/` folder at the pack root. `TSIC.AI.V2.EnemyPackIntegrity`
 fails if a live enemy definition names a class that is not on disk, so nothing
 can drift back into the state this folder exists to prevent.
+
+## equippable_definitions / static_item_definitions / craft_recipe_definitions
+
+Four melee weapons whose definitions were authored but whose content never was:
+no mesh, no ability set, not even a `Content/Items/Equipment/Weapons/<name>/`
+folder. Live, each one loaded with two `unresolved asset ref` warnings, could be
+crafted or found as a labelled cardboard box that cannot swing, and failed
+`TSIC.Showcase.MuseumCoverage` ("no resolvable preview mesh") on every run.
+
+| Equippable | World form | Recipe |
+|---|---|---|
+| `ID_ContainmentBaton_EQ` | `FD_ContainmentBaton_SI` | — |
+| `ID_FireAxe_EQ` | `FD_FireAxe_SI` | `RD_FireAxe_CR` |
+| `ID_MeatCleaver_EQ` | `FD_MeatCleaver_SI` | `RD_MeatCleaver_CR` |
+| `ID_SteelPipe_EQ` | `FD_SteelPipe_SI` | `RD_SteelPipe_CR` |
+
+To finish one: build it per `docs/melee-weapon-setup-guide.md` (mesh under the
+weapon's `Content/` folder, an `AS_<Name>` ability set, montages with hitbox
+notifies), then move its three files back to the pack root. `ID_Crowbar_EQ`
+stays live: it has a mesh (`SM_Crowbar`) but still no ability set.
