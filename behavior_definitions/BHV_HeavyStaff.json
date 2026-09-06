@@ -158,6 +158,7 @@
             "seconds": 8
           }
         ],
+        "hold_seconds": 30,
         "actions": [
           {
             "do": "run_skill",
