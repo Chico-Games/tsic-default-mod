@@ -559,8 +559,28 @@
         const wx = bounds.maxX - ly / PX_PER_CM;
         return { wx, wy };
       }
+      // Chromium keeps a will-change:transform layer's raster scale across transform
+      // updates — that is the point of the promotion, no re-raster per drag frame. A
+      // one-jump zoom OUT then leaves the world-sized layer rasterised at the OLD, larger
+      // scale while the whole of it is on screen: 40000px of world at 6x is billions of
+      // pixels, the tile budget blows ("tile memory limits exceeded") and the renderer
+      // stalls for tens of seconds — long enough for CEF to kill the render process and
+      // silently reload the page (the map "closed by itself"). Drop the promotion for the
+      // frame of any large zoom-out so the layer re-rasters at the new scale, then
+      // re-promote for panning.
+      let appliedScale = 1;
+      let repromoteHandle = 0;
       function applyTransform() {
-        qs('#map-content').style.transform =
+        const c = qs('#map-content');
+        if (state.scale < appliedScale * 0.5) {
+          c.style.willChange = 'auto';
+          if (repromoteHandle) cancelAnimationFrame(repromoteHandle);
+          repromoteHandle = requestAnimationFrame(() => {
+            repromoteHandle = requestAnimationFrame(() => { repromoteHandle = 0; c.style.willChange = ''; });
+          });
+        }
+        appliedScale = state.scale;
+        c.style.transform =
           `translate(${state.panX}px, ${state.panY}px) scale(${state.scale})`;
       }
       // Cached viewport size. clientWidth/Height on #map-viewport are layout
