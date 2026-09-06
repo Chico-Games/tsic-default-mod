@@ -117,9 +117,7 @@
         }
       }
     ],
-    "ability_sets_to_grant": [
-      "/Game/Items/Equipment/Armor/MetalArmor/Chestplate/AbilitySets/AS_MetalArmor_Chestplate.AS_MetalArmor_Chestplate"
-    ],
+    "ability_sets_to_grant": [],
     "effects_to_apply": {
       "b_apply_heal_per_second": false,
       "heal_per_second": 0.0,
