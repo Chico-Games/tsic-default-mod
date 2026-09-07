@@ -30,6 +30,52 @@ TSICTestHarness.register({
 });
 
 TSICTestHarness.register({
+    name: 'NewStore: Mode dropdown lists the pack\'s modes in C++ order, first preselected, hint follows',
+    file: '/screens/new-store.html',
+    async run(ctx) {
+        ctx.inject('tsic.msg.UI.Menu.GameModes', { Modes: [
+            { Id: 'GM_Classic', DisplayName: 'Classic', Hint: 'The usual store.', bEndsRunOnDeath: false, bHasHunter: false },
+            { Id: 'GM_Ironman', DisplayName: 'Ironman', Hint: 'One death ends the store.', bEndsRunOnDeath: true, bHasHunter: false },
+            { Id: 'GM_Snail',   DisplayName: 'Snail',   Hint: 'The snail is coming.', bEndsRunOnDeath: true, bHasHunter: true },
+        ]});
+        await new Promise(r => setTimeout(r, 120));
+        const dd = ctx.doc.getElementById('mode-dd');
+        const opts = JSON.parse(dd.getAttribute('data-tsic-options') || '[]');
+        ctx.expect(ctx.assert.eq(opts.map(o => o.value).join('|'), 'GM_Classic|GM_Ironman|GM_Snail'));
+        ctx.expect(ctx.assert.eq(dd.getAttribute('data-tsic-value'), 'GM_Classic'));
+        ctx.expect(ctx.assert.eq(dd.dataset.endsRun, 'false'));
+        ctx.expect(ctx.assert.domText(ctx.doc, '#mode-hint', 'The usual store.'));
+
+        dd.dispatchEvent(new ctx.win.CustomEvent('tsic-change', { detail: { value: 'GM_Snail' }, bubbles: true }));
+        await new Promise(r => setTimeout(r, 30));
+        ctx.expect(ctx.assert.eq(dd.dataset.endsRun, 'true'));
+        ctx.expect(ctx.assert.domText(ctx.doc, '#mode-hint', 'The snail is coming.'));
+    },
+});
+
+TSICTestHarness.register({
+    name: 'NewStore: Create sends the chosen GameModeId and needs both a map and a mode',
+    file: '/screens/new-store.html',
+    async run(ctx) {
+        const create = ctx.doc.getElementById('btn-create');
+        ctx.inject('tsic.msg.UI.Menu.Layouts', { Layouts: [{ LayoutId: 'Durham Furniture', DisplayName: 'Durham Furniture', ThumbnailUrl: '' }] });
+        await new Promise(r => setTimeout(r, 60));
+        ctx.expect(ctx.assert.truthy(create.disabled, 'no mode yet: Create stays disabled'));
+        ctx.inject('tsic.msg.UI.Menu.GameModes', { Modes: [
+            { Id: 'GM_Classic', DisplayName: 'Classic', Hint: '', bEndsRunOnDeath: false, bHasHunter: false },
+            { Id: 'GM_Ironman', DisplayName: 'Ironman', Hint: '', bEndsRunOnDeath: true, bHasHunter: false },
+        ]});
+        await new Promise(r => setTimeout(r, 60));
+        ctx.expect(ctx.assert.truthy(!create.disabled, 'map + mode: Create enabled'));
+        const dd = ctx.doc.getElementById('mode-dd');
+        dd.dispatchEvent(new ctx.win.CustomEvent('tsic-change', { detail: { value: 'GM_Ironman' }, bubbles: true }));
+        ctx.clearPublishes();
+        create.click();
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Menu.StartGame', { where: p => p.GameModeId === 'GM_Ironman' && p.LayoutId === 'Durham Furniture' }));
+    },
+});
+
+TSICTestHarness.register({
     name: 'MainMenu: Exit publishes Menu.Exit',
     file: '/screens/main-menu.html',
     async run(ctx) {

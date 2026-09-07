@@ -40,6 +40,7 @@
           You Died.
         </div>
         <p class="tsic-death-subtitle" id="death-cause">The Store has taken you. Your loved one remains lost.</p>
+        <p class="tsic-death-subtitle" id="run-ended" hidden></p>
       </div>
       <div class="tsic-cover-rows" data-tsic-focus-group="nav">
         <button class="tsic-row-button" id="btn-respawn" data-tsic-initial-focus>
@@ -72,6 +73,16 @@
         tsic.on('tsic.msg.UI.DeathScreen.Shown', (p) => {
           const cause = document.getElementById('death-cause');
           if (cause && p && p.DeathMessage) cause.textContent = p.DeathMessage;
+          // An end-run mode (Ironman, Snail): the host is already counting down to the
+          // menu, so a Respawn button would be a lie. Say why instead and leave Quit.
+          const ended = !!(p && p.bRunEnded);
+          const respawn = document.getElementById('btn-respawn');
+          const line = document.getElementById('run-ended');
+          if (respawn) respawn.hidden = ended;
+          if (line) {
+            line.hidden = !ended;
+            line.textContent = ended ? (p.RunEndedMessage || 'The run is over.') : '';
+          }
         });
       }, { escape: false, closeButton: false }));
     })();

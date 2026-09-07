@@ -17,3 +17,21 @@ TSICTestHarness.register({
             { where: p => p.SlotId === 's1' }));
     },
 });
+
+TSICTestHarness.register({
+    name: 'SaveLoad: mode stamp reads the resolved definition; Classic shows none; a missing mod shows the raw id',
+    file: '/screens/save-load.html',
+    async run(ctx) {
+        ctx.inject('tsic.msg.UI.Save.Slots', { Slots: [
+            { SlotId: 'a', Label: 'A', TimestampIso: '', PlaytimeSeconds: 0, GameModeId: 'GM_Snail', GameModeDisplayName: 'Snail', bEndsRunOnDeath: true },
+            { SlotId: 'b', Label: 'B', TimestampIso: '', PlaytimeSeconds: 0, GameModeId: 'GM_Classic', GameModeDisplayName: 'Classic', bEndsRunOnDeath: false },
+            { SlotId: 'c', Label: 'C', TimestampIso: '', PlaytimeSeconds: 0, GameModeId: 'GM_Hound', GameModeDisplayName: '', bEndsRunOnDeath: false },
+        ]});
+        await ctx.waitFor(() => ctx.doc.querySelectorAll('.slot-mode').length >= 2);
+        const stamps = Array.from(ctx.doc.querySelectorAll('.slot-mode')).map(e => e.textContent);
+        ctx.expect(ctx.assert.eq(stamps.length, 2, 'Classic carries no stamp'));
+        ctx.expect(ctx.assert.eq(stamps[0], 'Snail · Ironman'));
+        ctx.expect(ctx.assert.eq(stamps[1], 'GM_Hound · mod missing'));
+        ctx.expect(ctx.assert.eq(ctx.doc.querySelector('.slot-mode').dataset.endsRun, 'true'));
+    },
+});

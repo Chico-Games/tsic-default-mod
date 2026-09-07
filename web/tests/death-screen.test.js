@@ -44,3 +44,22 @@ TSICTestHarness.register({
         ctx.expect(ctx.assert.eq(ctx.doc.getElementById('death-cause').textContent, before));
     },
 });
+
+TSICTestHarness.register({
+    name: 'DeathScreen: an end-run death hides Respawn and shows the mode\'s line',
+    file: '/screens/death-screen.html',
+    async run(ctx) {
+        await ctx.waitFor(() => ctx.doc.getElementById('btn-respawn'));
+        ctx.inject('tsic.msg.UI.DeathScreen.Shown', {
+            DeathMessage: 'You were killed by the Snail', bRunEnded: true,
+            RunEndedMessage: 'The snail got you. This store is gone for good.' });
+        await ctx.waitFor(() => ctx.doc.getElementById('btn-respawn').hidden);
+        ctx.expect(ctx.assert.truthy(ctx.doc.getElementById('btn-respawn').hidden, 'Respawn hidden'));
+        ctx.expect(ctx.assert.truthy(!ctx.doc.getElementById('btn-menu').hidden, 'Quit stays'));
+        ctx.expect(ctx.assert.domText(ctx.doc, '#run-ended', 'The snail got you. This store is gone for good.'));
+        // A normal death afterwards brings Respawn back.
+        ctx.inject('tsic.msg.UI.DeathScreen.Shown', { DeathMessage: 'You were killed by Janitor', bRunEnded: false, RunEndedMessage: '' });
+        await ctx.waitFor(() => !ctx.doc.getElementById('btn-respawn').hidden);
+        ctx.expect(ctx.assert.truthy(ctx.doc.getElementById('run-ended').hidden, 'run-ended line hidden again'));
+    },
+});

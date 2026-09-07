@@ -253,3 +253,17 @@ TSICTestHarness.register({
         ctx.expect(ctx.assert.truthy(true));
     },
 });
+
+// ---- UI.Menu.GameModes ------------------------------------------------
+TSICTestHarness.register({
+    name: 'Channels/Menu.GameModes: an empty mode list disables Create and says so',
+    tags: ['channel', 'new-store'],
+    file: '/screens/new-store.html',
+    async run(ctx) {
+        ctx.inject('tsic.msg.UI.Menu.Layouts', { Layouts: [{ LayoutId: 'L', DisplayName: 'L', ThumbnailUrl: '' }] });
+        ctx.inject('tsic.msg.UI.Menu.GameModes', { Modes: [] });
+        await new Promise(r => setTimeout(r, 60));
+        ctx.expect(ctx.assert.truthy(ctx.doc.getElementById('btn-create').disabled));
+        ctx.expect(ctx.assert.truthy(/No modes available/.test(ctx.doc.querySelector('#mode-dd .tsic-dropdown-label').textContent)));
+    },
+});
