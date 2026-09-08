@@ -227,12 +227,6 @@
         },
         {
           "type": "fixed",
-          "scope": "Weapons",
-          "text": "Fixed the Pizza Cutter Lamp giving off no light while equipped.",
-          "ref": 530
-        },
-        {
-          "type": "fixed",
           "scope": "World",
           "text": "Fixed an issue where a Store Map tile on a height drop spawned no map stand, leaving the compass marker pointing at nothing.",
           "ref": 520
