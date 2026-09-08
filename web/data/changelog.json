@@ -4,7 +4,7 @@
     {
       "version": "2.0.2",
       "channel": "Alpha",
-      "sha": "a8115bbf2",
+      "sha": "a79672788",
       "date": "2026-09-08",
       "title": "New Modes!",
       "entries": [
@@ -19,6 +19,24 @@
           "scope": "Modes",
           "text": "Added a Mode dropdown to the new-store screen: Classic, Ironman and Snail.",
           "ref": 602
+        },
+        {
+          "type": "added",
+          "scope": "Player",
+          "text": "Added a reaching arm: the hand goes to whatever you pick up or switch on, items fly into the palm and get pocketed, the held weapon steps aside for the reach, and a swing or a knockback takes the arm back.",
+          "ref": 604
+        },
+        {
+          "type": "added",
+          "scope": "Player",
+          "text": "Added arms that reach out and press against furniture while you drag it, so hauling a piece looks like hauling it; the arms drop the moment the hold breaks.",
+          "ref": 605
+        },
+        {
+          "type": "added",
+          "scope": "Store",
+          "text": "Added the Need a Hand and Showroom posters in framed and standing forms, and put the missing Benson Goo standing sign into rotation, so a run through the store shows a wider spread of artwork.",
+          "ref": 603
         },
         {
           "type": "changed",
@@ -40,6 +58,12 @@
         {
           "type": "changed",
           "scope": "Store",
+          "text": "Changed every store poster to its finished artwork, so the framed, standing and hanging versions all show the final pictures instead of the interim set.",
+          "ref": 603
+        },
+        {
+          "type": "changed",
+          "scope": "Store",
           "text": "Changed the standing floor signs to show the Durham catalogue artwork, so they match the framed wall posters instead of showing leftover placeholder art.",
           "ref": 599
         },
@@ -52,6 +76,12 @@
         {
           "type": "fixed",
           "scope": "Co-op",
+          "text": "Fixed lamps and other lit fixtures going dark for everyone else the moment someone picked them up.",
+          "ref": 391
+        },
+        {
+          "type": "fixed",
+          "scope": "Co-op",
           "text": "Fixed an issue where furniture a host shoved or dragged stayed put for guests until it settled, then jumped."
         },
         {
@@ -59,12 +89,6 @@
           "scope": "Co-op",
           "text": "Fixed a joined player's inventory, hotbar, equipment and position being left out of the host's save, so everything they were carrying vanished when the session ended.",
           "ref": 583
-        },
-        {
-          "type": "fixed",
-          "scope": "Co-op",
-          "text": "Fixed lamps and other lit fixtures going dark for everyone else the moment someone picked them up.",
-          "ref": 391
         },
         {
           "type": "fixed",
@@ -81,24 +105,18 @@
         {
           "type": "fixed",
           "scope": "Enemies",
-          "text": "Added new attack animations for basic staff."
+          "text": "Fixed the Heavy Staff's swings and ground pound folding its body in half: the attack clips now play on the rig the game uses.",
+          "ref": 457
         },
         {
           "type": "fixed",
           "scope": "Enemies",
-          "text": "Fixed enemies that wandered off the walkable ground standing frozen for good instead of finding their way back."
+          "text": "Fixed the TV Head never firing its spotlight beam; it lined up the shot and gave up every time."
         },
         {
           "type": "fixed",
           "scope": "Enemies",
-          "text": "Fixed BoneHead's attacks and every enemy's hit reactions playing with scrambled limbs.",
-          "ref": 536
-        },
-        {
-          "type": "fixed",
-          "scope": "Enemies",
-          "text": "Fixed the heavy staff's ground pound repeating with no cooldown.",
-          "ref": 423
+          "text": "Fixed the Bone Head winding up a throw that never left its hand."
         },
         {
           "type": "fixed",
@@ -109,18 +127,30 @@
         {
           "type": "fixed",
           "scope": "Enemies",
+          "text": "Fixed BoneHead's attacks and every enemy's hit reactions playing with scrambled limbs.",
+          "ref": 536
+        },
+        {
+          "type": "fixed",
+          "scope": "Enemies",
+          "text": "Fixed enemies that wandered off the walkable ground standing frozen for good instead of finding their way back."
+        },
+        {
+          "type": "fixed",
+          "scope": "Enemies",
+          "text": "Added new attack animations for basic staff."
+        },
+        {
+          "type": "fixed",
+          "scope": "Enemies",
           "text": "Fixed forearms pinching thin at the wrist during enemy attacks and hit reactions.",
           "ref": 536
         },
         {
           "type": "fixed",
           "scope": "Enemies",
-          "text": "Fixed the Bone Head winding up a throw that never left its hand."
-        },
-        {
-          "type": "fixed",
-          "scope": "Enemies",
-          "text": "Fixed the TV Head never firing its spotlight beam; it lined up the shot and gave up every time."
+          "text": "Fixed the heavy staff's ground pound repeating with no cooldown.",
+          "ref": 423
         },
         {
           "type": "fixed",
@@ -131,6 +161,12 @@
           "type": "fixed",
           "scope": "Equipment",
           "text": "Fixed the metal chestplate spitting an error into the log every time it was worn."
+        },
+        {
+          "type": "fixed",
+          "scope": "Furniture",
+          "text": "Fixed three standing sign variants spawning as a cardboard box that could not be dragged: their meshes were missing from the build, and any furniture rendered as the placeholder box now drags as that box.",
+          "ref": 606
         },
         {
           "type": "fixed",
@@ -187,25 +223,25 @@
         {
           "type": "fixed",
           "scope": "Stability",
-          "text": "Fixed a crash when a world was torn down while furniture was still being returned to the pool.",
-          "ref": 418
-        },
-        {
-          "type": "fixed",
-          "scope": "Stability",
           "text": "Fixed a possible crash when the Janitor's acid pool killed something standing in it."
         },
         {
           "type": "fixed",
-          "scope": "Store",
-          "text": "Fixed the Pit's fire floor, which never set anyone alight: standing in it now burns you, and leaving it lets the burn run out.",
-          "ref": 380
+          "scope": "Stability",
+          "text": "Fixed a crash when a world was torn down while furniture was still being returned to the pool.",
+          "ref": 418
         },
         {
           "type": "fixed",
           "scope": "Store",
           "text": "Fixed claiming a bed not moving where you respawn, and each player now keeps their own bed.",
           "ref": 498
+        },
+        {
+          "type": "fixed",
+          "scope": "Store",
+          "text": "Fixed the Pit's fire floor, which never set anyone alight: standing in it now burns you, and leaving it lets the burn run out.",
+          "ref": 380
         },
         {
           "type": "fixed",
