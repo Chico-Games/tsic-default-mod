@@ -5,8 +5,8 @@
       "version": "2.0.2",
       "channel": "Alpha",
       "sha": "a8115bbf2",
-      "date": "2026-09-07",
-      "title": "Ironman, the Snail, and Steadier Enemies",
+      "date": "2026-09-08",
+      "title": "New Modes!",
       "entries": [
         {
           "type": "added",
@@ -30,12 +30,6 @@
           "scope": "Handbook",
           "text": "Changed the Tab handbook and roster to toggle open on a press, with Escape or Tab closing it, so it stays up while you read rather than vanishing the moment you let go.",
           "ref": 461
-        },
-        {
-          "type": "changed",
-          "scope": "Inventory",
-          "text": "Changed duct tape's weight to bring it in line with the other crafting materials.",
-          "ref": 483
         },
         {
           "type": "changed",
@@ -83,6 +77,11 @@
           "scope": "Crafting",
           "text": "Fixed Durham Spring Water and Durham Breakfast Cereal not counting as water and cereal in recipes.",
           "ref": 528
+        },
+        {
+          "type": "fixed",
+          "scope": "Enemies",
+          "text": "Added new attack animations for basic staff."
         },
         {
           "type": "fixed",
@@ -217,7 +216,7 @@
         {
           "type": "fixed",
           "scope": "Trolleys",
-          "text": "Fixed an issue where riding in a trolley filled the view with your own knees and arms.",
+          "text": "Fixed an issue where riding in a trolley filled the view with your own knees and arms. (Trollies are still a bit unusable. When I find time I'll get them working).",
           "ref": 474
         },
         {
