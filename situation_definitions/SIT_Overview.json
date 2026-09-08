@@ -4,6 +4,7 @@
   "properties": {
     "situation_tag_name": "Input.Situation.Overview",
     "keyboard_behaviors": [
+      "BH_Back",
       "BH_Move",
       "BH_Jump",
       "BH_Crouch",
@@ -12,6 +13,7 @@
       "BH_PushToTalk"
     ],
     "gamepad_behaviors": [
+      "BH_Back",
       "BH_Move",
       "BH_Jump",
       "BH_Crouch",
