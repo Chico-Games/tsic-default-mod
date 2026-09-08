@@ -244,7 +244,53 @@
           "text": "Removed the combat music state: the day and night beds no longer duck to a whisper and play a sting whenever an enemy spots you."
         }
       ],
-      "known_issues": []
+      "known_issues": [
+        {
+          "scope": "Co-op",
+          "ref": 325,
+          "text": "Furniture flashes when a drag starts and again when it settles."
+        },
+        {
+          "scope": "Saves",
+          "ref": 380,
+          "text": "Loading a save made after a visit to the Pit sets you on fire on arrival."
+        },
+        {
+          "scope": "Store",
+          "ref": 506,
+          "text": "Elevators don't respond - pressing the button does nothing, so you can't ride between floors."
+        },
+        {
+          "scope": "Store",
+          "ref": 330,
+          "text": "Some furniture spawns badly placed - floating near steps, lying down, or facing the wrong way."
+        },
+        {
+          "scope": "Store",
+          "ref": 353,
+          "text": "Aisle sign lettering and framed photos z-fight at some angles - the text flickers as you walk past."
+        },
+        {
+          "scope": "Store",
+          "ref": 373,
+          "text": "Railings generate along edges with no drop, and are missing from some real ones."
+        },
+        {
+          "scope": "Breakage",
+          "ref": 356,
+          "text": "Eighteen materials across fifteen breakable pieces render flat grey once destroyed."
+        },
+        {
+          "scope": "Menus",
+          "ref": 458,
+          "text": "The menus can feel sluggish and the cursor lags behind the mouse."
+        },
+        {
+          "scope": "Co-op",
+          "ref": 590,
+          "text": "Very rarely a guest cannot pick up a piece of furniture that just appeared in front of them."
+        }
+      ]
     },
     {
       "version": "2.0.1",
