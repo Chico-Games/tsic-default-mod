@@ -56,6 +56,7 @@
     UniversalStorage: 'universal-storage',
     UniversalStorageSetup: 'universal-storage-setup',
     CheatMenu: 'cheat-menu',
+    Arena: 'arena',
     PingMarkers: 'ping-markers',
     CircularProgress: 'circular-progress',
     Paper: 'paper',
@@ -225,6 +226,12 @@
       window.tsic.on('tsic.msg.UI.Behavior.CheatMenu', (p) => {
         if (!p || p.Phase !== 'Started') return;
         window.tsic.publishMessage('UI.Cmd.Pause.CheatMenu', {});
+      });
+      // F9 — test arena. C++ clears the live enemies and opens the setup screen, or
+      // toasts when the level has no arena, so nothing here needs to know either.
+      window.tsic.on('tsic.msg.UI.Behavior.ArenaMenu', (p) => {
+        if (!p || p.Phase !== 'Started') return;
+        window.tsic.publishMessage('UI.Cmd.Arena.Toggle', {});
       });
       // F2 — re-run the last cheat, whether it came from this panel or the ~ console.
       // C++ owns the history and toasts what it ran, so this needs no state here and

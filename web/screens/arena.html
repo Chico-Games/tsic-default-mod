@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="tsic-screen" content="Arena">
+  <meta name="tsic-focus" content="enabled">
+  <title>Test Arena</title>
+  <link rel="stylesheet" href="/shared/base.css">
+  <link rel="stylesheet" href="/shared/components.css">
+  <link rel="stylesheet" href="/shared/screen-manager.css">
+  <script src="/shared/tsic-bridge.js" defer></script>
+  <script src="/shared/tsic-runtime.js" defer></script>
+  <script src="/shared/router.js" defer></script>
+  <script src="/shared/dom.js" defer></script>
+  <script src="/shared/tsic-focus.js" defer></script>
+  <script src="/shared/tsic-dropdown.js" defer></script>
+  <script src="/shared/screen-manager.js" defer></script>
+  <script src="/shared/screens/arena.js" defer></script>
+</head>
+<body>
+  <!-- Standalone host for the SHARED arena screen module (the same code the
+       in-game Root shell mounts). Needed because F9 can be pressed on the death
+       screen, which is its own page: the router there navigates to
+       /screens/<file>.html for any screen name, so this file has to exist. -->
+</body>
+</html>
