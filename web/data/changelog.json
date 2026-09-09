@@ -280,11 +280,6 @@
           "text": "Furniture flashes when a drag starts and again when it settles."
         },
         {
-          "scope": "Saves",
-          "ref": 380,
-          "text": "Loading a save made after a visit to the Pit sets you on fire on arrival."
-        },
-        {
           "scope": "Store",
           "ref": 506,
           "text": "Elevators don't respond - pressing the button does nothing, so you can't ride between floors."
@@ -305,9 +300,14 @@
           "text": "Railings generate along edges with no drop, and are missing from some real ones."
         },
         {
+          "scope": "Store",
+          "ref": 616,
+          "text": "Standing beside a staircase, the ends of its steps show through the wall as a diagonal row of wooden strips climbing the next room's wall."
+        },
+        {
           "scope": "Breakage",
           "ref": 356,
-          "text": "Eighteen materials across fifteen breakable pieces render flat grey once destroyed."
+          "text": "Some furniture turns flat grey once it is smashed, instead of keeping its colours."
         },
         {
           "scope": "Menus",
@@ -318,6 +318,16 @@
           "scope": "Co-op",
           "ref": 590,
           "text": "Very rarely a guest cannot pick up a piece of furniture that just appeared in front of them."
+        },
+        {
+          "scope": "Co-op",
+          "ref": 609,
+          "text": "When friends join a loaded save, some rooms have a different ceiling height for them than for the host - and it is solid, so you can end up on different floors of the same room."
+        },
+        {
+          "scope": "Store",
+          "ref": 608,
+          "text": "Some checkout counters and framed paintings flicker as you move - two surfaces are fighting over the same spot, not a missing texture."
         }
       ]
     },
