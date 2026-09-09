@@ -1,0 +1,12 @@
+{
+  "id": "CP_Hair_Short",
+  "asset_path": "/Game/Characters/Customer/Parts/CP_Hair_Short",
+  "class": "UCharacterPartDefinition",
+  "schema_version": 2,
+  "properties": {
+    "slot": "Hair",
+    "display_name": "Short Crop",
+    "mesh": "/Game/Characters/Customer/Meshes/Hair/SKM_Hair.SKM_Hair",
+    "sort_order": 10
+  }
+}

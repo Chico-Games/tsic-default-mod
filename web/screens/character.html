@@ -17,116 +17,231 @@
   <script src="/shared/store-maze-stage.js" defer></script>
   <script src="/shared/tsic-focus.js" defer></script>
   <script src="/shared/dom.js" defer></script>
+  <script src="/shared/icons.js" defer></script>
   <style>
-    .cast-body { padding: 16px 28px 12px; }
+    /* Full-bleed: the doll is the screen, not a thumbnail beside a list. */
+    html, body { height: 100%; overflow: hidden; }
+
+    .cast-screen {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      grid-template-columns: minmax(320px, 26vw) 1fr;
+      grid-template-rows: auto 1fr auto;
+      grid-template-areas:
+        "head  stage"
+        "slots stage"
+        "foot  stage";
+      gap: 0;
+    }
+
+    /* The animated maze stage sits behind the whole page; the rail needs its own
+       opaque paper or the tile names read through it. */
+    .cast-head, .cast-slots, .cast-foot { background: var(--paper); }
+
+    /* --- masthead --- */
+    .cast-head {
+      grid-area: head;
+      padding: 20px 24px 14px;
+      border-bottom: 2px solid var(--ink-night);
+    }
+    .cast-title {
+      font-family: var(--font-display);
+      font-size: clamp(30px, 3.4vw, 52px);
+      line-height: 0.9;
+      letter-spacing: 0.01em;
+      text-transform: uppercase;
+      color: var(--ink-night);
+      margin: 0;
+    }
+    .cast-title em {
+      display: block;
+      font-family: var(--font-hand);
+      font-style: normal;
+      font-size: 0.42em;
+      text-transform: none;
+      letter-spacing: 0.02em;
+      color: var(--mag-red);
+    }
     .cast-lede {
       font-family: var(--font-body);
-      font-size: 13px;
+      font-size: 12px;
+      line-height: 1.45;
       color: var(--ink-mute);
-      letter-spacing: 0.03em;
-      margin: 0 0 12px;
+      letter-spacing: 0.02em;
+      margin: 8px 0 0;
     }
-    .cast-list {
+
+    /* --- slot rail --- */
+    .cast-slots {
+      grid-area: slots;
+      overflow-y: auto;
+      padding: 12px 18px 18px;
       display: flex;
       flex-direction: column;
-      gap: 2px;
-      max-height: 46vh;
-      overflow-y: auto;
-      padding: 4px;
-      border: 1px solid var(--ink-night);
-      background: var(--paper-soft);
+      gap: 16px;
     }
     .cast-empty {
-      padding: 10px 6px;
+      padding: 14px 4px;
       font-family: var(--font-terminal);
-      font-size: 12px;
+      font-size: 14px;
       letter-spacing: 0.10em;
       text-transform: uppercase;
       color: var(--ink-mute);
       font-style: italic;
     }
-    .cast-row {
+    .cast-slot-label {
       display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 5px 8px;
-      background: var(--paper-soft);
-      border: 1px solid transparent;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 8px;
+      font-family: var(--font-display);
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--ink-night);
+      border-bottom: 1px solid var(--ink-night);
+      padding-bottom: 3px;
+      margin-bottom: 8px;
+    }
+    .cast-slot-worn {
       font-family: var(--font-body);
+      font-size: 11px;
+      font-weight: 400;
+      letter-spacing: 0.03em;
+      text-transform: none;
+      color: var(--mag-red);
+    }
+    /* Tiles, not rows: a face is picked by looking at it. Falls back to a name
+       plate until the parts carry thumbnails. */
+    .cast-tiles {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(88px, 1fr));
+      gap: 6px;
+    }
+    .cast-tile {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0;
+      padding: 0;
+      background: var(--paper-soft);
+      border: 1px solid var(--ink-night);
       cursor: pointer;
+      overflow: hidden;
+      text-align: left;
+      font: inherit;
+      color: inherit;
     }
-    .cast-row:hover,
-    .cast-row[data-tsic-focused] {
-      background: var(--paper-muted);
-      border-color: var(--ink-night);
+    .cast-tile:hover,
+    .cast-tile[data-tsic-focused] {
+      background: var(--paper-bright);
+      outline: 2px solid var(--ink-night);
+      outline-offset: -3px;
     }
-    /* The chosen row keeps the masthead red so the pick survives losing focus. */
-    .cast-row.is-chosen {
+    /* The worn tile keeps the masthead red so the choice survives losing focus. */
+    .cast-tile.is-chosen {
       background: var(--paper-bright);
       border-color: var(--mag-red);
+      box-shadow: inset 0 0 0 2px var(--mag-red);
     }
-    .cast-portrait {
-      width: 34px;
-      height: 34px;
-      flex: 0 0 34px;
-      object-fit: cover;
-      border: 1px solid var(--ink-night);
+    .cast-tile-art {
+      height: 62px;
       background: var(--paper-muted);
+      border-bottom: 1px solid var(--ink-night);
+      object-fit: cover;
+      width: 100%;
+      display: block;
     }
-    .cast-name {
-      flex: 1;
-      font-size: 14px;
-      color: var(--ink-night);
-      letter-spacing: 0.03em;
-    }
-    .cast-build {
-      font-family: var(--font-terminal);
+    .cast-tile-name {
+      padding: 4px 6px 5px;
+      font-family: var(--font-body);
       font-size: 11px;
-      letter-spacing: 0.10em;
+      line-height: 1.25;
+      letter-spacing: 0.02em;
+      color: var(--ink);
+    }
+    .cast-tile.is-chosen .cast-tile-name { font-weight: 700; color: var(--ink-night); }
+
+    /* --- footer --- */
+    .cast-foot {
+      grid-area: foot;
+      padding: 0 18px 18px;
+    }
+
+    /* --- stage --- */
+    .cast-stage {
+      grid-area: stage;
+      position: relative;
+      border-left: 2px solid var(--ink-night);
+      background:
+        radial-gradient(ellipse at 50% 38%, rgba(255, 253, 243, 0.55), rgba(227, 216, 184, 0) 62%),
+        var(--paper-muted);
+      overflow: hidden;
+      cursor: ew-resize;
+      user-select: none;
+    }
+    /* Contain, not cover: the capture is square and cropping it beheads the doll. */
+    #cast-doll {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      -webkit-user-drag: none;
+      pointer-events: none;
+    }
+    .cast-hint {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 14px;
+      text-align: center;
+      font-family: var(--font-terminal);
+      font-size: 14px;
+      letter-spacing: 0.16em;
       text-transform: uppercase;
       color: var(--ink-mute);
+      pointer-events: none;
     }
-    .cast-badge {
-      font-family: var(--font-display);
-      font-size: 10px;
-      font-weight: 800;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--mag-red);
-      visibility: hidden;
+
+    @media (max-width: 900px) {
+      .cast-screen {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr auto auto;
+        grid-template-areas: "head" "stage" "slots" "foot";
+      }
+      .cast-stage { border-left: 0; border-bottom: 2px solid var(--ink-night); }
+      .cast-slots { max-height: 34vh; }
     }
-    .cast-row.is-chosen .cast-badge { visibility: visible; }
   </style>
-</head><body>
-  <div class="tsic-stage--magazine-gradient">
-    <div class="tsic-panel tsic-cover" style="--tsic-cover-width: 560px;">
-      <div class="tsic-masthead">
-        <div class="tsic-masthead-title">
-          <em>Your</em>
-          Staff File.
-        </div>
-        <div class="tsic-masthead-meta">
-          <span class="tsic-masthead-issue">Dept. 02</span>
-          <span class="tsic-masthead-date">Name badges are worn at all times.</span>
-        </div>
-      </div>
+</head><body class="tsic-stage--magazine-gradient" data-paper-alpha="1">
+  <div class="cast-screen">
+    <div class="cast-head">
+      <h1 class="cast-title"><em>Your</em>Staff File.</h1>
+      <p class="cast-lede">
+        Who you turn up as. Travels with you into any store, including someone else's.
+      </p>
+    </div>
 
-      <div class="cast-body">
-        <p class="cast-lede">
-          Who you turn up as. Travels with you into any store, including someone else's.
-        </p>
-        <div class="cast-list" id="cast-list" data-tsic-focus-group="cast"></div>
-      </div>
+    <div class="cast-slots" id="cast-slots" data-tsic-focus-group="cast"></div>
 
-      <div class="tsic-cover-rows" data-tsic-focus-group="actions">
-        <button class="tsic-row-button" id="btn-back">
-          <span class="tsic-row-dept">Fire Exit</span>
-          Back to Main
-          <span class="tsic-row-pg">PG. 01</span>
-        </button>
-      </div>
+    <div class="cast-foot" data-tsic-focus-group="actions">
+      <button class="tsic-row-button" id="btn-back">
+        <span class="tsic-row-dept">Fire Exit</span>
+        Back to Main
+        <span class="tsic-row-pg">PG. 01</span>
+      </button>
+    </div>
+
+    <div class="cast-stage" id="cast-stage">
+      <img id="cast-doll" alt="">
+      <div class="cast-hint">Drag to turn</div>
     </div>
   </div>
+
   <script>
     // Inline scripts run during HTML parse, BEFORE the deferred tsic-*.js
     // load — poll until the runtime exists (see main-menu.html).
@@ -135,50 +250,144 @@
         setTimeout(boot, 16); return;
       }
       tsic.whenReady(() => tsic.bootMenu(function () {
-        const host = document.getElementById('cast-list');
+        const host = document.getElementById('cast-slots');
+        const stage = document.getElementById('cast-stage');
+        const doll = document.getElementById('cast-doll');
 
-        function render(roster) {
-          host.replaceChildren();
-          const rows = (roster && roster.Characters) || [];
-          if (rows.length === 0) {
-            host.appendChild(TSIC.el('div', { class: 'cast-empty' }, 'No staff on file.'));
-            return;
-          }
+        // ---- live 3D preview -------------------------------------------------
+        // The doll is a scene capture streamed as PNGs; 24fps is enough for an
+        // idle and a turntable, and every frame is decoded on the thread that
+        // also services the drag below.
+        const stopStream = TSIC.startRuntimeImgStream(doll, 'character-preview', { fps: 24 });
+        window.addEventListener('pagehide', () => { if (stopStream) stopStream(); });
 
-          const chosen = String((roster && roster.SelectedId) || '');
-          for (const entry of rows) {
-            const id = String(entry.Id || '');
-            const row = TSIC.el('div', {
-              class: 'cast-row' + (id === chosen ? ' is-chosen' : ''),
-              'data-tsic-focusable': '',
-              tabindex: '-1',
-            });
+        // ---- turntable -------------------------------------------------------
+        let yaw = 0;
+        let dragging = false;
+        let lastX = 0;
+        let pending = null;
 
-            if (entry.ThumbnailUrl) {
-              row.appendChild(TSIC.el('img', {
-                class: 'cast-portrait',
-                src: String(entry.ThumbnailUrl),
-                alt: '',
-              }));
-            } else {
-              row.appendChild(TSIC.el('div', { class: 'cast-portrait' }));
+        function pushYaw() {
+          pending = null;
+          tsic.publishMessage('UI.Cmd.Menu.RotateCharacter', { Yaw: yaw });
+        }
+
+        // One publish per frame at most. A pointermove burst would otherwise
+        // queue dozens of rotations the capture cannot keep up with, and the
+        // doll would keep spinning after the pointer stopped.
+        function requestYaw() {
+          if (pending !== null) return;
+          pending = requestAnimationFrame(pushYaw);
+        }
+
+        stage.addEventListener('pointerdown', (e) => {
+          dragging = true;
+          lastX = e.clientX;
+          stage.setPointerCapture(e.pointerId);
+        });
+        stage.addEventListener('pointermove', (e) => {
+          if (!dragging) return;
+          // Half a degree per pixel: a comfortable drag across the stage is
+          // rather more than one full turn.
+          yaw = (yaw + (e.clientX - lastX) * 0.5) % 360;
+          lastX = e.clientX;
+          requestYaw();
+        });
+        function endDrag(e) {
+          if (!dragging) return;
+          dragging = false;
+          try { stage.releasePointerCapture(e.pointerId); } catch (_) {}
+        }
+        stage.addEventListener('pointerup', endDrag);
+        stage.addEventListener('pointercancel', endDrag);
+
+        // ---- slot rail -------------------------------------------------------
+        // C++ re-broadcasts after every accepted change, so the screen always
+        // paints what was actually stored rather than an optimistic guess.
+        //
+        // Rebuilding the DOM on every broadcast is what made the old screen
+        // change selection on its own: the new rows took focus, focus activated
+        // one, that published another pick, which re-broadcast. So the tiles are
+        // built once per slot signature and only the chosen marks are patched
+        // afterwards.
+        let signature = null;
+
+        function slotSignature(slots) {
+          return slots.map((s) => String(s.Slot) + ':' +
+            (s.Parts || []).map((p) => String(p.Id)).join(',')).join('|');
+        }
+
+        function markChosen(slots) {
+          for (const slot of slots) {
+            const chosen = String(slot.SelectedId || '');
+            const group = host.querySelector('[data-slot="' + CSS.escape(String(slot.Slot)) + '"]');
+            if (!group) continue;
+
+            const worn = group.querySelector('.cast-slot-worn');
+            for (const tile of group.querySelectorAll('.cast-tile')) {
+              const isChosen = tile.dataset.partId === chosen;
+              tile.classList.toggle('is-chosen', isChosen);
+              if (isChosen && worn) worn.textContent = tile.dataset.partName || '';
             }
-
-            row.appendChild(TSIC.el('span', { class: 'cast-name' },
-              String(entry.DisplayName || id)));
-            row.appendChild(TSIC.el('span', { class: 'cast-build' },
-              String(entry.BodyArchetype || '')));
-            row.appendChild(TSIC.el('span', { class: 'cast-badge' }, 'On Shift'));
-
-            // The runtime plays the shared click SFX for us; no data-no-sfx here.
-            row.onclick = () =>
-              tsic.publishMessage('UI.Cmd.Menu.SelectCharacter', { Id: id });
-            host.appendChild(row);
           }
         }
 
-        // C++ re-broadcasts the roster after every accepted pick, so the screen
-        // always paints what was actually stored rather than an optimistic guess.
+        function build(slots) {
+          host.replaceChildren();
+          if (slots.length === 0) {
+            host.appendChild(TSIC.el('div', { class: 'cast-empty' },
+              'No uniform on file. The mod ships no character parts.'));
+            return;
+          }
+
+          for (const slot of slots) {
+            const slotKey = String(slot.Slot || '');
+            const group = TSIC.el('section', { 'data-slot': slotKey });
+
+            // TSIC.el takes children as varargs; an array would stringify.
+            group.appendChild(TSIC.el('div', { class: 'cast-slot-label' },
+              TSIC.el('span', {}, String(slot.DisplayName || slotKey)),
+              TSIC.el('span', { class: 'cast-slot-worn' })));
+
+            const tiles = TSIC.el('div', { class: 'cast-tiles' });
+            for (const part of (slot.Parts || [])) {
+              const id = String(part.Id || '');
+              const name = String(part.DisplayName || id);
+              const tile = TSIC.el('button', {
+                class: 'cast-tile',
+                type: 'button',
+                'data-part-id': id,
+                'data-part-name': name,
+                'data-tsic-focusable': '',
+                tabindex: '-1',
+              });
+
+              tile.appendChild(part.ThumbnailUrl
+                ? TSIC.el('img', { class: 'cast-tile-art', src: String(part.ThumbnailUrl), alt: '' })
+                : TSIC.el('div', { class: 'cast-tile-art' }));
+              tile.appendChild(TSIC.el('span', { class: 'cast-tile-name' }, name));
+
+              // The runtime plays the shared click SFX for us; no data-no-sfx here.
+              tile.onclick = () => tsic.publishMessage(
+                'UI.Cmd.Menu.SelectCharacterPart', { Slot: slotKey, Id: id });
+              tiles.appendChild(tile);
+            }
+
+            group.appendChild(tiles);
+            host.appendChild(group);
+          }
+        }
+
+        function render(payload) {
+          const slots = (payload && payload.Slots) || [];
+          const next = slotSignature(slots);
+          if (next !== signature) {
+            signature = next;
+            build(slots);
+          }
+          markChosen(slots);
+        }
+
         tsic.on('tsic.msg.UI.Menu.Characters', render);
 
         tsic.onClick('#btn-back', () =>
