@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="tsic-screen" content="Character">
+  <meta name="tsic-input-mode" content="InputMode.Menu.MainMenu">
+  <meta name="tsic-cancel-cmd" content="UI.Cmd.Menu.Back">
+  <meta name="tsic-focus" content="enabled">
+  <meta name="tsic-action-bar-context" content='[]'>
+  <title>Staff File</title>
+  <link rel="stylesheet" href="/shared/base.css">
+  <link rel="stylesheet" href="/shared/components.css">
+  <script src="/shared/router.js" defer></script>
+  <script src="/shared/tsic-bridge.js" defer></script>
+  <script src="/shared/tsic-runtime.js" defer></script>
+  <script src="/shared/reduce-motion.js" defer></script>
+  <script src="/shared/store-maze.js" defer></script>
+  <script src="/shared/store-maze-stage.js" defer></script>
+  <script src="/shared/tsic-focus.js" defer></script>
+  <script src="/shared/dom.js" defer></script>
+  <style>
+    .cast-body { padding: 16px 28px 12px; }
+    .cast-lede {
+      font-family: var(--font-body);
+      font-size: 13px;
+      color: var(--ink-mute);
+      letter-spacing: 0.03em;
+      margin: 0 0 12px;
+    }
+    .cast-list {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      max-height: 46vh;
+      overflow-y: auto;
+      padding: 4px;
+      border: 1px solid var(--ink-night);
+      background: var(--paper-soft);
+    }
+    .cast-empty {
+      padding: 10px 6px;
+      font-family: var(--font-terminal);
+      font-size: 12px;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      color: var(--ink-mute);
+      font-style: italic;
+    }
+    .cast-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 5px 8px;
+      background: var(--paper-soft);
+      border: 1px solid transparent;
+      font-family: var(--font-body);
+      cursor: pointer;
+    }
+    .cast-row:hover,
+    .cast-row[data-tsic-focused] {
+      background: var(--paper-muted);
+      border-color: var(--ink-night);
+    }
+    /* The chosen row keeps the masthead red so the pick survives losing focus. */
+    .cast-row.is-chosen {
+      background: var(--paper-bright);
+      border-color: var(--mag-red);
+    }
+    .cast-portrait {
+      width: 34px;
+      height: 34px;
+      flex: 0 0 34px;
+      object-fit: cover;
+      border: 1px solid var(--ink-night);
+      background: var(--paper-muted);
+    }
+    .cast-name {
+      flex: 1;
+      font-size: 14px;
+      color: var(--ink-night);
+      letter-spacing: 0.03em;
+    }
+    .cast-build {
+      font-family: var(--font-terminal);
+      font-size: 11px;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      color: var(--ink-mute);
+    }
+    .cast-badge {
+      font-family: var(--font-display);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--mag-red);
+      visibility: hidden;
+    }
+    .cast-row.is-chosen .cast-badge { visibility: visible; }
+  </style>
+</head><body>
+  <div class="tsic-stage--magazine-gradient">
+    <div class="tsic-panel tsic-cover" style="--tsic-cover-width: 560px;">
+      <div class="tsic-masthead">
+        <div class="tsic-masthead-title">
+          <em>Your</em>
+          Staff File.
+        </div>
+        <div class="tsic-masthead-meta">
+          <span class="tsic-masthead-issue">Dept. 02</span>
+          <span class="tsic-masthead-date">Name badges are worn at all times.</span>
+        </div>
+      </div>
+
+      <div class="cast-body">
+        <p class="cast-lede">
+          Who you turn up as. Travels with you into any store, including someone else's.
+        </p>
+        <div class="cast-list" id="cast-list" data-tsic-focus-group="cast"></div>
+      </div>
+
+      <div class="tsic-cover-rows" data-tsic-focus-group="actions">
+        <button class="tsic-row-button" id="btn-back">
+          <span class="tsic-row-dept">Fire Exit</span>
+          Back to Main
+          <span class="tsic-row-pg">PG. 01</span>
+        </button>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Inline scripts run during HTML parse, BEFORE the deferred tsic-*.js
+    // load — poll until the runtime exists (see main-menu.html).
+    (function boot() {
+      if (!window.tsic || typeof tsic.bootMenu !== 'function' || !window.TSIC || !TSIC.el) {
+        setTimeout(boot, 16); return;
+      }
+      tsic.whenReady(() => tsic.bootMenu(function () {
+        const host = document.getElementById('cast-list');
+
+        function render(roster) {
+          host.replaceChildren();
+          const rows = (roster && roster.Characters) || [];
+          if (rows.length === 0) {
+            host.appendChild(TSIC.el('div', { class: 'cast-empty' }, 'No staff on file.'));
+            return;
+          }
+
+          const chosen = String((roster && roster.SelectedId) || '');
+          for (const entry of rows) {
+            const id = String(entry.Id || '');
+            const row = TSIC.el('div', {
+              class: 'cast-row' + (id === chosen ? ' is-chosen' : ''),
+              'data-tsic-focusable': '',
+              tabindex: '-1',
+            });
+
+            if (entry.ThumbnailUrl) {
+              row.appendChild(TSIC.el('img', {
+                class: 'cast-portrait',
+                src: String(entry.ThumbnailUrl),
+                alt: '',
+              }));
+            } else {
+              row.appendChild(TSIC.el('div', { class: 'cast-portrait' }));
+            }
+
+            row.appendChild(TSIC.el('span', { class: 'cast-name' },
+              String(entry.DisplayName || id)));
+            row.appendChild(TSIC.el('span', { class: 'cast-build' },
+              String(entry.BodyArchetype || '')));
+            row.appendChild(TSIC.el('span', { class: 'cast-badge' }, 'On Shift'));
+
+            // The runtime plays the shared click SFX for us; no data-no-sfx here.
+            row.onclick = () =>
+              tsic.publishMessage('UI.Cmd.Menu.SelectCharacter', { Id: id });
+            host.appendChild(row);
+          }
+        }
+
+        // C++ re-broadcasts the roster after every accepted pick, so the screen
+        // always paints what was actually stored rather than an optimistic guess.
+        tsic.on('tsic.msg.UI.Menu.Characters', render);
+
+        tsic.onClick('#btn-back', () =>
+          tsic.publishMessage('UI.Cmd.Menu.Navigate', { Screen: 'MainMenu' }));
+      }));
+    })();
+  </script>
+</body></html>

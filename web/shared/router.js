@@ -37,6 +37,7 @@
     NewStore: 'new-store',
     Mods: 'mods',
     Credits: 'credits',
+    Character: 'character',
     Loading: 'loading-screen',
     FirstBoot: 'first-boot',
     InGame: 'in-game',

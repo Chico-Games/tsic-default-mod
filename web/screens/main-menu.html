@@ -479,6 +479,11 @@
           Mods
           <span class="tsic-row-pg">PG. 33</span>
         </button>
+        <button class="tsic-row-button" id="btn-character">
+          <span class="tsic-row-dept">Dept. 02</span>
+          Staff File
+          <span class="tsic-row-pg">PG. 02</span>
+        </button>
         <button class="tsic-row-button" id="btn-settings">
           <span class="tsic-row-dept">Dept. 88</span>
           Settings
@@ -1142,6 +1147,7 @@
           tsic.publishMessage('UI.Cmd.Menu.JoinFriends', {});
         document.getElementById('btn-load').onclick     = nav('LoadSave');
         document.getElementById('btn-mods').onclick     = nav('Mods');
+        document.getElementById('btn-character').onclick = nav('Character');
         document.getElementById('btn-settings').onclick = nav('Settings');
         document.getElementById('btn-credits').onclick  = nav('Credits');
         document.getElementById('btn-exit').onclick     = () =>
