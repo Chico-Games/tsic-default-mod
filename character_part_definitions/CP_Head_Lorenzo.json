@@ -6,6 +6,7 @@
   "properties": {
     "slot": "Head",
     "display_name": "Lorenzo",
+    "sculpted_build": "Masculine",
     "mesh": "/Game/Forge/Built/Lorenzo/MHC_Lorenzo/Face/SKM_MHC_Lorenzo_FaceMesh.SKM_MHC_Lorenzo_FaceMesh",
     "sort_order": 80,
     "body_materials": [

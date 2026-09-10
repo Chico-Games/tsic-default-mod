@@ -6,6 +6,7 @@
   "properties": {
     "slot": "Head",
     "display_name": "Cameron",
+    "sculpted_build": "Masculine",
     "mesh": "/Game/Forge/Built/Cameron/MHC_Cameron/Face/SKM_MHC_Cameron_FaceMesh.SKM_MHC_Cameron_FaceMesh",
     "sort_order": 30,
     "body_materials": [

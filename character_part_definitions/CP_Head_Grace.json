@@ -6,6 +6,7 @@
   "properties": {
     "slot": "Head",
     "display_name": "Grace",
+    "sculpted_build": "Feminine",
     "mesh": "/Game/Forge/Built/Grace/MHC_Grace/Face/SKM_MHC_Grace_FaceMesh.SKM_MHC_Grace_FaceMesh",
     "sort_order": 210,
     "body_materials": [

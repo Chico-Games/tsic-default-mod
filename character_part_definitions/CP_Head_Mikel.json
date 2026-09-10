@@ -6,6 +6,7 @@
   "properties": {
     "slot": "Head",
     "display_name": "Mikel",
+    "sculpted_build": "Masculine",
     "mesh": "/Game/Forge/Built/Mikel/MHC_Mikel/Face/SKM_MHC_Mikel_FaceMesh.SKM_MHC_Mikel_FaceMesh",
     "sort_order": 100,
     "body_materials": [

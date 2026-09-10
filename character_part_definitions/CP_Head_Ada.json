@@ -6,6 +6,7 @@
   "properties": {
     "slot": "Head",
     "display_name": "Ada",
+    "sculpted_build": "Feminine",
     "mesh": "/Game/Forge/Built/Ada/MHC_Ada/Face/SKM_MHC_Ada_FaceMesh.SKM_MHC_Ada_FaceMesh",
     "sort_order": 160,
     "body_materials": [

@@ -6,6 +6,7 @@
   "properties": {
     "slot": "Head",
     "display_name": "Tuya",
+    "sculpted_build": "Feminine",
     "mesh": "/Game/Forge/Built/Tuya/MHC_Tuya/Face/SKM_MHC_Tuya_FaceMesh.SKM_MHC_Tuya_FaceMesh",
     "sort_order": 260,
     "body_materials": [

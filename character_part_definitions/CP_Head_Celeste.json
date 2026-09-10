@@ -6,6 +6,7 @@
   "properties": {
     "slot": "Head",
     "display_name": "Celeste",
+    "sculpted_build": "Feminine",
     "mesh": "/Game/Forge/Built/Celeste/MHC_Celeste/Face/SKM_MHC_Celeste_FaceMesh.SKM_MHC_Celeste_FaceMesh",
     "sort_order": 190,
     "body_materials": [

@@ -6,6 +6,7 @@
   "properties": {
     "slot": "Head",
     "display_name": "Walter",
+    "sculpted_build": "Masculine",
     "mesh": "/Game/Forge/Built/Walter/MHC_Walter/Face/SKM_MHC_Walter_FaceMesh.SKM_MHC_Walter_FaceMesh",
     "sort_order": 150,
     "body_materials": [

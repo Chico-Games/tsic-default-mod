@@ -6,6 +6,7 @@
   "properties": {
     "slot": "Head",
     "display_name": "Vivian",
+    "sculpted_build": "Feminine",
     "mesh": "/Game/Forge/Built/Vivian/MHC_Vivian/Face/SKM_MHC_Vivian_FaceMesh.SKM_MHC_Vivian_FaceMesh",
     "sort_order": 270,
     "body_materials": [

@@ -6,6 +6,7 @@
   "properties": {
     "slot": "Head",
     "display_name": "Lani",
+    "sculpted_build": "Feminine",
     "mesh": "/Game/Forge/Built/Lani/MHC_Lani/Face/SKM_MHC_Lani_FaceMesh.SKM_MHC_Lani_FaceMesh",
     "sort_order": 230,
     "body_materials": [

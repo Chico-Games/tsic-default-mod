@@ -6,6 +6,7 @@
   "properties": {
     "slot": "Head",
     "display_name": "Bo",
+    "sculpted_build": "Masculine",
     "mesh": "/Game/Forge/Built/Bo/MHC_Bo/Face/SKM_MHC_Bo_FaceMesh.SKM_MHC_Bo_FaceMesh",
     "sort_order": 10,
     "body_materials": [

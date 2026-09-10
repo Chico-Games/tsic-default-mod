@@ -6,6 +6,7 @@
   "properties": {
     "slot": "Head",
     "display_name": "Bruce",
+    "sculpted_build": "Masculine",
     "mesh": "/Game/Forge/Built/Bruce/MHC_Bruce/Face/SKM_MHC_Bruce_FaceMesh.SKM_MHC_Bruce_FaceMesh",
     "sort_order": 20,
     "body_materials": [

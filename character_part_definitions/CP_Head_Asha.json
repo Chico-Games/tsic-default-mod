@@ -6,6 +6,7 @@
   "properties": {
     "slot": "Head",
     "display_name": "Asha",
+    "sculpted_build": "Feminine",
     "mesh": "/Game/Forge/Built/Asha/MHC_Asha/Face/SKM_MHC_Asha_FaceMesh.SKM_MHC_Asha_FaceMesh",
     "sort_order": 180,
     "body_materials": [

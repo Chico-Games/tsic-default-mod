@@ -6,6 +6,7 @@
   "properties": {
     "slot": "Head",
     "display_name": "Sunita",
+    "sculpted_build": "Feminine",
     "mesh": "/Game/Forge/Built/Sunita/MHC_Sunita/Face/SKM_MHC_Sunita_FaceMesh.SKM_MHC_Sunita_FaceMesh",
     "sort_order": 250,
     "body_materials": [

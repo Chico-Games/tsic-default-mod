@@ -6,6 +6,7 @@
   "properties": {
     "slot": "Head",
     "display_name": "Dominic",
+    "sculpted_build": "Masculine",
     "mesh": "/Game/Forge/Built/Dominic/MHC_Dominic/Face/SKM_MHC_Dominic_FaceMesh.SKM_MHC_Dominic_FaceMesh",
     "sort_order": 40,
     "body_materials": [

@@ -6,6 +6,7 @@
   "properties": {
     "slot": "Head",
     "display_name": "Isaiah",
+    "sculpted_build": "Masculine",
     "mesh": "/Game/Forge/Built/Isaiah/MHC_Isaiah/Face/SKM_MHC_Isaiah_FaceMesh.SKM_MHC_Isaiah_FaceMesh",
     "sort_order": 50,
     "body_materials": [

@@ -6,6 +6,7 @@
   "properties": {
     "slot": "Head",
     "display_name": "Kelvin",
+    "sculpted_build": "Masculine",
     "mesh": "/Game/Forge/Built/Kelvin/MHC_Kelvin/Face/SKM_MHC_Kelvin_FaceMesh.SKM_MHC_Kelvin_FaceMesh",
     "sort_order": 70,
     "body_materials": [

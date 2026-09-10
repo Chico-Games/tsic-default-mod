@@ -6,6 +6,7 @@
   "properties": {
     "slot": "Head",
     "display_name": "Jorge",
+    "sculpted_build": "Masculine",
     "mesh": "/Game/Forge/Built/Jorge/MHC_Jorge/Face/SKM_MHC_Jorge_FaceMesh.SKM_MHC_Jorge_FaceMesh",
     "sort_order": 60,
     "body_materials": [

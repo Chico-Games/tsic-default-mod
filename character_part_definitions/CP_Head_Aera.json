@@ -6,6 +6,7 @@
   "properties": {
     "slot": "Head",
     "display_name": "Aera",
+    "sculpted_build": "Feminine",
     "mesh": "/Game/Forge/Built/Aera/MHC_Aera/Face/SKM_MHC_Aera_FaceMesh.SKM_MHC_Aera_FaceMesh",
     "sort_order": 170,
     "body_materials": [

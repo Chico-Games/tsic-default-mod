@@ -6,6 +6,7 @@
   "properties": {
     "slot": "Head",
     "display_name": "Sook-ja",
+    "sculpted_build": "Feminine",
     "mesh": "/Game/Forge/Built/Sook-ja/MHC_Sookja/Face/SKM_MHC_Sookja_FaceMesh.SKM_MHC_Sookja_FaceMesh",
     "sort_order": 240,
     "body_materials": [

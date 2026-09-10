@@ -6,6 +6,7 @@
   "properties": {
     "slot": "Head",
     "display_name": "Trey",
+    "sculpted_build": "Masculine",
     "mesh": "/Game/Forge/Built/Trey/MHC_Trey/Face/SKM_MHC_Trey_FaceMesh.SKM_MHC_Trey_FaceMesh",
     "sort_order": 130,
     "body_materials": [

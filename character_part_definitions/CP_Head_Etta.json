@@ -6,6 +6,7 @@
   "properties": {
     "slot": "Head",
     "display_name": "Etta",
+    "sculpted_build": "Feminine",
     "mesh": "/Game/Forge/Built/Etta/MHC_Etta/Face/SKM_MHC_Etta_FaceMesh.SKM_MHC_Etta_FaceMesh",
     "sort_order": 200,
     "body_materials": [

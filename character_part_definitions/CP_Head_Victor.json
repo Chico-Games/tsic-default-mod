@@ -6,6 +6,7 @@
   "properties": {
     "slot": "Head",
     "display_name": "Victor",
+    "sculpted_build": "Masculine",
     "mesh": "/Game/Forge/Built/Victor/MHC_Victor/Face/SKM_MHC_Victor_FaceMesh.SKM_MHC_Victor_FaceMesh",
     "sort_order": 140,
     "body_materials": [

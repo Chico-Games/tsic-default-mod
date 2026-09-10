@@ -6,6 +6,7 @@
   "properties": {
     "slot": "Head",
     "display_name": "Aoi",
+    "sculpted_build": "Masculine",
     "mesh": "/Game/Forge/Built/Aoi/MHC_Aoi/Face/SKM_MHC_Aoi_FaceMesh.SKM_MHC_Aoi_FaceMesh",
     "sort_order": 0,
     "body_materials": [

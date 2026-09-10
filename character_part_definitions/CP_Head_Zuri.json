@@ -6,6 +6,7 @@
   "properties": {
     "slot": "Head",
     "display_name": "Zuri",
+    "sculpted_build": "Feminine",
     "mesh": "/Game/Forge/Built/Zuri/MHC_Zuri/Face/SKM_MHC_Zuri_FaceMesh.SKM_MHC_Zuri_FaceMesh",
     "sort_order": 280,
     "body_materials": [

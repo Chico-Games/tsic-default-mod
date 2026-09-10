@@ -6,6 +6,7 @@
   "properties": {
     "slot": "Head",
     "display_name": "Orlando",
+    "sculpted_build": "Masculine",
     "mesh": "/Game/Forge/Built/Orlando/MHC_Orlando/Face/SKM_MHC_Orlando_FaceMesh.SKM_MHC_Orlando_FaceMesh",
     "sort_order": 120,
     "body_materials": [

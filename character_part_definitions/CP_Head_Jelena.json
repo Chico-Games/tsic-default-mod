@@ -6,6 +6,7 @@
   "properties": {
     "slot": "Head",
     "display_name": "Jelena",
+    "sculpted_build": "Feminine",
     "mesh": "/Game/Forge/Built/Jelena/MHC_Jelena/Face/SKM_MHC_Jelena_FaceMesh.SKM_MHC_Jelena_FaceMesh",
     "sort_order": 220,
     "body_materials": [
