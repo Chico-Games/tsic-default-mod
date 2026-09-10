@@ -6,7 +6,7 @@
   "properties": {
     "slot": "Hair",
     "display_name": "Shaved",
-    "mesh": null,
-    "sort_order": 0
+    "sort_order": 0,
+    "thumbnail": "/img/parts/cp_hair_none.png"
   }
 }
