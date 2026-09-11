@@ -496,6 +496,8 @@
             btnRow([
               { label: 'Toggle HP Bars', cmd: 'EnemyHealthBars', state: 'bEnemyHealthBars' },
               { label: 'Toggle Nameplates', cmd: 'AIStateNameplates', state: 'bAiNameplates' },
+              { label: 'Toggle Flinch/Stagger Draw', cmd: 'HitReactionDebug',
+                title: 'Draws every hit verdict over the enemy (flinch, break, too weak, immune), the impulse arrow at the hit bone, and a live knockdown readout.' },
             ]),
         },
         {
@@ -727,6 +729,7 @@
       { label: 'No aggro', cmd: 'Docile' },
       { label: 'HP bars', cmd: 'EnemyHealthBars' },
       { label: 'Nameplates', cmd: 'AIStateNameplates' },
+      { label: 'Flinch/stagger draw', cmd: 'HitReactionDebug' },
     ],
     'enemies/DESTROY': [
       { label: 'Destroy aimed', cmd: 'DestroyTarget {p}' },
