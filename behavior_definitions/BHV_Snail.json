@@ -114,7 +114,8 @@
       {
         "name": "Investigate",
         "when": [
-          { "if": "heard_noise_within", "seconds": 8 }
+          { "if": "heard_noise_within", "seconds": 8 },
+          { "if": "suspicious", "at_least": 0.8 }
         ],
         "hold_seconds": 30,
         "actions": [
