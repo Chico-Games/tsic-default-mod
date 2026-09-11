@@ -45,7 +45,8 @@
     "stalemate": {
       "give_up_seconds": 8,
       "resume_seconds": 20,
-      "search_near_spawn": true
+      "search_near_spawn": true,
+      "hold_near_home_distance": 3000
     },
     "targeting": {
       "target_priority": [
