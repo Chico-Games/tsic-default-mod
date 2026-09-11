@@ -194,6 +194,7 @@
             <label class="ar-check"><input type="checkbox" id="ar-nameplates" data-tsic-focusable> AI state nameplates</label>
             <label class="ar-check"><input type="checkbox" id="ar-healthbars" data-tsic-focusable> Enemy health bars</label>
             <label class="ar-check"><input type="checkbox" id="ar-hitboxes" data-tsic-focusable> Attack hitboxes</label>
+            <label class="ar-check"><input type="checkbox" id="ar-hitreact" data-tsic-focusable> Flinch / stagger</label>
             <label class="ar-check"><input type="checkbox" id="ar-record" data-tsic-focusable> Record fight</label>
             <span class="ar-meta">Saved with the setup and applied when the fight starts. A recording opens its replay on the next fight or the F9 reset.</span>
           </div>
@@ -416,6 +417,7 @@
         $('ar-nameplates').checked = !!s.bAiNameplates;
         $('ar-healthbars').checked = !!s.bEnemyHealthBars;
         $('ar-hitboxes').checked = !!s.bAttackHitboxes;
+        $('ar-hitreact').checked = !!s.bHitReactionDebug;
         $('ar-record').checked = !!s.bRecordFight;
       }
 
@@ -424,7 +426,8 @@
           Name: $('ar-name').value.trim(), Enemies: [], Equipment: [], Hotbar: [],
           bNoDamage: $('ar-nodamage').checked, bInfiniteStamina: $('ar-stamina').checked,
           bAiNameplates: $('ar-nameplates').checked, bEnemyHealthBars: $('ar-healthbars').checked,
-          bAttackHitboxes: $('ar-hitboxes').checked, bRecordFight: $('ar-record').checked,
+          bAttackHitboxes: $('ar-hitboxes').checked, bHitReactionDebug: $('ar-hitreact').checked,
+          bRecordFight: $('ar-record').checked,
         };
         for (let i = 0; i < MAX_ENEMIES; i++) {
           setup.Enemies.push({ EnemyId: comboValue(`ar-enemy-${i}`), VariantTier: pickerValue(`ar-tier-${i}`) || 'Base' });
