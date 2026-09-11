@@ -89,6 +89,9 @@
             "if": "has_target"
           },
           {
+            "if": "engaged"
+          },
+          {
             "if": "time_since_seen",
             "over": 12
           }
