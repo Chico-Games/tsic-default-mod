@@ -273,26 +273,26 @@
     }
 
     /* --- stage --- */
+    /*
+      Deliberately transparent, and it is not an oversight.
+
+      The doll is not in this document. It is the preview render target, drawn by
+      Slate UNDERNEATH the whole web view, and this element is the hole we leave for
+      it -- see UI.Cmd.View.SetLiveLayer below. Anything painted here, including a
+      background, would cover it: nothing in the page can sit behind a live layer.
+
+      So the stage's backdrop belongs to the 3D scene now, not to CSS. Everything
+      else on this screen still draws over the doll as normal, which is the way
+      round that matters.
+    */
     .cast-stage {
       grid-area: stage;
       position: relative;
       border-left: 2px solid var(--ink-night);
-      background:
-        radial-gradient(ellipse at 50% 38%, rgba(255, 253, 243, 0.55), rgba(227, 216, 184, 0) 62%),
-        var(--paper-muted);
+      background: transparent;
       overflow: hidden;
       cursor: ew-resize;
       user-select: none;
-    }
-    /* Contain, not cover: the capture is square and cropping it beheads the doll. */
-    #cast-doll {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      -webkit-user-drag: none;
-      pointer-events: none;
     }
     .cast-hint {
       position: absolute;
@@ -318,7 +318,17 @@
       .cast-slots { max-height: 34vh; }
     }
   </style>
-</head><body class="tsic-stage--magazine-gradient" data-paper-alpha="1">
+</head>
+<!--
+  No stage class on <body>, unlike every other menu screen.
+
+  The magazine stage paints the whole viewport, and the doll is drawn by Slate
+  BENEATH this page -- so a full-screen background is a lid on it. The rail down
+  the left already paints its own opaque paper (see .cast-head/.cast-slots/
+  .cast-foot), which is what the stage was there for; the rest of the screen is
+  meant to be the scene now.
+-->
+<body>
   <div class="cast-screen">
     <div class="cast-head">
       <h1 class="cast-title"><em>Customise</em>Character.</h1>
@@ -338,7 +348,6 @@
     </div>
 
     <div class="cast-stage" id="cast-stage">
-      <img id="cast-doll" alt="">
       <div class="cast-hint">Drag to turn</div>
     </div>
   </div>
@@ -353,14 +362,48 @@
       tsic.whenReady(() => tsic.bootMenu(function () {
         const host = document.getElementById('cast-slots');
         const stage = document.getElementById('cast-stage');
-        const doll = document.getElementById('cast-doll');
 
         // ---- live 3D preview -------------------------------------------------
-        // The doll is a scene capture streamed as PNGs; 24fps is enough for an
-        // idle and a turntable, and every frame is decoded on the thread that
-        // also services the drag below.
-        const stopStream = TSIC.startRuntimeImgStream(doll, 'character-preview', { fps: 24 });
-        window.addEventListener('pagehide', () => { if (stopStream) stopStream(); });
+        //
+        // The doll used to be an <img> fed PNGs at 15fps. Every one of those frames
+        // cost a blocking GPU->CPU readback on the game thread, a copy, a PNG
+        // encode, an HTTP round trip and a Chromium decode -- for a picture the GPU
+        // already had, and still only fifteen of them a second.
+        //
+        // Now it is a Slate layer beneath the page and we only tell C++ where to put
+        // it. It draws at the renderer's own rate and costs nothing to move.
+        //
+        // Fractions of the viewport, not pixels: CEF renders at the viewport DPI
+        // scale and its buffer is painted back through a centring transform, so a
+        // pixel rectangle would be wrong on both counts, and wrong again after a
+        // resize.
+        function publishStageRect(visible) {
+          const r = stage.getBoundingClientRect();
+          const w = window.innerWidth || 1;
+          const h = window.innerHeight || 1;
+          tsic.publishMessage('UI.Cmd.View.SetLiveLayer', {
+            Id: 'character-preview',
+            MinX: r.left / w,
+            MinY: r.top / h,
+            MaxX: r.right / w,
+            MaxY: r.bottom / h,
+            bVisible: !!visible,
+          });
+        }
+
+        // ResizeObserver rather than a window resize listener: the stage is a grid
+        // area, so it also moves when the panel beside it changes width, which no
+        // window event reports.
+        const stageObserver = new ResizeObserver(() => publishStageRect(true));
+        stageObserver.observe(stage);
+        publishStageRect(true);
+
+        // Hand the rectangle back on the way out, or the doll keeps drawing over
+        // whatever screen comes next.
+        window.addEventListener('pagehide', () => {
+          stageObserver.disconnect();
+          publishStageRect(false);
+        });
 
         // ---- turntable -------------------------------------------------------
         let yaw = 0;
