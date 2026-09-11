@@ -184,7 +184,18 @@
           <div class="ar-row">
             <label class="ar-check"><input type="checkbox" id="ar-nodamage" data-tsic-focusable> No damage</label>
             <label class="ar-check"><input type="checkbox" id="ar-stamina" data-tsic-focusable> Infinite stamina</label>
-            <span class="ar-meta">Saved with the setup. F9 also puts you back on the start mark, heals you and clears projectiles.</span>
+            <span class="ar-meta">Saved with the setup. F9 also puts you back on the start mark, heals you and clears projectiles. F7 and F8 switch the clock to day and night.</span>
+          </div>
+        </div>
+
+        <div class="ar-section" id="ar-debug" data-tsic-focus-group="debug">
+          <h3>AI debug</h3>
+          <div class="ar-row">
+            <label class="ar-check"><input type="checkbox" id="ar-nameplates" data-tsic-focusable> AI state nameplates</label>
+            <label class="ar-check"><input type="checkbox" id="ar-healthbars" data-tsic-focusable> Enemy health bars</label>
+            <label class="ar-check"><input type="checkbox" id="ar-hitboxes" data-tsic-focusable> Attack hitboxes</label>
+            <label class="ar-check"><input type="checkbox" id="ar-record" data-tsic-focusable> Record fight</label>
+            <span class="ar-meta">Saved with the setup and applied when the fight starts. A recording opens its replay on the next fight or the F9 reset.</span>
           </div>
         </div>
 
@@ -402,12 +413,18 @@
         $('ar-name').value = s.Name || '';
         $('ar-nodamage').checked = !!s.bNoDamage;
         $('ar-stamina').checked = !!s.bInfiniteStamina;
+        $('ar-nameplates').checked = !!s.bAiNameplates;
+        $('ar-healthbars').checked = !!s.bEnemyHealthBars;
+        $('ar-hitboxes').checked = !!s.bAttackHitboxes;
+        $('ar-record').checked = !!s.bRecordFight;
       }
 
       function readSetup() {
         const setup = {
           Name: $('ar-name').value.trim(), Enemies: [], Equipment: [], Hotbar: [],
           bNoDamage: $('ar-nodamage').checked, bInfiniteStamina: $('ar-stamina').checked,
+          bAiNameplates: $('ar-nameplates').checked, bEnemyHealthBars: $('ar-healthbars').checked,
+          bAttackHitboxes: $('ar-hitboxes').checked, bRecordFight: $('ar-record').checked,
         };
         for (let i = 0; i < MAX_ENEMIES; i++) {
           setup.Enemies.push({ EnemyId: comboValue(`ar-enemy-${i}`), VariantTier: pickerValue(`ar-tier-${i}`) || 'Base' });
