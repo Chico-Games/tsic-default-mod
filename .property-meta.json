@@ -20007,6 +20007,20 @@
       "display_name": null,
       "categories": null
     },
+    "InteractableFurnitureDefinition.show_openable_indicator": {
+      "tooltip": "Draw the small in-world dot above this furniture while a player is within reach, telling them it opens a screen. Off for a piece that already advertises itself (a shop with its own signage) or one that should not (a boss summoner).",
+      "category": "Interaction",
+      "cpp_type": "bool",
+      "element_class": null,
+      "clamp_min": null,
+      "clamp_max": null,
+      "ui_min": null,
+      "ui_max": null,
+      "edit_condition": null,
+      "edit_spec": "EditAnywhere",
+      "display_name": null,
+      "categories": null
+    },
     "InteractableFurnitureDefinition.open_sound": {
       "tooltip": "Sound slot for opening this piece of furniture, overriding the generic container cue. A car boot, a chest of drawers, a locker and a toilet lid are all \"a container opening\" to the interaction code and nothing alike to the ear. None = the shared GameplayCue.Container.Open, which is still right for most things.",
       "category": "Interaction|Audio",
