@@ -6,6 +6,7 @@
   "properties": {
     "slot": "Headwear",
     "display_name": "Bare Head",
-    "sort_order": 0
+    "sort_order": 0,
+    "thumbnail": "/img/parts/cp_headwear_none.png"
   }
 }

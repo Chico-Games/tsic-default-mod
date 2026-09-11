@@ -6,6 +6,7 @@
   "properties": {
     "slot": "Shoes",
     "display_name": "Barefoot",
-    "sort_order": 0
+    "sort_order": 0,
+    "thumbnail": "/img/parts/cp_shoes_none.png"
   }
 }
