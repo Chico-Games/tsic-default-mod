@@ -143,6 +143,14 @@
           {
             "if": "heard_noise_within",
             "seconds": 8
+          },
+          {
+            "if": "suspicious",
+            "at_least": 0.8
+          },
+          {
+            "if": "day_section",
+            "is": "Gameplay.DaySection.Night"
           }
         ],
         "hold_seconds": 30,
