@@ -5,8 +5,8 @@
   "schema_version": 2,
   "properties": {
     "slot": "Beard",
-    "display_name": "Clean Shaven",
-    "mesh": null,
-    "sort_order": 0
+    "display_name": "Clean shaven",
+    "sort_order": 0,
+    "thumbnail": "/img/parts/cp_beard_none.png"
   }
 }

@@ -6,15 +6,17 @@
   <meta name="tsic-cancel-cmd" content="UI.Cmd.Menu.Back">
   <meta name="tsic-focus" content="enabled">
   <meta name="tsic-action-bar-context" content='[]'>
-  <title>Staff File</title>
+  <title>Customise Character</title>
   <link rel="stylesheet" href="/shared/base.css">
   <link rel="stylesheet" href="/shared/components.css">
   <script src="/shared/router.js" defer></script>
   <script src="/shared/tsic-bridge.js" defer></script>
   <script src="/shared/tsic-runtime.js" defer></script>
   <script src="/shared/reduce-motion.js" defer></script>
-  <script src="/shared/store-maze.js" defer></script>
-  <script src="/shared/store-maze-stage.js" defer></script>
+  <!-- No store-maze here. This screen is full-bleed — the rail and the doll's
+       stage cover the backdrop edge to edge — so the drifting plan would animate
+       a canvas nobody can see, and it costs about ten milliseconds a frame to do
+       it. Every other menu page still loads it. -->
   <script src="/shared/tsic-focus.js" defer></script>
   <script src="/shared/dom.js" defer></script>
   <script src="/shared/icons.js" defer></script>
@@ -113,6 +115,105 @@
       text-transform: none;
       color: var(--mag-red);
     }
+    /* --- sub-menu buttons --- */
+    .cast-menu {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .cast-menu-btn {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 10px;
+      width: 100%;
+      padding: 11px 12px;
+      background: var(--paper-soft);
+      border: 1px solid var(--ink-night);
+      cursor: pointer;
+      text-align: left;
+      font: inherit;
+      color: inherit;
+    }
+    .cast-menu-btn:hover,
+    .cast-menu-btn[data-tsic-focused] {
+      background: var(--paper-bright);
+      outline: 2px solid var(--ink-night);
+      outline-offset: -3px;
+    }
+    .cast-menu-btn-name {
+      font-family: var(--font-display);
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--ink-night);
+    }
+    .cast-menu-btn-worn {
+      font-family: var(--font-body);
+      font-size: 11px;
+      letter-spacing: 0.03em;
+      color: var(--mag-red);
+      text-align: right;
+    }
+    .cast-back {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 2px 10px;
+      background: none;
+      border: 0;
+      border-bottom: 1px solid var(--ink-night);
+      margin-bottom: 4px;
+      cursor: pointer;
+      font-family: var(--font-display);
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--ink-night);
+      width: 100%;
+      text-align: left;
+    }
+    .cast-back:hover,
+    .cast-back[data-tsic-focused] { color: var(--mag-red); }
+
+    /* --- colour swatches --- */
+    .cast-swatches {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(34px, 1fr));
+      gap: 5px;
+      margin-bottom: 14px;
+    }
+    .cast-swatch {
+      aspect-ratio: 1;
+      padding: 0;
+      border: 1px solid var(--ink-night);
+      cursor: pointer;
+      font: inherit;
+      color: inherit;
+    }
+    .cast-swatch:hover,
+    .cast-swatch[data-tsic-focused] { outline: 2px solid var(--ink-night); outline-offset: 1px; }
+    .cast-swatch.is-chosen { box-shadow: 0 0 0 2px var(--paper), 0 0 0 4px var(--mag-red); }
+    /* The match-hair swatch has no colour of its own to show, so it says so. */
+    .cast-swatch--match {
+      background: var(--paper-soft);
+      font-family: var(--font-terminal);
+      font-size: 9px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--ink-mute);
+      line-height: 1.05;
+    }
+    /* A rainbow ring around the colour last mixed: the ring says "any colour", the
+       middle says which one, so the square reads like the rest of the row. */
+    .cast-swatch--wheel {
+      background:
+        radial-gradient(circle, var(--tint, transparent) 0 40%, transparent 41%),
+        conic-gradient(#e34a3a, #e0c23a, #4fbf5a, #3fb7c8, #4a63d8, #a94ad0, #e34a3a);
+    }
+
     /* Tiles, not rows: a face is picked by looking at it. Falls back to a name
        plate until the parts carry thumbnails. */
     .cast-tiles {
@@ -148,7 +249,7 @@
       box-shadow: inset 0 0 0 2px var(--mag-red);
     }
     .cast-tile-art {
-      height: 62px;
+      height: 78px;
       background: var(--paper-muted);
       border-bottom: 1px solid var(--ink-night);
       object-fit: cover;
@@ -172,26 +273,26 @@
     }
 
     /* --- stage --- */
+    /*
+      Deliberately transparent, and it is not an oversight.
+
+      The doll is not in this document. It is the preview render target, drawn by
+      Slate UNDERNEATH the whole web view, and this element is the hole we leave for
+      it -- see UI.Cmd.View.SetLiveLayer below. Anything painted here, including a
+      background, would cover it: nothing in the page can sit behind a live layer.
+
+      So the stage's backdrop belongs to the 3D scene now, not to CSS. Everything
+      else on this screen still draws over the doll as normal, which is the way
+      round that matters.
+    */
     .cast-stage {
       grid-area: stage;
       position: relative;
       border-left: 2px solid var(--ink-night);
-      background:
-        radial-gradient(ellipse at 50% 38%, rgba(255, 253, 243, 0.55), rgba(227, 216, 184, 0) 62%),
-        var(--paper-muted);
+      background: transparent;
       overflow: hidden;
       cursor: ew-resize;
       user-select: none;
-    }
-    /* Contain, not cover: the capture is square and cropping it beheads the doll. */
-    #cast-doll {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      -webkit-user-drag: none;
-      pointer-events: none;
     }
     .cast-hint {
       position: absolute;
@@ -217,10 +318,20 @@
       .cast-slots { max-height: 34vh; }
     }
   </style>
-</head><body class="tsic-stage--magazine-gradient" data-paper-alpha="1">
+</head>
+<!--
+  No stage class on <body>, unlike every other menu screen.
+
+  The magazine stage paints the whole viewport, and the doll is drawn by Slate
+  BENEATH this page -- so a full-screen background is a lid on it. The rail down
+  the left already paints its own opaque paper (see .cast-head/.cast-slots/
+  .cast-foot), which is what the stage was there for; the rest of the screen is
+  meant to be the scene now.
+-->
+<body>
   <div class="cast-screen">
     <div class="cast-head">
-      <h1 class="cast-title"><em>Your</em>Staff File.</h1>
+      <h1 class="cast-title"><em>Customise</em>Character.</h1>
       <p class="cast-lede">
         Who you turn up as. Travels with you into any store, including someone else's.
       </p>
@@ -237,7 +348,6 @@
     </div>
 
     <div class="cast-stage" id="cast-stage">
-      <img id="cast-doll" alt="">
       <div class="cast-hint">Drag to turn</div>
     </div>
   </div>
@@ -252,14 +362,48 @@
       tsic.whenReady(() => tsic.bootMenu(function () {
         const host = document.getElementById('cast-slots');
         const stage = document.getElementById('cast-stage');
-        const doll = document.getElementById('cast-doll');
 
         // ---- live 3D preview -------------------------------------------------
-        // The doll is a scene capture streamed as PNGs; 24fps is enough for an
-        // idle and a turntable, and every frame is decoded on the thread that
-        // also services the drag below.
-        const stopStream = TSIC.startRuntimeImgStream(doll, 'character-preview', { fps: 24 });
-        window.addEventListener('pagehide', () => { if (stopStream) stopStream(); });
+        //
+        // The doll used to be an <img> fed PNGs at 15fps. Every one of those frames
+        // cost a blocking GPU->CPU readback on the game thread, a copy, a PNG
+        // encode, an HTTP round trip and a Chromium decode -- for a picture the GPU
+        // already had, and still only fifteen of them a second.
+        //
+        // Now it is a Slate layer beneath the page and we only tell C++ where to put
+        // it. It draws at the renderer's own rate and costs nothing to move.
+        //
+        // Fractions of the viewport, not pixels: CEF renders at the viewport DPI
+        // scale and its buffer is painted back through a centring transform, so a
+        // pixel rectangle would be wrong on both counts, and wrong again after a
+        // resize.
+        function publishStageRect(visible) {
+          const r = stage.getBoundingClientRect();
+          const w = window.innerWidth || 1;
+          const h = window.innerHeight || 1;
+          tsic.publishMessage('UI.Cmd.View.SetLiveLayer', {
+            Id: 'character-preview',
+            MinX: r.left / w,
+            MinY: r.top / h,
+            MaxX: r.right / w,
+            MaxY: r.bottom / h,
+            bVisible: !!visible,
+          });
+        }
+
+        // ResizeObserver rather than a window resize listener: the stage is a grid
+        // area, so it also moves when the panel beside it changes width, which no
+        // window event reports.
+        const stageObserver = new ResizeObserver(() => publishStageRect(true));
+        stageObserver.observe(stage);
+        publishStageRect(true);
+
+        // Hand the rectangle back on the way out, or the doll keeps drawing over
+        // whatever screen comes next.
+        window.addEventListener('pagehide', () => {
+          stageObserver.disconnect();
+          publishStageRect(false);
+        });
 
         // ---- turntable -------------------------------------------------------
         let yaw = 0;
@@ -307,29 +451,252 @@
         //
         // Rebuilding the DOM on every broadcast is what made the old screen
         // change selection on its own: the new rows took focus, focus activated
-        // one, that published another pick, which re-broadcast. So the tiles are
-        // built once per slot signature and only the chosen marks are patched
-        // afterwards.
+        // one, that published another pick, which re-broadcast. So the panel is
+        // built once per signature and only the chosen marks are patched
+        // afterwards. Opening a sub-menu changes the signature deliberately.
         let signature = null;
+        let openGroup = null;   // null == the top level
+        let lastSlots = [];
 
         function slotSignature(slots) {
-          return slots.map((s) => String(s.Slot) + ':' +
-            (s.Parts || []).map((p) => String(p.Id)).join(',')).join('|');
+          return String(openGroup) + '#' + slots.map((s) => String(s.Slot) + ':' +
+            (s.Parts || []).map((p) => String(p.Id) + '@' + String(p.ThumbnailUrl || ''))
+              .join(',')).join('|');
+        }
+
+        // A slot with no group is shown at the top level; the rest are folded into
+        // the button that opens their panel.
+        const groupOf = (slot) => String(slot.Group || '');
+
+        function wornName(slot) {
+          const chosen = String(slot.SelectedId || '');
+          for (const part of (slot.Parts || [])) {
+            if (String(part.Id || '') === chosen) return String(part.DisplayName || chosen);
+          }
+          return '';
         }
 
         function markChosen(slots) {
+          const worn = new Map();
+
           for (const slot of slots) {
             const chosen = String(slot.SelectedId || '');
-            const group = host.querySelector('[data-slot="' + CSS.escape(String(slot.Slot)) + '"]');
-            if (!group) continue;
+            const section = host.querySelector('[data-slot="' + CSS.escape(String(slot.Slot)) + '"]');
+            if (section) {
+              for (const tile of section.querySelectorAll('.cast-tile, .cast-swatch')) {
+                tile.classList.toggle('is-chosen', tile.dataset.partId === chosen);
+              }
 
-            const worn = group.querySelector('.cast-slot-worn');
-            for (const tile of group.querySelectorAll('.cast-tile')) {
-              const isChosen = tile.dataset.partId === chosen;
-              tile.classList.toggle('is-chosen', isChosen);
-              if (isChosen && worn) worn.textContent = tile.dataset.partName || '';
+              // Painted here rather than folded into the rebuild signature, because
+              // the picker is open and under the cursor while this fires -- rebuilding
+              // the row mid-drag would tear the popup off its own button.
+              const wheel = section.querySelector('.cast-swatch--wheel');
+              if (wheel && slot.Tint) {
+                wheel.style.setProperty('--tint', String(slot.Tint));
+                wheel.querySelector('.cast-wheel-input').value = String(slot.Tint);
+              }
             }
+
+            // A colour row is a second view of a slot already counted, so leave it
+            // out of the summary or clothing reads as four garments.
+            const group = groupOf(slot);
+            if (!group || slot.bIsColor) continue;
+            const name = wornName(slot);
+            if (name) worn.set(group, (worn.get(group) || []).concat(name));
           }
+
+          // The closed buttons carry what is worn inside them, so the top level
+          // still answers "what am I wearing" without opening anything.
+          for (const [group, names] of worn) {
+            const button = host.querySelector(
+              '[data-group-worn="' + CSS.escape(group) + '"]');
+            if (button) button.textContent = names.join(' \u00b7 ');
+          }
+        }
+
+        const pickPart = (slotKey, id) => tsic.publishMessage(
+          'UI.Cmd.Menu.SelectCharacterPart', { Slot: slotKey, Id: id });
+
+        // Panels where the decision is made above the collar get the camera in
+        // close; the rest keep the whole figure, because a coat is not judged from
+        // the chin up. C++ glides between the two, so this is a plain toggle.
+        const CLOSE_UP_GROUPS = new Set(['Face', 'Hair', 'FacialHair']);
+
+        function frameFor(group) {
+          tsic.publishMessage('UI.Cmd.Menu.FrameCharacter',
+            { bCloseUp: CLOSE_UP_GROUPS.has(String(group || '')) });
+        }
+
+        function openPanelFor(group) {
+          openGroup = group;
+          frameFor(group);
+          render({ Slots: lastSlots });
+        }
+
+        function buildTiles(slot) {
+          const slotKey = String(slot.Slot || '');
+          const tiles = TSIC.el('div', { class: 'cast-tiles' });
+          for (const part of (slot.Parts || [])) {
+            const id = String(part.Id || '');
+            const name = String(part.DisplayName || id);
+            // No name plate: the picture is the label. The name stays as the
+            // tooltip and as the worn line on the button that opens this panel.
+            const tile = TSIC.el('button', {
+              class: 'cast-tile',
+              type: 'button',
+              title: name,
+              'data-part-id': id,
+              'data-part-name': name,
+              'data-tsic-focusable': '',
+              tabindex: '-1',
+            });
+            tile.appendChild(part.ThumbnailUrl
+              ? TSIC.el('img', { class: 'cast-tile-art', src: String(part.ThumbnailUrl), alt: name })
+              : TSIC.el('span', { class: 'cast-tile-name' }, name));
+            tile.onclick = () => pickPart(slotKey, id);
+            tiles.appendChild(tile);
+          }
+          return tiles;
+        }
+
+        const setTint = (slotKey, hex) => tsic.publishMessage(
+          'UI.Cmd.Menu.SetCharacterTint', { Slot: slotKey, Hex: hex });
+
+        // The wheel is the last square in the row rather than a control off to one
+        // side: it answers the same question as the swatches, so it sits with the
+        // other answers. Chromium gives us a real colour picker for free.
+        function buildWheel(slot, part) {
+          const slotKey = String(slot.Slot || '');
+          const button = TSIC.el('button', {
+            class: 'cast-swatch cast-swatch--wheel',
+            type: 'button',
+            title: String(part.DisplayName || 'Pick your own'),
+            'data-part-id': String(part.Id || ''),
+            'data-tsic-focusable': '',
+            tabindex: '-1',
+          });
+
+          // Hidden rather than restyled: an <input type="color"> cannot be made to
+          // look like the other squares, but it can be made to do their job. It
+          // carries the tint so reopening it starts where the player left off.
+          const input = TSIC.el('input', {
+            type: 'color', class: 'cast-wheel-input', value: String(slot.Tint || '#7a472d'),
+          });
+          input.hidden = true;
+          input.oninput = () => setTint(slotKey, input.value);
+          button.appendChild(input);
+          button.onclick = () => input.click();
+          return button;
+        }
+
+        function buildSwatches(slot) {
+          const slotKey = String(slot.Slot || '');
+          const row = TSIC.el('div', { class: 'cast-swatches' });
+          for (const part of (slot.Parts || [])) {
+            const id = String(part.Id || '');
+            const name = String(part.DisplayName || id);
+            const swatch = String(part.Swatch || '');
+            if (swatch === 'wheel') {
+              row.appendChild(buildWheel(slot, part));
+              continue;
+            }
+
+            const isMatch = swatch === 'match';
+            const button = TSIC.el('button', {
+              class: 'cast-swatch' + (isMatch ? ' cast-swatch--match' : ''),
+              type: 'button',
+              title: name,
+              'data-part-id': id,
+              'data-tsic-focusable': '',
+              tabindex: '-1',
+            });
+            if (isMatch) button.textContent = 'Match';
+            else button.style.background = swatch;
+            button.onclick = () => pickPart(slotKey, id);
+            row.appendChild(button);
+          }
+          return row;
+        }
+
+        function buildPanel(slots) {
+          const group = openGroup;
+          const inGroup = slots.filter((s) => groupOf(s) === group);
+          const label = inGroup.length ? String(inGroup[0].GroupName || group) : group;
+
+          const back = TSIC.el('button', {
+            class: 'cast-back',
+            type: 'button',
+            'data-tsic-focusable': '',
+            tabindex: '-1',
+          }, '\u2039 ' + label);
+          back.onclick = () => openPanelFor(null);
+          host.appendChild(back);
+
+          const garments = inGroup.filter((s) => !s.bIsColor);
+          const addColors = (slot) => host.appendChild(TSIC.el(
+            'section', { 'data-slot': String(slot.Slot || '') }, buildSwatches(slot)));
+
+          // A colour row whose garment is not on this panel is still a colour worth
+          // offering -- better shown loose at the top than silently dropped.
+          for (const slot of inGroup) {
+            if (!slot.bIsColor) continue;
+            const owner = String(slot.ColorFor || '');
+            if (!garments.some((g) => String(g.Slot || '') === owner)) addColors(slot);
+          }
+
+          for (const slot of garments) {
+            const key = String(slot.Slot || '');
+
+            // Name the rows only where a panel holds more than one of them: a top
+            // and a bottom need telling apart, a lone list of haircuts does not.
+            if (garments.length > 1) {
+              host.appendChild(TSIC.el('div', { class: 'cast-slot-label' },
+                TSIC.el('span', {}, String(slot.DisplayName || key))));
+            }
+
+            // Colours above the shapes they paint: the smaller decision reads first,
+            // and sitting directly over its own tiles is what says which is which.
+            for (const colors of inGroup) {
+              if (colors.bIsColor && String(colors.ColorFor || '') === key) addColors(colors);
+            }
+            host.appendChild(TSIC.el('section', { 'data-slot': key }, buildTiles(slot)));
+          }
+        }
+
+        function buildTopLevel(slots) {
+          // Ungrouped slots stay open. Build is two tiles, and hiding two tiles
+          // behind a button costs a click to show what a glance already showed.
+          for (const slot of slots.filter((s) => !groupOf(s))) {
+            const section = TSIC.el('section', { 'data-slot': String(slot.Slot || '') });
+            section.appendChild(TSIC.el('div', { class: 'cast-slot-label' },
+              TSIC.el('span', {}, String(slot.DisplayName || slot.Slot))));
+            section.appendChild(buildTiles(slot));
+            host.appendChild(section);
+          }
+
+          const menu = TSIC.el('div', { class: 'cast-menu' });
+          const seen = new Set();
+          for (const slot of slots) {
+            const group = groupOf(slot);
+            if (!group || seen.has(group)) continue;
+            seen.add(group);
+
+            const button = TSIC.el('button', {
+              class: 'cast-menu-btn',
+              type: 'button',
+              'data-tsic-focusable': '',
+              tabindex: '-1',
+            });
+            button.appendChild(TSIC.el('span', { class: 'cast-menu-btn-name' },
+              String(slot.GroupName || group)));
+            button.appendChild(TSIC.el('span', {
+              class: 'cast-menu-btn-worn',
+              'data-group-worn': group,
+            }));
+            button.onclick = () => openPanelFor(group);
+            menu.appendChild(button);
+          }
+          host.appendChild(menu);
         }
 
         function build(slots) {
@@ -339,47 +706,13 @@
               'No uniform on file. The mod ships no character parts.'));
             return;
           }
-
-          for (const slot of slots) {
-            const slotKey = String(slot.Slot || '');
-            const group = TSIC.el('section', { 'data-slot': slotKey });
-
-            // TSIC.el takes children as varargs; an array would stringify.
-            group.appendChild(TSIC.el('div', { class: 'cast-slot-label' },
-              TSIC.el('span', {}, String(slot.DisplayName || slotKey)),
-              TSIC.el('span', { class: 'cast-slot-worn' })));
-
-            const tiles = TSIC.el('div', { class: 'cast-tiles' });
-            for (const part of (slot.Parts || [])) {
-              const id = String(part.Id || '');
-              const name = String(part.DisplayName || id);
-              const tile = TSIC.el('button', {
-                class: 'cast-tile',
-                type: 'button',
-                'data-part-id': id,
-                'data-part-name': name,
-                'data-tsic-focusable': '',
-                tabindex: '-1',
-              });
-
-              tile.appendChild(part.ThumbnailUrl
-                ? TSIC.el('img', { class: 'cast-tile-art', src: String(part.ThumbnailUrl), alt: '' })
-                : TSIC.el('div', { class: 'cast-tile-art' }));
-              tile.appendChild(TSIC.el('span', { class: 'cast-tile-name' }, name));
-
-              // The runtime plays the shared click SFX for us; no data-no-sfx here.
-              tile.onclick = () => tsic.publishMessage(
-                'UI.Cmd.Menu.SelectCharacterPart', { Slot: slotKey, Id: id });
-              tiles.appendChild(tile);
-            }
-
-            group.appendChild(tiles);
-            host.appendChild(group);
-          }
+          if (openGroup) buildPanel(slots);
+          else buildTopLevel(slots);
         }
 
         function render(payload) {
           const slots = (payload && payload.Slots) || [];
+          lastSlots = slots;
           const next = slotSignature(slots);
           if (next !== signature) {
             signature = next;
