@@ -230,6 +230,9 @@
       });
       // F9 — test arena. C++ clears the live enemies and opens the setup screen, or
       // toasts when the level has no arena, so nothing here needs to know either.
+      // F7/F8 double as the arena's day/night keys: AScpArenaManager reads them off the
+      // input manager directly, and the director drops the report command in an arena
+      // level, so the handlers above stay as they are.
       window.tsic.on('tsic.msg.UI.Behavior.ArenaMenu', (p) => {
         if (!p || p.Phase !== 'Started') return;
         window.tsic.publishMessage('UI.Cmd.Arena.Toggle', {});
