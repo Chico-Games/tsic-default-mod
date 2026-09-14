@@ -29,16 +29,16 @@
       {
         "name": "walk",
         "max_speed": 110,
-        "accel": 800,
-        "rotation_rate": 180,
-        "braking_deceleration": 260
+        "accel": 250,
+        "rotation_rate": 100,
+        "braking_deceleration": 200
       },
       {
         "name": "walk_medium",
         "max_speed": 161,
-        "accel": 950,
-        "rotation_rate": 220,
-        "braking_deceleration": 380
+        "accel": 320,
+        "rotation_rate": 130,
+        "braking_deceleration": 260
       },
       {
         "name": "hurry",
