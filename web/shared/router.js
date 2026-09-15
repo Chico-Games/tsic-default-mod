@@ -237,6 +237,11 @@
         if (!p || p.Phase !== 'Started') return;
         window.tsic.publishMessage('UI.Cmd.Arena.Toggle', {});
       });
+      // F10 — the basket test bench (L_BasketArena), same shape as the arena key.
+      window.tsic.on('tsic.msg.UI.Behavior.BasketArenaMenu', (p) => {
+        if (!p || p.Phase !== 'Started') return;
+        window.tsic.publishMessage('UI.Cmd.BasketArena.Toggle', {});
+      });
       // F2 — re-run the last cheat, whether it came from this panel or the ~ console.
       // C++ owns the history and toasts what it ran, so this needs no state here and
       // works with the cheat menu closed.
