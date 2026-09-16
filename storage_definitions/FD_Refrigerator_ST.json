@@ -29,9 +29,9 @@
     "blocking_collision_boxes": [
       {
         "offset": {
-          "x": 0.45,
-          "y": 22.55,
-          "z": 90.35
+          "x": -46.1,
+          "y": 32.25,
+          "z": 90.4
         },
         "rotation": {
           "pitch": 0,
@@ -39,18 +39,18 @@
           "roll": 0
         },
         "box_size": {
-          "x": 44.85,
-          "y": 39.45,
-          "z": 90.35
+          "x": 45.0,
+          "y": 47.15,
+          "z": 90.3
         }
       }
     ],
     "support_collision_boxes": [
       {
         "offset": {
-          "x": 0.45,
-          "y": 22.55,
-          "z": 90.35
+          "x": -46.1,
+          "y": 32.25,
+          "z": 90.4
         },
         "rotation": {
           "pitch": 0,
@@ -58,9 +58,9 @@
           "roll": 0
         },
         "box_size": {
-          "x": 45.85,
-          "y": 40.45,
-          "z": 90.35
+          "x": 46.0,
+          "y": 48.15,
+          "z": 90.3
         }
       }
     ],
@@ -91,7 +91,7 @@
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,
-    "static_mesh": "/Game/MidcenturyCombo/Midcentury_VOL3/Meshes/SM_Refrigerator_02a.SM_Refrigerator_02a",
+    "static_mesh": "/Game/Furniture/MidCentury/Fridge02/SM_Fridge02_Closed.SM_Fridge02_Closed",
     "casts_shadow": true,
     "collision_profile_name": {
       "name": "Furniture"
@@ -107,8 +107,8 @@
             "w": 1.0
           },
           "translation": {
-            "x": 0.45,
-            "y": 22.55,
+            "x": -46.1,
+            "y": 32.25,
             "z": 181.2
           },
           "scale3_d": {
@@ -163,7 +163,7 @@
     },
     "storage_view": {
       "offset": {
-        "x": 0.0,
+        "x": -45.0,
         "y": 28.0,
         "z": 43.0
       },
