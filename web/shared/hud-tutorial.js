@@ -58,15 +58,6 @@
     '  font-size:clamp(13px, 1.2vh, 17px); font-weight:700; letter-spacing:0.12em; text-transform:uppercase; }',
     '#hud-tutorial .tut-header-right { display:flex; align-items:center; gap:6px; }',
 
-    // "MORE [TAB]" — the only signpost the Overview screen has. Without it the
-    // handbook is a panel nobody is told about, so this rides the
-    // one HUD element that is already about objectives.
-    '#hud-tutorial .tut-more { display:flex; align-items:center; gap:4px; opacity:0.7;',
-    '  font-family:var(--font-body); font-size:clamp(9px, 0.85vh, 12px); font-weight:800;',
-    '  letter-spacing:0.16em; }',
-    '#hud-tutorial .tut-more img { width:1.35em; height:1.35em; opacity:0.9;',
-    '  filter:drop-shadow(0 1px 2px rgba(0,0,0,0.75)); }',
-
     // ✕ — dormant until a cursor overlay is open, then clickable.
     '#hud-tutorial .tut-close { pointer-events:none; opacity:0; transition:opacity 150ms ease;',
     '  background:none; border:0; padding:0 2px; color:var(--paper-cream, #f0e8d0);',
@@ -216,17 +207,6 @@
     root = document.getElementById('hud-tutorial');
     if (!root) return false;
 
-    var more = el('span', { class: 'tut-more', title: 'Press Tab for the full handbook' }, 'More');
-    if (window.TSIC && TSIC.keyIconUrl) {
-      var keyUrl = TSIC.keyIconUrl('Tab');
-      if (keyUrl) {
-        var keyImg = document.createElement('img');
-        keyImg.src = keyUrl;
-        keyImg.alt = 'Tab';
-        more.appendChild(keyImg);
-      }
-    }
-
     var close = el('button', { class: 'tut-close', title: 'Hide tutorial (re-enable in Options)' }, '✕');
     close.addEventListener('click', function () {
       tsic.publishMessage('UI.Cmd.Settings.Set', { Key: 'gameplay.show_tutorial', ValueJson: 'false' });
@@ -238,7 +218,7 @@
     root.appendChild(el('div', { class: 'tut-box' },
       el('div', { class: 'tut-header' },
         el('span', null, 'Objectives'),
-        el('div', { class: 'tut-header-right' }, more, close)),
+        el('div', { class: 'tut-header-right' }, close)),
       rowsHost));
 
     root.classList.add('tut-hidden');   // stay hidden until the first state arrives

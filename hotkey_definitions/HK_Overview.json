@@ -2,7 +2,7 @@
   "id": "HK_Overview",
   "class": "HotkeyDefinition",
   "properties": {
-    "display_name": "Overview",
+    "display_name": "Notebook",
     "category": "Interface",
     "keyboard_key": { "key_name": "Tab" }
   }

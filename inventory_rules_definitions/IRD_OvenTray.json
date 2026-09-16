@@ -1,6 +1,6 @@
 {
-  "id": "IRD_CookingTray",
-  "asset_path": "/Game/Items/Rules/IRD_CookingTray",
+  "id": "IRD_OvenTray",
+  "asset_path": "/Game/Items/Rules/IRD_OvenTray",
   "class": "UInventoryRulesDefinition",
   "schema_version": 2,
   "properties": {
@@ -11,9 +11,9 @@
       "can_remove_items": true,
       "capacity": 30.0,
       "b_can_exceed_capacity": false,
-      "grid_width": 3,
-      "grid_height": 1,
-      "max_units": 3
+      "grid_width": 4,
+      "grid_height": 2,
+      "max_units": 8
     }
   }
 }

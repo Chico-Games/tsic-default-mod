@@ -68,6 +68,13 @@
     "static_item_definition": "FD_CookingOil_SI",
     "equipment_slot": "Entity.Inventory.Item.Equipment.Slot.Weapon",
     "item_category_tag": "Entity.Inventory.Item.Category.Consumable",
-    "max_stack_size": 10
+    "max_stack_size": 10,
+    "inventory_layout": {
+      "cells": [ { "x": 0, "y": 0 }, { "x": 1, "y": 0 }, { "x": 2, "y": 0 } ],
+      "scale": 0.0,
+      "rotation": { "pitch": 0.0, "yaw": 0.0, "roll": 90.0 },
+      "offset": { "x": 0.0, "y": 0.0, "z": 0.0 },
+      "stack_poses": []
+    }
   }
 }

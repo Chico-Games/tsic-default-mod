@@ -2,7 +2,8 @@
 //
 // C++ owns the loop: UI.Cmd.BasketArena.Toggle sweeps the floor and opens this screen; Apply
 // sends the whole setup back on UI.Cmd.BasketArena.Apply and C++ closes the screen, empties the
-// bag, wears the backpack, grants each bag row, drops each floor row and opens the basket.
+// bag, wears the backpack, replaces the furniture slots, grants each bag row, drops each floor row
+// and opens the basket.
 // Everything the sheet shows arrives on UI.BasketArena.State — the working setup, the saved
 // ones and the item lists — so this file holds no catalogue of its own.
 //
@@ -17,6 +18,7 @@
 
   const BAG_ROWS = 12;
   const FLOOR_ROWS = 6;
+  const FURNITURE_SLOTS = ['Left', 'Middle', 'Right'];
 
   const esc = (s) => String(s == null ? '' : s)
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -115,6 +117,10 @@
     }
     return html;
   }
+  function furnitureRows() {
+    return FURNITURE_SLOTS.map((label, i) =>
+      `<div class="bb-row"><label for="bb-furn-${i}">${label}</label>` + combo(`bb-furn-${i}`, '(empty) — type a furniture piece') + '</div>').join('');
+  }
 
   const TEMPLATE = `
     <div id="bb-root">
@@ -138,6 +144,11 @@
               <h3>Floor</h3>
               ${floorRows()}
               <div class="bb-meta">Dropped as physics items in a line in front of you, to pick up into the basket.</div>
+            </div>
+            <div class="bb-section" data-tsic-focus-group="furniture" style="margin-top: 10px">
+              <h3>Furniture</h3>
+              ${furnitureRows()}
+              <div class="bb-meta">Spawned facing you on Apply, replacing the last ones. Drag them, open them, store things in them.</div>
             </div>
             <div class="bb-section" data-tsic-focus-group="options" style="margin-top: 10px">
               <h3>Bag size</h3>
@@ -311,6 +322,7 @@
         const d = state.data || {};
         for (let i = 0; i < BAG_ROWS; i++) setComboItems(`bb-bag-${i}`, d.Items);
         for (let i = 0; i < FLOOR_ROWS; i++) setComboItems(`bb-floor-${i}`, d.Items);
+        for (let i = 0; i < FURNITURE_SLOTS.length; i++) setComboItems(`bb-furn-${i}`, d.Furniture);
         setComboItems('bb-backpack', d.Backpacks);
       }
 
@@ -332,13 +344,18 @@
           setComboValue(`bb-floor-${i}`, r.ItemId, d.Items);
           $(`bb-floorcount-${i}`).value = Math.max(1, parseInt(r.Count, 10) || 1);
         }
+        const furniture = s.Furniture || [];
+        for (let i = 0; i < FURNITURE_SLOTS.length; i++) setComboValue(`bb-furn-${i}`, furniture[i], d.Furniture);
         setComboValue('bb-backpack', s.Backpack, d.Backpacks);
         $('bb-openbasket').checked = s.bOpenBasket !== false;
         $('bb-name').value = s.Name || '';
       }
 
       function readSetup() {
-        const setup = { Name: $('bb-name').value.trim(), Bag: [], Floor: [], Backpack: comboValue('bb-backpack'), bOpenBasket: $('bb-openbasket').checked };
+        const setup = {
+          Name: $('bb-name').value.trim(), Bag: [], Floor: [], Backpack: comboValue('bb-backpack'), bOpenBasket: $('bb-openbasket').checked,
+          Furniture: FURNITURE_SLOTS.map((_, i) => comboValue(`bb-furn-${i}`)),
+        };
         for (let i = 0; i < BAG_ROWS; i++) {
           const cellText = $(`bb-bagcell-${i}`).value.trim();
           const cell = cellText === '' ? -1 : parseInt(cellText, 10);

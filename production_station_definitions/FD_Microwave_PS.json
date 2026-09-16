@@ -96,7 +96,7 @@
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,
-    "static_mesh": "/Game/MidcenturyCombo/Midcentury_VOL3/Meshes/SM_Microwave_01a.SM_Microwave_01a",
+    "static_mesh": "/Game/Furniture/MidCentury/Microwave01/SM_Microwave01_Closed.SM_Microwave01_Closed",
     "casts_shadow": true,
     "collision_profile_name": {
       "name": "Furniture"
@@ -140,7 +140,7 @@
     "release_angular_damping": 0.05000000074505806,
     "release_linear_damping": 0.009999999776482582,
     "restitution": 0.30000001192092896,
-    "inventory_rules_definition": "IRD_CookingTray",
+    "inventory_rules_definition": "IRD_MicrowaveTray",
     "rig": {
       "skeletal_mesh": "/Game/Furniture/MidCentury/Microwave01/SK_Microwave01.SK_Microwave01",
       "parts": [
@@ -151,6 +151,18 @@
           "opens_for_screen": true
         }
       ]
+    },
+    "cook_controls": {
+      "offset": {
+        "x": 18.0,
+        "y": 26.0,
+        "z": 14.0
+      },
+      "extent": {
+        "x": 7.0,
+        "y": 5.0,
+        "z": 13.0
+      }
     },
     "storage_view": {
       "offset": {

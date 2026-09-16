@@ -95,7 +95,7 @@
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,
-    "static_mesh": "/Game/MidcenturyCombo/Midcentury_VOL3/Meshes/SM_Stove_01a.SM_Stove_01a",
+    "static_mesh": "/Game/Furniture/MidCentury/Stove01/SM_Stove01_Closed.SM_Stove01_Closed",
     "casts_shadow": true,
     "collision_profile_name": {
       "name": "Furniture"
@@ -140,14 +140,14 @@
     "release_linear_damping": 0.009999999776482582,
     "restitution": 0.30000001192092896,
     "constructable_item_to_grant": "ID_Oven_CI",
-    "inventory_rules_definition": "IRD_CookingTray",
+    "inventory_rules_definition": "IRD_OvenTray",
     "rig": {
       "skeletal_mesh": "/Game/Furniture/MidCentury/Stove01/SK_Stove01.SK_Stove01",
       "parts": [
         {
           "name": "OvenDoor",
           "motion": "Hinge",
-          "range": 90.0,
+          "range": -90.0,
           "opens_for_screen": true
         },
         {
@@ -158,11 +158,23 @@
         }
       ]
     },
+    "cook_controls": {
+      "offset": {
+        "x": 0.0,
+        "y": 32.0,
+        "z": 89.0
+      },
+      "extent": {
+        "x": 26.0,
+        "y": 6.0,
+        "z": 6.0
+      }
+    },
     "storage_view": {
       "offset": {
         "x": 0.0,
         "y": 2.9,
-        "z": 49.0
+        "z": 38.0
       },
       "yaw": 90.0,
       "width": 54.0,

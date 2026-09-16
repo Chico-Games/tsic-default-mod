@@ -78,7 +78,8 @@
     }
     [data-screen="Basket"] .bk-tab .bk-tab-count { font-weight: 400; font-size: 12px; opacity: 0.7; margin-left: 6px; text-transform: none; }
     [data-screen="Basket"] .bk-tab.is-active { background: #1d4ed8; color: #fff; }
-    [data-screen="Basket"] .bk-tab:hover:not(.is-active) { background: var(--mag-yellow, #f5c518); }
+    [data-screen="Basket"] .bk-tab:hover:not(.is-active):not(.is-disabled) { background: var(--mag-yellow, #f5c518); }
+    [data-screen="Basket"] .bk-tab.is-disabled { opacity: 0.4; cursor: not-allowed; }
     [data-screen="Basket"] #bk-hints {
       position: absolute; right: 24px; bottom: 24px; padding: 8px 12px; pointer-events: none; text-align: right;
       background: rgba(20,17,12,0.72); color: #fffdf7; font-size: 12px; line-height: 17px; border-radius: 3px;
@@ -153,12 +154,15 @@
         tabsKey = key;
         tabs.replaceChildren();
         for (const c of list) {
-          const el = TSIC.el('button', { type: 'button', class: 'bk-tab' + (c.Name === state.Container ? ' is-active' : ''), 'data-no-sfx': '' },
+          const cls = 'bk-tab' + (c.Name === state.Container ? ' is-active' : '') + (c.bDisabled ? ' is-disabled' : '');
+          const el = TSIC.el('button', Object.assign({ type: 'button', class: cls, 'data-no-sfx': '' }, c.bDisabled ? { disabled: '' } : {}),
             esc(c.Label), TSIC.el('span', { class: 'bk-tab-count' }, `${c.Used} / ${c.Capacity}`));
           el.addEventListener('pointerdown', (ev) => ev.stopPropagation());
           el.addEventListener('pointerup', (ev) => ev.stopPropagation());
           el.addEventListener('click', (ev) => {
             ev.stopPropagation();
+            // A bag that can put nothing into the storage open beside it stays on the shelf.
+            if (c.bDisabled) return;
             if (c.Name !== state.Container) { tsic.playSound('UI.Click'); ctx.publish('UI.Cmd.Basket.Container', { Name: c.Name }); }
           });
           tabs.appendChild(el);
@@ -178,15 +182,22 @@
         // Tooltip: the held stack wins over the hovered one.
         tip.className = '';
         if (state.HeldName) {
-          const where = state.bDropOutside ? 'Release to drop on the floor'
+          const where = state.bHeldOverBody ? (state.bHeldWearable ? 'Release to wear' : 'Cannot be worn')
+            : state.bDropOutside ? 'Release to drop on the floor'
             : state.bHeldOverPeer ? (state.bDropValid ? `Release to put in ${esc(state.PeerLabel || 'storage')}` : `No room in ${esc(state.PeerLabel || 'storage')}`)
             : state.bDropValid ? 'Release to place' : 'No room here';
           tip.innerHTML = `<div class="bk-tip-name">${esc(state.HeldName)}${state.HeldCount > 1 ? ' &times; ' + state.HeldCount : ''}</div>` +
             `<div class="bk-tip-sub">${esc(where)}</div>`;
           tip.classList.add(state.bDropOutside ? 'is-out' : state.bDropValid ? 'is-held' : 'is-bad');
           tip.hidden = false;
+        } else if (state.HoverBodyPart && !state.HoverName) {
+          // On the doll, where nothing is worn.
+          tip.innerHTML = `<div class="bk-tip-name">${esc(state.HoverBodyPart)}</div>` +
+            `<div class="bk-tip-sub">Nothing worn &middot; drag armour here</div>`;
+          tip.hidden = false;
         } else if (state.HoverName) {
-          const sub = state.bHoverFixed ? 'Stays in the basket'
+          const sub = state.bHoverWorn ? `Worn on ${esc(state.HoverBodyPart)} &middot; Left: take off`
+            : state.bHoverFixed ? 'Stays in the basket'
             : `Left: take ${state.HoverCount > 1 ? 'stack' : 'it'}${state.HoverCount > 1 ? ' &middot; Right: take one' : ''}`;
           tip.innerHTML = `<div class="bk-tip-name">${esc(state.HoverName)}${state.HoverCount > 1 ? ' &times; ' + state.HoverCount : ''}</div>` +
             `<div class="bk-tip-sub">${sub}</div>`;
@@ -215,10 +226,13 @@
           const cook = $('bk-cook');
           const cooking = $('bk-cooking');
           const progress = typeof state.PeerCookProgress === 'number' ? state.PeerCookProgress : -1;
-          cook.hidden = !state.bPeerCooks || progress >= 0 || state.PeerUsed <= 0;
-          cooking.hidden = !state.bPeerCooks || progress < 0;
+          cook.hidden = !state.bPeerCooks || state.bPeerCookControls || progress >= 0 || state.PeerUsed <= 0;
+          // A station with knobs: how to turn it on, while it sits idle with something in it.
+          const idleHint = state.bPeerCookControls && progress < 0 && state.PeerUsed > 0;
+          cooking.hidden = !state.bPeerCooks || (progress < 0 && !idleHint);
           if (!cooking.hidden) {
-            cooking.textContent = progress >= 1 ? 'Done — take it' : `Cooking… ${Math.round(progress * 100)}%`;
+            cooking.textContent = idleHint ? 'Shut the door, then turn a knob'
+              : progress >= 1 ? 'Done — take it' : `Cooking… ${Math.round(progress * 100)}%`;
           }
           peer.hidden = false;
         } else {

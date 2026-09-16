@@ -25,11 +25,36 @@
     /* Likewise fixed: the list reserves its row whether it holds nought names or eight, so
        the multiplayer block below it never slides. Its own gutter is reserved too — a
        scrollbar appearing on the fourth player would otherwise reflow every row in it. */
-    [data-screen="PauseMenu"] .pl { text-align:left; margin: 8px 0; height: 140px; overflow:auto; scrollbar-gutter:stable; }
+    [data-screen="PauseMenu"] .pl { text-align:left; margin: 8px 0; height: 180px; overflow:auto; scrollbar-gutter:stable; }
     [data-screen="PauseMenu"] .pl-empty { padding:4px 6px; opacity:0.5; font-size:13px; }
-    [data-screen="PauseMenu"] .pl-row { padding: 4px 6px; display:flex; align-items:center; gap:8px; }
-    [data-screen="PauseMenu"] .pl-dot { width:10px; height:10px; border-radius:50%; flex:0 0 auto; border:1px solid rgba(255,255,255,0.5); }
-    [data-screen="PauseMenu"] .pl-name { flex:1 1 auto; }
+    [data-screen="PauseMenu"] .pl-row { padding: 5px 6px; display:flex; align-items:center; gap:8px; }
+    [data-screen="PauseMenu"] .pl-row.is-dead,
+    [data-screen="PauseMenu"] .pl-row.is-away { opacity:0.65; }
+    /* The colour chip is the same palette entry the map and minimap use, so a name here and
+       a dot out there are the same person without a legend. */
+    [data-screen="PauseMenu"] .pl-dot { width:12px; height:12px; flex:0 0 auto; border:2px solid var(--ink-night); }
+    [data-screen="PauseMenu"] .pl-main { flex:1 1 auto; min-width:0; }
+    [data-screen="PauseMenu"] .pl-name-row { display:flex; align-items:baseline; gap:5px; min-width:0; }
+    [data-screen="PauseMenu"] .pl-name { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0; }
+    [data-screen="PauseMenu"] .pl-badge { flex:0 0 auto; padding:1px 4px; font-size:9px; font-weight:800; letter-spacing:0.12em;
+      text-transform:uppercase; background:var(--ink-night); color:var(--paper-bright); }
+    [data-screen="PauseMenu"] .pl-badge--you { background:var(--mag-red); }
+    [data-screen="PauseMenu"] .pl-badge--down { background:var(--mag-red-deep); }
+    /* Health escalates: ink while it is nothing to worry about, yellow once it is, red only
+       when it is nearly gone. */
+    [data-screen="PauseMenu"] .pl-hp { height:5px; margin-top:4px; background:rgba(10,10,10,0.16); border:1px solid var(--ink-night); }
+    [data-screen="PauseMenu"] .pl-hp-fill { height:100%; background:var(--ink-night); transition:width 180ms linear; }
+    [data-screen="PauseMenu"] .pl-hp[data-state="hurt"] .pl-hp-fill { background:var(--mag-yellow); }
+    [data-screen="PauseMenu"] .pl-hp[data-state="critical"] .pl-hp-fill { background:var(--mag-red); }
+    [data-screen="PauseMenu"] .pl-meta { font-family:var(--font-terminal); font-size:11px; color:var(--ink-mute); margin-top:2px; }
+    /* Bearing arrow: rotated, not re-drawn, so it can follow the payload without layout. */
+    [data-screen="PauseMenu"] .pl-bearing { flex:0 0 auto; width:44px; display:flex; flex-direction:column; align-items:center; gap:1px; }
+    [data-screen="PauseMenu"] .pl-bearing svg { width:16px; height:16px; color:var(--ink-night); transition:transform 140ms linear; }
+    [data-screen="PauseMenu"] .pl-dist { font-family:var(--font-terminal); font-size:11px; color:var(--ink-soft); white-space:nowrap; }
+    html[data-tsic-reduce-motion] [data-screen="PauseMenu"] .pl-bearing svg,
+    html[data-tsic-reduce-motion] [data-screen="PauseMenu"] .pl-hp-fill { transition:none; }
+    [data-screen="PauseMenu"] .mp-head { display:flex; align-items:baseline; justify-content:space-between; gap:10px; }
+    [data-screen="PauseMenu"] .mp-day { font-family:var(--font-terminal); font-size:12px; color:var(--ink-mute); }
     [data-screen="PauseMenu"] .pl-kick { flex:0 0 auto; font-size:11px; padding:2px 8px; cursor:pointer; background:rgba(200,60,60,0.25); border:1px solid rgba(200,60,60,0.6); border-radius:4px; color:inherit; }
     [data-screen="PauseMenu"] .pl-kick:hover { background:rgba(200,60,60,0.45); }
     [data-screen="PauseMenu"] .mp { margin-top:16px; padding-top:12px; border-top:1px solid rgba(255,255,255,0.15); text-align:left; }
@@ -60,7 +85,10 @@
           <button class="tsic-button" style="width:100%; margin-top:8px; display:none;" id="btn-dev-cheats">Cheat Menu (F1)</button>
         </div>
         <div class="mp" id="mp">
-          <h2 class="mp-title">Multiplayer</h2>
+          <div class="mp-head">
+            <h2 class="mp-title">Multiplayer</h2>
+            <span class="mp-day" id="mp-day"></span>
+          </div>
           <div class="pl" id="players"></div>
           <div class="mp-row">
             <span class="mp-label">Allow friends to join</span>
@@ -100,8 +128,14 @@
       // Latest host multiplayer settings + whether we're the host. Defaults match
       // the C++ FSimpleSessionSettings defaults (allow-friends on). Overwritten by
       // the UI.Multiplayer.State broadcast that fires when the pause menu opens.
-      let mpState = { bAllowFriends: true, bPasswordRequired: false, Password: '', bLocalIsHost: false, bCanInvite: false };
+      // It also carries the live roster (Players: health, distance, bearing) and the day,
+      // republished a few times a second while the menu is open.
+      let mpState = { bAllowFriends: true, bPasswordRequired: false, Password: '', bLocalIsHost: false, bCanInvite: false, Players: [] };
       let lastPlayers = null;
+      // Rows are rebuilt only when the cast or the kick buttons change, so a hovered or
+      // focused Kick button survives the next live payload.
+      let rowsKey = '';
+      let rows = [];
 
       const allowTog = root.querySelector('#mp-allow');
       const pwTog    = root.querySelector('#mp-pw-toggle');
@@ -136,46 +170,160 @@
         inviteBtn.title = canInvite ? '' : 'No joinable session — the host has closed the game to friends.';
       }
 
+      const ARROW_PATH = 'M12 3 L19 20 L12 16 L5 20 Z';
+
+      function formatDistance(metres) {
+        const m = Math.max(0, metres || 0);
+        return m < 1000 ? Math.round(m) + ' m' : (m / 1000).toFixed(1) + ' km';
+      }
+
+      /** Compass point for a bearing relative to where the local player is facing. */
+      function bearingLabel(deg) {
+        const names = ['ahead', 'ahead-right', 'right', 'behind-right', 'behind', 'behind-left', 'left', 'ahead-left'];
+        return names[Math.round((((deg || 0) % 360) + 360) % 360 / 45) % 8];
+      }
+
+      /** "1 floor up" / "2 floors down", or '' on the local player's level or when unknown. */
+      function floorLabel(live, localLevel) {
+        if (!live || !live.bHasPawn || live.bIsLocal || localLevel === null) return '';
+        const delta = (live.HeightLevel || 0) - localLevel;
+        if (delta === 0) return '';
+        const n = Math.abs(delta);
+        return n + (n === 1 ? ' floor ' : ' floors ') + (delta > 0 ? 'up' : 'down');
+      }
+
+      /** The list to draw: UI.Players.List when it has arrived, else the live roster. */
+      function listedPlayers() {
+        const listed = lastPlayers && lastPlayers.Players;
+        if (listed && listed.length) return listed;
+        return mpState.Players || [];
+      }
+
+      function makeRow(pl) {
+        const el = TSIC.el;
+        const refs = {};
+        refs.dot = el('span', { class: 'pl-dot' });
+        refs.name = el('span', { class: 'pl-name' });
+        refs.nameRow = el('div', { class: 'pl-name-row' }, refs.name);
+        refs.hpFill = el('div', { class: 'pl-hp-fill' });
+        refs.hp = el('div', { class: 'pl-hp' }, refs.hpFill);
+        refs.meta = el('div', { class: 'pl-meta' });
+        refs.arrow = TSIC.svg('svg', { viewBox: '0 0 24 24', fill: 'currentColor', 'aria-hidden': 'true' },
+          TSIC.svg('path', { d: ARROW_PATH }));
+        refs.dist = el('span', { class: 'pl-dist' });
+        refs.root = el('div', { class: 'pl-row', 'data-player': pl.Id || '' },
+          refs.dot,
+          el('div', { class: 'pl-main' }, refs.nameRow, refs.hp, refs.meta),
+          el('div', { class: 'pl-bearing' }, refs.arrow, refs.dist));
+
+        // Host-only kick button for every non-host row.
+        if (mpState.bLocalIsHost && !pl.bIsHost) {
+          const kick = el('button', { class: 'pl-kick' }, 'Kick');
+          kick.onclick = () => ctx.publish('UI.Cmd.Multiplayer.Kick', { PlayerId: pl.Id });
+          refs.root.appendChild(kick);
+        }
+        return refs;
+      }
+
+      function updateRow(refs, pl, i, live, localLevel) {
+        // Name can come through empty / "0" before PlayerState resolves -
+        // call the first player "Host" so the row is never blank.
+        const name = pl.Name || (live && live.Name) || (pl.bIsHost || i === 0 ? 'Host' : 'Player');
+        const hasPawn = !!(live && live.bHasPawn);
+        const isLocal = !!(live && live.bIsLocal);
+        const isDead = !!(live && live.bIsDead);
+
+        refs.dot.style.background = pl.Color || (live && live.Color) || '#888888';
+        refs.name.textContent = name;
+        refs.root.classList.toggle('is-dead', isDead);
+        refs.root.classList.toggle('is-away', !!live && !hasPawn && !isLocal);
+
+        // Badges only change when the flags do; rebuilding them every payload would churn
+        // the DOM several times a second for nothing.
+        const badges = [];
+        if (isLocal) badges.push(['you', 'You']);
+        if (pl.bIsHost) badges.push(['host', 'Host']);
+        if (isDead) badges.push(['down', 'Down']);
+        const signature = badges.map((b) => b[0]).join(',');
+        if (refs.badgeSignature !== signature) {
+          refs.badgeSignature = signature;
+          while (refs.nameRow.childNodes.length > 1) refs.nameRow.removeChild(refs.nameRow.lastChild);
+          badges.forEach((b) => refs.nameRow.appendChild(TSIC.el('span', { class: 'pl-badge pl-badge--' + b[0] }, b[1])));
+        }
+
+        const floors = floorLabel(live, localLevel);
+        if (hasPawn && live.MaxHealth > 0) {
+          const pct = Math.max(0, Math.min(1, live.HealthPct || 0));
+          refs.hp.style.display = '';
+          refs.hpFill.style.width = (pct * 100) + '%';
+          refs.hp.setAttribute('data-state', pct <= 0.25 ? 'critical' : (pct <= 0.6 ? 'hurt' : 'ok'));
+          refs.meta.textContent = Math.round(live.Health) + ' / ' + Math.round(live.MaxHealth) + (floors ? '  \u00b7  ' + floors : '');
+        } else {
+          // No pawn here means no health to show; say so rather than draw an empty bar,
+          // which reads as "this teammate is dead".
+          refs.hp.style.display = 'none';
+          refs.meta.textContent = !live ? 'Health unknown' : (hasPawn ? '' : 'Out of range');
+        }
+
+        if (isLocal) {
+          refs.arrow.style.display = 'none';
+          refs.dist.textContent = 'you';
+          refs.root.title = name;
+        } else if (hasPawn) {
+          refs.arrow.style.display = '';
+          refs.arrow.style.transform = 'rotate(' + (live.BearingDeg || 0) + 'deg)';
+          refs.dist.textContent = formatDistance(live.DistanceM);
+          refs.root.title = name + ', ' + formatDistance(live.DistanceM) + ' ' + bearingLabel(live.BearingDeg)
+            + (floors ? ', ' + floors : '');
+        } else {
+          refs.arrow.style.display = 'none';
+          refs.dist.textContent = '\u2014';
+          refs.root.title = name;
+        }
+      }
+
+      function renderDay() {
+        const dayEl = root.querySelector('#mp-day');
+        if (!dayEl) return;
+        const leaf = String(mpState.DaySection || '').split('.').pop();
+        dayEl.textContent = mpState.Day ? 'Day ' + mpState.Day + (leaf ? ' \u00b7 ' + leaf : '') : '';
+      }
+
       function renderPlayers() {
         const hostEl = root.querySelector('#players');
         if (!hostEl) return;
-        hostEl.innerHTML = '';
+        renderDay();
+        const players = listedPlayers();
+
         // The list keeps its row whether or not anyone is in it (see .pl's fixed height), so
         // say what the empty box means rather than leaving a blank plate under the heading.
-        if (!lastPlayers || !lastPlayers.Players || !lastPlayers.Players.length) {
-          const none = document.createElement('div');
-          none.className = 'pl-empty';
-          none.textContent = 'No other players';
-          hostEl.appendChild(none);
+        if (!players.length) {
+          rowsKey = '';
+          rows = [];
+          hostEl.textContent = '';
+          hostEl.appendChild(TSIC.el('div', { class: 'pl-empty' }, 'No other players'));
           return;
         }
-        lastPlayers.Players.forEach((pl, i) => {
-          const row = document.createElement('div');
-          row.className = 'pl-row';
 
-          const dot = document.createElement('span');
-          dot.className = 'pl-dot';
-          dot.style.background = pl.Color || '#888888';
-          row.appendChild(dot);
+        const key = (mpState.bLocalIsHost ? 'h:' : 'c:')
+          + players.map((pl) => (pl.Id || pl.Name || '') + (pl.bIsHost ? '*' : '')).join('|');
+        if (key !== rowsKey) {
+          rowsKey = key;
+          hostEl.textContent = '';
+          rows = players.map((pl) => {
+            const refs = makeRow(pl);
+            hostEl.appendChild(refs.root);
+            return refs;
+          });
+        }
 
-          // Name can come through empty / "0" before PlayerState resolves —
-          // call the first player "Host" so the row is never blank.
-          const name = pl.Name || (pl.bIsHost || i === 0 ? 'Host' : 'Player');
-          const label = document.createElement('span');
-          label.className = 'pl-name';
-          label.textContent = name + (pl.bIsHost ? ' (host)' : '');
-          row.appendChild(label);
+        const liveById = new Map();
+        (mpState.Players || []).forEach((p) => { if (p && p.Id) liveById.set(p.Id, p); });
+        const local = (mpState.Players || []).find((p) => p && p.bIsLocal);
+        const localLevel = (local && local.bHasPawn) ? (local.HeightLevel || 0) : null;
 
-          // Host-only kick button for every non-host row.
-          if (mpState.bLocalIsHost && !pl.bIsHost) {
-            const kick = document.createElement('button');
-            kick.className = 'pl-kick';
-            kick.textContent = 'Kick';
-            kick.onclick = () => ctx.publish('UI.Cmd.Multiplayer.Kick', { PlayerId: pl.Id });
-            row.appendChild(kick);
-          }
-
-          hostEl.appendChild(row);
+        players.forEach((pl, i) => {
+          if (rows[i]) updateRow(rows[i], pl, i, liveById.get(pl.Id), localLevel);
         });
       }
 
@@ -186,11 +334,12 @@
         renderPlayers();
       });
 
-      // Host settings — broadcast when the pause menu opens (PublishStateForScreen).
+      // Host settings + live roster: broadcast when the pause menu opens
+      // (PublishStateForScreen) and republished a few times a second while it stays open.
       ctx.on('tsic.msg.UI.Multiplayer.State', (s) => {
         if (s) mpState = s;
         applyState();
-        renderPlayers(); // kick-button visibility depends on bLocalIsHost
+        renderPlayers(); // kick-button visibility depends on bLocalIsHost; health/distance are live
       });
 
       allowTog.onclick = () => {
