@@ -15,14 +15,9 @@
       }
     ],
     "hair_offset": {
-      "x": -0.07,
-      "y": 0.01,
-      "z": 0.52
-    },
-    "hair_scale": {
-      "x": 1.0426,
-      "y": 1.0390,
-      "z": 0.9597
+      "x": 0.00,
+      "y": 0.00,
+      "z": -0.34
     },
     "thumbnail": "/img/parts/cp_head_bo.png",
     "body_archetype": "Masculine"

@@ -15,14 +15,9 @@
       }
     ],
     "hair_offset": {
-      "x": -0.08,
-      "y": -0.07,
-      "z": 0.37
-    },
-    "hair_scale": {
-      "x": 0.9284,
-      "y": 0.9152,
-      "z": 0.9500
+      "x": 0.00,
+      "y": 0.00,
+      "z": -1.77
     },
     "thumbnail": "/img/parts/cp_head_etta.png",
     "body_archetype": "Feminine"

@@ -15,14 +15,9 @@
       }
     ],
     "hair_offset": {
-      "x": -0.07,
-      "y": -0.04,
-      "z": 0.45
-    },
-    "hair_scale": {
-      "x": 0.9657,
-      "y": 0.9648,
-      "z": 0.9500
+      "x": 0.00,
+      "y": 0.00,
+      "z": -1.03
     },
     "thumbnail": "/img/parts/cp_head_vivian.png",
     "body_archetype": "Feminine"

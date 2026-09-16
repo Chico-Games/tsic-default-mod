@@ -15,14 +15,9 @@
       }
     ],
     "hair_offset": {
-      "x": -0.08,
-      "y": -0.03,
-      "z": 0.34
-    },
-    "hair_scale": {
-      "x": 0.9202,
-      "y": 0.9094,
-      "z": 0.9500
+      "x": 0.00,
+      "y": 0.00,
+      "z": -1.73
     },
     "thumbnail": "/img/parts/cp_head_ada.png",
     "body_archetype": "Feminine"

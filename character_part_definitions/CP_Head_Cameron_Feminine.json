@@ -15,14 +15,9 @@
       }
     ],
     "hair_offset": {
-      "x": -0.09,
-      "y": -0.01,
-      "z": 0.34
-    },
-    "hair_scale": {
-      "x": 0.9118,
-      "y": 0.9171,
-      "z": 0.9500
+      "x": 0.00,
+      "y": 0.00,
+      "z": -1.76
     },
     "thumbnail": "/img/parts/cp_head_cameron.png",
     "body_archetype": "Feminine"

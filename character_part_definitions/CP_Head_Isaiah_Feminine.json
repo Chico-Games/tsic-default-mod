@@ -15,14 +15,9 @@
       }
     ],
     "hair_offset": {
-      "x": 0.01,
-      "y": -0.02,
-      "z": 0.32
-    },
-    "hair_scale": {
-      "x": 0.9101,
-      "y": 0.9037,
-      "z": 0.9500
+      "x": 0.00,
+      "y": 0.00,
+      "z": -1.83
     },
     "thumbnail": "/img/parts/cp_head_isaiah.png",
     "body_archetype": "Feminine"

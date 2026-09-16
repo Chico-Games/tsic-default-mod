@@ -15,14 +15,9 @@
       }
     ],
     "hair_offset": {
-      "x": -0.07,
-      "y": -0.05,
-      "z": 0.36
-    },
-    "hair_scale": {
-      "x": 0.9223,
-      "y": 0.9217,
-      "z": 0.9500
+      "x": 0.00,
+      "y": 0.00,
+      "z": -2.81
     },
     "thumbnail": "/img/parts/cp_head_mikel.png",
     "body_archetype": "Feminine"

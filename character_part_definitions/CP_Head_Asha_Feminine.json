@@ -15,14 +15,9 @@
       }
     ],
     "hair_offset": {
-      "x": -0.09,
-      "y": -0.04,
-      "z": 0.35
-    },
-    "hair_scale": {
-      "x": 0.9160,
-      "y": 0.9108,
-      "z": 0.9500
+      "x": 0.00,
+      "y": 0.00,
+      "z": -1.64
     },
     "thumbnail": "/img/parts/cp_head_asha.png",
     "body_archetype": "Feminine"

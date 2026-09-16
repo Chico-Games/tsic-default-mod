@@ -16,13 +16,8 @@
     ],
     "hair_offset": {
       "x": 0.00,
-      "y": -0.01,
-      "z": -0.29
-    },
-    "hair_scale": {
-      "x": 1.0709,
-      "y": 1.0700,
-      "z": 1.0502
+      "y": 0.00,
+      "z": 0.62
     },
     "thumbnail": "/img/parts/cp_head_sunita.png",
     "body_archetype": "Masculine"

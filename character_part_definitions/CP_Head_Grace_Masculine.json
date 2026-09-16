@@ -15,14 +15,9 @@
       }
     ],
     "hair_offset": {
-      "x": -0.05,
-      "y": -0.14,
-      "z": 0.21
-    },
-    "hair_scale": {
-      "x": 1.0998,
-      "y": 1.0748,
-      "z": 1.0015
+      "x": 0.00,
+      "y": 0.00,
+      "z": 0.20
     },
     "thumbnail": "/img/parts/cp_head_grace.png",
     "body_archetype": "Masculine"

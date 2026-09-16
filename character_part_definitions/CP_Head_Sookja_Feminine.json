@@ -15,14 +15,9 @@
       }
     ],
     "hair_offset": {
-      "x": -0.02,
+      "x": 0.00,
       "y": 0.00,
-      "z": 0.34
-    },
-    "hair_scale": {
-      "x": 0.9191,
-      "y": 0.9188,
-      "z": 0.9500
+      "z": -1.03
     },
     "thumbnail": "/img/parts/cp_head_sookja.png",
     "body_archetype": "Feminine"

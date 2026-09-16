@@ -15,14 +15,9 @@
       }
     ],
     "hair_offset": {
-      "x": -0.12,
-      "y": -0.02,
-      "z": 0.32
-    },
-    "hair_scale": {
-      "x": 0.8984,
-      "y": 0.9041,
-      "z": 0.9500
+      "x": 0.00,
+      "y": 0.00,
+      "z": -1.63
     },
     "thumbnail": "/img/parts/cp_head_bruce.png",
     "body_archetype": "Feminine"

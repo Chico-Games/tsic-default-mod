@@ -15,14 +15,9 @@
       }
     ],
     "hair_offset": {
-      "x": -0.10,
-      "y": -0.09,
-      "z": 0.48
-    },
-    "hair_scale": {
-      "x": 0.9768,
-      "y": 0.9707,
-      "z": 0.9500
+      "x": 0.00,
+      "y": 0.00,
+      "z": -2.43
     },
     "thumbnail": "/img/parts/cp_head_walter.png",
     "body_archetype": "Feminine"

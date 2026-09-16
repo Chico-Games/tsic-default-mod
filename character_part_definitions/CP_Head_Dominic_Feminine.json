@@ -15,14 +15,9 @@
       }
     ],
     "hair_offset": {
-      "x": -0.08,
-      "y": -0.08,
-      "z": 0.47
-    },
-    "hair_scale": {
-      "x": 0.9727,
-      "y": 0.9630,
-      "z": 0.9500
+      "x": 0.00,
+      "y": 0.00,
+      "z": -1.84
     },
     "thumbnail": "/img/parts/cp_head_dominic.png",
     "body_archetype": "Feminine"
