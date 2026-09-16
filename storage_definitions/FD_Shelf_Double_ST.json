@@ -191,7 +191,7 @@
       {
         "offset": {
           "x": -0.05,
-          "y": 23.15,
+          "y": 21.9,
           "z": 42.05
         },
         "rotation": {
@@ -201,7 +201,7 @@
         },
         "box_size": {
           "x": 86.65,
-          "y": 22.15,
+          "y": 20.9,
           "z": 41.95
         }
       }
@@ -210,7 +210,7 @@
       {
         "offset": {
           "x": -0.05,
-          "y": 23.15,
+          "y": 21.9,
           "z": 42.05
         },
         "rotation": {
@@ -220,7 +220,7 @@
         },
         "box_size": {
           "x": 87.65,
-          "y": 23.15,
+          "y": 21.9,
           "z": 41.95
         }
       }
@@ -264,7 +264,7 @@
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,
-    "static_mesh": "/Game/MidcenturyCombo/Midcentury_VOL1/Meshes/SM_Shelf_10a.SM_Shelf_10a",
+    "static_mesh": "/Game/Furniture/MidCentury/Shelf10/SM_Shelf10_Closed.SM_Shelf10_Closed",
     "casts_shadow": true,
     "collision_profile_name": {
       "name": "Furniture"
@@ -281,7 +281,7 @@
           },
           "translation": {
             "x": -0.05,
-            "y": 23.15,
+            "y": 21.9,
             "z": 84.5
           },
           "scale3_d": {
@@ -294,6 +294,29 @@
       }
     ],
     "weighted_chance": 1000,
-    "world_gen_priority": 6000
+    "world_gen_priority": 6000,
+    "rig": {
+      "skeletal_mesh": "/Game/Furniture/MidCentury/Shelf10/SK_Shelf10.SK_Shelf10",
+      "parts": [
+        {
+          "name": "DrawerA",
+          "motion": "Slide",
+          "range": 24.0,
+          "opens_for_screen": true
+        },
+        {
+          "name": "DrawerB",
+          "motion": "Slide",
+          "range": 24.0,
+          "opens_for_screen": false
+        },
+        {
+          "name": "DrawerC",
+          "motion": "Slide",
+          "range": 24.0,
+          "opens_for_screen": false
+        }
+      ]
+    }
   }
 }

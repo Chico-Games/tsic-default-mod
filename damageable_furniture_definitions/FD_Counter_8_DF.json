@@ -96,7 +96,7 @@
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,
-    "static_mesh": "/Game/MidcenturyCombo/Midcentury_VOL1/Meshes/SM_Shelf_02a.SM_Shelf_02a",
+    "static_mesh": "/Game/Furniture/MidCentury/Shelf02/SM_Shelf02_Closed.SM_Shelf02_Closed",
     "casts_shadow": true,
     "collision_profile_name": {
       "name": "Furniture"
@@ -127,6 +127,23 @@
     ],
     "loot_position_chance": 0.3,
     "weighted_chance": 1000,
-    "world_gen_priority": 7000
+    "world_gen_priority": 7000,
+    "rig": {
+      "skeletal_mesh": "/Game/Furniture/MidCentury/Shelf02/SK_Shelf02.SK_Shelf02",
+      "parts": [
+        {
+          "name": "Drawer",
+          "motion": "Slide",
+          "range": 38.0,
+          "opens_for_screen": true
+        },
+        {
+          "name": "Flap",
+          "motion": "Hinge",
+          "range": 85.0,
+          "opens_for_screen": false
+        }
+      ]
+    }
   }
 }
