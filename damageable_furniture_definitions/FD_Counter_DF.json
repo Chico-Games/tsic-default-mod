@@ -98,7 +98,7 @@
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,
-    "static_mesh": "/Game/MidcenturyCombo/Midcentury_VOL1/Meshes/SM_MediaConsole_01a.SM_MediaConsole_01a",
+    "static_mesh": "/Game/Furniture/MidCentury/MediaConsole01/SM_MediaConsole01_Closed.SM_MediaConsole01_Closed",
     "casts_shadow": true,
     "collision_profile_name": {
       "name": "Furniture"

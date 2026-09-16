@@ -53,7 +53,7 @@
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,
-    "static_mesh": "/Game/Fab/Industrial_shelves_3/SM_Shelf.SM_Shelf",
+    "static_mesh": "/Game/MidcenturyCombo/Midcentury_VOL6/Meshes/SM_Shelf_09c.SM_Shelf_09c",
     "casts_shadow": true,
     "collision_profile_name": {
       "name": "Furniture"
@@ -64,98 +64,14 @@
         "local_transform": {
           "rotation": {
             "x": 0.0,
-            "y": -0.0,
-            "z": 0.0871557420742326,
-            "w": 0.9961946981506625
+            "y": 0.0,
+            "z": 0.0,
+            "w": 1.0
           },
           "translation": {
-            "x": -44.221787503129,
-            "y": -1.1368683772161603e-13,
-            "z": 38.45383845291843
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        },
-        "weight": 1000
-      },
-      {
-        "local_transform": {
-          "rotation": {
             "x": 0.0,
-            "y": -0.0,
-            "z": 0.42261825867738867,
-            "w": 0.9063077884650951
-          },
-          "translation": {
-            "x": 28.619748428348426,
-            "y": 0.9999025235540149,
-            "z": 77.05511165784219
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        },
-        "weight": 1000
-      },
-      {
-        "local_transform": {
-          "rotation": {
-            "x": -0.0,
             "y": 0.0,
-            "z": -0.9961946970901547,
-            "w": 0.08715575419589267
-          },
-          "translation": {
-            "x": 31.83641125074746,
-            "y": -0.9499720572825907,
-            "z": 114.95699873666203
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        },
-        "weight": 1000
-      },
-      {
-        "local_transform": {
-          "rotation": {
-            "x": -0.0,
-            "y": 0.0,
-            "z": -0.1736481763354744,
-            "w": 0.9848077532469797
-          },
-          "translation": {
-            "x": -44.22178612530997,
-            "y": -1.8474111129762605e-13,
-            "z": 115.08902105554274
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        },
-        "weight": 1000
-      },
-      {
-        "local_transform": {
-          "rotation": {
-            "x": -0.0,
-            "y": 0.0,
-            "z": -0.49999999648741184,
-            "w": 0.8660254058124321
-          },
-          "translation": {
-            "x": -44.22178708250023,
-            "y": 0.0,
-            "z": 76.7044835164195
+            "z": 92.8
           },
           "scale3_d": {
             "x": 1.0,
@@ -181,6 +97,44 @@
     ],
     "release_angular_damping": 0.05000000074505806,
     "release_linear_damping": 0.009999999776482582,
-    "restitution": 0.30000001192092896
+    "restitution": 0.30000001192092896,
+    "blocking_collision_boxes": [
+      {
+        "offset": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 46.15
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 24.6,
+          "y": 24.6,
+          "z": 46.15
+        }
+      }
+    ],
+    "support_collision_boxes": [
+      {
+        "offset": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 46.15
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 25.6,
+          "y": 25.6,
+          "z": 46.15
+        }
+      }
+    ]
   }
 }

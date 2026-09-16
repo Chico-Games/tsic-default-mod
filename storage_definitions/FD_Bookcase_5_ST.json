@@ -53,7 +53,7 @@
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,
-    "static_mesh": "/Game/Furniture/Shelves/Meshes/SM_Bookcase06_Vol1.SM_Bookcase06_Vol1",
+    "static_mesh": "/Game/MidcenturyCombo/Midcentury_VOL1/Meshes/SM_Shelf_04a.SM_Shelf_04a",
     "casts_shadow": true,
     "collision_profile_name": {
       "name": "Furniture"
@@ -65,160 +65,13 @@
           "rotation": {
             "x": 0.0,
             "y": 0.0,
-            "z": 0.1394,
-            "w": -0.9902
+            "z": 0.0,
+            "w": 1.0
           },
           "translation": {
-            "x": -12.6129,
-            "y": 23.9686,
-            "z": 34.1376
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        },
-        "weight": 1000
-      },
-      {
-        "local_transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.5698,
-            "w": -0.8218
-          },
-          "translation": {
-            "x": 14.2055,
-            "y": 15.2859,
-            "z": 34.1376
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        },
-        "weight": 1000
-      },
-      {
-        "local_transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.5836,
-            "w": -0.812
-          },
-          "translation": {
-            "x": -21.6834,
-            "y": 14.7116,
-            "z": 68.2752
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        },
-        "weight": 1000
-      },
-      {
-        "local_transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.672,
-            "w": 0.7406
-          },
-          "translation": {
-            "x": 16.9698,
-            "y": 21.3707,
-            "z": 68.2752
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        },
-        "weight": 1000
-      },
-      {
-        "local_transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.7818,
-            "w": -0.6235
-          },
-          "translation": {
-            "x": -22.98,
-            "y": 18.75,
-            "z": 98.53
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        },
-        "weight": 1000
-      },
-      {
-        "local_transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.3667,
-            "w": -0.9303
-          },
-          "translation": {
-            "x": 12.41,
-            "y": 14.38,
-            "z": 98.53
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        },
-        "weight": 1000
-      },
-      {
-        "local_transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.6246,
-            "w": -0.7809
-          },
-          "translation": {
-            "x": -7.86,
-            "y": 21.67,
-            "z": 128.53
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        },
-        "weight": 1000
-      },
-      {
-        "local_transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.9149,
-            "w": 0.4038
-          },
-          "translation": {
-            "x": 11.7,
-            "y": 18.72,
-            "z": 128.53
+            "x": 61.8,
+            "y": 25.05,
+            "z": 139.4
           },
           "scale3_d": {
             "x": 1.0,
@@ -251,6 +104,44 @@
     ],
     "release_angular_damping": 0.05000000074505806,
     "release_linear_damping": 0.009999999776482582,
-    "restitution": 0.30000001192092896
+    "restitution": 0.30000001192092896,
+    "blocking_collision_boxes": [
+      {
+        "offset": {
+          "x": 61.8,
+          "y": 25.05,
+          "z": 69.45
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 60.8,
+          "y": 24.05,
+          "z": 69.45
+        }
+      }
+    ],
+    "support_collision_boxes": [
+      {
+        "offset": {
+          "x": 61.8,
+          "y": 25.05,
+          "z": 69.45
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 61.8,
+          "y": 25.05,
+          "z": 69.45
+        }
+      }
+    ]
   }
 }
