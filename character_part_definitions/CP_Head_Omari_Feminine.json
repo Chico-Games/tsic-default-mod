@@ -15,9 +15,9 @@
       }
     ],
     "hair_offset": {
-      "x": 0.0,
-      "y": 0.0,
-      "z": 0.0
+      "x": 0.00,
+      "y": 0.00,
+      "z": -2.43
     },
     "thumbnail": "/img/parts/cp_head_omari.png",
     "body_archetype": "Feminine"

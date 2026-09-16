@@ -432,8 +432,10 @@
         stage.addEventListener('pointermove', (e) => {
           if (!dragging) return;
           // Half a degree per pixel: a comfortable drag across the stage is
-          // rather more than one full turn.
-          yaw = (yaw + (e.clientX - lastX) * 0.5) % 360;
+          // rather more than one full turn. Dragging right turns the doll's
+          // near side to the right, as if pushing a turntable, so the drag is
+          // taken off the yaw rather than added to it.
+          yaw = (yaw - (e.clientX - lastX) * 0.5) % 360;
           lastX = e.clientX;
           requestYaw();
         });

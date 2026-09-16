@@ -2,6 +2,227 @@
   "_generated": "Scripts/changelog.ps1 - do not hand-edit; edit changelog/releases/*.json",
   "releases": [
     {
+      "version": "2.1.1",
+      "channel": "Alpha",
+      "sha": "6793619304",
+      "date": "2026-09-16",
+      "title": "Clothes That Load",
+      "entries": [
+        {
+          "type": "fixed",
+          "scope": "Menus",
+          "text": "Fixed the character editor showing clothes as a grey checkerboard instead of their real fabric.",
+          "ref": 644
+        }
+      ],
+      "known_issues": [
+        {
+          "scope": "Co-op",
+          "ref": 325,
+          "text": "Furniture flashes when a drag starts and again when it settles."
+        },
+        {
+          "scope": "Store",
+          "ref": 506,
+          "text": "Elevators don't respond - pressing the button does nothing, so you can't ride between floors."
+        },
+        {
+          "scope": "Store",
+          "ref": 330,
+          "text": "Some furniture spawns badly placed - floating near steps, lying down, or facing the wrong way."
+        },
+        {
+          "scope": "Store",
+          "ref": 353,
+          "text": "Aisle sign lettering and framed photos z-fight at some angles - the text flickers as you walk past."
+        },
+        {
+          "scope": "Store",
+          "ref": 373,
+          "text": "Railings generate along edges with no drop, and are missing from some real ones."
+        },
+        {
+          "scope": "Store",
+          "ref": 616,
+          "text": "Standing beside a staircase, the ends of its steps show through the wall as a diagonal row of wooden strips climbing the next room's wall."
+        },
+        {
+          "scope": "Breakage",
+          "ref": 356,
+          "text": "Some furniture turns flat grey once it is smashed, instead of keeping its colours."
+        },
+        {
+          "scope": "Menus",
+          "ref": 458,
+          "text": "The menus can feel sluggish and the cursor lags behind the mouse."
+        },
+        {
+          "scope": "Co-op",
+          "ref": 590,
+          "text": "Very rarely a guest cannot pick up a piece of furniture that just appeared in front of them."
+        },
+        {
+          "scope": "Co-op",
+          "ref": 609,
+          "text": "When friends join a loaded save, some rooms have a different ceiling height for them than for the host - and it is solid, so you can end up on different floors of the same room."
+        },
+        {
+          "scope": "Store",
+          "ref": 608,
+          "text": "Some checkout counters and framed paintings flicker as you move - two surfaces are fighting over the same spot, not a missing texture."
+        },
+        {
+          "scope": "Enemies",
+          "ref": 645,
+          "text": "Standing right next to a snail, it can't land a hit on you. Step back and it can kill you with its ranged attack."
+        }
+      ]
+    },
+    {
+      "version": "2.1.0",
+      "channel": "Alpha",
+      "sha": "f249740443",
+      "date": "2026-09-14",
+      "title": "Dress the Part",
+      "entries": [
+        {
+          "type": "added",
+          "scope": "Customise Character",
+          "text": "Added an early iteration of player character customisation: a Customise Character screen on the main menu where you pick a build, face, complexion, hair and facial hair.",
+          "ref": 618
+        },
+        {
+          "type": "added",
+          "scope": "Customise Character",
+          "text": "Added a wardrobe to the Customise Character screen: six streetwear and formalwear outfits, with tops, bottoms, shoes and headwear picked separately so any shirt goes with any trousers.",
+          "ref": 620
+        },
+        {
+          "type": "added",
+          "scope": "Player",
+          "text": "Added a parachute backpack: with it equipped, hold jump while falling to drift down slowly and land safely.",
+          "ref": 610
+        },
+        {
+          "type": "added",
+          "scope": "UI",
+          "text": "Added a small soft dot above nearby furniture that opens a screen (storage, crafting and production benches, planters, shops); it hides while the piece is being dragged or is still settling.",
+          "ref": 621
+        },
+        {
+          "type": "changed",
+          "scope": "Enemies",
+          "text": "Changed staff hit reactions so they flinch from the side and body part that was struck, build up a stagger bar that knocks them off balance when it fills, and shrug off hits mid-swing, so fights read as an exchange instead of a stun-lock.",
+          "ref": 625
+        },
+        {
+          "type": "changed",
+          "scope": "Enemies",
+          "text": "Changed how enemies notice you, so that one distant footstep is ignored but a few in a row, a heavy landing or a crash of furniture brings them over to look, to make sneaking a matter of how much noise you make rather than whether you made any.",
+          "ref": 623
+        },
+        {
+          "type": "changed",
+          "scope": "Enemies",
+          "text": "Changed an enemy that is fighting you to keep fighting while it can see you; it only gives up once you are out of sight and quiet, or once you have led it far from its post.",
+          "ref": 623
+        },
+        {
+          "type": "changed",
+          "scope": "Inventory",
+          "text": "Changed the inventory's character preview to a live 3D view instead of a streamed picture, so it turns smoothly and shows what you are wearing as you change it.",
+          "ref": 620
+        },
+        {
+          "type": "fixed",
+          "scope": "Cheats",
+          "text": "Fixed the free-look camera bringing up the loading screen and hiding the world behind it.",
+          "ref": 620
+        },
+        {
+          "type": "fixed",
+          "scope": "Co-op",
+          "text": "Fixed guests seeing lower ceilings than the host: the world data sent to joining players was missing the per-tile ceiling, difficulty and hazard layers, so every guest ceiling sat at the base height.",
+          "ref": 609
+        },
+        {
+          "type": "fixed",
+          "scope": "Enemies",
+          "text": "Fixed melee enemies running alongside a player who is holding an item without ever swinging; the held item was punching a hole in the navigation mesh under the player.",
+          "ref": 631
+        },
+        {
+          "type": "fixed",
+          "scope": "Menus",
+          "text": "Fixed an issue where Escape did nothing on the Tab handbook, despite the panel saying it would close it. Escape and the gamepad Back button now close it as well as a second press of Tab.",
+          "ref": 614
+        },
+        {
+          "type": "fixed",
+          "scope": "Store",
+          "text": "Fixed elevators never opening: calling one slid the cab's floor plates instead of its doors, so the doors stayed shut.",
+          "ref": 506
+        }
+      ],
+      "known_issues": [
+        {
+          "scope": "Co-op",
+          "ref": 325,
+          "text": "Furniture flashes when a drag starts and again when it settles."
+        },
+        {
+          "scope": "Store",
+          "ref": 506,
+          "text": "Elevators don't respond - pressing the button does nothing, so you can't ride between floors."
+        },
+        {
+          "scope": "Store",
+          "ref": 330,
+          "text": "Some furniture spawns badly placed - floating near steps, lying down, or facing the wrong way."
+        },
+        {
+          "scope": "Store",
+          "ref": 353,
+          "text": "Aisle sign lettering and framed photos z-fight at some angles - the text flickers as you walk past."
+        },
+        {
+          "scope": "Store",
+          "ref": 373,
+          "text": "Railings generate along edges with no drop, and are missing from some real ones."
+        },
+        {
+          "scope": "Store",
+          "ref": 616,
+          "text": "Standing beside a staircase, the ends of its steps show through the wall as a diagonal row of wooden strips climbing the next room's wall."
+        },
+        {
+          "scope": "Breakage",
+          "ref": 356,
+          "text": "Some furniture turns flat grey once it is smashed, instead of keeping its colours."
+        },
+        {
+          "scope": "Menus",
+          "ref": 458,
+          "text": "The menus can feel sluggish and the cursor lags behind the mouse."
+        },
+        {
+          "scope": "Co-op",
+          "ref": 590,
+          "text": "Very rarely a guest cannot pick up a piece of furniture that just appeared in front of them."
+        },
+        {
+          "scope": "Co-op",
+          "ref": 609,
+          "text": "When friends join a loaded save, some rooms have a different ceiling height for them than for the host - and it is solid, so you can end up on different floors of the same room."
+        },
+        {
+          "scope": "Store",
+          "ref": 608,
+          "text": "Some checkout counters and framed paintings flicker as you move - two surfaces are fighting over the same spot, not a missing texture."
+        }
+      ]
+    },
+    {
       "version": "2.0.2",
       "channel": "Alpha",
       "sha": "a79672788",
@@ -605,71 +826,6 @@
           "text": "Signs cast wrong shadows at night."
         }
       ]
-    },
-    {
-      "version": null,
-      "channel": "Alpha",
-      "sha": "6d2b9b7",
-      "date": "2026-08-25",
-      "title": "The handbook, and a quieter night",
-      "entries": [
-        {
-          "type": "added",
-          "scope": "Menus",
-          "text": "Hold <kbd>Tab</kbd> for the staff handbook - every objective as a card, with hints, field notes and a live controls page. In co-op the right panel is the shift roster."
-        },
-        {
-          "type": "removed",
-          "scope": "Night",
-          "text": "The night hazard is gone. It drained 1 health every 8 seconds all night and re-armed the regen block with every bite, so nothing ever healed it back."
-        },
-        {
-          "type": "changed",
-          "scope": "Audio",
-          "text": "Biome ambience is a night-only bed. By day the store plays its jazz and nothing else; the two used to stack and the room tone masked the music."
-        },
-        {
-          "type": "fixed",
-          "scope": "Combat",
-          "text": "The flashlight beam stops swinging out of frame on a fast turn, and your own body and worn gear no longer throw a shadow down your own beam."
-        },
-        {
-          "type": "fixed",
-          "scope": "Co-op",
-          "text": "Guests get the full item catalogue on join - items used to render as raw ids with no description for the whole session."
-        },
-        {
-          "type": "fixed",
-          "scope": "Co-op",
-          "text": "Dragged furniture moves for guests again. It had been frozen until you let go since 18 Aug."
-        }
-      ],
-      "known_issues": []
-    },
-    {
-      "version": null,
-      "channel": "Alpha",
-      "sha": "0652fca",
-      "date": "2026-08-24",
-      "title": "Hits that land, and better defaults",
-      "entries": [
-        {
-          "type": "changed",
-          "scope": "Combat",
-          "text": "Hit reactions are physics-driven: enemies flinch on every hit and go down on a break."
-        },
-        {
-          "type": "changed",
-          "scope": "Enemies",
-          "text": "Enemies keep their feet on the floor while attacking, shorten their stride on stairs and slow to a walk on a climb."
-        },
-        {
-          "type": "changed",
-          "scope": "Store",
-          "text": "A tile decides its enemies while you are still a LOD ring away, instead of after it has already come into view."
-        }
-      ],
-      "known_issues": []
     }
   ]
 }
