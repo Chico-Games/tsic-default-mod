@@ -15,9 +15,14 @@
       }
     ],
     "hair_offset": {
-      "x": 0.0,
-      "y": 0.0,
-      "z": -2.5
+      "x": -0.01,
+      "y": -0.01,
+      "z": 0.37
+    },
+    "hair_scale": {
+      "x": 0.9385,
+      "y": 0.9374,
+      "z": 0.9500
     },
     "thumbnail": "/img/parts/cp_head_lani.png",
     "body_archetype": "Feminine"

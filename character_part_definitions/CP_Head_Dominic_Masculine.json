@@ -15,9 +15,14 @@
       }
     ],
     "hair_offset": {
-      "x": 0.0,
-      "y": 0.0,
-      "z": 0.0
+      "x": 0.09,
+      "y": -0.16,
+      "z": 0.30
+    },
+    "hair_scale": {
+      "x": 1.1326,
+      "y": 1.0840,
+      "z": 0.9971
     },
     "thumbnail": "/img/parts/cp_head_dominic.png",
     "body_archetype": "Masculine"

@@ -15,9 +15,14 @@
       }
     ],
     "hair_offset": {
-      "x": 0.0,
-      "y": 0.0,
-      "z": -2.5
+      "x": -0.10,
+      "y": -0.04,
+      "z": 0.17
+    },
+    "hair_scale": {
+      "x": 1.0819,
+      "y": 1.0840,
+      "z": 1.0024
     },
     "thumbnail": "/img/parts/cp_head_tuya.png",
     "body_archetype": "Masculine"

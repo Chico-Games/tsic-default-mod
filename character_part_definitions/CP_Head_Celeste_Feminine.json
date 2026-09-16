@@ -15,9 +15,14 @@
       }
     ],
     "hair_offset": {
-      "x": 0.0,
-      "y": 0.0,
-      "z": -2.5
+      "x": -0.17,
+      "y": -0.08,
+      "z": 0.44
+    },
+    "hair_scale": {
+      "x": 0.9532,
+      "y": 0.9472,
+      "z": 0.9500
     },
     "thumbnail": "/img/parts/cp_head_celeste.png",
     "body_archetype": "Feminine"

@@ -15,9 +15,14 @@
       }
     ],
     "hair_offset": {
-      "x": 0.0,
-      "y": 0.0,
-      "z": -2.0
+      "x": -0.09,
+      "y": -0.01,
+      "z": 0.35
+    },
+    "hair_scale": {
+      "x": 0.9183,
+      "y": 0.9213,
+      "z": 0.9500
     },
     "thumbnail": "/img/parts/cp_head_aoi.png",
     "body_archetype": "Feminine"

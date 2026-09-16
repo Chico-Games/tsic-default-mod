@@ -15,9 +15,14 @@
       }
     ],
     "hair_offset": {
-      "x": 0.0,
-      "y": 0.0,
-      "z": 0.0
+      "x": -0.09,
+      "y": -0.03,
+      "z": 0.38
+    },
+    "hair_scale": {
+      "x": 1.0091,
+      "y": 1.0094,
+      "z": 0.9657
     },
     "thumbnail": "/img/parts/cp_head_omari.png",
     "body_archetype": "Masculine"

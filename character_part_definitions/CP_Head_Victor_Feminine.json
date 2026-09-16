@@ -15,9 +15,14 @@
       }
     ],
     "hair_offset": {
-      "x": 0.0,
-      "y": 0.0,
-      "z": -0.75
+      "x": -0.10,
+      "y": -0.06,
+      "z": 0.40
+    },
+    "hair_scale": {
+      "x": 0.9418,
+      "y": 0.9325,
+      "z": 0.9500
     },
     "thumbnail": "/img/parts/cp_head_victor.png",
     "body_archetype": "Feminine"

@@ -15,9 +15,14 @@
       }
     ],
     "hair_offset": {
-      "x": 0.0,
-      "y": 0.0,
-      "z": -1.5
+      "x": -0.02,
+      "y": -0.09,
+      "z": 0.41
+    },
+    "hair_scale": {
+      "x": 1.0582,
+      "y": 1.0362,
+      "z": 0.9709
     },
     "thumbnail": "/img/parts/cp_head_zuri.png",
     "body_archetype": "Masculine"

@@ -15,9 +15,14 @@
       }
     ],
     "hair_offset": {
-      "x": 0.0,
-      "y": 0.0,
-      "z": -0.5
+      "x": 0.01,
+      "y": -0.01,
+      "z": -0.21
+    },
+    "hair_scale": {
+      "x": 1.0844,
+      "y": 1.0808,
+      "z": 1.0500
     },
     "thumbnail": "/img/parts/cp_head_trey.png",
     "body_archetype": "Masculine"

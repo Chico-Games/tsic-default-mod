@@ -15,9 +15,14 @@
       }
     ],
     "hair_offset": {
-      "x": 0.0,
-      "y": 0.0,
-      "z": 0.0
+      "x": -0.06,
+      "y": -0.13,
+      "z": 0.33
+    },
+    "hair_scale": {
+      "x": 0.9094,
+      "y": 0.8766,
+      "z": 0.9500
     },
     "thumbnail": "/img/parts/cp_head_jorge.png",
     "body_archetype": "Feminine"

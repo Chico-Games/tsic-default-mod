@@ -15,9 +15,14 @@
       }
     ],
     "hair_offset": {
-      "x": 0.0,
-      "y": 0.0,
-      "z": -1.75
+      "x": -0.11,
+      "y": -0.10,
+      "z": 0.39
+    },
+    "hair_scale": {
+      "x": 1.0306,
+      "y": 1.0114,
+      "z": 0.9696
     },
     "thumbnail": "/img/parts/cp_head_orlando.png",
     "body_archetype": "Masculine"

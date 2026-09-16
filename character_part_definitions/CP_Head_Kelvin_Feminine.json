@@ -15,9 +15,14 @@
       }
     ],
     "hair_offset": {
-      "x": 0.0,
-      "y": 0.0,
-      "z": -0.5
+      "x": -0.09,
+      "y": -0.01,
+      "z": 0.37
+    },
+    "hair_scale": {
+      "x": 0.9307,
+      "y": 0.9356,
+      "z": 0.9500
     },
     "thumbnail": "/img/parts/cp_head_kelvin.png",
     "body_archetype": "Feminine"

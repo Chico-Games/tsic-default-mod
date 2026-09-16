@@ -15,9 +15,14 @@
       }
     ],
     "hair_offset": {
-      "x": 0.0,
-      "y": 0.0,
-      "z": -2.5
+      "x": -0.08,
+      "y": -0.02,
+      "z": 0.38
+    },
+    "hair_scale": {
+      "x": 0.9385,
+      "y": 0.9336,
+      "z": 0.9500
     },
     "thumbnail": "/img/parts/cp_head_aera.png",
     "body_archetype": "Feminine"

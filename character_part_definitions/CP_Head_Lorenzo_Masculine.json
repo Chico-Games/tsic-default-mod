@@ -15,9 +15,14 @@
       }
     ],
     "hair_offset": {
-      "x": 0.0,
-      "y": 0.0,
-      "z": -1.75
+      "x": 0.00,
+      "y": 0.01,
+      "z": 1.38
+    },
+    "hair_scale": {
+      "x": 1.2306,
+      "y": 1.2302,
+      "z": 1.0500
     },
     "thumbnail": "/img/parts/cp_head_lorenzo.png",
     "body_archetype": "Masculine"
