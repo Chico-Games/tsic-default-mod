@@ -120,7 +120,7 @@
       max-height: 220px; overflow-y: auto; background: var(--paper-bright, #fffdf3);
       border: 1px solid var(--ink-night, #14110c); box-shadow: 4px 4px 0 var(--ink-night, #14110c);
     }
-    [data-screen="Arena"] .ar-combo-list li { padding: 3px 8px; font-size: 12px; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    [data-screen="Arena"] .ar-combo-list li { padding: 3px 8px; font-size: 12px; color: var(--ink-night, #14110c); cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     [data-screen="Arena"] .ar-combo-list li.is-active, [data-screen="Arena"] .ar-combo-list li:hover { background: var(--mag-yellow, #f5c518); }
     [data-screen="Arena"] .ar-combo-list li.is-meta { color: rgba(59,47,28,0.6); cursor: default; font-style: italic; }
     [data-screen="Arena"] .ar-combo-list li.is-meta:hover { background: transparent; }

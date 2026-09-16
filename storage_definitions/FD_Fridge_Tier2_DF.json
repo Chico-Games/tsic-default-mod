@@ -5,7 +5,7 @@
   "schema_version": 2,
   "properties": {
     "extends": "FD_Fridge_DF",
-    "inventory_rules_definition": "IRD_StorageTier2_16",
+    "inventory_rules_definition": "IRD_FridgeTier2",
     "starting_health": 400,
     "furniture_armour": 3,
     "drag_mass": 120,

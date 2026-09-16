@@ -310,18 +310,33 @@
         else if (ev.key === 'ArrowRight') { ev.preventDefault(); ctx.publish('UI.Cmd.ItemTuner.Nav', { Delta: 1 }); }
       });
 
-      // Everything outside the panel is the basket: forward the buttons like the Basket screen does.
+      // Everything outside the panel is the basket: forward moves and buttons like the Basket
+      // screen does (the page is the cursor authority while an overlay is up).
       const panel = $('it-root');
       const overlay = root;
+      const frac = (ev) => ({ X: ev.clientX / Math.max(1, window.innerWidth), Y: ev.clientY / Math.max(1, window.innerHeight) });
+      let moveTimer = null;
+      let lastMove = null;
+      function flushMove() {
+        moveTimer = null;
+        if (!lastMove) return;
+        ctx.publish('UI.Cmd.Basket.Pointer', { Type: 0, Button: 0, ...lastMove });
+        lastMove = null;
+      }
+      overlay.addEventListener('pointermove', (ev) => {
+        if (panel.contains(ev.target)) return;
+        lastMove = frac(ev);
+        if (!moveTimer) moveTimer = setTimeout(flushMove, 33);
+      });
       overlay.addEventListener('pointerdown', (ev) => {
         if (panel.contains(ev.target) || (ev.pointerType && ev.pointerType !== 'mouse')) return;
         ev.preventDefault();
-        ctx.publish('UI.Cmd.Basket.Pointer', { Type: 1, Button: ev.button, X: -1, Y: -1 });
+        ctx.publish('UI.Cmd.Basket.Pointer', { Type: 1, Button: ev.button, ...frac(ev) });
       });
       overlay.addEventListener('pointerup', (ev) => {
         if (panel.contains(ev.target) || (ev.pointerType && ev.pointerType !== 'mouse')) return;
         ev.preventDefault();
-        ctx.publish('UI.Cmd.Basket.Pointer', { Type: 2, Button: ev.button, X: -1, Y: -1 });
+        ctx.publish('UI.Cmd.Basket.Pointer', { Type: 2, Button: ev.button, ...frac(ev) });
       });
       overlay.addEventListener('contextmenu', (ev) => { if (!panel.contains(ev.target)) ev.preventDefault(); });
 

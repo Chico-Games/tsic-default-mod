@@ -11,6 +11,8 @@
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_WoodenDowel_SI",
     "item_category_tag": "Entity.Inventory.Item.Category.CraftingMaterial",
-    "max_stack_size": 50
+    "max_stack_size": 50,
+    "basket_zone": "Dowels",
+    "basket_zone_capacity": 10
   }
 }

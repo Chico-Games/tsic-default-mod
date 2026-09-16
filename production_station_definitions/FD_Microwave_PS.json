@@ -1,7 +1,7 @@
 {
   "id": "FD_Microwave_PS",
   "asset_path": "/Game/Furniture/Cooking/Microwave/Furniture/FD_Microwave_PS",
-  "class": "UProductionStationDefinition",
+  "class": "UCookingStationDefinition",
   "schema_version": 2,
   "properties": {
     "available_recipe_rules_definition": "ARR_MicrowaveRecipes",
@@ -35,9 +35,9 @@
     "blocking_collision_boxes": [
       {
         "offset": {
-          "x": -0.0088,
-          "y": -0.0038,
-          "z": 17.9872
+          "x": 0.0,
+          "y": 0.0,
+          "z": 14.25
         },
         "rotation": {
           "pitch": 0,
@@ -45,18 +45,18 @@
           "roll": 0
         },
         "box_size": {
-          "x": 20.0673,
-          "y": 17.7639,
-          "z": 14.0489
+          "x": 23.6,
+          "y": 27.3,
+          "z": 14.35
         }
       }
     ],
     "support_collision_boxes": [
       {
         "offset": {
-          "x": -0.0088,
-          "y": -0.0038,
-          "z": 17.627
+          "x": 0.0,
+          "y": 0.0,
+          "z": 14.25
         },
         "rotation": {
           "pitch": 0,
@@ -64,9 +64,9 @@
           "roll": 0
         },
         "box_size": {
-          "x": 28.6676,
-          "y": 25.377,
-          "z": 18.0114
+          "x": 24.6,
+          "y": 28.3,
+          "z": 14.35
         }
       }
     ],
@@ -96,7 +96,7 @@
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,
-    "static_mesh": "/Game/Fab/Suburban_Household/VOL9_Kitchen/Meshes/NN/SM_Microwave_NN_06j.SM_Microwave_NN_06j",
+    "static_mesh": "/Game/MidcenturyCombo/Midcentury_VOL3/Meshes/SM_Microwave_01a.SM_Microwave_01a",
     "casts_shadow": true,
     "collision_profile_name": {
       "name": "Furniture"
@@ -108,34 +108,13 @@
           "rotation": {
             "x": 0.0,
             "y": 0.0,
-            "z": 0.2318,
-            "w": 0.9728
+            "z": 0.0,
+            "w": 1.0
           },
           "translation": {
-            "x": -5.2,
-            "y": 6.56,
-            "z": 1.13
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        },
-        "weight": 1000
-      },
-      {
-        "local_transform": {
-          "rotation": {
             "x": 0.0,
             "y": 0.0,
-            "z": 0.9993,
-            "w": 0.0367
-          },
-          "translation": {
-            "x": 8.84,
-            "y": -0.13,
-            "z": 1.13
+            "z": 29.1
           },
           "scale3_d": {
             "x": 1.0,
@@ -160,6 +139,30 @@
     "gameplay_tags": [],
     "release_angular_damping": 0.05000000074505806,
     "release_linear_damping": 0.009999999776482582,
-    "restitution": 0.30000001192092896
+    "restitution": 0.30000001192092896,
+    "inventory_rules_definition": "IRD_CookingTray",
+    "rig": {
+      "skeletal_mesh": "/Game/Furniture/MidCentury/Microwave01/SK_Microwave01.SK_Microwave01",
+      "parts": [
+        {
+          "name": "Door",
+          "motion": "Hinge",
+          "range": 110.0,
+          "opens_for_screen": true
+        }
+      ]
+    },
+    "storage_view": {
+      "offset": {
+        "x": 0.0,
+        "y": 2.0,
+        "z": 6.0
+      },
+      "yaw": 90.0,
+      "width": 40.0,
+      "depth": 26.0,
+      "camera_distance": 150.0,
+      "camera_pitch": -32.0
+    }
   }
 }

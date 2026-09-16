@@ -4,7 +4,19 @@
   "class": "UStorageDefinition",
   "schema_version": 2,
   "properties": {
-    "inventory_rules_definition": "IRD_StorageTier1_2",
+    "inventory_rules_definition": "IRD_FridgeTier1",
+    "storage_view": {
+      "offset": {
+        "x": -45.0,
+        "y": 28.0,
+        "z": 60.0
+      },
+      "yaw": 90.0,
+      "width": 70.0,
+      "depth": 44.0,
+      "camera_distance": 240.0,
+      "camera_pitch": -38.0
+    },
     "inventory_loot": {
       "rolls": 2,
       "chance_per_roll": 0.5
@@ -34,9 +46,9 @@
     "blocking_collision_boxes": [
       {
         "offset": {
-          "x": 0.65791,
-          "y": 3.811477,
-          "z": 80.986092
+          "x": -44.75,
+          "y": 40.0,
+          "z": 90.1
         },
         "rotation": {
           "pitch": 0,
@@ -44,18 +56,18 @@
           "roll": 0
         },
         "box_size": {
-          "x": 25.544996997032165,
-          "y": 18.92113420021057,
-          "z": 44.72848
+          "x": 45.05,
+          "y": 40.5,
+          "z": 90.1
         }
       }
     ],
     "support_collision_boxes": [
       {
         "offset": {
-          "x": -0.09188378215026849,
-          "y": -1.33246,
-          "z": 75.44874386141967
+          "x": -44.75,
+          "y": 40.0,
+          "z": 90.1
         },
         "rotation": {
           "pitch": 0,
@@ -63,9 +75,9 @@
           "roll": 0
         },
         "box_size": {
-          "x": 40.21075980646706,
-          "y": 35.790190200210574,
-          "z": 77.05987199284745
+          "x": 46.05,
+          "y": 41.5,
+          "z": 90.1
         }
       }
     ],
@@ -115,7 +127,7 @@
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,
-    "static_mesh": "/Game/Furniture/Fridges/Meshes/SM_Balsonic_Fridge.SM_Balsonic_Fridge",
+    "static_mesh": "/Game/MidcenturyCombo/Midcentury_VOL3/Meshes/SM_Refrigerator_01a.SM_Refrigerator_01a",
     "casts_shadow": true,
     "collision_profile_name": {
       "name": "Furniture"
@@ -127,34 +139,13 @@
           "rotation": {
             "x": 0.0,
             "y": 0.0,
-            "z": 0.3393,
-            "w": -0.9407
+            "z": 0.0,
+            "w": 1.0
           },
           "translation": {
-            "x": -7.47,
-            "y": -3.41,
-            "z": 3.43
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        },
-        "weight": 1000
-      },
-      {
-        "local_transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0494,
-            "w": -0.9988
-          },
-          "translation": {
-            "x": 4.97,
-            "y": -0.89,
-            "z": 3.43
+            "x": -44.75,
+            "y": 40.0,
+            "z": 180.7
           },
           "scale3_d": {
             "x": 1.0,
@@ -169,6 +160,23 @@
     "weighted_chance": 1000,
     "world_gen_priority": 6000,
     "open_sound": "Container.Open.Locker",
-    "close_sound": "Container.Close.Locker"
+    "close_sound": "Container.Close.Locker",
+    "rig": {
+      "skeletal_mesh": "/Game/Furniture/MidCentury/Fridge01/SK_Fridge01.SK_Fridge01",
+      "parts": [
+        {
+          "name": "DoorUpper",
+          "motion": "Hinge",
+          "range": -110.0,
+          "opens_for_screen": false
+        },
+        {
+          "name": "DoorLower",
+          "motion": "Hinge",
+          "range": -110.0,
+          "opens_for_screen": true
+        }
+      ]
+    }
   }
 }

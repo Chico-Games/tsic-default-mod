@@ -16,7 +16,10 @@
         "RD_LingonberryJam_CR",
         "RD_Flour_CR",
         "RD_PlantFibre_CR",
-        "RD_ShoppingBasket_CR"
+        "RD_ShoppingBasket_CR",
+        "RD_HardwareDrawer_CR",
+        "RD_PlankRack_CR",
+        "RD_CardboardRack_CR"
       ]
     }
   }

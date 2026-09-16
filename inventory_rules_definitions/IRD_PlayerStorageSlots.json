@@ -11,9 +11,12 @@
       "can_remove_items": true,
       "capacity": 200.0,
       "b_can_exceed_capacity": true,
-      "grid_width": 8,
+      "grid_width": 9,
       "grid_height": 8,
-      "base_unlocked_slots": 32
+      "base_unlocked_slots": 54,
+      "basket_zones": true,
+      "hook_cells": 4,
+      "rejected_categories": [ "Entity.Inventory.Item.Category.Consumable" ]
     }
   }
 }

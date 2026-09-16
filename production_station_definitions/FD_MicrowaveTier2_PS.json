@@ -34,9 +34,9 @@
     "blocking_collision_boxes": [
       {
         "offset": {
-          "x": 0.0723,
-          "y": -1.4429,
-          "z": 20.5726
+          "x": 0.0,
+          "y": 0.0,
+          "z": 14.25
         },
         "rotation": {
           "pitch": 0,
@@ -44,18 +44,18 @@
           "roll": 0
         },
         "box_size": {
-          "x": 25.4044,
-          "y": 18.2925,
-          "z": 16.035
+          "x": 23.6,
+          "y": 27.3,
+          "z": 14.35
         }
       }
     ],
     "support_collision_boxes": [
       {
         "offset": {
-          "x": 0.0723,
-          "y": -1.4429,
-          "z": 20.1614
+          "x": 0.0,
+          "y": 0.0,
+          "z": 14.25
         },
         "rotation": {
           "pitch": 0,
@@ -63,9 +63,9 @@
           "roll": 0
         },
         "box_size": {
-          "x": 36.2919,
-          "y": 26.1322,
-          "z": 20.5577
+          "x": 24.6,
+          "y": 28.3,
+          "z": 14.35
         }
       }
     ],
@@ -95,7 +95,7 @@
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,
-    "static_mesh": "/Game/Fab/Kitchen_VOL4/Meshes/SM_Microwave_01a.SM_Microwave_01a",
+    "static_mesh": "/Game/MidcenturyCombo/Midcentury_VOL3/Meshes/SM_Microwave_01a.SM_Microwave_01a",
     "casts_shadow": true,
     "collision_profile_name": {
       "name": "Furniture"
@@ -107,34 +107,13 @@
           "rotation": {
             "x": 0.0,
             "y": 0.0,
-            "z": 0.0529,
-            "w": -0.9986
+            "z": 0.0,
+            "w": 1.0
           },
           "translation": {
-            "x": -5.29,
-            "y": -8.29,
-            "z": 35.56
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        },
-        "weight": 1000
-      },
-      {
-        "local_transform": {
-          "rotation": {
             "x": 0.0,
             "y": 0.0,
-            "z": 0.0634,
-            "w": 0.998
-          },
-          "translation": {
-            "x": 9.6,
-            "y": -3.98,
-            "z": 35.56
+            "z": 29.1
           },
           "scale3_d": {
             "x": 1.0,

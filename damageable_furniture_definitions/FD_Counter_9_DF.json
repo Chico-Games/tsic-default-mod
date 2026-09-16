@@ -16,38 +16,38 @@
     "blocking_collision_boxes": [
       {
         "offset": {
-          "x": -0.07268388892195787,
-          "y": -1.338111998731397,
-          "z": 55.32511098455189
+          "x": 24.1,
+          "y": 0.0,
+          "z": 34.75
         },
         "rotation": {
           "pitch": 0,
-          "yaw": 89.999999,
+          "yaw": 0,
           "roll": 0
         },
         "box_size": {
-          "x": 39.351616,
-          "y": 30.994189545337676,
-          "z": 32.033856
+          "x": 23.1,
+          "y": 105.7,
+          "z": 34.75
         }
       }
     ],
     "support_collision_boxes": [
       {
         "offset": {
-          "x": -0.115571,
-          "y": 1.159412,
-          "z": 49.556419
+          "x": 24.1,
+          "y": 0.0,
+          "z": 34.75
         },
         "rotation": {
           "pitch": 0,
-          "yaw": -89.999999,
+          "yaw": 0,
           "roll": 0
         },
         "box_size": {
-          "x": 53.214784,
-          "y": 44.663712,
-          "z": 52.72288
+          "x": 24.1,
+          "y": 106.7,
+          "z": 34.75
         }
       }
     ],
@@ -96,7 +96,7 @@
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,
-    "static_mesh": "/Game/Furniture/Counters/Meshes/SM_M_Locker6C.SM_M_Locker6C",
+    "static_mesh": "/Game/MidcenturyCombo/Midcentury_VOL1/Meshes/SM_MediaConsole_01a.SM_MediaConsole_01a",
     "casts_shadow": true,
     "collision_profile_name": {
       "name": "Furniture"
@@ -108,13 +108,13 @@
           "rotation": {
             "x": 0.0,
             "y": 0.0,
-            "z": 0.3191,
-            "w": 0.9477
+            "z": 0.0,
+            "w": 1.0
           },
           "translation": {
-            "x": -3.88,
-            "y": -16.26,
-            "z": 95.78
+            "x": 24.1,
+            "y": 0.0,
+            "z": 70.0
           },
           "scale3_d": {
             "x": 1.0,
@@ -129,13 +129,13 @@
           "rotation": {
             "x": 0.0,
             "y": 0.0,
-            "z": 0.4623,
-            "w": -0.8867
+            "z": 0.0,
+            "w": 1.0
           },
           "translation": {
-            "x": 9.5,
-            "y": 2.09,
-            "z": 95.78
+            "x": 20.0,
+            "y": -70.0,
+            "z": 52.0
           },
           "scale3_d": {
             "x": 1.0,
@@ -150,13 +150,55 @@
           "rotation": {
             "x": 0.0,
             "y": 0.0,
-            "z": 0.7818,
-            "w": 0.6236
+            "z": 0.0,
+            "w": 1.0
           },
           "translation": {
-            "x": 7.19,
-            "y": 12.2,
-            "z": 95.78
+            "x": 20.0,
+            "y": 70.0,
+            "z": 52.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        },
+        "weight": 1000
+      },
+      {
+        "local_transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 1.0
+          },
+          "translation": {
+            "x": 24.0,
+            "y": 20.0,
+            "z": 8.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        },
+        "weight": 1000
+      },
+      {
+        "local_transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 1.0
+          },
+          "translation": {
+            "x": 24.0,
+            "y": -20.0,
+            "z": 8.0
           },
           "scale3_d": {
             "x": 1.0,
@@ -169,6 +211,71 @@
     ],
     "loot_position_chance": 0.3,
     "weighted_chance": 1000,
-    "world_gen_priority": 7000
+    "world_gen_priority": 7000,
+    "rig": {
+      "skeletal_mesh": "/Game/Furniture/MidCentury/MediaConsole01/SK_MediaConsole01.SK_MediaConsole01",
+      "parts": [
+        {
+          "name": "DoorLeft",
+          "motion": "Hinge",
+          "range": -100.0,
+          "opens_for_screen": false
+        },
+        {
+          "name": "DoorRight",
+          "motion": "Hinge",
+          "range": 100.0,
+          "opens_for_screen": false
+        },
+        {
+          "name": "DrawerA",
+          "motion": "Slide",
+          "range": 25.0,
+          "opens_for_screen": false
+        },
+        {
+          "name": "DrawerB",
+          "motion": "Slide",
+          "range": 25.0,
+          "opens_for_screen": false
+        },
+        {
+          "name": "DrawerC",
+          "motion": "Slide",
+          "range": 25.0,
+          "opens_for_screen": false
+        },
+        {
+          "name": "DrawerD",
+          "motion": "Slide",
+          "range": 25.0,
+          "opens_for_screen": false
+        },
+        {
+          "name": "DrawerE",
+          "motion": "Slide",
+          "range": 25.0,
+          "opens_for_screen": false
+        },
+        {
+          "name": "DrawerF",
+          "motion": "Slide",
+          "range": 25.0,
+          "opens_for_screen": false
+        },
+        {
+          "name": "DrawerG",
+          "motion": "Slide",
+          "range": 25.0,
+          "opens_for_screen": false
+        },
+        {
+          "name": "DrawerH",
+          "motion": "Slide",
+          "range": 25.0,
+          "opens_for_screen": false
+        }
+      ]
+    }
   }
 }

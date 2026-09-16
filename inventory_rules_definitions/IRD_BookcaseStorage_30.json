@@ -12,7 +12,10 @@
       "capacity": 30.0,
       "b_can_exceed_capacity": false,
       "grid_width": 4,
-      "grid_height": 2
+      "grid_height": 2,
+      "rejected_categories": [
+        "Entity.Inventory.Item.Category.Consumable"
+      ]
     }
   }
 }

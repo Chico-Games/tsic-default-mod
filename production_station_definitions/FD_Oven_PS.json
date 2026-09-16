@@ -1,7 +1,7 @@
 {
   "id": "FD_Oven_PS",
   "asset_path": "/Game/Furniture/Cooking/Oven/Construction/FD_Oven_PS",
-  "class": "UProductionStationDefinition",
+  "class": "UCookingStationDefinition",
   "schema_version": 2,
   "properties": {
     "available_recipe_rules_definition": "ARR_OvenRecipes",
@@ -34,9 +34,9 @@
     "blocking_collision_boxes": [
       {
         "offset": {
-          "x": -9.95,
-          "y": 3.8,
-          "z": 55.8
+          "x": 0.0,
+          "y": 3.6,
+          "z": 65.0
         },
         "rotation": {
           "pitch": 0,
@@ -44,18 +44,18 @@
           "roll": 0
         },
         "box_size": {
-          "x": 28.2,
-          "y": 24.4,
-          "z": 27.5
+          "x": 35.4,
+          "y": 31.8,
+          "z": 65.0
         }
       }
     ],
     "support_collision_boxes": [
       {
         "offset": {
-          "x": -9.95,
-          "y": 3.8,
-          "z": 47.35
+          "x": 0.0,
+          "y": 3.6,
+          "z": 65.0
         },
         "rotation": {
           "pitch": 0,
@@ -63,9 +63,9 @@
           "roll": 0
         },
         "box_size": {
-          "x": 48.65,
-          "y": 42.1,
-          "z": 47.35
+          "x": 36.4,
+          "y": 32.8,
+          "z": 65.0
         }
       }
     ],
@@ -95,7 +95,7 @@
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,
-    "static_mesh": "/Game/Furniture/Cooking/Meshes/SM_Oven_01.SM_Oven_01",
+    "static_mesh": "/Game/MidcenturyCombo/Midcentury_VOL3/Meshes/SM_Stove_01a.SM_Stove_01a",
     "casts_shadow": true,
     "collision_profile_name": {
       "name": "Furniture"
@@ -107,55 +107,13 @@
           "rotation": {
             "x": 0.0,
             "y": 0.0,
-            "z": 0.9422,
-            "w": 0.335
+            "z": 0.0,
+            "w": 1.0
           },
           "translation": {
-            "x": -6.6069,
-            "y": -7.9312,
-            "z": 100.7892
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        },
-        "weight": 1000
-      },
-      {
-        "local_transform": {
-          "rotation": {
             "x": 0.0,
-            "y": 0.0,
-            "z": 0.497,
-            "w": -0.8678
-          },
-          "translation": {
-            "x": 13.0129,
-            "y": -12.4875,
-            "z": 100.7892
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        },
-        "weight": 1000
-      },
-      {
-        "local_transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.1271,
-            "w": 0.9919
-          },
-          "translation": {
-            "x": -10.98,
-            "y": 4.51,
-            "z": 84.83
+            "y": 3.6,
+            "z": 130.5
           },
           "scale3_d": {
             "x": 1.0,
@@ -181,6 +139,36 @@
     "release_angular_damping": 0.05000000074505806,
     "release_linear_damping": 0.009999999776482582,
     "restitution": 0.30000001192092896,
-    "constructable_item_to_grant": "ID_Oven_CI"
+    "constructable_item_to_grant": "ID_Oven_CI",
+    "inventory_rules_definition": "IRD_CookingTray",
+    "rig": {
+      "skeletal_mesh": "/Game/Furniture/MidCentury/Stove01/SK_Stove01.SK_Stove01",
+      "parts": [
+        {
+          "name": "OvenDoor",
+          "motion": "Hinge",
+          "range": 90.0,
+          "opens_for_screen": true
+        },
+        {
+          "name": "Drawer",
+          "motion": "Slide",
+          "range": 35.0,
+          "opens_for_screen": false
+        }
+      ]
+    },
+    "storage_view": {
+      "offset": {
+        "x": 0.0,
+        "y": 2.9,
+        "z": 49.0
+      },
+      "yaw": 90.0,
+      "width": 54.0,
+      "depth": 38.0,
+      "camera_distance": 240.0,
+      "camera_pitch": -34.0
+    }
   }
 }

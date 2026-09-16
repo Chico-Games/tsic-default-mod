@@ -16,38 +16,38 @@
     "blocking_collision_boxes": [
       {
         "offset": {
-          "x": 0,
-          "y": -1.338112,
-          "z": 55.325111
+          "x": 2.4,
+          "y": 0.0,
+          "z": 65.3
         },
         "rotation": {
           "pitch": 0,
-          "yaw": 89.999999,
+          "yaw": 0,
           "roll": 0
         },
         "box_size": {
-          "x": 39.35162224032831,
-          "y": 33.23779745561981,
-          "z": 32.033856
+          "x": 24.6,
+          "y": 32.9,
+          "z": 65.3
         }
       }
     ],
     "support_collision_boxes": [
       {
         "offset": {
-          "x": -0.115571,
-          "y": 1.159412,
-          "z": 49.556419
+          "x": 2.4,
+          "y": 0.0,
+          "z": 65.3
         },
         "rotation": {
           "pitch": 0,
-          "yaw": -89.999999,
+          "yaw": 0,
           "roll": 0
         },
         "box_size": {
-          "x": 53.214781645420075,
-          "y": 44.663712,
-          "z": 52.72288
+          "x": 25.6,
+          "y": 33.9,
+          "z": 65.3
         }
       }
     ],
@@ -96,7 +96,7 @@
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,
-    "static_mesh": "/Game/Furniture/Counters/Meshes/SM_M_Locker5C.SM_M_Locker5C",
+    "static_mesh": "/Game/MidcenturyCombo/Midcentury_VOL1/Meshes/SM_Shelf_02a.SM_Shelf_02a",
     "casts_shadow": true,
     "collision_profile_name": {
       "name": "Furniture"
@@ -108,55 +108,13 @@
           "rotation": {
             "x": 0.0,
             "y": 0.0,
-            "z": 0.6839,
-            "w": 0.7296
+            "z": 0.0,
+            "w": 1.0
           },
           "translation": {
-            "x": -16.62,
-            "y": -13.57,
-            "z": 95.78
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        },
-        "weight": 1000
-      },
-      {
-        "local_transform": {
-          "rotation": {
-            "x": 0.0,
+            "x": 2.4,
             "y": 0.0,
-            "z": 0.6592,
-            "w": -0.7519
-          },
-          "translation": {
-            "x": 8.33,
-            "y": -18.59,
-            "z": 95.78
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        },
-        "weight": 1000
-      },
-      {
-        "local_transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.9733,
-            "w": 0.2295
-          },
-          "translation": {
-            "x": -12.32,
-            "y": 16.38,
-            "z": 95.78
+            "z": 131.1
           },
           "scale3_d": {
             "x": 1.0,
