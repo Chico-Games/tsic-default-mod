@@ -16,30 +16,6 @@ TSICTestHarness.register({
     },
 });
 
-// ---- HealthBar damage-reveal --------------------------------------------
-TSICTestHarness.register({
-    name: 'HealthBar: damage event subscriber doesn\'t throw',
-    file: '/screens/test-health-bar.html',
-    async run(ctx) {
-        ctx.inject('tsic.msg.UI.Player.Attribute', { Channel: 'Health', Current: 80, Max: 100 });
-        ctx.inject('tsic.msg.Message.DamageEvent', { Damage: 20 });
-        await ctx.waitFor(() => /80 \/ 100/.test((ctx.doc.querySelector('.tlb-readout') || {}).textContent || ''), { timeout: 2000 });
-        ctx.expect(ctx.assert.domText(ctx.doc, '.tlb-readout', /80 \/ 100/));
-    },
-});
-
-// ---- StaminaBar drain --------------------------------------------------
-TSICTestHarness.register({
-    name: 'StaminaBar: rapid drop still surfaces final value',
-    file: '/screens/test-stamina-bar.html',
-    async run(ctx) {
-        ctx.inject('tsic.msg.UI.Player.Attribute', { Channel: 'Stamina', Current: 100, Max: 100 });
-        ctx.inject('tsic.msg.UI.Player.Attribute', { Channel: 'Stamina', Current: 25, Max: 100 });
-        await ctx.waitFor(() => /25 \/ 100/.test(ctx.doc.body.textContent), { timeout: 2000 });
-        ctx.expect(ctx.assert.truthy(/25 \/ 100/.test(ctx.doc.body.textContent)));
-    },
-});
-
 // ---- Stomach slot edge case ---------------------------------------------
 TSICTestHarness.register({
     name: 'Stomach: empty-slot ItemId="" still renders without throwing',

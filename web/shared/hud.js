@@ -5,9 +5,6 @@
 // own file:
 //
 //   hud-toast.js        — toast notifications (loaded on ALL screens)
-//   hud-liquid-bar.js   — shared liquid vial component (health + stamina)
-//   hud-health.js       — health vial (mounts hud-liquid-bar)
-//   hud-stamina.js      — stamina vial (mounts hud-liquid-bar)
 //   hud-stomach.js      — digesting-consumable slots (right of the vials)
 //   hud-conditions.js   — status-effect / consumable-buff chips (right of the stomach)
 //   hud-crosshair.js    — crosshair visibility
@@ -16,13 +13,12 @@
 //   hud-behavior-bar.js — gameplay behavior bar (System A)
 //   hud-construction-preview.js — build-mode placement readout (top-centre)
 //   hud-menu-action-bar.js — menu behavior bar (System B; every screen, not just InGame)
-//   hud-minimap.js      — minimap (fixed-zoom, player-tracking)
 //   hud-chunk-debug.js  — chunk debug overlay (dev)
 //   hud-hotbar.js       — bottom-centre hotbar shelf
 //   hud-hotbar-wheel.js — hold-to-open radial hotbar selector (gamepad + Q)
 //   hud-screen-fade.js  — full-screen black fade (death sequence)
 //   hud-chat.js         — multiplayer text chat (bottom-left, above the vials)
-//   hud-tutorial.js     — tutorial objectives box (top-right, below the minimap)
+//   hud-tutorial.js     — objective chimes (the list itself is a page of the Tab catalogue)
 //   hud-detection.js    — directional "you have been spotted" wedges + edge mist
 //
 // The HUD toggle (body.hud-hidden) stays here — it's orchestrator-level
@@ -44,19 +40,15 @@
   // ---- Inline styles for HUD chrome ----
 
   var STYLE = [
-    // Health + stamina are liquid vials (shared/hud-liquid-bar.js), standing
-    // side by side in the bottom-left. These rules just position/size them.
-    '#hud-health { position:fixed; left:24px; bottom:30px; width:48px; --vial-h:200px; pointer-events:none; z-index:20; }',
-    '#hud-stamina { position:fixed; left:80px; bottom:30px; width:48px; --vial-h:200px; pointer-events:none; z-index:20; }',
-    // Stomach — digesting-food slots, right of the stamina vial, bottom-aligned
-    // with the bars. Left = stamina body end (128) + the 8px inter-bar gap + the
-    // 4px the vial's block shadow overhangs to the right = 140. Slot styling: hud-stomach.js.
-    '#hud-stomach { position:fixed; left:140px; bottom:30px; pointer-events:none; z-index:20; }',
+    // Health and stamina are on the wristwatch in the bottom-left corner, a first-person
+    // prop drawn by the game (AScpWatchView), not by this page.
+    // Stomach — digesting-food slots, just right of the watch, bottom-aligned with it.
+    // Slot styling: hud-stomach.js.
+    '#hud-stomach { position:fixed; left:clamp(230px, 17vw, 330px); bottom:30px; pointer-events:none; z-index:20; }',
     // Conditions — status-effect / consumable-buff chips, immediately right of the
-    // stomach column and bottom-aligned with it. Left = stomach left (140) + its 42px
-    // slot + the 4px block-shadow overhang + a 4px gap = 190. Chip styling and the
-    // bottom-up stacking live in hud-conditions.js.
-    '#hud-conditions { position:fixed; left:190px; bottom:30px; pointer-events:none; z-index:20; }',
+    // stomach column (its 42px slot + the 4px block-shadow overhang + a 4px gap) and
+    // bottom-aligned with it. Chip styling and the bottom-up stacking live in hud-conditions.js.
+    '#hud-conditions { position:fixed; left:calc(clamp(230px, 17vw, 330px) + 50px); bottom:30px; pointer-events:none; z-index:20; }',
     // Crosshair dot — always fully opaque; affordances animate a halo around it.
     '#hud-crosshair { position:fixed; left:50%; top:50%; margin-left:-2px; margin-top:-2px; width:4px; height:4px; background:#fff; border-radius:50%; pointer-events:none; z-index:20; transition:box-shadow 120ms ease, transform 120ms ease; }',
     // Per-category halo breathing — same keyframes, subtly different cadence and
@@ -164,8 +156,8 @@
     'html[data-tsic-reduce-motion] #hud-circular-progress, html[data-tsic-reduce-motion] #hud-crosshair-progress { transition:opacity 140ms ease; transform:none; }',
     'html[data-tsic-reduce-motion] #hud-circular-progress.active, html[data-tsic-reduce-motion] #hud-crosshair-progress.active { transform:none; }',
     'html[data-tsic-reduce-motion] #hud-crosshair-bloom.fire { animation:none; }',
-    'body.hud-hidden #hud-chrome, body.hud-hidden #hud-health, body.hud-hidden #hud-stamina, body.hud-hidden #hud-stomach, body.hud-hidden #hud-conditions, body.hud-hidden #hud-crosshair, body.hud-hidden #hud-crosshair-hand, body.hud-hidden #hud-crosshair-cat, body.hud-hidden #hud-crosshair-progress, body.hud-hidden #hud-crosshair-bloom, body.hud-hidden #hud-circular-progress, body.hud-hidden #bb-shell-gameplay, body.hud-hidden #hud-minimap, body.hud-hidden #hud-chunk-debug, body.hud-hidden #hud-hotbar, body.hud-hidden #ping-shell, body.hud-hidden #hud-low-health, body.hud-hidden #hud-hit-reaction, body.hud-hidden #hud-stealth, body.hud-hidden #hud-detection, body.hud-hidden #hud-sprint-vignette,body.hud-hidden #hud-chat, body.hud-hidden #hud-voice, body.hud-hidden #hud-tutorial { display:none !important; }',
-    'body.hud-hide-health #hud-health, body.hud-hide-stamina #hud-stamina, body.hud-hide-stomach #hud-stomach, body.hud-hide-conditions #hud-conditions, body.hud-hide-crosshair #hud-crosshair, body.hud-hide-crosshair #hud-crosshair-hand, body.hud-hide-crosshair #hud-crosshair-cat, body.hud-hide-crosshair #hud-crosshair-progress, body.hud-hide-crosshair #hud-crosshair-bloom, body.hud-hide-minimap #hud-minimap, body.hud-hide-actionbar #bb-shell-gameplay, body.hud-hide-interaction #interaction-prompt, body.hud-hide-hotbar #hud-hotbar, body.hud-hide-lowhealth #hud-low-health, body.hud-hide-hitreaction #hud-hit-reaction, body.hud-hide-stealth #hud-stealth, body.hud-hide-detection #hud-detection, body.hud-hide-tutorial #hud-tutorial { display:none !important; }',
+    'body.hud-hidden #hud-chrome, body.hud-hidden #hud-stomach, body.hud-hidden #hud-conditions, body.hud-hidden #hud-crosshair, body.hud-hidden #hud-crosshair-hand, body.hud-hidden #hud-crosshair-cat, body.hud-hidden #hud-crosshair-progress, body.hud-hidden #hud-crosshair-bloom, body.hud-hidden #hud-circular-progress, body.hud-hidden #bb-shell-gameplay, body.hud-hidden #hud-chunk-debug, body.hud-hidden #hud-hotbar, body.hud-hidden #ping-shell, body.hud-hidden #hud-low-health, body.hud-hidden #hud-hit-reaction, body.hud-hidden #hud-stealth, body.hud-hidden #hud-detection, body.hud-hidden #hud-sprint-vignette,body.hud-hidden #hud-chat, body.hud-hidden #hud-voice { display:none !important; }',
+    'body.hud-hide-stomach #hud-stomach, body.hud-hide-conditions #hud-conditions, body.hud-hide-crosshair #hud-crosshair, body.hud-hide-crosshair #hud-crosshair-hand, body.hud-hide-crosshair #hud-crosshair-cat, body.hud-hide-crosshair #hud-crosshair-progress, body.hud-hide-crosshair #hud-crosshair-bloom, body.hud-hide-actionbar #bb-shell-gameplay, body.hud-hide-interaction #interaction-prompt, body.hud-hide-hotbar #hud-hotbar, body.hud-hide-lowhealth #hud-low-health, body.hud-hide-hitreaction #hud-hit-reaction, body.hud-hide-stealth #hud-stealth, body.hud-hide-detection #hud-detection { display:none !important; }',
     '#bb-shell-gameplay { position:fixed; bottom:18px; right:24px; min-width:240px; max-width:calc(100vw - 48px); padding:8px 12px; color:#fff; pointer-events:none; z-index:20; font-family:var(--font-body); text-shadow:0 1px 2px rgba(0,0,0,0.75); }',
     '#bb-shell-gameplay.hidden { display:none; }',
     '#bb-gameplay { display:flex; flex-direction:column; align-items:stretch; gap:0; }',
@@ -211,14 +203,6 @@
     '#interaction-hold-prompt.interaction-disabled { color:rgba(190,190,190,0.4) !important; text-decoration:line-through; }',
     '#interaction-hold-prompt.interaction-disabled .cat-icon { opacity:0.4; }',
     '.bb-hold-reason { font-size:9px; font-weight:600; text-decoration:none; opacity:0.9; }',
-    // Minimap — circular HUD badge. Frame matches the ping wheel: heavy ink ring
-    // + soft drop shadow. The ink ring is an INSET shadow (not a real border) so
-    // the content box stays a full 180px = the canvas buffer, keeping the player
-    // marker dead-centre. will-change promotes the map/FOW to their own layer so
-    // the per-frame pan transform composites on the GPU instead of repainting.
-    '#hud-minimap { position:fixed; top:24px; right:24px; width:180px; height:180px; border-radius:50%; overflow:hidden; box-shadow: inset 0 0 0 3px var(--ink-night), 0 4px 16px rgba(0,0,0,0.5); background:#d4c19d; pointer-events:none; z-index:20; }',
-    '#minimap-tex, #minimap-fow { position:absolute; left:0; top:0; transform-origin:0 0; will-change:transform; image-rendering:pixelated; image-rendering:-webkit-optimize-contrast; image-rendering:crisp-edges; pointer-events:none; }',
-    '#minimap-canvas { position:absolute; left:0; top:0; width:100%; height:100%; pointer-events:none; }',
     '#hud-chunk-debug { display:none; position:fixed; top:214px; right:24px; width:140px; height:140px; overflow:hidden; border:1px solid rgba(184,170,145,0.55); box-shadow:0 2px 6px rgba(0,0,0,0.3); background:#1a1a1a; pointer-events:none; z-index:20; }',
     '#chunk-debug-tex { position:absolute; left:0; top:0; width:100%; height:100%; image-rendering:pixelated; image-rendering:-webkit-optimize-contrast; image-rendering:crisp-edges; pointer-events:none; }',
     // Hotbar — bottom-centre showroom shelf. Interactive (click/drag), so it
@@ -260,9 +244,6 @@
     var chrome = el('div', { id: 'hud-chrome' });
     document.body.appendChild(chrome);
 
-    // Empty containers — the liquid-bar component builds the vial inside each.
-    document.body.appendChild(el('div', { id: 'hud-health' }));
-    document.body.appendChild(el('div', { id: 'hud-stamina' }));
     document.body.appendChild(el('div', { id: 'hud-stomach' }));
     document.body.appendChild(el('div', { id: 'hud-conditions' }));
 
@@ -276,26 +257,6 @@
     // same broadcast that fills the panel ring.
     document.body.appendChild(el('div', { id: 'hud-crosshair-progress' }));
     document.body.appendChild(el('div', { id: 'hud-crosshair-bloom' }));
-
-    var minimap = el('div', { id: 'hud-minimap' });
-    // No src here, deliberately: hud-minimap.js fetches world-map on the first
-    // UI.Map.Snapshot instead (its retryFailedImg path already treats a src-less
-    // img as "not loaded"). The basemap snapshot the scheme handler encodes is
-    // final for the life of that <img>; walls composited AFTER it arrive only as
-    // UI.Map.WallPatch messages, which are transient. hud.js runs before
-    // shared/wall-patches.js and both wait on window.tsic with a 16ms poll, so
-    // fetching here raced the patch subscription — a chunk that finished in that
-    // window was in neither the snapshot nor the overlay, and its walls never
-    // appeared. Deferring the fetch to the snapshot tick puts it unambiguously
-    // after every deferred script has subscribed.
-    minimap.appendChild(el('img', { id: 'minimap-tex' }));
-    minimap.appendChild(el('img', { id: 'minimap-fow', src: '/runtime/fow.imgsrc' }));
-    var minimapCvs = document.createElement('canvas');
-    minimapCvs.id = 'minimap-canvas';
-    minimapCvs.width = 180;
-    minimapCvs.height = 180;
-    minimap.appendChild(minimapCvs);
-    document.body.appendChild(minimap);
 
     var chunkDebug = el('div', { id: 'hud-chunk-debug' });
     chunkDebug.appendChild(el('img', { id: 'chunk-debug-tex' }));
@@ -346,9 +307,6 @@
 
     // Voice chat speaking indicator — hud-voice.js builds the chip + rows inside it.
     document.body.appendChild(el('div', { id: 'hud-voice' }));
-
-    // Tutorial objectives box — hud-tutorial.js builds the list inside it.
-    document.body.appendChild(el('div', { id: 'hud-tutorial' }));
   }
 
   // ---- Dynamic script loading ----
@@ -387,14 +345,6 @@
       document.body.classList.toggle('hud-hidden');
     });
 
-    // SetFogOfWarVisible cheat — toggles the minimap FOW overlay locally.
-    // Server grid state is untouched (HideFOW/ResetFOW handle that).
-    tsic.on('tsic.msg.Cheats.Map.Fow.Visibility', function (p) {
-      var img = document.getElementById('minimap-fow');
-      if (!img) return;
-      img.style.display = (p && p.bVisible === false) ? 'none' : '';
-    });
-
     // Per-element HUD visibility — hide/show a single chrome element without
     // touching the rest. Element ∈ health|stamina|crosshair|minimap|actionbar|
     // interaction. Used by settings toggles and the playground's element toggles.
@@ -411,9 +361,6 @@
 
     // Load component scripts. Each self-initialises by subscribing to
     // tsic channels and operating on the DOM shells created above.
-    loadScript('/shared/hud-liquid-bar.js');   // shared vial component (health + stamina)
-    loadScript('/shared/hud-health.js');
-    loadScript('/shared/hud-stamina.js');
     loadScript('/shared/hud-stomach.js');
     loadScript('/shared/hud-conditions.js');
     loadScript('/shared/hud-crosshair.js');
@@ -422,7 +369,6 @@
     loadScript('/shared/hud-upgrade.js');      // hammer look-at upgrade cost readout
     loadScript('/shared/hud-behavior-bar.js');
     loadScript('/shared/hud-construction-preview.js');
-    loadScript('/shared/hud-minimap.js');
     loadScript('/shared/hud-chunk-debug.js');
     loadScript('/shared/hud-hotbar.js');
     loadScript('/shared/hud-hotbar-wheel.js');

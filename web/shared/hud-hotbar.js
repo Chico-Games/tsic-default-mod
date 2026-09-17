@@ -1,15 +1,12 @@
 // shared/hud-hotbar.js — In-game HUD hotbar (the "showroom shelf").
 //
-// THE HOTBAR IS THE FIRST EIGHT GRID CELLS OF THE PLAYER INVENTORY. Nothing is assigned to it:
-// this view reads the inventory snapshot and draws whatever sits in GridSlot 0..NumSlots-1. A
-// player moves an item onto the bar by moving it into one of those cells, in the inventory
-// screen, exactly like any other grid move.
+// THE HOTBAR IS THE FOUR WEAPON SLOTS: the hooks on the front of the basket, which are grid cells
+// 0..NumSlots-1 of the player inventory (NumSlots comes from C++). It shows what hangs on each
+// hook and which one is in hand; nothing else in the bag appears here. Things are hung on the
+// hooks in the basket screen.
 //
-// THIS BAR IS A READ-ONLY MIRROR OF THOSE CELLS — it is never the editing surface. Editing
-// happens on the hotbar strip along the bottom of the inventory/storage panel, where the cells
-// sit next to the bag they trade with. This bar's only gesture is click-to-draw/stow, and while
-// a screen is open the overlay covers it, so there is exactly one place a stack can be dragged
-// onto the bar and it is inside the panel the player is already looking at.
+// It stays out of the way until it is used: drawing, stowing or changing what hangs on a hook
+// brings it up, and it fades out again after IDLE_MS.
 //
 // Each slot is a teak-laminate plinth on a brushed-brass shelf; the SELECTED
 // slot scales up and lifts off the shelf with a warm gold spotlight.
@@ -87,9 +84,29 @@
        of them on screen — outside the panel, under its scrim, looking like a drop target and
        being inert — which is the confusion players reported (issue #203). */
     'body.tsic-bag-open #hud-hotbar { display:none !important; }',
+
+    /* Idle: faded out and inert, so a click at the bottom of the screen never draws a weapon. */
+    '#hud-hotbar { transition:opacity 450ms ease, transform 450ms ease; }',
+    '#hud-hotbar.hotbar-idle { opacity:0; transform:translateX(-50%) translateY(12px); pointer-events:none; }',
+    'html[data-tsic-reduce-motion] #hud-hotbar { transition:none; }',
   ].join('\n');
 
-  var DEFAULT_SLOT_COUNT = 8;
+  var DEFAULT_SLOT_COUNT = 4;
+  // How long the bar stays up after the last thing that touched it.
+  var IDLE_MS = 2500;
+  var idleTimer = 0;
+
+  // Brings the bar up and restarts its fade.
+  function wake() {
+    var bar = document.getElementById('hud-hotbar');
+    if (!bar) return;
+    bar.classList.remove('hotbar-idle');
+    if (idleTimer) clearTimeout(idleTimer);
+    idleTimer = setTimeout(function () {
+      idleTimer = 0;
+      bar.classList.add('hotbar-idle');
+    }, IDLE_MS);
+  }
 
   function injectStyles() {
     if (document.getElementById('hud-hotbar-styles')) return;
@@ -281,8 +298,12 @@
         if (lastHotbar && newSel !== oldSel) {
           try { tsic.playSound('Hotbar.Select', 0.5); } catch (e) {}
         }
+        var oldPending = (lastHotbar && typeof lastHotbar.SelectedSlotPending === 'number') ? lastHotbar.SelectedSlotPending : -1;
+        var newPending = (p && typeof p.SelectedSlotPending === 'number') ? p.SelectedSlotPending : -1;
+        var used = !lastHotbar || newSel !== oldSel || newPending !== oldPending;
         lastHotbar = p || null;
         update();
+        if (used) wake();
       });
       tsic.on('tsic.msg.UI.Inventory.Updated', function (p) {
         if (!p || p.OwnerId !== 'Player') return;
@@ -296,7 +317,9 @@
             playerItemsBySlot.set(it.GridSlot, it);
           }
         }
+        var before = lastContentKey;
         update();
+        if (before !== null && lastContentKey !== before) wake();
       });
       // The catalog usually lands after the first hotbar snapshot, so the caption's first
       // render has only the id to work with. Re-render when the real names arrive.

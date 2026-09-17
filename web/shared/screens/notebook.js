@@ -6,13 +6,17 @@
 // so like the old Overview it has no inputModeTag and Escape goes back through
 // UI.Cmd.Notebook.Close.
 //
-// Turning: mouse wheel, left click (next) / right click (previous), arrow keys, Page Up/Down,
-// Home (front cover) and End (back cover). Repeated turns while a page is still moving simply
-// retarget the book, so a spin of the wheel fans several pages round the coil at once.
+// Turning: mouse wheel, left click, right click (previous), arrow keys, Page Up/Down,
+// Home (front cover) and End (back cover). A click carries where it landed, and C++ traces it
+// against the book: a left click is sent with no delta of its own, so C++ decides whether it hit
+// the Previous / Next buttons printed at the foot of the page, a divider tab (that department), or
+// nothing (the next page). Repeated turns while a page is still moving simply retarget the book,
+// so a spin of the wheel fans several pages round the coil at once.
 //
 // Channels
 //   in  UI.Notebook.State        { Page, PageCount }
-//   out UI.Cmd.Notebook.Turn     { Delta, Page }  (Page >= 0 jumps straight there)
+//   out UI.Cmd.Notebook.Turn     { Delta, Page, X, Y }  (Page >= 0 jumps straight there; X/Y a click's view fraction, -1 for none;
+//                                                        Delta 0 with X/Y is a left click for C++ to place)
 //   out UI.Cmd.Notebook.Close
 (function register() {
   if (!window.TSIC || typeof TSIC.registerScreen !== 'function') {
@@ -34,7 +38,7 @@
     + '<div id="nb-layer" aria-label="Notebook">'
     +   '<div id="nb-hint">'
     +     '<span id="nb-page">Front cover</span>'
-    +     '<span>Wheel or click to turn · <kbd>Tab</kbd> or <kbd>Esc</kbd> to put away</span>'
+    +     '<span>Click Previous / Next or scroll to turn · <kbd>Tab</kbd> or <kbd>Esc</kbd> to put away</span>'
     +   '</div>'
     + '</div>';
 
@@ -58,14 +62,28 @@
     if (els.page) els.page.textContent = pageLabel();
   }
 
-  function turn(delta) {
+  function turn(delta, ev) {
     if (!delta) return;
-    window.tsic.publishMessage('UI.Cmd.Notebook.Turn', { Delta: delta, Page: -1 });
+    var at = ev
+      ? { X: ev.clientX / Math.max(1, window.innerWidth), Y: ev.clientY / Math.max(1, window.innerHeight) }
+      : { X: -1, Y: -1 };
+    window.tsic.publishMessage('UI.Cmd.Notebook.Turn', { Delta: delta, Page: -1, X: at.X, Y: at.Y });
+    if (window.tsic.playSound) window.tsic.playSound('UI.Hover');
+  }
+
+  // A left click: where it landed decides (a printed button, a tab, or the next page).
+  function click(ev) {
+    window.tsic.publishMessage('UI.Cmd.Notebook.Turn', {
+      Delta: 0,
+      Page: -1,
+      X: ev.clientX / Math.max(1, window.innerWidth),
+      Y: ev.clientY / Math.max(1, window.innerHeight),
+    });
     if (window.tsic.playSound) window.tsic.playSound('UI.Hover');
   }
 
   function jump(page) {
-    window.tsic.publishMessage('UI.Cmd.Notebook.Turn', { Delta: 0, Page: page });
+    window.tsic.publishMessage('UI.Cmd.Notebook.Turn', { Delta: 0, Page: page, X: -1, Y: -1 });
   }
 
   function onKey(ev) {
@@ -104,8 +122,8 @@
         ev.preventDefault();
       }, { passive: false });
       els.layer.addEventListener('mousedown', function (ev) {
-        if (ev.button === 0) turn(1);
-        else if (ev.button === 2) turn(-1);
+        if (ev.button === 0) click(ev);
+        else if (ev.button === 2) turn(-1, ev);
       });
       els.layer.addEventListener('contextmenu', function (ev) { ev.preventDefault(); });
       document.addEventListener('keydown', onKey, true);
