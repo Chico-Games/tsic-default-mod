@@ -181,7 +181,7 @@
     },
     "starting_health": 200,
     "furniture_armour": 2,
-    "destructible_collection": "/Game/Fab/GeometryCollections/GCS_DoubleShelf.GCS_DoubleShelf",
+    "destructible_collection": "/Game/Furniture/MidCentury/GeometryCollections/GCS_Shelf10_Closed.GCS_Shelf10_Closed",
     "destruction_impulse_strength": 0,
     "loot_dropped_on_death": [],
     "deconstruction_tier": 2,

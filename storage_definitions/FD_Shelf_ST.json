@@ -23,7 +23,7 @@
     "has_toggled_on_vfx": false,
     "has_toggled_off_vfx": false,
     "starting_health": 200.0,
-    "destructible_collection": "/Game/Fab/GeometryCollections/GCS_Shelf.GCS_Shelf",
+    "destructible_collection": "/Game/MidcenturyCombo/Midcentury_VOL6/GeometryCollections/GCS_Shelf_09c.GCS_Shelf_09c",
     "loot_dropped_on_death": [],
     "deconstruction_tier": 2,
     "constructable_item_to_grant": "ID_Shelf_CI",

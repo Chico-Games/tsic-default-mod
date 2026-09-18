@@ -70,6 +70,7 @@
       "Entity.RandomGeneration.Size.Medium",
       "Entity.AisleSign",
       "Entity.AisleSign.Warehouse"
-    ]
+    ],
+    "destructible_collection": "/Game/Furniture/Signs/GeometryCollections/GCS_AisleSign_StaffOnly.GCS_AisleSign_StaffOnly"
   }
 }

@@ -6,7 +6,7 @@
   "properties": {
     "starting_health": 80,
     "furniture_armour": 1,
-    "destructible_collection": "/Game/Furniture/Chairs/GeometryCollections/GCS_Chair_6642.GCS_Chair_6642",
+    "destructible_collection": "/Game/MidcenturyCombo/Midcentury_VOL2/GeometryCollections/GCS_Barstool_01d.GCS_Barstool_01d",
     "destruction_impulse_strength": 0,
     "loot_dropped_on_death": [
       "LD_WoodenFabricChairLoot"

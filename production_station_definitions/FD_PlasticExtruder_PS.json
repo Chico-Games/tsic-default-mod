@@ -125,6 +125,7 @@
       "attenuation_distance": 700.0,
       "fade_in_time": 0.0,
       "fade_out_time": 0.0
-    }
+    },
+    "destructible_collection": "/Game/Fab/INDUSTRIAL/VOL4_Consoles/Meshes/GeometryCollections/GCS_Consoles_Industrial_12h.GCS_Consoles_Industrial_12h"
   }
 }

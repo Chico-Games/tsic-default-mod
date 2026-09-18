@@ -6,7 +6,7 @@
   "properties": {
     "starting_health": 66,
     "furniture_armour": 1,
-    "destructible_collection": "/Game/Furniture/Counters/GeometryCollections/GCS_Stove_03.GCS_Stove_03",
+    "destructible_collection": "/Game/MidcenturyCombo/Midcentury_VOL3/GeometryCollections/GCS_Stove_01a.GCS_Stove_01a",
     "destruction_impulse_strength": 0,
     "loot_dropped_on_death": [],
     "constructable_item_to_grant": "ID_Counter_13_CI",

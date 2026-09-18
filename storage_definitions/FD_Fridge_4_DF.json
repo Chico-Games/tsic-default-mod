@@ -24,7 +24,7 @@
     "has_toggled_off_vfx": false,
     "starting_health": 134,
     "furniture_armour": 2,
-    "destructible_collection": "/Game/Furniture/Fridges/GeometryCollections/GCS_Small_Fridge.GCS_Small_Fridge",
+    "destructible_collection": "/Game/Furniture/MidCentury/GeometryCollections/GCS_Fridge02_Closed.GCS_Fridge02_Closed",
     "destruction_impulse_strength": 0,
     "loot_dropped_on_death": [
       "LD_FridgesLoot"

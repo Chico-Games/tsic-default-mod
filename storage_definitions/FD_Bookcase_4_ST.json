@@ -23,7 +23,7 @@
     "has_toggled_on_vfx": false,
     "has_toggled_off_vfx": false,
     "starting_health": 200.0,
-    "destructible_collection": "/Game/Furniture/Shelves/GeometryCollections/GCS_Bookcase04_Vol1.GCS_Bookcase04_Vol1",
+    "destructible_collection": "/Game/MidcenturyCombo/Midcentury_VOL1/GeometryCollections/GCS_Shelf_13a.GCS_Shelf_13a",
     "loot_dropped_on_death": [],
     "deconstruction_tier": 2,
     "constructable_item_to_grant": "ID_Bookcase_4_CI",
