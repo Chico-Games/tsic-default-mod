@@ -83,7 +83,7 @@
       }
     ],
     "loot_position_chance": 0.35,
-    "weighted_chance": 400,
+    "weighted_chance": 1000,
     "world_gen_priority": 6000,
     "destruction_impulse_strength": 0.0,
     "drag_angular_damping": 1.25,

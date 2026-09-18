@@ -6,7 +6,7 @@
   "properties": {
     "thumbnail": "mod:icons/id_chair_14_ci",
     "furniture_to_construct": "FD_Chair_14_DF",
-    "display_name": "Sofa",
+    "display_name": "Chair",
     "description": "Placeable seating. Decorative. Dismantle with a Basic Screwdriver Tool. Upgradable with a Heavy-Duty Hammer Tool.\nSeating furniture from the store.",
     "stackable": true,
     "weight": 0.10000000149011612,

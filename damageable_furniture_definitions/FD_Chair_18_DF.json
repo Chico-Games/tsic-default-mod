@@ -87,6 +87,7 @@
     "level": 1,
     "gameplay_tags": [
       "Entity.RandomGeneration.CanBeRandom",
+      "Entity.RandomGeneration.FurnitureCategory.DiningRoom",
       "Entity.RandomGeneration.FurnitureCategory.LivingRoom",
       "Entity.RandomGeneration.FurnitureCategory.Office",
       "Entity.RandomGeneration.FurnitureType.Chair",
