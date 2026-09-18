@@ -231,18 +231,7 @@
         "b_visual_helper": false,
         "definition_filter": {
           "seed_offset": 1,
-          "search_queries": [
-            {
-              "search_query": {
-                "name": "HAS_ANY_INCL_PARENTS",
-                "value": 1
-              },
-              "tags": [
-                "Layout.Type.Rack.Shelf.Item"
-              ],
-              "b_not": false
-            }
-          ],
+          "search_queries": [],
           "tile_requirements": [],
           "spawn_chance_over": 0.0,
           "spawn_chance_under": 1.0
@@ -319,18 +308,7 @@
         "b_visual_helper": false,
         "definition_filter": {
           "seed_offset": 1,
-          "search_queries": [
-            {
-              "search_query": {
-                "name": "HAS_ANY_INCL_PARENTS",
-                "value": 1
-              },
-              "tags": [
-                "Layout.Type.Rack.Shelf.Item"
-              ],
-              "b_not": false
-            }
-          ],
+          "search_queries": [],
           "tile_requirements": [],
           "spawn_chance_over": 0.0,
           "spawn_chance_under": 1.0
@@ -363,18 +341,7 @@
         "b_visual_helper": false,
         "definition_filter": {
           "seed_offset": 1,
-          "search_queries": [
-            {
-              "search_query": {
-                "name": "HAS_ANY_INCL_PARENTS",
-                "value": 1
-              },
-              "tags": [
-                "Layout.Type.Rack.Shelf.Item"
-              ],
-              "b_not": false
-            }
-          ],
+          "search_queries": [],
           "tile_requirements": [],
           "spawn_chance_over": 0.0,
           "spawn_chance_under": 1.0
@@ -407,18 +374,7 @@
         "b_visual_helper": false,
         "definition_filter": {
           "seed_offset": 1,
-          "search_queries": [
-            {
-              "search_query": {
-                "name": "HAS_ANY_INCL_PARENTS",
-                "value": 1
-              },
-              "tags": [
-                "Layout.Type.Rack.Shelf.Item"
-              ],
-              "b_not": false
-            }
-          ],
+          "search_queries": [],
           "tile_requirements": [],
           "spawn_chance_over": 0.0,
           "spawn_chance_under": 1.0
@@ -451,18 +407,7 @@
         "b_visual_helper": false,
         "definition_filter": {
           "seed_offset": 1,
-          "search_queries": [
-            {
-              "search_query": {
-                "name": "HAS_ANY_INCL_PARENTS",
-                "value": 1
-              },
-              "tags": [
-                "Layout.Type.Rack.Shelf.Item"
-              ],
-              "b_not": false
-            }
-          ],
+          "search_queries": [],
           "tile_requirements": [],
           "spawn_chance_over": 0.0,
           "spawn_chance_under": 1.0
@@ -495,18 +440,7 @@
         "b_visual_helper": false,
         "definition_filter": {
           "seed_offset": 1,
-          "search_queries": [
-            {
-              "search_query": {
-                "name": "HAS_ANY_INCL_PARENTS",
-                "value": 1
-              },
-              "tags": [
-                "Layout.Type.Rack.Shelf.Item"
-              ],
-              "b_not": false
-            }
-          ],
+          "search_queries": [],
           "tile_requirements": [],
           "spawn_chance_over": 0.0,
           "spawn_chance_under": 1.0
@@ -539,18 +473,7 @@
         "b_visual_helper": false,
         "definition_filter": {
           "seed_offset": 1,
-          "search_queries": [
-            {
-              "search_query": {
-                "name": "HAS_ANY_INCL_PARENTS",
-                "value": 1
-              },
-              "tags": [
-                "Layout.Type.Rack.Shelf.Item"
-              ],
-              "b_not": false
-            }
-          ],
+          "search_queries": [],
           "tile_requirements": [],
           "spawn_chance_over": 0.0,
           "spawn_chance_under": 1.0
@@ -583,18 +506,7 @@
         "b_visual_helper": false,
         "definition_filter": {
           "seed_offset": 1,
-          "search_queries": [
-            {
-              "search_query": {
-                "name": "HAS_ANY_INCL_PARENTS",
-                "value": 1
-              },
-              "tags": [
-                "Layout.Type.Rack.Shelf.Item"
-              ],
-              "b_not": false
-            }
-          ],
+          "search_queries": [],
           "tile_requirements": [],
           "spawn_chance_over": 0.0,
           "spawn_chance_under": 1.0
@@ -627,18 +539,7 @@
         "b_visual_helper": false,
         "definition_filter": {
           "seed_offset": 1,
-          "search_queries": [
-            {
-              "search_query": {
-                "name": "HAS_ANY_INCL_PARENTS",
-                "value": 1
-              },
-              "tags": [
-                "Layout.Type.Rack.Shelf.Item"
-              ],
-              "b_not": false
-            }
-          ],
+          "search_queries": [],
           "tile_requirements": [],
           "spawn_chance_over": 0.0,
           "spawn_chance_under": 1.0
