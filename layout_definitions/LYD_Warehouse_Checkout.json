@@ -231,12 +231,22 @@
         "b_visual_helper": false,
         "definition_filter": {
           "seed_offset": 1,
-          "search_queries": [],
+          "search_queries": [
+            {
+              "search_query": {
+                "name": "HAS_ANY_INCL_PARENTS",
+                "value": 1
+              },
+              "tags": [
+                "Layout.Type.Rack.Shelf.Item"
+              ],
+              "b_not": false
+            }
+          ],
           "tile_requirements": [],
           "spawn_chance_over": 0.0,
           "spawn_chance_under": 1.0
         },
-        "furniture_definition": "FD_Decal_3",
         "transform": {
           "rotation": {
             "x": -0.0,
@@ -250,9 +260,9 @@
             "z": -1.2028749551973306e-08
           },
           "scale3_d": {
-            "x": 3.5339391231536865,
+            "x": 1.0,
             "y": 1.0,
-            "z": 2.64587
+            "z": 1.0
           }
         }
       },
@@ -308,12 +318,22 @@
         "b_visual_helper": false,
         "definition_filter": {
           "seed_offset": 1,
-          "search_queries": [],
+          "search_queries": [
+            {
+              "search_query": {
+                "name": "HAS_ANY_INCL_PARENTS",
+                "value": 1
+              },
+              "tags": [
+                "Layout.Type.Rack.Shelf.Item"
+              ],
+              "b_not": false
+            }
+          ],
           "tile_requirements": [],
           "spawn_chance_over": 0.0,
           "spawn_chance_under": 1.0
         },
-        "furniture_definition": "FD_Decal_3",
         "transform": {
           "rotation": {
             "x": -0.0,
@@ -327,9 +347,9 @@
             "z": -1.2027783213852672e-08
           },
           "scale3_d": {
-            "x": 3.5339391231536865,
+            "x": 1.0,
             "y": 1.0,
-            "z": 2.64587
+            "z": 1.0
           }
         }
       },
@@ -341,12 +361,22 @@
         "b_visual_helper": false,
         "definition_filter": {
           "seed_offset": 1,
-          "search_queries": [],
+          "search_queries": [
+            {
+              "search_query": {
+                "name": "HAS_ANY_INCL_PARENTS",
+                "value": 1
+              },
+              "tags": [
+                "Layout.Type.Rack.Shelf.Item"
+              ],
+              "b_not": false
+            }
+          ],
           "tile_requirements": [],
           "spawn_chance_over": 0.0,
           "spawn_chance_under": 1.0
         },
-        "furniture_definition": "FD_Decal_2",
         "transform": {
           "rotation": {
             "x": 0.0,
@@ -360,9 +390,9 @@
             "z": 7.096239471593435e-07
           },
           "scale3_d": {
-            "x": 2.238130569458008,
-            "y": 1.6787984371185303,
-            "z": 2.238130569458008
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
           }
         }
       },
@@ -374,12 +404,22 @@
         "b_visual_helper": false,
         "definition_filter": {
           "seed_offset": 1,
-          "search_queries": [],
+          "search_queries": [
+            {
+              "search_query": {
+                "name": "HAS_ANY_INCL_PARENTS",
+                "value": 1
+              },
+              "tags": [
+                "Layout.Type.Rack.Shelf.Item"
+              ],
+              "b_not": false
+            }
+          ],
           "tile_requirements": [],
           "spawn_chance_over": 0.0,
           "spawn_chance_under": 1.0
         },
-        "furniture_definition": "FD_Decal_4",
         "transform": {
           "rotation": {
             "x": -0.0,
@@ -393,8 +433,8 @@
             "z": -4.270145836926531e-07
           },
           "scale3_d": {
-            "x": 0.5999295711517334,
-            "y": 0.44535234570503235,
+            "x": 1.0,
+            "y": 1.0,
             "z": 1.0
           }
         }
@@ -407,12 +447,22 @@
         "b_visual_helper": false,
         "definition_filter": {
           "seed_offset": 1,
-          "search_queries": [],
+          "search_queries": [
+            {
+              "search_query": {
+                "name": "HAS_ANY_INCL_PARENTS",
+                "value": 1
+              },
+              "tags": [
+                "Layout.Type.Rack.Shelf.Item"
+              ],
+              "b_not": false
+            }
+          ],
           "tile_requirements": [],
           "spawn_chance_over": 0.0,
           "spawn_chance_under": 1.0
         },
-        "furniture_definition": "FD_Decal_4",
         "transform": {
           "rotation": {
             "x": -0.0,
@@ -426,8 +476,8 @@
             "z": 3.8734282270525e-07
           },
           "scale3_d": {
-            "x": 0.59993,
-            "y": 0.20357978343963623,
+            "x": 1.0,
+            "y": 1.0,
             "z": 1.0
           }
         }
@@ -440,12 +490,22 @@
         "b_visual_helper": false,
         "definition_filter": {
           "seed_offset": 1,
-          "search_queries": [],
+          "search_queries": [
+            {
+              "search_query": {
+                "name": "HAS_ANY_INCL_PARENTS",
+                "value": 1
+              },
+              "tags": [
+                "Layout.Type.Rack.Shelf.Item"
+              ],
+              "b_not": false
+            }
+          ],
           "tile_requirements": [],
           "spawn_chance_over": 0.0,
           "spawn_chance_under": 1.0
         },
-        "furniture_definition": "FD_Decal_2",
         "transform": {
           "rotation": {
             "x": 0.0,
@@ -459,9 +519,9 @@
             "z": 1.0000002532706276e-06
           },
           "scale3_d": {
-            "x": 2.238131,
-            "y": 1.678798,
-            "z": 2.238131
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
           }
         }
       },
@@ -473,12 +533,22 @@
         "b_visual_helper": false,
         "definition_filter": {
           "seed_offset": 1,
-          "search_queries": [],
+          "search_queries": [
+            {
+              "search_query": {
+                "name": "HAS_ANY_INCL_PARENTS",
+                "value": 1
+              },
+              "tags": [
+                "Layout.Type.Rack.Shelf.Item"
+              ],
+              "b_not": false
+            }
+          ],
           "tile_requirements": [],
           "spawn_chance_over": 0.0,
           "spawn_chance_under": 1.0
         },
-        "furniture_definition": "FD_Decal_2",
         "transform": {
           "rotation": {
             "x": 0.0,
@@ -492,9 +562,9 @@
             "z": 1.0000000258969521e-06
           },
           "scale3_d": {
-            "x": 2.238131,
-            "y": 1.678798,
-            "z": 2.238131
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
           }
         }
       },
@@ -506,12 +576,22 @@
         "b_visual_helper": false,
         "definition_filter": {
           "seed_offset": 1,
-          "search_queries": [],
+          "search_queries": [
+            {
+              "search_query": {
+                "name": "HAS_ANY_INCL_PARENTS",
+                "value": 1
+              },
+              "tags": [
+                "Layout.Type.Rack.Shelf.Item"
+              ],
+              "b_not": false
+            }
+          ],
           "tile_requirements": [],
           "spawn_chance_over": 0.0,
           "spawn_chance_under": 1.0
         },
-        "furniture_definition": "FD_Decal_2",
         "transform": {
           "rotation": {
             "x": 0.0,
@@ -525,9 +605,9 @@
             "z": 1.0000000258969521e-06
           },
           "scale3_d": {
-            "x": 2.238131,
-            "y": 1.678798,
-            "z": 2.238131
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
           }
         }
       },
@@ -539,12 +619,22 @@
         "b_visual_helper": false,
         "definition_filter": {
           "seed_offset": 1,
-          "search_queries": [],
+          "search_queries": [
+            {
+              "search_query": {
+                "name": "HAS_ANY_INCL_PARENTS",
+                "value": 1
+              },
+              "tags": [
+                "Layout.Type.Rack.Shelf.Item"
+              ],
+              "b_not": false
+            }
+          ],
           "tile_requirements": [],
           "spawn_chance_over": 0.0,
           "spawn_chance_under": 1.0
         },
-        "furniture_definition": "FD_Decal_2",
         "transform": {
           "rotation": {
             "x": 0.0,
@@ -558,9 +648,9 @@
             "z": 1.0000000258969521e-06
           },
           "scale3_d": {
-            "x": 2.238131,
-            "y": 1.678798,
-            "z": 2.238131
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
           }
         }
       }
