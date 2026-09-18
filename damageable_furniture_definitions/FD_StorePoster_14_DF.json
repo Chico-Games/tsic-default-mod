@@ -15,7 +15,7 @@
     "scavenge_verb_text": "Tear Down",
     "starting_health": 60,
     "furniture_armour": 1,
-    "destructible_collection": "/Game/Furniture/StorePosters/GeometryCollections/GCS_NeedAHand_Poster.GCS_NeedAHand_Poster",
+    "destructible_collection": "/Game/Furniture/StorePosters/GeometryCollections/GCS_StorePoster_Framed.GCS_StorePoster_Framed",
     "destruction_impulse_strength": 0,
     "loot_dropped_on_death": [
       "LD_PosterLoot"

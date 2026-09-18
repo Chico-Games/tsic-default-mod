@@ -6,7 +6,7 @@
   "properties": {
     "starting_health": 34,
     "furniture_armour": 1,
-    "destructible_collection": "/Game/Furniture/Chairs/GeometryCollections/GCS_cm_Chair001b.GCS_cm_Chair001b",
+    "destructible_collection": "/Game/MidcenturyCombo/Midcentury_VOL3/GeometryCollections/GCS_Chair_04b.GCS_Chair_04b",
     "destruction_impulse_strength": 0,
     "loot_dropped_on_death": [
       "LD_FabricChairLoot"

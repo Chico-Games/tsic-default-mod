@@ -6,7 +6,7 @@
   "properties": {
     "starting_health": 134,
     "furniture_armour": 1,
-    "destructible_collection": "/Game/Furniture/Counters/GeometryCollections/GCS_M_Locker2C.GCS_M_Locker2C",
+    "destructible_collection": "/Game/Furniture/MidCentury/GeometryCollections/GCS_Shelf10_Closed.GCS_Shelf10_Closed",
     "destruction_impulse_strength": 0,
     "loot_dropped_on_death": [
       "LD_CountersLoot"

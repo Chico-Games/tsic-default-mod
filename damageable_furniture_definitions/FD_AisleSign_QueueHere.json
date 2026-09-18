@@ -70,6 +70,7 @@
       "Entity.RandomGeneration.Size.Medium",
       "Entity.AisleSign",
       "Entity.AisleSign.Cafe"
-    ]
+    ],
+    "destructible_collection": "/Game/Furniture/Signs/GeometryCollections/GCS_AisleSign_QueueHere.GCS_AisleSign_QueueHere"
   }
 }

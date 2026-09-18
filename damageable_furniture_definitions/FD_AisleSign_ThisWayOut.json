@@ -70,6 +70,7 @@
       "Entity.RandomGeneration.Size.Medium",
       "Entity.AisleSign",
       "Entity.AisleSign.ShowFloor"
-    ]
+    ],
+    "destructible_collection": "/Game/Furniture/Signs/GeometryCollections/GCS_AisleSign_ThisWayOut.GCS_AisleSign_ThisWayOut"
   }
 }

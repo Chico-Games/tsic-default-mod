@@ -32,7 +32,7 @@
     "has_toggled_on_vfx": false,
     "has_toggled_off_vfx": false,
     "starting_health": 150.0,
-    "destructible_collection": null,
+    "destructible_collection": "/Game/Furniture/Racks/GeometryCollections/GCS_Rack04.GCS_Rack04",
     "loot_dropped_on_death": [],
     "deconstruction_tier": 1,
     "constructable_item_to_grant": "ID_PlankRack_CI",

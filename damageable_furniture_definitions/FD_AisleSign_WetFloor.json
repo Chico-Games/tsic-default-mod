@@ -70,6 +70,7 @@
       "Entity.RandomGeneration.Size.Medium",
       "Entity.AisleSign",
       "Entity.AisleSign.Gardening"
-    ]
+    ],
+    "destructible_collection": "/Game/Furniture/Signs/GeometryCollections/GCS_AisleSign_WetFloor.GCS_AisleSign_WetFloor"
   }
 }

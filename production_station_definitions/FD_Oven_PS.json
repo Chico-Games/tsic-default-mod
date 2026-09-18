@@ -28,7 +28,7 @@
     "has_toggled_on_vfx": false,
     "has_toggled_off_vfx": false,
     "starting_health": 200,
-    "destructible_collection": "/Game/Fab/MERIDIAN/VOL57_School/Meshes/GeometryCollections/GCS_Commercial_Grill_NN_01a.GCS_Commercial_Grill_NN_01a",
+    "destructible_collection": "/Game/Furniture/MidCentury/GeometryCollections/GCS_Stove01_Closed.GCS_Stove01_Closed",
     "loot_dropped_on_death": [],
     "deconstruction_tier": 2,
     "blocking_collision_boxes": [
