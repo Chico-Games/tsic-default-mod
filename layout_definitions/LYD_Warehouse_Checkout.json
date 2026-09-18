@@ -247,6 +247,7 @@
           "spawn_chance_over": 0.0,
           "spawn_chance_under": 1.0
         },
+        "furniture_definition": "FD_Decal_3",
         "transform": {
           "rotation": {
             "x": -0.0,
@@ -260,9 +261,9 @@
             "z": -1.2028749551973306e-08
           },
           "scale3_d": {
-            "x": 1.0,
+            "x": 3.5339391231536865,
             "y": 1.0,
-            "z": 1.0
+            "z": 2.64587
           }
         }
       },
@@ -334,6 +335,7 @@
           "spawn_chance_over": 0.0,
           "spawn_chance_under": 1.0
         },
+        "furniture_definition": "FD_Decal_3",
         "transform": {
           "rotation": {
             "x": -0.0,
@@ -347,9 +349,9 @@
             "z": -1.2027783213852672e-08
           },
           "scale3_d": {
-            "x": 1.0,
+            "x": 3.5339391231536865,
             "y": 1.0,
-            "z": 1.0
+            "z": 2.64587
           }
         }
       },
@@ -377,6 +379,7 @@
           "spawn_chance_over": 0.0,
           "spawn_chance_under": 1.0
         },
+        "furniture_definition": "FD_Decal_2",
         "transform": {
           "rotation": {
             "x": 0.0,
@@ -390,9 +393,9 @@
             "z": 7.096239471593435e-07
           },
           "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
+            "x": 2.238130569458008,
+            "y": 1.6787984371185303,
+            "z": 2.238130569458008
           }
         }
       },
@@ -420,6 +423,7 @@
           "spawn_chance_over": 0.0,
           "spawn_chance_under": 1.0
         },
+        "furniture_definition": "FD_Decal_4",
         "transform": {
           "rotation": {
             "x": -0.0,
@@ -433,8 +437,8 @@
             "z": -4.270145836926531e-07
           },
           "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
+            "x": 0.5999295711517334,
+            "y": 0.44535234570503235,
             "z": 1.0
           }
         }
@@ -463,6 +467,7 @@
           "spawn_chance_over": 0.0,
           "spawn_chance_under": 1.0
         },
+        "furniture_definition": "FD_Decal_4",
         "transform": {
           "rotation": {
             "x": -0.0,
@@ -476,8 +481,8 @@
             "z": 3.8734282270525e-07
           },
           "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
+            "x": 0.59993,
+            "y": 0.20357978343963623,
             "z": 1.0
           }
         }
@@ -506,6 +511,7 @@
           "spawn_chance_over": 0.0,
           "spawn_chance_under": 1.0
         },
+        "furniture_definition": "FD_Decal_2",
         "transform": {
           "rotation": {
             "x": 0.0,
@@ -519,9 +525,9 @@
             "z": 1.0000002532706276e-06
           },
           "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
+            "x": 2.238131,
+            "y": 1.678798,
+            "z": 2.238131
           }
         }
       },
@@ -549,6 +555,7 @@
           "spawn_chance_over": 0.0,
           "spawn_chance_under": 1.0
         },
+        "furniture_definition": "FD_Decal_2",
         "transform": {
           "rotation": {
             "x": 0.0,
@@ -562,9 +569,9 @@
             "z": 1.0000000258969521e-06
           },
           "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
+            "x": 2.238131,
+            "y": 1.678798,
+            "z": 2.238131
           }
         }
       },
@@ -592,6 +599,7 @@
           "spawn_chance_over": 0.0,
           "spawn_chance_under": 1.0
         },
+        "furniture_definition": "FD_Decal_2",
         "transform": {
           "rotation": {
             "x": 0.0,
@@ -605,9 +613,9 @@
             "z": 1.0000000258969521e-06
           },
           "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
+            "x": 2.238131,
+            "y": 1.678798,
+            "z": 2.238131
           }
         }
       },
@@ -635,6 +643,7 @@
           "spawn_chance_over": 0.0,
           "spawn_chance_under": 1.0
         },
+        "furniture_definition": "FD_Decal_2",
         "transform": {
           "rotation": {
             "x": 0.0,
@@ -648,9 +657,9 @@
             "z": 1.0000000258969521e-06
           },
           "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
+            "x": 2.238131,
+            "y": 1.678798,
+            "z": 2.238131
           }
         }
       }
