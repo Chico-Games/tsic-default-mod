@@ -1,13 +1,13 @@
 {
   "id": "FD_SewingMachine_PS",
   "asset_path": "/Game/Furniture/Processing/SewingMachine/Furniture/FD_SewingMachine_PS",
-  "class": "UProductionStationDefinition",
+  "class": "USewingStationDefinition",
   "schema_version": 2,
   "properties": {
     "max_recipes": 5,
     "gameplay_event_tag": "UI.GameScreen.Production",
     "interaction_hold_time": 0,
-    "interaction_prompt_text": "Use",
+    "interaction_prompt_text": "Sew",
     "has_static_audio": false,
     "has_toggled_on_audio": true,
     "toggled_on_audio": {
@@ -33,9 +33,9 @@
     "blocking_collision_boxes": [
       {
         "offset": {
-          "x": 0.718,
-          "y": -24.1419,
-          "z": 28.8705
+          "x": -0.002,
+          "y": -0.0019,
+          "z": 29.6205
         },
         "rotation": {
           "pitch": 0,
@@ -52,9 +52,9 @@
     "support_collision_boxes": [
       {
         "offset": {
-          "x": 0.718,
-          "y": -24.1419,
-          "z": 28.2782
+          "x": -0.002,
+          "y": -0.0019,
+          "z": 29.0282
         },
         "rotation": {
           "pitch": 0,
@@ -76,9 +76,9 @@
         "w": 1
       },
       "translation": {
-        "x": 0,
-        "y": 0,
-        "z": 0
+        "x": -0.72,
+        "y": 24.14,
+        "z": 0.75
       },
       "scale3_d": {
         "x": 1,
@@ -127,6 +127,56 @@
       "attenuation_distance": 700.0,
       "fade_in_time": 0.0,
       "fade_out_time": 0.0
+    },
+    "inventory_rules_definition": "IRD_SewingBed",
+    "storage_view": {
+      "offset": {
+        "x": 1.4,
+        "y": -9.0,
+        "z": 18.4
+      },
+      "yaw": 0.0,
+      "width": 22.0,
+      "depth": 18.0,
+      "camera_distance": 210.0,
+      "camera_pitch": -50.0
+    },
+    "action_label": "Sew",
+    "working_label": "Sewing",
+    "food_station": false,
+    "animated_mesh": "/Game/Furniture/SewingMachine/Meshes/SKM_SewingMachine.SKM_SewingMachine",
+    "seam_clip": "/Game/Furniture/SewingMachine/Animations/A_SewingHem.A_SewingHem",
+    "run_clip": "/Game/Furniture/SewingMachine/Animations/A_SewingRunSlow.A_SewingRunSlow",
+    "cloth_mesh": "/Game/Furniture/SewingMachine/Meshes/SKM_HemScrap.SKM_HemScrap",
+    "cloth_clip": "/Game/Furniture/SewingMachine/Animations/A_HemScrapCloth.A_HemScrapCloth",
+    "cloth_offset": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "cloth_yaw": 0.0,
+    "ring_anchor": {
+      "x": 1.4,
+      "y": -3.2,
+      "z": 26.0
+    },
+    "minigame": {
+      "turns": 2.0,
+      "degrees_per_second": 180.0,
+      "ring_radius": 0.21,
+      "marker_radius": 0.055
+    },
+    "cook_controls": {
+      "offset": {
+        "x": 12.4,
+        "y": -19.1,
+        "z": 45.7
+      },
+      "extent": {
+        "x": 6.0,
+        "y": 6.0,
+        "z": 6.0
+      }
     }
   }
 }
