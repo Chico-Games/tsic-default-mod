@@ -62,6 +62,8 @@
     [data-screen="Basket"] #bk-peer[hidden] { display: none; }
     [data-screen="Basket"] #bk-peer .bk-peer-cook { background: var(--mag-yellow, #f5c518); }
     [data-screen="Basket"] #bk-peer .bk-peer-cooking { font-size: 13px; font-weight: 700; letter-spacing: 0.5px; padding: 6px 0 2px; }
+    [data-screen="Basket"] #bk-peer .bk-peer-preview { font-size: 12px; font-weight: 700; padding: 2px 0 0; }
+    [data-screen="Basket"] #bk-peer .bk-peer-preview.is-none { opacity: 0.55; font-weight: 400; }
     [data-screen="Basket"] #bk-peer [hidden] { display: none; }
     [data-screen="Basket"] #bk-inspect[hidden], [data-screen="Basket"] #bk-tip[hidden] { display: none; }
     [data-screen="Basket"] #bk-peer .bk-peer-name { font-weight: 700; font-size: 16px; letter-spacing: 1px; text-transform: uppercase; }
@@ -85,6 +87,21 @@
       background: rgba(20,17,12,0.72); color: #fffdf7; font-size: 12px; line-height: 17px; border-radius: 3px;
     }
     [data-screen="Basket"] #bk-hints b { color: #fbbf24; }
+    [data-screen="Basket"] #bk-sew { position: absolute; inset: 0; pointer-events: none; }
+    [data-screen="Basket"] #bk-sew[hidden] { display: none; }
+    [data-screen="Basket"] #bk-sew svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+    [data-screen="Basket"] #bk-sew .bk-sew-ring { fill: none; stroke: rgba(252,249,241,0.30); stroke-width: 3; stroke-dasharray: 7 9; }
+    [data-screen="Basket"] #bk-sew .bk-sew-seam { fill: none; stroke: var(--mag-yellow, #f5c518); stroke-width: 5; stroke-linecap: round; }
+    [data-screen="Basket"] #bk-sew .bk-sew-marker { fill: rgba(252,249,241,0.10); stroke: #fffdf7; stroke-width: 3; }
+    [data-screen="Basket"] #bk-sew .bk-sew-marker.is-feeding { fill: rgba(245,197,24,0.28); stroke: var(--mag-yellow, #f5c518); }
+    [data-screen="Basket"] #bk-sew .bk-sew-marker.is-slipped { fill: rgba(185,28,28,0.30); stroke: #f87171; }
+    [data-screen="Basket"] #bk-sew .bk-sew-needle { fill: none; stroke: #fffdf7; stroke-width: 2; opacity: 0.55; }
+    [data-screen="Basket"] #bk-sew .bk-sew-caption {
+      position: absolute; transform: translate(-50%, -50%); text-align: center; pointer-events: none;
+      color: #fffdf7; text-shadow: 0 2px 4px rgba(0,0,0,0.85); font: 700 15px/21px var(--tsic-font, sans-serif);
+    }
+    [data-screen="Basket"] #bk-sew .bk-sew-pct { font-size: 30px; font-variant-numeric: tabular-nums; color: var(--mag-yellow, #f5c518); }
+    [data-screen="Basket"] #bk-sew .bk-sew-hint { font-size: 12px; font-weight: 400; opacity: 0.8; }
   `;
   let styleInjected = false;
   function injectStyleOnce() {
@@ -105,7 +122,9 @@
       <button type="button" class="bk-peer-btn" id="bk-put-all" data-no-sfx>Put all</button>
       <button type="button" class="bk-peer-btn bk-peer-cook" id="bk-cook" data-no-sfx hidden>Cook</button>
       <div class="bk-peer-cooking" id="bk-cooking" hidden></div>
+      <div class="bk-peer-preview" id="bk-preview" hidden></div>
     </div>
+    <div id="bk-sew" hidden></div>
     <div id="bk-inspect" hidden></div>
     <div id="bk-tip" hidden></div>
     <div id="bk-status"><div class="bk-title">Basket</div><div id="bk-slots"></div><div id="bk-weight"></div></div>
@@ -176,6 +195,129 @@
         el.addEventListener('click', (ev) => { ev.stopPropagation(); tsic.playSound('UI.Click'); ctx.publish(cmd, {}); });
       }
 
+      // --- The seam ---------------------------------------------------------------------------
+      // The machine feeds itself: hold the left button on the marker and it sets off round the
+      // ring at the machine's own pace, dragging the cloth with it. The hand's job is to keep up.
+      // Let go, or let the marker out from under the cursor, and the cloth slips out of the
+      // needle: the seam goes back to nothing and is started again. C++ owns the machine, the
+      // cloth and when the seam is done; the page owns the ring, because the page is where the
+      // cursor is.
+      const TWO_PI = Math.PI * 2;
+      const sew = {
+        on: false, travelled: 0, total: TWO_PI * 2, down: false, feeding: false, slipped: 0,
+        centre: [0.5, 0.5], ring: 0.21, marker: 0.045, rate: Math.PI, making: '',
+        sent: 0, frame: null, last: 0,
+      };
+      const sewRoot = $('bk-sew');
+      let sewSvg = null;
+      let sewSeam = null;
+      let sewMarker = null;
+      let sewCaption = null;
+
+      function sewBuild() {
+        sewSvg = TSIC.svg('svg');
+        sewSvg.appendChild(TSIC.svg('circle', { class: 'bk-sew-ring', cx: 0, cy: 0, r: 1 }));
+        sewSeam = TSIC.svg('path', { class: 'bk-sew-seam', d: '' });
+        sewSvg.appendChild(sewSeam);
+        sewMarker = TSIC.svg('circle', { class: 'bk-sew-marker', cx: 0, cy: 0, r: 1 });
+        sewSvg.appendChild(sewMarker);
+        sewCaption = TSIC.el('div', { class: 'bk-sew-caption' });
+        sewRoot.replaceChildren(sewSvg, sewCaption);
+      }
+
+      const sewGeom = () => {
+        const w = Math.max(1, window.innerWidth);
+        const h = Math.max(1, window.innerHeight);
+        const unit = Math.min(w, h);
+        return { cx: sew.centre[0] * w, cy: sew.centre[1] * h, r: sew.ring * unit, m: sew.marker * unit };
+      };
+      // Angle 0 is the BOTTOM of the ring, nearest the player, and the marker climbs from there:
+      // the cloth feeds away from them into the machine, so the marker rises the way it does.
+      const sewAt = (g, a) => [g.cx + g.r * Math.sin(a), g.cy + g.r * Math.cos(a)];
+
+      function sewDraw() {
+        const g = sewGeom();
+        const ring = sewSvg.firstChild;
+        ring.setAttribute('cx', g.cx); ring.setAttribute('cy', g.cy); ring.setAttribute('r', g.r);
+        // The seam so far: at most the last turn's worth of arc, so three turns do not overdraw.
+        const done = Math.min(sew.travelled, sew.total);
+        const from = Math.max(0, done - TWO_PI * 0.999);
+        const a0 = sewAt(g, from);
+        const a1 = sewAt(g, done);
+        const big = (done - from) > Math.PI ? 1 : 0;
+        sewSeam.setAttribute('d', done - from < 0.001 ? ''
+          : 'M ' + a0[0].toFixed(1) + ' ' + a0[1].toFixed(1) + ' A ' + g.r.toFixed(1) + ' ' + g.r.toFixed(1)
+            + ' 0 ' + big + ' 1 ' + a1[0].toFixed(1) + ' ' + a1[1].toFixed(1));
+        const p = sewAt(g, done);
+        sewMarker.setAttribute('cx', p[0]); sewMarker.setAttribute('cy', p[1]); sewMarker.setAttribute('r', g.m);
+        sewMarker.classList.toggle('is-feeding', sew.feeding);
+        sewMarker.classList.toggle('is-slipped', sew.slipped > 0);
+        const pct = Math.round(Math.min(1, sew.travelled / sew.total) * 100);
+        sewCaption.style.left = g.cx + 'px';
+        sewCaption.style.top = g.cy + 'px';
+        const hint = sew.slipped > 0 ? 'the cloth slipped out &mdash; hold the marker again'
+          : sew.feeding ? 'keep up with it'
+          : 'hold the left button <b>on the marker</b> and follow it round &middot; <b>Esc</b> stop';
+        sewCaption.innerHTML = '<div class="bk-sew-pct">' + pct + '%</div>'
+          + '<div>' + esc(sew.making ? 'Sewing ' + sew.making : 'Sewing') + '</div>'
+          + '<div class="bk-sew-hint">' + hint + '</div>';
+      }
+
+      function sewTick(now) {
+        sew.frame = sew.on ? requestAnimationFrame(sewTick) : null;
+        if (!sew.on) return;
+        const dt = Math.min(0.1, Math.max(0, (now - sew.last) / 1000));
+        sew.last = now;
+        const g = sewGeom();
+        const p = sewAt(g, Math.min(sew.travelled, sew.total));
+        const dx = mouse.x - p[0];
+        const dy = mouse.y - p[1];
+        const under = (dx * dx + dy * dy) <= g.m * g.m;
+        const was = sew.feeding;
+        sew.feeding = sew.down && under && sew.travelled < sew.total;
+        // It was running and the hand has come off it: the cloth is out of the needle.
+        if (was && !sew.feeding && sew.travelled < sew.total && sew.travelled > 0) {
+          sew.travelled = 0;
+          sew.down = false;
+          sew.slipped = now;
+          tsic.playSound('Inventory.Invalid');
+        }
+        if (sew.slipped && now - sew.slipped > 1400) sew.slipped = 0;
+        // Held: the machine feeds itself, at its own pace, and the hand keeps up.
+        if (sew.feeding) sew.travelled = Math.min(sew.total, sew.travelled + sew.rate * dt);
+        sewDraw();
+        const progress = Math.min(1, sew.travelled / sew.total);
+        // 20 Hz is plenty: C++ eases its own pose towards whatever it was last told, and a reset
+        // to 0 has to arrive as promptly as the rest.
+        if (now - sew.sent > 50 || progress >= 1 || progress === 0) {
+          sew.sent = now;
+          ctx.publish('UI.Cmd.Sewing.Feed', { Progress: progress });
+        }
+      }
+
+      function sewApply(state) {
+        const on = !!state.bActive;
+        if (on) {
+          sew.centre = [state.CentreX, state.CentreY];
+          sew.ring = state.RingRadius || 0.21;
+          sew.marker = state.MarkerRadius || 0.045;
+          sew.total = TWO_PI * Math.max(0.25, state.Turns || 2);
+          sew.rate = (state.DegreesPerSecond || 180) * Math.PI / 180;
+          sew.making = state.Making || '';
+        }
+        if (on === sew.on) { if (on) sewDraw(); return; }
+        sew.on = on;
+        sewRoot.hidden = !on;
+        if (!on) { sew.down = false; sew.feeding = false; return; }
+        sew.travelled = 0;
+        sew.slipped = 0;
+        sew.last = performance.now();
+        sew.sent = 0;
+        sewBuild();
+        sewDraw();
+        if (!sew.frame) sew.frame = requestAnimationFrame(sewTick);
+      }
+
       function render(state) {
         last = state;
         renderTabs(state);
@@ -222,19 +364,32 @@
         if (state.PeerLabel) {
           peer.querySelector('.bk-peer-name').textContent = state.PeerLabel;
           peer.querySelector('.bk-peer-fill').textContent = `${state.PeerUsed} / ${state.PeerCapacity} cells`;
-          // A cooking station: Cook while idle with something on the tray, progress while it runs.
+          // A station worked from a tray: its button while idle with something on it, progress while it runs.
           const cook = $('bk-cook');
           const cooking = $('bk-cooking');
           const progress = typeof state.PeerCookProgress === 'number' ? state.PeerCookProgress : -1;
-          cook.hidden = !state.bPeerCooks || state.bPeerCookControls || progress >= 0 || state.PeerUsed <= 0;
+          const verb = state.PeerCookLabel || 'Cook';
+          const working = state.PeerCookWorking || 'Cooking';
+          cook.textContent = verb;
+          cook.hidden = sew.on || !state.bPeerCooks || state.bPeerCookControls || progress >= 0 || state.PeerUsed <= 0;
           // A station with knobs: how to turn it on, while it sits idle with something in it.
           const idleHint = state.bPeerCookControls && progress < 0 && state.PeerUsed > 0;
           cooking.hidden = !state.bPeerCooks || (progress < 0 && !idleHint);
           if (!cooking.hidden) {
-            cooking.textContent = idleHint ? 'Shut the door, then turn a knob'
-              : progress >= 1 ? 'Done — take it' : `Cooking… ${Math.round(progress * 100)}%`;
+            // A station with a door is shut before it is turned on; a sewing machine has no
+            // door, only the dial that sets its needle going.
+            cooking.textContent = idleHint ? (verb === 'Cook' ? 'Shut the door, then turn a knob' : 'Turn the dial on the machine')
+              : progress >= 1 ? 'Done — take it' : `${working}… ${Math.round(progress * 100)}%`;
           }
-          peer.hidden = false;
+          // What the pile on the tray adds up to, so a wrong pile reads as wrong before the press.
+          const preview = $('bk-preview');
+          const showPreview = state.bPeerCooks && progress < 0 && state.PeerUsed > 0;
+          preview.hidden = !showPreview;
+          if (showPreview) {
+            preview.textContent = state.PeerCookPreview ? `Makes ${state.PeerCookPreview}` : 'Makes nothing yet';
+            preview.classList.toggle('is-none', !state.PeerCookPreview);
+          }
+          peer.hidden = sew.on;
         } else {
           peer.hidden = true;
         }
@@ -267,22 +422,34 @@
       root.addEventListener('pointermove', (ev) => {
         mouse = { x: ev.clientX, y: ev.clientY };
         placeTip();
+        if (sew.on) return;
         lastMove = frac(ev);
         if (!moveTimer) moveTimer = setTimeout(flushMove, 33);
       });
       root.addEventListener('pointerdown', (ev) => {
         if (ev.pointerType && ev.pointerType !== 'mouse') return;
         ev.preventDefault();
+        // A seam owns the pointer: a hand walking the marker round must not also pick stacks up.
+        if (sew.on) {
+          if (ev.button === 0) {
+            const g = sewGeom();
+            const p = sewAt(g, Math.min(sew.travelled, sew.total));
+            sew.down = (ev.clientX - p[0]) ** 2 + (ev.clientY - p[1]) ** 2 <= g.m * g.m;
+          }
+          return;
+        }
         ctx.publish('UI.Cmd.Basket.Pointer', { Type: 1, Button: ev.button, ...frac(ev) });
       });
       root.addEventListener('pointerup', (ev) => {
         if (ev.pointerType && ev.pointerType !== 'mouse') return;
         ev.preventDefault();
+        if (sew.on) { if (ev.button === 0) sew.down = false; return; }
         ctx.publish('UI.Cmd.Basket.Pointer', { Type: 2, Button: ev.button, ...frac(ev) });
       });
       root.addEventListener('contextmenu', (ev) => ev.preventDefault());
 
       ctx.on('tsic.msg.UI.Basket.State', (state) => render(state || {}));
+      ctx.on('tsic.msg.UI.Sewing.State', (state) => { sewApply(state || {}); render(last); });
       requestState = () => ctx.publish('UI.Cmd.Basket.RequestState', {});
     },
 
