@@ -1,9 +1,27 @@
 {
   "id": "FD_Counter_8_DF",
   "asset_path": "/Game/Furniture/Counters/Furniture/FD_Counter_8_DF",
-  "class": "UDamageableFurnitureDefinition",
+  "class": "UStorageDefinition",
   "schema_version": 2,
   "properties": {
+    "inventory_rules_definition": "IRD_Drawer",
+    "inventory_loot": {
+      "rolls": 1,
+      "chance_per_roll": 0.4
+    },
+    "gameplay_event_tag": "UI.GameScreen.Storage",
+    "layer_name": "UI.Layer.GameMenu",
+    "interaction_hold_time": 0.0,
+    "interaction_prompt_text": "Open",
+    "has_static_audio": false,
+    "has_toggled_on_audio": false,
+    "has_toggled_off_audio": false,
+    "has_static_lights": false,
+    "has_toggled_on_lights": false,
+    "has_toggled_off_lights": false,
+    "has_static_vfx": false,
+    "has_toggled_on_vfx": false,
+    "has_toggled_off_vfx": false,
     "starting_health": 134,
     "furniture_armour": 1,
     "destructible_collection": "/Game/Furniture/MidCentury/GeometryCollections/GCS_Shelf02_Closed.GCS_Shelf02_Closed",
@@ -138,6 +156,21 @@
           "opens_for_screen": true
         }
       ]
-    }
+    },
+    "shelves": [
+      {
+        "offset": {
+          "x": 1.69,
+          "y": 0.0,
+          "z": 22.41
+        },
+        "yaw": 0.0,
+        "width": 58.0,
+        "depth": 38.47,
+        "columns": 3,
+        "rows": 2,
+        "part": "Drawer"
+      }
+    ]
   }
 }
