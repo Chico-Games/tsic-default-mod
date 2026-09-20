@@ -52,7 +52,7 @@
       "Entity.RandomGeneration.FurnitureType.Shelf.Floor",
       "Entity.RandomGeneration.Materials.Glass",
       "Entity.RandomGeneration.Materials.Wood",
-      "Entity.RandomGeneration.Size.Medium",
+      "Entity.RandomGeneration.Size.Large",
       "Tile.Biome.ShowFloor"
     ],
     "inventory_loot": null,
