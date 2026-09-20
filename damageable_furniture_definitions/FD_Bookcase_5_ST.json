@@ -1,27 +1,9 @@
 {
   "id": "FD_Bookcase_5_ST",
   "asset_path": "/Game/Furniture/Shelves/Furniture/FD_Bookcase_5_ST",
-  "class": "UStorageDefinition",
+  "class": "UDamageableFurnitureDefinition",
   "schema_version": 2,
   "properties": {
-    "inventory_rules_definition": "IRD_StorageTier1_2",
-    "inventory_loot": {
-      "rolls": 2,
-      "chance_per_roll": 0.5
-    },
-    "gameplay_event_tag": "UI.GameScreen.Storage",
-    "layer_name": "UI.Layer.GameMenu",
-    "interaction_hold_time": 0.0,
-    "interaction_prompt_text": "Open",
-    "has_static_audio": false,
-    "has_toggled_on_audio": false,
-    "has_toggled_off_audio": false,
-    "has_static_lights": false,
-    "has_toggled_on_lights": false,
-    "has_toggled_off_lights": false,
-    "has_static_vfx": false,
-    "has_toggled_on_vfx": false,
-    "has_toggled_off_vfx": false,
     "starting_health": 200.0,
     "destructible_collection": "/Game/MidcenturyCombo/Midcentury_VOL1/GeometryCollections/GCS_Shelf_04a.GCS_Shelf_04a",
     "loot_dropped_on_death": [],
@@ -36,8 +18,8 @@
         "w": 1.0
       },
       "translation": {
-        "x": 0.0,
-        "y": 0.0,
+        "x": -61.81,
+        "y": -25.02,
         "z": 0.0
       },
       "scale3_d": {
@@ -69,8 +51,8 @@
             "w": 1.0
           },
           "translation": {
-            "x": 61.8,
-            "y": 25.05,
+            "x": -0.01,
+            "y": 0.03,
             "z": 139.4
           },
           "scale3_d": {
@@ -83,7 +65,7 @@
       }
     ],
     "loot_position_chance": 0.35,
-    "weighted_chance": 400,
+    "weighted_chance": 1000,
     "world_gen_priority": 6000,
     "destruction_impulse_strength": 0.0,
     "drag_angular_damping": 1.25,
@@ -108,8 +90,8 @@
     "blocking_collision_boxes": [
       {
         "offset": {
-          "x": 61.8,
-          "y": 25.05,
+          "x": -0.01,
+          "y": 0.03,
           "z": 69.45
         },
         "rotation": {
@@ -127,8 +109,8 @@
     "support_collision_boxes": [
       {
         "offset": {
-          "x": 61.8,
-          "y": 25.05,
+          "x": -0.01,
+          "y": 0.03,
           "z": 69.45
         },
         "rotation": {

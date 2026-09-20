@@ -16,9 +16,9 @@
     "blocking_collision_boxes": [
       {
         "offset": {
-          "x": 0.1,
-          "y": -39.35,
-          "z": 53.45
+          "x": 0.01,
+          "y": -0.03,
+          "z": 53.66
         },
         "rotation": {
           "pitch": 0,
@@ -35,9 +35,9 @@
     "support_collision_boxes": [
       {
         "offset": {
-          "x": 0.1,
-          "y": -39.35,
-          "z": 23.94
+          "x": 0.01,
+          "y": -0.03,
+          "z": 24.15
         },
         "rotation": {
           "pitch": 0,
@@ -60,9 +60,9 @@
         "w": 1
       },
       "translation": {
-        "x": 0,
-        "y": 0,
-        "z": 0
+        "x": -0.09,
+        "y": 39.32,
+        "z": 0.21
       },
       "scale3_d": {
         "x": 1,

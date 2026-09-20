@@ -16,7 +16,7 @@
     "blocking_collision_boxes": [
       {
         "offset": {
-          "x": 2.4,
+          "x": 1.66,
           "y": 0.0,
           "z": 65.3
         },
@@ -35,7 +35,7 @@
     "support_collision_boxes": [
       {
         "offset": {
-          "x": 2.4,
+          "x": 1.66,
           "y": 0.0,
           "z": 65.3
         },
@@ -60,7 +60,7 @@
         "w": 1
       },
       "translation": {
-        "x": 0,
+        "x": -0.74,
         "y": 0,
         "z": 0
       },
@@ -112,7 +112,7 @@
             "w": 1.0
           },
           "translation": {
-            "x": 2.4,
+            "x": 1.66,
             "y": 0.0,
             "z": 131.1
           },
@@ -136,12 +136,6 @@
           "motion": "Slide",
           "range": 38.0,
           "opens_for_screen": true
-        },
-        {
-          "name": "Flap",
-          "motion": "Hinge",
-          "range": 85.0,
-          "opens_for_screen": false
         }
       ]
     }

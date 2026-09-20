@@ -23,7 +23,7 @@
     "has_toggled_on_vfx": false,
     "has_toggled_off_vfx": false,
     "starting_health": 200.0,
-    "destructible_collection": "/Game/MidcenturyCombo/Midcentury_VOL1/GeometryCollections/GCS_Shelf_13a.GCS_Shelf_13a",
+    "destructible_collection": "/Game/Furniture/MidCentury/GeometryCollections/GCS_Shelf13_Closed.GCS_Shelf13_Closed",
     "loot_dropped_on_death": [],
     "deconstruction_tier": 2,
     "constructable_item_to_grant": "ID_Bookcase_4_CI",
@@ -38,7 +38,7 @@
       "translation": {
         "x": 0.0,
         "y": 0.0,
-        "z": 0.0
+        "z": 0.14
       },
       "scale3_d": {
         "x": 1.0,
@@ -53,7 +53,7 @@
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,
-    "static_mesh": "/Game/MidcenturyCombo/Midcentury_VOL1/Meshes/SM_Shelf_13a.SM_Shelf_13a",
+    "static_mesh": "/Game/Furniture/MidCentury/Shelf13/SM_Shelf13_Closed.SM_Shelf13_Closed",
     "casts_shadow": true,
     "collision_profile_name": {
       "name": "Furniture"
@@ -71,7 +71,7 @@
           "translation": {
             "x": 0.0,
             "y": 0.0,
-            "z": 190.3
+            "z": 190.44
           },
           "scale3_d": {
             "x": 1.0,
@@ -83,7 +83,7 @@
       }
     ],
     "loot_position_chance": 0.35,
-    "weighted_chance": 400,
+    "weighted_chance": 1000,
     "world_gen_priority": 6000,
     "destruction_impulse_strength": 0.0,
     "drag_angular_damping": 1.25,
@@ -111,7 +111,7 @@
         "offset": {
           "x": 0.0,
           "y": 0.0,
-          "z": 94.85
+          "z": 94.99
         },
         "rotation": {
           "pitch": 0,
@@ -130,7 +130,7 @@
         "offset": {
           "x": 0.0,
           "y": 0.0,
-          "z": 94.85
+          "z": 94.99
         },
         "rotation": {
           "pitch": 0,
@@ -143,6 +143,17 @@
           "z": 94.95
         }
       }
-    ]
+    ],
+    "rig": {
+      "skeletal_mesh": "/Game/Furniture/MidCentury/Shelf13/SK_Shelf13.SK_Shelf13",
+      "parts": [
+        {
+          "name": "Door",
+          "motion": "Hinge",
+          "range": -100.0,
+          "opens_for_screen": true
+        }
+      ]
+    }
   }
 }

@@ -1,27 +1,9 @@
 {
   "id": "FD_TVShelf_DF",
   "asset_path": "/Game/Furniture/Televisions/Furniture/FD_TVShelf_DF",
-  "class": "UStorageDefinition",
+  "class": "UDamageableFurnitureDefinition",
   "schema_version": 2,
   "properties": {
-    "inventory_rules_definition": "IRD_StorageTier1_2",
-    "inventory_loot": {
-      "rolls": 2,
-      "chance_per_roll": 0.5
-    },
-    "gameplay_event_tag": "UI.GameScreen.Storage",
-    "layer_name": "UI.Layer.GameMenu",
-    "interaction_hold_time": 0.0,
-    "interaction_prompt_text": "Open",
-    "has_static_audio": false,
-    "has_toggled_on_audio": false,
-    "has_toggled_off_audio": false,
-    "has_static_lights": false,
-    "has_toggled_on_lights": false,
-    "has_toggled_off_lights": false,
-    "has_static_vfx": false,
-    "has_toggled_on_vfx": false,
-    "has_toggled_off_vfx": false,
     "starting_health": 86,
     "furniture_armour": 1,
     "destructible_collection": "/Game/Furniture/Televisions/GeometryCollections/GCS_TV_Shelf.GCS_TV_Shelf",
@@ -34,9 +16,9 @@
     "blocking_collision_boxes": [
       {
         "offset": {
-          "x": 69.97418533857756,
-          "y": 4.475845505112403,
-          "z": 36.89659806019522
+          "x": 1.1142,
+          "y": -2.2942,
+          "z": 37.3966
         },
         "rotation": {
           "pitch": 0,
@@ -51,9 +33,9 @@
       },
       {
         "offset": {
-          "x": 220.381540896358,
-          "y": 16.626236787089926,
-          "z": 126.76585449018623
+          "x": 151.5215,
+          "y": 9.8562,
+          "z": 127.2659
         },
         "rotation": {
           "pitch": 0,
@@ -68,9 +50,9 @@
       },
       {
         "offset": {
-          "x": -92.61241549506127,
-          "y": 16.626236999999943,
-          "z": 126.76585350186727
+          "x": -161.4724,
+          "y": 9.8562,
+          "z": 127.2659
         },
         "rotation": {
           "pitch": 0,
@@ -87,9 +69,9 @@
     "support_collision_boxes": [
       {
         "offset": {
-          "x": -89.19988111848852,
-          "y": 5.637675322421572,
-          "z": 97.3088203244491
+          "x": -158.0599,
+          "y": -1.1323,
+          "z": 97.8088
         },
         "rotation": {
           "pitch": 0,
@@ -104,9 +86,9 @@
       },
       {
         "offset": {
-          "x": 226.2274608648171,
-          "y": 5.637674999999943,
-          "z": 97.30882290830357
+          "x": 157.3675,
+          "y": -1.1323,
+          "z": 97.8088
         },
         "rotation": {
           "pitch": 0,
@@ -121,9 +103,9 @@
       },
       {
         "offset": {
-          "x": 69.4716527691936,
-          "y": 5.6376750000011935,
-          "z": 37.70523923604638
+          "x": 0.6117,
+          "y": -1.1323,
+          "z": 38.2052
         },
         "rotation": {
           "pitch": 0,
@@ -138,9 +120,9 @@
       },
       {
         "offset": {
-          "x": 69.47165105064448,
-          "y": 16.115761314095955,
-          "z": 193.7284041856704
+          "x": 0.6117,
+          "y": 9.3458,
+          "z": 194.2284
         },
         "rotation": {
           "pitch": 0,
@@ -163,9 +145,9 @@
         "w": 1
       },
       "translation": {
-        "x": 0,
-        "y": 0,
-        "z": 0
+        "x": -68.86,
+        "y": -6.77,
+        "z": 0.5
       },
       "scale3_d": {
         "x": 1,
@@ -213,9 +195,9 @@
             "w": 0.9914
           },
           "translation": {
-            "x": 12.0,
-            "y": 6.0,
-            "z": 77.5
+            "x": -56.86,
+            "y": -0.77,
+            "z": 78.0
           },
           "scale3_d": {
             "x": 1.0,
@@ -234,9 +216,9 @@
             "w": 0.5736
           },
           "translation": {
-            "x": 68.0,
-            "y": 4.0,
-            "z": 77.5
+            "x": -0.86,
+            "y": -2.77,
+            "z": 78.0
           },
           "scale3_d": {
             "x": 1.0,
@@ -255,9 +237,9 @@
             "w": -0.1736
           },
           "translation": {
-            "x": 126.0,
-            "y": 8.0,
-            "z": 77.5
+            "x": 57.14,
+            "y": 1.23,
+            "z": 78.0
           },
           "scale3_d": {
             "x": 1.0,

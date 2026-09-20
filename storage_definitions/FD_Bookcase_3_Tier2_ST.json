@@ -9,7 +9,7 @@
     "blocking_collision_boxes": [
       {
         "offset": {
-          "x": 0.0026,
+          "x": -0.7374,
           "y": 20.066,
           "z": 111.9823
         },
@@ -28,7 +28,7 @@
     "support_collision_boxes": [
       {
         "offset": {
-          "x": 0.0026,
+          "x": -0.7374,
           "y": 20.066,
           "z": 110.8512
         },

@@ -1,16 +1,15 @@
 {
   "id": "FD_Bookcase_2_Tier2_ST",
   "asset_path": "/Game/Furniture/Shelves/Construction/FD_Bookcase_2_Tier2_ST",
-  "class": "UStorageDefinition",
+  "class": "UDamageableFurnitureDefinition",
   "schema_version": 2,
   "properties": {
     "extends": "FD_Bookcase_2_ST",
-    "inventory_rules_definition": "IRD_StorageTier2_16",
     "blocking_collision_boxes": [
       {
         "offset": {
-          "x": 0,
-          "y": 19.05,
+          "x": -61.81,
+          "y": -5.97,
           "z": 98.0295
         },
         "rotation": {
@@ -28,8 +27,8 @@
     "support_collision_boxes": [
       {
         "offset": {
-          "x": 0,
-          "y": 19.05,
+          "x": -61.81,
+          "y": -5.97,
           "z": 91.4966
         },
         "rotation": {
@@ -55,7 +54,6 @@
       "Entity.RandomGeneration.Size.Medium",
       "Tile.Biome.ShowFloor"
     ],
-    "inventory_loot": null,
     "upgrade_recipe": null
   }
 }

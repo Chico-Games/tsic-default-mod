@@ -24,8 +24,8 @@
     "blocking_collision_boxes": [
       {
         "offset": {
-          "x": 50.0,
-          "y": 47.2,
+          "x": 0.0,
+          "y": 0.0,
           "z": 59.89
         },
         "rotation": {
@@ -43,8 +43,8 @@
     "support_collision_boxes": [
       {
         "offset": {
-          "x": 50.0,
-          "y": 47.2,
+          "x": 0.0,
+          "y": 0.0,
           "z": 59.28
         },
         "rotation": {
@@ -67,8 +67,8 @@
         "w": 1.0
       },
       "translation": {
-        "x": 0.0,
-        "y": 0.0,
+        "x": -50.0,
+        "y": -47.2,
         "z": 0.0
       },
       "scale3_d": {

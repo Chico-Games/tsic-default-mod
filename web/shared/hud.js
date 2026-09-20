@@ -104,6 +104,12 @@
     '#hud-crosshair-hand { position:fixed; left:calc(50% - 28px); top:50%; margin-top:-9px; width:18px; height:18px; color:#fff; opacity:0; pointer-events:none; z-index:20; transition:opacity 120ms ease, transform 120ms ease; filter:drop-shadow(0 1px 1px rgba(0,0,0,0.6)); }',
     '#hud-crosshair-hand.visible { opacity:0.55; }',
     '#hud-crosshair-hand.dragging { opacity:0.8; transform:scale(0.9); }',
+    // Too heavy for the worn gloves: the hand is still shown (the piece IS draggable) but
+    // goes amber and carries the tier it wants, because a silent third-strength drag on a
+    // table reads as a prompt that lied.
+    '#hud-crosshair-hand.too-heavy { color:#e8a13c; opacity:0.85; }',
+    '#hud-crosshair-gloves { position:fixed; left:calc(50% - 28px); top:50%; margin-top:12px; width:120px; margin-left:-51px; text-align:center; font:600 10px/1.2 var(--tsic-font-ui, system-ui, sans-serif); letter-spacing:0.06em; text-transform:uppercase; color:#e8a13c; opacity:0; pointer-events:none; z-index:20; transition:opacity 120ms ease; text-shadow:0 1px 2px rgba(0,0,0,0.75); }',
+    '#hud-crosshair-gloves.visible { opacity:0.9; }',
     '#hud-crosshair-hand.hidden { display:none; }',
     '#hud-crosshair-hand svg { width:100%; height:100%; display:block; }',
     // Category affordance sits nearest the dot; the hand (above) sits just beyond it.
@@ -156,8 +162,8 @@
     'html[data-tsic-reduce-motion] #hud-circular-progress, html[data-tsic-reduce-motion] #hud-crosshair-progress { transition:opacity 140ms ease; transform:none; }',
     'html[data-tsic-reduce-motion] #hud-circular-progress.active, html[data-tsic-reduce-motion] #hud-crosshair-progress.active { transform:none; }',
     'html[data-tsic-reduce-motion] #hud-crosshair-bloom.fire { animation:none; }',
-    'body.hud-hidden #hud-chrome, body.hud-hidden #hud-stomach, body.hud-hidden #hud-conditions, body.hud-hidden #hud-crosshair, body.hud-hidden #hud-crosshair-hand, body.hud-hidden #hud-crosshair-cat, body.hud-hidden #hud-crosshair-progress, body.hud-hidden #hud-crosshair-bloom, body.hud-hidden #hud-circular-progress, body.hud-hidden #bb-shell-gameplay, body.hud-hidden #hud-chunk-debug, body.hud-hidden #hud-hotbar, body.hud-hidden #ping-shell, body.hud-hidden #hud-low-health, body.hud-hidden #hud-hit-reaction, body.hud-hidden #hud-stealth, body.hud-hidden #hud-detection, body.hud-hidden #hud-sprint-vignette,body.hud-hidden #hud-chat, body.hud-hidden #hud-voice { display:none !important; }',
-    'body.hud-hide-stomach #hud-stomach, body.hud-hide-conditions #hud-conditions, body.hud-hide-crosshair #hud-crosshair, body.hud-hide-crosshair #hud-crosshair-hand, body.hud-hide-crosshair #hud-crosshair-cat, body.hud-hide-crosshair #hud-crosshair-progress, body.hud-hide-crosshair #hud-crosshair-bloom, body.hud-hide-actionbar #bb-shell-gameplay, body.hud-hide-interaction #interaction-prompt, body.hud-hide-hotbar #hud-hotbar, body.hud-hide-lowhealth #hud-low-health, body.hud-hide-hitreaction #hud-hit-reaction, body.hud-hide-stealth #hud-stealth, body.hud-hide-detection #hud-detection { display:none !important; }',
+    'body.hud-hidden #hud-chrome, body.hud-hidden #hud-stomach, body.hud-hidden #hud-conditions, body.hud-hidden #hud-crosshair, body.hud-hidden #hud-crosshair-hand, body.hud-hidden #hud-crosshair-gloves, body.hud-hidden #hud-crosshair-cat, body.hud-hidden #hud-crosshair-progress, body.hud-hidden #hud-crosshair-bloom, body.hud-hidden #hud-circular-progress, body.hud-hidden #bb-shell-gameplay, body.hud-hidden #hud-chunk-debug, body.hud-hidden #hud-hotbar, body.hud-hidden #ping-shell, body.hud-hidden #hud-low-health, body.hud-hidden #hud-hit-reaction, body.hud-hidden #hud-stealth, body.hud-hidden #hud-detection, body.hud-hidden #hud-sprint-vignette,body.hud-hidden #hud-chat, body.hud-hidden #hud-voice { display:none !important; }',
+    'body.hud-hide-stomach #hud-stomach, body.hud-hide-conditions #hud-conditions, body.hud-hide-crosshair #hud-crosshair, body.hud-hide-crosshair #hud-crosshair-hand, body.hud-hide-crosshair #hud-crosshair-gloves, body.hud-hide-crosshair #hud-crosshair-cat, body.hud-hide-crosshair #hud-crosshair-progress, body.hud-hide-crosshair #hud-crosshair-bloom, body.hud-hide-actionbar #bb-shell-gameplay, body.hud-hide-interaction #interaction-prompt, body.hud-hide-hotbar #hud-hotbar, body.hud-hide-lowhealth #hud-low-health, body.hud-hide-hitreaction #hud-hit-reaction, body.hud-hide-stealth #hud-stealth, body.hud-hide-detection #hud-detection { display:none !important; }',
     '#bb-shell-gameplay { position:fixed; bottom:18px; right:24px; min-width:240px; max-width:calc(100vw - 48px); padding:8px 12px; color:#fff; pointer-events:none; z-index:20; font-family:var(--font-body); text-shadow:0 1px 2px rgba(0,0,0,0.75); }',
     '#bb-shell-gameplay.hidden { display:none; }',
     '#bb-gameplay { display:flex; flex-direction:column; align-items:stretch; gap:0; }',
@@ -249,6 +255,7 @@
 
     document.body.appendChild(el('div', { id: 'hud-crosshair' }));
     document.body.appendChild(el('div', { id: 'hud-crosshair-hand' }));
+    document.body.appendChild(el('div', { id: 'hud-crosshair-gloves' }));
     // Second crosshair affordance: the look target's category glyph (loot/storage/
     // door/…), tinted per category. Driven by hud-crosshair.js.
     document.body.appendChild(el('div', { id: 'hud-crosshair-cat' }));

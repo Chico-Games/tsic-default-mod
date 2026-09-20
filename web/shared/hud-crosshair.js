@@ -12,6 +12,10 @@
 // the interaction panel — so a lootable vs a storage vs a door read differently
 // at a glance. The icon is shared with the panel via TSIC.categoryIcon (icons.js).
 (function () {
+  // Drag tiers, as the glove definitions name them (ID_WorkGloves_GL = 1, HeavyGloves = 2,
+  // PowerGloves = 3). Index 0 is unused: bare hands are the tier everything else is above.
+  var GLOVE_NAMES = ['', 'Needs work gloves', 'Needs heavy gloves', 'Needs power gloves'];
+
   var HAND_PATHS = [
     'M18 11V6a2 2 0 0 0-4 0v5',
     'M14 10V4a2 2 0 0 0-4 0v6',
@@ -116,10 +120,20 @@
     if (cat) dot.setAttribute('data-cat', cat);
     else dot.removeAttribute('data-cat');
 
+    var tooHeavy = !dragging && !!p.bDragTooHeavy;
     var hand = handEl(dot);
     if (hand) {
       hand.classList.toggle('visible', dragging || !!p.bDraggable);
       hand.classList.toggle('dragging', dragging);
+      hand.classList.toggle('too-heavy', tooHeavy);
+    }
+
+    // The piece drags, but not with these gloves. Say which pair it wants rather than
+    // letting the player haul on something that moves at a third strength and looks stuck.
+    var gloves = document.getElementById('hud-crosshair-gloves');
+    if (gloves) {
+      if (tooHeavy) gloves.textContent = GLOVE_NAMES[p.DragTierNeeded] || 'Stronger gloves';
+      gloves.classList.toggle('visible', tooHeavy);
     }
 
     // Category glyph shows whenever there's an interactable look target; hidden

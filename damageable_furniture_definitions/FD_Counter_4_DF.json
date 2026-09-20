@@ -16,7 +16,7 @@
     "blocking_collision_boxes": [
       {
         "offset": {
-          "x": 24.1,
+          "x": 0.0,
           "y": 0.0,
           "z": 34.75
         },
@@ -35,7 +35,7 @@
     "support_collision_boxes": [
       {
         "offset": {
-          "x": 24.1,
+          "x": 0.0,
           "y": 0.0,
           "z": 34.75
         },
@@ -60,7 +60,7 @@
         "w": 1
       },
       "translation": {
-        "x": 0,
+        "x": -24.1,
         "y": 0,
         "z": 0
       },
@@ -114,7 +114,7 @@
             "w": 1.0
           },
           "translation": {
-            "x": 24.1,
+            "x": 0.0,
             "y": 0.0,
             "z": 70.0
           },
@@ -135,7 +135,7 @@
             "w": 1.0
           },
           "translation": {
-            "x": 20.0,
+            "x": -4.1,
             "y": -70.0,
             "z": 52.0
           },
@@ -156,7 +156,7 @@
             "w": 1.0
           },
           "translation": {
-            "x": 20.0,
+            "x": -4.1,
             "y": 70.0,
             "z": 52.0
           },
@@ -177,7 +177,7 @@
             "w": 1.0
           },
           "translation": {
-            "x": 24.0,
+            "x": -0.1,
             "y": 20.0,
             "z": 8.0
           },
@@ -198,7 +198,7 @@
             "w": 1.0
           },
           "translation": {
-            "x": 24.0,
+            "x": -0.1,
             "y": -20.0,
             "z": 8.0
           },
@@ -218,61 +218,7 @@
       "skeletal_mesh": "/Game/Furniture/MidCentury/MediaConsole01/SK_MediaConsole01.SK_MediaConsole01",
       "parts": [
         {
-          "name": "DoorLeft",
-          "motion": "Hinge",
-          "range": -100.0,
-          "opens_for_screen": false
-        },
-        {
-          "name": "DoorRight",
-          "motion": "Hinge",
-          "range": 100.0,
-          "opens_for_screen": false
-        },
-        {
-          "name": "DrawerA",
-          "motion": "Slide",
-          "range": 25.0,
-          "opens_for_screen": false
-        },
-        {
-          "name": "DrawerB",
-          "motion": "Slide",
-          "range": 25.0,
-          "opens_for_screen": false
-        },
-        {
-          "name": "DrawerC",
-          "motion": "Slide",
-          "range": 25.0,
-          "opens_for_screen": false
-        },
-        {
-          "name": "DrawerD",
-          "motion": "Slide",
-          "range": 25.0,
-          "opens_for_screen": false
-        },
-        {
-          "name": "DrawerE",
-          "motion": "Slide",
-          "range": 25.0,
-          "opens_for_screen": false
-        },
-        {
-          "name": "DrawerF",
-          "motion": "Slide",
-          "range": 25.0,
-          "opens_for_screen": false
-        },
-        {
-          "name": "DrawerG",
-          "motion": "Slide",
-          "range": 25.0,
-          "opens_for_screen": false
-        },
-        {
-          "name": "DrawerH",
+          "name": "Drawer",
           "motion": "Slide",
           "range": 25.0,
           "opens_for_screen": false
