@@ -154,6 +154,34 @@
           "opens_for_screen": true
         }
       ]
-    }
+    },
+    "shelves": [
+      {
+        "offset": {
+          "x": -8.5,
+          "y": -26.75,
+          "z": 42.0
+        },
+        "yaw": 0.0,
+        "width": 50.0,
+        "depth": 46.0,
+        "columns": 3,
+        "rows": 2,
+        "part": "Door"
+      },
+      {
+        "offset": {
+          "x": -8.5,
+          "y": -26.75,
+          "z": 67.0
+        },
+        "yaw": 0.0,
+        "width": 50.0,
+        "depth": 46.0,
+        "columns": 3,
+        "rows": 2,
+        "part": "Door"
+      }
+    ]
   }
 }

@@ -23,7 +23,7 @@
     "has_toggled_on_vfx": false,
     "has_toggled_off_vfx": false,
     "starting_health": 200.0,
-    "destructible_collection": "/Game/MidcenturyCombo/Midcentury_VOL6/GeometryCollections/GCS_Shelf_09c.GCS_Shelf_09c",
+    "destructible_collection": "/Game/Furniture/MidCentury/GeometryCollections/GCS_Shelf09_Closed.GCS_Shelf09_Closed",
     "loot_dropped_on_death": [],
     "deconstruction_tier": 2,
     "constructable_item_to_grant": "ID_Shelf_CI",
@@ -53,7 +53,7 @@
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,
-    "static_mesh": "/Game/MidcenturyCombo/Midcentury_VOL6/Meshes/SM_Shelf_09c.SM_Shelf_09c",
+    "static_mesh": "/Game/Furniture/MidCentury/Shelf09/SM_Shelf09_Closed.SM_Shelf09_Closed",
     "casts_shadow": true,
     "collision_profile_name": {
       "name": "Furniture"
@@ -134,6 +134,45 @@
           "y": 25.6,
           "z": 46.15
         }
+      }
+    ],
+    "rig": {
+      "skeletal_mesh": "/Game/Furniture/MidCentury/Shelf09/SK_Shelf09.SK_Shelf09",
+      "parts": [
+        {
+          "name": "Door",
+          "motion": "Hinge",
+          "range": -100.0,
+          "opens_for_screen": true
+        }
+      ]
+    },
+    "shelves": [
+      {
+        "offset": {
+          "x": 0.0,
+          "y": -5.25,
+          "z": 8.0
+        },
+        "yaw": 90.0,
+        "width": 40.0,
+        "depth": 32.0,
+        "columns": 2,
+        "rows": 2,
+        "part": "Door"
+      },
+      {
+        "offset": {
+          "x": 0.0,
+          "y": -5.25,
+          "z": 26.0
+        },
+        "yaw": 90.0,
+        "width": 40.0,
+        "depth": 32.0,
+        "columns": 2,
+        "rows": 2,
+        "part": "Door"
       }
     ]
   }
