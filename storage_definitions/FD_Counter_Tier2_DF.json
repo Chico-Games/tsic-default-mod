@@ -1,7 +1,7 @@
 {
   "id": "FD_Counter_Tier2_DF",
   "asset_path": "/Game/Furniture/Counters/Construction/FD_Counter_Tier2_DF",
-  "class": "UDamageableFurnitureDefinition",
+  "class": "UStorageDefinition",
   "schema_version": 2,
   "properties": {
     "extends": "FD_Counter_DF",
