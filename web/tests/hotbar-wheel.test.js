@@ -9,7 +9,7 @@
 // Aiming rides UI.Behavior.Look (the gamepad right stick), scaled 14px per event against a
 // 34px dead zone, so three events in a direction clear it.
 
-const WHEEL_SLOTS = 8;
+const WHEEL_SLOTS = 4;
 
 function openWheel(ctx) {
     ctx.inject('tsic.msg.UI.Behavior.HotbarWheel', { Phase: 'Started' });
@@ -23,11 +23,15 @@ function aim(ctx, x, y, times) {
         ctx.inject('tsic.msg.UI.Behavior.Look', { Action: 'Look', Phase: 'Axis', Value: { X: x, Y: y, Z: 0 } });
     }
 }
-async function seedWheel(ctx, items) {
-    ctx.inject('tsic.msg.UI.Inventory.Updated', {
-        OwnerId: 'Player', GridWidth: 8, MaxSlots: 32, Items: items || [],
-    });
-    ctx.inject('tsic.msg.UI.Hotbar.Changed', { NumSlots: WHEEL_SLOTS, SelectedSlot: 0, SelectedSlotPending: -1 });
+/** Seed the hooks: `byIndex` maps a hook index to what hangs on it. */
+async function seedWheel(ctx, byIndex) {
+    const hooks = [];
+    for (let i = 0; i < WHEEL_SLOTS; i++) {
+        hooks.push(Object.assign({ ItemId: '', Count: 0, LoadedAmmo: -1, SpareAmmo: 0, SlotIndex: i },
+            (byIndex || {})[i] || {}));
+    }
+    ctx.inject('tsic.msg.UI.Hotbar.Changed',
+        { NumSlots: WHEEL_SLOTS, SelectedSlot: 0, SelectedSlotPending: -1, Hooks: hooks });
     await new Promise(r => setTimeout(r, 30));
 }
 
@@ -35,7 +39,7 @@ TSICTestHarness.register({
     name: 'HotbarWheel: every entry sits on its own angle (Fists must not share with a cell)',
     file: '/screens/in-game.html',
     async run(ctx) {
-        await seedWheel(ctx, []);
+        await seedWheel(ctx, {});
         openWheel(ctx);
         await ctx.waitFor(() => ctx.doc.querySelectorAll('#hud-hotbar-wheel .wslot').length > 0, { timeout: 3000 });
 
@@ -62,7 +66,7 @@ TSICTestHarness.register({
     name: 'HotbarWheel: aiming at the bottom commits Stow, never a Select',
     file: '/screens/in-game.html',
     async run(ctx) {
-        await seedWheel(ctx, [{ ItemId: 'ID_Axe', Count: 1, InstanceId: 1, GridSlot: 0 }]);
+        await seedWheel(ctx, { 0: { ItemId: 'ID_Axe', Count: 1 } });
         openWheel(ctx);
         await ctx.waitFor(() => ctx.doc.querySelectorAll('#hud-hotbar-wheel .wslot').length > 0, { timeout: 3000 });
         ctx.clearPublishes();
@@ -80,7 +84,7 @@ TSICTestHarness.register({
     name: 'HotbarWheel: aiming at a cell commits Select for that cell',
     file: '/screens/in-game.html',
     async run(ctx) {
-        await seedWheel(ctx, [{ ItemId: 'ID_Axe', Count: 1, InstanceId: 1, GridSlot: 0 }]);
+        await seedWheel(ctx, { 0: { ItemId: 'ID_Axe', Count: 1 } });
         openWheel(ctx);
         await ctx.waitFor(() => ctx.doc.querySelectorAll('#hud-hotbar-wheel .wslot').length > 0, { timeout: 3000 });
         ctx.clearPublishes();
@@ -101,7 +105,7 @@ TSICTestHarness.register({
     name: 'HotbarWheel: releasing inside the dead zone cancels, committing nothing',
     file: '/screens/in-game.html',
     async run(ctx) {
-        await seedWheel(ctx, [{ ItemId: 'ID_Axe', Count: 1, InstanceId: 1, GridSlot: 0 }]);
+        await seedWheel(ctx, { 0: { ItemId: 'ID_Axe', Count: 1 } });
         openWheel(ctx);
         await ctx.waitFor(() => ctx.doc.querySelectorAll('#hud-hotbar-wheel .wslot').length > 0, { timeout: 3000 });
         ctx.clearPublishes();
@@ -117,15 +121,11 @@ TSICTestHarness.register({
 });
 
 TSICTestHarness.register({
-    name: 'HotbarWheel: cell contents come from the inventory snapshot by GridSlot',
+    name: 'HotbarWheel: cell contents come from Hotbar.Changed Hooks by hook index',
     file: '/screens/in-game.html',
     async run(ctx) {
-        ctx.setItemCatalog({ ID_Axe: { Name: 'Axe' }, ID_Bread: { Name: 'Bread' } });
-        await seedWheel(ctx, [
-            { ItemId: 'ID_Axe', Count: 1, InstanceId: 11, GridSlot: 2 },
-            // Past the bar — must not appear on the wheel.
-            { ItemId: 'ID_Bread', Count: 4, InstanceId: 12, GridSlot: 19 },
-        ]);
+        ctx.setItemCatalog({ ID_Axe: { Name: 'Axe' } });
+        await seedWheel(ctx, { 2: { ItemId: 'ID_Axe', Count: 1 } });
         openWheel(ctx);
         await ctx.waitFor(() => ctx.doc.querySelectorAll('#hud-hotbar-wheel .wslot').length > 0, { timeout: 3000 });
 
@@ -133,7 +133,7 @@ TSICTestHarness.register({
         ctx.expect(ctx.assert.truthy(cell2 && cell2.querySelector('img'), 'cell 2 draws the axe'));
         const withIcons = Array.from(ctx.doc.querySelectorAll('#hud-hotbar-wheel .wslot'))
             .filter(s => s.querySelector('img')).length;
-        ctx.expect(ctx.assert.eq(withIcons, 1, 'only the on-bar stack appears; the bag stack does not'));
+        ctx.expect(ctx.assert.eq(withIcons, 1, 'bare hooks draw nothing'));
         closeWheel(ctx);
     },
 });

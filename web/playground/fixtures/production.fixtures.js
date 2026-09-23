@@ -39,13 +39,6 @@ TSICPlayground.register({
             ['tsic.msg.UI.Recipe.QueueChanged', {
                 Kind: 'Production', StationId: state.stationId, Entries: state.queue,
             }],
-            ['tsic.msg.UI.Inventory.Updated', {
-                OwnerId: 'Player',
-                Items: TSICPlaygroundInventory.items(),
-                MaxSlots: TSICPlaygroundInventory.maxSlots(),
-                MaxWeight: TSICPlaygroundInventory.maxWeight(),
-                CurrentWeight: TSICPlaygroundInventory.currentWeight(),
-            }],
         ];
     },
     scenarios: [

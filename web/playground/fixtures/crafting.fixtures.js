@@ -40,13 +40,6 @@ TSICPlayground.register({
                 Recipes: state.recipes,
                 MaterialCounts: TSICPlaygroundInventory.materialCounts(),
             }],
-            ['tsic.msg.UI.Inventory.Updated', {
-                OwnerId: 'Player',
-                Items: TSICPlaygroundInventory.items(),
-                MaxSlots: TSICPlaygroundInventory.maxSlots(),
-                MaxWeight: TSICPlaygroundInventory.maxWeight(),
-                CurrentWeight: TSICPlaygroundInventory.currentWeight(),
-            }],
         ];
     },
     scenarios: [

@@ -7,8 +7,7 @@
 //   Behavior bar    tsic.msg.UI.BehaviorBar.Entries{ Entries:[...] }
 //   Interaction     tsic.msg.UI.Interaction.Targets{ Targets:[{Label, bIsPrimary}] }
 //   Minimap         (runtime texture — shows as an empty ring in the browser)
-//   Hotbar          tsic.msg.UI.Hotbar.Changed { NumSlots, SelectedSlot, SelectedSlotPending }
-//                   + tsic.msg.UI.Inventory.Updated (OwnerId 'Player') for icons
+//   Hotbar          tsic.msg.UI.Hotbar.Changed { NumSlots, SelectedSlot, SelectedSlotPending, Hooks[] }
 // Per-element visibility is driven by UI.HUD.SetElementVisible { Element, Visible }
 // so the toggles below can hide/show each piece independently.
 const HUD_ELEMENTS = ['health', 'stamina', 'stomach', 'crosshair', 'minimap', 'actionbar', 'interaction', 'hotbar'];
@@ -49,13 +48,13 @@ TSICPlayground.register({
                 { DisplayName: 'Dash',   SubText: '',       StatusInt: 2, bVisible: true, KeyboardKeyText: 'Shift', BehaviorTagName: 'IA_Dash', CooldownPercent: 0.45 },
             ] },
             targets: [{ EntityId: 1, Label: 'Open Locker', bIsPrimary: true }],
-            // Hotbar = the player's first eight grid cells; slot 0 selected.
-            hotbarItems: [
-                { ItemId: 'ID_Axe',    Count: 1, SlotIndex: 0 },
-                { ItemId: 'ID_Hammer', Count: 1, SlotIndex: 1 },
-                { ItemId: 'ID_Bread',  Count: 5, SlotIndex: 2 },
-            ],
-            hotbar: { NumSlots: 8, SelectedSlot: 0, SelectedSlotPending: -1 },
+            // Hotbar = the four hooks on the basket; hook 0 selected, hook 3 bare.
+            hotbar: { NumSlots: 4, SelectedSlot: 0, SelectedSlotPending: -1, Hooks: [
+                { ItemId: 'ID_Axe',    Count: 1, LoadedAmmo: -1, SpareAmmo: 0, SlotIndex: 0 },
+                { ItemId: 'ID_Hammer', Count: 1, LoadedAmmo: -1, SpareAmmo: 0, SlotIndex: 1 },
+                { ItemId: 'ID_Bread',  Count: 5, LoadedAmmo: -1, SpareAmmo: 0, SlotIndex: 2 },
+                { ItemId: '',          Count: 0, LoadedAmmo: -1, SpareAmmo: 0, SlotIndex: 3 },
+            ] },
             // Ping wheel defaults off — it's a full-screen overlay, so it's an
             // explicit toggle rather than part of the always-on HUD set.
             show: { health: true, stamina: true, stomach: true, crosshair: true, minimap: true, actionbar: true, interaction: true, hotbar: true, ping: false },
@@ -71,7 +70,6 @@ TSICPlayground.register({
             ['tsic.msg.UI.Stomach.State', { Slots: s.stomach }],
             ['tsic.msg.UI.BehaviorBar.Entries', s.behaviors],
             ['tsic.msg.UI.Interaction.Targets', { Targets: s.targets }],
-            ['tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', Items: s.hotbarItems }],
             ['tsic.msg.UI.Hotbar.Changed', s.hotbar],
             // Gameplay input mode so the crosshair isn't auto-hidden as if in a menu.
             ['tsic.msg.UI.Input.Mode.Changed', { Mode: 'MouseAndKeyboard', Device: 'kbm', Focus: 'game' }],
@@ -169,7 +167,7 @@ TSICPlayground.register({
     ],
     // Mouse wheel cycles the hotbar's selected slot, as it does in game.
     onWheel(s, deltaY) {
-        const n = s.hotbar.NumSlots || 8;
+        const n = s.hotbar.NumSlots || 4;
         const dir = deltaY > 0 ? 1 : -1;   // wheel down → next slot
         const cur = (s.hotbar.SelectedSlot >= 0) ? s.hotbar.SelectedSlot
             : (s.hotbar.SelectedSlotPending >= 0 ? s.hotbar.SelectedSlotPending : 0);
