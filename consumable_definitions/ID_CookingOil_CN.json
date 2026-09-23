@@ -70,10 +70,8 @@
     "item_category_tag": "Entity.Inventory.Item.Category.Consumable",
     "max_stack_size": 10,
     "inventory_layout": {
-      "cells": [ { "x": 0, "y": 0 }, { "x": 1, "y": 0 }, { "x": 2, "y": 0 } ],
-      "scale": 0.0,
-      "rotation": { "pitch": 0.0, "yaw": 0.0, "roll": 90.0 },
-      "offset": { "x": 0.0, "y": 0.0, "z": 0.0 }
-    }
+      "cells": [ { "x": 0, "y": 0 }, { "x": 1, "y": 0 }, { "x": 2, "y": 0 } ]
+    },
+    "presentations": [ { "key": "default", "value": { "rotation": { "pitch": 0.0, "yaw": 0.0, "roll": 90.0 } } } ]
   }
 }

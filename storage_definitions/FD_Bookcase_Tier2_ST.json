@@ -12,7 +12,8 @@
         "width": 4,
         "height": 4,
         "accepts": [
-          "general"
+          "general",
+          "seed"
         ],
         "surface": {
           "offset": {

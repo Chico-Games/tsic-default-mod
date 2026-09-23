@@ -189,7 +189,8 @@
         },
         "action_label": "Sew",
         "anim": "/Game/Furniture/SewingMachine/Animations/A_SewingRunFast.A_SewingRunFast",
-        "anim_mesh": "/Game/Furniture/SewingMachine/Meshes/SKM_SewingMachine.SKM_SewingMachine"
+        "anim_mesh": "/Game/Furniture/SewingMachine/Meshes/SKM_SewingMachine.SKM_SewingMachine",
+        "working_sound": "toggled_on_audio"
       }
     }
   }

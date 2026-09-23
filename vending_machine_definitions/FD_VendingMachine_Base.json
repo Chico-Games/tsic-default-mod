@@ -133,8 +133,9 @@
         "width": 3,
         "height": 1,
         "accepts": [
+          "cold",
           "general",
-          "cold"
+          "seed"
         ],
         "take_only": true,
         "visible_when_empty": false,

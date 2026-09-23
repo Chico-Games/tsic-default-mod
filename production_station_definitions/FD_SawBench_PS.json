@@ -245,7 +245,8 @@
         },
         "action_label": "Saw",
         "anim": "/Game/Furniture/CraftingBenches/SawBench/Meshes/A_TableSaw_Run.A_TableSaw_Run",
-        "anim_mesh": "/Game/Furniture/CraftingBenches/SawBench/Meshes/SKM_TableSaw.SKM_TableSaw"
+        "anim_mesh": "/Game/Furniture/CraftingBenches/SawBench/Meshes/SKM_TableSaw.SKM_TableSaw",
+        "working_sound": "toggled_on_audio"
       }
     },
     "gameplay_event_tag": "UI.GameScreen.Inventory"

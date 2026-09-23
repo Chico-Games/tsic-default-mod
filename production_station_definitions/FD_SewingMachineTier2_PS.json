@@ -184,7 +184,8 @@
           "amplitude": 0.15,
           "hz": 18.0
         },
-        "action_label": "Sew"
+        "action_label": "Sew",
+        "working_sound": "toggled_on_audio"
       }
     }
   }

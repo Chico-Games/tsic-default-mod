@@ -228,7 +228,7 @@
         if (!p || p.Phase !== 'Started') return;
         window.tsic.publishMessage('UI.Cmd.Arena.Toggle', {});
       });
-      // F10 — the basket test bench (L_BasketArena), same shape as the arena key.
+      // F10 — the container arena (L_Dev_ContainerLab), same shape as the arena key.
       window.tsic.on('tsic.msg.UI.Behavior.BasketArenaMenu', (p) => {
         if (!p || p.Phase !== 'Started') return;
         window.tsic.publishMessage('UI.Cmd.BasketArena.Toggle', {});

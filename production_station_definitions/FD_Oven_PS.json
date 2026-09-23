@@ -206,7 +206,8 @@
         },
         "complete_sound": "Recipe.Completed",
         "action_label": "Cook",
-        "working_light": "OvenDoor"
+        "working_light": "OvenDoor",
+        "working_sound": "toggled_on_audio"
       }
     },
     "gameplay_event_tag": "UI.GameScreen.Inventory"

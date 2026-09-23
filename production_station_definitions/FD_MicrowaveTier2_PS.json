@@ -144,8 +144,7 @@
         "width": 5,
         "height": 3,
         "accepts": [
-          "cold",
-          "general"
+          "cold"
         ],
         "surface": {
           "offset": {
@@ -175,7 +174,8 @@
           "hz": 12.0
         },
         "complete_sound": "Recipe.Completed",
-        "action_label": "Cook"
+        "action_label": "Cook",
+        "working_sound": "toggled_on_audio"
       }
     }
   }

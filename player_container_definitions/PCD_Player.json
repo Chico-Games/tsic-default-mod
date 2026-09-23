@@ -12,7 +12,17 @@
         "accepts": [
           "general",
           "seed"
-        ]
+        ],
+        "surface": {
+          "offset": {
+            "x": 0.0,
+            "y": 10.2413,
+            "z": 0.0
+          },
+          "yaw": -180.0,
+          "width": 52.6695,
+          "depth": 47.5488
+        }
       },
       {
         "id": "basket.pile.wood",
@@ -22,7 +32,17 @@
           "wood"
         ],
         "strategy": "Lean",
-        "presentation": "lean"
+        "presentation": "lean",
+        "surface": {
+          "offset": {
+            "x": 0.0,
+            "y": -26.3347,
+            "z": 0.0
+          },
+          "yaw": -180.0,
+          "width": 20.4826,
+          "depth": 47.5488
+        }
       },
       {
         "id": "basket.pile.cardboard",
@@ -32,7 +52,17 @@
           "cardboard"
         ],
         "strategy": "Lean",
-        "presentation": "lean"
+        "presentation": "lean",
+        "surface": {
+          "offset": {
+            "x": 0.0,
+            "y": -26.3347,
+            "z": 0.0
+          },
+          "yaw": -180.0,
+          "width": 20.4826,
+          "depth": 47.5488
+        }
       },
       {
         "id": "basket.pile.fabric",
@@ -42,17 +72,37 @@
           "fabric"
         ],
         "strategy": "Drape",
-        "presentation": "drape"
+        "presentation": "drape",
+        "surface": {
+          "offset": {
+            "x": 0.0,
+            "y": -26.3347,
+            "z": 0.0
+          },
+          "yaw": -180.0,
+          "width": 20.4826,
+          "depth": 47.5488
+        }
       },
       {
         "id": "basket.pile.fasteners",
         "layout": "Pile",
-        "capacity": 20,
+        "capacity": 50,
         "accepts": [
           "fasteners"
         ],
         "strategy": "Box",
-        "presentation": "box"
+        "presentation": "box",
+        "surface": {
+          "offset": {
+            "x": 0.0,
+            "y": -26.3347,
+            "z": 0.0
+          },
+          "yaw": -180.0,
+          "width": 20.4826,
+          "depth": 47.5488
+        }
       },
       {
         "id": "coldbag.grid",
@@ -61,7 +111,18 @@
         "height": 5,
         "accepts": [
           "cold"
-        ]
+        ],
+        "surface": {
+          "part": "coldbag",
+          "offset": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "yaw": -180.0,
+          "width": 46.3659,
+          "depth": 56.2146
+        }
       }
     ],
     "public": [
@@ -70,28 +131,68 @@
         "layout": "Slot",
         "equipment_slot": "Entity.Inventory.Item.Equipment.Slot.Weapon",
         "strategy": "Hang",
-        "presentation": "hang"
+        "presentation": "hang",
+        "surface": {
+          "offset": {
+            "x": -35.54,
+            "y": -36.0,
+            "z": 34.9681
+          },
+          "yaw": -180.0,
+          "width": 6.0,
+          "depth": 6.0
+        }
       },
       {
         "id": "basket.hook.2",
         "layout": "Slot",
         "equipment_slot": "Entity.Inventory.Item.Equipment.Slot.Weapon",
         "strategy": "Hang",
-        "presentation": "hang"
+        "presentation": "hang",
+        "surface": {
+          "offset": {
+            "x": -35.54,
+            "y": -13.0,
+            "z": 34.9681
+          },
+          "yaw": -180.0,
+          "width": 6.0,
+          "depth": 6.0
+        }
       },
       {
         "id": "basket.hook.3",
         "layout": "Slot",
         "equipment_slot": "Entity.Inventory.Item.Equipment.Slot.Weapon",
         "strategy": "Hang",
-        "presentation": "hang"
+        "presentation": "hang",
+        "surface": {
+          "offset": {
+            "x": -35.54,
+            "y": 13.0,
+            "z": 34.9681
+          },
+          "yaw": -180.0,
+          "width": 6.0,
+          "depth": 6.0
+        }
       },
       {
         "id": "basket.hook.4",
         "layout": "Slot",
         "equipment_slot": "Entity.Inventory.Item.Equipment.Slot.Weapon",
         "strategy": "Hang",
-        "presentation": "hang"
+        "presentation": "hang",
+        "surface": {
+          "offset": {
+            "x": -35.54,
+            "y": 36.0,
+            "z": 34.9681
+          },
+          "yaw": -180.0,
+          "width": 6.0,
+          "depth": 6.0
+        }
       },
       {
         "id": "equip.head",
@@ -176,7 +277,18 @@
       "accepts": [
         "general",
         "seed"
-      ]
+      ],
+      "surface": {
+        "part": "backpack",
+        "offset": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "yaw": -180.0,
+        "width": 73.152,
+        "depth": 47.5488
+      }
     },
     "hand": "hand",
     "pickup_order": [

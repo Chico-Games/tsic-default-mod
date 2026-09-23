@@ -8,7 +8,7 @@
       {
         "id": "keep",
         "layout": "Grid",
-        "width": 2,
+        "width": 1,
         "height": 1,
         "accepts": [
           "general"
@@ -61,7 +61,7 @@
     },
     "is_draggable": true,
     "display_name": "Container Lab Tier Two",
-    "description": "Container lab test furniture: the tier 2 half of the upgrade-overflow pair, with a smaller keep and no gone.",
+    "description": "Container lab test furniture: the tier 2 half of the upgrade-overflow pair, with keep cut to one cell and no gone.",
     "level": 1,
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],

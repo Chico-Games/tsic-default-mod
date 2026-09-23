@@ -200,7 +200,8 @@
         },
         "complete_sound": "Recipe.Completed",
         "action_label": "Cook",
-        "working_light": "Door"
+        "working_light": "Door",
+        "working_sound": "toggled_on_audio"
       }
     }
   }

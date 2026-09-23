@@ -13,11 +13,9 @@
     "item_category_tag": "Entity.Inventory.Item.Category.Ammo",
     "max_stack_size": 1,
     "inventory_layout": {
-      "cells": [ { "x": 0, "y": 0 }, { "x": 1, "y": 0 }, { "x": 0, "y": 1 }, { "x": 1, "y": 1 }, { "x": 0, "y": 2 }, { "x": 1, "y": 2 }, { "x": 0, "y": 3 }, { "x": 1, "y": 3 } ],
-      "scale": 0.85,
-      "rotation": { "pitch": 0.0, "yaw": 90.0, "roll": 0.0 },
-      "offset": { "x": 0.0, "y": 0.0, "z": 0.0 }
+      "cells": [ { "x": 0, "y": 0 }, { "x": 1, "y": 0 }, { "x": 0, "y": 1 }, { "x": 1, "y": 1 }, { "x": 0, "y": 2 }, { "x": 1, "y": 2 }, { "x": 0, "y": 3 }, { "x": 1, "y": 3 } ]
     },
+    "presentations": [ { "key": "default", "value": { "scale": 0.85, "rotation": { "pitch": 0.0, "yaw": 90.0, "roll": 0.0 } } } ],
     "storage_class": "general"
   }
 }

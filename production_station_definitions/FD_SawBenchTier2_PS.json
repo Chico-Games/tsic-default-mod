@@ -240,7 +240,8 @@
           "amplitude": 0.3,
           "hz": 18.0
         },
-        "action_label": "Saw"
+        "action_label": "Saw",
+        "working_sound": "toggled_on_audio"
       }
     }
   }

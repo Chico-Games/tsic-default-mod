@@ -132,12 +132,7 @@
         "width": 4,
         "height": 2,
         "accepts": [
-          "general",
-          "cold",
-          "wood",
-          "cardboard",
-          "fabric",
-          "fasteners"
+          "general"
         ],
         "surface": {
           "offset": {
@@ -183,7 +178,8 @@
         "type": "Instant"
       },
       "feedback": {
-        "action_label": "Craft"
+        "action_label": "Craft",
+        "working_sound": "toggled_on_audio"
       }
     }
   }

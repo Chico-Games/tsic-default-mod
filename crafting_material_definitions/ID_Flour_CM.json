@@ -12,6 +12,6 @@
     "static_item_definition": "FD_Flour_SI",
     "item_category_tag": "Entity.Inventory.Item.Category.CraftingMaterial",
     "max_stack_size": 50,
-    "storage_class": "general"
+    "storage_class": "cold"
   }
 }

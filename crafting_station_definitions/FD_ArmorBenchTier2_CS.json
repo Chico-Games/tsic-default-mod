@@ -201,12 +201,10 @@
         "width": 6,
         "height": 4,
         "accepts": [
-          "general",
-          "cold",
-          "wood",
-          "cardboard",
           "fabric",
-          "fasteners"
+          "fasteners",
+          "general",
+          "wood"
         ],
         "surface": {
           "offset": {

@@ -26,7 +26,7 @@
         "loot": {
           "rolls": 2,
           "chance": 1.0,
-          "table": "LSP_Bathroom_Container"
+          "table": "LSP_ContainerLab_Always"
         }
       },
       {
@@ -50,7 +50,7 @@
         "loot": {
           "rolls": 2,
           "chance": 1.0,
-          "table": "LSP_Bathroom_Container"
+          "table": "LSP_ContainerLab_Always"
         }
       }
     ],
@@ -90,7 +90,7 @@
     },
     "is_draggable": true,
     "display_name": "Container Lab Loot",
-    "description": "Container lab test furniture: two compartments that always roll loot.",
+    "description": "Container lab test furniture: two compartments that always roll loot, from a table that always yields.",
     "level": 1,
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],

@@ -114,12 +114,9 @@
         "width": 7,
         "height": 3,
         "accepts": [
-          "general",
           "cold",
-          "wood",
-          "cardboard",
           "fabric",
-          "fasteners"
+          "general"
         ],
         "surface": {
           "offset": {
@@ -138,7 +135,7 @@
         "width": 3,
         "height": 2,
         "accepts": [
-          "cold"
+          "general"
         ],
         "take_only": true,
         "visible_when_empty": false,

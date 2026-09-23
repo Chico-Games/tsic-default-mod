@@ -15,6 +15,6 @@
     "inventory_layout": {
       "cells": [ { "x": 0, "y": 0 } ]
     },
-    "storage_class": "general"
+    "storage_class": "cold"
   }
 }

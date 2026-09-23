@@ -1,5 +1,5 @@
 // Container arena screen module (spec 16.2) — the setup sheet for the 3D containers (F10 in
-// L_BasketArena; in L_Dev_ContainerLab it shows the scenario presets only).
+// L_Dev_ContainerLab, the worldgen-on blank floor whose bays the scenario setups use).
 //
 // C++ owns the loop: UI.Cmd.BasketArena.Toggle sweeps the floor and opens this screen; Apply
 // sends the whole setup back on UI.Cmd.BasketArena.Apply and C++ closes the screen, empties the
@@ -163,6 +163,7 @@
   function furnitureRows() {
     return FURNITURE_SLOTS.map((label, i) =>
       `<div class="bb-furn"><div class="bb-row"><label for="bb-furn-${i}">${label}</label>` + combo(`bb-furn-${i}`, '(empty) — type a furniture piece') + '</div>' +
+      `<div class="bb-row"><label for="bb-furnbay-${i}">At</label><select class="bb-input" id="bb-furnbay-${i}" title="A lab bay, as the scenario setups place furniture; blank = its slot in front of you"><option value="">(${label.toLowerCase()} slot)</option></select></div>` +
       `<div class="bb-row"><label for="bb-furnparts-${i}">Parts</label><input class="bb-input bb-input--wide" id="bb-furnparts-${i}" type="text" placeholder="OvenDoor=1, Drawer1=0.5"></div>` +
       `<div class="bb-row"><label for="bb-furncont-${i}">Holds</label><textarea class="bb-input bb-input--wide" id="bb-furncont-${i}" rows="2" placeholder="tray: ID_Potato_CN x2, ID_CookingOil_CN"></textarea></div>` +
       `<div class="bb-row"><label for="bb-furnstate-${i}">Station</label><select class="bb-input" id="bb-furnstate-${i}">` +
@@ -400,8 +401,20 @@
       // Number boxes keep their arrow keys.
       root.querySelectorAll('input[type="number"]').forEach((el) => el.addEventListener('keydown', (ev) => ev.stopPropagation()));
 
+      function fillBays() {
+        const d = state.data || {};
+        for (let i = 0; i < FURNITURE_SLOTS.length; i++) {
+          const select = $(`bb-furnbay-${i}`);
+          const keep = select.getAttribute('data-value') || select.value;
+          const first = select.options[0];
+          select.replaceChildren(first, ...(d.Bays || []).map((b) => TSIC.el('option', { value: b }, b)));
+          select.value = (d.Bays || []).includes(keep) ? keep : '';
+        }
+      }
+
       function fillPickers() {
         const d = state.data || {};
+        fillBays();
         for (let i = 0; i < BAG_ROWS; i++) setComboItems(`bb-bag-${i}`, d.Items);
         for (let i = 0; i < FLOOR_ROWS; i++) setComboItems(`bb-floor-${i}`, d.Items);
         for (let i = 0; i < FURNITURE_SLOTS.length; i++) setComboItems(`bb-furn-${i}`, d.Furniture);
@@ -431,6 +444,9 @@
         for (let i = 0; i < FURNITURE_SLOTS.length; i++) {
           const f = furniture[i] || {};
           setComboValue(`bb-furn-${i}`, f.Definition, d.Furniture);
+          const bay = isNone(f.Bay) ? '' : f.Bay;
+          $(`bb-furnbay-${i}`).setAttribute('data-value', bay);
+          $(`bb-furnbay-${i}`).value = (d.Bays || []).includes(bay) ? bay : '';
           $(`bb-furnparts-${i}`).value = formatParts(f.Parts);
           $(`bb-furncont-${i}`).value = formatContents(f.Contents);
           $(`bb-furnstate-${i}`).value = STATION_STATES.includes(f.StationState) ? f.StationState : 'idle';
@@ -450,6 +466,7 @@
           Name: $('bb-name').value.trim(), Bag: [], Floor: [], Backpack: comboValue('bb-backpack'), bOpenBasket: $('bb-openbasket').checked,
           Furniture: FURNITURE_SLOTS.map((_, i) => ({
             Definition: comboValue(`bb-furn-${i}`),
+            Bay: $(`bb-furnbay-${i}`).value,
             Parts: parseParts($(`bb-furnparts-${i}`).value),
             Contents: parseContents($(`bb-furncont-${i}`).value),
             StationState: $(`bb-furnstate-${i}`).value,
@@ -516,10 +533,9 @@
           run.textContent = `Last run: ${d.LastResult}`;
           run.classList.toggle('is-bad', d.LastResult.indexOf(': failed') >= 0);
         } else {
-          run.textContent = d.bHasLab ? 'Presets set a scenario up in the lab; F10 comes back here mid-run.'
-            : 'Scenario setups use the lab bays: open L_Dev_ContainerLab and press F10 to run them.';
+          run.textContent = 'Open preset sets a scenario up to play by hand; F10 comes back here mid-run.';
         }
-        root.querySelectorAll('[data-scenario]').forEach((b) => { b.disabled = !d.bHasLab || !!d.Scenario; });
+        root.querySelectorAll('[data-scenario]').forEach((b) => { b.disabled = !d.bHasArena || !!d.Scenario; });
       }
 
       function renderStatus() {
