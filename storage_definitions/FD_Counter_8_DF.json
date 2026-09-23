@@ -157,20 +157,16 @@
         }
       ]
     },
-    "shelves": [
-      {
-        "offset": {
-          "x": 1.69,
-          "y": 0.0,
-          "z": 22.41
-        },
-        "yaw": 0.0,
-        "width": 58.0,
-        "depth": 38.47,
-        "columns": 3,
-        "rows": 2,
-        "part": "Drawer"
-      }
-    ]
+    "storage_view": {
+      "offset": {
+        "x": 1.69,
+        "y": 0.0,
+        "z": 22.41
+      },
+      "yaw": 0.0,
+      "width": 58.0,
+      "depth": 38.47,
+      "part": "Drawer"
+    }
   }
 }

@@ -1,7 +1,7 @@
 {
   "id": "FD_SawBench_PS",
   "asset_path": "/Game/Furniture/CraftingBenches/SawBench/Construction/FD_SawBench_PS",
-  "class": "UProductionStationDefinition",
+  "class": "USawStationDefinition",
   "schema_version": 2,
   "properties": {
     "available_recipe_rules_definition": "ARR_SawBenchRecipes",
@@ -28,7 +28,7 @@
     "has_toggled_on_vfx": false,
     "has_toggled_off_vfx": false,
     "starting_health": 600,
-    "destructible_collection": "/Game/Fab/ScienceLab/Meshes/GeometryCollections/GCS_ReceptionDesk01.GCS_ReceptionDesk01",
+    "destructible_collection": "",
     "loot_dropped_on_death": [
       "LD_CraftingBenchTierOneLoot"
     ],
@@ -36,9 +36,9 @@
     "blocking_collision_boxes": [
       {
         "offset": {
-          "x": 0.0071,
-          "y": -0.0003,
-          "z": 77.0444
+          "x": 0.0,
+          "y": 0.0,
+          "z": 78.0
         },
         "rotation": {
           "pitch": 0,
@@ -46,18 +46,18 @@
           "roll": 0
         },
         "box_size": {
-          "x": 29.8142,
-          "y": 73.9502,
-          "z": 38.5092
+          "x": 70.0,
+          "y": 44.0,
+          "z": 26.0
         }
       }
     ],
     "support_collision_boxes": [
       {
         "offset": {
-          "x": 0.0071,
-          "y": -0.0003,
-          "z": 65.0933
+          "x": 0.0,
+          "y": 0.0,
+          "z": 50.0
         },
         "rotation": {
           "pitch": 0,
@@ -65,9 +65,9 @@
           "roll": 0
         },
         "box_size": {
-          "x": 51.4038,
-          "y": 127.5003,
-          "z": 66.3952
+          "x": 74.0,
+          "y": 48.0,
+          "z": 100.0
         }
       }
     ],
@@ -92,12 +92,12 @@
     },
     "is_draggable": true,
     "display_name": "Saw Bench",
-    "description": "A powered saw bench that mills logs and scrap into planks, boards, and shaped timber over time.",
+    "description": "A powered saw bench. Hold a splintered board against the blade and it takes the ruined edge off, leaving a clean sawn plank.",
     "level": 1,
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,
-    "static_mesh": "/Game/Fab/ScienceLab/Meshes/Furniture/SM_ReceptionDesk01.SM_ReceptionDesk01",
+    "static_mesh": "/Game/Furniture/CraftingBenches/SawBench/Meshes/SM_TableSaw.SM_TableSaw",
     "casts_shadow": true,
     "collision_profile_name": {
       "name": "Furniture"
@@ -183,6 +183,41 @@
     "release_angular_damping": 0.05000000074505806,
     "release_linear_damping": 0.009999999776482582,
     "restitution": 0.30000001192092896,
-    "constructable_item_to_grant": "ID_SawBench_CI"
+    "constructable_item_to_grant": "ID_SawBench_CI",
+    "animated_mesh": "/Game/Furniture/CraftingBenches/SawBench/Meshes/SKM_TableSaw.SKM_TableSaw",
+    "animated_offset": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "seam_clip": "/Game/Furniture/CraftingBenches/SawBench/Meshes/A_TableSaw_Cut.A_TableSaw_Cut",
+    "run_clip": "/Game/Furniture/CraftingBenches/SawBench/Meshes/A_TableSaw_Run.A_TableSaw_Run",
+    "cloth_mesh": "/Game/Furniture/CraftingBenches/SawBench/Meshes/SKM_Plank.SKM_Plank",
+    "cloth_clip": "/Game/Furniture/CraftingBenches/SawBench/Meshes/A_Plank_RipCut.A_Plank_RipCut",
+    "cloth_offset": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "cloth_yaw": 0.0,
+    "control_bone": "",
+    "action_label": "Cut",
+    "working_label": "Cutting",
+    "inventory_rules_definition": "IRD_SawBed",
+    "food_station": false,
+    "storage_view": {
+      "offset": {
+        "x": 22.0,
+        "y": 0.0,
+        "z": 92.0
+      },
+      "yaw": 0.0,
+      "width": 26.0,
+      "depth": 18.0,
+      "camera_distance": 220.0,
+      "camera_pitch": -52.0
+    },
+    "hand_off": 0.62,
+    "contents_always_visible": true
   }
 }

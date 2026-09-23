@@ -67,21 +67,6 @@
     "toggled_off_v_f_x": null,
     "upgrade_recipe": null,
     "effect_hitboxes": null,
-    "construction_category_tag": null,
-    "shelves": [
-      {
-        "offset": {
-          "x": 0.03,
-          "y": 9.72,
-          "z": 41.09
-        },
-        "yaw": 0.0,
-        "width": 23.51,
-        "depth": 37.17,
-        "columns": 1,
-        "rows": 2,
-        "part": "Drawer"
-      }
-    ]
+    "construction_category_tag": null
   }
 }

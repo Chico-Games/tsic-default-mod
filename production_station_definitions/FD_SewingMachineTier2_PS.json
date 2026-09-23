@@ -88,7 +88,7 @@
     },
     "is_draggable": true,
     "display_name": "Sewing Machine (Tier 2)",
-    "description": "An upgraded sewing machine for processing fabric. Turns scrap fabric into processed fabric faster and unlocks new recipes.",
+    "description": "An upgraded sewing machine for processing fabric. Turns frayed fabric into hemmed fabric faster and unlocks new recipes.",
     "level": 2,
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],

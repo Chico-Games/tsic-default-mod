@@ -13,7 +13,6 @@
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,
-    "static_mesh": "/Game/Furniture/Racks/Meshes/SM_Rack04.SM_Rack04",
     "casts_shadow": false,
     "collision_profile_name": {
       "name": "ItemStatic"

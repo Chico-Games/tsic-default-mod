@@ -9,13 +9,14 @@
       "offset": {
         "x": 0.0,
         "y": 0.0,
-        "z": 55.0
+        "z": 56.0
       },
       "yaw": 0.0,
-      "width": 100.0,
-      "depth": 100.0,
-      "camera_distance": 0.0,
-      "camera_pitch": 0.0
+      "width": 22.0,
+      "depth": 22.0,
+      "camera_distance": 260.0,
+      "camera_pitch": -58.0,
+      "b_upright": true
     },
     "inventory_loot": null,
     "gameplay_event_tag": "UI.GameScreen.Storage",
@@ -75,7 +76,7 @@
     "drag_linear_damping": 5.0,
     "drag_mass": 1.0,
     "drag_max_angular_velocity": 90.0,
-    "drag_tier": 1,
+    "drag_tier": 0,
     "friction": 0.699999988079071,
     "furniture_armour": 2,
     "gameplay_tags": [],
@@ -120,6 +121,7 @@
         }
       }
     ],
-    "destructible_collection": "/Game/Furniture/MidCentury/UmbrellaStand/GeometryCollections/GCS_UmbrellaStand.GCS_UmbrellaStand"
+    "destructible_collection": "/Game/Furniture/MidCentury/UmbrellaStand/GeometryCollections/GCS_UmbrellaStand.GCS_UmbrellaStand",
+    "contents_always_visible": true
   }
 }

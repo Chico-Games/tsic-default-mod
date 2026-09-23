@@ -13,6 +13,7 @@
     "item_category_tag": "Entity.Inventory.Item.Category.CraftingMaterial",
     "max_stack_size": 50,
     "basket_zone": "Screws",
-    "basket_zone_capacity": 10
+    "basket_zone_capacity": 10,
+    "basket_zone_mesh": "/Game/Items/CraftingMaterials/HardwareBoxes/Meshes/SM_MetalScrew.SM_MetalScrew"
   }
 }

@@ -11,13 +11,14 @@
       "can_remove_items": true,
       "capacity": 200.0,
       "b_can_exceed_capacity": false,
-      "grid_width": 0,
-      "grid_height": 0,
-      "basket_zones": true,
+      "grid_width": 4,
+      "grid_height": 4,
+      "basket_zones": false,
       "accepted_zones": [
         "Cardboard"
       ],
-      "zone_capacity": 20
+      "zone_capacity": 20,
+      "max_units": 0
     }
   }
 }

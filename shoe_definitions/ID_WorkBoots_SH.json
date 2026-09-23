@@ -9,6 +9,9 @@
     "stackable": false,
     "weight": 1.0,
     "equipment_slot": "Entity.Inventory.Item.Equipment.Slot.Shoes",
-    "equipment_actors_and_meshes": []
+    "equipment_actors_and_meshes": [],
+    "inventory_layout": {
+      "cells": [ { "x": 0, "y": 0 }, { "x": 1, "y": 0 }, { "x": 0, "y": 1 }, { "x": 1, "y": 1 } ]
+    }
   }
 }

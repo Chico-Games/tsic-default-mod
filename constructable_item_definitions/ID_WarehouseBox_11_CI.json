@@ -11,8 +11,28 @@
     "stackable": true,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_WarehouseBox_11_SI",
-    "max_stack_size": 20,
+    "max_stack_size": 3,
     "basket_zone": "Cardboard",
-    "basket_zone_capacity": 4
+    "basket_zone_capacity": 4,
+    "inventory_layout": {
+      "cells": [
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 1,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 1
+        },
+        {
+          "x": 1,
+          "y": 1
+        }
+      ]
+    }
   }
 }

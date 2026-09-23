@@ -6,6 +6,10 @@
     "keyboard_behaviors": [
       "BH_Back",
       "BH_Accept",
+      "BH_Move",
+      "BH_Jump",
+      "BH_Crouch",
+      "BH_Sprint",
       "BH_MapZoomIn",
       "BH_MapZoomOut",
       "BH_MapCenter",

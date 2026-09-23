@@ -19,7 +19,9 @@
         "RD_ShoppingBasket_CR",
         "RD_HardwareDrawer_CR",
         "RD_PlankRack_CR",
-        "RD_CardboardRack_CR"
+        "RD_CardboardRack_CR",
+        "RD_BikeRack_CR",
+        "RD_UmbrellaStand_CR"
       ]
     }
   }

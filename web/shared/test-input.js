@@ -6,8 +6,7 @@
 // live CEF view and hands the string result back to C++). One implementation, two consumers —
 // a drag that passes headless is the same drag the Gauntlet node performs in-game.
 //
-// It is inert until called: nothing here runs at load, and it registers no listeners. Same
-// precedent as the __tsicMap hooks that already ship inside shared/screens/map.js.
+// It is inert until called: nothing here runs at load, and it registers no listeners.
 //
 // WHAT THIS DOES AND DOES NOT COVER
 //   Covers: the cursor engine, hit testing, real CSS layout and stacking, and the commands the

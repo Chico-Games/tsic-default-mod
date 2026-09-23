@@ -8,16 +8,16 @@
     "input": [
       {
         "key": "ID_UpholsteryFabric_CM",
-        "value": 3
+        "value": 1
       }
     ],
     "output": [
       {
         "key": "ID_WovenCloth_CM",
-        "value": 2
+        "value": 1
       }
     ],
-    "duration": 3.0,
+    "duration": 0.5,
     "level": 1,
     "always_discovered": true,
     "crafting_bench_tags": []

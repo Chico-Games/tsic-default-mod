@@ -82,15 +82,14 @@
     "drag_max_angular_velocity": 90,
     "release_linear_damping": 0.009999999776482582,
     "release_angular_damping": 0.05000000074505806,
-    "display_name": "Sofa",
+    "display_name": "Chair",
     "description": "Seating furniture from the store.",
     "level": 1,
     "gameplay_tags": [
       "Entity.RandomGeneration.CanBeRandom",
       "Entity.RandomGeneration.FurnitureCategory.LivingRoom",
-      "Entity.RandomGeneration.FurnitureType.Sofa",
+      "Entity.RandomGeneration.FurnitureType.Chair",
       "Entity.RandomGeneration.Materials.Leather",
-      "Entity.RandomGeneration.Size.Large",
       "Tile.Biome.ShowFloor"
     ],
     "default_world_gen_gameplay_tags": [],

@@ -236,7 +236,9 @@
         if (!q) return items.slice(0, MAX_RESULTS);
         const terms = q.split(/\s+/);
         const hit = (it) => {
-          const hay = ((it.DisplayName || '') + ' ' + (it.InternalName || '')).toLowerCase();
+          // SearchAlias carries what the item is called elsewhere (its mesh, usually), so
+          // typing "scrap fabric" finds the one the game lists as Upholstery Fabric.
+          const hay = ((it.DisplayName || '') + ' ' + (it.InternalName || '') + ' ' + (it.SearchAlias || '')).toLowerCase();
           return terms.every((t) => hay.includes(t));
         };
         const starts = [];

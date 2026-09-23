@@ -147,33 +147,15 @@
         }
       ]
     },
-    "shelves": [
-      {
-        "offset": {
-          "x": 0.0,
-          "y": -5.25,
-          "z": 8.0
-        },
-        "yaw": 90.0,
-        "width": 40.0,
-        "depth": 32.0,
-        "columns": 2,
-        "rows": 2,
-        "part": "Door"
+    "storage_view": {
+      "offset": {
+        "x": 0.0,
+        "y": -5.25,
+        "z": 8.0
       },
-      {
-        "offset": {
-          "x": 0.0,
-          "y": -5.25,
-          "z": 26.0
-        },
-        "yaw": 90.0,
-        "width": 40.0,
-        "depth": 32.0,
-        "columns": 2,
-        "rows": 2,
-        "part": "Door"
-      }
-    ]
+      "yaw": 90.0,
+      "width": 40.0,
+      "depth": 32.0
+    }
   }
 }

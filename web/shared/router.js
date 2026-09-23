@@ -49,7 +49,6 @@
     Crafting: 'crafting',
     Production: 'production',
     BossSummoner: 'boss-summoner',
-    Map: 'map',
     Teleporter: 'teleporter',
     BugReport: 'bug-report',
     Terminal: 'terminal',

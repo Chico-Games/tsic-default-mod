@@ -12,8 +12,8 @@
       "can_remove_items": true,
       "capacity": 40.0,
       "b_can_exceed_capacity": true,
-      "grid_width": 4,
-      "grid_height": 7,
+      "grid_width": 3,
+      "grid_height": 5,
       "base_unlocked_slots": 0
     }
   }

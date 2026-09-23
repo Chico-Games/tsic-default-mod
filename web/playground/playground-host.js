@@ -412,8 +412,6 @@
         'storage': 'Storage & Transport', 'universal-storage': 'Storage & Transport',
         'universal-storage-setup': 'Storage & Transport', 'teleporter': 'Storage & Transport',
 
-        'map': 'World & Map',
-
         'terminal-tier1': 'Terminal', 'terminal-tier2': 'Terminal', 'terminal-tier3': 'Terminal',
 
         'chat': 'Social', 'voice-chat': 'Social',

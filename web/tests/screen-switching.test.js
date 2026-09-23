@@ -12,7 +12,7 @@
 // Build/Gauntlet/suite-tiers.json, so it never runs.
 
 /** Every screen registered in the shell that this suite drives, with a screen to fall back to. */
-const SWITCH_SCREENS = ['Inventory', 'Crafting', 'Production', 'Storage', 'Map'];
+const SWITCH_SCREENS = ['Inventory', 'Crafting', 'Production', 'Storage'];
 
 function visibleOverlays(ctx) {
     return Array.from(ctx.doc.querySelectorAll('#screen-overlay-host [data-screen]'))

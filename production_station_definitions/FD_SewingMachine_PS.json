@@ -89,7 +89,7 @@
     "upgrade_recipe": "RD_SewingMachine_CN",
     "is_draggable": true,
     "display_name": "Sewing Machine",
-    "description": "A sturdy sewing machine for processing fabric. Turns scrap fabric into processed fabric suitable for clothing and equipment.",
+    "description": "A sturdy sewing machine for processing fabric. Turns frayed fabric into hemmed fabric suitable for clothing and equipment.",
     "level": 1,
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
@@ -131,14 +131,14 @@
     "inventory_rules_definition": "IRD_SewingBed",
     "storage_view": {
       "offset": {
-        "x": 1.4,
-        "y": -9.0,
-        "z": 18.4
+        "x": 0.78,
+        "y": 20.94,
+        "z": 19.0
       },
       "yaw": 0.0,
-      "width": 22.0,
-      "depth": 18.0,
-      "camera_distance": 210.0,
+      "width": 16.0,
+      "depth": 16.0,
+      "camera_distance": 200.0,
       "camera_pitch": -50.0
     },
     "action_label": "Sew",
@@ -155,28 +155,17 @@
       "z": 0.0
     },
     "cloth_yaw": 0.0,
-    "ring_anchor": {
-      "x": 1.4,
-      "y": -3.2,
-      "z": 26.0
-    },
     "minigame": {
       "turns": 2.0,
       "degrees_per_second": 180.0,
       "ring_radius": 0.21,
       "marker_radius": 0.055
     },
-    "cook_controls": {
-      "offset": {
-        "x": 12.4,
-        "y": -19.1,
-        "z": 45.7
-      },
-      "extent": {
-        "x": 6.0,
-        "y": 6.0,
-        "z": 6.0
-      }
+    "control_bone": "stitch_dial",
+    "animated_offset": {
+      "x": -0.72,
+      "y": 24.14,
+      "z": 0.75
     }
   }
 }

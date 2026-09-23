@@ -182,20 +182,6 @@
       "camera_distance": 240.0,
       "camera_pitch": -34.0
     },
-    "shelves": [
-      {
-        "offset": {
-          "x": 0,
-          "y": 5.55,
-          "z": 5.75
-        },
-        "yaw": 0.0,
-        "width": 51.51,
-        "depth": 60.92,
-        "columns": 3,
-        "rows": 3,
-        "part": "Drawer"
-      }
-    ]
+    "contents_always_visible": true
   }
 }

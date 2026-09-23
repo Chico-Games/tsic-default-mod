@@ -15,6 +15,7 @@
 //
 // Channels
 //   in  UI.Notebook.State        { Page, PageCount }
+//   out UI.Cmd.Notebook.Hover    { X, Y }  (viewport fractions, -1 when the pointer left; the page leans away under it)
 //   out UI.Cmd.Notebook.Turn     { Delta, Page, X, Y }  (Page >= 0 jumps straight there; X/Y a click's view fraction, -1 for none;
 //                                                        Delta 0 with X/Y is a left click for C++ to place)
 //   out UI.Cmd.Notebook.Close
@@ -82,6 +83,23 @@
     if (window.tsic.playSound) window.tsic.playSound('UI.Hover');
   }
 
+  // Where the pointer is, at about 60 Hz: the page under it leans a degree or two away from the eye.
+  // C++ traces it against the paper as it is posed right now (AScpNotebookView::SetHoverPointer).
+  var hoverPending = null;
+  var hoverTimer = null;
+  function flushHover() {
+    hoverTimer = null;
+    if (!hoverPending) return;
+    window.tsic.publishMessage('UI.Cmd.Notebook.Hover', hoverPending);
+    hoverPending = null;
+  }
+  function hover(ev) {
+    hoverPending = ev
+      ? { X: ev.clientX / Math.max(1, window.innerWidth), Y: ev.clientY / Math.max(1, window.innerHeight) }
+      : { X: -1, Y: -1 };
+    if (!hoverTimer) hoverTimer = setTimeout(flushHover, 16);
+  }
+
   function jump(page) {
     window.tsic.publishMessage('UI.Cmd.Notebook.Turn', { Delta: 0, Page: page, X: -1, Y: -1 });
   }
@@ -125,6 +143,8 @@
         if (ev.button === 0) click(ev);
         else if (ev.button === 2) turn(-1, ev);
       });
+      els.layer.addEventListener('pointermove', function (ev) { hover(ev); });
+      els.layer.addEventListener('pointerleave', function () { hover(null); });
       els.layer.addEventListener('contextmenu', function (ev) { ev.preventDefault(); });
       document.addEventListener('keydown', onKey, true);
 
@@ -143,6 +163,9 @@
 
     onHide: function () {
       visible = false;
+      // The book is going away; nothing is under the pointer any more.
+      hover(null);
+      flushHover();
     },
   });
 })();

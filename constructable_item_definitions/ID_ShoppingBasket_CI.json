@@ -9,8 +9,11 @@
     "description": "Placeable storage with 8 slots. Dismantle with a Basic Screwdriver Tool. Made at the Crafting Table.\nEight slots of storage light enough to carry anywhere.",
     "stackable": true,
     "weight": 0.5,
-    "static_item_definition": "FD_ShoppingBasket_SI",
+    "static_item_definition": "FD_ShoppingBasketFlat_SI",
     "furniture_to_construct": "FD_ShoppingBasket_ST",
-    "max_stack_size": 10
+    "max_stack_size": 10,
+    "inventory_layout": {
+      "cells": [ { "x": 0, "y": 0 }, { "x": 1, "y": 0 }, { "x": 0, "y": 1 }, { "x": 1, "y": 1 } ]
+    }
   }
 }

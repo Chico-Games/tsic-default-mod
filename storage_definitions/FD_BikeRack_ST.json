@@ -9,13 +9,15 @@
       "offset": {
         "x": 0.0,
         "y": 0.0,
-        "z": 40.0
+        "z": 42.0
       },
-      "yaw": 0.0,
-      "width": 100.0,
-      "depth": 100.0,
-      "camera_distance": 0.0,
-      "camera_pitch": 0.0
+      "yaw": 90.0,
+      "width": 50.0,
+      "depth": 26.0,
+      "camera_distance": 300.0,
+      "camera_pitch": -55.0,
+      "b_upright": true,
+      "slots": 4
     },
     "inventory_loot": null,
     "gameplay_event_tag": "UI.GameScreen.Storage",
@@ -75,7 +77,7 @@
     "drag_linear_damping": 5.0,
     "drag_mass": 1.0,
     "drag_max_angular_velocity": 90.0,
-    "drag_tier": 1,
+    "drag_tier": 0,
     "friction": 0.699999988079071,
     "furniture_armour": 2,
     "gameplay_tags": [],
@@ -95,7 +97,7 @@
           "roll": 0
         },
         "box_size": {
-          "x": 53.0,
+          "x": 32.0,
           "y": 17.0,
           "z": 23.1
         }
@@ -114,12 +116,13 @@
           "roll": 0
         },
         "box_size": {
-          "x": 53.0,
+          "x": 32.0,
           "y": 17.0,
           "z": 23.1
         }
       }
     ],
-    "destructible_collection": "/Game/Furniture/MidCentury/BikeRack/GeometryCollections/GCS_BikeRack.GCS_BikeRack"
+    "destructible_collection": "/Game/Furniture/MidCentury/BikeRack/GeometryCollections/GCS_BikeRack.GCS_BikeRack",
+    "contents_always_visible": true
   }
 }

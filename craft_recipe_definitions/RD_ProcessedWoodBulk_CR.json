@@ -7,13 +7,13 @@
     "recipe_tags": [],
     "input": [
       {
-        "key": "ID_WoodenDowel_CM",
+        "key": "ID_WoodenPlank_CM",
         "value": 6
       }
     ],
     "output": [
       {
-        "key": "ID_WoodenPlank_CM",
+        "key": "ID_SawnPlank_CM",
         "value": 5
       }
     ],
