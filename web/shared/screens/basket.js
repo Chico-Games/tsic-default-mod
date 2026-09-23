@@ -355,12 +355,13 @@
       // The page is the cursor authority: this overlay sits on top of the game viewport and
       // eats every mouse event, so the viewport's own cursor cache never moves while a screen
       // is up. Moves go over at ~30 Hz as viewport fractions; buttons carry the position too.
-      // Shift travels with the event: C++ reads it on the click, so it has to be the state at the
-      // moment of the press, not whatever the key is doing when the message arrives.
+      // Shift and Ctrl travel with the event: C++ reads them on the click, so they have to be the
+      // state at the moment of the press, not whatever the keys are doing when the message arrives.
       const frac = (ev) => ({
         X: ev.clientX / Math.max(1, window.innerWidth),
         Y: ev.clientY / Math.max(1, window.innerHeight),
         bShift: !!ev.shiftKey,
+        bCtrl: !!ev.ctrlKey,
       });
       let moveTimer = null;
       let lastMove = null;
@@ -386,6 +387,11 @@
         ev.preventDefault();
         ctx.publish('UI.Cmd.Basket.Pointer', { Type: 2, Button: ev.button, ...frac(ev) });
       });
+      root.addEventListener('wheel', (ev) => {
+        ev.preventDefault();
+        // Type 3: one notch per event, up positive.
+        ctx.publish('UI.Cmd.Basket.Pointer', { Type: 3, Button: 0, Wheel: ev.deltaY < 0 ? 1 : -1, ...frac(ev) });
+      }, { passive: false });
       root.addEventListener('contextmenu', (ev) => ev.preventDefault());
 
       ctx.on('tsic.msg.UI.Basket.State', (state) => render(state || {}));
