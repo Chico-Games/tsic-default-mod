@@ -6,7 +6,7 @@
 
 TSICTestHarness.register({
     name: 'Focus/Engine: stamps data-tsic-input from UI.Input.Mode.Changed',
-    file: '/screens/inventory.html',
+    file: '/screens/test-focus.html',
     async run(ctx) {
         await ctx.waitFor(() => ctx.doc.documentElement.getAttribute('data-tsic-input'));
         ctx.expect(ctx.assert.eq(
@@ -22,7 +22,7 @@ TSICTestHarness.register({
 
 TSICTestHarness.register({
     name: 'Focus/Engine: initial focus picks [data-tsic-initial-focus] on Gamepad',
-    file: '/screens/inventory.html',
+    file: '/screens/test-focus.html',
     async run(ctx) {
         TSICTestHarness.fx.setupFixture(ctx,
             '<div data-tsic-focus-group="t">' +
@@ -39,7 +39,7 @@ TSICTestHarness.register({
 
 TSICTestHarness.register({
     name: 'Focus/Engine: per-screen memory restores last-focused on re-enable',
-    file: '/screens/inventory.html',
+    file: '/screens/test-focus.html',
     async run(ctx) {
         TSICTestHarness.fx.setupFixture(ctx,
             '<div data-tsic-focus-group="t">' +
@@ -61,7 +61,7 @@ TSICTestHarness.register({
 
 TSICTestHarness.register({
     name: 'Focus/Engine: spatial nav picks nearest in direction (3x3 grid)',
-    file: '/screens/inventory.html',
+    file: '/screens/test-focus.html',
     async run(ctx) {
         TSICTestHarness.fx.setupFixture(ctx,
             '<div id="grid" data-tsic-focus-group="g" style="position:fixed; inset:0;">' +
@@ -93,7 +93,7 @@ TSICTestHarness.register({
 
 TSICTestHarness.register({
     name: 'Focus/Engine: pressing past the edge is a no-op (no wrap)',
-    file: '/screens/inventory.html',
+    file: '/screens/test-focus.html',
     async run(ctx) {
         TSICTestHarness.fx.setupFixture(ctx,
             '<div data-tsic-focus-group="g" style="position:fixed; inset:0;">' +
@@ -115,7 +115,7 @@ TSICTestHarness.register({
 
 TSICTestHarness.register({
     name: 'Focus/Engine: ConfirmAccept clicks the focused element',
-    file: '/screens/inventory.html',
+    file: '/screens/test-focus.html',
     async run(ctx) {
         TSICTestHarness.fx.setupFixture(ctx,
             '<div data-tsic-focus-group="t"><button id="bx" data-tsic-initial-focus>X</button></div>');
@@ -133,7 +133,7 @@ TSICTestHarness.register({
 
 TSICTestHarness.register({
     name: 'Focus/Engine: pushScope constrains nav and popScope restores caller',
-    file: '/screens/inventory.html',
+    file: '/screens/test-focus.html',
     async run(ctx) {
         TSICTestHarness.fx.setupFixture(ctx,
             '<div data-tsic-focus-group="outer" style="position:fixed; inset:0;">' +
@@ -162,7 +162,7 @@ TSICTestHarness.register({
 
 TSICTestHarness.register({
     name: 'Focus/Engine: CancelBack pops scope but is a no-op at top level',
-    file: '/screens/inventory.html',
+    file: '/screens/test-focus.html',
     async run(ctx) {
         TSICTestHarness.fx.setupFixture(ctx,
             '<div data-tsic-focus-group="outer">' +
@@ -184,7 +184,7 @@ TSICTestHarness.register({
 
 TSICTestHarness.register({
     name: 'Focus/Engine: data-tsic-skip-focus excludes element from nav',
-    file: '/screens/inventory.html',
+    file: '/screens/test-focus.html',
     async run(ctx) {
         TSICTestHarness.fx.setupFixture(ctx,
             '<div data-tsic-focus-group="t" style="position:fixed; inset:0;">' +
@@ -203,7 +203,7 @@ TSICTestHarness.register({
 
 TSICTestHarness.register({
     name: 'Focus/Engine: zero-size elements are filtered from the focusable set',
-    file: '/screens/inventory.html',
+    file: '/screens/test-focus.html',
     async run(ctx) {
         TSICTestHarness.fx.setupFixture(ctx,
             '<div data-tsic-focus-group="t">' +
@@ -231,7 +231,7 @@ TSICTestHarness.register({
 
 TSICTestHarness.register({
     name: 'Focus/Engine: Gamepad mode publishes setInteractiveRects([])',
-    file: '/screens/inventory.html',
+    file: '/screens/test-focus.html',
     async run(ctx) {
         let lastRects = 'unset';
         ctx.win.tsic.setInteractiveRects = (rects) => { lastRects = rects; };
@@ -249,7 +249,7 @@ TSICTestHarness.register({
 
 TSICTestHarness.register({
     name: 'Focus/Engine: scrolls container when focused row falls below viewport',
-    file: '/screens/inventory.html',
+    file: '/screens/test-focus.html',
     async run(ctx) {
         ctx.doc.head.insertAdjacentHTML('beforeend', '<meta name="tsic-focus" content="enabled">');
         const rows = Array.from({ length: 30 }, (_, i) =>
@@ -286,7 +286,7 @@ TSICTestHarness.register({
 
 TSICTestHarness.register({
     name: 'Focus/Engine: Started always fires; Triggered burst is throttled',
-    file: '/screens/inventory.html',
+    file: '/screens/test-focus.html',
     async run(ctx) {
         TSICTestHarness.fx.setupFixture(ctx,
             '<div data-tsic-focus-group="t" style="position:fixed; inset:0;">' +

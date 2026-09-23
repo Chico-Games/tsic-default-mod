@@ -26,7 +26,6 @@
     display: none !important;      /* override inline display from screen CSS */
 }
 
-/* The overlay is deliberately full-viewport, HUD hotbar included. The bar is a read-only
- * mirror of the inventory's first cells; the cells the player edits are the hotbar strip
- * inside the panel. Lifting the overlay's bottom edge to expose the bar is what made the
- * two surfaces compete for the same gesture — see shared/screens/inventory.js. */
+/* The overlay is deliberately full-viewport, HUD hotbar included. Lifting the overlay's
+ * bottom edge to expose the bar is what made the bar and an open panel compete for the
+ * same gesture. */

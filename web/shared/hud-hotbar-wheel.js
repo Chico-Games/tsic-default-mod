@@ -15,20 +15,20 @@
 // axis), mouse via raw pointer movement. Whichever moved last wins, so a
 // player on a controller never has to touch the mouse and vice versa.
 //
-// The ring holds the eight hotbar cells plus a ninth FISTS entry at the bottom, which stows
-// whatever is held without moving the selection. It exists because there is no reserved fists
-// cell any more: on keyboard you stow by tapping the current number again, and a controller
-// needs the same escape hatch somewhere it can aim at.
+// The ring holds the hooks (the hotbar cells) plus one more FISTS entry at the bottom, which
+// stows whatever is held without moving the selection. It exists because there is no reserved
+// fists cell: on keyboard you stow by tapping the current number again, and a controller needs
+// the same escape hatch somewhere it can aim at.
 //
 // Channels:
 //   tsic.msg.UI.Behavior.HotbarWheel  { Phase }
-//   tsic.msg.UI.Hotbar.Changed        { NumSlots, SelectedSlot, SelectedSlotPending }
-//   tsic.msg.UI.Inventory.Updated     (OwnerId === 'Player') → icons/counts
+//   tsic.msg.UI.Hotbar.Changed        { NumSlots, SelectedSlot, SelectedSlotPending, Hooks[] }
+//     Hooks[i] is what hangs on hook i ({ ItemId, Count, ... }; empty ItemId = bare hook).
 // Publishes: UI.Cmd.Hotbar.Select { SlotIndex }, UI.Cmd.Hotbar.Stow {}
 // Depends on: shared/dom.js, shared/icons.js, shared/tsic-runtime.js
 (function () {
-  var DEFAULT_SLOT_COUNT = 8;
-  // Sentinel entry index for the fists wedge — never a grid cell.
+  var DEFAULT_SLOT_COUNT = 4;
+  // Sentinel entry index for the fists wedge — never a hook.
   var FISTS_ENTRY = -1;
   var RADIUS = 132;         // px from centre to slot centre
   var DEAD_ZONE = 34;       // px of travel before a direction counts as aimed
@@ -90,7 +90,7 @@
   var itemsBySlot = new Map();
   var open = false;
   var aimX = 0, aimY = 0;
-  // Currently aimed entry: a grid cell index, FISTS_ENTRY, or null while inside the dead zone.
+  // Currently aimed entry: a hook index, FISTS_ENTRY, or null while inside the dead zone.
   var aimEntry = null;
   var hostEl = null;
 
@@ -271,19 +271,11 @@
     tsic.whenReady(function () {
       tsic.on('tsic.msg.UI.Hotbar.Changed', function (p) {
         lastHotbar = p || null;
-        if (open) { hostEl = build(); hostEl.classList.add('open'); renderLabel(); }
-      });
-      tsic.on('tsic.msg.UI.Inventory.Updated', function (p) {
-        if (!p || p.OwnerId !== 'Player') return;
+        // Keyed by hook index, matching hud-hotbar.js: position is the identity.
         itemsBySlot = new Map();
-        var items = p.Items || [];
-        var total = slotCount();
-        for (var k = 0; k < items.length; k++) {
-          // Keyed by GridSlot to match hud-hotbar.js — the hotbar IS the leading grid cells.
-          var it = items[k];
-          if (it && typeof it.GridSlot === 'number' && it.GridSlot >= 0 && it.GridSlot < total) {
-            itemsBySlot.set(it.GridSlot, it);
-          }
+        var hooks = (p && p.Hooks) || [];
+        for (var k = 0; k < hooks.length; k++) {
+          if (hooks[k] && hooks[k].ItemId) itemsBySlot.set(k, hooks[k]);
         }
         if (open) { hostEl = build(); hostEl.classList.add('open'); renderLabel(); }
       });

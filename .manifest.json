@@ -1041,7 +1041,6 @@
     "inventory_rules_definitions": {
       "IRD_BookcaseStorage_200": "/Game/Items/Rules/IRD_BookcaseStorage_200",
       "IRD_BookcaseStorage_30": "/Game/Items/Rules/IRD_BookcaseStorage_30",
-      "IRD_PlayerStorageSlots": "/Game/Items/Rules/Customer/IRD_PlayerStorageSlots",
       "IRD_ShelfStorage_115": "/Game/Items/Rules/IRD_ShelfStorage_115",
       "IRD_ShelfStorage_400": "/Game/Items/Rules/IRD_ShelfStorage_400",
       "IRD_ShelfStorage_600": "/Game/Items/Rules/IRD_ShelfStorage_600",

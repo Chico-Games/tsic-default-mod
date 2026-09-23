@@ -12,8 +12,6 @@
     "static_item_definition": "FD_SawnPlank_SI",
     "item_category_tag": "Entity.Inventory.Item.Category.CraftingMaterial",
     "max_stack_size": 3,
-    "basket_zone": "Planks",
-    "basket_zone_capacity": 4,
     "inventory_layout": {
       "cells": [
         {
@@ -29,6 +27,7 @@
           "y": 2
         }
       ]
-    }
+    },
+    "storage_class": "wood"
   }
 }

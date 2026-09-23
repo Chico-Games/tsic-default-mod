@@ -1,9 +1,8 @@
 // shared/hud-hotbar.js — In-game HUD hotbar (the "showroom shelf").
 //
-// THE HOTBAR IS THE FOUR WEAPON SLOTS: the hooks on the front of the basket, which are grid cells
-// 0..NumSlots-1 of the player inventory (NumSlots comes from C++). It shows what hangs on each
-// hook and which one is in hand; nothing else in the bag appears here. Things are hung on the
-// hooks in the basket screen.
+// THE HOTBAR IS THE FOUR WEAPON SLOTS: the hooks on the front of the basket (NumSlots comes
+// from C++). It shows what hangs on each hook and which one is in hand; nothing else in the
+// basket appears here. Things are hung on the hooks in the basket view.
 //
 // It stays out of the way until it is used: drawing, stowing or changing what hangs on a hook
 // brings it up, and it fades out again after IDLE_MS.
@@ -18,8 +17,8 @@
 // shelf in exactly the same place.
 //
 // Channels:
-//   tsic.msg.UI.Hotbar.Changed    { NumSlots, SelectedSlot, SelectedSlotPending }
-//   tsic.msg.UI.Inventory.Updated (OwnerId === 'Player') → cell contents
+//   tsic.msg.UI.Hotbar.Changed    { NumSlots, SelectedSlot, SelectedSlotPending, Hooks[] }
+//     Hooks[i] is what hangs on hook i ({ ItemId, Count, LoadedAmmo, SpareAmmo }; empty ItemId = bare hook).
 // Commands published:
 //   UI.Cmd.Hotbar.Select { SlotIndex }   (re-selecting the current cell toggles stow/draw)
 // Depends on: window.TSIC.itemIconUrl (icons.js), window.tsic.itemName (catalog.js)
@@ -165,9 +164,8 @@
     return item.ItemId;
   }
 
-  // Hosted by whatever wraps the row — #hud-hotbar in the live HUD, #root on the standalone
-  // preview page. Keyed off the row rather than off #hud-hotbar by id so the two surfaces
-  // cannot drift: the caption exists wherever the shelf does.
+  // Hosted by whatever wraps the row (#hud-hotbar). Keyed off the row rather than off
+  // #hud-hotbar by id, so the caption exists wherever the shelf does.
   function nameEl() {
     var row = document.getElementById('hotbar-row');
     var host = row && row.parentNode;
@@ -234,9 +232,6 @@
         var selClass = (i === selected) ? ' selected' : (i === pending ? ' selected-inactive' : '');
         slot.className = 'tsic-slot' + selClass;
         slot.dataset.slot = String(i);
-        // The cell's position in the player grid. The bar takes no grid gestures, but the
-        // number is what makes it self-describing to tests and debug.
-        slot.dataset.grid = String(i);
         var item = playerItemsBySlot.get(i);
         if (item && item.ItemId) {
           // iconImg, not a hand-rolled <img>: item icons 404 on their first (cold)
@@ -276,8 +271,8 @@
   /**
    * Screens that draw the bag call setBagPanelOpen(true) on show and (false) on hide, so the
    * hotbar cells exist in exactly one place at a time: the strip inside that panel. The class
-   * name lives here with the rule that reads it; the standalone dev pages boot no HUD, so
-   * this is a harmless no-op there.
+   * name lives here with the rule that reads it; pages that boot no HUD have nothing for it
+   * to hide.
    */
   window.TSICHotbar = {
     setBagPanelOpen: function (open) {
@@ -302,24 +297,15 @@
         var newPending = (p && typeof p.SelectedSlotPending === 'number') ? p.SelectedSlotPending : -1;
         var used = !lastHotbar || newSel !== oldSel || newPending !== oldPending;
         lastHotbar = p || null;
-        update();
-        if (used) wake();
-      });
-      tsic.on('tsic.msg.UI.Inventory.Updated', function (p) {
-        if (!p || p.OwnerId !== 'Player') return;
+        // Keyed by hook: position is the identity.
         playerItemsBySlot = new Map();
-        var items = (p.Items || []);
-        var total = slotCount();
-        for (var k = 0; k < items.length; k++) {
-          // Keyed by GridSlot: the hotbar IS the leading cells, so position is the identity.
-          var it = items[k];
-          if (it && typeof it.GridSlot === 'number' && it.GridSlot >= 0 && it.GridSlot < total) {
-            playerItemsBySlot.set(it.GridSlot, it);
-          }
+        var hooks = (p && p.Hooks) || [];
+        for (var k = 0; k < hooks.length; k++) {
+          if (hooks[k] && hooks[k].ItemId) playerItemsBySlot.set(k, hooks[k]);
         }
         var before = lastContentKey;
         update();
-        if (before !== null && lastContentKey !== before) wake();
+        if (used || (before !== null && lastContentKey !== before)) wake();
       });
       // The catalog usually lands after the first hotbar snapshot, so the caption's first
       // render has only the id to work with. Re-render when the real names arrive.

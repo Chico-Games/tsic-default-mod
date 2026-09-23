@@ -194,25 +194,27 @@ TSICTestHarness.register({
 
 TSICTestHarness.register({
     name: 'Focus/Flick: right-stick flick jumps focus 4 steps in gamepad mode',
-    file: '/screens/inventory.html',
+    file: '/screens/storage.html',
     async run(ctx) {
         ctx.focus.disableSmoothScroll();
         ctx.focus.resetMemory();
-        ctx.inject('tsic.msg.UI.Screen.Changed', { Name: 'Inventory' });
         ctx.inject('tsic.msg.UI.Inventory.Updated', {
             OwnerId: 'Player', Items: [], MaxSlots: 32, GridWidth: 8, GridHeight: 4,
         });
-        await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid .tsic-slot'));
+        ctx.inject('tsic.msg.UI.Inventory.Updated', {
+            OwnerId: 'Storage:42', Items: [], MaxSlots: 32, GridWidth: 8,
+        });
+        await ctx.waitFor(() => ctx.doc.querySelector('#ss-player-bag .tsic-slot'));
         ctx.mode('Gamepad');
         await new Promise(r => setTimeout(r, 30));
-        const first = ctx.doc.querySelector('#inv-grid .tsic-slot[data-tsic-focusable]');
+        const first = ctx.doc.querySelector('#ss-player-bag .tsic-slot[data-tsic-focusable]');
         ctx.win.tsic.focus.focus(first);
         ctx.inject('tsic.msg.UI.Behavior.FocusFlickRight', { Phase: 'Started' });
         await new Promise(r => setTimeout(r, 30));
         const focused = ctx.doc.querySelector('.tsic-slot[data-tsic-focused]');
         ctx.expect(ctx.assert.truthy(focused, 'a cell has focus after the flick'));
-        // The bag band leads the column and starts at cell 8 — the hotbar cells are the
-        // strip underneath it.
+        // The player's bag band starts at cell 8 — the hotbar cells are the strip
+        // underneath it.
         ctx.expect(ctx.assert.eq(focused && focused.dataset.grid, '12',
             'flick right jumps 4 cells (8 -> 12)'));
     },

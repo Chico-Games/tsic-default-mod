@@ -57,7 +57,7 @@
 
     function emit(action, phase, value, onInject) {
         // Channel name keeps the IA_ prefix — every consumer in shared/
-        // (tsic-focus.js, inventory.html, map.html, etc.) subscribes with the
+        // (tsic-focus.js, map.html, etc.) subscribes with the
         // full name. Stripping IA_ here silently broke the entire input panel.
         onInject(`tsic.msg.UI.Input.${action}`, {
             Action: action,

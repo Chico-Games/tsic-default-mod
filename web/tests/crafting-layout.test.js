@@ -130,18 +130,20 @@ TSICTestHarness.register({
 // Scripts/webui-bench/layout.mjs, which measures every screen this way.
 
 TSICTestHarness.register({
-    name: 'Crafting/Layout: opening the inventory first does not resize the crafting panel',
+    name: 'Crafting/Layout: opening a container first does not resize the crafting panel',
     file: '/screens/in-game.html',
     async run(ctx) {
-        // Visit the bag, which is what injects the global grid stylesheet.
-        ctx.screen('Inventory');
+        // Visit a grid, which is what injects the global grid stylesheet.
+        ctx.screen('Storage');
         ctx.inject('tsic.msg.UI.Inventory.Updated', {
             OwnerId: 'Player', GridWidth: 8, GridHeight: 4, MaxSlots: 32,
             MaxWeight: 80, CurrentWeight: 4,
             Items: [{ InstanceId: 1, ItemId: 'ID_Wood', Count: 3, GridSlot: 0 }],
         });
-        ctx.inject('tsic.msg.UI.Hotbar.Changed', { NumSlots: 8, SelectedSlot: 0, SelectedSlotPending: -1 });
-        await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid .tsic-slot'), { timeout: 4000 });
+        ctx.inject('tsic.msg.UI.Inventory.Updated', {
+            OwnerId: 'Storage:31', GridWidth: 8, MaxSlots: 32, Items: [],
+        });
+        await ctx.waitFor(() => ctx.doc.querySelector('#ss-player-list .tsic-slot'), { timeout: 4000 });
 
         await openCrafting(ctx, recipes(60));
 
@@ -151,7 +153,7 @@ TSICTestHarness.register({
 
         // The scaffold must stay in flow. `position:fixed` here is the exact leak.
         ctx.expect(ctx.assert.eq(ctx.win.getComputedStyle(split).position, 'static',
-            'the panel body stays in flow after the inventory has been opened'));
+            'the panel body stays in flow after a grid has been opened'));
 
         // ...which is what keeps the list inside the panel and scrolling.
         ctx.expect(ctx.assert.truthy(pane.scrollHeight > pane.clientHeight + 1,
@@ -169,17 +171,20 @@ TSICTestHarness.register({
     name: 'Crafting/Layout: the stack-split dialog does not share a class with the panel scaffold',
     file: '/screens/in-game.html',
     async run(ctx) {
-        // The bag has to render first: the offending stylesheet is injected lazily by the
+        // A grid has to render first: the offending stylesheet is injected lazily by the
         // first grid render, so scanning before that would scan a document that cannot fail.
-        ctx.screen('Inventory');
+        ctx.screen('Storage');
         ctx.inject('tsic.msg.UI.Inventory.Updated', {
             OwnerId: 'Player', GridWidth: 8, GridHeight: 4, MaxSlots: 32,
             MaxWeight: 80, CurrentWeight: 1, Items: [],
         });
-        await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid .tsic-slot'), { timeout: 4000 });
+        ctx.inject('tsic.msg.UI.Inventory.Updated', {
+            OwnerId: 'Storage:31', GridWidth: 8, MaxSlots: 32, Items: [],
+        });
+        await ctx.waitFor(() => ctx.doc.querySelector('#ss-player-list .tsic-slot'), { timeout: 4000 });
         await openCrafting(ctx, recipes(4));
-        // One .tsic-split on screen: the crafting panel's own body. The inventory's split
-        // dialog is .tsic-split-dialog and must never match this.
+        // One .tsic-split on screen: the crafting panel's own body. The grid's split dialog
+        // is .tsic-split-dialog and must never match this.
         ctx.expect(ctx.assert.domCount(ctx.doc, '.tsic-split', 1));
         // And no stylesheet anywhere may take the scaffold out of flow.
         const offenders = ctx.win.eval(`(function(){

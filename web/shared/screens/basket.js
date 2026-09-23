@@ -1,14 +1,16 @@
-// Basket screen — the transparent overlay above the 3D shopping-basket inventory.
+// Basket screen — the transparent overlay above the 3D inventory.
 //
-// C++ (AScpBasketInventoryView) owns the basket, the item meshes, the cursor and every op. This
-// screen leaves the page clear so the world shows through, forwards mouse buttons (the CEF layer
-// eats them before the game can see them) and draws what a 3D scene cannot: the tooltip for the
-// stack under the cursor, the count badges over stacks, and the weight line.
-//   UI.Cmd.Basket.Pointer {Type, Button, X, Y}   button down (1) / up (2) over the overlay; X/Y -1 = the real cursor
-//   UI.Cmd.Basket.RequestState              on show
-//   UI.Basket.State                          hover/held names and counts, badges, weight
-// Left click: take the stack (or drop everything held). Right click: take one / drop one.
-// Release outside the basket drops the held stack into the world. Escape / I closes.
+// C++ (AScpContainerView) owns the player's containers on screen, the item meshes, the cursor and
+// every move. This screen leaves the page clear so the world shows through, forwards the pointer
+// and the keys (the CEF layer eats them before the game can see them) and draws what a 3D scene
+// cannot: the tooltip, what a release would do (spec §10's colour AND icon), the count badges and
+// the weight bar. The RMB options menu is drawn by the game (UMG), above this page.
+//   UI.Cmd.Basket.Pointer {Type, Button, X, Y, bShift, bCtrl, Wheel}  move 0 / down 1 / up 2 / wheel 3
+//   UI.Cmd.Basket.Key {Key}                   Tab, Q, One..Four
+//   UI.Cmd.Basket.Container {Name}            a tab: Basket, Hooks, Body, ColdBag, Backpack
+//   UI.Cmd.Basket.RequestState                on show
+//   UI.Basket.State                           hover/held, verdict, badges, weight
+// Escape / I closes.
 (function register() {
   if (!window.TSIC || typeof TSIC.registerScreen !== 'function') {
     setTimeout(register, 16);
@@ -40,9 +42,21 @@
     }
     [data-screen="Basket"] #bk-tip .bk-tip-name { font-weight: 700; }
     [data-screen="Basket"] #bk-tip .bk-tip-sub { font-size: 12px; opacity: 0.75; }
-    [data-screen="Basket"] #bk-tip.is-held { border-color: #1d4ed8; }
-    [data-screen="Basket"] #bk-tip.is-bad { border-color: #b91c1c; }
-    [data-screen="Basket"] #bk-tip.is-out { border-color: #b45309; }
+    [data-screen="Basket"] #bk-tip .bk-tip-icon { display: inline-block; min-width: 18px; font-weight: 700; }
+    /* What a release would do (spec §10): a colour and an icon, so it reads without the colour. */
+    [data-screen="Basket"] #bk-tip.v-place, [data-screen="Basket"] #bk-tip.v-merge { border-color: #3fa34d; }
+    [data-screen="Basket"] #bk-tip.v-partial { border-color: #d4a106; }
+    [data-screen="Basket"] #bk-tip.v-swap { border-color: #8b5cf6; }
+    [data-screen="Basket"] #bk-tip.v-blocked { border-color: #b91c1c; }
+    [data-screen="Basket"] #bk-tip.v-takeonly { border-color: #1d4ed8; }
+    [data-screen="Basket"] #bk-tip.v-locked { border-color: #6b7280; }
+    [data-screen="Basket"] #bk-tip.v-world { border-color: #b45309; }
+    [data-screen="Basket"] #bk-weight-bar { position: relative; height: 10px; margin-top: 5px; background: rgba(20,17,12,0.12);
+      border: 2px solid var(--ink-night, #14110c); }
+    [data-screen="Basket"] #bk-weight-bar i { position: absolute; left: 0; top: 0; bottom: 0; background: #3fa34d; }
+    [data-screen="Basket"] #bk-weight-bar.tier-1 i { background: #d4a106; }
+    [data-screen="Basket"] #bk-weight-bar.tier-2 i { background: #b91c1c; }
+    [data-screen="Basket"] #bk-weight-bar b { position: absolute; top: -4px; bottom: -4px; width: 2px; background: var(--ink-night, #14110c); }
     [data-screen="Basket"] #bk-status {
       position: absolute; left: 24px; bottom: 24px; padding: 8px 12px; pointer-events: none;
       background: rgba(252,249,241,0.92); color: var(--cat-ink-dark, #1a1611); border: 2px solid var(--ink-night, #14110c);
@@ -156,14 +170,14 @@
     <div id="bk-sew" hidden></div>
     <div id="bk-inspect" hidden></div>
     <div id="bk-tip" hidden></div>
-    <div id="bk-status"><div class="bk-title">Basket</div><div id="bk-slots"></div><div id="bk-weight"></div></div>
+    <div id="bk-status"><div class="bk-title">Basket</div><div id="bk-slots"></div><div id="bk-weight"></div>
+      <div id="bk-weight-bar"><i></i><b class="bk-notch-1"></b><b class="bk-notch-2"></b></div></div>
     <div id="bk-hints">
-      <div><b>Left click</b> take stack &middot; <b>Right click</b> take one</div>
-      <div>holding: <b>Left</b> drop all &middot; <b>Right</b> drop one &middot; <b>outside</b> drop to floor</div>
-      <div><b>Shift</b> + click sends a stack straight to the other side &middot; <b>Shift</b> + right sends one</div>
-      <div><b>hover a box</b> of screws or dowels to open it &middot; off the left-hand piles one comes at a time</div>
-      <div><b>click</b> a floor item to take it &middot; the <b>hooks</b> on the front hold weapons</div>
-      <div><b>Esc</b> / <b>I</b> close</div>
+      <div><b>Left</b> take the stack (a pile: that one) &middot; drag to move it &middot; <b>double-click</b> gather</div>
+      <div>holding: <b>Left</b> place all &middot; <b>Right</b> place one, or take one more &middot; <b>wheel</b> one more / one back</div>
+      <div><b>Ctrl</b>+Left take half &middot; <b>Shift</b>+Left send it where it goes &middot; <b>Q</b> drop the hovered stack</div>
+      <div><b>Right</b> on an item: options (eat) &middot; release <b>outside</b> drops it &middot; <b>click</b> a floor item to take it</div>
+      <div><b>Tab</b> basket / cold bag / backpack &middot; <b>1-4</b> hooks &middot; <b>Esc</b> / <b>I</b> close</div>
     </div>
   </div>`;
 
@@ -251,31 +265,53 @@
             (state.Making ? '<div class="bk-sew-makes">Makes ' + esc(state.Making) + '</div>' : ''));
       }
 
+      // spec §10: what a release would do, as an icon and a sentence.
+      const VERDICT = {
+        place: ['\u2713', 'Release to place'],
+        merge: ['\u2713', 'Release to add to the stack'],
+        partial: ['\u00bd', 'Only part fits; the rest stays in your hand'],
+        swap: ['\u21c4', 'Release to swap with what is there'],
+        blocked: ['\u2715', 'It cannot go here'],
+        takeonly: ['\u2191', 'Take from here only'],
+        locked: ['\ud83d\udd12', 'Locked while it works'],
+        world: ['\u2193', 'Release to drop it on the floor'],
+      };
+      // The hover tooltip waits 0.3 s (spec §15); what is held shows at once.
+      let hoverKey = '';
+      let hoverSince = 0;
+      let hoverTimer = null;
+
       function render(state) {
         last = state;
         renderTabs(state);
-        // Tooltip: the held stack wins over the hovered one.
         tip.className = '';
+        const key = state.HoverName ? state.HoverName + '|' + state.HoverCount + '|' + state.HoverCompartment : '';
+        if (key !== hoverKey) {
+          hoverKey = key;
+          hoverSince = performance.now();
+          if (hoverTimer) clearTimeout(hoverTimer);
+          hoverTimer = key ? setTimeout(() => render(last), 320) : null;
+        }
         if (state.HeldName) {
-          const where = state.bHeldOverBody ? (state.bHeldWearable ? 'Release to wear' : 'Cannot be worn')
-            : state.bDropOutside ? 'Release to drop on the floor'
-            : state.bHeldOverPeer ? (state.bDropValid ? `Release to put in ${esc(state.PeerLabel || 'storage')}` : `No room in ${esc(state.PeerLabel || 'storage')}`)
-            : state.bDropValid ? 'Release to place' : 'No room here';
+          const [icon, line] = VERDICT[state.DropVerdict] || VERDICT.blocked;
           tip.innerHTML = `<div class="bk-tip-name">${esc(state.HeldName)}${state.HeldCount > 1 ? ' &times; ' + state.HeldCount : ''}</div>` +
-            `<div class="bk-tip-sub">${esc(where)}</div>`;
-          tip.classList.add(state.bDropOutside ? 'is-out' : state.bDropValid ? 'is-held' : 'is-bad');
+            `<div class="bk-tip-sub"><span class="bk-tip-icon">${icon}</span>${esc(line)}</div>`;
+          tip.classList.add('v-' + (state.DropVerdict || 'blocked'));
           tip.hidden = false;
         } else if (state.HoverBodyPart && !state.HoverName) {
-          // On the doll, where nothing is worn.
           tip.innerHTML = `<div class="bk-tip-name">${esc(state.HoverBodyPart)}</div>` +
-            `<div class="bk-tip-sub">Nothing worn &middot; drag armour here</div>`;
+            `<div class="bk-tip-sub">Nothing worn &middot; drop something here to wear it</div>`;
           tip.hidden = false;
-        } else if (state.HoverName) {
-          const sub = state.bHoverWorn ? `Worn on ${esc(state.HoverBodyPart)} &middot; Left: take off`
-            : state.bHoverFixed ? 'Left: take one'
-            : `Left: take ${state.HoverCount > 1 ? 'stack' : 'it'}${state.HoverCount > 1 ? ' &middot; Right: take one' : ''}`;
+        } else if (state.HoverName && performance.now() - hoverSince >= 300) {
+          const facts = [];
+          if (state.HoverWeight > 0) facts.push(`weight ${Number(state.HoverWeight).toFixed(1)}`);
+          if (state.HoverMaxDurability > 0) facts.push(`${Math.round(state.HoverDurability)} / ${Math.round(state.HoverMaxDurability)} condition`);
+          const how = state.bHoverWorn ? `Worn &middot; drag it off to take it off`
+            : state.bHoverFixed ? 'Left: take this one &middot; Right: options'
+            : 'Left: take &middot; Ctrl: half &middot; Right: options';
           tip.innerHTML = `<div class="bk-tip-name">${esc(state.HoverName)}${state.HoverCount > 1 ? ' &times; ' + state.HoverCount : ''}</div>` +
-            `<div class="bk-tip-sub">${sub}</div>`;
+            (facts.length ? `<div class="bk-tip-sub">${esc(facts.join(' \u00b7 '))}</div>` : '') +
+            `<div class="bk-tip-sub">${how}</div>`;
           tip.hidden = false;
         } else {
           tip.hidden = true;
@@ -347,9 +383,17 @@
         const shown = (state.Containers || []).find((c) => c.Name === state.Container);
         root.querySelector('.bk-title').textContent = shown ? shown.Label : 'Basket';
         $('bk-slots').textContent = cap ? `Cells ${state.UsedSlots} / ${cap}` : '';
-        const over = state.MaxWeight > 0 && state.Weight > state.MaxWeight;
-        $('bk-weight').innerHTML = `Weight <span class="${over ? 'bk-over' : ''}">${Number(state.Weight || 0).toFixed(1)}</span>` +
-          (state.MaxWeight > 0 ? ` / ${Number(state.MaxWeight).toFixed(0)}` : '') + (over ? ' &middot; overburdened' : '');
+        // The weight bar (spec §9): the load against capacity, notched at 100% and 130%.
+        const tier = state.WeightTier || 0;
+        const capacity = Math.max(1, Number(state.MaxWeight) || 1);
+        const span = capacity * 1.5;
+        $('bk-weight').innerHTML = `Weight <span class="${tier ? 'bk-over' : ''}">${Number(state.Weight || 0).toFixed(1)}</span> / ${capacity.toFixed(0)}` +
+          (tier === 2 ? ' &middot; overburdened' : tier === 1 ? ' &middot; burdened' : '');
+        const bar = $('bk-weight-bar');
+        bar.className = 'tier-' + tier;
+        bar.querySelector('i').style.width = Math.min(100, (Number(state.Weight) || 0) / span * 100).toFixed(1) + '%';
+        bar.querySelector('.bk-notch-1').style.left = (100 / 1.5).toFixed(1) + '%';
+        bar.querySelector('.bk-notch-2').style.left = (130 / 1.5).toFixed(1) + '%';
       }
 
       // The page is the cursor authority: this overlay sits on top of the game viewport and
@@ -393,6 +437,16 @@
         ctx.publish('UI.Cmd.Basket.Pointer', { Type: 3, Button: 0, Wheel: ev.deltaY < 0 ? 1 : -1, ...frac(ev) });
       }, { passive: false });
       root.addEventListener('contextmenu', (ev) => ev.preventDefault());
+
+      // The keys the view answers (spec §15). Esc is the screen's own cancel binding.
+      const KEYS = { Tab: 'Tab', q: 'Q', Q: 'Q', 1: 'One', 2: 'Two', 3: 'Three', 4: 'Four' };
+      document.addEventListener('keydown', (ev) => {
+        if (!ctx.isVisible() || ev.repeat) return;
+        const name = KEYS[ev.key];
+        if (!name) return;
+        ev.preventDefault();
+        ctx.publish('UI.Cmd.Basket.Key', { Key: name });
+      });
 
       ctx.on('tsic.msg.UI.Basket.State', (state) => render(state || {}));
       ctx.on('tsic.msg.UI.Sewing.State', (state) => sewApply(state || {}));

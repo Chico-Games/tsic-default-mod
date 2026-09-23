@@ -81,18 +81,6 @@ TSICTestHarness.register({
     },
 });
 
-// ---- UI.Cmd.Equipment.Equip -------------------------------------------
-TSICTestHarness.register({
-    name: 'Channels/Equipment.Equip: covered by JS publish',
-    tags: ['channel', 'equipment'],
-    file: '/screens/inventory.html',
-    async run(ctx) {
-        ctx.win.tsic.publishMessage('UI.Cmd.Equipment.Equip', { ItemId: 'ID_X', SlotTag: 'Equip.Head' });
-        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Equipment.Equip',
-            { where: p => p.ItemId === 'ID_X' && p.SlotTag === 'Equip.Head' }));
-    },
-});
-
 // ---- UI.Cmd.Interaction.SetFocusedRects -------------------------------
 TSICTestHarness.register({
     name: 'Channels/Interaction.SetFocusedRects: covered',
@@ -135,13 +123,13 @@ TSICTestHarness.register({
 // router.js already publishes these on page lifecycle. We expect at least one
 // AppendModeTag on a page that declares tsic-input-mode.
 TSICTestHarness.register({
-    name: 'Channels/Input.AppendModeTag: router publishes on inventory load',
+    name: 'Channels/Input.AppendModeTag: screen-manager publishes when the basket mounts',
     tags: ['channel', 'input-bridge'],
-    file: '/screens/inventory.html',
+    file: '/screens/in-game.html',
     async run(ctx) {
         // The mode tag is appended when the screen MOUNTS (screen-manager),
-        // not at page load — the fixture page carries no tsic-input-mode meta.
-        ctx.screen('Inventory');
+        // not at page load.
+        ctx.screen('Basket');
         await ctx.waitFor(() => ctx.publishes().some(p => p.channel === 'UI.Cmd.Input.AppendModeTag'), { timeout: 2000 });
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Input.AppendModeTag',
             { where: p => p.Tag === 'InputMode.Menu.Inventory' }));
@@ -151,26 +139,10 @@ TSICTestHarness.register({
 TSICTestHarness.register({
     name: 'Channels/Input.RemoveModeTag: covered via fired publish',
     tags: ['channel', 'input-bridge'],
-    file: '/screens/inventory.html',
+    file: '/screens/in-game.html',
     async run(ctx) {
         ctx.win.tsic.publishMessage('UI.Cmd.Input.RemoveModeTag', { Tag: 'InputMode.Menu.Inventory' });
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Input.RemoveModeTag'));
-    },
-});
-
-// ---- UI.CharacterPreview.Ready ----------------------------------------
-TSICTestHarness.register({
-    name: 'Channels/CharacterPreview.Ready: inventory sets img src on Ready',
-    tags: ['channel', 'inventory'],
-    file: '/screens/inventory.html',
-    async run(ctx) {
-        ctx.screen('Inventory');
-        await ctx.waitFor(() => ctx.doc.getElementById('inv-char-img'));
-        ctx.inject('tsic.msg.UI.CharacterPreview.Ready', { bReady: true, ResolutionPx: 512 });
-        await new Promise(r => setTimeout(r, 150));
-        const img = ctx.doc.getElementById('inv-char-img');
-        ctx.expect(ctx.assert.domExists(ctx.doc, '#inv-char-img'));
-        ctx.expect(img.src.includes('character-preview.imgsrc') ? null : 'img src set after Ready');
     },
 });
 
@@ -202,7 +174,7 @@ TSICTestHarness.register({
 TSICTestHarness.register({
     name: 'Channels/Overlay.Changed: covered by inject',
     tags: ['channel', 'screen'],
-    file: '/screens/inventory.html',
+    file: '/screens/in-game.html',
     async run(ctx) {
         ctx.inject('tsic.msg.UI.Overlay.Changed', { Stack: ['QuantityPicker'] });
         await new Promise(r => setTimeout(r, 30));

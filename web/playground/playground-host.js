@@ -373,7 +373,7 @@
     const FOCUS_ENGINE_IDS = new Set([
         'boss-summoner', 'bug-report', 'cage', 'cheat-menu',
         'crafting', 'credits', 'death-screen',
-        'equipment', 'interaction', 'inventory', 'lore',
+        'equipment', 'interaction', 'lore',
         'main-menu', 'mods', 'new-store', 'pause-menu',
         'production', 'quantity-picker', 'repair', 'save-load',
         'selection', 'settings', 'storage', 'teleporter',
@@ -399,11 +399,11 @@
 
         'in-game': 'HUD',
         'crosshair': 'HUD', 'behavior-bar': 'HUD',
-        'hotbar': 'HUD', 'interaction': 'HUD', 'notifications': 'HUD', 'circular-progress': 'HUD',
+        'interaction': 'HUD', 'notifications': 'HUD', 'circular-progress': 'HUD',
         'detection': 'HUD', 'ping': 'HUD', 'ping-markers': 'HUD', 'stomach': 'HUD',
         'conditions': 'HUD',
 
-        'inventory': 'Inventory & Equipment', 'equipment': 'Inventory & Equipment',
+        'equipment': 'Inventory & Equipment',
         'wardrobe': 'Inventory & Equipment', 'quantity-picker': 'Inventory & Equipment',
 
         'crafting': 'Crafting & Building', 'production': 'Crafting & Building',

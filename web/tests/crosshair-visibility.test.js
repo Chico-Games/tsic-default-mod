@@ -41,7 +41,7 @@ TSICTestHarness.register({
         ctx.inject('tsic.msg.UI.Screen.Changed', { Name: 'InGame' });
         await ctx.waitFor(() => !ctx.doc.getElementById('hud-crosshair').classList.contains('hidden'));
 
-        ctx.inject('tsic.msg.UI.Screen.Changed', { Name: 'Inventory' });
+        ctx.inject('tsic.msg.UI.Screen.Changed', { Name: 'Basket' });
         await ctx.waitFor(() => ctx.doc.getElementById('hud-crosshair').classList.contains('hidden'));
 
         // The collar and bloom are crosshair furniture — leaving either behind

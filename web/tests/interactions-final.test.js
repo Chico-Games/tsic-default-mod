@@ -1,36 +1,5 @@
 // Last big sweep — focused on interactions and assertions not yet covered.
 
-// ---- Inventory drag-drop ---------------------------------------------
-TSICTestHarness.register({
-    name: 'Drag/Inventory: dropping cell A onto cell B publishes Move',
-    file: '/screens/inventory.html',
-    async run(ctx) {
-        ctx.screen('Inventory');
-        ctx.setItemCatalog({ ID_X: { Name: 'X', Category: 'Equipment' }, ID_Y: { Name: 'Y', Category: 'Equipment' } });
-        ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', GridWidth: 8, MaxSlots: 32, Items: [
-            { ItemId: 'ID_X', Count: 1, SlotIndex: 0, InstanceId: 1, GridSlot: 0 },
-            { ItemId: 'ID_Y', Count: 1, SlotIndex: 1, InstanceId: 2, GridSlot: 5 },
-        ]});
-        await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid .tsic-slot[data-grid="0"][data-instance="1"]')
-                              && ctx.doc.querySelector('#inv-grid .tsic-slot[data-grid="5"][data-instance="2"]'));
-        const src = ctx.doc.querySelector('#inv-grid .tsic-slot[data-grid="0"]');
-        const dst = ctx.doc.querySelector('#inv-grid .tsic-slot[data-grid="5"]');
-        ctx.expect(ctx.assert.truthy(src && dst));
-        // Pointer-based drag (CEF renders no native HTML5 drag ghost): real
-        // pointerdown → pointermove past the threshold → pointerup on target.
-        const f = src.getBoundingClientRect();
-        const t = dst.getBoundingClientRect();
-        const opt = (x, y) => ({ bubbles: true, cancelable: true, clientX: x, clientY: y, button: 0 });
-        ctx.clearPublishes();
-        src.dispatchEvent(new ctx.win.PointerEvent('pointerdown', opt(f.x + f.width / 2, f.y + f.height / 2)));
-        ctx.doc.dispatchEvent(new ctx.win.PointerEvent('pointermove', opt(f.x + f.width / 2 + 12, f.y + f.height / 2 + 12)));
-        ctx.doc.dispatchEvent(new ctx.win.PointerEvent('pointermove', opt(t.x + t.width / 2, t.y + t.height / 2)));
-        ctx.doc.dispatchEvent(new ctx.win.PointerEvent('pointerup', opt(t.x + t.width / 2, t.y + t.height / 2)));
-        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Inventory.Move',
-            { where: p => p.FromOwnerId === 'Player' && p.ToOwnerId === 'Player' && p.FromSlot === 0 && p.ToSlot === 5 }));
-    },
-});
-
 // ---- Stomach: opacity reflects remaining fraction ---------------------
 TSICTestHarness.register({
     name: 'Stomach: opacity scales with RemainingTime / Duration',

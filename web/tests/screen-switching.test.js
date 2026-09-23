@@ -12,7 +12,7 @@
 // Build/Gauntlet/suite-tiers.json, so it never runs.
 
 /** Every screen registered in the shell that this suite drives, with a screen to fall back to. */
-const SWITCH_SCREENS = ['Inventory', 'Crafting', 'Production', 'Storage'];
+const SWITCH_SCREENS = ['Basket', 'Crafting', 'Production', 'Storage'];
 
 function visibleOverlays(ctx) {
     return Array.from(ctx.doc.querySelectorAll('#screen-overlay-host [data-screen]'))
@@ -46,12 +46,12 @@ TSICTestHarness.register({
     async run(ctx) {
         await ctx.waitFor(() => ctx.doc.getElementById('hud-chrome'));
 
-        await showScreen(ctx, 'Inventory');
-        ctx.expect(ctx.assert.eq(visibleOverlays(ctx), ['Inventory'], 'inventory is the only overlay up'));
+        await showScreen(ctx, 'Basket');
+        ctx.expect(ctx.assert.eq(visibleOverlays(ctx), ['Basket'], 'the basket is the only overlay up'));
 
         await showScreen(ctx, 'Crafting');
-        ctx.expect(ctx.assert.eq(visibleOverlays(ctx), ['Crafting'], 'crafting replaced inventory'));
-        ctx.expect(ctx.assert.eq(ctx.doc.querySelector('[data-screen="Inventory"]').hidden, true,
+        ctx.expect(ctx.assert.eq(visibleOverlays(ctx), ['Crafting'], 'crafting replaced the basket'));
+        ctx.expect(ctx.assert.eq(ctx.doc.querySelector('[data-screen="Basket"]').hidden, true,
             'the outgoing screen is hidden, not merely covered'));
 
         // Two overlays both accepting clicks is the soft-lock shape: the top one takes
@@ -73,7 +73,7 @@ TSICTestHarness.register({
         await ctx.waitFor(() => ctx.doc.getElementById('hud-chrome'));
         ctx.clearPublishes();
 
-        await showScreen(ctx, 'Inventory');
+        await showScreen(ctx, 'Basket');
         const pushed = ctx.handle.publishes().filter(p => p.channel === 'UI.Cmd.Input.AppendModeTag');
         ctx.expect(ctx.assert.truthy(pushed.length > 0, 'opening a screen pushes an input-mode tag'));
 

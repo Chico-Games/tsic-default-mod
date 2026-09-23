@@ -5,7 +5,10 @@
   "schema_version": 2,
   "properties": {
     "inventory_rules": {
-      "whitelisted_items": [],
+      "whitelisted_items": [
+        "ID_MetalScrews_CM",
+        "ID_WoodenDowel_CM"
+      ],
       "blacklisted_items": [],
       "can_add_items": true,
       "can_remove_items": true,
@@ -13,12 +16,7 @@
       "b_can_exceed_capacity": false,
       "grid_width": 0,
       "grid_height": 0,
-      "basket_zones": true,
-      "accepted_zones": [
-        "Screws",
-        "Dowels"
-      ],
-      "zone_capacity": 20
+      "max_units": 20
     }
   }
 }

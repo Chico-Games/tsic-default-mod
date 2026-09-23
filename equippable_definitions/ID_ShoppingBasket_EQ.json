@@ -17,6 +17,9 @@
     "static_item_definition": "FD_ShoppingBasket_SI",
     "equipment_slot": "Entity.Inventory.Item.Equipment.Slot.Backpack",
     "item_category_tag": "Entity.Inventory.Item.Category.Armour",
-    "bonus_inventory_slots": 8
+    "backpack_grid": {
+      "x": 4,
+      "y": 2
+    }
   }
 }

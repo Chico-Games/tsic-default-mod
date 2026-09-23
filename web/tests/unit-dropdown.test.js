@@ -2,7 +2,7 @@
 
 TSICTestHarness.register({
     name: 'Dropdown/Unit: opens, picks, fires tsic-change, restores caller focus',
-    file: '/screens/inventory.html',
+    file: '/screens/test-focus.html',
     async run(ctx) {
         ctx.doc.head.insertAdjacentHTML('beforeend', '<meta name="tsic-focus" content="enabled">');
         ctx.doc.body.innerHTML =
@@ -37,7 +37,7 @@ TSICTestHarness.register({
 
 TSICTestHarness.register({
     name: 'Dropdown/Unit: cancel closes without committing and restores focus',
-    file: '/screens/inventory.html',
+    file: '/screens/test-focus.html',
     async run(ctx) {
         ctx.doc.head.insertAdjacentHTML('beforeend', '<meta name="tsic-focus" content="enabled">');
         ctx.doc.body.innerHTML =
@@ -67,7 +67,7 @@ TSICTestHarness.register({
 
 TSICTestHarness.register({
     name: 'Dropdown/Unit: options() repopulates and keeps selection if still valid',
-    file: '/screens/inventory.html',
+    file: '/screens/test-focus.html',
     async run(ctx) {
         ctx.doc.body.innerHTML =
             '<button id="dd" class="tsic-dropdown" ' +
@@ -90,7 +90,7 @@ TSICTestHarness.register({
 
 TSICTestHarness.register({
     name: 'Dropdown/Unit: re-open with current value initially focused (not first)',
-    file: '/screens/inventory.html',
+    file: '/screens/test-focus.html',
     async run(ctx) {
         ctx.doc.head.insertAdjacentHTML('beforeend', '<meta name="tsic-focus" content="enabled">');
         ctx.doc.body.innerHTML =

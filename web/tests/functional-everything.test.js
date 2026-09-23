@@ -47,16 +47,14 @@ TSICTestHarness.register({
     },
 });
 
-// ---- Hotbar with an empty inventory ------------------------------------
+// ---- Hotbar with bare hooks --------------------------------------------
 TSICTestHarness.register({
-    name: 'Hotbar: an empty inventory renders every cell empty',
-    file: '/screens/hotbar.html',
+    name: 'Hotbar: a payload with no Hooks renders every cell empty',
+    file: '/screens/in-game.html',
     async run(ctx) {
-        ctx.inject('tsic.msg.UI.Inventory.Updated',
-            { OwnerId: 'Player', MaxSlots: 32, GridWidth: 8, Items: [] });
-        ctx.inject('tsic.msg.UI.Hotbar.Changed', { NumSlots: 8, SelectedSlot: -1, SelectedSlotPending: 0 });
-        await ctx.waitFor(() => ctx.doc.querySelectorAll('#hotbar-row .tsic-slot').length === 8);
-        for (const s of ctx.doc.querySelectorAll('#hotbar-row .tsic-slot')) {
+        ctx.inject('tsic.msg.UI.Hotbar.Changed', { NumSlots: 4, SelectedSlot: -1, SelectedSlotPending: 0, Hooks: [] });
+        await ctx.waitFor(() => ctx.doc.querySelectorAll('#hud-hotbar #hotbar-row .tsic-slot').length === 4);
+        for (const s of ctx.doc.querySelectorAll('#hud-hotbar #hotbar-row .tsic-slot')) {
             ctx.expect(ctx.assert.falsy(s.querySelector('img'), 'no icon in an empty cell'));
             ctx.expect(ctx.assert.falsy(s.querySelector('.count'), 'no count in an empty cell'));
         }

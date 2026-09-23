@@ -70,28 +70,6 @@ TSICTestHarness.register({
 });
 
 TSICTestHarness.register({
-    name: 'Growing: post-harvest Inventory.Updated shows harvested crop in player inventory',
-    file: '/screens/inventory.html',
-    async run(ctx) {
-        ctx.screen('Inventory');
-        ctx.setItemCatalog({ ID_Tomato: { Name: 'Tomato', Category: 'Consumable', Weight: 0.1 } });
-        // Before harvest: empty.
-        ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', GridWidth: 8, Items: [], MaxSlots: 32, MaxWeight: 30, CurrentWeight: 0 });
-        await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid .tsic-slot'));
-        // Harvest fires: 3 tomatoes appear as a stack with a count badge.
-        ctx.inject('tsic.msg.UI.Inventory.Updated', {
-            OwnerId: 'Player', GridWidth: 8,
-            Items: [{ ItemId: 'ID_Tomato', Count: 3, InstanceId: 1, GridSlot: 0 }],
-            MaxSlots: 32, MaxWeight: 30, CurrentWeight: 0.3,
-        });
-        await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid .tsic-slot[data-instance="1"]'));
-        const cell = ctx.doc.querySelector('#inv-grid .tsic-slot[data-grid="0"]');
-        ctx.expect(ctx.assert.truthy(/3/.test((cell.querySelector('.count') || {}).textContent || ''),
-            `expected count badge 3 in harvested cell`));
-    },
-});
-
-TSICTestHarness.register({
     name: 'Growing: long-duration plant recipe at 0.001 progress still renders bar without layout glitch',
     file: '/screens/production.html',
     async run(ctx) {

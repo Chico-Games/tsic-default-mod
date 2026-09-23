@@ -159,7 +159,6 @@
                 const slot = TSIC.itemSlotLabel(out);
                 if (slot) stats.push(['SLOT', slot]);
                 if (out.Weight > 0) stats.push(['WEIGHT', `${out.Weight.toFixed(2)} kg`]);
-                if (out.BonusInventorySlots > 0) stats.push(['SLOTS', `+${out.BonusInventorySlots}`]);
                 if (out.MaxAmmo > 0) stats.push(['AMMO CAP', String(out.MaxAmmo)]);
                 if (out.BonusEntityDamage > 0) stats.push(['VS FURNITURE', `+${out.BonusEntityDamage}`]);
                 if (out.EntityDamageMultiplier > 0 && out.EntityDamageMultiplier !== 1) {

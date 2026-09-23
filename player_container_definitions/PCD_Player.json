@@ -1,0 +1,201 @@
+{
+  "id": "PCD_Player",
+  "class": "UScpPlayerContainersDefinition",
+  "schema_version": 2,
+  "properties": {
+    "private": [
+      {
+        "id": "basket.grid",
+        "layout": "Grid",
+        "width": 6,
+        "height": 6,
+        "accepts": [
+          "general"
+        ]
+      },
+      {
+        "id": "basket.pile.wood",
+        "layout": "Pile",
+        "capacity": 4,
+        "accepts": [
+          "wood"
+        ],
+        "strategy": "Lean",
+        "presentation": "lean"
+      },
+      {
+        "id": "basket.pile.cardboard",
+        "layout": "Pile",
+        "capacity": 4,
+        "accepts": [
+          "cardboard"
+        ],
+        "strategy": "Lean",
+        "presentation": "lean"
+      },
+      {
+        "id": "basket.pile.fabric",
+        "layout": "Pile",
+        "capacity": 6,
+        "accepts": [
+          "fabric"
+        ],
+        "strategy": "Drape",
+        "presentation": "drape"
+      },
+      {
+        "id": "basket.pile.fasteners",
+        "layout": "Pile",
+        "capacity": 20,
+        "accepts": [
+          "fasteners"
+        ],
+        "strategy": "Box",
+        "presentation": "box"
+      },
+      {
+        "id": "coldbag.grid",
+        "layout": "Grid",
+        "width": 3,
+        "height": 5,
+        "accepts": [
+          "cold"
+        ]
+      }
+    ],
+    "public": [
+      {
+        "id": "basket.hook.1",
+        "layout": "Slot",
+        "equipment_slot": "Entity.Inventory.Item.Equipment.Slot.Weapon",
+        "strategy": "Hang",
+        "presentation": "hang"
+      },
+      {
+        "id": "basket.hook.2",
+        "layout": "Slot",
+        "equipment_slot": "Entity.Inventory.Item.Equipment.Slot.Weapon",
+        "strategy": "Hang",
+        "presentation": "hang"
+      },
+      {
+        "id": "basket.hook.3",
+        "layout": "Slot",
+        "equipment_slot": "Entity.Inventory.Item.Equipment.Slot.Weapon",
+        "strategy": "Hang",
+        "presentation": "hang"
+      },
+      {
+        "id": "basket.hook.4",
+        "layout": "Slot",
+        "equipment_slot": "Entity.Inventory.Item.Equipment.Slot.Weapon",
+        "strategy": "Hang",
+        "presentation": "hang"
+      },
+      {
+        "id": "equip.head",
+        "layout": "Slot",
+        "equipment_slot": "Entity.Inventory.Item.Equipment.Slot.Head",
+        "bones": [
+          "head",
+          "neck_01"
+        ],
+        "strategy": "Worn",
+        "presentation": "worn"
+      },
+      {
+        "id": "equip.body",
+        "layout": "Slot",
+        "equipment_slot": "Entity.Inventory.Item.Equipment.Slot.Body",
+        "bones": [
+          "spine_03",
+          "spine_01"
+        ],
+        "strategy": "Worn",
+        "presentation": "worn"
+      },
+      {
+        "id": "equip.legs",
+        "layout": "Slot",
+        "equipment_slot": "Entity.Inventory.Item.Equipment.Slot.Legs",
+        "bones": [
+          "thigh_l",
+          "thigh_r",
+          "calf_l",
+          "calf_r"
+        ],
+        "strategy": "Worn",
+        "presentation": "worn"
+      },
+      {
+        "id": "equip.gloves",
+        "layout": "Slot",
+        "equipment_slot": "Entity.Inventory.Item.Equipment.Slot.Gloves",
+        "bones": [
+          "hand_l",
+          "hand_r"
+        ],
+        "strategy": "Worn",
+        "presentation": "worn"
+      },
+      {
+        "id": "equip.shoes",
+        "layout": "Slot",
+        "equipment_slot": "Entity.Inventory.Item.Equipment.Slot.Shoes",
+        "bones": [
+          "foot_l",
+          "foot_r"
+        ],
+        "strategy": "Worn",
+        "presentation": "worn"
+      },
+      {
+        "id": "equip.backpack",
+        "layout": "Slot",
+        "equipment_slot": "Entity.Inventory.Item.Equipment.Slot.Backpack",
+        "bones": [
+          "spine_05",
+          "clavicle_l",
+          "clavicle_r"
+        ],
+        "strategy": "Worn",
+        "presentation": "worn"
+      },
+      {
+        "id": "hand",
+        "layout": "Slot",
+        "accepts_any": true
+      }
+    ],
+    "backpack": {
+      "id": "backpack.grid",
+      "layout": "Grid",
+      "width": 1,
+      "height": 1,
+      "accepts": [
+        "general"
+      ]
+    },
+    "hand": "hand",
+    "pickup_order": [
+      "basket.hook.1",
+      "basket.hook.2",
+      "basket.hook.3",
+      "basket.hook.4",
+      "basket.pile.wood",
+      "basket.pile.cardboard",
+      "basket.pile.fabric",
+      "basket.pile.fasteners",
+      "basket.grid",
+      "backpack.grid",
+      "coldbag.grid"
+    ],
+    "hooks": [
+      "basket.hook.1",
+      "basket.hook.2",
+      "basket.hook.3",
+      "basket.hook.4"
+    ],
+    "base_carry_capacity": 50.0
+  }
+}

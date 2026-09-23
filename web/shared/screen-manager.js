@@ -12,8 +12,8 @@
 //
 // Screen modules register via:
 //
-//   TSIC.registerScreen('Inventory', {
-//     template: '<div id="inv-root">...</div>',
+//   TSIC.registerScreen('Basket', {
+//     template: '<div id="bk-root">...</div>',
 //     inputModeTag: 'InputMode.Menu.Inventory',   // optional
 //     cancelCmd:    'UI.Cmd.Pause.Resume',        // optional, default Pause.Resume
 //     actionBarContext: [ ... ],                  // optional, static menu-context entries

@@ -1027,9 +1027,6 @@
                 && itemInstance.Durability >= 0 && itemInstance.MaxDurability > 0) {
                 stat('CONDITION', Math.round((itemInstance.Durability / itemInstance.MaxDurability) * 100) + '%');
             }
-            if (itemDescriptor.BonusInventorySlots > 0 || (cmp && cmp.BonusInventorySlots > 0)) {
-                stat('SLOTS', String(itemDescriptor.BonusInventorySlots || 0), deltaOf('BonusInventorySlots'));
-            }
             if (itemDescriptor.MaxAmmo > 0 || (cmp && cmp.MaxAmmo > 0)) {
                 stat('AMMO CAP', String(itemDescriptor.MaxAmmo || 0), deltaOf('MaxAmmo'));
             }

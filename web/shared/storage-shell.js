@@ -54,14 +54,14 @@
     }
 
     const STYLE = [
-        // THE INVENTORY SCREEN, PLUS A CONTAINER COLUMN ON THE RIGHT. Everything to the left of
-        // the container — the panel's left edge, the tab row, the slot size, the bag's cells
-        // including its greyed backpack-preview cells, the weight bar, the rail — is drawn to
-        // the same measurements as screens/inventory.js, so opening a crate ADDS a column and
-        // moves nothing. It used to scope --tsic-slot down to 54px and drop the preview cells,
-        // which resized and reshaped the bag under the player's hands on every open.
+        // THE PLAYER'S BAG, PLUS A CONTAINER COLUMN ON THE RIGHT. Everything to the left of the
+        // container — the panel's left edge, the tab row, the slot size, the bag's cells
+        // including its greyed backpack-preview cells, the weight bar, the rail — keeps one set
+        // of measurements whatever is open. It used to scope --tsic-slot down to 54px and drop
+        // the preview cells, which resized and reshaped the bag under the player's hands on
+        // every open.
         //
-        // Panel hugs its content (like #inv-panel) instead of the inherited 60vw, which clipped
+        // Panel hugs its content instead of the inherited 60vw, which clipped
         // the container grid on narrower displays. max-height min(92vh, 100%): 92vh is the
         // look, 100% is the guarantee — a panel capped only against vh would run off the top
         // of a shorter overlay instead of scrolling.
@@ -71,9 +71,10 @@
         '#ss-panel .ss-band .spacer { flex:1; }',
         '#ss-panel .ss-band .slots-text { font-size:14px; letter-spacing:0.08em; color:rgba(37,33,25,0.65); }',
         // ONE sort plate, used twice — one per pane, sitting over the grid it sorts, at the
-        // same offset from that column's right edge. Identical to the inventory screen's.
-        // Sized in SLOTS, not pixels — see the matching note in screens/inventory.js. A fixed
-        // pixel size fits at --tsic-slot 68px and overflows the grid as the clamp shrinks.
+        // same offset from that column's right edge.
+        // Sized in SLOTS, not pixels: the pane header has to fit 6 slot-wide tabs, this and the
+        // slot count inside 8 slot columns. A fixed pixel size fits at --tsic-slot 68px and
+        // overflows the grid as the clamp shrinks; scaling with the slot keeps the ratio.
         '#ss-panel .ss-sort-btn {',
         '  box-sizing:border-box; align-self:center;',
         '  height: max(16px, calc(var(--tsic-slot) * 0.294));',
@@ -127,9 +128,7 @@
         '  cursor:default; font-size:15px; opacity:0.75;',
         '}',
         '#ss-panel .tsic-slot .lock-glyph { opacity:0.35; pointer-events:none; }',
-        // Stack count — the same chip as the inventory screen, including the measured
-        // geometry. See the long note in screens/inventory.js: this renders in Press Start 2P
-        // (ascent = 1em, descent = 0), so the digits' ink hangs below the em box and normal
+        // Stack count, with measured geometry. It renders in Press Start 2P (ascent = 1em, descent = 0), so the digits' ink hangs below the em box and normal
         // centring parks it on the chip's bottom edge. height + padding-bottom are what
         // actually centre it; line-height cancels out under align-items:center.
         '#ss-panel .tsic-slot .count {',
@@ -140,8 +139,7 @@
         '  border:1px solid rgba(10,10,10,0.85); pointer-events:none;',
         '}',
         '#ss-panel .tsic-slot .equip-badge { position:absolute; top:1px; left:2px; padding:1px 4px; line-height:1; font-size:11px; font-weight:700; color:#fff; background:var(--mag-red, #e60000); border:1px solid rgba(10,10,10,0.85); pointer-events:none; }',
-        // The hotbar strip under the player's bag — the SAME band the inventory screen draws
-        // (see screens/inventory.js), at the same offset, so opening a crate never moves it.
+        // The hotbar strip under the player's bag, set apart by a rule.
         '#ss-panel .ss-hotbar {',
         '  flex:0 0 auto; overflow:visible;',
         '  margin-top:12px; padding-top:12px; border-top:3px double rgba(10,10,10,0.5);',

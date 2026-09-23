@@ -1,7 +1,6 @@
 // Shared player inventory the recipe-style fixtures (crafting / production
-// / repair / upgrade) and the inventory fixture all read from. This is the
-// piece that makes "click craft → bread appears in inventory + ingredient
-// count drops" feel real.
+// / repair / upgrade) all read from. This is the piece that makes "click
+// craft → bread appears in inventory + ingredient count drops" feel real.
 //
 // Lives as a singleton on window.TSICPlaygroundInventory. Fixtures call
 // reset({items, maxSlots, maxWeight}) from initialState() to seed it, and

@@ -142,34 +142,6 @@ TSICTestHarness.register({
     },
 });
 
-// ---- After craft, Inventory.Updated decrements ingredient + adds output --
-TSICTestHarness.register({
-    name: 'Crafting/E2E: post-craft Inventory.Updated reflects materials consumed + output added',
-    file: '/screens/inventory.html',
-    async run(ctx) {
-        ctx.setItemCatalog({ ID_Wheat: { Name: 'Wheat', Category: 'CraftingMaterial' }, ID_Bread: { Name: 'Bread', Category: 'Consumable' } });
-        ctx.screen('Inventory');
-        // Pre-craft: 5 wheat in cell 0.
-        ctx.inject('tsic.msg.UI.Inventory.Updated', {
-            OwnerId: 'Player', GridWidth: 8,
-            Items: [{ ItemId: 'ID_Wheat', Count: 5, InstanceId: 1, GridSlot: 0 }], MaxSlots: 32,
-        });
-        await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid .tsic-slot[data-instance="1"]'));
-        // Server processes craft (2 wheat → 1 bread).
-        ctx.inject('tsic.msg.UI.Inventory.Updated', {
-            OwnerId: 'Player', GridWidth: 8, Items: [
-                { ItemId: 'ID_Wheat', Count: 3, InstanceId: 1, GridSlot: 0 },
-                { ItemId: 'ID_Bread', Count: 1, InstanceId: 2, GridSlot: 1 },
-            ], MaxSlots: 32,
-        });
-        await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid .tsic-slot[data-instance="2"]'));
-        ctx.expect(ctx.assert.domCount(ctx.doc, '#inv-grid .tsic-slot[data-instance]', 2));
-        const wheatCell = ctx.doc.querySelector('#inv-grid .tsic-slot[data-instance="1"] .count');
-        ctx.expect(ctx.assert.truthy(wheatCell && wheatCell.textContent === '3',
-            `expected count badge 3 on the wheat cell, got: ${wheatCell && wheatCell.textContent}`));
-    },
-});
-
 // ---- The panel must fit the window, whatever the window is ----------------
 
 TSICTestHarness.register({

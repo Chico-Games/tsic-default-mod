@@ -1,9 +1,12 @@
 <!doctype html>
 <html lang="en"><head>
   <meta charset="utf-8">
-  <meta name="tsic-screen" content="Inventory">
+  <meta name="tsic-screen" content="TestFocus">
   <meta name="tsic-focus" content="enabled">
-  <title>Inventory</title>
+  <title>Test: focus engine</title>
+  <!-- Test-only host for the focus engine (shared/tsic-focus.js) and dropdown
+       (shared/tsic-dropdown.js). No screen mounts here: each scenario writes its
+       own fixture DOM into the empty body. -->
   <link rel="stylesheet" href="/shared/base.css">
   <link rel="stylesheet" href="/shared/components.css">
   <link rel="stylesheet" href="/shared/screen-manager.css">
@@ -15,15 +18,8 @@
   <script src="/shared/tsic-focus.js" defer></script>
   <script src="/shared/tsic-dropdown.js" defer></script>
   <script src="/shared/catalog.js" defer></script>
-  <script src="/shared/inventory.js" defer></script>
-  <script src="/shared/tab-filter.js" defer></script>
   <script src="/shared/screen-manager.js" defer></script>
-  <script src="/shared/screens/inventory.js" defer></script>
 </head>
 <body>
-  <!-- Standalone host for the SHARED inventory screen module (the same code
-       the in-game Root shell mounts) — no inline duplicate logic here. The
-       screen-manager shows the overlay on UI.Screen.Changed {Name:'Inventory'}
-       (in-game from C++; under the test harness via ctx.handle.screen()). -->
 </body>
 </html>

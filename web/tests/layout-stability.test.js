@@ -44,7 +44,7 @@ function items(n) {
     }));
 }
 
-// ── Inventory / Storage: the weight readout ────────────────────────────────
+// ── Storage: the weight readout ────────────────────────────────────────────
 //
 // "12.3/200 kg" is wider than "—" and than "1.0/200 kg". The readout sits at the right of
 // a space-between row with the yellow hovered-stack chip immediately left of it, so a
@@ -52,7 +52,7 @@ function items(n) {
 // that had not moved. The reservation is what this asserts.
 
 TSICTestHarness.register({
-    name: 'Layout/Inventory: the weight readout holds its box as the load changes',
+    name: 'Layout/Storage: the weight readout holds its box as the load changes',
     file: '/screens/in-game.html',
     async run(ctx) {
         ctx.setItemCatalog({
@@ -61,23 +61,26 @@ TSICTestHarness.register({
             ID_Bread: { Name: 'Bread', Category: 'Consumable' },
             ID_Wheat: { Name: 'Wheat', Category: 'CraftingMaterial' },
         });
-        ctx.screen('Inventory');
+        ctx.screen('Storage');
         const send = (list, weight) => ctx.inject('tsic.msg.UI.Inventory.Updated', {
             OwnerId: 'Player', GridWidth: 8, GridHeight: 4, MaxSlots: 32,
             MaxWeight: 200, CurrentWeight: weight, Items: list,
         });
+        ctx.inject('tsic.msg.UI.Inventory.Updated', {
+            OwnerId: 'Storage:31', GridWidth: 8, MaxSlots: 32, Items: [],
+        });
 
         send([], 0);
-        await ctx.waitFor(() => ctx.doc.querySelector('[data-screen="Inventory"] #inv-weight-text'),
+        await ctx.waitFor(() => ctx.doc.querySelector('#ss-panel #ss-weight-text'),
             { timeout: 4000 });
         await new Promise(r => setTimeout(r, 120));
-        const emptyText = box(ctx.doc.querySelector('[data-screen="Inventory"] #inv-weight-text'));
-        const emptyChip = box(ctx.doc.querySelector('[data-screen="Inventory"] #inv-stackw'));
+        const emptyText = box(ctx.doc.querySelector('#ss-panel #ss-weight-text'));
+        const emptyChip = box(ctx.doc.querySelector('#ss-panel #ss-stackw'));
 
         send(items(32), 128.4);
         await new Promise(r => setTimeout(r, 160));
-        const fullText = box(ctx.doc.querySelector('[data-screen="Inventory"] #inv-weight-text'));
-        const fullChip = box(ctx.doc.querySelector('[data-screen="Inventory"] #inv-stackw'));
+        const fullText = box(ctx.doc.querySelector('#ss-panel #ss-weight-text'));
+        const fullChip = box(ctx.doc.querySelector('#ss-panel #ss-stackw'));
 
         sameBox(ctx, emptyText, fullText, 'weight readout', ['x', 'w']);
         sameBox(ctx, emptyChip, fullChip, 'hovered-stack chip', ['x', 'w']);

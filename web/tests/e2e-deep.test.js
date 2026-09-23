@@ -1,22 +1,6 @@
 // Deeper end-to-end flows: state changes seen across multiple sequential
 // payloads on one page (server "acks" → page rerenders → user reacts again).
 
-// ---- Inventory state evolution ----------------------------------------
-TSICTestHarness.register({
-    name: 'E2E/Inventory: weight grows past warning, then overburdened',
-    file: '/screens/inventory.html',
-    async run(ctx) {
-        ctx.screen('Inventory');
-        // Current meter states: normal < 75%, warning >= 75%, overburdened
-        // strictly past MaxWeight (the bar pegs at 100% while the number counts on).
-        for (const [cur, expectedState] of [[1, 'normal'], [8, 'warning'], [12, 'overburdened']]) {
-            ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', Items: [], MaxSlots: 32, MaxWeight: 10, CurrentWeight: cur });
-            await ctx.waitFor(() => ctx.doc.getElementById('inv-meter').dataset.state === expectedState);
-            ctx.expect(ctx.assert.eq(ctx.doc.getElementById('inv-meter').dataset.state, expectedState));
-        }
-    },
-});
-
 // (Removed: 'E2E/ActionBar: rapid screen flips keep the right group visible'.
 //  That tested screen-based gameplay/menu-group toggling and the #bb-menu bar,
 //  which only existed in the deleted screens/action-bar.html. The live
@@ -61,26 +45,6 @@ TSICTestHarness.register({
         ctx.inject('tsic.msg.UI.UniversalStorage.Groups', { GroupNames: ['Lab'] });
         await ctx.waitFor(() => /Lab/.test(ctx.doc.body.textContent));
         ctx.expect(ctx.assert.truthy(/Lab/.test(ctx.doc.body.textContent)));
-    },
-});
-
-// ---- Inventory + Catalog late-arrival ---------------------------------
-TSICTestHarness.register({
-    name: 'E2E/Inventory: late item-catalog arrival re-renders with names',
-    file: '/screens/inventory.html',
-    async run(ctx) {
-        ctx.screen('Inventory');
-        ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', GridWidth: 8, MaxSlots: 32, MaxWeight: 50, CurrentWeight: 1, Items: [
-            { ItemId: 'ID_Late', Count: 1, InstanceId: 1, GridSlot: 0 },
-        ]});
-        await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid .tsic-slot[data-grid="0"] img'));
-        // Catalog arrives later — categorisation routes the item into Equip.
-        ctx.setItemCatalog({ ID_Late: { Name: 'Late', Category: 'Equipment' } });
-        await new Promise(r => setTimeout(r, 60));
-        // Rule 48: the Equip tab keeps the item visible (filters dim in place).
-        Array.from(ctx.doc.querySelectorAll('.tsic-tab')).find(e => e.textContent === 'Equip').click();
-        await new Promise(r => setTimeout(r, 30));
-        ctx.expect(ctx.assert.domExists(ctx.doc, '#inv-grid .tsic-slot[data-grid="0"] img'));
     },
 });
 

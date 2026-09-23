@@ -163,15 +163,15 @@ TSICTestHarness.register({
     async run(ctx) {
         const host = ctx.doc.createElement('div');
         ctx.doc.body.appendChild(host);
-        const candidate = { ItemId: 'ID_BigPack', Name: 'Big Pack', Category: 'Equipment', Weight: 3, BonusInventorySlots: 16 };
-        const worn = { ItemId: 'ID_SmallPack', Name: 'Small Pack', Weight: 2, BonusInventorySlots: 8 };
+        const candidate = { ItemId: 'ID_Rifle', Name: 'Rifle', Category: 'Equipment', Weight: 3, MaxAmmo: 30 };
+        const worn = { ItemId: 'ID_Pistol', Name: 'Pistol', Weight: 2, MaxAmmo: 22 };
         ctx.win.TSICInventory.renderInfoPanel(host, candidate, { Count: 1 }, worn);
 
         const text = host.textContent;
-        ctx.expect(ctx.assert.truthy(text.includes('SLOTS'), 'slots row present'));
-        ctx.expect(ctx.assert.truthy(text.includes('+8'), 'slot delta shown, got: ' + text));
+        ctx.expect(ctx.assert.truthy(text.includes('AMMO CAP'), 'ammo cap row present'));
+        ctx.expect(ctx.assert.truthy(text.includes('+8'), 'ammo cap delta shown, got: ' + text));
         ctx.expect(ctx.assert.truthy(text.includes('+1'), 'weight delta shown, got: ' + text));
-        ctx.expect(ctx.assert.truthy(text.includes('Small Pack'), 'names the compared item'));
+        ctx.expect(ctx.assert.truthy(text.includes('Pistol'), 'names the compared item'));
         host.remove();
     },
 });
@@ -183,7 +183,7 @@ TSICTestHarness.register({
         const host = ctx.doc.createElement('div');
         ctx.doc.body.appendChild(host);
         ctx.win.TSICInventory.renderInfoPanel(
-            host, { ItemId: 'ID_BigPack', Name: 'Big Pack', Weight: 3, BonusInventorySlots: 16 }, { Count: 1 }, null);
+            host, { ItemId: 'ID_Rifle', Name: 'Rifle', Weight: 3, MaxAmmo: 30 }, { Count: 1 }, null);
         ctx.expect(ctx.assert.truthy(!host.textContent.includes('vs equipped'), 'no comparison line'));
         host.remove();
     },

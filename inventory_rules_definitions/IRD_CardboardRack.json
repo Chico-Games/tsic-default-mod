@@ -5,7 +5,20 @@
   "schema_version": 2,
   "properties": {
     "inventory_rules": {
-      "whitelisted_items": [],
+      "whitelisted_items": [
+        "ID_WarehouseBox_6_CI",
+        "ID_WarehouseBox_7_CI",
+        "ID_WarehouseBox_8_CI",
+        "ID_WarehouseBox_9_CI",
+        "ID_WarehouseBox_10_CI",
+        "ID_WarehouseBox_11_CI",
+        "ID_WarehouseBox_12_CI",
+        "ID_WarehouseBox_13_CI",
+        "ID_WarehouseBox_14_CI",
+        "ID_WarehouseBox_15_CI",
+        "ID_WarehouseBox_16_CI",
+        "ID_WarehouseBox_17_CI"
+      ],
       "blacklisted_items": [],
       "can_add_items": true,
       "can_remove_items": true,
@@ -13,12 +26,7 @@
       "b_can_exceed_capacity": false,
       "grid_width": 4,
       "grid_height": 4,
-      "basket_zones": false,
-      "accepted_zones": [
-        "Cardboard"
-      ],
-      "zone_capacity": 20,
-      "max_units": 0
+      "max_units": 20
     }
   }
 }

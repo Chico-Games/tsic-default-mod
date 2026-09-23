@@ -3,96 +3,6 @@
 // simulated here (each scenario reloads a single page); instead these
 // scenarios drive multi-step interactions inside a single page.
 
-// ---- Inventory → RMB half-pick → place: the §6 cursor model end to end ----
-TSICTestHarness.register({
-    name: 'E2E/Inventory: RMB picks the larger half, release places a count-limited Move',
-    file: '/screens/inventory.html',
-    async run(ctx) {
-        ctx.screen('Inventory');
-        ctx.setItemCatalog({ ID_W: { Name: 'Wheat', Category: 'CraftingMaterial' } });
-        ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', GridWidth: 8,
-            Items: [{ ItemId: 'ID_W', Count: 7, InstanceId: 3, GridSlot: 0 }],
-            MaxSlots: 32, MaxWeight: 50, CurrentWeight: 1.4 });
-        await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid .tsic-slot[data-grid="0"] img'));
-        const slot = ctx.doc.querySelector('#inv-grid .tsic-slot[data-grid="0"]');
-        slot.dispatchEvent(new ctx.win.MouseEvent('contextmenu', { bubbles: true, cancelable: true, button: 2 }));
-        const held = ctx.win.TSICInventory.getHeld();
-        ctx.expect(ctx.assert.truthy(held && held.count === 4, 'RMB holds the larger half (7 -> 4)'));
-        ctx.clearPublishes();
-        const target = ctx.doc.querySelector('#inv-grid .tsic-slot[data-grid="3"]');
-        const r = target.getBoundingClientRect();
-        const o = { bubbles: true, cancelable: true, clientX: r.x + r.width / 2, clientY: r.y + r.height / 2, button: 0 };
-        target.dispatchEvent(new ctx.win.PointerEvent('pointerdown', o));
-        target.dispatchEvent(new ctx.win.PointerEvent('pointerup', o));
-        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Inventory.Move',
-            { where: p => p.ItemId === 3 && p.FromSlot === 0 && p.ToSlot === 3 && p.Count === 4 }));
-    },
-});
-
-// ---- Inventory → equip flow (shift-click = quick action) -----------------
-// Minecraft's shift-click resolution with no container open: ARMOUR goes to the paper doll,
-// everything else band-swaps between the hotbar row and the bag.
-TSICTestHarness.register({
-    name: 'E2E/Inventory: armour shift-click → Equip; paper doll reflects update',
-    file: '/screens/inventory.html',
-    async run(ctx) {
-        ctx.screen('Inventory');
-        ctx.setItemCatalog({ ID_Helmet: {
-            Name: 'Helmet', Category: 'Equipment',
-            EquipmentSlot: 'Entity.Inventory.Item.Equipment.Slot.Head',
-        } });
-        ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', GridWidth: 8, Items: [{ ItemId: 'ID_Helmet', Count: 1, InstanceId: 4, GridSlot: 0 }], MaxSlots: 32, MaxWeight: 50, CurrentWeight: 5 });
-        ctx.inject('tsic.msg.UI.Equipment.Updated', { OwnerId: 'Player', Slots: [{ SlotTag: 'Entity.Inventory.Item.Equipment.Slot.Head', ItemId: '', IconUrl: '' }] });
-        await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid .tsic-slot[data-grid="0"] img'));
-        const cell = ctx.doc.querySelector('#inv-grid .tsic-slot[data-grid="0"]');
-        cell.dispatchEvent(new ctx.win.MouseEvent('mouseenter', { bubbles: true }));
-        ctx.clearPublishes();
-        // Plain click picks the stack up; SHIFT-click is the quick action.
-        cell.dispatchEvent(new ctx.win.MouseEvent('click', { bubbles: true, cancelable: true, shiftKey: true }));
-        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Equipment.Equip', { where: p => p.ItemId === '4' }));
-        // Armour never band-swaps — the doll is its destination.
-        ctx.expect(ctx.assert.notPublished(ctx.handle, 'UI.Cmd.Inventory.Move'));
-        // Pretend C++ accepted and re-broadcasts equipment with the helmet worn.
-        ctx.inject('tsic.msg.UI.Equipment.Updated', { OwnerId: 'Player', Slots: [{ SlotTag: 'Entity.Inventory.Item.Equipment.Slot.Head', ItemId: 'ID_Helmet', IconUrl: '' }] });
-        await new Promise(r => setTimeout(r, 30));
-        ctx.expect(ctx.assert.truthy(ctx.doc.querySelector('#inv-doll .equip-slot img'), 'expected equipped slot to render an icon'));
-    },
-});
-
-TSICTestHarness.register({
-    name: 'E2E/Inventory: shift-click band-swaps a weapon between the hotbar and the bag',
-    file: '/screens/inventory.html',
-    async run(ctx) {
-        ctx.screen('Inventory');
-        ctx.setItemCatalog({ ID_Axe: {
-            Name: 'Axe', Category: 'Equipment',
-            EquipmentSlot: 'Entity.Inventory.Item.Equipment.Slot.Weapon',
-        } });
-        // Axe on the bar (cell 1), cells 0 and 2..7 free, cell 8 free in the bag.
-        ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', GridWidth: 8, Items: [{ ItemId: 'ID_Axe', Count: 1, InstanceId: 4, GridSlot: 1 }], MaxSlots: 32, MaxWeight: 50, CurrentWeight: 5 });
-        ctx.inject('tsic.msg.UI.Hotbar.Changed', { NumSlots: 8, SelectedSlot: 1, SelectedSlotPending: -1 });
-        await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid .tsic-slot[data-grid="1"] img'));
-        ctx.clearPublishes();
-        ctx.doc.querySelector('#inv-grid .tsic-slot[data-grid="1"]')
-            .dispatchEvent(new ctx.win.MouseEvent('click', { bubbles: true, cancelable: true, shiftKey: true }));
-        // On the bar -> first free bag cell (8). A weapon is not armour, so no Equip.
-        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Inventory.Move', {
-            where: p => p.FromSlot === 1 && p.ToSlot === 8 && p.ItemId === 4,
-        }));
-        ctx.expect(ctx.assert.notPublished(ctx.handle, 'UI.Cmd.Equipment.Equip'));
-
-        // Now the other way: from the bag it goes to the first free bar cell (0).
-        ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', GridWidth: 8, Items: [{ ItemId: 'ID_Axe', Count: 1, InstanceId: 4, GridSlot: 8 }], MaxSlots: 32, MaxWeight: 50, CurrentWeight: 5 });
-        await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid .tsic-slot[data-grid="8"] img'));
-        ctx.clearPublishes();
-        ctx.doc.querySelector('#inv-grid .tsic-slot[data-grid="8"]')
-            .dispatchEvent(new ctx.win.MouseEvent('click', { bubbles: true, cancelable: true, shiftKey: true }));
-        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Inventory.Move', {
-            where: p => p.FromSlot === 8 && p.ToSlot === 0 && p.ItemId === 4,
-        }));
-    },
-});
-
 // ---- Crafting → recipe info → craft -------------------------------------
 TSICTestHarness.register({
     name: 'E2E/Crafting: open station → recipe row click → enter publishes Recipe.Start',
@@ -218,25 +128,6 @@ TSICTestHarness.register({
         ctx.mode('Gamepad');
         await new Promise(r => setTimeout(r, 30));
         ctx.expect(ctx.assert.truthy(/gamepad/.test(ctx.doc.querySelector('.bb-key img').src)));
-    },
-});
-
-// ---- Inventory: hover feeds the info rail (the old hover context menu is gone) ----
-TSICTestHarness.register({
-    name: 'E2E/Inventory: hovering an item renders name + stats in the info rail',
-    file: '/screens/inventory.html',
-    async run(ctx) {
-        ctx.screen('Inventory');
-        ctx.setItemCatalog({ ID_Axe: { Name: 'Axe', Category: 'Equipment', Weight: 2.5 } });
-        ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', GridWidth: 8,
-            Items: [{ ItemId: 'ID_Axe', Count: 1, InstanceId: 4, GridSlot: 0 }],
-            MaxSlots: 32, MaxWeight: 50, CurrentWeight: 5 });
-        await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid .tsic-slot[data-grid="0"] img'));
-        ctx.doc.querySelector('#inv-grid .tsic-slot[data-grid="0"]')
-            .dispatchEvent(new ctx.win.MouseEvent('mouseenter', { bubbles: true }));
-        await ctx.waitFor(() => /Axe/.test(ctx.doc.getElementById('inv-info').textContent));
-        ctx.expect(ctx.assert.domText(ctx.doc, '#inv-info', /Axe/));
-        ctx.expect(ctx.assert.domText(ctx.doc, '#inv-info', /WEIGHT/));
     },
 });
 

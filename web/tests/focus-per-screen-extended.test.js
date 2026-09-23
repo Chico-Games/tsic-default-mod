@@ -38,30 +38,6 @@ TSICTestHarness.register(Object.assign({
     },
 }, focusOpts()));
 
-// -- inventory -------------------------------------------------------------
-TSICTestHarness.register(Object.assign({
-    name: 'Focus/Inventory: reachable + groups mutually reachable',
-    file: '/screens/inventory.html',
-    async run(ctx) {
-        ctx.inject('tsic.msg.UI.Item.Catalog', { Items: [
-            { ItemId: 'ID_Axe',   Name: 'Axe',   Category: 'Equipment',         Weight: 1.2 },
-            { ItemId: 'ID_Bread', Name: 'Bread', Category: 'Consumable',        Weight: 0.2 },
-            { ItemId: 'ID_Wheat', Name: 'Wheat', Category: 'CraftingMaterial',  Weight: 0.05 },
-        ] });
-        ctx.screen('Inventory');
-        ctx.inject('tsic.msg.UI.Inventory.Updated', {
-            OwnerId: 'Player', GridWidth: 8, MaxSlots: 32, MaxWeight: 30, CurrentWeight: 2,
-            Items: [
-                { ItemId: 'ID_Axe',   Count: 1, InstanceId: 1, GridSlot: 0 },
-                { ItemId: 'ID_Bread', Count: 3, InstanceId: 2, GridSlot: 1 },
-                { ItemId: 'ID_Wheat', Count: 8, InstanceId: 3, GridSlot: 2 },
-            ],
-        });
-        ctx.inject('tsic.msg.UI.Equipment.Updated', { OwnerId: 'Player', Slots: [] });
-        await TSICTestHarness.fx.runReachability(ctx);
-    },
-}, focusOpts()));
-
 // -- production ------------------------------------------------------------
 TSICTestHarness.register(Object.assign({
     name: 'Focus/Production: reachable + groups mutually reachable',

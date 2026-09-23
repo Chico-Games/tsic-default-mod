@@ -1,19 +1,5 @@
 // Stress / boundary tests — large payloads, malformed inputs, rapid bursts.
 
-// ---- Inventory: 200-stack stress ----------------------------------------
-TSICTestHarness.register({
-    name: 'Stress/Inventory: 200 stacks render as 200 occupied grid cells',
-    file: '/screens/inventory.html',
-    async run(ctx) {
-        ctx.screen('Inventory');
-        const items = [];
-        for (let i = 0; i < 200; i++) items.push({ ItemId: `ID_${i}`, Count: 1, InstanceId: i + 1, GridSlot: i });
-        ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', GridWidth: 8, Items: items, MaxSlots: 256 });
-        await ctx.waitFor(() => ctx.doc.querySelectorAll('#inv-grid .tsic-slot[data-instance]').length === 200, { timeout: 3000 });
-        ctx.expect(ctx.assert.domCount(ctx.doc, '#inv-grid .tsic-slot[data-instance]', 200));
-    },
-});
-
 // ---- Map: 100 icons / 20 players / 50 pings -----------------------------
 
 // ---- Action bar: 50 ability rows -----------------------------------------
@@ -139,27 +125,15 @@ TSICTestHarness.register({
     },
 });
 
-// ---- Inventory: empty payload renders empty-state hint ------------------
-TSICTestHarness.register({
-    name: 'Stress/Inventory: empty payload shows empty-state',
-    file: '/screens/inventory.html',
-    async run(ctx) {
-        ctx.screen('Inventory');
-        ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', GridWidth: 8, Items: [], MaxSlots: 32 });
-        await ctx.waitFor(() => ctx.doc.querySelectorAll('#inv-grid .tsic-slot').length > 0, { timeout: 2000 });
-        ctx.expect(ctx.assert.eq(ctx.doc.querySelectorAll('#inv-grid .tsic-slot[data-instance]').length, 0));
-    },
-});
-
 // ---- Hotbar: a payload with no NumSlots still renders the bar -----------
 TSICTestHarness.register({
     name: 'Stress/Hotbar: a payload missing NumSlots falls back to the shared default',
-    file: '/screens/hotbar.html',
+    file: '/screens/in-game.html',
     async run(ctx) {
-        // C++ always ships NumSlots; a truncated or pre-upgrade payload must not blank the bar.
+        // C++ always ships NumSlots; a truncated payload must not blank the bar.
         ctx.inject('tsic.msg.UI.Hotbar.Changed', { SelectedSlot: 0 });
-        await new Promise(r => setTimeout(r, 60));
-        ctx.expect(ctx.assert.eq(ctx.doc.querySelectorAll('#hotbar-row .tsic-slot').length, 8));
+        await ctx.waitFor(() => ctx.doc.querySelectorAll('#hud-hotbar #hotbar-row .tsic-slot').length > 0);
+        ctx.expect(ctx.assert.eq(ctx.doc.querySelectorAll('#hud-hotbar #hotbar-row .tsic-slot').length, 4));
     },
 });
 

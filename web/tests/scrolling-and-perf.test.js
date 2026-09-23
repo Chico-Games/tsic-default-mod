@@ -11,21 +11,6 @@
 
 // ---- Map: gamepad stick pan ---------------------------------------------
 
-// ---- Inventory list scroll: many populated rows -------------------------
-TSICTestHarness.register({
-    name: 'Scroll/Inventory: 100 stacks render as 100 occupied grid cells',
-    tags: ['scroll', 'inventory'],
-    file: '/screens/inventory.html',
-    async run(ctx) {
-        ctx.screen('Inventory');
-        const items = [];
-        for (let i = 0; i < 100; i++) items.push({ ItemId: 'ID_' + i, Count: 1, InstanceId: i + 1, GridSlot: i });
-        ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', GridWidth: 8, MaxSlots: 256, Items: items });
-        await ctx.waitFor(() => ctx.doc.querySelectorAll('#inv-grid .tsic-slot[data-instance]').length === 100, { timeout: 3000 });
-        ctx.expect(ctx.assert.domCount(ctx.doc, '#inv-grid .tsic-slot[data-instance]', 100));
-    },
-});
-
 // ---- Chat log: scroll preserves column-reverse order ---------------------
 TSICTestHarness.register({
     name: 'Scroll/Chat: 50 lines all render without crash',
@@ -147,31 +132,6 @@ TSICTestHarness.register({
 });
 
 // ---- Map: 200 icons with mix of categories render --------------------
-
-// ---- Inventory: hover-driven menu context publishes at sub-100ms cadence ---
-TSICTestHarness.register({
-    name: 'Perf/Inventory: rapid hover toggles do not stall the page',
-    tags: ['perf', 'inventory'],
-    file: '/screens/inventory.html',
-    async run(ctx) {
-        ctx.screen('Inventory');
-        ctx.setItemCatalog({ ID_X: { Name: 'X', Category: 'Equipment', Weight: 1 } });
-        ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', GridWidth: 8, MaxSlots: 32, MaxWeight: 50, CurrentWeight: 1, Items: [{ ItemId: 'ID_X', Count: 1, InstanceId: 1, GridSlot: 0 }] });
-        await ctx.waitFor(() => ctx.doc.querySelector('#inv-grid .tsic-slot[data-grid="0"] img'));
-        const slot = ctx.doc.querySelector('#inv-grid .tsic-slot[data-grid="0"]');
-        // Hover renders the info rail + weight chip in place (no per-hover
-        // publishes since the context menu redesign) — 100 toggles must stay fast.
-        const t0 = Date.now();
-        for (let i = 0; i < 50; i++) {
-            slot.dispatchEvent(new ctx.win.MouseEvent('mouseenter', { bubbles: true }));
-            slot.dispatchEvent(new ctx.win.MouseEvent('mouseleave', { bubbles: true }));
-        }
-        const elapsed = Date.now() - t0;
-        ctx.expect(ctx.assert.truthy(elapsed < 1000, `50 hover toggles took ${elapsed}ms`));
-        slot.dispatchEvent(new ctx.win.MouseEvent('mouseenter', { bubbles: true }));
-        ctx.expect(ctx.assert.domText(ctx.doc, '#inv-info', /X/));
-    },
-});
 
 // ---- Detection: many enemies + high mist -----------------------------
 TSICTestHarness.register({

@@ -12,8 +12,14 @@
     "static_item_definition": "FD_WoodenDowel_SI",
     "item_category_tag": "Entity.Inventory.Item.Category.CraftingMaterial",
     "max_stack_size": 50,
-    "basket_zone": "Dowels",
-    "basket_zone_capacity": 10,
-    "basket_zone_mesh": "/Game/Items/CraftingMaterials/HardwareBoxes/Meshes/SM_WoodenDowel.SM_WoodenDowel"
+    "storage_class": "fasteners",
+    "presentations": [
+      {
+        "key": "box",
+        "value": {
+          "mesh": "/Game/Items/CraftingMaterials/HardwareBoxes/Meshes/SM_WoodenDowel.SM_WoodenDowel"
+        }
+      }
+    ]
   }
 }

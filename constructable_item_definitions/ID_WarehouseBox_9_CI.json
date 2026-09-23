@@ -12,8 +12,6 @@
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_WarehouseBox_9_SI",
     "max_stack_size": 3,
-    "basket_zone": "Cardboard",
-    "basket_zone_capacity": 4,
     "inventory_layout": {
       "cells": [
         {
@@ -33,6 +31,15 @@
           "y": 1
         }
       ]
-    }
+    },
+    "storage_class": "cardboard",
+    "presentations": [
+      {
+        "key": "lean",
+        "value": {
+          "mesh": "/Game/Items/CraftingMaterials/Cardboard/Meshes/SM_CardboardBox_Flat.SM_CardboardBox_Flat"
+        }
+      }
+    ]
   }
 }

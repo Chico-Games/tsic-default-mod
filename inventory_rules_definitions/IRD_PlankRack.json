@@ -5,7 +5,10 @@
   "schema_version": 2,
   "properties": {
     "inventory_rules": {
-      "whitelisted_items": [],
+      "whitelisted_items": [
+        "ID_WoodenPlank_CM",
+        "ID_SawnPlank_CM"
+      ],
       "blacklisted_items": [],
       "can_add_items": true,
       "can_remove_items": true,
@@ -13,12 +16,7 @@
       "b_can_exceed_capacity": false,
       "grid_width": 6,
       "grid_height": 3,
-      "basket_zones": false,
-      "accepted_zones": [
-        "Planks"
-      ],
-      "zone_capacity": 20,
-      "max_units": 0
+      "max_units": 20
     }
   }
 }

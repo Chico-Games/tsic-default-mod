@@ -29,7 +29,7 @@ anything spanning two surfaces — or depending on the z-order between them — 
 hid a real bug: the screen overlay (`#screen-overlay-host`, z-index 50, full-viewport,
 `pointer-events:auto`) sits above the HUD (z-index 20), so `elementFromPoint` can never reach a
 HUD drop target while a screen is open, and releases fell through to the world-drop path. For
-anything cross-surface, load `/screens/in-game.html` and call `ctx.screen('Inventory')` — that
+anything cross-surface, load `/screens/in-game.html` and call `ctx.screen('Storage')` — that
 gives the real shell with real stacking. See `tests/cross-surface-drag.test.js`.
 
 ## Architecture (where rendering actually lives)

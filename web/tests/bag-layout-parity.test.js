@@ -1,18 +1,13 @@
-// The bag must not move when a container opens.
+// The storage screen's bag column is a LAYOUT contract, not a description: the slot size is one
+// global clamp, the bag is a constant number of cells whatever backpack the player has, and the
+// pane header / grid / weight bar keep their measurements. It has been broken by storage scoping
+// --tsic-slot down to 54px and by storage omitting the greyed backpack-preview cells, and each
+// looked like "the UI jumps" rather than like a CSS bug. None of it is visible to a test that
+// only asserts what rendered; these measure.
 //
-// The storage screen is the inventory screen plus a container column. That is a LAYOUT
-// contract, not a description: the panel is top-left anchored, the slot size is one global
-// clamp, and the pane header / grid / weight bar are drawn to the same measurements on both
-// screens. Opening a crate adds a column to the right and moves nothing already on screen.
-//
-// It has been broken three separate ways — storage scoping --tsic-slot down to 54px, storage
-// omitting the greyed backpack-preview cells, and both panels being centred so a third column
-// slid the bag sideways — and every one of them looked like "the UI jumps" rather than like a
-// CSS bug. None of it is visible to a test that only asserts what rendered; these measure.
-//
-// Runs against the real shell so the HUD is present, exactly as in game. Both screens draw the
-// player's grid as two bands inside one column wrapper — the bag, then the hotbar strip under
-// it — so #inv-grid / #ss-player-list is the whole bag column on either screen.
+// Runs against the real shell so the HUD is present, exactly as in game. The player's grid is
+// two bands inside one column wrapper — the bag, then the hotbar strip under it — so
+// #ss-player-list is the whole bag column.
 
 function rect(ctx, sel) {
     const el = ctx.doc.querySelector(sel);
@@ -46,45 +41,6 @@ async function show(ctx, name, gridSel) {
 }
 
 TSICTestHarness.register({
-    name: 'BagLayout: the bag column is in the SAME place on the inventory and storage screens',
-    file: '/screens/in-game.html',
-    async run(ctx) {
-        ctx.setItemCatalog({
-            ID_Axe: { Name: 'Axe', Category: 'Equipment', Weight: 2 },
-            ID_Wood: { Name: 'Wood', Category: 'CraftingMaterial', Weight: 1 },
-        });
-
-        await show(ctx, 'Inventory', '#inv-grid');
-        const inv = {
-            panel: rect(ctx, '#inv-panel'),
-            header: rect(ctx, '.inv-panehdr'),
-            grid: rect(ctx, '#inv-grid'),
-            meter: rect(ctx, '#inv-meter'),
-            sort: rect(ctx, '#inv-sort'),
-        };
-
-        await show(ctx, 'Storage', '#ss-player-list');
-        const sto = {
-            panel: rect(ctx, '#ss-panel'),
-            header: rect(ctx, '#ss-panel .ss-panehdr'),
-            grid: rect(ctx, '#ss-player-list'),
-            meter: rect(ctx, '#ss-player-meter'),
-            sort: rect(ctx, '#ss-sort-player'),
-        };
-
-        // The panel's top-left corner is anchored, so everything hanging off it is fixed. Only
-        // the panel's WIDTH and HEIGHT may differ — that is the container column arriving.
-        ctx.expect(ctx.assert.eq(sto.panel.top, inv.panel.top, 'panel top is anchored'));
-        ctx.expect(ctx.assert.eq(sto.panel.left, inv.panel.left, 'panel left is anchored'));
-
-        for (const part of ['header', 'grid', 'meter', 'sort']) {
-            ctx.expect(ctx.assert.eq(JSON.stringify(sto[part]), JSON.stringify(inv[part]),
-                `the bag column's ${part} occupies the identical rect on both screens`));
-        }
-    },
-});
-
-TSICTestHarness.register({
     name: 'BagLayout: the bag is always 48 cells, whatever backpack tier the player has',
     file: '/screens/in-game.html',
     async run(ctx) {
@@ -97,22 +53,20 @@ TSICTestHarness.register({
         // shorter than an upgraded one and the panel jump as the player levelled.
         const TIER = 48;
         for (const maxSlots of [24, 32, 40, 48]) {
-            for (const [name, gridSel] of [['Inventory', '#inv-grid'], ['Storage', '#ss-player-list']]) {
-                await show(ctx, name, gridSel);
-                ctx.inject('tsic.msg.UI.Inventory.Updated', {
-                    OwnerId: 'Player', GridWidth: 8, MaxSlots: maxSlots,
-                    MaxWeight: 80, CurrentWeight: 12, Items: PLAYER_ITEMS,
-                });
-                await new Promise((r) => setTimeout(r, 80));
+            await show(ctx, 'Storage', '#ss-player-list');
+            ctx.inject('tsic.msg.UI.Inventory.Updated', {
+                OwnerId: 'Player', GridWidth: 8, MaxSlots: maxSlots,
+                MaxWeight: 80, CurrentWeight: 12, Items: PLAYER_ITEMS,
+            });
+            await new Promise((r) => setTimeout(r, 80));
 
-                const cells = ctx.doc.querySelectorAll(gridSel + ' .tsic-slot').length;
-                const locked = ctx.doc.querySelectorAll(gridSel + ' .tsic-slot.is-locked').length;
-                // Bag band + hotbar strip together — the column is the whole bag either way.
-                ctx.expect(ctx.assert.eq(cells, TIER,
-                    `${name} at ${maxSlots} slots: bag totals ${TIER} cells`));
-                ctx.expect(ctx.assert.eq(locked, TIER - maxSlots,
-                    `${name} at ${maxSlots} slots: ${TIER - maxSlots} of them are locked`));
-            }
+            const cells = ctx.doc.querySelectorAll('#ss-player-list .tsic-slot').length;
+            const locked = ctx.doc.querySelectorAll('#ss-player-list .tsic-slot.is-locked').length;
+            // Bag band + hotbar strip together — the column is the whole bag.
+            ctx.expect(ctx.assert.eq(cells, TIER,
+                `at ${maxSlots} slots: bag totals ${TIER} cells`));
+            ctx.expect(ctx.assert.eq(locked, TIER - maxSlots,
+                `at ${maxSlots} slots: ${TIER - maxSlots} of them are locked`));
         }
     },
 });
@@ -123,10 +77,11 @@ TSICTestHarness.register({
     async run(ctx) {
         ctx.setItemCatalog({ ID_Axe: { Name: 'Axe', Category: 'Equipment', Weight: 2 },
                              ID_Wood: { Name: 'Wood', Category: 'CraftingMaterial', Weight: 1 } });
-        await show(ctx, 'Inventory', '#inv-grid');
+        await show(ctx, 'Storage', '#ss-player-list');
 
-        const tabs = ctx.doc.querySelectorAll('#inv-tabs .tsic-tab');
-        const cells = ctx.doc.querySelectorAll('#inv-grid .tsic-slot');
+        // The container pane has no tabs, so these are the player pane's.
+        const tabs = ctx.doc.querySelectorAll('#ss-panel .ss-tabs .tsic-tab');
+        const cells = ctx.doc.querySelectorAll('#ss-player-list .tsic-slot');
         ctx.expect(ctx.assert.truthy(tabs.length >= 2 && cells.length >= tabs.length, 'tabs and cells present'));
 
         for (let i = 0; i < tabs.length; i++) {
@@ -139,7 +94,7 @@ TSICTestHarness.register({
         }
 
         // The strip must never wrap onto a second line — that would push the grid down and
-        // break the shared header height the storage screen matches.
+        // break the header height both panes share.
         const first = tabs[0].getBoundingClientRect();
         const last = tabs[tabs.length - 1].getBoundingClientRect();
         ctx.expect(ctx.assert.eq(+last.top.toFixed(1), +first.top.toFixed(1),
@@ -176,46 +131,5 @@ TSICTestHarness.register({
         ctx.expect(ctx.assert.eq(+(cGrid.right - cSort.right).toFixed(1),
                                  +(pGrid.right - pSort.right).toFixed(1),
                                  'both SORT buttons are the same inset from their grid'));
-    },
-});
-
-TSICTestHarness.register({
-    name: 'BagLayout: the inventory rail leaves no dead space under the grid',
-    file: '/screens/in-game.html',
-    async run(ctx) {
-        ctx.setItemCatalog({ ID_Axe: { Name: 'Axe', Category: 'Equipment', Weight: 2 },
-                             ID_Wood: { Name: 'Wood', Category: 'CraftingMaterial', Weight: 1 } });
-        await show(ctx, 'Inventory', '#inv-grid');
-
-        // The rail (paper doll + character preview + info card) must never be TALLER than the
-        // bag column, or the panel runs on past the weight bar with nothing in the gap. The
-        // info card is the slack that absorbs it — it takes whatever the doll leaves.
-        const rail = rect(ctx, '.inv-rail');
-        const meter = rect(ctx, '#inv-meter');
-        ctx.expect(ctx.assert.eq(rail.bottom, meter.bottom,
-            'the rail ends level with the weight bar, not below it'));
-    },
-});
-
-TSICTestHarness.register({
-    name: 'BagLayout: both panels are exactly the same height',
-    file: '/screens/in-game.html',
-    async run(ctx) {
-        ctx.setItemCatalog({ ID_Axe: { Name: 'Axe', Category: 'Equipment', Weight: 2 },
-                             ID_Wood: { Name: 'Wood', Category: 'CraftingMaterial', Weight: 1 } });
-
-        await show(ctx, 'Inventory', '#inv-grid');
-        const inv = rect(ctx, '#inv-panel');
-        await show(ctx, 'Storage', '#ss-player-list');
-        const sto = rect(ctx, '#ss-panel');
-
-        // Everything above the footer is already identical, so the footers carry a shared
-        // min-height — without it the inventory's seven hint chips wrap to two rows while
-        // storage's six sit on one under a much wider panel, and the two panels close 10px
-        // apart. Opening a container must not change the window's height any more than it
-        // changes the bag's position.
-        ctx.expect(ctx.assert.eq(sto.height, inv.height,
-            `panels are the same height (inventory ${inv.height}, storage ${sto.height})`));
-        ctx.expect(ctx.assert.eq(sto.top, inv.top, 'and they start at the same y'));
     },
 });

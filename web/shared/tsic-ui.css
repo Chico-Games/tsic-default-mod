@@ -74,7 +74,7 @@
        recipe list extends past where it should instead of having a scroll bar" (#151),
        while the list is in fact scrolling correctly inside a panel nobody can see the end
        of. min() keeps the intent — don't let the panel pinch — without letting it overflow
-       the thing it lives in. Same guarantee #inv-panel spells out for itself. */
+       the thing it lives in. */
     min-width: min(720px, 100%);
     max-height: min(760px, 100%);
     min-height: min(420px, 100%);

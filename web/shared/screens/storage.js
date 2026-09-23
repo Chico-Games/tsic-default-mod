@@ -15,7 +15,7 @@
     return;
   }
 
-  // Left-anchored and absolute like #inv-root, not the scrim's own position:fixed — a fixed
+  // Left-anchored and absolute, not the scrim's own position:fixed — a fixed
   // child escapes the screen overlay, whose bottom edge is lifted clear of the HUD hotbar
   // while the bar is acting as the player pane's first row.
   const TEMPLATE = '<div id="ss-root" class="tsic-modal-scrim tsic-modal-scrim--left"'

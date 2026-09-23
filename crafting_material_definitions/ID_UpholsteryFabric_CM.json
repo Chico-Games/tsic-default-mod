@@ -32,8 +32,14 @@
         }
       ]
     },
-    "basket_zone": "Fabric",
-    "basket_zone_capacity": 6,
-    "basket_zone_mesh": "/Game/Items/CraftingMaterials/ScrapFabric/Meshes/SM_ScrapFabric_Hung.SM_ScrapFabric_Hung"
+    "storage_class": "fabric",
+    "presentations": [
+      {
+        "key": "drape",
+        "value": {
+          "mesh": "/Game/Items/CraftingMaterials/ScrapFabric/Meshes/SM_ScrapFabric_Hung.SM_ScrapFabric_Hung"
+        }
+      }
+    ]
   }
 }

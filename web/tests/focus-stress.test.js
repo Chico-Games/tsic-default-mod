@@ -4,7 +4,7 @@
 
 TSICTestHarness.register({
     name: 'Focus/Stress: Mode flip rapidly does not lose focus memory',
-    file: '/screens/inventory.html',
+    file: '/screens/test-focus.html',
     async run(ctx) {
         TSICTestHarness.fx.setupFixture(ctx,
             '<div data-tsic-focus-group="t" style="position:fixed; inset:0;">' +
@@ -30,7 +30,7 @@ TSICTestHarness.register({
 
 TSICTestHarness.register({
     name: 'Focus/Stress: deadzone — small stick values do not move focus',
-    file: '/screens/inventory.html',
+    file: '/screens/test-focus.html',
     async run(ctx) {
         TSICTestHarness.fx.setupFixture(ctx,
             '<div data-tsic-focus-group="t" style="position:fixed; inset:0;">' +
@@ -54,7 +54,7 @@ TSICTestHarness.register({
 
 TSICTestHarness.register({
     name: 'Focus/Stress: diagonal stick — dominant axis wins',
-    file: '/screens/inventory.html',
+    file: '/screens/test-focus.html',
     async run(ctx) {
         TSICTestHarness.fx.setupFixture(ctx,
             '<div data-tsic-focus-group="t" style="position:fixed; inset:0;">' +
@@ -82,7 +82,7 @@ TSICTestHarness.register({
 
 TSICTestHarness.register({
     name: 'Focus/Stress: disabled element mid-list is skipped on nav',
-    file: '/screens/inventory.html',
+    file: '/screens/test-focus.html',
     async run(ctx) {
         TSICTestHarness.fx.setupFixture(ctx,
             '<div data-tsic-focus-group="t" style="position:fixed; inset:0;">' +
@@ -101,7 +101,7 @@ TSICTestHarness.register({
 
 TSICTestHarness.register({
     name: 'Focus/Stress: element that becomes disabled mid-nav resets to initial',
-    file: '/screens/inventory.html',
+    file: '/screens/test-focus.html',
     async run(ctx) {
         TSICTestHarness.fx.setupFixture(ctx,
             '<div data-tsic-focus-group="t" style="position:fixed; inset:0;">' +
@@ -133,7 +133,7 @@ TSICTestHarness.register({
 
 TSICTestHarness.register({
     name: 'Focus/Stress: hidden tab content is not navigable',
-    file: '/screens/inventory.html',
+    file: '/screens/test-focus.html',
     async run(ctx) {
         TSICTestHarness.fx.setupFixture(ctx,
             '<div data-tsic-focus-group="tabs" style="position:fixed; inset:0;">' +
@@ -157,7 +157,7 @@ TSICTestHarness.register({
 
 TSICTestHarness.register({
     name: 'Focus/Stress: scope-in-scope (modal opens nested modal)',
-    file: '/screens/inventory.html',
+    file: '/screens/test-focus.html',
     async run(ctx) {
         TSICTestHarness.fx.setupFixture(ctx,
             '<div data-tsic-focus-group="outer" style="position:fixed; inset:0;">' +
@@ -191,7 +191,7 @@ TSICTestHarness.register({
 
 TSICTestHarness.register({
     name: 'Focus/Stress: dynamic re-render — refresh after replacing DOM',
-    file: '/screens/inventory.html',
+    file: '/screens/test-focus.html',
     async run(ctx) {
         TSICTestHarness.fx.setupFixture(ctx,
             '<div id="host" data-tsic-focus-group="t" style="position:fixed; inset:0;">' +
@@ -222,7 +222,7 @@ TSICTestHarness.register({
 
 TSICTestHarness.register({
     name: 'Focus/Stress: confirm on a list row fires its click handler',
-    file: '/screens/inventory.html',
+    file: '/screens/test-focus.html',
     async run(ctx) {
         TSICTestHarness.fx.setupFixture(ctx,
             '<div data-tsic-focus-group="rows">' +
@@ -244,7 +244,7 @@ TSICTestHarness.register({
 
 TSICTestHarness.register({
     name: 'Focus/Stress: confirm in MouseAndKeyboard mode does nothing',
-    file: '/screens/inventory.html',
+    file: '/screens/test-focus.html',
     async run(ctx) {
         TSICTestHarness.fx.setupFixture(ctx,
             '<div data-tsic-focus-group="t"><button id="b" data-tsic-initial-focus>b</button></div>');
@@ -262,7 +262,7 @@ TSICTestHarness.register({
 
 TSICTestHarness.register({
     name: 'Focus/Stress: pressDir after switching to MouseAndKeyboard engages kbnav and moves focus',
-    file: '/screens/inventory.html',
+    file: '/screens/test-focus.html',
     async run(ctx) {
         TSICTestHarness.fx.setupFixture(ctx,
             '<div data-tsic-focus-group="t" style="position:fixed; inset:0;">' +
@@ -285,7 +285,7 @@ TSICTestHarness.register({
 
 TSICTestHarness.register({
     name: 'Focus/Stress: snapshot returns expected shape',
-    file: '/screens/inventory.html',
+    file: '/screens/test-focus.html',
     async run(ctx) {
         TSICTestHarness.fx.setupFixture(ctx,
             '<div data-tsic-focus-group="t"><button id="x" data-tsic-initial-focus>x</button><button id="y">y</button></div>');
@@ -303,7 +303,7 @@ TSICTestHarness.register({
 
 TSICTestHarness.register({
     name: 'Focus/Stress: very long list — every row reachable via repeated down',
-    file: '/screens/inventory.html',
+    file: '/screens/test-focus.html',
     async run(ctx) {
         const N = 25;
         let html = '<div data-tsic-focus-group="rows" style="position:fixed; inset:0;">';
@@ -332,7 +332,7 @@ TSICTestHarness.register({
 
 TSICTestHarness.register({
     name: 'Focus/Stress: empty page (no focusable) — engine does not throw',
-    file: '/screens/inventory.html',
+    file: '/screens/test-focus.html',
     async run(ctx) {
         ctx.doc.head.insertAdjacentHTML('beforeend', '<meta name="tsic-focus" content="enabled">');
         ctx.doc.body.innerHTML = '<p>No interactive widgets here.</p>';
@@ -345,7 +345,7 @@ TSICTestHarness.register({
 
 TSICTestHarness.register({
     name: 'Focus/Stress: Other / unknown mode names treated as MouseAndKeyboard',
-    file: '/screens/inventory.html',
+    file: '/screens/test-focus.html',
     async run(ctx) {
         TSICTestHarness.fx.setupFixture(ctx,
             '<div data-tsic-focus-group="t"><button id="b" data-tsic-initial-focus>b</button></div>');
@@ -365,7 +365,7 @@ TSICTestHarness.register({
 
 TSICTestHarness.register({
     name: 'Focus/Stress: pushScope with no initial picks first focusable in root',
-    file: '/screens/inventory.html',
+    file: '/screens/test-focus.html',
     async run(ctx) {
         TSICTestHarness.fx.setupFixture(ctx,
             '<div data-tsic-focus-group="t" style="position:fixed; inset:0;">' +
@@ -387,7 +387,7 @@ TSICTestHarness.register({
 
 TSICTestHarness.register({
     name: 'Focus/Stress: outside-click closes dropdown without committing',
-    file: '/screens/inventory.html',
+    file: '/screens/test-focus.html',
     async run(ctx) {
         ctx.doc.head.insertAdjacentHTML('beforeend', '<meta name="tsic-focus" content="enabled">');
         ctx.doc.body.innerHTML =
@@ -415,7 +415,7 @@ TSICTestHarness.register({
 
 TSICTestHarness.register({
     name: 'Focus/Stress: focus memory survives re-render of the same screen key',
-    file: '/screens/inventory.html',
+    file: '/screens/test-focus.html',
     async run(ctx) {
         TSICTestHarness.fx.setupFixture(ctx,
             '<div data-tsic-focus-group="t" style="position:fixed; inset:0;">' +
@@ -427,7 +427,7 @@ TSICTestHarness.register({
         ctx.win.tsic.focus.enable();
         ctx.mode('Gamepad'); await new Promise(r => setTimeout(r, 40));
         ctx.win.tsic.focus.focus('#z');
-        // Re-render the body — same screen key (still 'Inventory').
+        // Re-render the body — same screen key (still 'TestFocus').
         ctx.doc.body.innerHTML =
             '<div data-tsic-focus-group="t" style="position:fixed; inset:0;">' +
               '<button id="x" data-tsic-initial-focus style="position:absolute; left:0; top:0;">x</button>' +
@@ -444,7 +444,7 @@ TSICTestHarness.register({
 
 TSICTestHarness.register({
     name: 'Focus/Stress: pages without [data-tsic-initial-focus] still focus something',
-    file: '/screens/inventory.html',
+    file: '/screens/test-focus.html',
     async run(ctx) {
         ctx.doc.head.insertAdjacentHTML('beforeend', '<meta name="tsic-focus" content="enabled">');
         ctx.doc.body.innerHTML =
@@ -546,7 +546,7 @@ TSICTestHarness.register({
 
 TSICTestHarness.register({
     name: 'Focus/Stress: full mode → confirm → cancel cycle',
-    file: '/screens/inventory.html',
+    file: '/screens/test-focus.html',
     async run(ctx) {
         TSICTestHarness.fx.setupFixture(ctx,
             '<div data-tsic-focus-group="t" style="position:fixed; inset:0;">' +
