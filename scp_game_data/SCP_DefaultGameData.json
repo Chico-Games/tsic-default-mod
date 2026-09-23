@@ -5,6 +5,7 @@
   "schema_version": 2,
   "properties": {
     "front_end_map": "/Game/Core/Maps/L_MainMenu.L_MainMenu",
+    "default_storage_class": "general",
     "icon_asset_map": [],
     "ghost_material": "/Game/Furniture/Shared/Materials/ConstructionGhost/M_ConstructionGhost.M_ConstructionGhost",
     "post_process_stencil_material": "/Game/Fab/HandDrawingDemo/Materials/MI_Draw2.MI_Draw2",
