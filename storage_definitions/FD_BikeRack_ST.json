@@ -4,23 +4,31 @@
   "class": "UStorageDefinition",
   "schema_version": 2,
   "properties": {
-    "inventory_rules_definition": "IRD_BikeRack",
-    "storage_view": {
-      "offset": {
-        "x": 0.0,
-        "y": 0.0,
-        "z": 42.0
-      },
-      "yaw": 90.0,
-      "width": 50.0,
-      "depth": 26.0,
-      "camera_distance": 300.0,
-      "camera_pitch": -55.0,
-      "b_upright": true,
-      "slots": 4
-    },
-    "inventory_loot": null,
-    "gameplay_event_tag": "UI.GameScreen.Storage",
+    "compartments": [
+      {
+        "id": "main",
+        "layout": "Pile",
+        "capacity": 8,
+        "accepts": [
+          "cardboard"
+        ],
+        "strategy": "Upright",
+        "presentation": "upright",
+        "surface": {
+          "offset": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 42.0
+          },
+          "yaw": 90.0,
+          "width": 50.0,
+          "depth": 26.0,
+          "slots": 4,
+          "camera_distance": 300.0,
+          "camera_pitch": -55.0
+        }
+      }
+    ],
     "layer_name": "UI.Layer.GameMenu",
     "interaction_hold_time": 0.0,
     "interaction_prompt_text": "Open",
@@ -122,7 +130,6 @@
         }
       }
     ],
-    "destructible_collection": "/Game/Furniture/MidCentury/BikeRack/GeometryCollections/GCS_BikeRack.GCS_BikeRack",
-    "contents_always_visible": true
+    "destructible_collection": "/Game/Furniture/MidCentury/BikeRack/GeometryCollections/GCS_BikeRack.GCS_BikeRack"
   }
 }

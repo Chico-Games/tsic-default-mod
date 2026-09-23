@@ -30,7 +30,10 @@
       }
     ],
     "duration": 4.0,
-    "level": 1,
-    "crafting_bench_tags": []
+    "stations": [
+      "Station.ArmorBenchTier1",
+      "Station.ArmorBenchTier2",
+      "Station.ArmorBenchTier3"
+    ]
   }
 }

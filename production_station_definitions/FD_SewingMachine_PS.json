@@ -1,11 +1,9 @@
 {
   "id": "FD_SewingMachine_PS",
   "asset_path": "/Game/Furniture/Processing/SewingMachine/Furniture/FD_SewingMachine_PS",
-  "class": "USewingStationDefinition",
+  "class": "UInteractableFurnitureDefinition",
   "schema_version": 2,
   "properties": {
-    "max_recipes": 5,
-    "gameplay_event_tag": "UI.GameScreen.Production",
     "interaction_hold_time": 0,
     "interaction_prompt_text": "Sew",
     "has_static_audio": false,
@@ -116,7 +114,6 @@
     "release_angular_damping": 0.05000000074505806,
     "release_linear_damping": 0.009999999776482582,
     "restitution": 0.30000001192092896,
-    "available_recipe_rules_definition": "ARR_SewingMachineRecipes",
     "open_sound": "Station.Sewing.Open",
     "toggled_off_audio": {
       "sound": "Station.Machine.Cycle",
@@ -128,44 +125,72 @@
       "fade_in_time": 0.0,
       "fade_out_time": 0.0
     },
-    "inventory_rules_definition": "IRD_SewingBed",
-    "storage_view": {
-      "offset": {
-        "x": 0.78,
-        "y": 20.94,
-        "z": 19.0
+    "gameplay_event_tag": "UI.GameScreen.Inventory",
+    "compartments": [
+      {
+        "id": "bed",
+        "layout": "Grid",
+        "width": 2,
+        "height": 2,
+        "accepts": [
+          "fabric"
+        ],
+        "presentation": "flat",
+        "surface": {
+          "offset": {
+            "x": 0.8,
+            "y": 20.9,
+            "z": 19.0
+          },
+          "yaw": 0.0,
+          "width": 8.0,
+          "depth": 16.0,
+          "camera_distance": 200.0,
+          "camera_pitch": -50.0
+        }
       },
-      "yaw": 0.0,
-      "width": 16.0,
-      "depth": 16.0,
-      "camera_distance": 200.0,
-      "camera_pitch": -50.0
-    },
-    "action_label": "Sew",
-    "working_label": "Sewing",
-    "food_station": false,
-    "animated_mesh": "/Game/Furniture/SewingMachine/Meshes/SKM_SewingMachine.SKM_SewingMachine",
-    "seam_clip": "/Game/Furniture/SewingMachine/Animations/A_SewingHem.A_SewingHem",
-    "run_clip": "/Game/Furniture/SewingMachine/Animations/A_SewingRunSlow.A_SewingRunSlow",
-    "cloth_mesh": "/Game/Furniture/SewingMachine/Meshes/SKM_HemScrap.SKM_HemScrap",
-    "cloth_clip": "/Game/Furniture/SewingMachine/Animations/A_HemScrapCloth.A_HemScrapCloth",
-    "cloth_offset": {
-      "x": 0.0,
-      "y": 0.0,
-      "z": 0.0
-    },
-    "cloth_yaw": 0.0,
-    "minigame": {
-      "turns": 2.0,
-      "degrees_per_second": 180.0,
-      "ring_radius": 0.21,
-      "marker_radius": 0.055
-    },
-    "control_bone": "stitch_dial",
-    "animated_offset": {
-      "x": -0.72,
-      "y": 24.14,
-      "z": 0.75
+      {
+        "id": "outfeed",
+        "layout": "Grid",
+        "width": 3,
+        "height": 2,
+        "accepts": [
+          "fabric"
+        ],
+        "presentation": "flat",
+        "take_only": true,
+        "visible_when_empty": false,
+        "surface": {
+          "offset": {
+            "x": 0.8,
+            "y": 25.7,
+            "z": 19.0
+          },
+          "yaw": 0.0,
+          "width": 8.0,
+          "depth": 16.0
+        }
+      }
+    ],
+    "station": {
+      "recipe_tag": "Station.SewingMachine",
+      "input": "bed",
+      "output": "outfeed",
+      "trigger": {
+        "type": "Click_Bench"
+      },
+      "work": {
+        "type": "Attended"
+      },
+      "feedback": {
+        "vibrate": {
+          "amplitude": 0.15,
+          "hz": 18.0
+        },
+        "action_label": "Sew",
+        "anim": "/Game/Furniture/SewingMachine/Animations/A_SewingRunFast.A_SewingRunFast",
+        "anim_mesh": "/Game/Furniture/SewingMachine/Meshes/SKM_SewingMachine.SKM_SewingMachine"
+      }
     }
   }
 }

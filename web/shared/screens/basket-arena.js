@@ -1,9 +1,11 @@
-// Basket bench screen module — the setup sheet for the 3D basket inventory (F10 in L_BasketArena).
+// Container arena screen module (spec 16.2) — the setup sheet for the 3D containers (F10 in
+// L_BasketArena; in L_Dev_ContainerLab it shows the scenario presets only).
 //
 // C++ owns the loop: UI.Cmd.BasketArena.Toggle sweeps the floor and opens this screen; Apply
 // sends the whole setup back on UI.Cmd.BasketArena.Apply and C++ closes the screen, empties the
-// bag, wears the backpack, replaces the furniture slots, grants each bag row, drops each floor row
-// and opens the basket.
+// bag, wears the backpack, replaces the furniture slots (contents, parts, station state), grants
+// each bag row, drops each floor row, sets the clock and opens the basket. The scenario and world
+// buttons go out on UI.Cmd.BasketArena.Action.
 // Everything the sheet shows arrives on UI.BasketArena.State — the working setup, the saved
 // ones and the item lists — so this file holds no catalogue of its own.
 //
@@ -19,6 +21,40 @@
   const BAG_ROWS = 12;
   const FLOOR_ROWS = 6;
   const FURNITURE_SLOTS = ['Left', 'Middle', 'Right'];
+  const STATION_STATES = ['idle', 'working', 'done'];
+
+  // "tray: ID_Potato_CN x2, ID_CookingOil_CN" per line -> [{Compartment, ItemId, Count}]
+  function parseContents(text) {
+    const rows = [];
+    for (const line of String(text || '').split(/\n/)) {
+      const at = line.indexOf(':');
+      if (at < 0) continue;
+      const compartment = line.slice(0, at).trim();
+      for (const part of line.slice(at + 1).split(',')) {
+        const m = part.trim().match(/^(\S+)(?:\s*x\s*(\d+))?$/i);
+        if (compartment && m) rows.push({ Compartment: compartment, ItemId: m[1], Count: Math.max(1, parseInt(m[2], 10) || 1) });
+      }
+    }
+    return rows;
+  }
+  function formatContents(rows) {
+    const by = new Map();
+    for (const r of rows || []) {
+      if (isNone(r.ItemId)) continue;
+      const list = by.get(r.Compartment) || [];
+      list.push(r.Count > 1 ? `${r.ItemId} x${r.Count}` : r.ItemId);
+      by.set(r.Compartment, list);
+    }
+    return [...by].map(([c, list]) => `${c}: ${list.join(', ')}`).join('\n');
+  }
+  // "OvenDoor=1, Drawer1=0.5" -> [{Part, Open}]
+  function parseParts(text) {
+    return String(text || '').split(',').map((p) => p.trim().match(/^(\S+)\s*=\s*([\d.]+)$/)).filter(Boolean)
+      .map((m) => ({ Part: m[1], Open: Math.min(1, Math.max(0, parseFloat(m[2]) || 0)) }));
+  }
+  function formatParts(rows) {
+    return (rows || []).filter((r) => !isNone(r.Part)).map((r) => `${r.Part}=${r.Open}`).join(', ');
+  }
 
   const esc = (s) => String(s == null ? '' : s)
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -63,6 +99,12 @@
     [data-screen="BasketArena"] .bb-input--count { width: 52px; flex: 0 0 auto; }
     [data-screen="BasketArena"] .bb-input--cell { width: 46px; flex: 0 0 auto; }
     [data-screen="BasketArena"] .bb-input--name { flex: 1 1 auto; max-width: 260px; }
+    [data-screen="BasketArena"] .bb-input--comp { width: 96px; flex: 0 0 auto; }
+    [data-screen="BasketArena"] .bb-input--wide { flex: 1 1 auto; min-width: 0; resize: vertical; }
+    [data-screen="BasketArena"] .bb-furn { border-top: 1px dashed var(--tsic-border); padding-top: 6px; margin-top: 6px; }
+    [data-screen="BasketArena"] .bb-furn:first-of-type { border-top: 0; padding-top: 0; margin-top: 0; }
+    [data-screen="BasketArena"] #bb-scenario { flex: 1 1 auto; min-width: 0; }
+    [data-screen="BasketArena"] #bb-runstatus.is-bad { color: #b91c1c; }
     [data-screen="BasketArena"] .bb-meta { font-size: 11px; color: rgba(59,47,28,0.6); margin-top: 4px; }
     [data-screen="BasketArena"] .bb-check { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; cursor: pointer; user-select: none; margin-right: 10px; }
     [data-screen="BasketArena"] .bb-check input { margin: 0; }
@@ -105,7 +147,8 @@
     for (let i = 0; i < BAG_ROWS; i++) {
       html += `<div class="bb-row"><label for="bb-bag-${i}">Row ${i + 1}</label>` + combo(`bb-bag-${i}`, '(empty) — type an item') +
         `<input class="bb-input bb-input--count" id="bb-bagcount-${i}" type="number" min="1" max="999" value="1" title="Count">` +
-        `<input class="bb-input bb-input--cell" id="bb-bagcell-${i}" type="number" min="0" max="63" placeholder="cell" title="Anchor cell, blank = wherever it lands"></div>`;
+        `<input class="bb-input bb-input--cell" id="bb-bagcell-${i}" type="number" min="0" max="63" placeholder="cell" title="Anchor cell, blank = wherever it lands">` +
+        `<input class="bb-input bb-input--comp" id="bb-bagcomp-${i}" type="text" placeholder="compartment" title="Player compartment (basket.grid, coldbag, hook.1, worn.head...); blank = routed like a pickup"></div>`;
     }
     return html;
   }
@@ -119,15 +162,21 @@
   }
   function furnitureRows() {
     return FURNITURE_SLOTS.map((label, i) =>
-      `<div class="bb-row"><label for="bb-furn-${i}">${label}</label>` + combo(`bb-furn-${i}`, '(empty) — type a furniture piece') + '</div>').join('');
+      `<div class="bb-furn"><div class="bb-row"><label for="bb-furn-${i}">${label}</label>` + combo(`bb-furn-${i}`, '(empty) — type a furniture piece') + '</div>' +
+      `<div class="bb-row"><label for="bb-furnparts-${i}">Parts</label><input class="bb-input bb-input--wide" id="bb-furnparts-${i}" type="text" placeholder="OvenDoor=1, Drawer1=0.5"></div>` +
+      `<div class="bb-row"><label for="bb-furncont-${i}">Holds</label><textarea class="bb-input bb-input--wide" id="bb-furncont-${i}" rows="2" placeholder="tray: ID_Potato_CN x2, ID_CookingOil_CN"></textarea></div>` +
+      `<div class="bb-row"><label for="bb-furnstate-${i}">Station</label><select class="bb-input" id="bb-furnstate-${i}">` +
+      STATION_STATES.map((s) => `<option value="${s}">${s}</option>`).join('') + '</select>' +
+      `<input class="bb-input bb-input--count" id="bb-furnprog-${i}" type="number" min="0" max="100" value="0" title="Working: % already done">%` +
+      `<input class="bb-input bb-input--count" id="bb-furnburn-${i}" type="number" min="0" value="0" title="Done: seconds already on the burn clock">s burn</div></div>`).join('');
   }
 
   const TEMPLATE = `
     <div id="bb-root">
       <div id="bb-panel">
         <div id="bb-header">
-          <h2 class="tsic-title">Basket Bench</h2>
-          <span id="bb-status">Waiting for the bench…</span>
+          <h2 class="tsic-title">Container Arena</h2>
+          <span id="bb-status">Waiting for the arena…</span>
           <span class="bb-spacer"></span>
           <button class="tsic-button secondary" id="bb-close">Close</button>
           <button class="tsic-button" id="bb-apply" data-tsic-focusable data-tsic-initial-focus>Apply</button>
@@ -137,7 +186,9 @@
           <div class="bb-section" data-tsic-focus-group="bag">
             <h3>Bag</h3>
             ${bagRows()}
-            <div class="bb-meta">Granted in order into an emptied bag. A cell moves the stack there afterwards (row-major, 0 = top-left); an occupant swaps.</div>
+            <div class="bb-meta">Granted in order into an emptied bag. A compartment and cell put the stack there afterwards (row-major, 0 = top-left); an occupant swaps. Blank = routed like a pickup.</div>
+            <div class="bb-row" style="margin-top: 8px"><label for="bb-capacity">Carry</label>
+              <input class="bb-input bb-input--count" id="bb-capacity" type="number" min="0" value="0" title="Carry capacity; 0 = the default"><span class="bb-meta">capacity (0 = default)</span></div>
           </div>
           <div>
             <div class="bb-section" data-tsic-focus-group="floor">
@@ -148,7 +199,21 @@
             <div class="bb-section" data-tsic-focus-group="furniture" style="margin-top: 10px">
               <h3>Furniture</h3>
               ${furnitureRows()}
-              <div class="bb-meta">Spawned facing you on Apply, replacing the last ones. Drag them, open them, store things in them.</div>
+              <div class="bb-meta">Spawned facing you on Apply, replacing the last ones. Holds: one compartment per line. A working or done station locks in whatever its input makes.</div>
+            </div>
+            <div class="bb-section" data-tsic-focus-group="world" style="margin-top: 10px">
+              <h3>World</h3>
+              <div class="bb-row"><label for="bb-timeofday">Clock</label>
+                <input class="bb-input bb-input--count" id="bb-timeofday" type="number" min="-1" value="-1" title="Seconds into the day cycle; -1 leaves the clock alone">
+                <label for="bb-timescale">Speed</label>
+                <input class="bb-input bb-input--count" id="bb-timescale" type="number" min="0.1" step="0.1" value="1" title="Time scale, 1 = normal"></div>
+              <div class="bb-row">
+                <button class="tsic-button" data-action="AdvanceTime" data-arg="300">+5 min</button>
+                <button class="tsic-button" data-action="AdvanceTime" data-arg="3600">+1 h</button>
+                <button class="tsic-button" data-action="SaveLoad">Save + load</button>
+                <button class="tsic-button" data-action="WalkAway">Walk away &amp; back</button>
+                <button class="tsic-button" data-action="ClearFloor">Clear floor</button>
+              </div>
             </div>
             <div class="bb-section" data-tsic-focus-group="options" style="margin-top: 10px">
               <h3>Bag size</h3>
@@ -159,6 +224,21 @@
               <div class="bb-meta" id="bb-gridmeta"></div>
             </div>
           </div>
+        </div>
+
+        <div class="bb-section" id="bb-scenarios" data-tsic-focus-group="scenarios">
+          <h3>Scenarios</h3>
+          <div class="bb-row">
+            <label for="bb-scenario">Preset</label>
+            <select class="bb-input" id="bb-scenario"></select>
+            <button class="tsic-button" data-scenario="Preset" title="Set up the scenario, then play it by hand">Open preset</button>
+            <button class="tsic-button" data-scenario="Run" title="Run every step">Run &#9654;</button>
+            <button class="tsic-button" data-scenario="Step" title="Run one step each time Next step is pressed">Step mode</button>
+            <button class="tsic-button" data-action="NextStep">Next step</button>
+            <button class="tsic-button" data-action="Resume">Resume</button>
+            <button class="tsic-button secondary" data-action="Stop">Stop</button>
+          </div>
+          <div class="bb-meta" id="bb-runstatus"></div>
         </div>
 
         <div class="bb-section" id="bb-setups" data-tsic-focus-group="setups">
@@ -339,6 +419,7 @@
           $(`bb-bagcount-${i}`).value = Math.max(1, parseInt(r.Count, 10) || 1);
           const cell = parseInt(r.Cell, 10);
           $(`bb-bagcell-${i}`).value = Number.isFinite(cell) && cell >= 0 ? cell : '';
+          $(`bb-bagcomp-${i}`).value = isNone(r.Compartment) ? '' : r.Compartment;
         }
         const floor = s.Floor || [];
         for (let i = 0; i < FLOOR_ROWS; i++) {
@@ -347,7 +428,18 @@
           $(`bb-floorcount-${i}`).value = Math.max(1, parseInt(r.Count, 10) || 1);
         }
         const furniture = s.Furniture || [];
-        for (let i = 0; i < FURNITURE_SLOTS.length; i++) setComboValue(`bb-furn-${i}`, furniture[i], d.Furniture);
+        for (let i = 0; i < FURNITURE_SLOTS.length; i++) {
+          const f = furniture[i] || {};
+          setComboValue(`bb-furn-${i}`, f.Definition, d.Furniture);
+          $(`bb-furnparts-${i}`).value = formatParts(f.Parts);
+          $(`bb-furncont-${i}`).value = formatContents(f.Contents);
+          $(`bb-furnstate-${i}`).value = STATION_STATES.includes(f.StationState) ? f.StationState : 'idle';
+          $(`bb-furnprog-${i}`).value = Math.round((parseFloat(f.StationProgress) || 0) * 100);
+          $(`bb-furnburn-${i}`).value = parseFloat(f.BurnSeconds) || 0;
+        }
+        $('bb-capacity').value = parseFloat(s.WeightCapacity) || 0;
+        $('bb-timeofday').value = s.TimeOfDay == null ? -1 : s.TimeOfDay;
+        $('bb-timescale').value = parseFloat(s.TimeScale) > 0 ? s.TimeScale : 1;
         setComboValue('bb-backpack', s.Backpack, d.Backpacks);
         $('bb-openbasket').checked = s.bOpenBasket !== false;
         $('bb-name').value = s.Name || '';
@@ -356,12 +448,24 @@
       function readSetup() {
         const setup = {
           Name: $('bb-name').value.trim(), Bag: [], Floor: [], Backpack: comboValue('bb-backpack'), bOpenBasket: $('bb-openbasket').checked,
-          Furniture: FURNITURE_SLOTS.map((_, i) => comboValue(`bb-furn-${i}`)),
+          Furniture: FURNITURE_SLOTS.map((_, i) => ({
+            Definition: comboValue(`bb-furn-${i}`),
+            Parts: parseParts($(`bb-furnparts-${i}`).value),
+            Contents: parseContents($(`bb-furncont-${i}`).value),
+            StationState: $(`bb-furnstate-${i}`).value,
+            StationProgress: Math.min(100, Math.max(0, parseFloat($(`bb-furnprog-${i}`).value) || 0)) / 100,
+            BurnSeconds: Math.max(0, parseFloat($(`bb-furnburn-${i}`).value) || 0),
+          })),
+          WeightCapacity: Math.max(0, parseFloat($('bb-capacity').value) || 0),
+          TimeOfDay: parseFloat($('bb-timeofday').value),
+          TimeScale: parseFloat($('bb-timescale').value) > 0 ? parseFloat($('bb-timescale').value) : 1,
         };
+        if (!Number.isFinite(setup.TimeOfDay)) setup.TimeOfDay = -1;
         for (let i = 0; i < BAG_ROWS; i++) {
           const cellText = $(`bb-bagcell-${i}`).value.trim();
           const cell = cellText === '' ? -1 : parseInt(cellText, 10);
-          setup.Bag.push({ ItemId: comboValue(`bb-bag-${i}`), Count: Math.max(1, parseInt($(`bb-bagcount-${i}`).value, 10) || 1), Cell: Number.isFinite(cell) ? cell : -1 });
+          setup.Bag.push({ ItemId: comboValue(`bb-bag-${i}`), Count: Math.max(1, parseInt($(`bb-bagcount-${i}`).value, 10) || 1), Cell: Number.isFinite(cell) ? cell : -1,
+            Compartment: $(`bb-bagcomp-${i}`).value.trim() });
         }
         for (let i = 0; i < FLOOR_ROWS; i++) {
           setup.Floor.push({ ItemId: comboValue(`bb-floor-${i}`), Count: Math.max(1, parseInt($(`bb-floorcount-${i}`).value, 10) || 1), Cell: -1 });
@@ -397,13 +501,35 @@
         }
       }
 
+      function renderScenarios() {
+        const d = state.data || {};
+        const select = $('bb-scenario');
+        const keep = select.value;
+        select.replaceChildren(...(d.Scenarios || []).map((name) => TSIC.el('option', { value: name }, name)));
+        if ((d.Scenarios || []).includes(keep)) select.value = keep;
+        const run = $('bb-runstatus');
+        run.classList.remove('is-bad');
+        if (d.Scenario) {
+          const step = d.StepIndex >= 0 ? `step ${d.StepIndex + 1} of ${d.StepCount}${d.StepLabel ? ': ' + d.StepLabel : ''}` : 'setting up';
+          run.textContent = `${d.Scenario} — ${step}${d.bScenarioPaused ? ' (waiting for Next step)' : ''}`;
+        } else if (d.LastResult) {
+          run.textContent = `Last run: ${d.LastResult}`;
+          run.classList.toggle('is-bad', d.LastResult.indexOf(': failed') >= 0);
+        } else {
+          run.textContent = d.bHasLab ? 'Presets set a scenario up in the lab; F10 comes back here mid-run.'
+            : 'Scenario setups use the lab bays: open L_Dev_ContainerLab and press F10 to run them.';
+        }
+        root.querySelectorAll('[data-scenario]').forEach((b) => { b.disabled = !d.bHasLab || !!d.Scenario; });
+      }
+
       function renderStatus() {
         const d = state.data;
         const el = $('bb-status');
         const meta = $('bb-gridmeta');
-        if (!d) { el.textContent = 'Waiting for the bench…'; el.classList.remove('is-bad'); meta.textContent = ''; return; }
+        $('bb-apply').disabled = !(d && d.bHasArena);
+        if (!d) { el.textContent = 'Waiting for the arena…'; el.classList.remove('is-bad'); meta.textContent = ''; return; }
         if (!d.bHasArena) {
-          el.textContent = d.Message || 'Bench not ready';
+          el.textContent = d.Message || 'Arena not ready';
           el.classList.add('is-bad');
           meta.textContent = '';
           return;
@@ -420,7 +546,19 @@
         applySetup(p && p.Current);
         renderSaved();
         renderStatus();
+        renderScenarios();
       });
+
+      root.querySelectorAll('[data-scenario]').forEach((b) => b.addEventListener('click', () => {
+        const name = $('bb-scenario').value;
+        if (!name) { tsic.playSound('UI.Error', 0.4); return; }
+        ctx.publish('UI.Cmd.BasketArena.Action', { Action: b.getAttribute('data-scenario'), Arg: name });
+      }));
+      root.querySelectorAll('[data-action]').forEach((b) => b.addEventListener('click', () => {
+        const action = b.getAttribute('data-action');
+        const arg = action === 'TimeScale' ? $('bb-timescale').value : (b.getAttribute('data-arg') || '');
+        ctx.publish('UI.Cmd.BasketArena.Action', { Action: action, Arg: arg });
+      }));
 
       $('bb-apply').addEventListener('click', () => ctx.publish('UI.Cmd.BasketArena.Apply', { Setup: readSetup() }));
       $('bb-save').addEventListener('click', () => {
@@ -433,6 +571,7 @@
       fillPickers();
       renderSaved();
       renderStatus();
+      renderScenarios();
       requestState = () => ctx.publish('UI.Cmd.BasketArena.RequestState', {});
       cancelOpenList = () => {
         if (!openCombo) return false;

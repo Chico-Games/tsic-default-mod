@@ -78,12 +78,6 @@
     '#hotbar-name.stowed { color:#cfc8bb; opacity:0.75; }',
     'html[data-tsic-reduce-motion] #hotbar-name { transition:none; }',
 
-    /* A panel that shows the bag draws these same eight cells itself, as a strip inside the
-       panel where they can actually be edited. Leaving this bar up would put a second copy
-       of them on screen — outside the panel, under its scrim, looking like a drop target and
-       being inert — which is the confusion players reported (issue #203). */
-    'body.tsic-bag-open #hud-hotbar { display:none !important; }',
-
     /* Idle: faded out and inert, so a click at the bottom of the screen never draws a weapon. */
     '#hud-hotbar { transition:opacity 450ms ease, transform 450ms ease; }',
     '#hud-hotbar.hotbar-idle { opacity:0; transform:translateX(-50%) translateY(12px); pointer-events:none; }',
@@ -267,18 +261,6 @@
     lastContentKey = contentKey();
     renderName();
   }
-
-  /**
-   * Screens that draw the bag call setBagPanelOpen(true) on show and (false) on hide, so the
-   * hotbar cells exist in exactly one place at a time: the strip inside that panel. The class
-   * name lives here with the rule that reads it; pages that boot no HUD have nothing for it
-   * to hide.
-   */
-  window.TSICHotbar = {
-    setBagPanelOpen: function (open) {
-      document.body.classList.toggle('tsic-bag-open', !!open);
-    },
-  };
 
   (function boot() {
     if (!window.tsic || typeof tsic.whenReady !== 'function') { setTimeout(boot, 16); return; }

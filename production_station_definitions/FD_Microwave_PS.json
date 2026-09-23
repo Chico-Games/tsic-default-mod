@@ -1,12 +1,9 @@
 {
   "id": "FD_Microwave_PS",
   "asset_path": "/Game/Furniture/Cooking/Microwave/Furniture/FD_Microwave_PS",
-  "class": "UCookingStationDefinition",
+  "class": "UInteractableFurnitureDefinition",
   "schema_version": 2,
   "properties": {
-    "available_recipe_rules_definition": "ARR_MicrowaveRecipes",
-    "max_recipes": 5,
-    "gameplay_event_tag": "UI.GameScreen.Production",
     "interaction_hold_time": 0,
     "interaction_prompt_text": "Use",
     "has_static_audio": false,
@@ -140,7 +137,6 @@
     "release_angular_damping": 0.05000000074505806,
     "release_linear_damping": 0.009999999776482582,
     "restitution": 0.30000001192092896,
-    "inventory_rules_definition": "IRD_MicrowaveTray",
     "rig": {
       "skeletal_mesh": "/Game/Furniture/MidCentury/Microwave01/SK_Microwave01.SK_Microwave01",
       "parts": [
@@ -152,29 +148,60 @@
         }
       ]
     },
-    "cook_controls": {
-      "offset": {
-        "x": 18.0,
-        "y": 26.0,
-        "z": 14.0
-      },
-      "extent": {
-        "x": 7.0,
-        "y": 5.0,
-        "z": 13.0
+    "gameplay_event_tag": "UI.GameScreen.Inventory",
+    "compartments": [
+      {
+        "id": "tray",
+        "layout": "Grid",
+        "width": 4,
+        "height": 3,
+        "accepts": [
+          "cold",
+          "general"
+        ],
+        "gate": {
+          "part": "Door",
+          "min_open": 0.5
+        },
+        "surface": {
+          "offset": {
+            "x": -0.1,
+            "y": -6.0,
+            "z": 6.1
+          },
+          "yaw": 90.0,
+          "width": 40.0,
+          "depth": 26.0,
+          "camera_distance": 150.0,
+          "camera_pitch": -32.0
+        }
       }
-    },
-    "storage_view": {
-      "offset": {
-        "x": -0.12,
-        "y": -6.01,
-        "z": 6.11
+    ],
+    "station": {
+      "recipe_tag": "Station.Microwave",
+      "input": "tray",
+      "trigger": {
+        "type": "Click_Bench"
       },
-      "yaw": 90.0,
-      "width": 40.0,
-      "depth": 26.0,
-      "camera_distance": 150.0,
-      "camera_pitch": -32.0
+      "work": {
+        "type": "Timed",
+        "gate": "Door",
+        "on_gate_open": "Pause",
+        "offline": true
+      },
+      "burn": {
+        "after_seconds": 60.0,
+        "result": "ID_BurntPile_CM"
+      },
+      "feedback": {
+        "vibrate": {
+          "amplitude": 0.1,
+          "hz": 12.0
+        },
+        "complete_sound": "Recipe.Completed",
+        "action_label": "Cook",
+        "working_light": "Door"
+      }
     }
   }
 }

@@ -4,68 +4,409 @@
   "class": "UPlantableDefinition",
   "schema_version": 2,
   "properties": {
-    "available_recipe_rules_definition": "ARR_PlantRecipesTier3",
-    "plant_slot_offsets": [
+    "pot_mesh": "/Game/Furniture/Gardening/Meshes/SM_PlantPotFull.SM_PlantPotFull",
+    "pot_soil_height": 11.5,
+    "compartments": [
       {
-        "x": -27,
-        "y": -110,
-        "z": 11.5
+        "id": "pot.1",
+        "layout": "Slot",
+        "max_count": 1,
+        "accepts": [
+          "seed"
+        ],
+        "strategy": "Grow",
+        "surface": {
+          "offset": {
+            "x": -27,
+            "y": -110,
+            "z": 23
+          },
+          "width": 20,
+          "depth": 20
+        }
       },
       {
-        "x": -27,
-        "y": 0,
-        "z": 11.5
+        "id": "pot.1.out",
+        "layout": "Grid",
+        "width": 3,
+        "height": 2,
+        "take_only": true,
+        "visible_when_empty": false,
+        "strategy": "Grow",
+        "surface": {
+          "offset": {
+            "x": -27,
+            "y": -110,
+            "z": 23
+          },
+          "width": 20,
+          "depth": 20
+        }
       },
       {
-        "x": -27,
-        "y": 110,
-        "z": 11.5
+        "id": "pot.2",
+        "layout": "Slot",
+        "max_count": 1,
+        "accepts": [
+          "seed"
+        ],
+        "strategy": "Grow",
+        "surface": {
+          "offset": {
+            "x": -27,
+            "y": 0,
+            "z": 23
+          },
+          "width": 20,
+          "depth": 20
+        }
       },
       {
-        "x": 27,
-        "y": -110,
-        "z": 11.5
+        "id": "pot.2.out",
+        "layout": "Grid",
+        "width": 3,
+        "height": 2,
+        "take_only": true,
+        "visible_when_empty": false,
+        "strategy": "Grow",
+        "surface": {
+          "offset": {
+            "x": -27,
+            "y": 0,
+            "z": 23
+          },
+          "width": 20,
+          "depth": 20
+        }
       },
       {
-        "x": 27,
-        "y": 0,
-        "z": 11.5
+        "id": "pot.3",
+        "layout": "Slot",
+        "max_count": 1,
+        "accepts": [
+          "seed"
+        ],
+        "strategy": "Grow",
+        "surface": {
+          "offset": {
+            "x": -27,
+            "y": 110,
+            "z": 23
+          },
+          "width": 20,
+          "depth": 20
+        }
       },
       {
-        "x": 27,
-        "y": 110,
-        "z": 11.5
+        "id": "pot.3.out",
+        "layout": "Grid",
+        "width": 3,
+        "height": 2,
+        "take_only": true,
+        "visible_when_empty": false,
+        "strategy": "Grow",
+        "surface": {
+          "offset": {
+            "x": -27,
+            "y": 110,
+            "z": 23
+          },
+          "width": 20,
+          "depth": 20
+        }
       },
       {
-        "x": 27,
-        "y": -56,
-        "z": 11.5
+        "id": "pot.4",
+        "layout": "Slot",
+        "max_count": 1,
+        "accepts": [
+          "seed"
+        ],
+        "strategy": "Grow",
+        "surface": {
+          "offset": {
+            "x": 27,
+            "y": -110,
+            "z": 23
+          },
+          "width": 20,
+          "depth": 20
+        }
       },
       {
-        "x": -27,
-        "y": -56,
-        "z": 11.5
+        "id": "pot.4.out",
+        "layout": "Grid",
+        "width": 3,
+        "height": 2,
+        "take_only": true,
+        "visible_when_empty": false,
+        "strategy": "Grow",
+        "surface": {
+          "offset": {
+            "x": 27,
+            "y": -110,
+            "z": 23
+          },
+          "width": 20,
+          "depth": 20
+        }
       },
       {
-        "x": 27,
-        "y": 56,
-        "z": 11.5
+        "id": "pot.5",
+        "layout": "Slot",
+        "max_count": 1,
+        "accepts": [
+          "seed"
+        ],
+        "strategy": "Grow",
+        "surface": {
+          "offset": {
+            "x": 27,
+            "y": 0,
+            "z": 23
+          },
+          "width": 20,
+          "depth": 20
+        }
       },
       {
-        "x": -27,
-        "y": 56,
-        "z": 11.5
+        "id": "pot.5.out",
+        "layout": "Grid",
+        "width": 3,
+        "height": 2,
+        "take_only": true,
+        "visible_when_empty": false,
+        "strategy": "Grow",
+        "surface": {
+          "offset": {
+            "x": 27,
+            "y": 0,
+            "z": 23
+          },
+          "width": 20,
+          "depth": 20
+        }
+      },
+      {
+        "id": "pot.6",
+        "layout": "Slot",
+        "max_count": 1,
+        "accepts": [
+          "seed"
+        ],
+        "strategy": "Grow",
+        "surface": {
+          "offset": {
+            "x": 27,
+            "y": 110,
+            "z": 23
+          },
+          "width": 20,
+          "depth": 20
+        }
+      },
+      {
+        "id": "pot.6.out",
+        "layout": "Grid",
+        "width": 3,
+        "height": 2,
+        "take_only": true,
+        "visible_when_empty": false,
+        "strategy": "Grow",
+        "surface": {
+          "offset": {
+            "x": 27,
+            "y": 110,
+            "z": 23
+          },
+          "width": 20,
+          "depth": 20
+        }
+      },
+      {
+        "id": "pot.7",
+        "layout": "Slot",
+        "max_count": 1,
+        "accepts": [
+          "seed"
+        ],
+        "strategy": "Grow",
+        "surface": {
+          "offset": {
+            "x": 27,
+            "y": -56,
+            "z": 23
+          },
+          "width": 20,
+          "depth": 20
+        }
+      },
+      {
+        "id": "pot.7.out",
+        "layout": "Grid",
+        "width": 3,
+        "height": 2,
+        "take_only": true,
+        "visible_when_empty": false,
+        "strategy": "Grow",
+        "surface": {
+          "offset": {
+            "x": 27,
+            "y": -56,
+            "z": 23
+          },
+          "width": 20,
+          "depth": 20
+        }
+      },
+      {
+        "id": "pot.8",
+        "layout": "Slot",
+        "max_count": 1,
+        "accepts": [
+          "seed"
+        ],
+        "strategy": "Grow",
+        "surface": {
+          "offset": {
+            "x": -27,
+            "y": -56,
+            "z": 23
+          },
+          "width": 20,
+          "depth": 20
+        }
+      },
+      {
+        "id": "pot.8.out",
+        "layout": "Grid",
+        "width": 3,
+        "height": 2,
+        "take_only": true,
+        "visible_when_empty": false,
+        "strategy": "Grow",
+        "surface": {
+          "offset": {
+            "x": -27,
+            "y": -56,
+            "z": 23
+          },
+          "width": 20,
+          "depth": 20
+        }
+      },
+      {
+        "id": "pot.9",
+        "layout": "Slot",
+        "max_count": 1,
+        "accepts": [
+          "seed"
+        ],
+        "strategy": "Grow",
+        "surface": {
+          "offset": {
+            "x": 27,
+            "y": 56,
+            "z": 23
+          },
+          "width": 20,
+          "depth": 20
+        }
+      },
+      {
+        "id": "pot.9.out",
+        "layout": "Grid",
+        "width": 3,
+        "height": 2,
+        "take_only": true,
+        "visible_when_empty": false,
+        "strategy": "Grow",
+        "surface": {
+          "offset": {
+            "x": 27,
+            "y": 56,
+            "z": 23
+          },
+          "width": 20,
+          "depth": 20
+        }
+      },
+      {
+        "id": "pot.10",
+        "layout": "Slot",
+        "max_count": 1,
+        "accepts": [
+          "seed"
+        ],
+        "strategy": "Grow",
+        "surface": {
+          "offset": {
+            "x": -27,
+            "y": 56,
+            "z": 23
+          },
+          "width": 20,
+          "depth": 20
+        }
+      },
+      {
+        "id": "pot.10.out",
+        "layout": "Grid",
+        "width": 3,
+        "height": 2,
+        "take_only": true,
+        "visible_when_empty": false,
+        "strategy": "Grow",
+        "surface": {
+          "offset": {
+            "x": -27,
+            "y": 56,
+            "z": 23
+          },
+          "width": 20,
+          "depth": 20
+        }
       }
     ],
-    "plant_root_offset": {
-      "x": 0,
-      "y": 0,
-      "z": 11.5
+    "station": {
+      "recipe_tag": "Station.Planter.T3",
+      "lanes": [
+        "pot.1",
+        "pot.2",
+        "pot.3",
+        "pot.4",
+        "pot.5",
+        "pot.6",
+        "pot.7",
+        "pot.8",
+        "pot.9",
+        "pot.10"
+      ],
+      "lane_outputs": [
+        "pot.1.out",
+        "pot.2.out",
+        "pot.3.out",
+        "pot.4.out",
+        "pot.5.out",
+        "pot.6.out",
+        "pot.7.out",
+        "pot.8.out",
+        "pot.9.out",
+        "pot.10.out"
+      ],
+      "trigger": {
+        "type": "On_Insert"
+      },
+      "work": {
+        "type": "Timed",
+        "offline": true
+      },
+      "feedback": {
+        "action_label": "Plant",
+        "start_sound": "Station.Plant",
+        "collect_sound": "Station.Harvest"
+      }
     },
-    "slot_pot_mesh": "/Game/Furniture/Gardening/Meshes/SM_PlantPotFull.SM_PlantPotFull",
-    "max_recipes": 10,
-    "entity_helper_class": "/Script/TSIC.ProductionHelper",
-    "gameplay_event_tag": "UI.GameScreen.Production",
     "layer_name": "",
     "interaction_hold_time": 0,
     "interaction_prompt_text": "Plant in",
@@ -245,7 +586,7 @@
         "offset": {
           "x": 0,
           "y": 0,
-          "z": 90.0
+          "z": 90
         },
         "rotation": {
           "pitch": 0,
@@ -253,9 +594,9 @@
           "roll": 0
         },
         "box_size": {
-          "x": 100.0,
-          "y": 30.0,
-          "z": 90.0
+          "x": 100,
+          "y": 30,
+          "z": 90
         }
       }
     ],
@@ -264,7 +605,7 @@
         "offset": {
           "x": 0,
           "y": 0,
-          "z": 3.0
+          "z": 3
         },
         "rotation": {
           "pitch": 0,
@@ -272,9 +613,9 @@
           "roll": 0
         },
         "box_size": {
-          "x": 100.0,
-          "y": 30.0,
-          "z": 3.0
+          "x": 100,
+          "y": 30,
+          "z": 3
         }
       }
     ],

@@ -18,8 +18,9 @@
       }
     ],
     "duration": 0.5,
-    "level": 1,
-    "always_discovered": true,
-    "crafting_bench_tags": []
+    "stations": [
+      "Station.SewingMachine",
+      "Station.SewingMachineTier2"
+    ]
   }
 }

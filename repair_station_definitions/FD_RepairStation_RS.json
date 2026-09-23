@@ -1,12 +1,9 @@
 {
   "id": "FD_RepairStation_RS",
   "asset_path": "/Game/Furniture/RepairStation/Furniture/FD_RepairStation_RS",
-  "class": "URepairStationDefinition",
+  "class": "UInteractableFurnitureDefinition",
   "schema_version": 2,
   "properties": {
-    "repair_cost_item": "ID_ScrapMetal_CM",
-    "repair_cost_quantity": 10,
-    "gameplay_event_tag": "UI.GameScreen.Repair",
     "interaction_hold_time": 0.0,
     "interaction_prompt_text": "Repair at",
     "has_static_audio": false,
@@ -70,6 +67,64 @@
     "gameplay_tags": [],
     "release_angular_damping": 0.05000000074505806,
     "release_linear_damping": 0.009999999776482582,
-    "restitution": 0.30000001192092896
+    "restitution": 0.30000001192092896,
+    "compartments": [
+      {
+        "id": "input",
+        "layout": "Grid",
+        "width": 4,
+        "height": 3,
+        "accepts": [
+          "general",
+          "wood"
+        ],
+        "surface": {
+          "offset": {
+            "x": 0.0,
+            "y": -15.0,
+            "z": 84.0
+          },
+          "yaw": 90.0,
+          "width": 60.0,
+          "depth": 40.0
+        }
+      },
+      {
+        "id": "output",
+        "layout": "Grid",
+        "width": 3,
+        "height": 2,
+        "accepts": [
+          "general"
+        ],
+        "take_only": true,
+        "visible_when_empty": false,
+        "surface": {
+          "offset": {
+            "x": 0.0,
+            "y": 35.0,
+            "z": 84.0
+          },
+          "yaw": 90.0,
+          "width": 40.0,
+          "depth": 40.0
+        }
+      }
+    ],
+    "station": {
+      "recipe_tag": "Station.Repair",
+      "input": "input",
+      "output": "output",
+      "trigger": {
+        "type": "Click_Bench"
+      },
+      "work": {
+        "type": "Instant"
+      },
+      "feedback": {
+        "action_label": "Repair"
+      }
+    },
+    "gameplay_event_tag": "UI.GameScreen.Inventory"
   }
 }

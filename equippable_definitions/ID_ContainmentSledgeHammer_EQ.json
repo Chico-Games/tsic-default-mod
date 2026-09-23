@@ -53,6 +53,7 @@
     "static_item_definition": "FD_ContainmentSledgeHammer_SI",
     "equipment_slot": "Entity.Inventory.Item.Equipment.Slot.Weapon",
     "item_category_tag": "Entity.Inventory.Item.Category.Weapon",
-    "entity_damage_multiplier": 4.0
+    "entity_damage_multiplier": 4.0,
+    "storage_class": "general"
   }
 }

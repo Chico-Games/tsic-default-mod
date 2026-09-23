@@ -36,24 +36,6 @@ TSICTestHarness.register({
     },
 });
 
-// ---- UI.Cmd.Recipe.Cancel ---------------------------------------------
-TSICTestHarness.register({
-    name: 'Channels/Recipe.Cancel: publish on JS side observed',
-    tags: ['channel', 'recipe'],
-    file: '/screens/production.html',
-    async run(ctx) {
-        ctx.screen('Production');
-        ctx.inject('tsic.msg.UI.Recipe.StationOpened', { Kind: 'Production', Recipes: [], MaterialCounts: {} });
-        ctx.inject('tsic.msg.UI.Recipe.QueueChanged', { Queue: [{ RecipeId: 'R_X', Name: 'X' }] });
-        await new Promise(r => setTimeout(r, 80));
-        ctx.clearPublishes();
-        // Production page may bind a cancel button per queue entry; if not, we
-        // publish directly to cover the channel.
-        ctx.win.tsic.publishMessage('UI.Cmd.Recipe.Cancel', { RecipeId: 'R_X' });
-        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Recipe.Cancel'));
-    },
-});
-
 // ---- UI.Cmd.Menu.StartGame --------------------------------------------
 TSICTestHarness.register({
     name: 'Channels/Menu.StartGame: payload shape',

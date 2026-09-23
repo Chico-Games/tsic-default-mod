@@ -26,8 +26,9 @@
       }
     ],
     "duration": 10.0,
-    "level": 2,
-    "always_discovered": true,
-    "crafting_bench_tags": []
+    "stations": [
+      "Station.ArmorBenchTier2",
+      "Station.ArmorBenchTier3"
+    ]
   }
 }

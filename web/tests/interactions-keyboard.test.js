@@ -46,23 +46,6 @@ TSICTestHarness.register({
     },
 });
 
-// ---- Universal Storage modal: Enter submits, Esc cancels ----------------
-TSICTestHarness.register({
-    name: 'Keys/USS: Enter inside create-group input submits',
-    file: '/screens/universal-storage-setup.html?entityId=99',
-    async run(ctx) {
-        ctx.inject('tsic.msg.UI.UniversalStorage.Groups', { GroupNames: [] });
-        await ctx.waitFor(() => ctx.doc.getElementById('btn-new'));
-        ctx.doc.getElementById('btn-new').click();
-        await new Promise(r => setTimeout(r, 20));
-        const input = ctx.doc.querySelector('input#uss-name');
-        input.value = 'NewGroup';
-        ctx.clearPublishes();
-        input.dispatchEvent(new ctx.win.KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true }));
-        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.UniversalStorage.CreateGroup', { where: p => p.GroupName === 'NewGroup' }));
-    },
-});
-
 // ---- Map keyboard -----------------------------------------------------
 
 // ---- DeathScreen has no specific keyboard ------------------------------

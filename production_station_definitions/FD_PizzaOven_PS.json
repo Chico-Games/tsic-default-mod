@@ -1,12 +1,9 @@
 {
   "id": "FD_PizzaOven_PS",
   "asset_path": "/Game/Furniture/Processing/PizzaOven/Construction/FD_PizzaOven_PS",
-  "class": "UProductionStationDefinition",
+  "class": "UInteractableFurnitureDefinition",
   "schema_version": 2,
   "properties": {
-    "available_recipe_rules_definition": "ARR_PizzaOvenRecipes",
-    "max_recipes": 5,
-    "gameplay_event_tag": "UI.GameScreen.Production",
     "interaction_hold_time": 0,
     "interaction_prompt_text": "Use",
     "has_static_audio": false,
@@ -181,6 +178,68 @@
     "release_angular_damping": 0.05000000074505806,
     "release_linear_damping": 0.009999999776482582,
     "restitution": 0.30000001192092896,
-    "constructable_item_to_grant": "ID_PizzaOven_CI"
+    "constructable_item_to_grant": "ID_PizzaOven_CI",
+    "gameplay_event_tag": "UI.GameScreen.Inventory",
+    "compartments": [
+      {
+        "id": "input",
+        "layout": "Grid",
+        "width": 4,
+        "height": 2,
+        "accepts": [
+          "general",
+          "cold",
+          "wood",
+          "cardboard",
+          "fabric",
+          "fasteners"
+        ],
+        "surface": {
+          "offset": {
+            "x": 0.0,
+            "y": -11.0,
+            "z": 23.5
+          },
+          "yaw": 90.0,
+          "width": 30.3,
+          "depth": 49.6
+        }
+      },
+      {
+        "id": "output",
+        "layout": "Grid",
+        "width": 2,
+        "height": 2,
+        "accepts": [
+          "cold"
+        ],
+        "take_only": true,
+        "visible_when_empty": false,
+        "surface": {
+          "offset": {
+            "x": 0.0,
+            "y": 16.5,
+            "z": 23.5
+          },
+          "yaw": 90.0,
+          "width": 19.3,
+          "depth": 49.6
+        }
+      }
+    ],
+    "station": {
+      "recipe_tag": "Station.PizzaOven",
+      "input": "input",
+      "output": "output",
+      "trigger": {
+        "type": "Click_Bench"
+      },
+      "work": {
+        "type": "Instant"
+      },
+      "feedback": {
+        "action_label": "Craft"
+      }
+    }
   }
 }

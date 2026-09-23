@@ -89,7 +89,6 @@
             send() {},
             request() { return Promise.reject(new Error('tsicbridge not available')); },
             itemCatalog: options.itemCatalog || {},
-            recipeCatalog: options.recipeCatalog || {},
             itemName(id) { const d = this.itemCatalog[id]; return d ? (d.Name || id) : id; },
             itemCategory(id) { const d = this.itemCatalog[id]; return d ? d.Category : null; },
             itemIconUrl(id) { return `/tex/item-icon/${encodeURIComponent(id)}`; },
@@ -138,10 +137,6 @@
             setItemCatalog(map) {
                 fake.itemCatalog = map || {};
                 try { win.dispatchEvent(new Event('tsic-item-catalog')); } catch (e) {}
-            },
-            setRecipeCatalog(map) {
-                fake.recipeCatalog = map || {};
-                try { win.dispatchEvent(new Event('tsic-recipe-catalog')); } catch (e) {}
             },
             // Inspection: snapshot + clear of the publish log.
             publishes() { return publishLog.slice(); },

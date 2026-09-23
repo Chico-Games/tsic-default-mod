@@ -14,7 +14,6 @@
 
 const FOCUS_SCREENS = [
     'main-menu','new-store','credits','pause-menu','settings','save-load',
-    'universal-storage-setup','boss-summoner',
     'teleporter','bug-report',
 ];
 

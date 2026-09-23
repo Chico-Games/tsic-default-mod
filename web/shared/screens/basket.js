@@ -80,7 +80,6 @@
       border: 2px solid var(--ink-night, #14110c); box-shadow: 3px 3px 0 rgba(0,0,0,0.35);
     }
     [data-screen="Basket"] #bk-peer[hidden] { display: none; }
-    [data-screen="Basket"] #bk-peer .bk-peer-cook { background: var(--mag-yellow, #f5c518); }
     [data-screen="Basket"] #bk-peer .bk-peer-cooking { font-size: 13px; font-weight: 700; letter-spacing: 0.5px; padding: 6px 0 2px; }
     [data-screen="Basket"] #bk-peer .bk-peer-preview { font-size: 12px; font-weight: 700; padding: 2px 0 0; }
     [data-screen="Basket"] #bk-peer .bk-peer-preview.is-none { opacity: 0.55; font-weight: 400; }
@@ -108,11 +107,6 @@
     [data-screen="Basket"] #bk-inspect[hidden], [data-screen="Basket"] #bk-tip[hidden] { display: none; }
     [data-screen="Basket"] #bk-peer .bk-peer-name { font-weight: 700; font-size: 16px; letter-spacing: 1px; text-transform: uppercase; }
     [data-screen="Basket"] #bk-peer .bk-peer-fill { font-size: 12px; opacity: 0.75; margin-bottom: 4px; }
-    [data-screen="Basket"] #bk-peer .bk-peer-btn {
-      padding: 7px 12px; font: 700 13px/16px var(--tsic-font, sans-serif); letter-spacing: 1px; text-transform: uppercase; cursor: pointer;
-      background: var(--paper-bright, #fffdf3); color: var(--ink-night, #14110c); border: 2px solid var(--ink-night, #14110c);
-    }
-    [data-screen="Basket"] #bk-peer .bk-peer-btn:hover { background: var(--mag-yellow, #f5c518); }
     [data-screen="Basket"] .bk-tab {
       padding: 8px 18px; font: 700 15px/18px var(--tsic-font, sans-serif); letter-spacing: 1px; text-transform: uppercase;
       background: rgba(252,249,241,0.92); color: var(--cat-ink-dark, #1a1611); border: 2px solid var(--ink-night, #14110c);
@@ -156,7 +150,6 @@
     <div id="bk-peer" hidden>
       <div class="bk-peer-name"></div>
       <div class="bk-peer-fill"></div>
-      <button type="button" class="bk-peer-btn bk-peer-cook" id="bk-cook" data-no-sfx hidden>Cook</button>
       <div class="bk-peer-dial" id="bk-dial" hidden>
         <div class="bk-peer-dial-ring"></div>
         <div class="bk-peer-dial-face">
@@ -230,13 +223,6 @@
           });
           tabs.appendChild(el);
         }
-      }
-
-      for (const [id, cmd] of [['bk-cook', 'UI.Cmd.Basket.Cook']]) {
-        const el = $(id);
-        el.addEventListener('pointerdown', (ev) => ev.stopPropagation());
-        el.addEventListener('pointerup', (ev) => ev.stopPropagation());
-        el.addEventListener('click', (ev) => { ev.stopPropagation(); tsic.playSound('UI.Click'); ctx.publish(cmd, {}); });
       }
 
       // --- The seam ---------------------------------------------------------------------------
@@ -328,19 +314,16 @@
         } else {
           inspect.hidden = true;
         }
-        // The storage pane beside the bag: its name, fill and the bulk buttons.
+        // The storage pane beside the bag: its name and fill, and a station's progress.
         const peer = $('bk-peer');
         if (state.PeerLabel) {
           peer.querySelector('.bk-peer-name').textContent = state.PeerLabel;
           peer.querySelector('.bk-peer-fill').textContent = `${state.PeerUsed} / ${state.PeerCapacity} ${state.bZoned ? 'slots' : 'cells'}`;
-          // A station worked from a tray: its button while idle with something on it, progress while it runs.
-          const cook = $('bk-cook');
+          // A station worked from a tray: progress while it runs.
           const cooking = $('bk-cooking');
           const progress = typeof state.PeerCookProgress === 'number' ? state.PeerCookProgress : -1;
           const verb = state.PeerCookLabel || 'Cook';
           const working = state.PeerCookWorking || 'Cooking';
-          cook.textContent = verb;
-          cook.hidden = sew.on || !state.bPeerCooks || state.bPeerCookControls || progress >= 0 || state.PeerUsed <= 0;
           // A station with knobs: how to turn it on, while it sits idle with something in it.
           const idleHint = state.bPeerCookControls && progress < 0 && state.PeerUsed > 0;
           cooking.hidden = !state.bPeerCooks || (progress < 0 && !idleHint);

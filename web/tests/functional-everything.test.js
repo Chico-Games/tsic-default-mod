@@ -181,28 +181,6 @@ TSICTestHarness.register({
     },
 });
 
-// ---- UniversalStorage (linked) page: container list + transfer ---------
-TSICTestHarness.register({
-    name: 'UniversalStorage (linked): cross-pane click-move publishes an id+slot Move',
-    file: '/screens/universal-storage.html',
-    async run(ctx) {
-        ctx.setItemCatalog({ ID_X: { Name: 'X', Category: 'Equipment' } });
-        ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Universal', GridWidth: 8, Items: [{ ItemId: 'ID_X', Count: 1, InstanceId: 7, GridSlot: 0 }], MaxSlots: 64 });
-        ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', GridWidth: 8, Items: [], MaxSlots: 32 });
-        await ctx.waitFor(() => ctx.doc.querySelector('#ss-container-list .tsic-slot[data-grid="0"] img'));
-        ctx.clearPublishes();
-        // §6 cursor model: click picks the stack up, click on a player cell commits.
-        ctx.doc.querySelector('#ss-container-list .tsic-slot[data-grid="0"]').click();
-        const target = ctx.doc.querySelector('#ss-player-list .tsic-slot[data-grid="2"]');
-        const r = target.getBoundingClientRect();
-        const o = { bubbles: true, cancelable: true, clientX: r.x + r.width / 2, clientY: r.y + r.height / 2, button: 0 };
-        target.dispatchEvent(new ctx.win.PointerEvent('pointerdown', o));
-        target.dispatchEvent(new ctx.win.PointerEvent('pointerup', o));
-        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Inventory.Move',
-            { where: p => p.FromOwnerId === 'Universal' && p.ToOwnerId === 'Player' && p.ItemId === 7 && p.ToSlot === 2 }));
-    },
-});
-
 // Chat coverage lives in chat.test.js (HUD component, /screens/in-game.html).
 
 // ---- Detection screen-mist amount ------------------------------------
@@ -226,22 +204,6 @@ TSICTestHarness.register({
         await new Promise(r => setTimeout(r, 80));
         const markers = ctx.doc.querySelectorAll('#hud-detection .dt-arc');
         ctx.expect(ctx.assert.truthy(markers.length >= 10, `expected many threat markers, got ${markers.length}`));
-    },
-});
-
-// ---- Universal storage setup: ESC dismisses the modal -----------------
-TSICTestHarness.register({
-    name: 'UniversalStorageSetup: ESC inside name modal dismisses it',
-    file: '/screens/universal-storage-setup.html?entityId=42',
-    async run(ctx) {
-        ctx.inject('tsic.msg.UI.UniversalStorage.Groups', { GroupNames: [] });
-        await ctx.waitFor(() => ctx.doc.getElementById('btn-new'));
-        ctx.doc.getElementById('btn-new').click();
-        await new Promise(r => setTimeout(r, 30));
-        const input = ctx.doc.querySelector('input#uss-name');
-        input.dispatchEvent(new ctx.win.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
-        await new Promise(r => setTimeout(r, 30));
-        ctx.expect(ctx.assert.eq(ctx.doc.querySelector('input#uss-name'), null));
     },
 });
 

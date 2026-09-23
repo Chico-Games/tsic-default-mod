@@ -1,7 +1,5 @@
-// Focus reachability tests for the 14 menu screens opted into the focus
-// engine in the 2026-05-19 expansion: crafting, inventory, production,
-// repair, upgrade, storage, universal-storage, wardrobe, cheat-menu, mods,
-// death-screen, equipment, interaction, paper.
+// Focus reachability tests for the menu screens opted into the focus engine in
+// the 2026-05-19 expansion that still exist: cheat-menu, mods, death-screen, paper.
 //
 // Each fixture seeds the channels the page needs to render its interactive
 // content (so reachability has something to BFS across), then asserts:
@@ -13,129 +11,11 @@ function focusOpts(extraTags) {
     return { tags: ['focus', 'reachability'].concat(extraTags || []) };
 }
 
-// -- crafting --------------------------------------------------------------
-TSICTestHarness.register(Object.assign({
-    name: 'Focus/Crafting: reachable + groups mutually reachable',
-    file: '/screens/crafting.html',
-    async run(ctx) {
-        ctx.inject('tsic.msg.UI.Item.Catalog', { Items: [
-            { ItemId: 'ID_Wheat', Name: 'Wheat', Category: 'CraftingMaterial', Weight: 0.05 },
-            { ItemId: 'ID_Bread', Name: 'Bread', Category: 'Consumable',       Weight: 0.20 },
-        ] });
-        ctx.inject('tsic.msg.UI.Recipe.StationOpened', {
-            Kind: 'Crafting', StationId: 'S_Workbench',
-            Recipes: [
-                { RecipeId: 'R_Bread', Name: 'Bread', bDiscovered: true, bStationLevelSufficient: true,
-                  Ingredients: [{ ItemId: 'ID_Wheat', Count: 2 }],
-                  Outputs:     [{ ItemId: 'ID_Bread', Count: 1 }], Duration: 3 },
-                { RecipeId: 'R_Loaf',  Name: 'Loaf',  bDiscovered: true, bStationLevelSufficient: true,
-                  Ingredients: [{ ItemId: 'ID_Wheat', Count: 3 }],
-                  Outputs:     [{ ItemId: 'ID_Bread', Count: 2 }], Duration: 5 },
-            ],
-            MaterialCounts: { ID_Wheat: 6 },
-        });
-        await TSICTestHarness.fx.runReachability(ctx);
-    },
-}, focusOpts()));
-
-// -- production ------------------------------------------------------------
-TSICTestHarness.register(Object.assign({
-    name: 'Focus/Production: reachable + groups mutually reachable',
-    file: '/screens/production.html',
-    async run(ctx) {
-        ctx.screen('Production');
-        ctx.inject('tsic.msg.UI.Item.Catalog', { Items: [
-            { ItemId: 'ID_Wheat', Name: 'Wheat', Category: 'CraftingMaterial' },
-            { ItemId: 'ID_Bread', Name: 'Bread', Category: 'Consumable' },
-        ] });
-        ctx.inject('tsic.msg.UI.Recipe.StationOpened', {
-            Kind: 'Production', StationId: 'S_Oven',
-            Recipes: [
-                { RecipeId: 'R_Bread', Name: 'Bread', bDiscovered: true, bStationLevelSufficient: true,
-                  Ingredients: [{ ItemId: 'ID_Wheat', Count: 2 }],
-                  Outputs: [{ ItemId: 'ID_Bread', Count: 1 }], Duration: 6 },
-            ],
-            MaterialCounts: { ID_Wheat: 5 },
-        });
-        ctx.inject('tsic.msg.UI.Recipe.QueueChanged', {
-            Kind: 'Production', StationId: 'S_Oven',
-            Entries: [{ QueueIndex: 0, RecipeId: 'R_Bread', Progress: 0.5, bIsActive: true }],
-        });
-        await TSICTestHarness.fx.runReachability(ctx);
-    },
-}, focusOpts()));
-
-// -- repair ----------------------------------------------------------------
-TSICTestHarness.register(Object.assign({
-    name: 'Focus/Repair: reachable + groups mutually reachable',
-    file: '/screens/repair.html',
-    async run(ctx) {
-        ctx.inject('tsic.msg.UI.Item.Catalog', { Items: [
-            { ItemId: 'ID_Axe',  Name: 'Axe',  Category: 'Equipment' },
-            { ItemId: 'ID_Wood', Name: 'Wood', Category: 'CraftingMaterial' },
-        ] });
-        ctx.inject('tsic.msg.UI.Recipe.StationOpened', {
-            Kind: 'Repair', StationId: 'S_RepairBench',
-            Recipes: [
-                { RecipeId: 'ID_Axe', Name: 'Axe', bDiscovered: true, bStationLevelSufficient: true,
-                  Ingredients: [{ ItemId: 'ID_Wood', Count: 2 }], Outputs: [],
-                  Durability: 0.4, MaxDurability: 1 },
-            ],
-            MaterialCounts: { ID_Wood: 5 },
-        });
-        await TSICTestHarness.fx.runReachability(ctx);
-    },
-}, focusOpts()));
-
 // -- upgrade ---------------------------------------------------------------
 // The Upgrade SCREEN was removed 2026-07-25: furniture upgrades now happen by looking at
 // the target with a hammer equipped (UScpGameplayAbility_Upgrade), with the cost shown on
 // the HUD instead of in a menu. Its focus-reachability test went with the page; the
 // replacement readout is covered by tests/upgrade-hud.test.js.
-
-// -- storage ---------------------------------------------------------------
-TSICTestHarness.register(Object.assign({
-    name: 'Focus/Storage: reachable + groups mutually reachable',
-    file: '/screens/storage.html',
-    async run(ctx) {
-        ctx.inject('tsic.msg.UI.Item.Catalog', { Items: [
-            { ItemId: 'ID_Wood', Name: 'Wood', Category: 'CraftingMaterial' },
-            { ItemId: 'ID_Stone',Name: 'Stone',Category: 'CraftingMaterial' },
-        ] });
-        ctx.inject('tsic.msg.UI.Inventory.Updated', {
-            OwnerId: 'Player', MaxSlots: 32, MaxWeight: 30, CurrentWeight: 1,
-            Items: [{ ItemId: 'ID_Wood', Count: 4, SlotIndex: 0 }],
-        });
-        ctx.inject('tsic.msg.UI.Inventory.Updated', {
-            OwnerId: 'Storage:Chest01', MaxSlots: 24, MaxWeight: 200, CurrentWeight: 12,
-            Items: [
-                { ItemId: 'ID_Wood',  Count: 9, SlotIndex: 0 },
-                { ItemId: 'ID_Stone', Count: 4, SlotIndex: 1 },
-            ],
-        });
-        await TSICTestHarness.fx.runReachability(ctx);
-    },
-}, focusOpts()));
-
-// -- universal-storage -----------------------------------------------------
-TSICTestHarness.register(Object.assign({
-    name: 'Focus/UniversalStorage: reachable + groups mutually reachable',
-    file: '/screens/universal-storage.html',
-    async run(ctx) {
-        ctx.inject('tsic.msg.UI.Item.Catalog', { Items: [
-            { ItemId: 'ID_Wood', Name: 'Wood', Category: 'CraftingMaterial' },
-        ] });
-        ctx.inject('tsic.msg.UI.Inventory.Updated', {
-            OwnerId: 'Player', MaxSlots: 32, MaxWeight: 30, CurrentWeight: 1,
-            Items: [{ ItemId: 'ID_Wood', Count: 3, SlotIndex: 0 }],
-        });
-        ctx.inject('tsic.msg.UI.Inventory.Updated', {
-            OwnerId: 'Universal', MaxSlots: 64, MaxWeight: 500, CurrentWeight: 12,
-            Items: [{ ItemId: 'ID_Wood', Count: 24, SlotIndex: 0 }],
-        });
-        await TSICTestHarness.fx.runReachability(ctx);
-    },
-}, focusOpts()));
 
 // -- cheat-menu ------------------------------------------------------------
 TSICTestHarness.register(Object.assign({
@@ -152,7 +32,6 @@ TSICTestHarness.register(Object.assign({
             FurnitureDefault:     [{ InternalName: 'FD_Table',     DisplayName: 'Table' }],
             FurnitureConstructed: [{ InternalName: 'FD_TableCnstr',DisplayName: 'Constr Table' }],
             ConstructionItems:    [{ InternalName: 'CI_Table',     DisplayName: 'CI Table' }],
-            Recipes:              [{ InternalName: 'R_Bread',      DisplayName: 'Bread recipe' }],
             Equippables:          [{ InternalName: 'ID_Axe',       DisplayName: 'Axe' }],
             Weapons:              [{ InternalName: 'ID_Axe',       DisplayName: 'Axe' }],
             HeadGear:             [{ InternalName: 'ID_Hat',       DisplayName: 'Hat' }],

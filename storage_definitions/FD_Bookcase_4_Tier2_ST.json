@@ -5,7 +5,31 @@
   "schema_version": 2,
   "properties": {
     "extends": "FD_Bookcase_4_ST",
-    "inventory_rules_definition": "IRD_StorageTier2_16",
+    "compartments": [
+      {
+        "id": "main",
+        "layout": "Grid",
+        "width": 4,
+        "height": 4,
+        "accepts": [
+          "general"
+        ],
+        "surface": {
+          "offset": {
+            "x": -8.5,
+            "y": -26.75,
+            "z": 42.0
+          },
+          "yaw": 0.0,
+          "width": 50.0,
+          "depth": 46.0
+        },
+        "gate": {
+          "part": "Door",
+          "min_open": 0.5
+        }
+      }
+    ],
     "blocking_collision_boxes": [
       {
         "offset": {
@@ -55,7 +79,6 @@
       "Entity.RandomGeneration.Size.Large",
       "Tile.Biome.ShowFloor"
     ],
-    "inventory_loot": null,
     "upgrade_recipe": null
   }
 }

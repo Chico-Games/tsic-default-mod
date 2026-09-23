@@ -30,8 +30,9 @@
       }
     ],
     "duration": 12.0,
-    "level": 1,
-    "always_discovered": true,
-    "crafting_bench_tags": []
+    "stations": [
+      "Station.WeldingStation",
+      "Station.WeldingStationTier2"
+    ]
   }
 }

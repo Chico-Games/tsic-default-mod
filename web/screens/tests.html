@@ -21,12 +21,6 @@
   <script src="/tests/focus-stress.test.js"></script>
   <script src="/tests/focus-integration.test.js"></script>
   <script src="/tests/focus-keyboard.test.js"></script>
-  <script src="/tests/cross-surface-drag.test.js"></script>
-  <script src="/tests/unit-inventory-js.test.js"></script>
-  <script src="/tests/inventory-qol.test.js"></script>
-  <script src="/tests/storage.test.js"></script>
-  <script src="/tests/storage-qol.test.js"></script>
-  <script src="/tests/bag-layout-parity.test.js"></script>
   <script src="/tests/hotbar.test.js"></script>
   <script src="/tests/hotbar-wheel.test.js"></script>
   <script src="/tests/behavior-bar.test.js"></script>
@@ -37,10 +31,7 @@
   <script src="/tests/detection.test.js"></script>
   <script src="/tests/stomach.test.js"></script>
   <script src="/tests/conditions.test.js"></script>
-  <script src="/tests/crafting.test.js"></script>
-  <script src="/tests/crafting-layout.test.js"></script>
   <script src="/tests/layout-stability.test.js"></script>
-  <script src="/tests/production.test.js"></script>
   <script src="/tests/teleporter.test.js"></script>
   <script src="/tests/map.test.js"></script>
   <script src="/tests/unit-fow-lookup.test.js"></script>
@@ -49,7 +40,6 @@
   <script src="/tests/unit-icon-placeholder.test.js"></script>
   <script src="/tests/interaction.test.js"></script>
   <script src="/tests/upgrade-hud.test.js"></script>
-  <script src="/tests/storage-spa.test.js"></script>
   <script src="/tests/screen-switching.test.js"></script>
   <script src="/tests/pause-menu.test.js"></script>
   <script src="/tests/main-menu.test.js"></script>
@@ -58,7 +48,6 @@
   <script src="/tests/circular-progress.test.js"></script>
   <script src="/tests/crosshair-visibility.test.js"></script>
   <script src="/tests/voice-chat.test.js"></script>
-  <script src="/tests/universal-storage-setup.test.js"></script>
   <script src="/tests/lore.test.js"></script>
   <script src="/tests/cheat-menu.test.js"></script>
   <script src="/tests/death-screen.test.js"></script>
@@ -74,7 +63,6 @@
   <script src="/tests/functional-behavior-bar.test.js"></script>
   <script src="/tests/functional-everything.test.js"></script>
   <script src="/tests/functional-misc.test.js"></script>
-  <script src="/tests/growing.test.js"></script>
   <script src="/tests/interactions-final.test.js"></script>
   <script src="/tests/interactions-input-bridge.test.js"></script>
   <script src="/tests/interactions-keyboard.test.js"></script>
@@ -85,7 +73,6 @@
   <script src="/tests/unit-behavior-bar-js.test.js"></script>
   <script src="/tests/unit-catalog.test.js"></script>
   <script src="/tests/unit-harness.test.js"></script>
-  <script src="/tests/unit-recipe-info.test.js"></script>
   <script src="/tests/unit-router.test.js"></script>
   <script src="/tests/welcome-notice.test.js"></script>
   <style>
@@ -231,7 +218,6 @@
             mode(d) { handle.mode(d); },
             input(action, phase, value) { handle.input(action, phase, value); },
             setItemCatalog(map) { handle.setItemCatalog(map); },
-            setRecipeCatalog(map) { handle.setRecipeCatalog(map); },
             expect(err) { if (err) failures.push(err); },
             publishes() { return handle.publishes(); },
             clearPublishes() { handle.clearPublishes(); },

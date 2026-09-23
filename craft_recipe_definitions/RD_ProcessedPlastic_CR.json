@@ -18,8 +18,9 @@
       }
     ],
     "duration": 85.0,
-    "level": 1,
-    "always_discovered": true,
-    "crafting_bench_tags": []
+    "stations": [
+      "Station.PlasticExtruder",
+      "Station.PlasticExtruderTier2"
+    ]
   }
 }

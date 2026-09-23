@@ -4,12 +4,62 @@
   "class": "UStorageDefinition",
   "schema_version": 2,
   "properties": {
-    "inventory_rules_definition": "IRD_FridgeTier1",
-    "inventory_loot": {
-      "rolls": 2,
-      "chance_per_roll": 0.5
-    },
-    "gameplay_event_tag": "UI.GameScreen.Storage",
+    "compartments": [
+      {
+        "id": "bottom",
+        "layout": "Grid",
+        "width": 4,
+        "height": 3,
+        "accepts": [
+          "cold"
+        ],
+        "surface": {
+          "offset": {
+            "x": 0.82,
+            "y": -0.69,
+            "z": 42.93
+          },
+          "yaw": 90.0,
+          "width": 70.0,
+          "depth": 44.0,
+          "camera_distance": 240.0,
+          "camera_pitch": -38.0
+        },
+        "gate": {
+          "part": "DoorLower",
+          "min_open": 0.5
+        },
+        "loot": {
+          "rolls": 2,
+          "chance": 0.5
+        }
+      },
+      {
+        "id": "top",
+        "layout": "Grid",
+        "width": 4,
+        "height": 1,
+        "accepts": [
+          "cold"
+        ],
+        "surface": {
+          "offset": {
+            "x": 0.82,
+            "y": -0.69,
+            "z": 128.3
+          },
+          "yaw": 90.0,
+          "width": 70.0,
+          "depth": 44.0,
+          "camera_distance": 240.0,
+          "camera_pitch": -38.0
+        },
+        "gate": {
+          "part": "DoorUpper",
+          "min_open": 0.5
+        }
+      }
+    ],
     "layer_name": "UI.Layer.GameMenu",
     "interaction_hold_time": 0.0,
     "interaction_prompt_text": "Open",
@@ -155,28 +205,14 @@
         {
           "name": "DoorLower",
           "motion": "Hinge",
-          "range": -110.0,
-          "opens_for_screen": true
+          "range": -110.0
         },
         {
           "name": "DoorUpper",
           "motion": "Hinge",
-          "range": -110.0,
-          "opens_for_screen": false
+          "range": -110.0
         }
       ]
-    },
-    "storage_view": {
-      "offset": {
-        "x": 0.82,
-        "y": -0.69,
-        "z": 42.93
-      },
-      "yaw": 90.0,
-      "width": 70.0,
-      "depth": 44.0,
-      "camera_distance": 240.0,
-      "camera_pitch": -38.0
     }
   }
 }

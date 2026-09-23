@@ -4,38 +4,181 @@
   "class": "UPlantableDefinition",
   "schema_version": 2,
   "properties": {
-    "available_recipe_rules_definition": "ARR_PlantRecipesTier2",
-    "plant_slot_offsets": [
+    "pot_mesh": "/Game/Furniture/Gardening/Meshes/SM_PlantPotFull.SM_PlantPotFull",
+    "pot_soil_height": 11.5,
+    "compartments": [
       {
-        "x": 16,
-        "y": -10,
-        "z": 32
+        "id": "pot.1",
+        "layout": "Slot",
+        "max_count": 1,
+        "accepts": [
+          "seed"
+        ],
+        "strategy": "Grow",
+        "surface": {
+          "offset": {
+            "x": 16,
+            "y": -10,
+            "z": 43.5
+          },
+          "width": 20,
+          "depth": 20
+        }
       },
       {
-        "x": -11,
-        "y": 9,
-        "z": 31
+        "id": "pot.1.out",
+        "layout": "Grid",
+        "width": 3,
+        "height": 2,
+        "take_only": true,
+        "visible_when_empty": false,
+        "strategy": "Grow",
+        "surface": {
+          "offset": {
+            "x": 16,
+            "y": -10,
+            "z": 43.5
+          },
+          "width": 20,
+          "depth": 20
+        }
       },
       {
-        "x": 17,
-        "y": 9,
-        "z": 32
+        "id": "pot.2",
+        "layout": "Slot",
+        "max_count": 1,
+        "accepts": [
+          "seed"
+        ],
+        "strategy": "Grow",
+        "surface": {
+          "offset": {
+            "x": -11,
+            "y": 9,
+            "z": 42.5
+          },
+          "width": 20,
+          "depth": 20
+        }
       },
       {
-        "x": -11,
-        "y": -9,
-        "z": 31
+        "id": "pot.2.out",
+        "layout": "Grid",
+        "width": 3,
+        "height": 2,
+        "take_only": true,
+        "visible_when_empty": false,
+        "strategy": "Grow",
+        "surface": {
+          "offset": {
+            "x": -11,
+            "y": 9,
+            "z": 42.5
+          },
+          "width": 20,
+          "depth": 20
+        }
+      },
+      {
+        "id": "pot.3",
+        "layout": "Slot",
+        "max_count": 1,
+        "accepts": [
+          "seed"
+        ],
+        "strategy": "Grow",
+        "surface": {
+          "offset": {
+            "x": 17,
+            "y": 9,
+            "z": 43.5
+          },
+          "width": 20,
+          "depth": 20
+        }
+      },
+      {
+        "id": "pot.3.out",
+        "layout": "Grid",
+        "width": 3,
+        "height": 2,
+        "take_only": true,
+        "visible_when_empty": false,
+        "strategy": "Grow",
+        "surface": {
+          "offset": {
+            "x": 17,
+            "y": 9,
+            "z": 43.5
+          },
+          "width": 20,
+          "depth": 20
+        }
+      },
+      {
+        "id": "pot.4",
+        "layout": "Slot",
+        "max_count": 1,
+        "accepts": [
+          "seed"
+        ],
+        "strategy": "Grow",
+        "surface": {
+          "offset": {
+            "x": -11,
+            "y": -9,
+            "z": 42.5
+          },
+          "width": 20,
+          "depth": 20
+        }
+      },
+      {
+        "id": "pot.4.out",
+        "layout": "Grid",
+        "width": 3,
+        "height": 2,
+        "take_only": true,
+        "visible_when_empty": false,
+        "strategy": "Grow",
+        "surface": {
+          "offset": {
+            "x": -11,
+            "y": -9,
+            "z": 42.5
+          },
+          "width": 20,
+          "depth": 20
+        }
       }
     ],
-    "plant_root_offset": {
-      "x": 0,
-      "y": 0,
-      "z": 11.5
+    "station": {
+      "recipe_tag": "Station.Planter.T2",
+      "lanes": [
+        "pot.1",
+        "pot.2",
+        "pot.3",
+        "pot.4"
+      ],
+      "lane_outputs": [
+        "pot.1.out",
+        "pot.2.out",
+        "pot.3.out",
+        "pot.4.out"
+      ],
+      "trigger": {
+        "type": "On_Insert"
+      },
+      "work": {
+        "type": "Timed",
+        "offline": true
+      },
+      "feedback": {
+        "action_label": "Plant",
+        "start_sound": "Station.Plant",
+        "collect_sound": "Station.Harvest"
+      }
     },
-    "slot_pot_mesh": "/Game/Furniture/Gardening/Meshes/SM_PlantPotFull.SM_PlantPotFull",
-    "max_recipes": 4,
-    "entity_helper_class": "/Script/TSIC.ProductionHelper",
-    "gameplay_event_tag": "UI.GameScreen.Production",
     "layer_name": "",
     "interaction_hold_time": 0,
     "interaction_prompt_text": "Plant in",
@@ -232,7 +375,7 @@
     "support_collision_boxes": [
       {
         "offset": {
-          "x": -2.1493146995510415e-07,
+          "x": -2.1493146995510415e-7,
           "y": 0,
           "z": 31.304409662394775
         },

@@ -93,33 +93,12 @@ TSICTestHarness.register(Object.assign({
 }, focusOpts()));
 
 TSICTestHarness.register(Object.assign({
-    name: 'Focus/UniversalStorageSetup: reachable + groups mutually reachable',
-    file: '/screens/universal-storage-setup.html',
-    async run(ctx) {
-        ctx.inject('tsic.msg.UI.UniversalStorage.Groups', { GroupNames: ['Group A', 'Group B'] });
-        await TSICTestHarness.fx.runReachability(ctx);
-    },
-}, focusOpts()));
-
-TSICTestHarness.register(Object.assign({
     name: 'Focus/Teleporter: reachable + groups mutually reachable',
     file: '/screens/teleporter.html',
     async run(ctx) {
         ctx.inject('tsic.msg.UI.Teleporter.Destinations', { Destinations: [
             { EntityId: 1, Label: 'Hub', Cooldown: 0 },
             { EntityId: 2, Label: 'Far', Cooldown: 0 },
-        ] });
-        await TSICTestHarness.fx.runReachability(ctx);
-    },
-}, focusOpts()));
-
-TSICTestHarness.register(Object.assign({
-    name: 'Focus/BossSummoner: reachable + groups mutually reachable',
-    file: '/screens/boss-summoner.html',
-    async run(ctx) {
-        ctx.inject('tsic.msg.UI.Recipe.StationOpened', { Kind: 'Boss', StationId: 1, Recipes: [
-            { RecipeId: 'r1', Name: 'Ritual 1', Ingredients: [{ ItemId: 'ID_X', Count: 1 }] },
-            { RecipeId: 'r2', Name: 'Ritual 2', Ingredients: [{ ItemId: 'ID_Y', Count: 1 }] },
         ] });
         await TSICTestHarness.fx.runReachability(ctx);
     },

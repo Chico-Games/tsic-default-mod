@@ -20,6 +20,7 @@
     "backpack_grid": {
       "x": 4,
       "y": 2
-    }
+    },
+    "storage_class": "general"
   }
 }

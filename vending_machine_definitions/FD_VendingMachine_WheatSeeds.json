@@ -1,0 +1,28 @@
+{
+  "id": "FD_VendingMachine_WheatSeeds",
+  "class": "UInteractableFurnitureDefinition",
+  "schema_version": 2,
+  "properties": {
+    "extends": "FD_VendingMachine_Base",
+    "display_name": "Wheat Seedling Vending Machine",
+    "static_mesh": "/Game/Fab/SUBURBS/VOL28_Vending/Meshes/NN/SM_Vending_Soda_NN_17a.SM_Vending_Soda_NN_17a",
+    "gameplay_tags": [
+      "Entity.RandomGeneration.FurnitureType.VendingMachine",
+      "Tile.Difficulty.Normal"
+    ],
+    "station": {
+      "recipe_tag": "Station.Vending.WheatSeeds",
+      "input": "coins",
+      "output": "tray",
+      "trigger": {
+        "type": "Click_Bench"
+      },
+      "work": {
+        "type": "Instant"
+      },
+      "feedback": {
+        "action_label": "Buy"
+      }
+    }
+  }
+}

@@ -107,12 +107,31 @@
     "has_static_vfx": false,
     "has_toggled_on_vfx": false,
     "has_toggled_off_vfx": false,
-    "inventory_rules_definition": "IRD_StorageTier1_2",
-    "inventory_loot": {
-      "rolls": 1,
-      "chance_per_roll": 0.35
-    },
-    "gameplay_event_tag": "UI.GameScreen.Storage",
+    "compartments": [
+      {
+        "id": "main",
+        "layout": "Grid",
+        "width": 2,
+        "height": 1,
+        "accepts": [
+          "general"
+        ],
+        "surface": {
+          "offset": {
+            "x": 3.401933632574128e-07,
+            "y": -1.5624624793986186e-07,
+            "z": 35.77
+          },
+          "yaw": 0.0,
+          "width": 12.59,
+          "depth": 23.83
+        },
+        "loot": {
+          "rolls": 1,
+          "chance": 0.35
+        }
+      }
+    ],
     "layer_name": "UI.Layer.GameMenu",
     "interaction_hold_time": 0.0,
     "interaction_prompt_text": "Search",

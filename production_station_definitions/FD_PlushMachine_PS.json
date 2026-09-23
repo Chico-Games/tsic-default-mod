@@ -1,12 +1,9 @@
 {
   "id": "FD_PlushMachine_PS",
   "asset_path": "/Game/Furniture/Processing/PlushMachine/Furniture/FD_PlushMachine_PS",
-  "class": "UProductionStationDefinition",
+  "class": "UInteractableFurnitureDefinition",
   "schema_version": 2,
   "properties": {
-    "available_recipe_rules_definition": "ARR_PlushMachineRecipes",
-    "max_recipes": 5,
-    "gameplay_event_tag": "UI.GameScreen.Production",
     "interaction_hold_time": 0,
     "interaction_prompt_text": "Use",
     "has_static_audio": false,
@@ -126,6 +123,68 @@
       "attenuation_distance": 700.0,
       "fade_in_time": 0.0,
       "fade_out_time": 0.0
+    },
+    "gameplay_event_tag": "UI.GameScreen.Inventory",
+    "compartments": [
+      {
+        "id": "input",
+        "layout": "Grid",
+        "width": 4,
+        "height": 2,
+        "accepts": [
+          "general",
+          "cold",
+          "wood",
+          "cardboard",
+          "fabric",
+          "fasteners"
+        ],
+        "surface": {
+          "offset": {
+            "x": -0.0,
+            "y": -17.9,
+            "z": 106.4
+          },
+          "yaw": 90.0,
+          "width": 49.1,
+          "depth": 76.6
+        }
+      },
+      {
+        "id": "output",
+        "layout": "Grid",
+        "width": 2,
+        "height": 2,
+        "accepts": [
+          "general"
+        ],
+        "take_only": true,
+        "visible_when_empty": false,
+        "surface": {
+          "offset": {
+            "x": -0.0,
+            "y": 26.8,
+            "z": 106.4
+          },
+          "yaw": 90.0,
+          "width": 31.2,
+          "depth": 76.6
+        }
+      }
+    ],
+    "station": {
+      "recipe_tag": "Station.PlushMachine",
+      "input": "input",
+      "output": "output",
+      "trigger": {
+        "type": "Click_Bench"
+      },
+      "work": {
+        "type": "Instant"
+      },
+      "feedback": {
+        "action_label": "Craft"
+      }
     }
   }
 }

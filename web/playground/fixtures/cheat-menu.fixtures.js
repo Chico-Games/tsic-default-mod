@@ -1,5 +1,5 @@
 // /screens/cheat-menu.html subscribes to:
-//   tsic.msg.UI.Cheat.Catalog  { Items, Creatures, FurnitureDefault, FurnitureConstructed, ConstructionItems, Recipes, Equippables, Weapons, HeadGear, BodyArmor, LegArmor, Shoes, Gloves }
+//   tsic.msg.UI.Cheat.Catalog  { Items, Creatures, FurnitureDefault, FurnitureConstructed, ConstructionItems, Equippables, Weapons, HeadGear, BodyArmor, LegArmor, Shoes, Gloves }
 //     each entry: { InternalName, DisplayName, IconUrl? }
 //   tsic.msg.UI.Players.List  { Players:[{PlayerId, Name, bIsHost}] }
 TSICPlayground.register({
@@ -23,7 +23,6 @@ TSICPlayground.register({
                 FurnitureDefault:     [{ InternalName: 'FD_Table_DF',  DisplayName: 'Table' }],
                 FurnitureConstructed: [{ InternalName: 'FD_Table_Constructed_DF', DisplayName: 'Constructed Table' }],
                 ConstructionItems:    [{ InternalName: 'CI_TableData', DisplayName: 'Table Construction Item' }],
-                Recipes:              [{ InternalName: 'R_Bread', DisplayName: 'Bread recipe' }],
                 Equippables:          [{ InternalName: 'ID_Axe',  DisplayName: 'Axe' }],
                 Weapons:               [{ InternalName: 'ID_Axe',  DisplayName: 'Axe' }],
                 HeadGear:             [{ InternalName: 'ID_Hat',  DisplayName: 'Hat' }],

@@ -18,6 +18,32 @@
       "Tile.Biome.ShowFloor"
     ],
     "world_gen_priority": 1000,
-    "upgrade_recipe": null
+    "upgrade_recipe": null,
+    "compartments": [
+      {
+        "id": "main",
+        "layout": "Grid",
+        "width": 3,
+        "height": 1,
+        "accepts": [
+          "general"
+        ],
+        "surface": {
+          "offset": {
+            "x": -0.55,
+            "y": -70.9,
+            "z": 26.77
+          },
+          "yaw": 0.0,
+          "width": 59.93,
+          "depth": 28.94,
+          "part": "Drawer"
+        },
+        "gate": {
+          "part": "Drawer",
+          "min_open": 0.5
+        }
+      }
+    ]
   }
 }

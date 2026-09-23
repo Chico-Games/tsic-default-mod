@@ -81,19 +81,6 @@ TSICTestHarness.register({
     },
 });
 
-// ---- Storage: very large stack count --------------------------------------
-TSICTestHarness.register({
-    name: 'Stress/Storage: 99999 stack count renders cleanly',
-    file: '/screens/storage.html',
-    async run(ctx) {
-        ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Storage:1', GridWidth: 8, Items: [{ ItemId: 'ID_X', Count: 99999, InstanceId: 1, GridSlot: 0 }], MaxSlots: 32 });
-        await ctx.waitFor(() => ctx.doc.querySelector('#ss-container-list .tsic-slot[data-grid="0"]'));
-        const cell = ctx.doc.querySelector('#ss-container-list .tsic-slot[data-grid="0"]');
-        ctx.expect(ctx.assert.truthy(/99999/.test((cell.querySelector('.count') || {}).textContent || ''),
-            `expected count badge 99999`));
-    },
-});
-
 // ---- Cheat: an input-driven command with an empty field does not publish ----
 // (Was the raw console box, which the panel no longer carries. The same contract
 // still matters for every data-cmd-tpl-input button.)
@@ -107,21 +94,6 @@ TSICTestHarness.register({
         ctx.clearPublishes();
         ctx.doc.querySelector('button[data-cmd-tpl-input^="FindEntity"]').click();
         ctx.expect(ctx.assert.notPublished(ctx.handle, 'UI.Cmd.Cheat.Execute'));
-    },
-});
-
-// ---- Production: 20 queue entries with progress -------------------------
-TSICTestHarness.register({
-    name: 'Stress/Production: 20 queue entries render',
-    file: '/screens/production.html',
-    async run(ctx) {
-        ctx.screen('Production');
-        const q = [];
-        for (let i = 0; i < 20; i++) q.push({ RecipeId: `R_${i}`, Name: `r${i}`, ProgressFraction: i / 20 });
-        ctx.inject('tsic.msg.UI.Recipe.StationOpened', { Kind: 'Production', Recipes: [], MaterialCounts: {} });
-        ctx.inject('tsic.msg.UI.Recipe.QueueChanged', { Queue: q });
-        await new Promise(r => setTimeout(r, 150));
-        ctx.expect(ctx.assert.truthy(true));
     },
 });
 

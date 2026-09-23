@@ -5,7 +5,58 @@
   "schema_version": 2,
   "properties": {
     "extends": "FD_Fridge_2_DF",
-    "inventory_rules_definition": "IRD_FridgeTier2",
+    "compartments": [
+      {
+        "id": "bottom",
+        "layout": "Grid",
+        "width": 6,
+        "height": 4,
+        "accepts": [
+          "cold"
+        ],
+        "surface": {
+          "offset": {
+            "x": 0.82,
+            "y": -0.69,
+            "z": 42.93
+          },
+          "yaw": 90.0,
+          "width": 70.0,
+          "depth": 44.0,
+          "camera_distance": 240.0,
+          "camera_pitch": -38.0
+        },
+        "gate": {
+          "part": "DoorLower",
+          "min_open": 0.5
+        }
+      },
+      {
+        "id": "top",
+        "layout": "Grid",
+        "width": 6,
+        "height": 1,
+        "accepts": [
+          "cold"
+        ],
+        "surface": {
+          "offset": {
+            "x": 0.82,
+            "y": -0.69,
+            "z": 128.3
+          },
+          "yaw": 90.0,
+          "width": 70.0,
+          "depth": 44.0,
+          "camera_distance": 240.0,
+          "camera_pitch": -38.0
+        },
+        "gate": {
+          "part": "DoorUpper",
+          "min_open": 0.5
+        }
+      }
+    ],
     "starting_health": 400,
     "furniture_armour": 3,
     "drag_mass": 120,
@@ -18,7 +69,6 @@
       "Tile.Biome.ShowFloor"
     ],
     "world_gen_priority": 1000,
-    "inventory_loot": null,
     "upgrade_recipe": null
   }
 }

@@ -4,12 +4,35 @@
   "class": "UStorageDefinition",
   "schema_version": 2,
   "properties": {
-    "inventory_rules_definition": "IRD_StorageTier1_2",
-    "inventory_loot": {
-      "rolls": 2,
-      "chance_per_roll": 0.5
-    },
-    "gameplay_event_tag": "UI.GameScreen.Storage",
+    "compartments": [
+      {
+        "id": "main",
+        "layout": "Grid",
+        "width": 2,
+        "height": 1,
+        "accepts": [
+          "general"
+        ],
+        "surface": {
+          "offset": {
+            "x": 0.0,
+            "y": -5.25,
+            "z": 8.0
+          },
+          "yaw": 90.0,
+          "width": 40.0,
+          "depth": 32.0
+        },
+        "gate": {
+          "part": "Door",
+          "min_open": 0.5
+        },
+        "loot": {
+          "rolls": 2,
+          "chance": 0.5
+        }
+      }
+    ],
     "layer_name": "UI.Layer.GameMenu",
     "interaction_hold_time": 0.0,
     "interaction_prompt_text": "Open",
@@ -142,20 +165,9 @@
         {
           "name": "Door",
           "motion": "Hinge",
-          "range": -100.0,
-          "opens_for_screen": true
+          "range": -100.0
         }
       ]
-    },
-    "storage_view": {
-      "offset": {
-        "x": 0.0,
-        "y": -5.25,
-        "z": 8.0
-      },
-      "yaw": 90.0,
-      "width": 40.0,
-      "depth": 32.0
     }
   }
 }

@@ -1,12 +1,9 @@
 {
   "id": "FD_OvenTier2_PS",
   "asset_path": "/Game/Furniture/Cooking/Oven/Construction/FD_OvenTier2_PS",
-  "class": "UProductionStationDefinition",
+  "class": "UInteractableFurnitureDefinition",
   "schema_version": 2,
   "properties": {
-    "available_recipe_rules_definition": "ARR_OvenTier2Recipes",
-    "max_recipes": 5,
-    "gameplay_event_tag": "UI.GameScreen.Production",
     "interaction_hold_time": 0,
     "interaction_prompt_text": "Use",
     "has_static_audio": false,
@@ -181,6 +178,48 @@
     "release_angular_damping": 0.05000000074505806,
     "release_linear_damping": 0.009999999776482582,
     "restitution": 0.30000001192092896,
-    "contents_always_visible": true
+    "contents_always_visible": true,
+    "gameplay_event_tag": "UI.GameScreen.Inventory",
+    "compartments": [
+      {
+        "id": "tray",
+        "layout": "Grid",
+        "width": 5,
+        "height": 3,
+        "accepts": [
+          "cold",
+          "general"
+        ],
+        "surface": {
+          "offset": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 50.4
+          },
+          "yaw": 90.0,
+          "width": 76.2,
+          "depth": 66.3
+        }
+      }
+    ],
+    "station": {
+      "recipe_tag": "Station.OvenTier2",
+      "input": "tray",
+      "trigger": {
+        "type": "Click_Bench"
+      },
+      "work": {
+        "type": "Timed",
+        "offline": true
+      },
+      "feedback": {
+        "vibrate": {
+          "amplitude": 0.1,
+          "hz": 12.0
+        },
+        "complete_sound": "Recipe.Completed",
+        "action_label": "Cook"
+      }
+    }
   }
 }

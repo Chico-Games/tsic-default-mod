@@ -21,15 +21,3 @@ TSICTestHarness.register({
         ctx.expect(ctx.assert.eq(ctx.win.tsic.itemName('ID_Unknown'), 'ID_Unknown'));
     },
 });
-
-TSICTestHarness.register({
-    name: 'Unit/Catalog: UI.Recipe.Catalog populates tsic.recipeCatalog',
-    file: '/screens/test-fixtures.html',
-    async run(ctx) {
-        ctx.inject('tsic.msg.UI.Recipe.Catalog', {
-            Recipes: [{ RecipeId: 'R_X', Name: 'Test', Inputs: [], Outputs: [] }],
-        });
-        await new Promise(r => setTimeout(r, 30));
-        ctx.expect(ctx.assert.eq(ctx.win.tsic.recipeCatalog && ctx.win.tsic.recipeCatalog.R_X && ctx.win.tsic.recipeCatalog.R_X.Name, 'Test'));
-    },
-});

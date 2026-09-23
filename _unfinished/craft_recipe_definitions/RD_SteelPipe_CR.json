@@ -20,10 +20,11 @@
       }
     ],
     "output": [
-      { "key": "ID_SteelPipe_EQ", "value": 1 }
+      {
+        "key": "ID_SteelPipe_EQ",
+        "value": 1
+      }
     ],
-    "duration": 4.0,
-    "level": 1,
-    "crafting_bench_tags": []
+    "duration": 4.0
   }
 }

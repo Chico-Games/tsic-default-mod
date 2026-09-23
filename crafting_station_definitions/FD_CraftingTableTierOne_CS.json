@@ -1,11 +1,9 @@
 {
   "id": "FD_CraftingTableTierOne_CS",
   "asset_path": "/Game/Furniture/CraftingBenches/Construction/FD_CraftingTableTierOne_CS",
-  "class": "UCookingStationDefinition",
+  "class": "UInteractableFurnitureDefinition",
   "schema_version": 2,
   "properties": {
-    "available_recipe_rules_definition": "ARR_CraftingBenchTierOne",
-    "gameplay_event_tag": "UI.GameScreen.Production",
     "interaction_hold_time": 0.0,
     "interaction_prompt_text": "Use",
     "has_static_audio": false,
@@ -194,22 +192,70 @@
     "restitution": 0.30000001192092896,
     "constructable_item_to_grant": "ID_CraftingTableTierOne_CI",
     "upgrade_recipe": "RD_CraftingTableTierTwo_CN",
-    "max_recipes": 5,
-    "inventory_rules_definition": "IRD_BenchTray",
-    "action_label": "Craft",
-    "working_label": "Crafting",
-    "storage_view": {
-      "offset": {
-        "x": 0.0,
-        "y": 0.0,
-        "z": 84.0
+    "compartments": [
+      {
+        "id": "input",
+        "layout": "Grid",
+        "width": 4,
+        "height": 3,
+        "accepts": [
+          "general",
+          "cold",
+          "wood",
+          "cardboard",
+          "fabric",
+          "fasteners"
+        ],
+        "surface": {
+          "offset": {
+            "x": 0.0,
+            "y": -24.0,
+            "z": 84.0
+          },
+          "yaw": 90.0,
+          "width": 66.0,
+          "depth": 50.0,
+          "camera_distance": 250.0,
+          "camera_pitch": -38.0
+        }
       },
-      "yaw": 90.0,
-      "width": 120.0,
-      "depth": 50.0,
-      "camera_distance": 250.0,
-      "camera_pitch": -38.0
+      {
+        "id": "output",
+        "layout": "Grid",
+        "width": 2,
+        "height": 2,
+        "accepts": [
+          "general",
+          "cold"
+        ],
+        "take_only": true,
+        "visible_when_empty": false,
+        "surface": {
+          "offset": {
+            "x": 0.0,
+            "y": 36.0,
+            "z": 84.0
+          },
+          "yaw": 90.0,
+          "width": 42.0,
+          "depth": 50.0
+        }
+      }
+    ],
+    "station": {
+      "recipe_tag": "Station.CraftingTableTierOne",
+      "input": "input",
+      "output": "output",
+      "trigger": {
+        "type": "Click_Bench"
+      },
+      "work": {
+        "type": "Instant"
+      },
+      "feedback": {
+        "action_label": "Craft"
+      }
     },
-    "food_station": false
+    "gameplay_event_tag": "UI.GameScreen.Inventory"
   }
 }

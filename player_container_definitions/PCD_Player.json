@@ -10,7 +10,8 @@
         "width": 6,
         "height": 6,
         "accepts": [
-          "general"
+          "general",
+          "seed"
         ]
       },
       {
@@ -173,7 +174,8 @@
       "width": 1,
       "height": 1,
       "accepts": [
-        "general"
+        "general",
+        "seed"
       ]
     },
     "hand": "hand",

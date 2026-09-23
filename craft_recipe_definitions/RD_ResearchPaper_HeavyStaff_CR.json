@@ -22,8 +22,8 @@
       }
     ],
     "duration": 480.0,
-    "level": 3,
-    "always_discovered": true,
-    "crafting_bench_tags": []
+    "stations": [
+      "Station.ResearchVat"
+    ]
   }
 }

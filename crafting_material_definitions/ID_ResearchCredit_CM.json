@@ -10,6 +10,7 @@
     "stackable": true,
     "weight": 0.05,
     "item_category_tag": "Entity.Inventory.Item.Category.CraftingMaterial",
-    "max_stack_size": 50
+    "max_stack_size": 50,
+    "storage_class": "general"
   }
 }

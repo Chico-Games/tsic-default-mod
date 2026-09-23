@@ -4,12 +4,36 @@
   "class": "UStorageDefinition",
   "schema_version": 2,
   "properties": {
-    "inventory_rules_definition": "IRD_StorageTier1_2",
-    "inventory_loot": {
-      "rolls": 2,
-      "chance_per_roll": 0.5
-    },
-    "gameplay_event_tag": "UI.GameScreen.Storage",
+    "compartments": [
+      {
+        "id": "main",
+        "layout": "Grid",
+        "width": 2,
+        "height": 1,
+        "accepts": [
+          "general"
+        ],
+        "surface": {
+          "offset": {
+            "x": 1.69,
+            "y": 0.0,
+            "z": 22.41
+          },
+          "yaw": 0.0,
+          "width": 58.0,
+          "depth": 38.47,
+          "part": "Drawer"
+        },
+        "gate": {
+          "part": "Drawer",
+          "min_open": 0.5
+        },
+        "loot": {
+          "rolls": 2,
+          "chance": 0.5
+        }
+      }
+    ],
     "layer_name": "UI.Layer.GameMenu",
     "interaction_hold_time": 0.0,
     "interaction_prompt_text": "Open",
@@ -149,21 +173,9 @@
         {
           "name": "Drawer",
           "motion": "Slide",
-          "range": 38.0,
-          "opens_for_screen": true
+          "range": 38.0
         }
       ]
-    },
-    "storage_view": {
-      "offset": {
-        "x": 1.69,
-        "y": 0.0,
-        "z": 22.41
-      },
-      "yaw": 0.0,
-      "width": 58.0,
-      "depth": 38.47,
-      "part": "Drawer"
     }
   }
 }

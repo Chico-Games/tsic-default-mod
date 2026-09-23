@@ -22,8 +22,11 @@
       }
     ],
     "duration": 95.0,
-    "level": 1,
-    "always_discovered": true,
-    "crafting_bench_tags": []
+    "stations": [
+      "Station.Dishwasher",
+      "Station.DishwasherTier2",
+      "Station.Oven",
+      "Station.OvenTier2"
+    ]
   }
 }

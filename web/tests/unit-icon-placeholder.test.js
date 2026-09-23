@@ -40,8 +40,8 @@ TSICTestHarness.register({
     name: 'Unit/Icons: sizing via style.cssText cannot wipe the placeholder',
     file: '/screens/test-fixtures.html',
     async run(ctx) {
-        // shared/inventory.js sizes its grid icons exactly this way. An inline
-        // background would be destroyed by it; a class is not.
+        // A call site sizing its icon this way would destroy an inline background;
+        // a class survives it.
         const img = ctx.win.TSIC.iconImg(ctx.win.TSIC.itemIconUrl('ID_AlsoNotReal'));
         img.style.cssText = 'width:100%;height:100%;object-fit:contain;pointer-events:none;';
         ctx.doc.body.appendChild(img);

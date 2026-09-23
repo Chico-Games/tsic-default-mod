@@ -18,8 +18,9 @@
       }
     ],
     "duration": 95.0,
-    "level": 1,
-    "always_discovered": true,
-    "crafting_bench_tags": []
+    "stations": [
+      "Station.Kiln",
+      "Station.KilnTier2"
+    ]
   }
 }

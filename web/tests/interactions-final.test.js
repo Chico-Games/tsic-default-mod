@@ -97,28 +97,6 @@ TSICTestHarness.register({
     },
 });
 
-// ---- Repair: items list renders -----------------------------------------
-TSICTestHarness.register({
-    name: 'Repair: each item shows up as a row with a Repair button',
-    file: '/screens/repair.html',
-    async run(ctx) {
-        ctx.setItemCatalog({ ID_X: { Name: 'X' }, ID_Y: { Name: 'Y' } });
-        // Repair mounts the shared RecipeStation (rows = .tsic-list-row in
-        // #repair-station, one .rs-action button). Repairables arrive as Recipes
-        // with Durability/MaxDurability; a non-pristine item is actionable.
-        ctx.inject('tsic.msg.UI.Recipe.StationOpened', { Kind: 'Repair', Recipes: [
-            { RecipeId: 'ID_X', Durability: 50, MaxDurability: 100 },
-            { RecipeId: 'ID_Y', Durability: 30, MaxDurability: 100 },
-        ]});
-        await ctx.waitFor(() => ctx.doc.querySelectorAll('#repair-station .tsic-list-row').length === 2);
-        ctx.expect(ctx.assert.domCount(ctx.doc, '#repair-station .tsic-list-row', 2));
-        ctx.clearPublishes();
-        ctx.doc.querySelector('#repair-station .tsic-list-row').click();
-        ctx.doc.querySelector('#repair-station .rs-action').click();
-        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Recipe.Start', { where: p => p.Kind === 'Repair' }));
-    },
-});
-
 // ---- ActionBar: cooldown 100% draws no sweep --------------------------
 TSICTestHarness.register({
     name: 'ActionBar: cooldown == 1.0 (ready) draws no sweep div',
@@ -316,24 +294,6 @@ TSICTestHarness.register({
         ctx.clearPublishes();
         ctx.doc.getElementById('cm-tp-world').click();
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Cheat.Execute', { where: p => p.Command === 'TeleportToLocation 0 100 200 0' }));
-    },
-});
-
-// ---- Universal Storage (linked): dblclicking item with count > 1 ------
-TSICTestHarness.register({
-    name: 'UniversalStorage (linked): shift-click quick-moves the whole stack to the player',
-    file: '/screens/universal-storage.html',
-    async run(ctx) {
-        ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Universal', GridWidth: 8, MaxSlots: 64, Items: [{ ItemId: 'X', Count: 12, InstanceId: 1, GridSlot: 0 }] });
-        ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Player', GridWidth: 8, MaxSlots: 32, Items: [] });
-        await ctx.waitFor(() => ctx.doc.querySelector('#ss-container-list .tsic-slot[data-grid="0"]'));
-        ctx.clearPublishes();
-        // §7.4: quick-move (whole stack, partial allowed server-side) replaced
-        // the old dblclick transfer; dblclick is COLLECT now.
-        ctx.doc.querySelector('#ss-container-list .tsic-slot[data-grid="0"]')
-            .dispatchEvent(new ctx.win.MouseEvent('click', { bubbles: true, cancelable: true, shiftKey: true }));
-        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Inventory.QuickMove',
-            { where: p => p.FromOwnerId === 'Universal' && p.ToOwnerId === 'Player' && p.ItemId === 1 && p.FromSlot === 0 }));
     },
 });
 

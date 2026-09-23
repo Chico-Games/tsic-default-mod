@@ -92,6 +92,7 @@
     "static_item_definition": "FD_Taser_SI",
     "equipment_slot": "Entity.Inventory.Item.Equipment.Slot.Weapon",
     "item_category_tag": "Entity.Inventory.Item.Category.Weapon",
-    "ammo_definition": "ID_TaserBattery_AM"
+    "ammo_definition": "ID_TaserBattery_AM",
+    "storage_class": "general"
   }
 }

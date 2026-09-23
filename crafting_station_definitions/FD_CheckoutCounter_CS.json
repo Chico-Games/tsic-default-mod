@@ -1,11 +1,9 @@
 {
   "id": "FD_CheckoutCounter_CS",
   "asset_path": "/Game/Furniture/Checkout/Construction/FD_CheckoutCounter_CS",
-  "class": "UCraftingStationDefinition",
+  "class": "UInteractableFurnitureDefinition",
   "schema_version": 2,
   "properties": {
-    "available_recipe_rules_definition": "ARR_CraftingBenchTierOne",
-    "gameplay_event_tag": "UI.GameScreen.Crafting",
     "interaction_hold_time": 0.0,
     "interaction_prompt_text": "Craft at",
     "has_static_audio": false,
@@ -201,6 +199,69 @@
     "release_angular_damping": 0.05000000074505806,
     "release_linear_damping": 0.009999999776482582,
     "restitution": 0.30000001192092896,
-    "upgrade_recipe": "RD_CheckoutCounterTier2_CN"
+    "upgrade_recipe": "RD_CheckoutCounterTier2_CN",
+    "gameplay_event_tag": "UI.GameScreen.Inventory",
+    "compartments": [
+      {
+        "id": "input",
+        "layout": "Grid",
+        "width": 4,
+        "height": 3,
+        "accepts": [
+          "general",
+          "cold",
+          "wood",
+          "cardboard",
+          "fabric",
+          "fasteners"
+        ],
+        "surface": {
+          "offset": {
+            "x": -0.0,
+            "y": -45.6,
+            "z": 46.4
+          },
+          "yaw": 90.0,
+          "width": 125.4,
+          "depth": 125.1
+        }
+      },
+      {
+        "id": "output",
+        "layout": "Grid",
+        "width": 2,
+        "height": 2,
+        "accepts": [
+          "general",
+          "cold"
+        ],
+        "take_only": true,
+        "visible_when_empty": false,
+        "surface": {
+          "offset": {
+            "x": -0.0,
+            "y": 68.4,
+            "z": 46.4
+          },
+          "yaw": 90.0,
+          "width": 79.8,
+          "depth": 125.1
+        }
+      }
+    ],
+    "station": {
+      "recipe_tag": "Station.CheckoutCounter",
+      "input": "input",
+      "output": "output",
+      "trigger": {
+        "type": "Click_Bench"
+      },
+      "work": {
+        "type": "Instant"
+      },
+      "feedback": {
+        "action_label": "Craft"
+      }
+    }
   }
 }

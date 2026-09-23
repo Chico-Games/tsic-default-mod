@@ -1,12 +1,9 @@
 {
   "id": "FD_SawBench_PS",
   "asset_path": "/Game/Furniture/CraftingBenches/SawBench/Construction/FD_SawBench_PS",
-  "class": "USawStationDefinition",
+  "class": "UInteractableFurnitureDefinition",
   "schema_version": 2,
   "properties": {
-    "available_recipe_rules_definition": "ARR_SawBenchRecipes",
-    "max_recipes": 5,
-    "gameplay_event_tag": "UI.GameScreen.Production",
     "interaction_hold_time": 0,
     "interaction_prompt_text": "Use",
     "has_static_audio": false,
@@ -184,40 +181,73 @@
     "release_linear_damping": 0.009999999776482582,
     "restitution": 0.30000001192092896,
     "constructable_item_to_grant": "ID_SawBench_CI",
-    "animated_mesh": "/Game/Furniture/CraftingBenches/SawBench/Meshes/SKM_TableSaw.SKM_TableSaw",
-    "animated_offset": {
-      "x": 0.0,
-      "y": 0.0,
-      "z": 0.0
-    },
-    "seam_clip": "/Game/Furniture/CraftingBenches/SawBench/Meshes/A_TableSaw_Cut.A_TableSaw_Cut",
-    "run_clip": "/Game/Furniture/CraftingBenches/SawBench/Meshes/A_TableSaw_Run.A_TableSaw_Run",
-    "cloth_mesh": "/Game/Furniture/CraftingBenches/SawBench/Meshes/SKM_Plank.SKM_Plank",
-    "cloth_clip": "/Game/Furniture/CraftingBenches/SawBench/Meshes/A_Plank_RipCut.A_Plank_RipCut",
-    "cloth_offset": {
-      "x": 0.0,
-      "y": 0.0,
-      "z": 0.0
-    },
-    "cloth_yaw": 0.0,
-    "control_bone": "",
-    "action_label": "Cut",
-    "working_label": "Cutting",
-    "inventory_rules_definition": "IRD_SawBed",
-    "food_station": false,
-    "storage_view": {
-      "offset": {
-        "x": 22.0,
-        "y": 0.0,
-        "z": 92.0
+    "contents_always_visible": true,
+    "compartments": [
+      {
+        "id": "bed",
+        "layout": "Grid",
+        "width": 2,
+        "height": 3,
+        "accepts": [
+          "wood"
+        ],
+        "presentation": "flat",
+        "surface": {
+          "offset": {
+            "x": 22.0,
+            "y": 0.0,
+            "z": 92.0
+          },
+          "yaw": 0.0,
+          "width": 13.0,
+          "depth": 18.0,
+          "camera_distance": 220.0,
+          "camera_pitch": -52.0
+        }
       },
-      "yaw": 0.0,
-      "width": 26.0,
-      "depth": 18.0,
-      "camera_distance": 220.0,
-      "camera_pitch": -52.0
+      {
+        "id": "outfeed",
+        "layout": "Grid",
+        "width": 3,
+        "height": 3,
+        "accepts": [
+          "wood"
+        ],
+        "presentation": "flat",
+        "take_only": true,
+        "visible_when_empty": false,
+        "surface": {
+          "offset": {
+            "x": 22.0,
+            "y": -13.0,
+            "z": 92.0
+          },
+          "yaw": 0.0,
+          "width": 13.0,
+          "depth": 18.0
+        }
+      }
+    ],
+    "station": {
+      "recipe_tag": "Station.SawBench",
+      "input": "bed",
+      "output": "outfeed",
+      "trigger": {
+        "type": "Click_Bench"
+      },
+      "work": {
+        "type": "Attended"
+      },
+      "feedback": {
+        "vibrate": {
+          "amplitude": 0.3,
+          "hz": 18.0
+        },
+        "action_label": "Saw",
+        "anim": "/Game/Furniture/CraftingBenches/SawBench/Meshes/A_TableSaw_Run.A_TableSaw_Run",
+        "anim_mesh": "/Game/Furniture/CraftingBenches/SawBench/Meshes/SKM_TableSaw.SKM_TableSaw"
+      }
     },
-    "hand_off": 0.62,
-    "contents_always_visible": true
+    "gameplay_event_tag": "UI.GameScreen.Inventory"
   }
 }

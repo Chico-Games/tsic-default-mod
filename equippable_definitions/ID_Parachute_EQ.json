@@ -17,6 +17,7 @@
     "weight": 0.5,
     "static_item_definition": "FD_Parachute_SI",
     "equipment_slot": "Entity.Inventory.Item.Equipment.Slot.Weapon",
-    "item_category_tag": "Entity.Inventory.Item.Category.Tool"
+    "item_category_tag": "Entity.Inventory.Item.Category.Tool",
+    "storage_class": "general"
   }
 }

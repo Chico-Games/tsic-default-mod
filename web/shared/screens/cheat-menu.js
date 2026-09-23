@@ -120,7 +120,6 @@
             ]) +
             btnRow([
               { label: 'Toggle Keep Items', cmd: 'KeepItems {p}', state: 'bKeepItems' },
-              { label: 'Toggle Reveal Recipes', cmd: 'RevealAllRecipes', state: 'bRecipesRevealed' },
             ]) +
             note('"Keep Items" prevents tombstone spawn on next death for the target player.'),
         },
@@ -183,7 +182,7 @@
           html: `
           <div class="cm-row">
             <label for="cm-mode">Mode</label>
-            ${picker('cm-mode', [{ value: 'GiveItem', label: 'Give Item' }, { value: 'EquipItem', label: 'Equip Item' }, { value: 'GiveAllFurniture', label: 'Give All Furniture' }, { value: 'GiveConstructionItem', label: 'Give Construction Item' }, { value: 'GiveConstructionItemAndCost', label: 'Give CI + Cost' }, { value: 'GiveRecipeIngredients', label: 'Give Recipe Ingredients' }, { value: 'GiveEquippable', label: 'Give Equippable' }, { value: 'GiveWeapon', label: 'Give Weapon' }, { value: 'GiveHeadGear', label: 'Give Head Gear' }, { value: 'GiveBodyArmor', label: 'Give Body Armor' }, { value: 'GiveLegArmor', label: 'Give Leg Armor' }, { value: 'GiveShoes', label: 'Give Shoes' }, { value: 'GiveGloves', label: 'Give Gloves' }])}
+            ${picker('cm-mode', [{ value: 'GiveItem', label: 'Give Item' }, { value: 'EquipItem', label: 'Equip Item' }, { value: 'GiveAllFurniture', label: 'Give All Furniture' }, { value: 'GiveConstructionItem', label: 'Give Construction Item' }, { value: 'GiveConstructionItemAndCost', label: 'Give CI + Cost' }, { value: 'GiveEquippable', label: 'Give Equippable' }, { value: 'GiveWeapon', label: 'Give Weapon' }, { value: 'GiveHeadGear', label: 'Give Head Gear' }, { value: 'GiveBodyArmor', label: 'Give Body Armor' }, { value: 'GiveLegArmor', label: 'Give Leg Armor' }, { value: 'GiveShoes', label: 'Give Shoes' }, { value: 'GiveGloves', label: 'Give Gloves' }])}
           </div>
           <div class="cm-row">
             <label for="cm-item-filter">Filter</label>
@@ -205,7 +204,6 @@
           html:
             btnRow([
               { label: 'Eat', cmd: 'Eat {i} {p}', multi: true },
-              { label: 'Craft', cmd: 'CraftItem {i} {p}', multi: true },
             ]) +
             inputRow({
               label: 'Count', labelFor: 'cm-item-op-count',
@@ -231,7 +229,6 @@
             }) +
             btnRow([
               { label: 'Construction Items', cmd: 'GiveConstructionItems' },
-              { label: 'Test Crafting Mats', cmd: 'GiveTestCraftingMaterials' },
             ]) +
             inputRow({
               label: 'Item set', labelFor: 'cm-item-set',
@@ -288,12 +285,6 @@
                 title: 'Ingredients for the next upgrade tier of the furniture you are looking at.' }],
             }) +
             note('These act on whatever the crosshair is pointing at.'),
-        },
-        {
-          title: 'STATIONS',
-          html: btnRow([
-            { label: 'Spawn Test Crafting Bench', cmd: 'SpawnTestCraftingBench' },
-          ]),
         },
       ],
     },
@@ -698,7 +689,6 @@
     ],
     'items/SELECTED ITEM': [
       { label: 'Eat', cmd: 'Eat {i} {p}' },
-      { label: 'Craft', cmd: 'CraftItem {i} {p}' },
       { label: 'Drop', cmd: 'DropItem {i} {#cm-item-op-count} {p}' },
       { label: 'Remove', cmd: 'RemoveItem {i} {#cm-item-op-count} {p}' },
     ],
@@ -717,9 +707,6 @@
       { label: 'Upgrade', cmd: 'UpgradeFurniture {p}' },
       { label: 'Upgrade items', cmd: 'GiveUpgradeItems {#cm-upgrade-mult} {p}' },
       { label: 'Health bars', cmd: 'ShowFurnitureHealth' },
-    ],
-    'build/STATIONS': [
-      { label: 'Crafting bench', cmd: 'SpawnTestCraftingBench' },
     ],
     'enemies/SPAWN': [
       { label: 'Spawn 1', run: 'spawnCreature' },
@@ -1499,7 +1486,6 @@
           case 'GiveAllFurniture':            return [];   // no item picker
           case 'GiveConstructionItem':        return c.ConstructionItems || [];
           case 'GiveConstructionItemAndCost': return c.ConstructionItems || [];
-          case 'GiveRecipeIngredients':       return c.Recipes || [];
           case 'GiveEquippable':              return c.Equippables || [];
           case 'GiveWeapon':                  return c.Weapons || [];
           case 'GiveHeadGear':                return c.HeadGear || [];
@@ -1661,7 +1647,6 @@
           case 'EquipItem':                   exec(`EquipItem ${itemName} ${p}`); break;
           case 'GiveConstructionItem':        exec(`GiveConstructionItem ${itemName} ${qty} ${p}`); break;
           case 'GiveConstructionItemAndCost': exec(`GiveConstructionItemAndCost ${itemName} ${qty} ${p}`); break;
-          case 'GiveRecipeIngredients':       exec(`GiveRecipeIngredients ${itemName} ${qty} ${p}`); break;
           case 'GiveEquippable':              exec(`GiveEquippable ${itemName} ${qty} ${p}`); break;
           case 'GiveWeapon':                  exec(`GiveWeapon ${itemName} ${qty} ${p}`); break;
           case 'GiveHeadGear':                exec(`GiveHeadGear ${itemName} ${qty} ${p}`); break;

@@ -1,5 +1,5 @@
-// Listens to UI.Item.Catalog / UI.Recipe.Catalog and stocks tsic.itemCatalog
-// + tsic.recipeCatalog. Every screen reads from these for display lookups.
+// Listens to UI.Item.Catalog and stocks tsic.itemCatalog. Every screen reads from it for
+// display lookups.
 //
 // Also owns the display-formatting helpers on TSIC (defined at parse time, so
 // they work before the bridge handshake and in unit tests): no screen should
@@ -28,7 +28,7 @@
 
     /**
      * Last-resort display name for a definition asset id, mirroring
-     * ScpUIRecipeBuilder::PrettifyDefinitionName on the C++ side:
+     * PrettifyDefinitionName in the notebook catalogue (ScpCataloguePagesWidget.cpp):
      * "RD_Wrench_CR" -> "Wrench", "RD_Contain_BoneHead" -> "Contain Bone Head".
      * Strips the domain prefix + trailing all-caps kind suffix, then spaces out
      * CamelCase. Use this instead of ever showing a bare id.
@@ -95,7 +95,6 @@
         if (!window.tsic || typeof tsic.whenReady !== 'function') { setTimeout(boot, 16); return; }
         tsic.whenReady(function () {
             window.tsic.itemCatalog = window.tsic.itemCatalog || {};
-            window.tsic.recipeCatalog = window.tsic.recipeCatalog || {};
 
             tsic.on('tsic.msg.UI.Item.Catalog', (p) => {
                 const next = {};
@@ -104,15 +103,6 @@
                 }
                 window.tsic.itemCatalog = next;
                 window.dispatchEvent(new CustomEvent('tsic-item-catalog'));
-            });
-
-            tsic.on('tsic.msg.UI.Recipe.Catalog', (p) => {
-                const next = {};
-                for (const r of ((p && p.Recipes) || [])) {
-                    next[r.RecipeId] = r;
-                }
-                window.tsic.recipeCatalog = next;
-                window.dispatchEvent(new CustomEvent('tsic-recipe-catalog'));
             });
 
             // Convenience accessors

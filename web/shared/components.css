@@ -235,7 +235,7 @@ html[data-tsic-reduce-motion] .tsic-button[data-variant="pink"] { animation: non
    ═════════════════════════════════════════════════════════════
    The whole row is a single button. Bold uppercase headline, dashed
    separator between rows, red `>>` indicator that slides on hover. Used
-   by save/load, repair, upgrade, summoner, universal-storage-setup. */
+   by save/load, repair, upgrade, summoner. */
 
 .tsic-row-button {
   display: flex;

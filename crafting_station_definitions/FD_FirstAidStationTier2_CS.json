@@ -1,10 +1,9 @@
 {
   "id": "FD_FirstAidStationTier2_CS",
   "asset_path": "/Game/Furniture/Medical/FirstAidStation/Construction/FD_FirstAidStationTier2_CS",
-  "class": "UCraftingStationDefinition",
+  "class": "UInteractableFurnitureDefinition",
   "schema_version": 2,
   "properties": {
-    "gameplay_event_tag": "UI.GameScreen.Crafting",
     "interaction_hold_time": 0.0,
     "interaction_prompt_text": "Craft at",
     "has_static_audio": false,
@@ -107,6 +106,67 @@
     "release_angular_damping": 0.05000000074505806,
     "release_linear_damping": 0.009999999776482582,
     "restitution": 0.30000001192092896,
-    "available_recipe_rules_definition": "ARR_FirstAidStationTier2Recipes"
+    "gameplay_event_tag": "UI.GameScreen.Inventory",
+    "compartments": [
+      {
+        "id": "input",
+        "layout": "Grid",
+        "width": 7,
+        "height": 3,
+        "accepts": [
+          "general",
+          "cold",
+          "wood",
+          "cardboard",
+          "fabric",
+          "fasteners"
+        ],
+        "surface": {
+          "offset": {
+            "x": 0.0,
+            "y": -13.7,
+            "z": 39.1
+          },
+          "yaw": 90.0,
+          "width": 37.8,
+          "depth": 37.2
+        }
+      },
+      {
+        "id": "output",
+        "layout": "Grid",
+        "width": 3,
+        "height": 2,
+        "accepts": [
+          "cold"
+        ],
+        "take_only": true,
+        "visible_when_empty": false,
+        "surface": {
+          "offset": {
+            "x": 0.0,
+            "y": 20.6,
+            "z": 39.1
+          },
+          "yaw": 90.0,
+          "width": 24.1,
+          "depth": 37.2
+        }
+      }
+    ],
+    "station": {
+      "recipe_tag": "Station.FirstAidStationTier2",
+      "input": "input",
+      "output": "output",
+      "trigger": {
+        "type": "Click_Bench"
+      },
+      "work": {
+        "type": "Instant"
+      },
+      "feedback": {
+        "action_label": "Craft"
+      }
+    }
   }
 }

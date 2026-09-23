@@ -30,7 +30,9 @@
       }
     ],
     "duration": 6.0,
-    "level": 1,
-    "crafting_bench_tags": []
+    "stations": [
+      "Station.FirstAidStation",
+      "Station.FirstAidStationTier2"
+    ]
   }
 }

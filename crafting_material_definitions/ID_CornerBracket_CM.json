@@ -11,6 +11,7 @@
     "weight": 0.1,
     "static_item_definition": "FD_CornerBracket_SI",
     "item_category_tag": "Entity.Inventory.Item.Category.CraftingMaterial",
-    "max_stack_size": 50
+    "max_stack_size": 50,
+    "storage_class": "general"
   }
 }

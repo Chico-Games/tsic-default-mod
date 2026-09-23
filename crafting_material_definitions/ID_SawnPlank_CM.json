@@ -19,15 +19,44 @@
           "y": 0
         },
         {
-          "x": 0,
-          "y": 1
+          "x": 1,
+          "y": 0
         },
         {
-          "x": 0,
-          "y": 2
+          "x": 2,
+          "y": 0
         }
       ]
     },
+    "presentations": [
+      {
+        "key": "lean",
+        "value": {
+          "rotation": {
+            "pitch": 0.0,
+            "yaw": 0.0,
+            "roll": 80.0
+          }
+        }
+      },
+      {
+        "key": "upright",
+        "value": {
+          "scale": 1.0
+        }
+      },
+      {
+        "key": "flat",
+        "value": {
+          "scale": 1.0,
+          "rotation": {
+            "pitch": 0.0,
+            "yaw": 90.0,
+            "roll": 0.0
+          }
+        }
+      }
+    ],
     "storage_class": "wood"
   }
 }

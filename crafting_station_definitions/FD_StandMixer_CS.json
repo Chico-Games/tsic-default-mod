@@ -1,11 +1,9 @@
 {
   "id": "FD_StandMixer_CS",
   "asset_path": "/Game/Furniture/CraftingBenches/StandMixer/Construction/FD_StandMixer_CS",
-  "class": "UCraftingStationDefinition",
+  "class": "UInteractableFurnitureDefinition",
   "schema_version": 2,
   "properties": {
-    "available_recipe_rules_definition": "ARR_StandMixerRecipes",
-    "gameplay_event_tag": "UI.GameScreen.Crafting",
     "interaction_hold_time": 0.0,
     "interaction_prompt_text": "Mix",
     "has_static_audio": false,
@@ -106,6 +104,68 @@
     "release_angular_damping": 0.05000000074505806,
     "release_linear_damping": 0.009999999776482582,
     "restitution": 0.30000001192092896,
-    "constructable_item_to_grant": "ID_StandMixer_CI"
+    "constructable_item_to_grant": "ID_StandMixer_CI",
+    "gameplay_event_tag": "UI.GameScreen.Inventory",
+    "compartments": [
+      {
+        "id": "input",
+        "layout": "Grid",
+        "width": 4,
+        "height": 2,
+        "accepts": [
+          "general",
+          "cold",
+          "wood",
+          "cardboard",
+          "fabric",
+          "fasteners"
+        ],
+        "surface": {
+          "offset": {
+            "x": -2.4,
+            "y": -4.9,
+            "z": 17.6
+          },
+          "yaw": 90.0,
+          "width": 13.4,
+          "depth": 15.7
+        }
+      },
+      {
+        "id": "output",
+        "layout": "Grid",
+        "width": 2,
+        "height": 2,
+        "accepts": [
+          "general"
+        ],
+        "take_only": true,
+        "visible_when_empty": false,
+        "surface": {
+          "offset": {
+            "x": -2.4,
+            "y": 7.3,
+            "z": 17.6
+          },
+          "yaw": 90.0,
+          "width": 8.5,
+          "depth": 15.7
+        }
+      }
+    ],
+    "station": {
+      "recipe_tag": "Station.StandMixer",
+      "input": "input",
+      "output": "output",
+      "trigger": {
+        "type": "Click_Bench"
+      },
+      "work": {
+        "type": "Instant"
+      },
+      "feedback": {
+        "action_label": "Craft"
+      }
+    }
   }
 }

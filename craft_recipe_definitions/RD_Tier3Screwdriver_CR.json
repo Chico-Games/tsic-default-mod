@@ -22,7 +22,8 @@
       }
     ],
     "duration": 4.0,
-    "level": 3,
-    "crafting_bench_tags": []
+    "stations": [
+      "Station.WeldingStationTier2"
+    ]
   }
 }

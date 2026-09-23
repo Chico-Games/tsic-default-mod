@@ -220,7 +220,6 @@
             const cats = resolveCatalogs(activeFixture, activeState);
             activeHandle = global.TSICTestHarness.installMockTsic(activeWin, {
                 itemCatalog: cats.items || {},
-                recipeCatalog: cats.recipes || {},
             });
             // Decorate the mock's publishMessage so we observe outgoing commands
             // AND feed them through fixture.onPublish for reactive simulation.
@@ -371,13 +370,12 @@
     // Fixtures whose target screen has <meta name="tsic-focus" content="enabled">.
     // Updated when more screens opt in — currently 27.
     const FOCUS_ENGINE_IDS = new Set([
-        'boss-summoner', 'bug-report', 'cage', 'cheat-menu',
-        'crafting', 'credits', 'death-screen',
+        'bug-report', 'cage', 'cheat-menu',
+        'credits', 'death-screen',
         'equipment', 'interaction', 'lore',
         'main-menu', 'mods', 'new-store', 'pause-menu',
-        'production', 'quantity-picker', 'repair', 'save-load',
-        'selection', 'settings', 'storage', 'teleporter',
-        'universal-storage', 'universal-storage-setup',
+        'quantity-picker', 'save-load',
+        'selection', 'settings', 'teleporter',
         'upgrade', 'wardrobe',
     ]);
     NS.FOCUS_ENGINE_IDS = FOCUS_ENGINE_IDS;
@@ -406,17 +404,15 @@
         'equipment': 'Inventory & Equipment',
         'wardrobe': 'Inventory & Equipment', 'quantity-picker': 'Inventory & Equipment',
 
-        'crafting': 'Crafting & Building', 'production': 'Crafting & Building',
-        'repair': 'Crafting & Building', 'upgrade': 'Crafting & Building',
+        'upgrade': 'Crafting & Building',
 
-        'storage': 'Storage & Transport', 'universal-storage': 'Storage & Transport',
-        'universal-storage-setup': 'Storage & Transport', 'teleporter': 'Storage & Transport',
+        'teleporter': 'Storage & Transport',
 
         'terminal-tier1': 'Terminal', 'terminal-tier2': 'Terminal', 'terminal-tier3': 'Terminal',
 
         'chat': 'Social', 'voice-chat': 'Social',
 
-        'boss-summoner': 'Enemies', 'cage': 'Enemies',
+        'cage': 'Enemies',
 
         'bug-report': 'Misc', 'cheat-menu': 'Misc', 'lore': 'Misc', 'selection': 'Misc',
     };

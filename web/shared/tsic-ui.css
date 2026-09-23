@@ -8,7 +8,6 @@
  *   1. Layout primitives  — .tsic-modal-scrim, .tsic-stack, .tsic-row
  *   2. Panel scaffolding  — .tsic-panel--screen, .tsic-split, .tsic-list-pane
  *   3. List rows          — .tsic-list-row (article-row look, paper-context)
- *   4. Storage shell      — .ss-* (storage / universal storage)
  *   5. Typography         — .tsic-title, .tsic-eyebrow, .tsic-meta
  *   6. Buttons row, tabs  — .tsic-button-row, .tsic-tab-bar, .tsic-close-row
  *   7. Empty / dividers   — .tsic-empty, .tsic-divider
@@ -85,11 +84,9 @@
 
 /* Split-pane body for screen panels: two columns of vertical lists.
  *
- * The name is shared vocabulary — recipe-station.js mounts one of these into every station
- * screen — so nothing outside this file may claim it. shared/inventory.js once did, for its
- * stack-split dialog, and because that sheet is global and injected on the first bag render,
- * every station panel silently inherited `position:fixed` the moment a player opened their
- * inventory (issue #228). That dialog is `.tsic-split-dialog` now. */
+ * The name is shared vocabulary, so nothing outside this file may claim it. A global
+ * stack-split dialog rule once did, and every panel using it silently inherited
+ * `position:fixed` (issue #228). */
 .tsic-split {
     flex: 1 1 auto;
     display: grid;
@@ -204,76 +201,6 @@ button.tsic-list-row {
 }
 .tsic-list-row.is-selected .right { color: rgba(255, 255, 255, 0.85); }
 
-/* ═════════════ 4. Storage shell ═════════════
- * Shared between regular storage and universal storage. Lives inside a
- * .tsic-panel--screen so column widths come from the grid above; this
- * section only styles the header, per-side capacity, tabs, and info strip. */
-#ss-header {
-    display: flex;
-    align-items: baseline;
-    gap: 18px;
-    margin-bottom: 8px;
-}
-#ss-header .spacer { flex: 1 1 auto; }
-.ss-col-head {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 8px;
-}
-/* Storage tabs share the unified .tsic-tab treatment (see §6); only the size
-   is trimmed for the denser two-pane storage shell. */
-.ss-tabs .tsic-tab { padding: 4px 10px; font-size: 13px; }
-
-.ss-capacity {
-    display: flex; flex-direction: column; gap: 2px;
-    font-size: 11px;
-    flex: 0 0 auto;
-}
-.ss-capacity-line {
-    display: flex;
-    justify-content: space-between;
-    color: var(--ink-soft);
-    font-family: var(--font-terminal);
-    letter-spacing: 0.06em;
-}
-.ss-capacity-bar {
-    height: 5px;
-    background: var(--paper-muted);
-    border: 1px solid var(--ink-night);
-}
-.ss-capacity-fill {
-    height: 100%;
-    width: 0;
-    background: var(--ink-night);
-    transition: width 100ms linear, background 100ms linear;
-}
-.ss-capacity[data-state="warning"]      .ss-capacity-fill { background: var(--mag-yellow); }
-.ss-capacity[data-state="full"]         .ss-capacity-fill { background: var(--mag-red); }
-.ss-capacity[data-state="overburdened"] .ss-capacity-fill { background: var(--mag-red-dark); }
-
-#ss-info {
-    flex: 0 0 auto;
-    margin-top: 8px;
-    padding: 8px 10px;
-    background: var(--paper-bright);
-    border: 2px solid var(--ink-night);
-    font-family: var(--font-terminal);
-    font-size: 13px;
-    min-height: 56px;
-    color: var(--ink-night);
-}
-#ss-info.tsic-empty { padding: 12px 10px; }
-
-/* Storage shell uses the same compact rows as inventory. */
-#ss-player-list .tsic-list-row,
-#ss-container-list .tsic-list-row { padding: 3px 8px; gap: 8px; font-size: 12px; line-height: 1.2; }
-#ss-player-list .tsic-list-row .icon,
-#ss-container-list .tsic-list-row .icon { width: 20px; height: 20px; }
-#ss-player-list .tsic-list-row .right,
-#ss-container-list .tsic-list-row .right { display:flex; gap:8px; font-size:11px; }
-#ss-player-list, #ss-container-list { gap: 1px; }
-
 /* ═════════════ 5. Typography ═════════════ */
 
 /* Section title — display-font headline. */
@@ -327,17 +254,6 @@ button.tsic-list-row {
     justify-content: flex-end;
     margin-top: 12px;
     flex: 0 0 auto;
-}
-
-/* Host for a RecipeStation mounted inside a screen panel. The station appends a
- * .tsic-split, whose `flex:1 1 auto; min-height:0` only sizes correctly when its parent
- * is itself a flex column — a plain <div> host let the recipe list grow to content height
- * and pushed the action button and close row out of the panel on long recipe lists. */
-.tsic-station-host {
-    display: flex;
-    flex-direction: column;
-    flex: 1 1 auto;
-    min-height: 0;
 }
 
 /* Magazine tab-bar — borderless section labels sitting on one heavy ink
@@ -535,12 +451,6 @@ html:is([data-tsic-input="Gamepad"], [data-tsic-kbnav]) .tsic-link[data-tsic-foc
 html:is([data-tsic-input="Gamepad"], [data-tsic-kbnav]) .tsic-row-button[data-tsic-focused] {
     background: var(--paper-muted);
     padding-left: 22px;
-}
-
-/* Storage shell tabs and inventory tabs. */
-html:is([data-tsic-input="Gamepad"], [data-tsic-kbnav]) .ss-tabs .tsic-tab[data-tsic-focused],
-html:is([data-tsic-input="Gamepad"], [data-tsic-kbnav]) .inv-tab[data-tsic-focused] {
-    background: var(--paper-muted);
 }
 
 /* ═════════════ 11. Dropdown (tsic-dropdown.js) ═════════════ */

@@ -1,12 +1,9 @@
 {
   "id": "FD_CoffeeMachineTier2_PS",
   "asset_path": "/Game/Furniture/Cooking/CoffeeMachine/Furniture/FD_CoffeeMachineTier2_PS",
-  "class": "UProductionStationDefinition",
+  "class": "UInteractableFurnitureDefinition",
   "schema_version": 2,
   "properties": {
-    "available_recipe_rules_definition": "ARR_CoffeeMachineTier2Recipes",
-    "max_recipes": 5,
-    "gameplay_event_tag": "UI.GameScreen.Production",
     "interaction_hold_time": 0,
     "interaction_prompt_text": "Use",
     "has_static_audio": false,
@@ -122,6 +119,68 @@
     ],
     "release_angular_damping": 0.05000000074505806,
     "release_linear_damping": 0.009999999776482582,
-    "restitution": 0.30000001192092896
+    "restitution": 0.30000001192092896,
+    "gameplay_event_tag": "UI.GameScreen.Inventory",
+    "compartments": [
+      {
+        "id": "input",
+        "layout": "Grid",
+        "width": 6,
+        "height": 3,
+        "accepts": [
+          "general",
+          "cold",
+          "wood",
+          "cardboard",
+          "fabric",
+          "fasteners"
+        ],
+        "surface": {
+          "offset": {
+            "x": -0.1,
+            "y": -11.6,
+            "z": 48.5
+          },
+          "yaw": 90.0,
+          "width": 31.8,
+          "depth": 35.9
+        }
+      },
+      {
+        "id": "output",
+        "layout": "Grid",
+        "width": 3,
+        "height": 2,
+        "accepts": [
+          "cold"
+        ],
+        "take_only": true,
+        "visible_when_empty": false,
+        "surface": {
+          "offset": {
+            "x": -0.1,
+            "y": 17.4,
+            "z": 48.5
+          },
+          "yaw": 90.0,
+          "width": 20.3,
+          "depth": 35.9
+        }
+      }
+    ],
+    "station": {
+      "recipe_tag": "Station.CoffeeMachineTier2",
+      "input": "input",
+      "output": "output",
+      "trigger": {
+        "type": "Click_Bench"
+      },
+      "work": {
+        "type": "Instant"
+      },
+      "feedback": {
+        "action_label": "Craft"
+      }
+    }
   }
 }

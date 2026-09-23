@@ -22,7 +22,8 @@
       }
     ],
     "duration": 120.0,
-    "level": 2,
-    "crafting_bench_tags": []
+    "stations": [
+      "Station.MicrowaveTier2"
+    ]
   }
 }

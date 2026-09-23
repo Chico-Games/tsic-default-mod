@@ -238,10 +238,6 @@ live gameplay with a fixed-proportion panel and two list columns.
 - Scrim: default `rgba(13,14,21,0.55)`; `--dim` `0.78`; `--clear` transparent (pause menu,
   which wants the world visible).
 
-**Storage variant.** Storage / universal-storage build an auto-sized `#ss-panel` grid
-instead of `--screen`, because two grids side by side can't fit the fixed proportion.
-Reuse `shared/storage-shell.js` rather than re-deriving it.
-
 ---
 
 ## 5. Components
@@ -390,8 +386,8 @@ In-game menus are overlays inside the `in-game.html` shell, not navigations. Sam
 three concerns, passed to `registerScreen`:
 
 ```js
-TSIC.registerScreen('Production', {
-  inputModeTag: 'InputMode.Menu.Production',
+TSIC.registerScreen('Basket', {
+  inputModeTag: 'InputMode.Menu.Inventory',
   cancelCmd:    'UI.Cmd.Pause.Resume',
   actionBarContext: [{ ActionName: 'IA_UI_ConfirmAccept', Label: 'Build', Priority: 10 }],
   template: TEMPLATE,

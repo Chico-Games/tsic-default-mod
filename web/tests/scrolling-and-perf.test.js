@@ -42,20 +42,6 @@ TSICTestHarness.register({
     },
 });
 
-// ---- Storage container list scroll --------------------------------------
-TSICTestHarness.register({
-    name: 'Scroll/Storage: 30 items in container render as 30 occupied cells',
-    tags: ['scroll', 'storage'],
-    file: '/screens/storage.html',
-    async run(ctx) {
-        const items = [];
-        for (let i = 0; i < 30; i++) items.push({ ItemId: 'ID_' + i, Count: 1, InstanceId: i + 1, GridSlot: i });
-        ctx.inject('tsic.msg.UI.Inventory.Updated', { OwnerId: 'Storage:1', GridWidth: 8, MaxSlots: 32, Items: items });
-        await ctx.waitFor(() => ctx.doc.querySelectorAll('#ss-container-list .tsic-slot[data-instance]').length === 30, { timeout: 2000 });
-        ctx.expect(ctx.assert.domCount(ctx.doc, '#ss-container-list .tsic-slot[data-instance]', 30));
-    },
-});
-
 // ============================================================
 // PERFORMANCE / CLUSTERING
 // ============================================================
@@ -112,22 +98,6 @@ TSICTestHarness.register({
         await new Promise(r => setTimeout(r, 200));
         const visible = ctx.doc.querySelectorAll('.notif');
         ctx.expect(ctx.assert.truthy(visible.length <= 5, `expected <=5, got ${visible.length}`));
-    },
-});
-
-// ---- Production: 50-entry queue still renders ---------------------------
-TSICTestHarness.register({
-    name: 'Perf/Production: 50 queue entries render',
-    tags: ['perf', 'production'],
-    file: '/screens/production.html',
-    async run(ctx) {
-        ctx.screen('Production');
-        const queue = [];
-        for (let i = 0; i < 50; i++) queue.push({ RecipeId: 'R_' + i, Name: 'r' + i, ProgressFraction: i / 50 });
-        ctx.inject('tsic.msg.UI.Recipe.StationOpened', { Kind: 'Production', Recipes: [], MaterialCounts: {} });
-        ctx.inject('tsic.msg.UI.Recipe.QueueChanged', { Queue: queue });
-        await new Promise(r => setTimeout(r, 250));
-        ctx.expect(ctx.assert.truthy(true));
     },
 });
 

@@ -172,8 +172,8 @@
     return src + (src.indexOf('?') < 0 ? '?' : '&') + 'r=' + n;
   }
 
-  // A class, not inline styles: call sites size icons by assigning img.style.cssText
-  // (shared/inventory.js does), which would wipe an inline background wholesale.
+  // A class, not inline styles: a call site that sizes icons by assigning img.style.cssText
+  // would wipe an inline background wholesale.
   // background-origin lines the stand-in up with the object-fit:contain content box
   // rather than letting it spill into the slot padding.
   var PLACEHOLDER_CLASS = 'tsic-icon-loading';

@@ -12,7 +12,7 @@
 // Build/Gauntlet/suite-tiers.json, so it never runs.
 
 /** Every screen registered in the shell that this suite drives, with a screen to fall back to. */
-const SWITCH_SCREENS = ['Basket', 'Crafting', 'Production', 'Storage'];
+const SWITCH_SCREENS = ['Basket', 'Notebook', 'PauseMenu'];
 
 function visibleOverlays(ctx) {
     return Array.from(ctx.doc.querySelectorAll('#screen-overlay-host [data-screen]'))
@@ -49,8 +49,8 @@ TSICTestHarness.register({
         await showScreen(ctx, 'Basket');
         ctx.expect(ctx.assert.eq(visibleOverlays(ctx), ['Basket'], 'the basket is the only overlay up'));
 
-        await showScreen(ctx, 'Crafting');
-        ctx.expect(ctx.assert.eq(visibleOverlays(ctx), ['Crafting'], 'crafting replaced the basket'));
+        await showScreen(ctx, 'Notebook');
+        ctx.expect(ctx.assert.eq(visibleOverlays(ctx), ['Notebook'], 'the notebook replaced the basket'));
         ctx.expect(ctx.assert.eq(ctx.doc.querySelector('[data-screen="Basket"]').hidden, true,
             'the outgoing screen is hidden, not merely covered'));
 
