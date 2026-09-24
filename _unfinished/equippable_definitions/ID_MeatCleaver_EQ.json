@@ -4,6 +4,7 @@
   "class": "UEquippableDefinition",
   "schema_version": 2,
   "properties": {
+    "material_class": "metal",
     "thumbnail": "mod:icons/id_meatcleaver_eq",
     "equipment_actors_and_meshes": [
       {

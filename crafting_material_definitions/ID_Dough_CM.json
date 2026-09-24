@@ -15,6 +15,7 @@
     "inventory_layout": {
       "cells": [ { "x": 0, "y": 0 } ]
     },
-    "storage_class": "cold"
+    "storage_class": "cold",
+    "material_class": "food"
   }
 }

@@ -4,6 +4,7 @@
   "class": "UOutfitDefinition",
   "schema_version": 2,
   "properties": {
+    "material_class": "cloth",
     "display_name": "Hazmat Suit",
     "description": "Outfit. Cosmetic only. Hides armour, gloves and shoes. Found in the store or bought from a vending machine.\nA sealed full-body suit. Envelops everything you wear underneath.",
     "stackable": false,

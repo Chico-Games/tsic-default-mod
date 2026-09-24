@@ -101,23 +101,6 @@
   --tsic-border:       var(--border-black);
   --tsic-danger:       var(--mag-red);
 
-  /* ───── Item-grid sizing ─────
-   * Slot geometry for every item grid (inventory, storage). Screens derive
-   * columns, row height and the scroll cap from these.
-   *
-   * ONE size, sized for the WIDEST layout the player can open — the storage
-   * screen's two 8-wide grids either side of the 300px rail. Storage used to
-   * scope itself smaller, which meant every slot in the bag changed size the
-   * moment a crate was opened; the bag has to sit still. The clamp is the whole
-   * fixed budget of that layout subtracted from the viewport, divided over its
-   * 16 slot columns: 72px left inset + 24 right margin + 44 panel chrome +
-   * 84 slot gaps + 300 rail + 24 column gaps ≈ 560. Above ~1500px wide nothing
-   * shrinks at all; below it BOTH screens shrink by the same amount, so they
-   * still agree. */
-  --tsic-slot:      clamp(38px, calc((100vw - 560px) / 16), 68px);
-  --tsic-slot-gap:   6px;
-  --tsic-slot-rows:    6;  /* visible rows before the grid scrolls */
-
   /* ───── Legacy --cat-* remap ─────
    * Screens still reference --cat-paper, --cat-ink, --cat-green, etc. Map
    * them onto the synthwave palette so old markup picks up the new look.

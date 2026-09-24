@@ -33,6 +33,7 @@
       ]
     },
     "storage_class": "fabric",
+    "material_class": "cloth",
     "presentations": [
       {
         "key": "drape",

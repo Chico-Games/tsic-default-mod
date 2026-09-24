@@ -3,7 +3,7 @@
 //
 // C++ owns the loop: UI.Cmd.BasketArena.Toggle sweeps the floor and opens this screen; Apply
 // sends the whole setup back on UI.Cmd.BasketArena.Apply and C++ closes the screen, empties the
-// bag, wears the backpack, replaces the furniture slots (contents, parts, station state), grants
+// bag, wears the backpack, replaces the furniture grid (contents, parts, station state), grants
 // each bag row, drops each floor row, sets the clock and opens the basket. The scenario and world
 // buttons go out on UI.Cmd.BasketArena.Action.
 // Everything the sheet shows arrives on UI.BasketArena.State — the working setup, the saved
@@ -18,10 +18,13 @@
     return;
   }
 
-  const BAG_ROWS = 12;
-  const FLOOR_ROWS = 6;
-  const FURNITURE_SLOTS = ['Left', 'Middle', 'Right'];
-  const STATION_STATES = ['idle', 'working', 'done'];
+  const BAG_ROWS = 28;
+  const FLOOR_ROWS = 8;
+  // AScpBasketArenaManager::FurnitureSlotCount / FurnitureColumns: a grid four wide, the first
+  // row in front of the player and each next row behind it.
+  const FURNITURE_SLOTS = 12;
+  const FURNITURE_COLUMNS = 4;
+  const STATION_STATES = ['idle', 'working', 'full', 'done'];
 
   // "tray: ID_Potato_CN x2, ID_CookingOil_CN" per line -> [{Compartment, ItemId, Count}]
   function parseContents(text) {
@@ -75,7 +78,7 @@
       background: rgba(13, 14, 21, 0.72); pointer-events: auto; color: var(--cat-ink-dark);
     }
     [data-screen="BasketArena"] #bb-panel {
-      width: min(1100px, 94vw); max-height: 92vh; display: flex; flex-direction: column; gap: 10px;
+      width: min(1500px, 96vw); height: 94vh; display: flex; flex-direction: column; gap: 8px;
       background: rgba(252,249,241,0.96); border: 3px solid var(--ink-night, #14110c);
       box-shadow: 8px 8px 0 var(--ink-night, #14110c); padding: 14px 18px 16px;
     }
@@ -87,7 +90,11 @@
     [data-screen="BasketArena"] #bb-header .tsic-button { min-height: 0; padding: 6px 14px; font-size: 14px; border-width: 2px; }
     [data-screen="BasketArena"] #bb-apply { background: #1e3a8a; }
 
-    [data-screen="BasketArena"] #bb-columns { display: grid; grid-template-columns: 1.4fr 1fr; gap: 12px; min-height: 0; overflow: auto; }
+    /* Header and footer stay put; everything between scrolls, so the sheet fits 1280x720. */
+    [data-screen="BasketArena"] #bb-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; gap: 10px; padding-right: 4px; }
+    [data-screen="BasketArena"] #bb-footer { flex: 0 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    [data-screen="BasketArena"] #bb-columns { display: grid; grid-template-columns: 1.3fr 1fr; gap: 12px; }
+    [data-screen="BasketArena"] #bb-side { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
     [data-screen="BasketArena"] .bb-section { border: 1px solid var(--tsic-border); padding: 9px 11px; background: rgba(255,253,247,0.8); }
     [data-screen="BasketArena"] .bb-section h3 { letter-spacing: 3px; color: rgba(59,47,28,0.7); font-size: 12px; margin: 0 0 8px; text-transform: uppercase; }
     [data-screen="BasketArena"] .bb-row { display: flex; gap: 6px; align-items: center; margin-bottom: 6px; }
@@ -98,11 +105,15 @@
     }
     [data-screen="BasketArena"] .bb-input--count { width: 52px; flex: 0 0 auto; }
     [data-screen="BasketArena"] .bb-input--cell { width: 46px; flex: 0 0 auto; }
+    [data-screen="BasketArena"] .bb-input--wear { width: 46px; flex: 0 0 auto; }
     [data-screen="BasketArena"] .bb-input--name { flex: 1 1 auto; max-width: 260px; }
     [data-screen="BasketArena"] .bb-input--comp { width: 96px; flex: 0 0 auto; }
     [data-screen="BasketArena"] .bb-input--wide { flex: 1 1 auto; min-width: 0; resize: vertical; }
-    [data-screen="BasketArena"] .bb-furn { border-top: 1px dashed var(--tsic-border); padding-top: 6px; margin-top: 6px; }
-    [data-screen="BasketArena"] .bb-furn:first-of-type { border-top: 0; padding-top: 0; margin-top: 0; }
+    [data-screen="BasketArena"] #bb-furngrid { display: grid; grid-template-columns: repeat(${FURNITURE_COLUMNS}, minmax(0, 1fr)); gap: 8px; }
+    [data-screen="BasketArena"] .bb-furn { border: 1px dashed var(--tsic-border); padding: 6px; min-width: 0; }
+    [data-screen="BasketArena"] .bb-furn .bb-row label { min-width: 38px; }
+    [data-screen="BasketArena"] .bb-furn select.bb-input { flex: 0 1 auto; min-width: 0; }
+    [data-screen="BasketArena"] .bb-rowhead { grid-column: 1 / -1; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: rgba(59,47,28,0.6); }
     [data-screen="BasketArena"] #bb-scenario { flex: 1 1 auto; min-width: 0; }
     [data-screen="BasketArena"] #bb-runstatus.is-bad { color: #b91c1c; }
     [data-screen="BasketArena"] .bb-meta { font-size: 11px; color: rgba(59,47,28,0.6); margin-top: 4px; }
@@ -139,7 +150,6 @@
     [data-screen="BasketArena"] .bb-combo-list li.is-active, [data-screen="BasketArena"] .bb-combo-list li:hover { background: var(--mag-yellow, #f5c518); }
     [data-screen="BasketArena"] .bb-combo-list li.is-meta { color: rgba(59,47,28,0.6); cursor: default; font-style: italic; }
     [data-screen="BasketArena"] .bb-combo-list li.is-meta:hover { background: transparent; }
-    [data-screen="BasketArena"] .bb-section, [data-screen="BasketArena"] #bb-columns { overflow: visible; }
   `;
 
   function bagRows() {
@@ -148,7 +158,8 @@
       html += `<div class="bb-row"><label for="bb-bag-${i}">Row ${i + 1}</label>` + combo(`bb-bag-${i}`, '(empty) — type an item') +
         `<input class="bb-input bb-input--count" id="bb-bagcount-${i}" type="number" min="1" max="999" value="1" title="Count">` +
         `<input class="bb-input bb-input--cell" id="bb-bagcell-${i}" type="number" min="0" max="63" placeholder="cell" title="Anchor cell, blank = wherever it lands">` +
-        `<input class="bb-input bb-input--comp" id="bb-bagcomp-${i}" type="text" placeholder="compartment" title="Player compartment (basket.grid, coldbag, hook.1, worn.head...); blank = routed like a pickup"></div>`;
+        `<input class="bb-input bb-input--comp" id="bb-bagcomp-${i}" type="text" placeholder="compartment" title="Player compartment (basket.grid, coldbag.grid, basket.hook.1, basket.pile.wood, equip.head...); blank = routed like a pickup">` +
+        `<input class="bb-input bb-input--wear" id="bb-bagwear-${i}" type="number" min="0" max="100" value="0" title="Wear, 0 new to 100 broken; any wear makes it damaged (repair bench)"></div>`;
     }
     return html;
   }
@@ -161,15 +172,21 @@
     return html;
   }
   function furnitureRows() {
-    return FURNITURE_SLOTS.map((label, i) =>
-      `<div class="bb-furn"><div class="bb-row"><label for="bb-furn-${i}">${label}</label>` + combo(`bb-furn-${i}`, '(empty) — type a furniture piece') + '</div>' +
-      `<div class="bb-row"><label for="bb-furnbay-${i}">At</label><select class="bb-input" id="bb-furnbay-${i}" title="A lab bay, as the scenario setups place furniture; blank = its slot in front of you"><option value="">(${label.toLowerCase()} slot)</option></select></div>` +
-      `<div class="bb-row"><label for="bb-furnparts-${i}">Parts</label><input class="bb-input bb-input--wide" id="bb-furnparts-${i}" type="text" placeholder="OvenDoor=1, Drawer1=0.5"></div>` +
-      `<div class="bb-row"><label for="bb-furncont-${i}">Holds</label><textarea class="bb-input bb-input--wide" id="bb-furncont-${i}" rows="2" placeholder="tray: ID_Potato_CN x2, ID_CookingOil_CN"></textarea></div>` +
-      `<div class="bb-row"><label for="bb-furnstate-${i}">Station</label><select class="bb-input" id="bb-furnstate-${i}">` +
-      STATION_STATES.map((s) => `<option value="${s}">${s}</option>`).join('') + '</select>' +
-      `<input class="bb-input bb-input--count" id="bb-furnprog-${i}" type="number" min="0" max="100" value="0" title="Working: % already done">%` +
-      `<input class="bb-input bb-input--count" id="bb-furnburn-${i}" type="number" min="0" value="0" title="Done: seconds already on the burn clock">s burn</div></div>`).join('');
+    let html = '';
+    for (let i = 0; i < FURNITURE_SLOTS; i++) {
+      const row = Math.floor(i / FURNITURE_COLUMNS);
+      if (i % FURNITURE_COLUMNS === 0) {
+        html += `<div class="bb-rowhead">${row === 0 ? 'Row 1 — in front of you' : `Row ${row + 1} — behind row ${row}`}</div>`;
+      }
+      html += `<div class="bb-furn"><div class="bb-row"><label for="bb-furn-${i}">${i + 1}</label>` + combo(`bb-furn-${i}`, '(empty) — type a piece') + '</div>' +
+        `<div class="bb-row"><label for="bb-furnparts-${i}">Parts</label><input class="bb-input bb-input--wide" id="bb-furnparts-${i}" type="text" placeholder="OvenDoor=1, Drawer=0.5"></div>` +
+        `<div class="bb-row"><label for="bb-furncont-${i}">Holds</label><textarea class="bb-input bb-input--wide" id="bb-furncont-${i}" rows="2" placeholder="tray: ID_Potato_CN x2, ID_CookingOil_CN"></textarea></div>` +
+        `<div class="bb-row"><label for="bb-furnstate-${i}">Station</label><select class="bb-input" id="bb-furnstate-${i}" title="Working locks in what the input makes; full also packs the output so it waits at 100%">` +
+        STATION_STATES.map((s) => `<option value="${s}">${s}</option>`).join('') + '</select>' +
+        `<input class="bb-input bb-input--count" id="bb-furnprog-${i}" type="number" min="0" max="100" value="0" title="Working: % already done">%` +
+        `<input class="bb-input bb-input--count" id="bb-furnburn-${i}" type="number" min="0" value="0" title="Done: seconds already on the burn clock">s</div></div>`;
+    }
+    return html;
   }
 
   const TEMPLATE = `
@@ -183,74 +200,80 @@
           <button class="tsic-button" id="bb-apply" data-tsic-focusable data-tsic-initial-focus>Apply</button>
         </div>
 
-        <div id="bb-columns">
-          <div class="bb-section" data-tsic-focus-group="bag">
-            <h3>Bag</h3>
-            ${bagRows()}
-            <div class="bb-meta">Granted in order into an emptied bag. A compartment and cell put the stack there afterwards (row-major, 0 = top-left); an occupant swaps. Blank = routed like a pickup.</div>
-            <div class="bb-row" style="margin-top: 8px"><label for="bb-capacity">Carry</label>
-              <input class="bb-input bb-input--count" id="bb-capacity" type="number" min="0" value="0" title="Carry capacity; 0 = the default"><span class="bb-meta">capacity (0 = default)</span></div>
+        <div id="bb-body">
+          <div id="bb-columns">
+            <div class="bb-section" data-tsic-focus-group="bag">
+              <h3>Bag</h3>
+              ${bagRows()}
+              <div class="bb-meta">Granted in order into an emptied bag. A compartment and cell put the stack there afterwards (row-major, 0 = top-left); an occupant swaps. Blank = routed like a pickup. The last box is wear (0-100).</div>
+              <div class="bb-row" style="margin-top: 8px"><label for="bb-capacity">Carry</label>
+                <input class="bb-input bb-input--count" id="bb-capacity" type="number" min="0" value="0" title="Carry capacity; 0 = the default"><span class="bb-meta">capacity (0 = default)</span></div>
+            </div>
+            <div id="bb-side">
+              <div class="bb-section" data-tsic-focus-group="options">
+                <h3>Bag size</h3>
+                <div class="bb-row"><label for="bb-backpack">Backpack</label>${combo('bb-backpack', '(none) — base grid')}</div>
+                <div class="bb-row">
+                  <label class="bb-check"><input type="checkbox" id="bb-openbasket" data-tsic-focusable checked> Open the basket after Apply</label>
+                </div>
+                <div class="bb-meta" id="bb-gridmeta"></div>
+              </div>
+              <div class="bb-section" data-tsic-focus-group="floor">
+                <h3>Floor</h3>
+                ${floorRows()}
+                <div class="bb-meta">Dropped as physics items in a line in front of you, to pick up into the basket.</div>
+              </div>
+              <div class="bb-section" data-tsic-focus-group="world">
+                <h3>World</h3>
+                <div class="bb-row"><label for="bb-timeofday">Clock</label>
+                  <input class="bb-input bb-input--count" id="bb-timeofday" type="number" min="-1" value="-1" title="Seconds into the day cycle; -1 leaves the clock alone">
+                  <label for="bb-timescale">Speed</label>
+                  <input class="bb-input bb-input--count" id="bb-timescale" type="number" min="0.1" step="0.1" value="1" title="Time scale, 1 = normal"></div>
+                <div class="bb-row" style="flex-wrap: wrap">
+                  <button class="tsic-button" data-action="AdvanceTime" data-arg="300">+5 min</button>
+                  <button class="tsic-button" data-action="AdvanceTime" data-arg="3600">+1 h</button>
+                  <button class="tsic-button" data-action="SaveLoad">Save + load</button>
+                  <button class="tsic-button" data-action="WalkAway">Walk away &amp; back</button>
+                  <button class="tsic-button" data-action="ClearFloor">Clear floor</button>
+                </div>
+              </div>
+            </div>
           </div>
-          <div>
-            <div class="bb-section" data-tsic-focus-group="floor">
-              <h3>Floor</h3>
-              ${floorRows()}
-              <div class="bb-meta">Dropped as physics items in a line in front of you, to pick up into the basket.</div>
-            </div>
-            <div class="bb-section" data-tsic-focus-group="furniture" style="margin-top: 10px">
-              <h3>Furniture</h3>
-              ${furnitureRows()}
-              <div class="bb-meta">Spawned facing you on Apply, replacing the last ones. Holds: one compartment per line. A working or done station locks in whatever its input makes.</div>
-            </div>
-            <div class="bb-section" data-tsic-focus-group="world" style="margin-top: 10px">
-              <h3>World</h3>
-              <div class="bb-row"><label for="bb-timeofday">Clock</label>
-                <input class="bb-input bb-input--count" id="bb-timeofday" type="number" min="-1" value="-1" title="Seconds into the day cycle; -1 leaves the clock alone">
-                <label for="bb-timescale">Speed</label>
-                <input class="bb-input bb-input--count" id="bb-timescale" type="number" min="0.1" step="0.1" value="1" title="Time scale, 1 = normal"></div>
-              <div class="bb-row">
-                <button class="tsic-button" data-action="AdvanceTime" data-arg="300">+5 min</button>
-                <button class="tsic-button" data-action="AdvanceTime" data-arg="3600">+1 h</button>
-                <button class="tsic-button" data-action="SaveLoad">Save + load</button>
-                <button class="tsic-button" data-action="WalkAway">Walk away &amp; back</button>
-                <button class="tsic-button" data-action="ClearFloor">Clear floor</button>
-              </div>
-            </div>
-            <div class="bb-section" data-tsic-focus-group="options" style="margin-top: 10px">
-              <h3>Bag size</h3>
-              <div class="bb-row"><label for="bb-backpack">Backpack</label>${combo('bb-backpack', '(none) — base grid')}</div>
-              <div class="bb-row">
-                <label class="bb-check"><input type="checkbox" id="bb-openbasket" data-tsic-focusable checked> Open the basket after Apply</label>
-              </div>
-              <div class="bb-meta" id="bb-gridmeta"></div>
-            </div>
+
+          <div class="bb-section" data-tsic-focus-group="furniture">
+            <h3>Furniture</h3>
+            <div id="bb-furngrid">${furnitureRows()}</div>
+            <div class="bb-meta">Spawned on Apply, replacing the last ones, each turned to face you and spaced by its size. Holds: one compartment per line. Working, full and done lock in whatever the input makes; full packs the output so the work waits at 100%.</div>
           </div>
         </div>
 
-        <div class="bb-section" id="bb-scenarios" data-tsic-focus-group="scenarios">
-          <h3>Scenarios</h3>
-          <div class="bb-row">
-            <label for="bb-scenario">Preset</label>
-            <select class="bb-input" id="bb-scenario"></select>
-            <button class="tsic-button" data-scenario="Preset" title="Set up the scenario, then play it by hand">Open preset</button>
-            <button class="tsic-button" data-scenario="Run" title="Run every step">Run &#9654;</button>
-            <button class="tsic-button" data-scenario="Step" title="Run one step each time Next step is pressed">Step mode</button>
-            <button class="tsic-button" data-action="NextStep">Next step</button>
-            <button class="tsic-button" data-action="Resume">Resume</button>
-            <button class="tsic-button secondary" data-action="Stop">Stop</button>
+        <div id="bb-footer">
+          <div class="bb-section" id="bb-scenarios" data-tsic-focus-group="scenarios">
+            <h3>Scenarios</h3>
+            <div class="bb-row" style="flex-wrap: wrap">
+              <label for="bb-scenario">Preset</label>
+              <select class="bb-input" id="bb-scenario"></select>
+              <button class="tsic-button" data-scenario="Preset" title="Set up the scenario, then play it by hand">Open preset</button>
+              <button class="tsic-button" data-scenario="Run" title="Run every step">Run &#9654;</button>
+              <button class="tsic-button" data-scenario="Step" title="Run one step each time Next step is pressed">Step mode</button>
+              <button class="tsic-button" data-action="NextStep">Next step</button>
+              <button class="tsic-button" data-action="Resume">Resume</button>
+              <button class="tsic-button secondary" data-action="Stop">Stop</button>
+            </div>
+            <div class="bb-meta" id="bb-runstatus"></div>
           </div>
-          <div class="bb-meta" id="bb-runstatus"></div>
-        </div>
 
-        <div class="bb-section" id="bb-setups" data-tsic-focus-group="setups">
-          <h3>Setups</h3>
-          <div class="bb-row">
-            <label for="bb-name">Name</label>
-            <input class="bb-input bb-input--name" id="bb-name" placeholder="e.g. Full bag, bread on floor">
-            <button class="tsic-button" id="bb-save">Save</button>
-            <span class="bb-meta">Saved per machine. Load fills the sheet; it does not apply. F10 also sweeps the floor and puts you back on the mark.</span>
+          <div class="bb-section" id="bb-setups" data-tsic-focus-group="setups">
+            <h3>Setups</h3>
+            <div class="bb-row">
+              <label for="bb-name">Name</label>
+              <input class="bb-input bb-input--name" id="bb-name" placeholder="e.g. Full bag, bread on floor">
+              <button class="tsic-button" id="bb-save">Save</button>
+              <button class="tsic-button secondary" id="bb-default" title="Fill the sheet with the built-in setup: every container feature, twelve pieces of furniture">Default</button>
+            </div>
+            <div id="bb-saved"></div>
+            <div class="bb-meta">Saved per machine. Load and Default fill the sheet; they do not apply. F10 also sweeps the floor and puts you back on the mark.</div>
           </div>
-          <div id="bb-saved"></div>
         </div>
       </div>
     </div>
@@ -401,23 +424,11 @@
       // Number boxes keep their arrow keys.
       root.querySelectorAll('input[type="number"]').forEach((el) => el.addEventListener('keydown', (ev) => ev.stopPropagation()));
 
-      function fillBays() {
-        const d = state.data || {};
-        for (let i = 0; i < FURNITURE_SLOTS.length; i++) {
-          const select = $(`bb-furnbay-${i}`);
-          const keep = select.getAttribute('data-value') || select.value;
-          const first = select.options[0];
-          select.replaceChildren(first, ...(d.Bays || []).map((b) => TSIC.el('option', { value: b }, b)));
-          select.value = (d.Bays || []).includes(keep) ? keep : '';
-        }
-      }
-
       function fillPickers() {
         const d = state.data || {};
-        fillBays();
         for (let i = 0; i < BAG_ROWS; i++) setComboItems(`bb-bag-${i}`, d.Items);
         for (let i = 0; i < FLOOR_ROWS; i++) setComboItems(`bb-floor-${i}`, d.Items);
-        for (let i = 0; i < FURNITURE_SLOTS.length; i++) setComboItems(`bb-furn-${i}`, d.Furniture);
+        for (let i = 0; i < FURNITURE_SLOTS; i++) setComboItems(`bb-furn-${i}`, d.Furniture);
         setComboItems('bb-backpack', d.Backpacks);
       }
 
@@ -433,6 +444,7 @@
           const cell = parseInt(r.Cell, 10);
           $(`bb-bagcell-${i}`).value = Number.isFinite(cell) && cell >= 0 ? cell : '';
           $(`bb-bagcomp-${i}`).value = isNone(r.Compartment) ? '' : r.Compartment;
+          $(`bb-bagwear-${i}`).value = Math.min(100, Math.max(0, parseFloat(r.Wear) || 0));
         }
         const floor = s.Floor || [];
         for (let i = 0; i < FLOOR_ROWS; i++) {
@@ -441,12 +453,9 @@
           $(`bb-floorcount-${i}`).value = Math.max(1, parseInt(r.Count, 10) || 1);
         }
         const furniture = s.Furniture || [];
-        for (let i = 0; i < FURNITURE_SLOTS.length; i++) {
+        for (let i = 0; i < FURNITURE_SLOTS; i++) {
           const f = furniture[i] || {};
           setComboValue(`bb-furn-${i}`, f.Definition, d.Furniture);
-          const bay = isNone(f.Bay) ? '' : f.Bay;
-          $(`bb-furnbay-${i}`).setAttribute('data-value', bay);
-          $(`bb-furnbay-${i}`).value = (d.Bays || []).includes(bay) ? bay : '';
           $(`bb-furnparts-${i}`).value = formatParts(f.Parts);
           $(`bb-furncont-${i}`).value = formatContents(f.Contents);
           $(`bb-furnstate-${i}`).value = STATION_STATES.includes(f.StationState) ? f.StationState : 'idle';
@@ -464,9 +473,8 @@
       function readSetup() {
         const setup = {
           Name: $('bb-name').value.trim(), Bag: [], Floor: [], Backpack: comboValue('bb-backpack'), bOpenBasket: $('bb-openbasket').checked,
-          Furniture: FURNITURE_SLOTS.map((_, i) => ({
+          Furniture: Array.from({ length: FURNITURE_SLOTS }, (_, i) => ({
             Definition: comboValue(`bb-furn-${i}`),
-            Bay: $(`bb-furnbay-${i}`).value,
             Parts: parseParts($(`bb-furnparts-${i}`).value),
             Contents: parseContents($(`bb-furncont-${i}`).value),
             StationState: $(`bb-furnstate-${i}`).value,
@@ -482,7 +490,8 @@
           const cellText = $(`bb-bagcell-${i}`).value.trim();
           const cell = cellText === '' ? -1 : parseInt(cellText, 10);
           setup.Bag.push({ ItemId: comboValue(`bb-bag-${i}`), Count: Math.max(1, parseInt($(`bb-bagcount-${i}`).value, 10) || 1), Cell: Number.isFinite(cell) ? cell : -1,
-            Compartment: $(`bb-bagcomp-${i}`).value.trim() });
+            Compartment: $(`bb-bagcomp-${i}`).value.trim(),
+            Wear: Math.min(100, Math.max(0, parseFloat($(`bb-bagwear-${i}`).value) || 0)) });
         }
         for (let i = 0; i < FLOOR_ROWS; i++) {
           setup.Floor.push({ ItemId: comboValue(`bb-floor-${i}`), Count: Math.max(1, parseInt($(`bb-floorcount-${i}`).value, 10) || 1), Cell: -1 });
@@ -583,6 +592,7 @@
         ctx.publish('UI.Cmd.BasketArena.Save', { Setup: setup });
       });
       $('bb-close').addEventListener('click', () => ctx.publish('UI.Cmd.BasketArena.Toggle', {}));
+      $('bb-default').addEventListener('click', () => applySetup(state.data && state.data.Default));
 
       fillPickers();
       renderSaved();

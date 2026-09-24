@@ -4,6 +4,7 @@
   "class": "UOutfitDefinition",
   "schema_version": 2,
   "properties": {
+    "material_class": "cloth",
     "display_name": "Beach Outfit",
     "description": "Outfit. Cosmetic only. Found in the store or bought from a vending machine.\nLight summer wear. Armor still fits over it.",
     "stackable": false,

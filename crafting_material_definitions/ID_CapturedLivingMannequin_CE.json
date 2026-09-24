@@ -10,6 +10,7 @@
     "stackable": true,
     "weight": 0.10000000149011612,
     "max_stack_size": 50,
-    "storage_class": "general"
+    "storage_class": "general",
+    "material_class": "metal"
   }
 }

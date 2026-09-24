@@ -22,6 +22,8 @@
         "type": "Instant"
       },
       "feedback": {
+        "start_sound": "Container.Vending.Coin",
+        "craft_sound": "Shop.Buy",
         "action_label": "Buy"
       }
     }

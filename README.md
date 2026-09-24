@@ -78,8 +78,6 @@ Family roots:
 - URecipeDefinition
 - UWorldGenObjectDefinition
 - UAchievementDefinition
-- UInventoryRulesDefinition
-- UAvailableRecipeRulesDefinition
 - UScpGameData
 - UBiomeDefinition
 

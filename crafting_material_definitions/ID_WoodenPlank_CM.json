@@ -52,6 +52,7 @@
         }
       }
     ],
-    "storage_class": "wood"
+    "storage_class": "wood",
+    "material_class": "wood"
   }
 }

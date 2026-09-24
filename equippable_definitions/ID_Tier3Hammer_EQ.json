@@ -92,6 +92,7 @@
     "static_item_definition": "FD_Tier3Hammer_SI",
     "equipment_slot": "Entity.Inventory.Item.Equipment.Slot.Weapon",
     "item_category_tag": "Entity.Inventory.Item.Category.Tool",
-    "storage_class": "general"
+    "storage_class": "general",
+    "material_class": "metal"
   }
 }

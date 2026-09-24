@@ -17,12 +17,12 @@
         "surface": {
           "offset": {
             "x": 0.82,
-            "y": -0.69,
-            "z": 42.93
+            "y": 13.5,
+            "z": 41.45
           },
           "yaw": 90.0,
           "width": 70.0,
-          "depth": 44.0,
+          "depth": 32.0,
           "camera_distance": 240.0,
           "camera_pitch": -38.0
         },
@@ -41,12 +41,12 @@
         ],
         "surface": {
           "offset": {
-            "x": 0.82,
-            "y": -0.69,
-            "z": 128.3
+            "x": -0.05,
+            "y": 4.8,
+            "z": 128.75
           },
           "yaw": 90.0,
-          "width": 70.0,
+          "width": 68.0,
           "depth": 44.0,
           "camera_distance": 240.0,
           "camera_pitch": -38.0

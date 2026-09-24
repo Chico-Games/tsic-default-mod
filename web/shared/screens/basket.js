@@ -183,8 +183,8 @@
       { ActionName: 'IA_UI_CancelBack', Label: 'Close', KeyName: 'Escape', Priority: 1000 },
     ],
     opaque: false,
-    screenSoundOpen: 'Inventory.Open',
-    screenSoundClose: 'Inventory.Close',
+    // The 3D view plays its own open/close (game data container_sounds view_open/view_close).
+    screenSound: false,
     template: TEMPLATE,
 
     mount(root, ctx) {

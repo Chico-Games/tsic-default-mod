@@ -1080,7 +1080,6 @@
     "UI.Cmd.Input.RemoveModeTag",
     "UI.Cmd.Interaction.Activate",
     "UI.Cmd.Interaction.SetFocusedRects",
-    "UI.Cmd.Inventory.RequestSync",
     "UI.Cmd.LoreScreen.Close",
     "UI.Cmd.LoreScreen.Select",
     "UI.Cmd.Map.Pointer",

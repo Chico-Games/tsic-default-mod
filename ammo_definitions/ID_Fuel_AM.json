@@ -16,6 +16,7 @@
       "cells": [ { "x": 0, "y": 0 }, { "x": 1, "y": 0 }, { "x": 0, "y": 1 }, { "x": 1, "y": 1 }, { "x": 0, "y": 2 }, { "x": 1, "y": 2 }, { "x": 0, "y": 3 }, { "x": 1, "y": 3 } ]
     },
     "presentations": [ { "key": "default", "value": { "scale": 0.85, "rotation": { "pitch": 0.0, "yaw": 90.0, "roll": 0.0 } } } ],
-    "storage_class": "general"
+    "storage_class": "general",
+    "material_class": "liquid"
   }
 }

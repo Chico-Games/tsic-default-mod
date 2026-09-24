@@ -51,6 +51,7 @@
         }
       }
     ],
-    "storage_class": "cardboard"
+    "storage_class": "cardboard",
+    "material_class": "cardboard"
   }
 }

@@ -12,6 +12,7 @@
     "static_item_definition": "FD_TomatoSeeds_SI",
     "storage_class": "seed",
     "item_category_tag": "Entity.Inventory.Item.Category.Misc",
+    "material_class": "plant",
     "max_stack_size": 20
   }
 }

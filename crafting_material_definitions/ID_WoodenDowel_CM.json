@@ -13,11 +13,18 @@
     "item_category_tag": "Entity.Inventory.Item.Category.CraftingMaterial",
     "max_stack_size": 50,
     "storage_class": "fasteners",
+    "material_class": "wood",
     "presentations": [
       {
         "key": "box",
         "value": {
           "mesh": "/Game/Items/CraftingMaterials/HardwareBoxes/Meshes/SM_WoodenDowel.SM_WoodenDowel"
+        }
+      },
+      {
+        "key": "carton",
+        "value": {
+          "mesh": "/Game/Items/CraftingMaterials/HardwareBoxes/Meshes/SM_DowelBox.SM_DowelBox"
         }
       }
     ]

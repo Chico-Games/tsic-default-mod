@@ -31,7 +31,7 @@ TSICPlayground.register({
         { label: 'Dragging',             apply(s) { s.draggable = true;  s.dragging = true; },  expect: { visualChange: true } },
         { label: 'Dropped / looked away', apply(s) { s.draggable = false; s.dragging = false; }, expect: { visualChange: true } },
         { label: 'Looking at crafting',   apply(s) { s.category = 'crafting'; },   expect: { visualChange: true } },
-        { label: 'Looking at production', apply(s) { s.category = 'production'; }, expect: { visualChange: true } },
+        { label: 'Looking at storage',    apply(s) { s.category = 'storage'; },    expect: { visualChange: true } },
         { label: 'Looking at plantable',  apply(s) { s.category = 'plantable'; },  expect: { visualChange: true } },
         { label: 'Looking at nothing',    apply(s) { s.category = ''; },           expect: { visualChange: true } },
     ],

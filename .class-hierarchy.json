@@ -12,15 +12,6 @@
       ],
       "family_root": "UItemDefinition"
     },
-    "UAvailableRecipeRulesDefinition": {
-      "folder": "available_recipe_rules_definitions",
-      "instance_count": 16,
-      "parents": [
-        "UDataAsset",
-        "UObject"
-      ],
-      "family_root": "UAvailableRecipeRulesDefinition"
-    },
     "UBiomeDefinition": {
       "folder": "biome_definitions",
       "instance_count": 25,
@@ -52,21 +43,6 @@
       ],
       "family_root": "UItemDefinition"
     },
-    "UContainmentCageDefinition": {
-      "folder": "containment_cage_definitions",
-      "instance_count": 2,
-      "parents": [
-        "UProductionStationDefinition",
-        "UInteractableFurnitureDefinition",
-        "UFurnitureWithComponentsDefinition",
-        "UDamageableFurnitureDefinition",
-        "UFurnitureDefinition",
-        "UWorldGenObjectDefinition",
-        "UDataAsset",
-        "UObject"
-      ],
-      "family_root": "UFurnitureDefinition"
-    },
     "UCraftRecipeDefinition": {
       "folder": "craft_recipe_definitions",
       "instance_count": 65,
@@ -86,20 +62,6 @@
         "UObject"
       ],
       "family_root": "UItemDefinition"
-    },
-    "UCraftingStationDefinition": {
-      "folder": "crafting_station_definitions",
-      "instance_count": 14,
-      "parents": [
-        "UInteractableFurnitureDefinition",
-        "UFurnitureWithComponentsDefinition",
-        "UDamageableFurnitureDefinition",
-        "UFurnitureDefinition",
-        "UWorldGenObjectDefinition",
-        "UDataAsset",
-        "UObject"
-      ],
-      "family_root": "UFurnitureDefinition"
     },
     "UDamageableFurnitureDefinition": {
       "folder": "damageable_furniture_definitions",
@@ -227,15 +189,6 @@
       ],
       "family_root": "UFurnitureDefinition"
     },
-    "UInventoryRulesDefinition": {
-      "folder": "inventory_rules_definitions",
-      "instance_count": 8,
-      "parents": [
-        "UDataAsset",
-        "UObject"
-      ],
-      "family_root": "UInventoryRulesDefinition"
-    },
     "ULayoutDefinition": {
       "folder": "layout_definitions",
       "instance_count": 251,
@@ -279,21 +232,6 @@
     "UPlantableDefinition": {
       "folder": "plantable_definitions",
       "instance_count": 4,
-      "parents": [
-        "UProductionStationDefinition",
-        "UInteractableFurnitureDefinition",
-        "UFurnitureWithComponentsDefinition",
-        "UDamageableFurnitureDefinition",
-        "UFurnitureDefinition",
-        "UWorldGenObjectDefinition",
-        "UDataAsset",
-        "UObject"
-      ],
-      "family_root": "UFurnitureDefinition"
-    },
-    "UProductionStationDefinition": {
-      "folder": "production_station_definitions",
-      "instance_count": 20,
       "parents": [
         "UInteractableFurnitureDefinition",
         "UFurnitureWithComponentsDefinition",
@@ -417,21 +355,6 @@
         "UObject"
       ],
       "family_root": "UItemDefinition"
-    },
-    "UUniversalStorageDefinition": {
-      "folder": "universal_storage_definitions",
-      "instance_count": 2,
-      "parents": [
-        "UStorageDefinition",
-        "UInteractableFurnitureDefinition",
-        "UFurnitureWithComponentsDefinition",
-        "UDamageableFurnitureDefinition",
-        "UFurnitureDefinition",
-        "UWorldGenObjectDefinition",
-        "UDataAsset",
-        "UObject"
-      ],
-      "family_root": "UFurnitureDefinition"
     }
   }
 }

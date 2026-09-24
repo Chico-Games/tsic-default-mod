@@ -21,6 +21,7 @@
       "x": 4,
       "y": 2
     },
-    "storage_class": "general"
+    "storage_class": "general",
+    "material_class": "plastic"
   }
 }

@@ -83,9 +83,9 @@ TSICTestHarness.register({
     file: '/screens/test-crosshair.html',
     async run(ctx) {
         ctx.inject('tsic.msg.UI.Interaction.Targets', {
-            Targets: [{ EntityId: 11, Label: 'Use Assembler', Category: 'production' }],
+            Targets: [{ EntityId: 11, Label: 'Plant Seed', Category: 'plantable' }],
         });
-        await ctx.waitFor(() => ctx.doc.getElementById('hud-crosshair').getAttribute('data-cat') === 'production');
+        await ctx.waitFor(() => ctx.doc.getElementById('hud-crosshair').getAttribute('data-cat') === 'plantable');
         ctx.inject('tsic.msg.UI.Interaction.Targets', { Targets: [] });
         await ctx.waitFor(() => !ctx.doc.getElementById('hud-crosshair').hasAttribute('data-cat'));
         ctx.expect(ctx.assert.truthy(!ctx.doc.getElementById('hud-crosshair').hasAttribute('data-cat'), 'data-cat cleared when looking away'));

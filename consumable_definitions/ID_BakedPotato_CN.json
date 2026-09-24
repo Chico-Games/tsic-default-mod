@@ -66,6 +66,7 @@
     "weight": 1.25,
     "static_item_definition": "FD_BakedPotato_SI",
     "storage_class": "cold",
+    "material_class": "food",
     "item_category_tag": "Entity.Inventory.Item.Category.Consumable"
   }
 }

@@ -35,21 +35,6 @@
 .tsic-modal-scrim--dim   { background: rgba(13, 14, 21, 0.78); }
 .tsic-modal-scrim--clear { background: transparent; }
 
-/* Top-left-anchored variant — the bag screens (inventory, storage).
- *
- * Both axes are pinned, and both for the same reason. These panels grow to the
- * RIGHT as panes appear and DOWNWARD as the rail fills, so a centred panel moved
- * the player's bag both sideways and up the moment a container was opened.
- * Anchoring the panel's top-left corner fixes every row above the rail's end —
- * title band, tabs, the grid itself — so opening a container adds a column and
- * the bag does not move at all. What varies is only where the panel ENDS. */
-.tsic-modal-scrim--left {
-    justify-content: flex-start;
-    align-items: flex-start;
-    padding-left: clamp(16px, 4vw, 72px);
-    padding-top: clamp(12px, 5vh, 56px);
-}
-
 /* Vertical stack with consistent gap. */
 .tsic-stack         { display: flex; flex-direction: column; gap: 12px; }
 .tsic-stack--sm     { gap: 6px; }
@@ -58,31 +43,9 @@
 .tsic-row           { display: flex; flex-direction: row; gap: 12px; align-items: center; }
 .tsic-row--sm       { gap: 6px; }
 
-/* ═════════════ 2. Panel scaffolding ═════════════
- * Screen-sized modal panel. Used by inventory, production, crafting, storage,
- * upgrade, repair, summoner — the "main feature" full-screen modals.
- * Capped so the panel doesn't get gigantic on 4K and doesn't pinch on small. */
-.tsic-panel--screen {
-    width: 60vw;
-    height: 60vh;
-    max-width: 1200px;
-    /* The two FLOORS are capped against the scrim, because a bare min-height beats
-       max-height and beats the viewport: on a short window the panel grew past the screen
-       and its own overflow:hidden clipped the bottom off it. What is clipped is the close
-       row and the tail of whatever list is in the panel — which reads exactly as "the
-       recipe list extends past where it should instead of having a scroll bar" (#151),
-       while the list is in fact scrolling correctly inside a panel nobody can see the end
-       of. min() keeps the intent — don't let the panel pinch — without letting it overflow
-       the thing it lives in. */
-    min-width: min(720px, 100%);
-    max-height: min(760px, 100%);
-    min-height: min(420px, 100%);
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-}
+/* ═════════════ 2. Panel scaffolding ═════════════ */
 
-/* Split-pane body for screen panels: two columns of vertical lists.
+/* Split-pane body: two columns of vertical lists (the welcome bulletin).
  *
  * The name is shared vocabulary, so nothing outside this file may claim it. A global
  * stack-split dialog rule once did, and every panel using it silently inherited
@@ -124,7 +87,7 @@
 }
 
 /* ═════════════ 3. List rows ═════════════
- * Used inside .tsic-list-pane for inventory / production / crafting / storage.
+ * Used inside .tsic-list-pane (the cursor lab; shared/cursor.js knows the row).
  * Magazine "article row" look — bold name, dashed bottom border between rows,
  * red `>>` indicator on hover/selected. */
 .tsic-list-row {
@@ -260,7 +223,7 @@ button.tsic-list-row {
    underline; the active tab is a solid red block whose lower edge meets the
    underline. No gaps, no vertical dividers. Every tab strip carries
    data-tsic-tab-bar, so the bar treatment is keyed off that attribute and all
-   screens (settings, inventory, storage, construction…) stay identical. */
+   screens (settings, mods…) stay identical. */
 .tsic-tab-bar,
 [data-tsic-tab-bar] {
     display: flex;

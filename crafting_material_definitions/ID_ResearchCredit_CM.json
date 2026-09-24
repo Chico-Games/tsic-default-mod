@@ -11,6 +11,7 @@
     "weight": 0.05,
     "item_category_tag": "Entity.Inventory.Item.Category.CraftingMaterial",
     "max_stack_size": 50,
-    "storage_class": "general"
+    "storage_class": "general",
+    "material_class": "paper"
   }
 }

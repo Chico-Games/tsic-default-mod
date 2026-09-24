@@ -7380,12 +7380,54 @@
       "categories": null
     },
     "AScpContainerView.held_reach_cells": {
-      "tooltip": "How far past the rim, in cells, the hand may be carried.",
+      "tooltip": "How far past the rim, in cells, the held stack stays on the hold plane; beyond it, it follows the cursor out over the world.",
       "category": "Feel",
       "cpp_type": "float",
       "element_class": null,
       "clamp_min": null,
       "clamp_max": null,
+      "ui_min": null,
+      "ui_max": null,
+      "edit_condition": null,
+      "edit_spec": "EditAnywhere",
+      "display_name": null,
+      "categories": null
+    },
+    "AScpContainerView.held_world_stand_off": {
+      "tooltip": "Out over the world, the held stack floats this far short of what the cursor points at (cm, along the ray).",
+      "category": "Feel",
+      "cpp_type": "float",
+      "element_class": null,
+      "clamp_min": null,
+      "clamp_max": null,
+      "ui_min": null,
+      "ui_max": null,
+      "edit_condition": null,
+      "edit_spec": "EditAnywhere",
+      "display_name": null,
+      "categories": null
+    },
+    "AScpContainerView.held_world_max_distance": {
+      "tooltip": "Out over the world, the held stack never goes further from the eye than this (cm): it stays big enough to see.",
+      "category": "Feel",
+      "cpp_type": "float",
+      "element_class": null,
+      "clamp_min": null,
+      "clamp_max": null,
+      "ui_min": null,
+      "ui_max": null,
+      "edit_condition": null,
+      "edit_spec": "EditAnywhere",
+      "display_name": null,
+      "categories": null
+    },
+    "AScpContainerView.pile_base_fraction": {
+      "tooltip": "A press this low on a pile (a fraction of the rim height) is on its base: it drags the whole pile.",
+      "category": "Feel",
+      "cpp_type": "float",
+      "element_class": null,
+      "clamp_min": 0,
+      "clamp_max": 1,
       "ui_min": null,
       "ui_max": null,
       "edit_condition": null,
@@ -7422,7 +7464,7 @@
       "categories": null
     },
     "AScpContainerView.camera_fov": {
-      "tooltip": null,
+      "tooltip": "Horizontal: the view camera holds its X angle, whatever the project's axis constraint.",
       "category": "Camera",
       "cpp_type": "float",
       "element_class": null,
@@ -7436,7 +7478,7 @@
       "categories": null
     },
     "AScpContainerView.camera_f_o_v": {
-      "tooltip": null,
+      "tooltip": "Horizontal: the view camera holds its X angle, whatever the project's axis constraint.",
       "category": "Camera",
       "cpp_type": "float",
       "element_class": null,
@@ -18020,7 +18062,7 @@
       "categories": null
     },
     "AScpBasketArenaManager.furniture_distance": {
-      "tooltip": "Furniture slots stand this far in front of the start mark.",
+      "tooltip": "The first furniture row's near edge stands this far in front of the start mark.",
       "category": "Basket Bench",
       "cpp_type": "float",
       "element_class": null,
@@ -18033,8 +18075,8 @@
       "display_name": null,
       "categories": null
     },
-    "AScpBasketArenaManager.furniture_spacing": {
-      "tooltip": "Sideways gap between slot centres (left and right sit this far off the middle).",
+    "AScpBasketArenaManager.furniture_gap": {
+      "tooltip": "Clear floor between neighbouring pieces, sideways and between rows (doors swing into it).",
       "category": "Basket Bench",
       "cpp_type": "float",
       "element_class": null,
@@ -18201,6 +18243,20 @@
       "display_name": null,
       "categories": null
     },
+    "ScpBasketArenaItemRow.wear": {
+      "tooltip": "Bag rows only: durability wear, 0 new to 100 broken. Any wear makes it damaged (what repair takes).",
+      "category": null,
+      "cpp_type": "float",
+      "element_class": null,
+      "clamp_min": null,
+      "clamp_max": null,
+      "ui_min": null,
+      "ui_max": null,
+      "edit_condition": null,
+      "edit_spec": "EditAnywhere",
+      "display_name": null,
+      "categories": null
+    },
     "ScpBasketArenaContentRow.compartment": {
       "tooltip": null,
       "category": null,
@@ -18285,20 +18341,6 @@
       "display_name": null,
       "categories": null
     },
-    "ScpBasketArenaFurnitureRow.bay": {
-      "tooltip": "The lab bay it stands at (\"fridge\", \"oven_microwave\"...), as the scenario setups place their furniture. None stands it in its slot in front of the start mark.",
-      "category": null,
-      "cpp_type": "FName",
-      "element_class": null,
-      "clamp_min": null,
-      "clamp_max": null,
-      "ui_min": null,
-      "ui_max": null,
-      "edit_condition": null,
-      "edit_spec": "EditAnywhere",
-      "display_name": null,
-      "categories": null
-    },
     "ScpBasketArenaFurnitureRow.contents": {
       "tooltip": null,
       "category": null,
@@ -18328,7 +18370,7 @@
       "categories": null
     },
     "ScpBasketArenaFurnitureRow.station_state": {
-      "tooltip": "Stations only: \"idle\", \"working\" (at StationProgress) or \"done\" (finished, output placed or held up by a full output).",
+      "tooltip": "Stations only: \"idle\", \"working\" (at StationProgress), \"full\" (finished, but the output compartment is packed with the recipe's own output so it waits at 100%) or \"done\" (finished, output placed).",
       "category": null,
       "cpp_type": "FName",
       "element_class": null,
@@ -18426,7 +18468,7 @@
       "categories": null
     },
     "ScpBasketArenaSetup.furniture": {
-      "tooltip": "Furniture placed facing the player, one per slot: index 0 = left, 1 = middle, 2 = right. Only the first three count. Apply removes the pieces the previous Apply placed before spawning these.",
+      "tooltip": "Furniture placed facing the player in a grid four pieces wide, filling outwards: slots 0-3 are the row in front, 4-7 the row behind it, and so on. Only the first AScpBasketArenaManager::FurnitureSlotCount count. Apply removes the pieces the previous Apply placed before spawning these.",
       "category": null,
       "cpp_type": "TArray<FScpBasketArenaFurnitureRow>",
       "element_class": null,
@@ -26475,6 +26517,20 @@
       "display_name": null,
       "categories": null
     },
+    "ItemDefinition.material_class": {
+      "tooltip": "What the item is made of, for its sounds (JSON: material_class): \"wood\", \"metal\", \"cloth\", \"food\"... Taking, placing and dropping it play that material's slot from the game data's container_sounds, else the event's default (ScpContainerSounds). None = the defaults.",
+      "category": "Item",
+      "cpp_type": "FName",
+      "element_class": null,
+      "clamp_min": null,
+      "clamp_max": null,
+      "ui_min": null,
+      "ui_max": null,
+      "edit_condition": null,
+      "edit_spec": "EditDefaultsOnly",
+      "display_name": null,
+      "categories": null
+    },
     "ItemDefinition.item_category_tag": {
       "tooltip": "Category tag for inventory UI filtering.",
       "category": "Item",
@@ -27852,6 +27908,20 @@
       "category": "Containers",
       "cpp_type": "TSoftObjectPtr<UMaterialInterface>",
       "element_class": "MaterialInterface",
+      "clamp_min": null,
+      "clamp_max": null,
+      "ui_min": null,
+      "ui_max": null,
+      "edit_condition": null,
+      "edit_spec": "EditDefaultsOnly",
+      "display_name": null,
+      "categories": null
+    },
+    "ScpGameData.container_sounds": {
+      "tooltip": "Container sounds by event (\"take\", \"place\", \"drop_world\", \"station_complete\"...): a slot per item material_class and a default for the rest (JSON: container_sounds; ScpContainerSounds names the events the game fires). An event missing here plays nothing.",
+      "category": "Containers",
+      "cpp_type": "TMap<FName, FScpContainerSoundEvent>",
+      "element_class": null,
       "clamp_min": null,
       "clamp_max": null,
       "ui_min": null,
@@ -43443,6 +43513,20 @@
       "display_name": null,
       "categories": null
     },
+    "ScpCompartmentPresenter.labels": {
+      "tooltip": "Carton count labels, one per Box-compartment stack drawn.",
+      "category": null,
+      "cpp_type": "TArray<TObjectPtr<UTextRenderComponent>>",
+      "element_class": "TextRenderComponent",
+      "clamp_min": null,
+      "clamp_max": null,
+      "ui_min": null,
+      "ui_max": null,
+      "edit_condition": null,
+      "edit_spec": null,
+      "display_name": null,
+      "categories": null
+    },
     "ScpCompartmentPresenter.plants": {
       "tooltip": "A planter's crops, one per lane (ScpGrowPresenter).",
       "category": null,
@@ -43454,6 +43538,34 @@
       "ui_max": null,
       "edit_condition": null,
       "edit_spec": null,
+      "display_name": null,
+      "categories": null
+    },
+    "ScpContainerSoundEvent.sound": {
+      "tooltip": "The slot for a material with no entry of its own, and for an event with no item. None = silent.",
+      "category": null,
+      "cpp_type": "FName",
+      "element_class": null,
+      "clamp_min": null,
+      "clamp_max": null,
+      "ui_min": null,
+      "ui_max": null,
+      "edit_condition": null,
+      "edit_spec": "EditAnywhere",
+      "display_name": null,
+      "categories": null
+    },
+    "ScpContainerSoundEvent.by_material": {
+      "tooltip": "material_class -> sound slot.",
+      "category": null,
+      "cpp_type": "TMap<FName, FName>",
+      "element_class": null,
+      "clamp_min": null,
+      "clamp_max": null,
+      "ui_min": null,
+      "ui_max": null,
+      "edit_condition": null,
+      "edit_spec": "EditAnywhere",
       "display_name": null,
       "categories": null
     },
@@ -65900,7 +66012,21 @@
       "categories": null
     },
     "ScpUIBasketArenaState.current": {
-      "tooltip": "The last setup applied (or last saved), so the sheet reopens on what you had.",
+      "tooltip": "The last setup applied (or last saved), so the sheet reopens on what you had; the built-in default before either.",
+      "category": null,
+      "cpp_type": "FScpBasketArenaSetup",
+      "element_class": null,
+      "clamp_min": null,
+      "clamp_max": null,
+      "ui_min": null,
+      "ui_max": null,
+      "edit_condition": null,
+      "edit_spec": "EditAnywhere",
+      "display_name": null,
+      "categories": null
+    },
+    "ScpUIBasketArenaState.default": {
+      "tooltip": "The built-in setup (UScpBasketArenaSetupStore::MakeDefaultSetup), for the sheet's Default button.",
       "category": null,
       "cpp_type": "FScpBasketArenaSetup",
       "element_class": null,
@@ -65956,7 +66082,7 @@
       "categories": null
     },
     "ScpUIBasketArenaState.furniture": {
-      "tooltip": "Every furniture definition with a mesh, for the three furniture slot pickers.",
+      "tooltip": "Every furniture definition with a mesh, for the furniture slot pickers.",
       "category": null,
       "cpp_type": "TArray<FScpUICheatMenuItem>",
       "element_class": null,
@@ -65971,20 +66097,6 @@
     },
     "ScpUIBasketArenaState.scenarios": {
       "tooltip": "Container scenarios (Build/Gauntlet/container-scenarios): each one's setup is a preset.",
-      "category": null,
-      "cpp_type": "TArray<FString>",
-      "element_class": null,
-      "clamp_min": null,
-      "clamp_max": null,
-      "ui_min": null,
-      "ui_max": null,
-      "edit_condition": null,
-      "edit_spec": "EditAnywhere",
-      "display_name": null,
-      "categories": null
-    },
-    "ScpUIBasketArenaState.bays": {
-      "tooltip": "The container lab's bays in this level: where furniture rows can stand, as the scenario setups place it.",
       "category": null,
       "cpp_type": "TArray<FString>",
       "element_class": null,

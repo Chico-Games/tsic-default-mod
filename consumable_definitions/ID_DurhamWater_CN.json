@@ -68,6 +68,7 @@
     "static_item_definition": "FD_DurhamWater_SI",
     "ingredient_equivalent_to": "ID_BottleWater_CN",
     "storage_class": "cold",
+    "material_class": "liquid",
     "item_category_tag": "Entity.Inventory.Item.Category.Consumable",
     "max_stack_size": 10
   }

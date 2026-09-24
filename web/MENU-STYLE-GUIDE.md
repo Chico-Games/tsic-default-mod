@@ -1,7 +1,8 @@
 # Menu Style Guide
 
 Rules for building **menu screens** — main menu, pause, settings, save/load, mods,
-inventory, storage, crafting, production, construction, terminal, credits.
+terminal, credits, bug report, cheat menu. (The inventory is the 3D container view;
+its page, `shared/screens/basket.js`, is a transparent overlay and not a menu.)
 
 **Not the HUD.** HUD components (`shared/hud-*.js`, `hud.css`) invert this language:
 translucent dark plates, `.tsic-chip--dark`, `--tsic-text` white-on-scene. Menus are
@@ -101,18 +102,6 @@ remapped onto this palette. They still resolve; **don't author new code with the
 | Stack / row gap | `12px`; `--sm` variants `6px`; split columns `8px` |
 | Panel padding | `18px` |
 
-### Item grid
-
-`--tsic-slot: clamp(38px, calc((100vw - 560px) / 16), 68px)`, `--tsic-slot-gap: 6px`,
-`--tsic-slot-rows: 6`. Derive columns, row heights and scroll caps from these — never
-hardcode slot pixels.
-
-**Do not rescope `--tsic-slot` per screen.** It is one global size, and the clamp already
-sizes it for the widest layout the player can open (storage's two 8-wide grids either side
-of the 300px rail); above ~1500px wide it simply is 68px. Storage used to scope itself to
-54px, which meant every cell in the bag changed size the moment a container was opened. A
-screen that cannot fit at the shared size should drop a column, not shrink the grid.
-
 ---
 
 ## 3. Type
@@ -204,39 +193,18 @@ Main menu, settings, save/load, mods, credits, new-store, death, loading. Centre
 
 ### B. Screen panel — in-game modals
 
-Inventory, crafting, production, upgrade, repair, wardrobe, summoner. A scrim over
-live gameplay with a fixed-proportion panel and two list columns.
+Pause menu and bug report: a `.tsic-modal-scrim` over live gameplay holding a
+`.tsic-panel` that the screen sizes for its own content. They are `shared/screens/*.js`
+overlays (see §7).
 
-```html
-<div class="tsic-modal-scrim">
-  <div class="tsic-panel tsic-panel--screen">
-    <h2 class="tsic-title" style="margin:0;">Production</h2>
-
-    <div class="tsic-split">
-      <div class="tsic-split-col">
-        <div class="tsic-eyebrow">Recipes</div>
-        <div class="tsic-list-pane"><!-- .tsic-list-row items --></div>
-      </div>
-      <div class="tsic-split-col">
-        <div class="tsic-eyebrow">Details</div>
-        <div id="p-info"></div>
-        <button class="tsic-button">Add to Queue</button>
-      </div>
-    </div>
-
-    <div class="tsic-close-row">
-      <button class="tsic-button" id="btn-close" data-tsic-initial-focus>Close (Esc)</button>
-    </div>
-  </div>
-</div>
-```
-
-- `.tsic-panel--screen` is `60vw × 60vh`, clamped `720–1200 × 420–760`. Don't override —
-  it exists so panels agree with each other at 1080p *and* 4K.
-- `.tsic-split` is `1.1fr / 1fr`, gap `12px`. Left = the list, right = detail + actions.
-- Every column gets a `.tsic-eyebrow` header. Every scrolling list is a `.tsic-list-pane`.
 - Scrim: default `rgba(13,14,21,0.55)`; `--dim` `0.78`; `--clear` transparent (pause menu,
   which wants the world visible).
+- `.tsic-split` (`1.1fr / 1fr`, gap `12px`, one `.tsic-split-col` each) and
+  `.tsic-list-pane` (every scrolling list) are the two-column body; the welcome bulletin
+  and the cursor lab use them.
+- The fixed-size `.tsic-panel--screen` and its recipe-list layout went with the list-based
+  inventory, storage, crafting and production screens (#716). Don't bring them back for a
+  container: containers are drawn in 3D by `AScpContainerView`.
 
 ---
 
@@ -303,7 +271,7 @@ enables gamepad LB/RB cycling — a tab strip without it is unreachable on a con
 | `.tsic-input` | bright paper, `2px` ink, terminal font. Focus turns the border red — no ring. |
 | `.tsic-dropdown` + `.tsic-dropdown-portal` | `tsic-dropdown.js`. Open state fills red. Selected option gets a red `>>`. Use this, never a bare `<select>`. |
 | `.tsic-context-menu` / `.tsic-context-item` | `3px` border, `--shadow-block`, pops in over `120ms`. Items must be real `<button>`s. |
-| `.tsic-slot` | `56px` default (grids override via `--tsic-slot`). `.count` is a yellow pixel-font chip, bottom-right. |
+| `.tsic-slot` | `56px` default (the hotbar sizes its own). `.count` is a yellow pixel-font chip, bottom-right. |
 | `.tsic-bar-track` / `.tsic-bar-fill` | `18px`, `45°` striped red. `--yellow` / `--ink` fill modifiers. |
 | `.tsic-sticker` / `.tsic-badge` / `.tsic-corner-label` | Yellow sticker + ink badge + yellow corner tag. Punctuation only. |
 | `.tsic-empty` | The empty state. Display caps, centred, `--ink-soft`. Always use it — never a bare `<p>`. |
@@ -481,9 +449,9 @@ Every one of these has cost someone time.
 3. **`.tsic-stage--magazine` (the non-gradient stage) has zero users.** Every live
    menu uses `.tsic-stage--magazine-gradient`.
 4. **`screens/<name>.html` is a dead duplicate for any screen with a
-   `shared/screens/<name>.js` module** — `inventory`, `map`, `crafting`, `production`,
-   `pause-menu`, `construction`, `terminal`, `bug-report`. Editing the HTML changes
-   nothing in-game. Search `shared/` before editing any screen.
+   `shared/screens/<name>.js` module** — `pause-menu`, `terminal`, `bug-report`,
+   `cheat-menu`; only the web tests and the playground open those pages. Editing the HTML
+   changes nothing in-game. Search `shared/` before editing any screen.
 5. **The hover→focus mirror doesn't see mount-time CSS.** See §6.
 6. **Text outside a stage or panel is white on cream.** `body` colour is
    `--tsic-text`. Stages and `.tsic-panel` set ink.
