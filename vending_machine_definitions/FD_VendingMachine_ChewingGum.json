@@ -7,6 +7,7 @@
     "display_name": "Chewing Gum Vending Machine",
     "static_mesh": "/Game/Fab/SUBURBS/VOL28_Vending/Meshes/NN/SM_Vending_Machine_NN_16a.SM_Vending_Machine_NN_16a",
     "gameplay_tags": [
+      "Entity.RandomGeneration.CanBeRandom",
       "Entity.RandomGeneration.FurnitureType.VendingMachine",
       "Tile.Difficulty.Easy"
     ],
