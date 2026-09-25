@@ -6,6 +6,7 @@
 //
 //   hud-toast.js        — toast notifications (loaded on ALL screens)
 //   hud-hold-spinner.js — hold-to-craft spinner at the cursor (loaded on ALL screens)
+//   hud-station-tip.js  — station status tooltip by its in-world dot (loaded on ALL screens)
 //   hud-stomach.js      — digesting-consumable slots (right of the vials)
 //   hud-conditions.js   — status-effect / consumable-buff chips (right of the stomach)
 //   hud-crosshair.js    — crosshair visibility
@@ -329,6 +330,8 @@
     loadScript('/shared/hud-notifications.js');
     // The hold-to-craft spinner shows over the basket screen, so it loads on every screen too.
     loadScript('/shared/hud-hold-spinner.js');
+    // The station tip shows over the world and over the open container view alike.
+    loadScript('/shared/hud-station-tip.js');
     // The menu action bar belongs to whichever menu is open, which includes the
     // unmigrated pages that are their own document — so it loads before the InGame gate.
     loadScript('/shared/hud-menu-action-bar.js');

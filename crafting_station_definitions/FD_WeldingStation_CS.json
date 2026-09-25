@@ -114,7 +114,7 @@
         "id": "input",
         "layout": "Grid",
         "width": 4,
-        "height": 2,
+        "height": 6,
         "accepts": [
           "fasteners",
           "general"
@@ -134,7 +134,7 @@
         "id": "output",
         "layout": "Grid",
         "width": 2,
-        "height": 2,
+        "height": 5,
         "accepts": [
           "general"
         ],

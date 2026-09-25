@@ -21,7 +21,7 @@
           },
           "yaw": 90.0,
           "width": 40.0,
-          "depth": 32.0
+          "depth": 14.0
         },
         "loot": {
           "rolls": 2,
@@ -45,7 +45,7 @@
           },
           "yaw": 90.0,
           "width": 40.0,
-          "depth": 32.0
+          "depth": 14.0
         },
         "loot": {
           "rolls": 2,

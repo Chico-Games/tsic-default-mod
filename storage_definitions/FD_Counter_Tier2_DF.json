@@ -23,8 +23,8 @@
       {
         "id": "main",
         "layout": "Grid",
-        "width": 3,
-        "height": 1,
+        "width": 4,
+        "height": 2,
         "accepts": [
           "general",
           "seed"

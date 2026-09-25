@@ -18,7 +18,7 @@
     return;
   }
 
-  const BAG_ROWS = 28;
+  const BAG_ROWS = 32;
   const FLOOR_ROWS = 8;
   // AScpBasketArenaManager::FurnitureSlotCount / FurnitureColumns: a grid four wide, the first
   // row in front of the player and each next row behind it.
@@ -89,6 +89,7 @@
     [data-screen="BasketArena"] .bb-spacer { flex: 1 1 auto; }
     [data-screen="BasketArena"] #bb-header .tsic-button { min-height: 0; padding: 6px 14px; font-size: 14px; border-width: 2px; }
     [data-screen="BasketArena"] #bb-apply { background: #1e3a8a; }
+    [data-screen="BasketArena"] #bb-default { background: #15803d; }
 
     /* Header and footer stay put; everything between scrolls, so the sheet fits 1280x720. */
     [data-screen="BasketArena"] #bb-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; gap: 10px; padding-right: 4px; }
@@ -196,6 +197,7 @@
           <h2 class="tsic-title">Container Arena</h2>
           <span id="bb-status">Waiting for the arena…</span>
           <span class="bb-spacer"></span>
+          <button class="tsic-button" id="bb-default" title="Fill the sheet with the built-in setup (every container feature, food in the cold bag, twelve pieces of furniture); Apply to use it">Load default</button>
           <button class="tsic-button secondary" id="bb-close">Close</button>
           <button class="tsic-button" id="bb-apply" data-tsic-focusable data-tsic-initial-focus>Apply</button>
         </div>
@@ -269,10 +271,9 @@
               <label for="bb-name">Name</label>
               <input class="bb-input bb-input--name" id="bb-name" placeholder="e.g. Full bag, bread on floor">
               <button class="tsic-button" id="bb-save">Save</button>
-              <button class="tsic-button secondary" id="bb-default" title="Fill the sheet with the built-in setup: every container feature, twelve pieces of furniture">Default</button>
             </div>
             <div id="bb-saved"></div>
-            <div class="bb-meta">Saved per machine. Load and Default fill the sheet; they do not apply. F10 also sweeps the floor and puts you back on the mark.</div>
+            <div class="bb-meta">Saved per machine. Load and Load default fill the sheet; they do not apply. F10 also sweeps the floor and puts you back on the mark.</div>
           </div>
         </div>
       </div>

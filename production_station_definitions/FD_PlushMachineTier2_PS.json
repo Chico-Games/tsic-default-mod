@@ -129,7 +129,7 @@
         "id": "input",
         "layout": "Grid",
         "width": 6,
-        "height": 3,
+        "height": 9,
         "accepts": [
           "fabric"
         ],
@@ -148,7 +148,7 @@
         "id": "output",
         "layout": "Grid",
         "width": 3,
-        "height": 2,
+        "height": 7,
         "accepts": [
           "general"
         ],

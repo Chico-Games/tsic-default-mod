@@ -71,8 +71,8 @@
       {
         "id": "cage",
         "layout": "Grid",
-        "width": 2,
-        "height": 2,
+        "width": 6,
+        "height": 4,
         "accepts": [
           "general",
           "cold"
@@ -80,19 +80,19 @@
         "surface": {
           "offset": {
             "x": 0.0,
-            "y": -9.6,
-            "z": 60.0
+            "y": -30.0,
+            "z": 43.5
           },
           "yaw": 90.0,
-          "width": 26.4,
-          "depth": 48.0
+          "width": 90,
+          "depth": 60
         }
       },
       {
         "id": "output",
         "layout": "Grid",
-        "width": 3,
-        "height": 2,
+        "width": 6,
+        "height": 4,
         "accepts": [
           "general"
         ],
@@ -101,12 +101,12 @@
         "surface": {
           "offset": {
             "x": 0.0,
-            "y": 14.4,
-            "z": 60.0
+            "y": 34.0,
+            "z": 43.5
           },
           "yaw": 90.0,
-          "width": 16.8,
-          "depth": 48.0
+          "width": 90,
+          "depth": 60
         }
       }
     ],

@@ -185,28 +185,28 @@
       {
         "id": "bed",
         "layout": "Grid",
-        "width": 2,
-        "height": 3,
+        "width": 4,
+        "height": 4,
         "accepts": [
           "wood"
         ],
         "presentation": "flat",
         "surface": {
           "offset": {
-            "x": 0.0,
-            "y": -0.0,
-            "z": 65.1
+            "x": 20.0,
+            "y": 31.0,
+            "z": 92.2
           },
-          "yaw": 90.0,
-          "width": 102.0,
-          "depth": 82.2
+          "yaw": 0.0,
+          "width": 58,
+          "depth": 56
         }
       },
       {
         "id": "outfeed",
         "layout": "Grid",
-        "width": 3,
-        "height": 3,
+        "width": 4,
+        "height": 4,
         "accepts": [
           "wood"
         ],
@@ -215,13 +215,13 @@
         "visible_when_empty": false,
         "surface": {
           "offset": {
-            "x": 0.0,
-            "y": -102.0,
-            "z": 65.1
+            "x": 20.0,
+            "y": -31.0,
+            "z": 92.2
           },
-          "yaw": 90.0,
-          "width": 102.0,
-          "depth": 82.2
+          "yaw": 0.0,
+          "width": 58,
+          "depth": 56
         }
       }
     ],

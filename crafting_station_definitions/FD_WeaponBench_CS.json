@@ -177,8 +177,8 @@
       {
         "id": "input",
         "layout": "Grid",
-        "width": 4,
-        "height": 3,
+        "width": 9,
+        "height": 6,
         "accepts": [
           "fabric",
           "fasteners",
@@ -187,20 +187,20 @@
         ],
         "surface": {
           "offset": {
-            "x": 0.0,
-            "y": -29.7,
-            "z": 47.2
+            "x": -35.0,
+            "y": 49.0,
+            "z": 94.4
           },
           "yaw": 90.0,
-          "width": 81.7,
-          "depth": 148.5
+          "width": 108,
+          "depth": 78
         }
       },
       {
         "id": "output",
         "layout": "Grid",
-        "width": 2,
-        "height": 2,
+        "width": 5,
+        "height": 6,
         "accepts": [
           "general"
         ],
@@ -208,13 +208,13 @@
         "visible_when_empty": false,
         "surface": {
           "offset": {
-            "x": 0.0,
-            "y": 44.6,
-            "z": 47.2
+            "x": 55.0,
+            "y": 49.0,
+            "z": 94.4
           },
           "yaw": 90.0,
-          "width": 52.0,
-          "depth": 148.5
+          "width": 64,
+          "depth": 78
         }
       }
     ],

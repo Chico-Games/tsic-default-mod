@@ -113,7 +113,7 @@
         "id": "input",
         "layout": "Grid",
         "width": 7,
-        "height": 2,
+        "height": 6,
         "accepts": [
           "cold",
           "fabric",
@@ -134,7 +134,7 @@
         "id": "output",
         "layout": "Grid",
         "width": 2,
-        "height": 2,
+        "height": 3,
         "accepts": [
           "general"
         ],

@@ -9,7 +9,7 @@
         "id": "main",
         "layout": "Grid",
         "width": 2,
-        "height": 1,
+        "height": 2,
         "accepts": [
           "general",
           "seed"

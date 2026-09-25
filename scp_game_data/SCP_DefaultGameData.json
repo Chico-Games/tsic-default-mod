@@ -919,6 +919,89 @@
     "icon_asset_map": [],
     "ghost_material": "/Game/Furniture/Shared/Materials/ConstructionGhost/M_ConstructionGhost.M_ConstructionGhost",
     "ready_pulse_material": "/Game/Shared/Materials/M_ReadyPulse.M_ReadyPulse",
+    "station_status_colours": [
+      {
+        "key": "invalid",
+        "value": {
+          "r": 0.42,
+          "g": 0.42,
+          "b": 0.45,
+          "a": 0.55
+        }
+      },
+      {
+        "key": "locked",
+        "value": {
+          "r": 0.55,
+          "g": 0.42,
+          "b": 0.75,
+          "a": 0.8
+        }
+      },
+      {
+        "key": "ready",
+        "value": {
+          "r": 0.15,
+          "g": 0.85,
+          "b": 0.3,
+          "a": 1.0
+        }
+      },
+      {
+        "key": "needs_hold",
+        "value": {
+          "r": 1.0,
+          "g": 0.7,
+          "b": 0.08,
+          "a": 1.0
+        }
+      },
+      {
+        "key": "working",
+        "value": {
+          "r": 0.22,
+          "g": 0.5,
+          "b": 1.0,
+          "a": 1.0
+        }
+      },
+      {
+        "key": "holding",
+        "value": {
+          "r": 0.08,
+          "g": 0.9,
+          "b": 0.95,
+          "a": 1.0
+        }
+      },
+      {
+        "key": "full",
+        "value": {
+          "r": 1.0,
+          "g": 0.42,
+          "b": 0.04,
+          "a": 1.0
+        }
+      },
+      {
+        "key": "done",
+        "value": {
+          "r": 1.0,
+          "g": 0.9,
+          "b": 0.55,
+          "a": 1.0
+        }
+      },
+      {
+        "key": "burning",
+        "value": {
+          "r": 1.0,
+          "g": 0.1,
+          "b": 0.06,
+          "a": 1.0
+        }
+      }
+    ],
     "post_process_stencil_material": "/Game/Fab/HandDrawingDemo/Materials/MI_Draw2.MI_Draw2",
     "fallback_static_mesh": "/Game/Items/CraftingMaterials/Cardboard/Meshes/SM_CartonBox2_05.SM_CartonBox2_05",
     "cardboard_label_material": "/Game/Items/CraftingMaterials/Cardboard/Materials/M_CardboardLabel.M_CardboardLabel",

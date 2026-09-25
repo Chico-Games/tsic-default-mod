@@ -138,13 +138,13 @@
         "presentation": "flat",
         "surface": {
           "offset": {
-            "x": 0.8,
-            "y": 20.9,
-            "z": 19.0
+            "x": 9.0,
+            "y": 4.4,
+            "z": 18.8
           },
           "yaw": 0.0,
-          "width": 8.0,
-          "depth": 16.0,
+          "width": 22.0,
+          "depth": 16,
           "camera_distance": 200.0,
           "camera_pitch": -50.0
         }
@@ -152,7 +152,7 @@
       {
         "id": "outfeed",
         "layout": "Grid",
-        "width": 3,
+        "width": 2,
         "height": 2,
         "accepts": [
           "fabric"
@@ -162,13 +162,13 @@
         "visible_when_empty": false,
         "surface": {
           "offset": {
-            "x": 0.8,
-            "y": 25.7,
-            "z": 19.0
+            "x": -9.0,
+            "y": 4.4,
+            "z": 18.8
           },
           "yaw": 0.0,
-          "width": 8.0,
-          "depth": 16.0
+          "width": 22.0,
+          "depth": 16
         }
       }
     ],

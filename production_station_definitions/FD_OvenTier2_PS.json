@@ -185,19 +185,19 @@
         "id": "tray",
         "layout": "Grid",
         "width": 5,
-        "height": 3,
+        "height": 4,
         "accepts": [
           "cold"
         ],
         "surface": {
           "offset": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 50.4
+            "x": -1.5,
+            "y": 0.5,
+            "z": 86.5
           },
-          "yaw": 90.0,
-          "width": 76.2,
-          "depth": 66.3
+          "yaw": -90.0,
+          "width": 53,
+          "depth": 49
         }
       }
     ],

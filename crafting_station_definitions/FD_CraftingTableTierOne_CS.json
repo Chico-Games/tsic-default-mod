@@ -196,8 +196,8 @@
       {
         "id": "input",
         "layout": "Grid",
-        "width": 4,
-        "height": 3,
+        "width": 8,
+        "height": 5,
         "accepts": [
           "cold",
           "fabric",
@@ -207,13 +207,13 @@
         ],
         "surface": {
           "offset": {
-            "x": 0.0,
-            "y": -24.0,
-            "z": 84.0
+            "x": -30.0,
+            "y": 4.0,
+            "z": 87.0
           },
           "yaw": 90.0,
-          "width": 66.0,
-          "depth": 50.0,
+          "width": 96,
+          "depth": 60,
           "camera_distance": 250.0,
           "camera_pitch": -38.0
         }
@@ -221,8 +221,8 @@
       {
         "id": "output",
         "layout": "Grid",
-        "width": 2,
-        "height": 2,
+        "width": 4,
+        "height": 5,
         "accepts": [
           "general",
           "cold"
@@ -231,13 +231,13 @@
         "visible_when_empty": false,
         "surface": {
           "offset": {
-            "x": 0.0,
-            "y": 36.0,
-            "z": 84.0
+            "x": 50.0,
+            "y": 4.0,
+            "z": 87.0
           },
           "yaw": 90.0,
-          "width": 42.0,
-          "depth": 50.0
+          "width": 56,
+          "depth": 60
         }
       }
     ],

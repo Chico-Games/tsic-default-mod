@@ -72,7 +72,7 @@
       {
         "id": "input",
         "layout": "Grid",
-        "width": 4,
+        "width": 10,
         "height": 3,
         "accepts": [
           "general",
@@ -80,20 +80,20 @@
         ],
         "surface": {
           "offset": {
-            "x": 0.0,
-            "y": -15.0,
-            "z": 84.0
+            "x": -80.0,
+            "y": 59.5,
+            "z": 91.0
           },
           "yaw": 90.0,
-          "width": 60.0,
-          "depth": 40.0
+          "width": 116,
+          "depth": 33
         }
       },
       {
         "id": "output",
         "layout": "Grid",
-        "width": 3,
-        "height": 2,
+        "width": 8,
+        "height": 3,
         "accepts": [
           "general"
         ],
@@ -101,13 +101,13 @@
         "visible_when_empty": false,
         "surface": {
           "offset": {
-            "x": 0.0,
-            "y": 35.0,
-            "z": 84.0
+            "x": 30.0,
+            "y": 59.5,
+            "z": 91.0
           },
           "yaw": 90.0,
-          "width": 40.0,
-          "depth": 40.0
+          "width": 96,
+          "depth": 33
         }
       }
     ],

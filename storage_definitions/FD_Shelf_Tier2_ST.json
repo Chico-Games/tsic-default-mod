@@ -9,7 +9,7 @@
       {
         "id": "main",
         "layout": "Grid",
-        "width": 4,
+        "width": 5,
         "height": 4,
         "accepts": [
           "general",
@@ -18,12 +18,12 @@
         "surface": {
           "offset": {
             "x": 0.0,
-            "y": -5.25,
-            "z": 6.3
+            "y": -0.5,
+            "z": 6.35
           },
           "yaw": 90.0,
-          "width": 40.0,
-          "depth": 32.0
+          "width": 36.0,
+          "depth": 26.0
         },
         "gate": {
           "part": "Door",

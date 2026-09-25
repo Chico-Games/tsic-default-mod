@@ -111,7 +111,7 @@
       {
         "id": "input",
         "layout": "Grid",
-        "width": 8,
+        "width": 11,
         "height": 4,
         "accepts": [
           "cold",
