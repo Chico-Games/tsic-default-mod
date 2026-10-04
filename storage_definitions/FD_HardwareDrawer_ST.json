@@ -6,28 +6,64 @@
   "properties": {
     "compartments": [
       {
-        "id": "main",
+        "id": "screws",
         "layout": "Pile",
-        "capacity": 50,
+        "capacity": 20,
         "accepts": [
           "fasteners"
+        ],
+        "include_items": [
+          "ID_MetalScrews_CM"
         ],
         "strategy": "Box",
         "presentation": "box",
         "surface": {
           "offset": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 115.0
+            "x": -10,
+            "y": 1.75,
+            "z": 67.6
           },
-          "yaw": 0.0,
-          "width": 40.0,
-          "depth": 46.0
+          "yaw": 90,
+          "width": 20,
+          "depth": 32,
+          "part": "Drawer"
+        },
+        "gate": {
+          "part": "Drawer",
+          "min_open": 0.5
+        }
+      },
+      {
+        "id": "dowels",
+        "layout": "Pile",
+        "capacity": 20,
+        "accepts": [
+          "fasteners"
+        ],
+        "include_items": [
+          "ID_WoodenDowel_CM"
+        ],
+        "strategy": "Box",
+        "presentation": "box",
+        "surface": {
+          "offset": {
+            "x": 10,
+            "y": 1.75,
+            "z": 67.6
+          },
+          "yaw": 90,
+          "width": 20,
+          "depth": 32,
+          "part": "Drawer"
+        },
+        "gate": {
+          "part": "Drawer",
+          "min_open": 0.5
         }
       }
     ],
     "layer_name": "UI.Layer.GameMenu",
-    "interaction_hold_time": 0.0,
+    "interaction_hold_time": 0,
     "interaction_prompt_text": "Open",
     "has_static_audio": false,
     "has_toggled_on_audio": false,
@@ -38,38 +74,38 @@
     "has_static_vfx": false,
     "has_toggled_on_vfx": false,
     "has_toggled_off_vfx": false,
-    "starting_health": 150.0,
-    "destructible_collection": "/Game/Fab/80s_Brutalist_Office/Models/GeometryCollections/GCS_FileCabinet_01.GCS_FileCabinet_01",
+    "starting_health": 150,
+    "destructible_collection": "/Game/Furniture/HardwareDrawer/GeometryCollections/GCS_HardwareDrawer_Closed.GCS_HardwareDrawer_Closed",
     "loot_dropped_on_death": [],
     "deconstruction_tier": 1,
     "constructable_item_to_grant": "ID_HardwareDrawer_CI",
     "upgrade_recipe": null,
     "building_base": {
       "rotation": {
-        "x": 0.0,
-        "y": 0.0,
-        "z": 0.0,
-        "w": 1.0
+        "x": 0,
+        "y": 0,
+        "z": 0,
+        "w": 1
       },
       "translation": {
-        "x": 0.0,
-        "y": 0.0,
-        "z": 0.0
+        "x": 0,
+        "y": 0,
+        "z": 0
       },
       "scale3_d": {
-        "x": 1.0,
-        "y": 1.0,
-        "z": 1.0
+        "x": 1,
+        "y": 1,
+        "z": 1
       }
     },
     "is_draggable": true,
     "display_name": "Hardware Drawer",
-    "description": "A drawer unit for screws and dowels: twenty of each.",
+    "description": "A small steel cabinet with one drawer for screws and dowels: twenty of each.",
     "level": 1,
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,
-    "static_mesh": "/Game/Fab/80s_Brutalist_Office/Models/FileCabinet/SM_FileCabinet_01.SM_FileCabinet_01",
+    "static_mesh": "/Game/Furniture/HardwareDrawer/Meshes/SM_HardwareDrawer_Closed.SM_HardwareDrawer_Closed",
     "casts_shadow": true,
     "collision_profile_name": {
       "name": "Furniture"
@@ -79,20 +115,20 @@
       {
         "local_transform": {
           "rotation": {
-            "x": 0.0,
-            "y": -0.0,
-            "z": 0.0871557420742326,
-            "w": 0.9961946981506625
+            "x": 0,
+            "y": 0,
+            "z": 0,
+            "w": 1
           },
           "translation": {
-            "x": -44.221787503129,
-            "y": -1.1368683772161603e-13,
-            "z": 38.45383845291843
+            "x": 0,
+            "y": 0,
+            "z": 81.8
           },
           "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
+            "x": 1,
+            "y": 1,
+            "z": 1
           }
         },
         "weight": 1000
@@ -100,83 +136,20 @@
       {
         "local_transform": {
           "rotation": {
-            "x": 0.0,
-            "y": -0.0,
-            "z": 0.42261825867738867,
-            "w": 0.9063077884650951
+            "x": 0,
+            "y": 0,
+            "z": 0,
+            "w": 1
           },
           "translation": {
-            "x": 28.619748428348426,
-            "y": 0.9999025235540149,
-            "z": 77.05511165784219
+            "x": 0,
+            "y": 0,
+            "z": 36.45
           },
           "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        },
-        "weight": 1000
-      },
-      {
-        "local_transform": {
-          "rotation": {
-            "x": -0.0,
-            "y": 0.0,
-            "z": -0.9961946970901547,
-            "w": 0.08715575419589267
-          },
-          "translation": {
-            "x": 31.83641125074746,
-            "y": -0.9499720572825907,
-            "z": 114.95699873666203
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        },
-        "weight": 1000
-      },
-      {
-        "local_transform": {
-          "rotation": {
-            "x": -0.0,
-            "y": 0.0,
-            "z": -0.1736481763354744,
-            "w": 0.9848077532469797
-          },
-          "translation": {
-            "x": -44.22178612530997,
-            "y": -1.8474111129762605e-13,
-            "z": 115.08902105554274
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        },
-        "weight": 1000
-      },
-      {
-        "local_transform": {
-          "rotation": {
-            "x": -0.0,
-            "y": 0.0,
-            "z": -0.49999999648741184,
-            "w": 0.8660254058124321
-          },
-          "translation": {
-            "x": -44.22178708250023,
-            "y": 0.0,
-            "z": 76.7044835164195
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
+            "x": 1,
+            "y": 1,
+            "z": 1
           }
         },
         "weight": 1000
@@ -184,17 +157,65 @@
     ],
     "weighted_chance": 1000,
     "world_gen_priority": 6000,
-    "destruction_impulse_strength": 0.0,
+    "destruction_impulse_strength": 0,
     "drag_angular_damping": 1.25,
-    "drag_linear_damping": 5.0,
-    "drag_mass": 1.0,
-    "drag_max_angular_velocity": 90.0,
+    "drag_linear_damping": 5,
+    "drag_mass": 1,
+    "drag_max_angular_velocity": 90,
     "drag_tier": 1,
     "friction": 0.699999988079071,
     "furniture_armour": 2,
     "gameplay_tags": [],
     "release_angular_damping": 0.05000000074505806,
     "release_linear_damping": 0.009999999776482582,
-    "restitution": 0.30000001192092896
+    "restitution": 0.30000001192092896,
+    "blocking_collision_boxes": [
+      {
+        "offset": {
+          "x": 0,
+          "y": 0,
+          "z": 40.9
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 26,
+          "y": 20.75,
+          "z": 40.9
+        }
+      }
+    ],
+    "support_collision_boxes": [
+      {
+        "offset": {
+          "x": 0,
+          "y": 0,
+          "z": 40.9
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 26.5,
+          "y": 21.25,
+          "z": 40.9
+        }
+      }
+    ],
+    "rig": {
+      "skeletal_mesh": "/Game/Furniture/HardwareDrawer/Meshes/SK_HardwareDrawer.SK_HardwareDrawer",
+      "parts": [
+        {
+          "name": "Drawer",
+          "motion": "Slide",
+          "range": 26
+        }
+      ]
+    }
   }
 }
