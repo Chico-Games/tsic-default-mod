@@ -1,11 +1,11 @@
 // Container arena screen module (spec 16.2) — the setup sheet for the 3D containers (F10 in
-// L_Dev_ContainerLab, the worldgen-on blank floor whose bays the scenario setups use).
+// L_Dev_ContainerLab, the worldgen-on blank floor with the lab's bays).
 //
 // C++ owns the loop: UI.Cmd.BasketArena.Toggle sweeps the floor and opens this screen; Apply
 // sends the whole setup back on UI.Cmd.BasketArena.Apply and C++ closes the screen, empties the
 // bag, wears the backpack, replaces the furniture grid (contents, parts, station state), grants
-// each bag row, drops each floor row, sets the clock and opens the basket. The scenario and world
-// buttons go out on UI.Cmd.BasketArena.Action.
+// each bag row, drops each floor row, sets the clock and opens the basket. The world buttons go
+// out on UI.Cmd.BasketArena.Action.
 // Everything the sheet shows arrives on UI.BasketArena.State — the working setup, the saved
 // ones and the item lists — so this file holds no catalogue of its own.
 //
@@ -115,8 +115,6 @@
     [data-screen="BasketArena"] .bb-furn .bb-row label { min-width: 38px; }
     [data-screen="BasketArena"] .bb-furn select.bb-input { flex: 0 1 auto; min-width: 0; }
     [data-screen="BasketArena"] .bb-rowhead { grid-column: 1 / -1; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: rgba(59,47,28,0.6); }
-    [data-screen="BasketArena"] #bb-scenario { flex: 1 1 auto; min-width: 0; }
-    [data-screen="BasketArena"] #bb-runstatus.is-bad { color: #b91c1c; }
     [data-screen="BasketArena"] .bb-meta { font-size: 11px; color: rgba(59,47,28,0.6); margin-top: 4px; }
     [data-screen="BasketArena"] .bb-check { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; cursor: pointer; user-select: none; margin-right: 10px; }
     [data-screen="BasketArena"] .bb-check input { margin: 0; }
@@ -250,21 +248,6 @@
         </div>
 
         <div id="bb-footer">
-          <div class="bb-section" id="bb-scenarios" data-tsic-focus-group="scenarios">
-            <h3>Scenarios</h3>
-            <div class="bb-row" style="flex-wrap: wrap">
-              <label for="bb-scenario">Preset</label>
-              <select class="bb-input" id="bb-scenario"></select>
-              <button class="tsic-button" data-scenario="Preset" title="Set up the scenario, then play it by hand">Open preset</button>
-              <button class="tsic-button" data-scenario="Run" title="Run every step">Run &#9654;</button>
-              <button class="tsic-button" data-scenario="Step" title="Run one step each time Next step is pressed">Step mode</button>
-              <button class="tsic-button" data-action="NextStep">Next step</button>
-              <button class="tsic-button" data-action="Resume">Resume</button>
-              <button class="tsic-button secondary" data-action="Stop">Stop</button>
-            </div>
-            <div class="bb-meta" id="bb-runstatus"></div>
-          </div>
-
           <div class="bb-section" id="bb-setups" data-tsic-focus-group="setups">
             <h3>Setups</h3>
             <div class="bb-row">
@@ -528,26 +511,6 @@
         }
       }
 
-      function renderScenarios() {
-        const d = state.data || {};
-        const select = $('bb-scenario');
-        const keep = select.value;
-        select.replaceChildren(...(d.Scenarios || []).map((name) => TSIC.el('option', { value: name }, name)));
-        if ((d.Scenarios || []).includes(keep)) select.value = keep;
-        const run = $('bb-runstatus');
-        run.classList.remove('is-bad');
-        if (d.Scenario) {
-          const step = d.StepIndex >= 0 ? `step ${d.StepIndex + 1} of ${d.StepCount}${d.StepLabel ? ': ' + d.StepLabel : ''}` : 'setting up';
-          run.textContent = `${d.Scenario} — ${step}${d.bScenarioPaused ? ' (waiting for Next step)' : ''}`;
-        } else if (d.LastResult) {
-          run.textContent = `Last run: ${d.LastResult}`;
-          run.classList.toggle('is-bad', d.LastResult.indexOf(': failed') >= 0);
-        } else {
-          run.textContent = 'Open preset sets a scenario up to play by hand; F10 comes back here mid-run.';
-        }
-        root.querySelectorAll('[data-scenario]').forEach((b) => { b.disabled = !d.bHasArena || !!d.Scenario; });
-      }
-
       function renderStatus() {
         const d = state.data;
         const el = $('bb-status');
@@ -572,14 +535,8 @@
         applySetup(p && p.Current);
         renderSaved();
         renderStatus();
-        renderScenarios();
       });
 
-      root.querySelectorAll('[data-scenario]').forEach((b) => b.addEventListener('click', () => {
-        const name = $('bb-scenario').value;
-        if (!name) { tsic.playSound('UI.Error', 0.4); return; }
-        ctx.publish('UI.Cmd.BasketArena.Action', { Action: b.getAttribute('data-scenario'), Arg: name });
-      }));
       root.querySelectorAll('[data-action]').forEach((b) => b.addEventListener('click', () => {
         const action = b.getAttribute('data-action');
         const arg = action === 'TimeScale' ? $('bb-timescale').value : (b.getAttribute('data-arg') || '');
@@ -598,7 +555,6 @@
       fillPickers();
       renderSaved();
       renderStatus();
-      renderScenarios();
       requestState = () => ctx.publish('UI.Cmd.BasketArena.RequestState', {});
       cancelOpenList = () => {
         if (!openCombo) return false;
