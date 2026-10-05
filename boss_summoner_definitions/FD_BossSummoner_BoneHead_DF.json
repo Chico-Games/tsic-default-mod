@@ -4,15 +4,14 @@
   "class": "UInteractableFurnitureDefinition",
   "schema_version": 2,
   "properties": {
-    "destructible_collection": "/Game/Furniture/ScientificDevices/GeometryCollections/GCS_GlassContainment.GCS_GlassContainment",
-    "display_name": "Bone Altar",
+    "display_name": "Payphone",
     "interaction_hold_time": 0.0,
     "interaction_prompt_text": "Summon",
     "level": 1,
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,
-    "static_mesh": "/Game/Furniture/ScientificDevices/Meshes/SM_GlassContainment.SM_GlassContainment",
+    "static_mesh": "/Game/Suburban_Household/VOL20_Vending/Meshes/LP/SM_Payphone_01a.SM_Payphone_01a",
     "casts_shadow": true,
     "collision_profile_name": {
       "name": "Furniture"
@@ -34,13 +33,13 @@
         ],
         "surface": {
           "offset": {
-            "x": 1.5,
-            "y": 0.2,
-            "z": 43.5
+            "x": 0.0,
+            "y": 3.0,
+            "z": 71.5
           },
           "yaw": 90.0,
-          "width": 60.0,
-          "depth": 40.0
+          "width": 28.0,
+          "depth": 24.0
         }
       }
     ],
@@ -59,6 +58,18 @@
         "action_label": "Summon"
       }
     },
-    "gameplay_event_tag": "UI.GameScreen.Inventory"
+    "gameplay_event_tag": "UI.GameScreen.Inventory",
+    "container_view": {
+      "location": {
+        "x": 0.0,
+        "y": 75.0,
+        "z": 130.0
+      },
+      "rotation": {
+        "pitch": -40.0,
+        "yaw": -90.0,
+        "roll": 0
+      }
+    }
   }
 }

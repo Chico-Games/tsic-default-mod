@@ -51,7 +51,6 @@
     "loot_dropped_on_death": [],
     "deconstruction_tier": 2,
     "constructable_item_to_grant": "ID_Bookcase_4_CI",
-    "upgrade_recipe": "RD_Bookcase_4_CN",
     "building_base": {
       "rotation": {
         "x": 0.0,
@@ -177,6 +176,18 @@
           "range": -100.0
         }
       ]
+    },
+    "container_view": {
+      "location": {
+        "x": 217.4,
+        "y": 6.1,
+        "z": 181.4
+      },
+      "rotation": {
+        "pitch": -30,
+        "yaw": 178.8,
+        "roll": 0
+      }
     }
   }
 }

@@ -125,6 +125,18 @@
         "complete_sound": "Recipe.Completed",
         "action_label": "Research"
       }
+    },
+    "container_view": {
+      "location": {
+        "x": -11,
+        "y": 309.8,
+        "z": 334.3
+      },
+      "rotation": {
+        "pitch": -43.6,
+        "yaw": -101.2,
+        "roll": 0
+      }
     }
   }
 }

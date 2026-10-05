@@ -51,7 +51,6 @@
     "loot_dropped_on_death": [],
     "deconstruction_tier": 2,
     "constructable_item_to_grant": "ID_Shelf_CI",
-    "upgrade_recipe": "RD_IndustrialShelf_CN",
     "building_base": {
       "rotation": {
         "x": 0.0,

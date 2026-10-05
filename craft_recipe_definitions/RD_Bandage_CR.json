@@ -19,8 +19,7 @@
     ],
     "duration": 3.0,
     "stations": [
-      "Station.FirstAidStation",
-      "Station.FirstAidStationTier2"
+      "Station.FirstAidStation"
     ]
   }
 }

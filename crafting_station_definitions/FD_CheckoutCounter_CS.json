@@ -199,7 +199,6 @@
     "release_angular_damping": 0.05000000074505806,
     "release_linear_damping": 0.009999999776482582,
     "restitution": 0.30000001192092896,
-    "upgrade_recipe": "RD_CheckoutCounterTier2_CN",
     "gameplay_event_tag": "UI.GameScreen.Inventory",
     "compartments": [
       {
@@ -216,20 +215,21 @@
         ],
         "surface": {
           "offset": {
-            "x": -19.0,
-            "y": 32.0,
-            "z": 88.9
+            "x": 37.5,
+            "y": 34.5,
+            "z": 89
           },
           "yaw": 90.0,
-          "width": 56,
-          "depth": 72
+          "width": 44,
+          "depth": 66,
+          "cell_size": 11
         }
       },
       {
         "id": "output",
         "layout": "Grid",
         "width": 4,
-        "height": 5,
+        "height": 6,
         "accepts": [
           "general",
           "cold"
@@ -238,13 +238,14 @@
         "visible_when_empty": false,
         "surface": {
           "offset": {
-            "x": 100.0,
+            "x": 88,
             "y": 35.0,
-            "z": 87.3
+            "z": 87.5
           },
           "yaw": 90.0,
-          "width": 50,
-          "depth": 70
+          "width": 44,
+          "depth": 66,
+          "cell_size": 11
         }
       }
     ],
@@ -260,6 +261,18 @@
       },
       "feedback": {
         "action_label": "Craft"
+      }
+    },
+    "container_view": {
+      "location": {
+        "x": -9.9,
+        "y": 191.7,
+        "z": 366.5
+      },
+      "rotation": {
+        "pitch": -62.6,
+        "yaw": -90.4,
+        "roll": 0
       }
     }
   }

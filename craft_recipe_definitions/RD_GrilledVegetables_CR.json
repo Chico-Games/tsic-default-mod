@@ -27,8 +27,7 @@
     ],
     "duration": 85.0,
     "stations": [
-      "Station.Oven",
-      "Station.OvenTier2"
+      "Station.Oven"
     ]
   }
 }

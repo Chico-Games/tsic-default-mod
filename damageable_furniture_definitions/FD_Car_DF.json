@@ -1,7 +1,7 @@
 {
   "id": "FD_Car_DF",
   "asset_path": "/Game/Furniture/CarPark/Furniture/FD_Car_DF",
-  "class": "UStorageDefinition",
+  "class": "UDamageableFurnitureDefinition",
   "schema_version": 2,
   "properties": {
     "starting_health": 146,
@@ -88,7 +88,6 @@
       }
     },
     "construction_category_tag": "",
-    "upgrade_recipe": "RD_Car_CN",
     "is_draggable": true,
     "drag_tier": 2,
     "drag_mass": 1,
@@ -114,46 +113,6 @@
     "random_material_overrides": [],
     "loot_positions": [],
     "weighted_chance": 1000,
-    "world_gen_priority": 5000,
-    "has_static_audio": false,
-    "has_toggled_on_audio": false,
-    "has_toggled_off_audio": false,
-    "has_static_lights": false,
-    "has_toggled_on_lights": false,
-    "has_toggled_off_lights": false,
-    "has_static_vfx": false,
-    "has_toggled_on_vfx": false,
-    "has_toggled_off_vfx": false,
-    "compartments": [
-      {
-        "id": "main",
-        "layout": "Grid",
-        "width": 4,
-        "height": 2,
-        "accepts": [
-          "general",
-          "seed"
-        ],
-        "surface": {
-          "offset": {
-            "x": 1.9698269682066893e-07,
-            "y": -28.000000715255737,
-            "z": 88.76
-          },
-          "yaw": 0.0,
-          "width": 173.75,
-          "depth": 106.66
-        },
-        "loot": {
-          "rolls": 3,
-          "chance": 0.55
-        }
-      }
-    ],
-    "layer_name": "UI.Layer.GameMenu",
-    "interaction_hold_time": 0.0,
-    "interaction_prompt_text": "Search",
-    "open_sound": "Container.Open.Car",
-    "close_sound": "Container.Close.Car"
+    "world_gen_priority": 5000
   }
 }

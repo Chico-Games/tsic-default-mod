@@ -154,6 +154,18 @@
           "range": -100.0
         }
       ]
+    },
+    "container_view": {
+      "location": {
+        "x": -19.8,
+        "y": 176.9,
+        "z": 132.4
+      },
+      "rotation": {
+        "pitch": -32.4,
+        "yaw": -93.8,
+        "roll": 0
+      }
     }
   }
 }

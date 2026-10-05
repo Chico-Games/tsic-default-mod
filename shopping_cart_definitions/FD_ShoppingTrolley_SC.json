@@ -8,21 +8,22 @@
       {
         "id": "main",
         "layout": "Grid",
-        "width": 4,
-        "height": 5,
+        "width": 10,
+        "height": 4,
         "accepts": [
           "general",
           "seed"
         ],
         "surface": {
           "offset": {
-            "x": -10.0,
+            "x": -11.0,
             "y": 0.0,
-            "z": 48.0
+            "z": 47.6
           },
-          "yaw": 0.0,
-          "width": 48.0,
-          "depth": 70.0,
+          "yaw": 90.0,
+          "roll": 2.6,
+          "width": 76.0,
+          "depth": 38.0,
           "camera_pitch": -52.0
         }
       }

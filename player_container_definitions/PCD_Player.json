@@ -310,6 +310,42 @@
       "basket.hook.3",
       "basket.hook.4"
     ],
-    "base_carry_capacity": 50.0
+    "base_carry_capacity": 50.0,
+    "basket_pose": {
+      "location": {
+        "x": 286.97,
+        "y": -65.3124,
+        "z": 1.0437
+      },
+      "rotation": {
+        "pitch": 80.2054,
+        "yaw": -10.3843,
+        "roll": 3.3018
+      }
+    },
+    "hooks_pose": {
+      "location": {
+        "x": 251.8019,
+        "y": -52.1108,
+        "z": -16.0994
+      },
+      "rotation": {
+        "pitch": 8.8843,
+        "yaw": -7.4283,
+        "roll": -1.2536
+      }
+    },
+    "cold_bag_pose": {
+      "location": {
+        "x": 262.7415,
+        "y": -53.0274,
+        "z": -0.9364
+      },
+      "rotation": {
+        "pitch": 80.2054,
+        "yaw": -10.3843,
+        "roll": 3.3018
+      }
+    }
   }
 }

@@ -1,13 +1,9 @@
 {
   "id": "FD_Kiln_PS",
   "asset_path": "/Game/Furniture/Processing/Kiln/Construction/FD_Kiln_PS",
-  "class": "UInteractableFurnitureDefinition",
+  "class": "UDamageableFurnitureDefinition",
   "schema_version": 2,
   "properties": {
-    "interaction_hold_time": 0,
-    "interaction_prompt_text": "Use",
-    "has_static_audio": false,
-    "has_toggled_on_audio": true,
     "toggled_on_audio": {
       "sound": "Furniture.Loop.Fire",
       "volume_multiplier": 0.6,
@@ -17,13 +13,6 @@
       "fade_in_time": 0.5,
       "fade_out_time": 0.8
     },
-    "has_toggled_off_audio": false,
-    "has_static_lights": false,
-    "has_toggled_on_lights": false,
-    "has_toggled_off_lights": false,
-    "has_static_vfx": false,
-    "has_toggled_on_vfx": false,
-    "has_toggled_off_vfx": false,
     "starting_health": 200,
     "destructible_collection": "/Game/Fab/Commercial_Kitchen/GeometryCollections/GCS_PizzaOven.GCS_PizzaOven",
     "loot_dropped_on_death": [],
@@ -66,7 +55,6 @@
         }
       }
     ],
-    "upgrade_recipe": "RD_KilnTier2_CN",
     "building_base": {
       "rotation": {
         "x": 0,
@@ -178,64 +166,6 @@
     "release_angular_damping": 0.05000000074505806,
     "release_linear_damping": 0.009999999776482582,
     "restitution": 0.30000001192092896,
-    "constructable_item_to_grant": "ID_Kiln_CI",
-    "gameplay_event_tag": "UI.GameScreen.Inventory",
-    "compartments": [
-      {
-        "id": "input",
-        "layout": "Grid",
-        "width": 3,
-        "height": 4,
-        "accepts": [
-          "general"
-        ],
-        "surface": {
-          "offset": {
-            "x": 4.5,
-            "y": 2.5,
-            "z": 79.1
-          },
-          "yaw": 0.0,
-          "width": 41,
-          "depth": 51
-        }
-      },
-      {
-        "id": "output",
-        "layout": "Grid",
-        "width": 5,
-        "height": 5,
-        "accepts": [
-          "general"
-        ],
-        "take_only": true,
-        "visible_when_empty": false,
-        "surface": {
-          "offset": {
-            "x": -1.5,
-            "y": -0.5,
-            "z": 101.0
-          },
-          "yaw": 0.0,
-          "width": 59,
-          "depth": 63
-        }
-      }
-    ],
-    "station": {
-      "recipe_tag": "Station.Kiln",
-      "input": "input",
-      "output": "output",
-      "trigger": {
-        "type": "Click_Bench"
-      },
-      "work": {
-        "type": "Instant"
-      },
-      "feedback": {
-        "action_label": "Craft",
-        "working_sound": "toggled_on_audio"
-      }
-    }
+    "constructable_item_to_grant": "ID_Kiln_CI"
   }
 }

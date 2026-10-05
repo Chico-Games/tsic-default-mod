@@ -130,6 +130,18 @@
         }
       }
     ],
-    "destructible_collection": "/Game/Furniture/MidCentury/BikeRack/GeometryCollections/GCS_BikeRack.GCS_BikeRack"
+    "destructible_collection": "/Game/Furniture/MidCentury/BikeRack/GeometryCollections/GCS_BikeRack.GCS_BikeRack",
+    "container_view": {
+      "location": {
+        "x": -40.2,
+        "y": 126,
+        "z": 217.5
+      },
+      "rotation": {
+        "pitch": -55,
+        "yaw": -90,
+        "roll": 0
+      }
+    }
   }
 }

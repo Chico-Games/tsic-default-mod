@@ -19,8 +19,7 @@
     ],
     "duration": 3.0,
     "stations": [
-      "Station.SawBench",
-      "Station.SawBenchTier2"
+      "Station.SawBench"
     ]
   }
 }

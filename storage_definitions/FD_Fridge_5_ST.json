@@ -115,7 +115,6 @@
       }
     ],
     "constructable_item_to_grant": "ID_Fridge_5_CI",
-    "upgrade_recipe": "RD_Fridges_CN",
     "building_base": {
       "rotation": {
         "x": 0.0,

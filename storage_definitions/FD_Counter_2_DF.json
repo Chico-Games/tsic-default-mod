@@ -114,7 +114,6 @@
       }
     },
     "construction_category_tag": "",
-    "upgrade_recipe": "RD_Counters_CN",
     "is_draggable": true,
     "drag_tier": 2,
     "drag_mass": 1,
@@ -182,6 +181,18 @@
           "range": 24.0
         }
       ]
+    },
+    "container_view": {
+      "location": {
+        "x": -26.9,
+        "y": 60.5,
+        "z": 197.5
+      },
+      "rotation": {
+        "pitch": -79.2,
+        "yaw": -90.2,
+        "roll": 0
+      }
     }
   }
 }

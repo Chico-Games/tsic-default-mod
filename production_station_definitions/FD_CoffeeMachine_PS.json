@@ -85,7 +85,6 @@
         "z": 1
       }
     },
-    "upgrade_recipe": "RD_CoffeeMachineTier2_CN",
     "is_draggable": true,
     "display_name": "Coffee Machine",
     "description": "A simple microwave for basic cooking. Heats and cooks simple meals quickly.",
@@ -177,6 +176,18 @@
       "feedback": {
         "action_label": "Craft",
         "working_sound": "toggled_on_audio"
+      }
+    },
+    "container_view": {
+      "location": {
+        "x": -36.3,
+        "y": 130.1,
+        "z": 233.1
+      },
+      "rotation": {
+        "pitch": -53.6,
+        "yaw": -90.4,
+        "roll": 0
       }
     }
   }

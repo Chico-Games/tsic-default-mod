@@ -15,9 +15,9 @@
         ],
         "surface": {
           "offset": {
-            "x": 0.82,
-            "y": 13.5,
-            "z": 41.45
+            "x": -0.5,
+            "y": 16.5,
+            "z": 41.5
           },
           "yaw": 90.0,
           "width": 70.0,
@@ -44,9 +44,9 @@
         ],
         "surface": {
           "offset": {
-            "x": -0.05,
-            "y": 4.8,
-            "z": 128.75
+            "x": 0,
+            "y": 9.5,
+            "z": 129
           },
           "yaw": 90.0,
           "width": 68.0,
@@ -57,7 +57,24 @@
         "gate": {
           "part": "DoorUpper",
           "min_open": 0.5
-        }
+        },
+        "presentation_overrides": [
+          {
+            "key": "ID_CookingOil_CN",
+            "value": {
+              "offset": {
+                "x": 0,
+                "y": 0,
+                "z": 2.0263
+              },
+              "rotation": {
+                "pitch": 0,
+                "yaw": 0,
+                "roll": 90
+              }
+            }
+          }
+        ]
       }
     ],
     "layer_name": "UI.Layer.GameMenu",
@@ -139,7 +156,6 @@
       }
     },
     "construction_category_tag": "",
-    "upgrade_recipe": "RD_Fridge_2_CN",
     "is_draggable": true,
     "drag_tier": 2,
     "drag_mass": 1,
@@ -213,6 +229,18 @@
           "range": -110.0
         }
       ]
+    },
+    "container_view": {
+      "location": {
+        "x": -39.9,
+        "y": 251.8,
+        "z": 245.1
+      },
+      "rotation": {
+        "pitch": -33.4,
+        "yaw": -91.4,
+        "roll": 0
+      }
     }
   }
 }

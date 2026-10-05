@@ -24,9 +24,7 @@
     "duration": 95.0,
     "stations": [
       "Station.Dishwasher",
-      "Station.DishwasherTier2",
-      "Station.Oven",
-      "Station.OvenTier2"
+      "Station.Oven"
     ]
   }
 }

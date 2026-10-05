@@ -27,8 +27,7 @@
     ],
     "duration": 6.0,
     "stations": [
-      "Station.ArmorBenchTier2",
-      "Station.ArmorBenchTier3"
+      "Station.ArmorBenchTier1"
     ]
   }
 }

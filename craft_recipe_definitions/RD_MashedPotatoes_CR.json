@@ -23,8 +23,7 @@
     ],
     "duration": 75.0,
     "stations": [
-      "Station.Microwave",
-      "Station.MicrowaveTier2"
+      "Station.Microwave"
     ]
   }
 }

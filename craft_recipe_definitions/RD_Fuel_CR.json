@@ -19,9 +19,8 @@
     ],
     "duration": 2.0,
     "stations": [
-      "Station.CraftingTableTierTwo",
-      "Station.WeaponBenchTier2",
-      "Station.CheckoutCounterTier2"
+      "Station.WeaponBench",
+      "Station.CheckoutCounter"
     ]
   }
 }

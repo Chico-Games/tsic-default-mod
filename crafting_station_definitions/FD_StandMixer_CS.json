@@ -110,48 +110,28 @@
       {
         "id": "input",
         "layout": "Grid",
-        "width": 4,
-        "height": 4,
-        "accepts": [
-          "cold"
-        ],
-        "surface": {
-          "offset": {
-            "x": -2.4,
-            "y": -4.9,
-            "z": 17.6
-          },
-          "yaw": 90.0,
-          "width": 13.4,
-          "depth": 15.7
-        }
-      },
-      {
-        "id": "output",
-        "layout": "Grid",
         "width": 2,
-        "height": 3,
+        "height": 2,
         "accepts": [
           "cold"
         ],
-        "take_only": true,
-        "visible_when_empty": false,
         "surface": {
           "offset": {
-            "x": -2.4,
-            "y": 7.3,
-            "z": 17.6
+            "x": -7.1,
+            "y": 0.0,
+            "z": 3.7
           },
           "yaw": 90.0,
-          "width": 8.5,
-          "depth": 15.7
+          "width": 7.6,
+          "depth": 7.6,
+          "camera_distance": 70.0,
+          "camera_pitch": -35.0
         }
       }
     ],
     "station": {
       "recipe_tag": "Station.StandMixer",
       "input": "input",
-      "output": "output",
       "trigger": {
         "type": "Click_Bench"
       },
@@ -160,6 +140,19 @@
       },
       "feedback": {
         "action_label": "Craft"
+      }
+    },
+    "section_cut": {
+      "material": "/Game/Furniture/Cooking/StandMixer/Materials/MI_Mixer_01a_Clip.MI_Mixer_01a_Clip",
+      "point": {
+        "x": -7.1,
+        "y": 0.5,
+        "z": 0.0
+      },
+      "normal": {
+        "x": 0.0,
+        "y": 1.0,
+        "z": 0.0
       }
     }
   }

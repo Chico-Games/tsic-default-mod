@@ -66,7 +66,6 @@
         }
       }
     ],
-    "upgrade_recipe": "RD_OvenTier2_CN",
     "building_base": {
       "rotation": {
         "x": 0,

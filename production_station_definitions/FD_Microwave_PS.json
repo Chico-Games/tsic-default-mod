@@ -85,7 +85,6 @@
         "z": 1
       }
     },
-    "upgrade_recipe": "RD_MicrowaveTier2_CN",
     "is_draggable": true,
     "display_name": "Microwave",
     "description": "A simple microwave for basic cooking. Heats and cooks simple meals quickly.",

@@ -24,9 +24,7 @@
     "duration": 4.0,
     "stations": [
       "Station.CraftingTableTierOne",
-      "Station.CraftingTableTierTwo",
-      "Station.CheckoutCounter",
-      "Station.CheckoutCounterTier2"
+      "Station.CheckoutCounter"
     ]
   }
 }

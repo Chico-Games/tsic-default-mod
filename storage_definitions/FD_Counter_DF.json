@@ -114,7 +114,6 @@
       }
     },
     "construction_category_tag": "",
-    "upgrade_recipe": "RD_Counters_CN",
     "is_draggable": true,
     "drag_tier": 2,
     "drag_mass": 1,
@@ -263,9 +262,21 @@
         {
           "name": "Drawer",
           "motion": "Slide",
-          "range": 25.0
+          "range": 41
         }
       ]
+    },
+    "container_view": {
+      "location": {
+        "x": 72.1,
+        "y": -29.8,
+        "z": 226.4
+      },
+      "rotation": {
+        "pitch": -81.6,
+        "yaw": -180,
+        "roll": 0
+      }
     }
   }
 }

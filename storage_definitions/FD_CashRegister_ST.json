@@ -1,20 +1,9 @@
 {
   "id": "FD_CashRegister_ST",
   "asset_path": "/Game/Furniture/Checkout/Furniture/FD_CashRegister_ST",
-  "class": "UStorageDefinition",
+  "class": "UDamageableFurnitureDefinition",
   "schema_version": 2,
   "properties": {
-    "interaction_hold_time": 0.0,
-    "interaction_prompt_text": "Open",
-    "has_static_audio": false,
-    "has_toggled_on_audio": false,
-    "has_toggled_off_audio": false,
-    "has_static_lights": false,
-    "has_toggled_on_lights": false,
-    "has_toggled_off_lights": false,
-    "has_static_vfx": false,
-    "has_toggled_on_vfx": false,
-    "has_toggled_off_vfx": false,
     "starting_health": 120.0,
     "destructible_collection": "/Game/Fab/Grocery/VOL1/Meshes/GeometryCollections/GCS_Register_Set_NN_01a.GCS_Register_Set_NN_01a",
     "loot_dropped_on_death": [
@@ -112,30 +101,6 @@
     ],
     "release_angular_damping": 0.05000000074505806,
     "release_linear_damping": 0.009999999776482582,
-    "restitution": 0.30000001192092896,
-    "open_sound": "Container.Open.Drawer",
-    "close_sound": "Container.Close.Drawer",
-    "compartments": [
-      {
-        "id": "main",
-        "layout": "Grid",
-        "width": 4,
-        "height": 2,
-        "accepts": [
-          "general",
-          "seed"
-        ],
-        "surface": {
-          "offset": {
-            "x": -0.0034,
-            "y": 0.0247,
-            "z": 27.45
-          },
-          "yaw": 0.0,
-          "width": 52.93,
-          "depth": 25.05
-        }
-      }
-    ]
+    "restitution": 0.30000001192092896
   }
 }

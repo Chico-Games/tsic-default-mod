@@ -19,8 +19,7 @@
     ],
     "duration": 70.0,
     "stations": [
-      "Station.CoffeeMachine",
-      "Station.CoffeeMachineTier2"
+      "Station.CoffeeMachine"
     ]
   }
 }

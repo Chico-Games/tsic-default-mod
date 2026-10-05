@@ -35,9 +35,7 @@
       }
     ],
     "stations": [
-      "Station.Planter.T1",
-      "Station.Planter.T2",
-      "Station.Planter.T3"
+      "Station.Planter.T1"
     ],
     "recipe_tags": [],
     "input": [

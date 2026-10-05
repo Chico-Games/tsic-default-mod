@@ -191,7 +191,6 @@
     "release_linear_damping": 0.009999999776482582,
     "restitution": 0.30000001192092896,
     "constructable_item_to_grant": "ID_CraftingTableTierOne_CI",
-    "upgrade_recipe": "RD_CraftingTableTierTwo_CN",
     "compartments": [
       {
         "id": "input",
@@ -255,6 +254,18 @@
         "action_label": "Craft"
       }
     },
-    "gameplay_event_tag": "UI.GameScreen.Inventory"
+    "gameplay_event_tag": "UI.GameScreen.Inventory",
+    "container_view": {
+      "location": {
+        "x": -77.1,
+        "y": 250.8,
+        "z": 374.3
+      },
+      "rotation": {
+        "pitch": -51,
+        "yaw": -91,
+        "roll": 0
+      }
+    }
   }
 }

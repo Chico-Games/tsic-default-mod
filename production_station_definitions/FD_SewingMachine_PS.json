@@ -84,7 +84,6 @@
         "z": 1
       }
     },
-    "upgrade_recipe": "RD_SewingMachine_CN",
     "is_draggable": true,
     "display_name": "Sewing Machine",
     "description": "A sturdy sewing machine for processing fabric. Turns frayed fabric into hemmed fabric suitable for clothing and equipment.",

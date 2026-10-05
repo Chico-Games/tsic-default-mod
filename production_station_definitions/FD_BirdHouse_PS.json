@@ -119,13 +119,47 @@
     "compartments": [
       {
         "id": "nest",
+        "layout": "Slot",
+        "max_count": 1,
+        "accepts": [
+          "cardboard"
+        ],
+        "gate": {
+          "part": "Lid",
+          "min_open": 0.5
+        },
+        "presentation_overrides": [
+          {
+            "key": "*",
+            "value": {
+              "mesh": "/Game/Furniture/BirdHouse/Meshes/SM_BirdHouse_Nest.SM_BirdHouse_Nest",
+              "scale": 1.0
+            }
+          }
+        ],
+        "surface": {
+          "offset": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 106.9
+          },
+          "yaw": 90.0,
+          "width": 15.0,
+          "depth": 15.0,
+          "camera_distance": 90.0,
+          "camera_pitch": -45.0
+        }
+      },
+      {
+        "id": "eggs",
         "layout": "Grid",
         "width": 2,
         "height": 2,
         "accepts": [
-          "cardboard",
           "cold"
         ],
+        "take_only": true,
+        "visible_when_empty": false,
         "gate": {
           "part": "Lid",
           "min_open": 0.5
@@ -134,19 +168,18 @@
           "offset": {
             "x": 0.0,
             "y": 0.0,
-            "z": 108.0
+            "z": 108.5
           },
           "yaw": 90.0,
-          "width": 15.0,
-          "depth": 15.0,
-          "camera_distance": 90.0,
-          "camera_pitch": -45.0
+          "width": 10.0,
+          "depth": 10.0
         }
       }
     ],
     "station": {
       "recipe_tag": "Station.BirdHouse",
       "input": "nest",
+      "output": "eggs",
       "trigger": {
         "type": "Click_Bench"
       },
@@ -159,6 +192,18 @@
       "feedback": {
         "complete_sound": "Recipe.Completed",
         "action_label": "Nest"
+      }
+    },
+    "container_view": {
+      "location": {
+        "x": -17.3,
+        "y": 36,
+        "z": 238.4
+      },
+      "rotation": {
+        "pitch": -72.6,
+        "yaw": -90.6,
+        "roll": 0
       }
     }
   }

@@ -59,6 +59,18 @@
         "action_label": "Summon"
       }
     },
-    "gameplay_event_tag": "UI.GameScreen.Inventory"
+    "gameplay_event_tag": "UI.GameScreen.Inventory",
+    "container_view": {
+      "location": {
+        "x": -42.1,
+        "y": 128.6,
+        "z": 140.2
+      },
+      "rotation": {
+        "pitch": -42,
+        "yaw": -89.4,
+        "roll": 0
+      }
+    }
   }
 }

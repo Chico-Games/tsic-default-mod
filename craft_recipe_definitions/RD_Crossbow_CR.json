@@ -31,8 +31,7 @@
     ],
     "duration": 6.0,
     "stations": [
-      "Station.WeaponBench",
-      "Station.WeaponBenchTier2"
+      "Station.WeaponBench"
     ]
   }
 }

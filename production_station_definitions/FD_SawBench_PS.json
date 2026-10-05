@@ -68,7 +68,6 @@
         }
       }
     ],
-    "upgrade_recipe": "RD_SawBenchTier2_CN",
     "building_base": {
       "rotation": {
         "x": 0,

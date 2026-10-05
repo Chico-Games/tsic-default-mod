@@ -78,7 +78,6 @@
         "z": 1.0
       }
     },
-    "upgrade_recipe": "RD_ArmorBenchTier2_CN",
     "is_draggable": true,
     "display_name": "Armor Crafting Bench",
     "description": "Basic armor crafting bench. Create light armor and basic protection gear.",
@@ -250,6 +249,18 @@
       },
       "feedback": {
         "action_label": "Craft"
+      }
+    },
+    "container_view": {
+      "location": {
+        "x": -83.7,
+        "y": 343.9,
+        "z": 306.2
+      },
+      "rotation": {
+        "pitch": -31.8,
+        "yaw": -91.6,
+        "roll": 0
       }
     }
   }
