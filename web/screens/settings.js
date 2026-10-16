@@ -307,6 +307,31 @@
     let lastStructSig = null;
     const controlUpdaters = {};
 
+    // UI.Settings.Value / UI.Cmd.Settings.Set carry a typed value ({ Kind, Bool, Number,
+    // String, StringArray }) since the native settings screen landed; these two decode and
+    // encode it. Older injected payloads with ValueJson still decode.
+    function settingValue(p) {
+        if (!p) return null;
+        if (p.ValueJson !== undefined) { try { return JSON.parse(p.ValueJson); } catch (e) { return null; } }
+        const v = p.Value;
+        if (!v) return null;
+        switch (v.Kind) {
+            case 'Bool': return !!v.Bool;
+            case 'Number': return Number(v.Number);
+            case 'String': return String(v.String);
+            case 'StringArray': return (v.StringArray || []).slice();
+            default: return null;
+        }
+    }
+    function settingPayload(key, value) {
+        const v = { Kind: 'Null', Bool: false, Number: 0, String: '', StringArray: [] };
+        if (typeof value === 'boolean') { v.Kind = 'Bool'; v.Bool = value; }
+        else if (typeof value === 'number') { v.Kind = 'Number'; v.Number = value; }
+        else if (Array.isArray(value)) { v.Kind = 'StringArray'; v.StringArray = value.map(String); }
+        else if (value !== null && value !== undefined) { v.Kind = 'String'; v.String = String(value); }
+        return { Key: key, Value: v };
+    }
+
     function valueOf(s) {
         if (s.Key in localState) return localState[s.Key];
         return s.Value;
@@ -314,7 +339,7 @@
 
     function publishSet(key, value) {
         try {
-            tsic.publishMessage('UI.Cmd.Settings.Set', { Key: key, ValueJson: JSON.stringify(value) });
+            tsic.publishMessage('UI.Cmd.Settings.Set', settingPayload(key, value));
         } catch (e) {}
     }
 
@@ -662,7 +687,8 @@
                 const next = !tog.classList.contains('on');
                 tog.classList.toggle('on', next);
                 word.textContent = next ? 'Toggle' : 'Hold';
-                publishSet('hold_toggle', { behavior: entry.ToggleBehaviorTagName, toggle: next });
+                // The behaviour tag is the key suffix; the value is the toggle flag.
+                publishSet('hold_toggle.' + entry.ToggleBehaviorTagName, next);
             };
             mode.appendChild(tog);
             mode.appendChild(word);
@@ -1307,13 +1333,26 @@
         return true;
     }
 
+    // The four capability flags arrive as separate Bool keys; they are gathered here so the
+    // pruning below sees them as one report.
+    const caps = {};
+    const CAP_KEYS = { 'graphics.caps.dlss': 'dlss', 'graphics.caps.frame_gen': 'frame_gen', 'graphics.caps.reflex': 'reflex', 'graphics.caps.fsr': 'fsr' };
+
     function onValue(payload) {
         if (!payload || !payload.Key) return;
         endApplying();
-        let v;
-        try { v = JSON.parse(payload.ValueJson || 'null'); } catch (e) { return; }
+        const v = settingValue(payload);
+        if (payload.Key in CAP_KEYS) {
+            caps[CAP_KEYS[payload.Key]] = !!v;
+            if (applyNvidiaCaps(caps)) rebuildPreservingValues();
+            return;
+        }
+        if (payload.Key === 'graphics.upscaler_options') {
+            return; // the native screen's list; this page prunes from the caps instead
+        }
         if (payload.Key === 'graphics.nvidia_caps') {
-            if (applyNvidiaCaps(v)) rebuildPreservingValues();
+            // The older single-object report, still injected by tests and fixtures.
+            if (v && typeof v === 'object' && applyNvidiaCaps(v)) rebuildPreservingValues();
             return;
         }
         if (payload.Key === 'video.hdr_supported') {

@@ -40,15 +40,18 @@
     else el.removeAttribute(attr);
   }
 
-  // ValueJson is raw JSON text ("true" / "false"), not a parsed value.
-  function asBool(valueJson) {
+  // The value is typed ({ Kind: 'Bool', Bool }) since the native settings screen landed;
+  // an injected ValueJson ("true" / "false") still reads.
+  function asBool(p) {
+    if (p && p.Value && p.Value.Kind) return !!p.Value.Bool;
+    var valueJson = p ? p.ValueJson : undefined;
     return String(valueJson === undefined || valueJson === null ? '' : valueJson).indexOf('true') !== -1;
   }
 
   function onValue(p) {
     if (!p || !p.Key) return;
     if (p.Key === 'accessibility.reduce_motion') {
-      var next = asBool(p.ValueJson);
+      var next = asBool(p);
       if (next === reduceMotion) return;   // sticky replays repeat unchanged values
       reduceMotion = next;
       setFlag('data-tsic-reduce-motion', reduceMotion);
@@ -58,7 +61,7 @@
       return;
     }
     if (p.Key === 'accessibility.screen_pulse') {
-      setFlag('data-tsic-no-screen-pulse', !asBool(p.ValueJson));
+      setFlag('data-tsic-no-screen-pulse', !asBool(p));
     }
   }
 

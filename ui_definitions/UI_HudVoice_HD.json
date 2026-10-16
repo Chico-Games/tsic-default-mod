@@ -1,0 +1,29 @@
+{
+  "id": "UI_HudVoice_HD",
+  "class": "ScpUiScreenDefinition",
+  "properties": {
+    "layer": "hud",
+    "uses": [ "UI.Hud.Visibility", "UI.VoiceChat.State" ],
+    "tree": {
+      "id": "voice-root", "widget": "panel", "layout": "overlay", "style": "panel.flat",
+      "bind": { "visible": "UI.Hud.Visibility[voice].bHidden ? false : !UI.Hud.Visibility[all].bHidden" },
+      "children": [
+        { "id": "voice-stack", "widget": "panel", "layout": "vertical", "gap": 4, "slot": { "anchor": "top-left", "offset": [24, 24] },
+          "children": [
+            { "id": "voice-self", "widget": "panel", "layout": "horizontal", "style": "hud.voice.self", "gap": 6, "slot": { "align": "left" },
+              "bind": { "visible": "UI.VoiceChat.State.bSelfPushToTalk" },
+              "children": [
+                { "widget": "panel", "style": "hud.crosshair.dot", "width": 8, "height": 8, "slot": { "valign": "center" } },
+                { "widget": "text", "style": "hud.voice.self", "text": "Talking" }
+              ] },
+            { "id": "voice-speakers", "widget": "list", "style": "list", "selectable": false, "row_style": "hud.voice.row",
+              "bind": { "items": "UI.VoiceChat.State.Speaking" },
+              "template": { "widget": "panel", "layout": "horizontal", "style": "hud.voice.row", "width": 220, "slot": { "padding": [0, 1] },
+                "children": [
+                  { "widget": "text", "style": "hud.voice.row", "bind": { "text": "item" } }
+                ] } }
+          ] }
+      ]
+    }
+  }
+}

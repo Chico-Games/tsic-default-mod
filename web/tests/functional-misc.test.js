@@ -127,7 +127,7 @@ TSICTestHarness.register({
         ctx.clearPublishes();
         ctx.doc.querySelector('.field-toggle').click();
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Settings.Set',
-            { where: p => p.Key === 'fs' && p.ValueJson === 'true' }));
+            { where: p => p.Key === 'fs' && p.Value && p.Value.Bool === true }));
     },
 });
 

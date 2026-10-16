@@ -152,7 +152,7 @@ TSICTestHarness.register({
         ctx.clearPublishes();
         slider.dispatchEvent(new ctx.win.Event('input', { bubbles: true }));
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Settings.Set',
-            { where: p => p.Key === 'fov' && JSON.parse(p.ValueJson) === 120 }));
+            { where: p => p.Key === 'fov' && p.Value && p.Value.Number === 120 }));
     },
 });
 

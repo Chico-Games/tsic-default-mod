@@ -121,7 +121,7 @@ TSICTestHarness.register({
         slider.value = '0.8';
         slider.dispatchEvent(new ctx.win.Event('input', { bubbles: true }));
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Settings.Set',
-            { where: p => p.Key === 'audio.master' && p.ValueJson === '0.8' }));
+            { where: p => p.Key === 'audio.master' && p.Value && p.Value.Number === 0.8 }));
         ctx.expect(ctx.doc.getElementById('settings-popover') ? 'non-video keys must not open the countdown' : null);
     },
 });
@@ -136,7 +136,7 @@ TSICTestHarness.register({
         ctx.win.tsic.dropdown.set(dd, '2560x1440');
         // Instant apply: the change reaches C++ immediately...
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Settings.Set',
-            { where: p => p.Key === 'video.resolution' && p.ValueJson.includes('2560x1440') }));
+            { where: p => p.Key === 'video.resolution' && p.Value && p.Value.String === '2560x1440' }));
         // ...and C++ answers by opening the keep/revert escape hatch.
         await openCountdown(ctx, 10);
         ctx.expect(ctx.assert.domExists(ctx.doc, '#settings-popover'));
@@ -227,7 +227,7 @@ TSICTestHarness.register({
         ctx.win.tsic.dropdown.set(res, '2560x1440');
 
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Settings.Set',
-            { where: p => p.Key === 'video.resolution' && p.ValueJson.includes('2560x1440') }));
+            { where: p => p.Key === 'video.resolution' && p.Value && p.Value.String === '2560x1440' }));
 
         // The page used to force exclusive fullscreen alongside the pick, so that a
         // resolution would be visible in borderless (#147). It made every resolution
@@ -410,7 +410,7 @@ TSICTestHarness.register({
         await ctx.waitFor(() => ctx.publishes().some(p => p.channel === 'UI.Cmd.Settings.Set'),
             { timeout: 3000 });
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Settings.Set',
-            { where: p => p.Key === 'graphics.upscaler' && p.ValueJson === '"dlss_balanced"' }));
+            { where: p => p.Key === 'graphics.upscaler' && p.Value && p.Value.String === 'dlss_balanced' }));
         // graphics.* is not a display-mode change — no keep/revert countdown.
         ctx.expect(ctx.doc.getElementById('settings-popover') ? 'graphics keys must not open the countdown' : null);
     },
@@ -448,7 +448,7 @@ TSICTestHarness.register({
         slider.value = '85';
         slider.dispatchEvent(new ctx.win.Event('input', { bubbles: true }));
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Settings.Set',
-            { where: p => p.Key === 'graphics.resolution_scale' && p.ValueJson === '85' }));
+            { where: p => p.Key === 'graphics.resolution_scale' && p.Value && p.Value.Number === 85 }));
     },
 });
 
@@ -529,7 +529,7 @@ TSICTestHarness.register({
         ctx.win.tsic.dropdown.set(
             ctx.doc.querySelector('button.tsic-dropdown[data-key="video.window_mode"]'), 'windowed');
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Settings.Set',
-            { where: p => p.Key === 'video.window_mode' && p.ValueJson === '"windowed"' }));
+            { where: p => p.Key === 'video.window_mode' && p.Value && p.Value.String === 'windowed' }));
         // video.* is a display-mode change, so C++ opens the keep/revert countdown.
         await openCountdown(ctx, 10);
         ctx.expect(ctx.assert.domExists(ctx.doc, '#settings-popover'));
@@ -576,7 +576,7 @@ TSICTestHarness.register({
         fov.value = '105';
         fov.oninput();
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Settings.Set',
-            { where: p => p.Key === 'gameplay.fov' && p.ValueJson === '105' }));
+            { where: p => p.Key === 'gameplay.fov' && p.Value && p.Value.Number === 105 }));
 
         const shake = ctx.doc.querySelector('input[type="range"][data-key="accessibility.shake_intensity"]');
         ctx.expect(shake ? null : 'missing accessibility.shake_intensity slider');
@@ -701,7 +701,7 @@ TSICTestHarness.register({
         await ctx.waitFor(() => ctx.publishes().some(p => p.channel === 'UI.Cmd.Settings.Set'
             && p.payload.Key === 'graphics.upscaler'), { timeout: 3000 });
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Settings.Set',
-            { where: p => p.Key === 'graphics.upscaler' && p.ValueJson.includes('dlss_quality') }));
+            { where: p => p.Key === 'graphics.upscaler' && p.Value && p.Value.String === 'dlss_quality' }));
 
         // It stays up across the stall — a publish returning proves nothing, the game thread
         // is blocked at that point — and comes down on the next message FROM C++, which can

@@ -1,7 +1,7 @@
 // /screens/settings.html subscribes to:
 //   tsic.msg.UI.Settings.Catalog       { Json: <serialized Pages tree> }
 //   tsic.msg.UI.Settings.ControlsState { Entries, MouseSensitivity, … } -> KB&M + Controller tabs
-//   tsic.msg.UI.Settings.Value         { Key, ValueJson }
+//   tsic.msg.UI.Settings.Value         { Key, Value: { Kind, Bool, Number, String, StringArray } }
 //   tsic.msg.UI.Settings.Footer        { RestartRequired }
 // Settings apply instantly; video.* keys open the keep/revert countdown owned
 // by the page — drive it by changing a video control.
@@ -108,8 +108,8 @@ TSICPlayground.register({
     ],
     onPublish(state, channel, payload) {
         if (channel === 'UI.Cmd.Settings.Set' && payload && payload.Key) {
-            let v = null;
-            try { v = JSON.parse(payload.ValueJson); } catch (e) {}
+            const tv = payload.Value || {};
+            const v = tv.Kind === 'Bool' ? !!tv.Bool : tv.Kind === 'Number' ? Number(tv.Number) : tv.Kind === 'String' ? String(tv.String) : null;
             for (const p of state.catalog.Pages) for (const g of p.Groups) for (const f of g.Settings) {
                 if (f.Key === payload.Key) f.Value = v;
             }

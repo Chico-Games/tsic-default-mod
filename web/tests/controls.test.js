@@ -175,9 +175,9 @@ TSICTestHarness.register({
         row.querySelector('.field-toggle').click();
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Settings.Set', {
             where: p => {
-                if (p.Key !== 'hold_toggle') return false;
-                try { const v = JSON.parse(p.ValueJson); return v.behavior === 'Input.Behavior.Crouch' && v.toggle === true; }
-                catch (e) { return false; }
+                // The behaviour tag is the key suffix and the toggle flag the typed Bool value.
+                if (p.Key !== 'hold_toggle.Input.Behavior.Crouch') return false;
+                return !!(p.Value && p.Value.Kind === 'Bool' && p.Value.Bool === true);
             },
         }));
         ctx.expect(row.querySelector('.mode-word').textContent === 'Toggle'
@@ -274,7 +274,7 @@ TSICTestHarness.register({
         await delay(8);
         ctx.clearPublishes();
         fx.confirm(); await delay(16);
-        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Settings.Set', { where: p => p.Key === 'hold_toggle' }));
+        ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Settings.Set', { where: p => String(p.Key || '').startsWith('hold_toggle.') }));
     },
 });
 

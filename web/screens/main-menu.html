@@ -1203,8 +1203,9 @@
         var lastAudible = 0.8;
 
         function setVolume(v) {
+          // Typed setting value, as the native settings screen sends it.
           tsic.publishMessage('UI.Cmd.Settings.Set',
-            { Key: 'audio.menu_music', ValueJson: JSON.stringify(v) });
+            { Key: 'audio.menu_music', Value: { Kind: 'Number', Bool: false, Number: v, String: '', StringArray: [] } });
         }
         function refreshMuteUI(v) {
           var muted = v <= 0.001;
@@ -1236,7 +1237,7 @@
 
         tsic.on('tsic.msg.UI.Settings.Value', function (p) {
           if (!p || p.Key !== 'audio.menu_music') return;
-          var v = parseFloat(JSON.parse(p.ValueJson || '"0.8"'));
+          var v = p.Value ? Number(p.Value.Number) : parseFloat(JSON.parse(p.ValueJson || '"0.8"'));
           if (!isFinite(v)) return;
           if (v > 0.001) lastAudible = v;
           volSlider.value = String(v);

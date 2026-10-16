@@ -1,0 +1,99 @@
+{
+  "id": "UI_NewStore_SC",
+  "class": "ScpUiScreenDefinition",
+  "properties": {
+    "screen": "NewStore",
+    "layer": "menu",
+    "input_mode": "InputMode.Menu.MainMenu",
+    "cancel": "UI.Cmd.Menu.Back",
+    "actions": [ { "action": "accept", "label": "Select" }, { "action": "back", "label": "Back" } ],
+    "uses": [ "UI.Menu.Layouts", "UI.Menu.GameModes", "UI.Mod.InstalledList", "UI.Mod.LoadOrder" ],
+    "tree": {
+      "id": "stage", "widget": "panel", "layout": "overlay", "style": "panel.stage.title", "backdrop": "Maze",
+      "children": [
+        { "id": "cover", "widget": "panel", "layout": "vertical", "style": "panel.cover", "slot": { "align": "center", "valign": "center", "width": 620 },
+          "children": [
+            { "id": "masthead", "widget": "panel", "layout": "horizontal", "slot": { "padding": [22, 18, 22, 10] },
+              "children": [
+                { "widget": "panel", "layout": "vertical", "slot": { "fill": true, "valign": "bottom" },
+                  "children": [
+                    { "widget": "text", "style": "text.kicker", "text": "Open a new" },
+                    { "widget": "panel", "layout": "horizontal",
+                      "children": [
+                        { "widget": "text", "style": "text.masthead", "text": "Store", "line_height": 0.9 },
+                        { "widget": "text", "style": "text.masthead", "text": ".", "line_height": 0.9, "bind": { "colour": "'#E60000'" } }
+                      ] }
+                  ] },
+                { "widget": "panel", "layout": "vertical", "gap": 4, "slot": { "align": "right", "valign": "bottom" },
+                  "children": [
+                    { "widget": "panel", "style": "chip.badge", "slot": { "align": "right" }, "children": [ { "widget": "text", "style": "text.badge", "text": "Dept. 04" } ] },
+                    { "widget": "text", "style": "text.date", "text": "ENTER YOUR NEW HOME", "slot": { "align": "right" } }
+                  ] }
+              ] },
+            { "widget": "panel", "style": "rule.panel", "slot": { "height": 4 } },
+
+            { "id": "fields", "widget": "panel", "layout": "vertical", "focus": "group", "gap": 6, "slot": { "padding": [22, 8, 22, 16] },
+              "children": [
+                { "widget": "text", "style": "text.group", "text": "Map", "slot": { "padding": [0, 8, 0, 0] } },
+                { "id": "layout-dd", "widget": "dropdown", "style": "menu.dropdown.map", "placeholder": "Select a map...", "min_width": 560, "focus": "initial",
+                  "bind": { "values": "UI.Menu.Layouts.Layouts.LayoutId", "options": "UI.Menu.Layouts.Layouts.DisplayName" } },
+                { "widget": "text", "style": "menu.text.hint", "text": "Choose which map to play on." },
+
+                { "widget": "text", "style": "text.group", "text": "Seed", "slot": { "padding": [0, 8, 0, 0] } },
+                { "id": "seed-input", "widget": "textfield", "placeholder": "LEAVE BLANK FOR A RANDOM STORE", "min_width": 560 },
+                { "widget": "text", "style": "menu.text.hint", "wrap": true, "text": "The same seed always builds the same store — share it to play someone else's." },
+
+                { "widget": "text", "style": "text.group", "text": "Mode", "slot": { "padding": [0, 8, 0, 0] } },
+                { "id": "mode-dd", "widget": "dropdown", "style": "menu.dropdown.map", "placeholder": "Select a mode...", "min_width": 560,
+                  "bind": { "values": "UI.Menu.GameModes.Modes.Id", "options": "UI.Menu.GameModes.Modes.DisplayName" } },
+                { "widget": "text", "style": "menu.text.hint", "text": "Modes come from the loaded mods." },
+
+                { "widget": "text", "style": "text.group", "text": "Active Mods", "slot": { "padding": [0, 8, 0, 0] } },
+                { "id": "mods-split", "widget": "panel", "layout": "horizontal", "gap": 10,
+                  "children": [
+                    { "widget": "panel", "layout": "vertical", "style": "menu.panel.mods", "slot": { "fill": 1 },
+                      "children": [
+                        { "widget": "panel", "style": "menu.panel.mods.head", "children": [ { "widget": "text", "style": "menu.text.mods.head", "text": "Enabled" } ] },
+                        { "id": "mods-enabled", "widget": "list", "style": "list", "selectable": false, "max_height": 180, "empty_text": "No mods enabled.", "slot": { "padding": 4 },
+                          "bind": { "items": "UI.Mod.InstalledList.Mods" }, "where": "item.bEnabled",
+                          "template": { "widget": "panel", "layout": "horizontal", "style": "menu.panel.mod.row", "gap": 4, "slot": { "padding": [0, 1] },
+                            "children": [
+                              { "widget": "text", "style": "menu.text.mod.name", "slot": { "fill": true, "valign": "center" }, "bind": { "text": "item.DisplayName != '' ? item.DisplayName : item.ModId" } },
+                              { "widget": "button", "style": "menu.button.mod", "label": ">", "slot": { "valign": "center" },
+                                "bind": { "disabled": "item.bLocked" },
+                                "on": { "click": { "cmd": "UI.Cmd.Mod.SetEnabled", "args": { "ModId": "{item.ModId}", "Enabled": false } } } }
+                            ] } }
+                      ] },
+                    { "widget": "panel", "layout": "vertical", "style": "menu.panel.mods", "slot": { "fill": 1 },
+                      "children": [
+                        { "widget": "panel", "style": "menu.panel.mods.head", "children": [ { "widget": "text", "style": "menu.text.mods.head", "text": "Available" } ] },
+                        { "id": "mods-available", "widget": "list", "style": "list", "selectable": false, "max_height": 180, "empty_text": "All installed mods are enabled.", "slot": { "padding": 4 },
+                          "bind": { "items": "UI.Mod.InstalledList.Mods" }, "where": "!item.bEnabled",
+                          "template": { "widget": "panel", "layout": "horizontal", "style": "menu.panel.mod.row", "gap": 4, "slot": { "padding": [0, 1] },
+                            "children": [
+                              { "widget": "button", "style": "menu.button.mod", "label": "<", "slot": { "valign": "center" },
+                                "on": { "click": { "cmd": "UI.Cmd.Mod.SetEnabled", "args": { "ModId": "{item.ModId}", "Enabled": true } } } },
+                              { "widget": "text", "style": "menu.text.mod.name", "slot": { "fill": true, "valign": "center" }, "bind": { "text": "item.DisplayName != '' ? item.DisplayName : item.ModId" } }
+                            ] } }
+                      ] }
+                  ] },
+                { "id": "link-manage", "widget": "button", "style": "menu.button.link", "label": "Manage Mods >", "slot": { "align": "left", "padding": [0, 6, 0, 0] },
+                  "on": { "click": { "cmd": "UI.Cmd.Menu.Navigate", "args": { "Screen": "Mods" } } } }
+              ] },
+
+            { "id": "rows", "widget": "panel", "layout": "vertical", "focus": "group", "slot": { "padding": [4, 6, 4, 10] },
+              "children": [
+                { "id": "btn-create", "widget": "button", "style": "button.row", "label": "Create", "dept": "Dept. 04", "first_in_group": true,
+                  "bind": { "disabled": "#layout-dd.value == '' ? true : #mode-dd.value == ''" },
+                  "on": { "click": { "cmd": "UI.Cmd.Menu.StartGame", "args": {
+                    "StoreName": "", "PlayerName": "",
+                    "LayoutId": "{#layout-dd.value}", "Seed": "{#seed-input.value}", "GameModeId": "{#mode-dd.value}",
+                    "EnabledMods": "{UI.Mod.LoadOrder.Order}", "LoadOrder": "{UI.Mod.LoadOrder.Order}" } } } },
+                { "id": "btn-back", "widget": "button", "style": "button.row", "label": "Back", "dept": "Fire Exit",
+                  "on": { "click": { "cmd": "UI.Cmd.Menu.Navigate", "args": { "Screen": "MainMenu" } } } }
+              ] }
+          ] }
+      ]
+    }
+  }
+}

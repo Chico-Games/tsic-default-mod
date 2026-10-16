@@ -66,8 +66,8 @@
 
   function onSetting(p) {
     if (!p || p.Key !== 'accessibility.sprint_vignette') return;
-    // ValueJson is raw JSON text, not a parsed value.
-    enabled = String(p.ValueJson || '').indexOf('true') !== -1;
+    // Typed value since the native settings screen landed; an injected ValueJson still reads.
+    enabled = p.Value && p.Value.Kind ? !!p.Value.Bool : String(p.ValueJson || '').indexOf('true') !== -1;
     refresh();
   }
 

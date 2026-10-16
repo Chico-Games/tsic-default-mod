@@ -75,7 +75,7 @@ TSICTestHarness.register({
         ctx.clearPublishes();
         ctx.win.tsic.dropdown.set('button.tsic-dropdown[data-key="preset"]', 'High');
         ctx.expect(ctx.assert.published(ctx.handle, 'UI.Cmd.Settings.Set',
-            { where: p => p.Key === 'preset' && JSON.parse(p.ValueJson) === 'High' }));
+            { where: p => p.Key === 'preset' && p.Value && p.Value.String === 'High' }));
     },
 });
 

@@ -60,8 +60,8 @@
           "children": [
             { "widget": "text", "style": "text.badge", "text": "Menu Music", "slot": { "valign": "center" } },
             { "id": "menu-vol-slider", "widget": "slider", "min": 0, "max": 1, "step": 0.01, "show_value": false, "track_width": 110, "slot": { "valign": "center" },
-              "bind": { "value": "UI.Settings.Value[audio.menu_music].ValueJson" },
-              "on": { "commit": { "cmd": "UI.Cmd.Settings.Set", "args": { "Key": "audio.menu_music", "ValueJson": "{self.value}" } } } }
+              "bind": { "value": "UI.Settings.Value[audio.menu_music].Value.Number" },
+              "on": { "commit": { "cmd": "UI.Cmd.Settings.Set", "args": { "Key": "audio.menu_music", "Value": "{self.value}" } } } }
           ] }
       ]
     }

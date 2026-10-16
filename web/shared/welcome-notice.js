@@ -500,7 +500,7 @@
 
         if (markSeen && window.tsic && tsic.publishMessage) {
             tsic.publishMessage('UI.Cmd.Settings.Set',
-                { Key: SETTING_KEY, ValueJson: JSON.stringify(noticeVersion()) });
+                { Key: SETTING_KEY, Value: { Kind: 'String', Bool: false, Number: 0, String: noticeVersion(), StringArray: [] } });
         }
         if (window.tsic && tsic.focus && tsic.focus.popScope) tsic.focus.popScope();
         document.removeEventListener('keydown', onKeydown, true);
@@ -592,7 +592,8 @@
             tsic.on('tsic.msg.UI.Settings.Value', (p) => {
                 if (!p || p.Key !== SETTING_KEY) return;
                 let value = null;
-                try { value = JSON.parse(p.ValueJson || 'null'); } catch (e) { /* absent or malformed */ }
+                if (p.Value && p.Value.Kind === 'String') value = String(p.Value.String);
+                else { try { value = JSON.parse(p.ValueJson || 'null'); } catch (e) { /* absent or malformed */ } }
                 decide(value);
             });
             setTimeout(() => decide(null), waitMs);

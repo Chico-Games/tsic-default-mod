@@ -1,0 +1,21 @@
+{
+  "id": "UI_HudChat_HD",
+  "class": "ScpUiScreenDefinition",
+  "properties": {
+    "layer": "hud",
+    "uses": [ "UI.Hud.Visibility", "UI.Chat.History" ],
+    "tree": {
+      "id": "chat-root", "widget": "panel", "layout": "overlay", "style": "panel.flat",
+      "bind": { "visible": "UI.Hud.Visibility[chat].bHidden ? false : (UI.Hud.Visibility[all].bHidden ? false : UI.Chat.History.Messages.Num > 0)" },
+      "children": [
+        { "id": "chat-log", "widget": "list", "style": "hud.chat.log", "selectable": false, "max_height": 240, "slot": { "anchor": "bottom-left", "offset": [24, -260], "width": 380 },
+          "bind": { "items": "UI.Chat.History.Messages" },
+          "template": { "widget": "panel", "layout": "horizontal", "gap": 6, "slot": { "padding": [0, 2, 0, 2] },
+            "children": [
+              { "widget": "text", "style": "hud.chat.sender", "bind": { "text": "item.SenderName" } },
+              { "widget": "text", "style": "hud.chat.text", "wrap": true, "slot": { "fill": true }, "bind": { "text": "item.Text" } }
+            ] } }
+      ]
+    }
+  }
+}

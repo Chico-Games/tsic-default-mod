@@ -1,0 +1,30 @@
+{
+  "id": "UI_HudCrosshair_HD",
+  "class": "ScpUiScreenDefinition",
+  "properties": {
+    "layer": "hud",
+    "uses": [ "UI.Hud.Visibility", "UI.Interaction.Targets" ],
+    "tree": {
+      "id": "crosshair-root", "widget": "panel", "layout": "overlay", "style": "panel.flat",
+      "bind": { "visible": "UI.Hud.Visibility[crosshair].bHidden ? false : !UI.Hud.Visibility[all].bHidden" },
+      "children": [
+        { "id": "crosshair-dot", "widget": "panel", "style": "hud.crosshair.dot", "width": 4, "height": 4, "slot": { "anchor": "center" } },
+        { "id": "crosshair-drag-ring", "widget": "progressring", "style": "hud.ring.collar", "size": 14, "progress": 1,
+          "slot": { "anchor": "center" },
+          "bind": { "visible": "UI.Interaction.Targets.bDragging" } },
+        { "id": "crosshair-hand", "widget": "progressring", "style": "hud.ring.collar", "size": 12, "progress": 1,
+          "slot": { "anchor": "center", "offset": [-24, 0] },
+          "bind": { "visible": "UI.Interaction.Targets.bDragging ? true : UI.Interaction.Targets.bDraggable", "colour": "UI.Interaction.Targets.bDragTooHeavy ? '#e8a13c' : '#ffffff'" } },
+        { "id": "crosshair-cat", "widget": "panel", "style": "hud.crosshair.dot", "width": 6, "height": 6,
+          "slot": { "anchor": "center", "offset": [18, 0] },
+          "bind": { "visible": "UI.Interaction.Targets.bDragging ? false : UI.Interaction.Targets.Targets.Num > 0" } },
+        { "id": "crosshair-gloves", "widget": "text", "style": "hud.crosshair.gloves",
+          "slot": { "anchor": "center", "offset": [0, 22] },
+          "bind": {
+            "visible": "UI.Interaction.Targets.bDragging ? false : UI.Interaction.Targets.bDragTooHeavy",
+            "text": "UI.Interaction.Targets.DragTierNeeded == 1 ? 'Needs work gloves' : UI.Interaction.Targets.DragTierNeeded == 2 ? 'Needs heavy gloves' : UI.Interaction.Targets.DragTierNeeded == 3 ? 'Needs power gloves' : 'Stronger gloves'"
+          } }
+      ]
+    }
+  }
+}
