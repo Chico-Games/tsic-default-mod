@@ -2876,11 +2876,8 @@
       ],
       "properties": {
         "day_sections": {
-          "kind": "map",
-          "key": {
-            "kind": "gameplay_tag"
-          },
-          "value": {
+          "kind": "array",
+          "element": {
             "kind": "struct",
             "name": "DaySectionData"
           }
@@ -3435,7 +3432,16 @@
     },
     "DaySectionData": {
       "fields": {
+        "id": {
+          "kind": "gameplay_tag"
+        },
         "duration": {
+          "kind": "float"
+        },
+        "darkness": {
+          "kind": "float"
+        },
+        "ramp_seconds": {
           "kind": "float"
         }
       }

@@ -5,16 +5,16 @@
   "properties": {
     "day_sections": [
       {
-        "key": "Gameplay.DaySection.Day",
-        "value": {
-          "duration": 1260
-        }
+        "id": "Gameplay.DaySection.Day",
+        "duration": 1260,
+        "darkness": 0,
+        "ramp_seconds": 300
       },
       {
-        "key": "Gameplay.DaySection.Night",
-        "value": {
-          "duration": 540
-        }
+        "id": "Gameplay.DaySection.Night",
+        "duration": 540,
+        "darkness": 1,
+        "ramp_seconds": 135
       }
     ],
     "day_light_config": {
