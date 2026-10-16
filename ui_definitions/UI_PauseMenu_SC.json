@@ -1,0 +1,53 @@
+{
+  "id": "UI_PauseMenu_SC",
+  "class": "ScpUiScreenDefinition",
+  "properties": {
+    "screen": "PauseMenu",
+    "layer": "menu",
+    "input_mode": "InputMode.Menu.Pause",
+    "cancel": "UI.Cmd.Pause.Resume",
+    "actions": [ { "action": "accept", "label": "Select" }, { "action": "back", "label": "Resume" } ],
+    "uses": [ "UI.Multiplayer.State" ],
+    "tree": {
+      "id": "pause-overlay", "widget": "panel", "layout": "overlay", "style": "screen.dim",
+      "children": [
+        { "id": "pause-panel", "widget": "panel", "layout": "vertical", "style": "panel.cover", "slot": { "align": "center", "valign": "center", "width": 372 },
+          "children": [
+            { "id": "header", "widget": "panel", "layout": "horizontal", "slot": { "padding": [16, 14, 16, 10] },
+              "children": [
+                { "widget": "text", "style": "text.title.lg", "text": "Paused", "slot": { "fill": true, "valign": "center" }, "bind": { "colour": "'#E60000'" } },
+                { "widget": "panel", "layout": "vertical", "gap": 4, "slot": { "align": "right", "valign": "center" },
+                  "children": [
+                    { "widget": "panel", "style": "chip.badge", "slot": { "align": "right" }, "children": [ { "widget": "text", "style": "text.badge", "text": "Intermission" } ] },
+                    { "widget": "text", "style": "text.caption", "text": "SEE YOU SOON.", "slot": { "align": "right" } }
+                  ] }
+              ] },
+            { "widget": "panel", "style": "rule.panel", "slot": { "height": 4 } },
+
+            { "id": "body", "widget": "panel", "layout": "vertical", "gap": 8, "slot": { "padding": [16, 6, 16, 18] },
+              "children": [
+                { "widget": "text", "style": "text.eyebrow", "text": "Roster" },
+                { "id": "roster-box", "widget": "panel", "layout": "vertical", "style": "panel.roster",
+                  "children": [
+                    { "id": "players", "widget": "list", "style": "list.roster", "selectable": false, "max_height": 120,
+                      "bind": { "items": "UI.Multiplayer.State.Players" },
+                      "template": { "widget": "panel", "layout": "horizontal", "slot": { "padding": [0, 2] },
+                        "children": [
+                          { "widget": "text", "style": "text.mono", "case": "Upper", "bind": { "text": "item.bIsHost ? '>> ' : '-  '" } },
+                          { "widget": "text", "style": "text.mono", "case": "Upper", "bind": { "text": "item.Name" } }
+                        ] } }
+                  ] },
+
+                { "id": "nav", "widget": "panel", "layout": "vertical", "focus": "group", "gap": 10, "slot": { "padding": [0, 8, 0, 0] },
+                  "children": [
+                    { "id": "btn-resume",     "widget": "button", "style": "button.primary",   "label": "Resume",                       "fill_width": true, "focus": "initial", "on": { "click": { "cmd": "UI.Cmd.Pause.Resume" } } },
+                    { "id": "btn-settings",   "widget": "button", "style": "button.secondary", "label": "Settings",                     "fill_width": true, "on": { "click": { "cmd": "UI.Cmd.Pause.Settings" } } },
+                    { "id": "btn-bug-report", "widget": "button", "style": "button.secondary", "label": "Report a Bug",                 "fill_width": true, "on": { "click": { "cmd": "UI.Cmd.Pause.BugReport" } } },
+                    { "id": "btn-menu",       "widget": "button", "style": "button.secondary.tight", "label": "Save and Return to Main Menu", "fill_width": true, "on": { "click": { "cmd": "UI.Cmd.Pause.QuitToMenu" } } }
+                  ] }
+              ] }
+          ] }
+      ]
+    }
+  }
+}

@@ -1,0 +1,69 @@
+{
+  "id": "UI_MainMenu_SC",
+  "class": "ScpUiScreenDefinition",
+  "properties": {
+    "screen": "MainMenu",
+    "layer": "menu",
+    "input_mode": "InputMode.Menu.MainMenu",
+    "cancel": "",
+    "actions": [ { "action": "accept", "label": "Select" } ],
+    "uses": [ "UI.Settings.Value" ],
+    "tree": {
+      "id": "stage", "widget": "panel", "layout": "overlay", "style": "panel.stage.title", "backdrop": "Maze",
+      "children": [
+        { "id": "cover", "widget": "panel", "layout": "vertical", "style": "panel.cover", "slot": { "align": "center", "valign": "center", "width": 520 },
+          "children": [
+            { "id": "masthead", "widget": "panel", "layout": "vertical", "slot": { "padding": [22, 18, 22, 10] },
+              "children": [
+                { "widget": "text", "style": "text.kicker", "text": "The Store is" },
+                { "widget": "panel", "layout": "horizontal",
+                  "children": [
+                    { "widget": "text", "style": "text.masthead", "text": "Closed", "line_height": 0.9 },
+                    { "widget": "text", "style": "text.masthead", "text": ".", "line_height": 0.9, "bind": { "colour": "'#E60000'" } }
+                  ] },
+                { "widget": "panel", "layout": "horizontal", "slot": { "padding": [0, 6, 0, 0] },
+                  "children": [
+                    { "widget": "text", "style": "text.eyebrow", "text": "Vol.1 — The Store Opens", "slot": { "fill": true, "valign": "center" } },
+                    { "id": "kicker", "widget": "text", "style": "text.date", "text": "RESTOCK PENDING · DEC 1983", "slot": { "align": "right", "valign": "center" } }
+                  ] }
+              ] },
+
+            { "id": "feature", "widget": "panel", "layout": "overlay", "style": "panel.feature", "slot": { "height": 200 },
+              "children": [
+                { "id": "showroom", "widget": "text", "style": "text.title", "text": "Showroom A · Living Room", "slot": { "align": "center", "valign": "center" } },
+                { "widget": "panel", "style": "chip.badge", "slot": { "align": "left", "valign": "top", "padding": 8 },
+                  "children": [ { "id": "showroom-cap", "widget": "text", "style": "text.badge", "text": "Showroom · Featured" } ] }
+              ] },
+
+            { "id": "rows", "widget": "panel", "layout": "vertical", "focus": "group", "slot": { "padding": [4, 6, 4, 10] },
+              "children": [
+                { "id": "btn-start",     "widget": "button", "style": "button.row", "label": "New Game",           "dept": "Dept. 04", "page": "PG. 04", "first_in_group": true, "focus": "initial",
+                  "on": { "click": { "cmd": "UI.Cmd.Menu.Navigate", "args": { "Screen": "NewStore" } } } },
+                { "id": "btn-load",      "widget": "button", "style": "button.row", "label": "Load Save",          "dept": "Dept. 12", "page": "PG. 12",
+                  "on": { "click": { "cmd": "UI.Cmd.Menu.Navigate", "args": { "Screen": "LoadSave" } } } },
+                { "id": "btn-friends",   "widget": "button", "style": "button.row", "label": "Join Friends",       "dept": "Dept. 07", "page": "PG. 07",
+                  "on": { "click": { "cmd": "UI.Cmd.Menu.JoinFriends" } } },
+                { "id": "btn-mods",      "widget": "button", "style": "button.row", "label": "Mods",               "dept": "Dept. 33", "page": "PG. 33",
+                  "on": { "click": { "cmd": "UI.Cmd.Menu.Navigate", "args": { "Screen": "Mods" } } } },
+                { "id": "btn-character", "widget": "button", "style": "button.row", "label": "Customise Character", "dept": "Dept. 02", "page": "PG. 02",
+                  "on": { "click": { "cmd": "UI.Cmd.Menu.Navigate", "args": { "Screen": "Character" } } } },
+                { "id": "btn-settings",  "widget": "button", "style": "button.row", "label": "Settings",           "dept": "Dept. 88", "page": "PG. 88",
+                  "on": { "click": { "cmd": "UI.Cmd.Menu.Navigate", "args": { "Screen": "Settings" } } } },
+                { "id": "btn-credits",   "widget": "button", "style": "button.row", "label": "Credits",            "dept": "Dept. 99", "page": "PG. 99",
+                  "on": { "click": { "cmd": "UI.Cmd.Menu.Navigate", "args": { "Screen": "Credits" } } } },
+                { "id": "btn-exit",      "widget": "button", "style": "button.row", "label": "Leave the Store",    "dept": "Fire Exit", "page": "END",
+                  "on": { "click": { "cmd": "UI.Cmd.Menu.Exit" } } }
+              ] }
+          ] },
+
+        { "id": "menu-vol", "widget": "panel", "layout": "horizontal", "style": "chip.dark", "gap": 10, "slot": { "align": "right", "valign": "bottom", "padding": [0, 0, 18, 14] },
+          "children": [
+            { "widget": "text", "style": "text.badge", "text": "Menu Music", "slot": { "valign": "center" } },
+            { "id": "menu-vol-slider", "widget": "slider", "min": 0, "max": 1, "step": 0.01, "show_value": false, "track_width": 110, "slot": { "valign": "center" },
+              "bind": { "value": "UI.Settings.Value[audio.menu_music].ValueJson" },
+              "on": { "commit": { "cmd": "UI.Cmd.Settings.Set", "args": { "Key": "audio.menu_music", "ValueJson": "{self.value}" } } } }
+          ] }
+      ]
+    }
+  }
+}
