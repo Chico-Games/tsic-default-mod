@@ -276,7 +276,7 @@
                             { "widget": "text", "style": "text.title.sm", "text": "Small Title" },
                             { "widget": "text", "style": "text.eyebrow", "text": "Recipes" },
                             { "widget": "text", "style": "text.meta", "text": "128 / 240 kg" },
-                            { "widget": "text", "style": "text.body", "text": "Real sentences live in the body face, and only here." },
+                            { "widget": "text", "style": "text.body", "text": "Real sentences live in the body face, and only here.", "wrap": true },
                             { "widget": "text", "style": "text.group", "text": "Group header" },
                             { "widget": "text", "style": "text.empty", "text": "No saves yet.", "justify": "Center" }
                           ] }
