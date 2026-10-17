@@ -1,10 +1,30 @@
 {
   "schema_version": 2,
-  "generated_at": "2026-05-15T17:05:39.079540+00:00",
+  "generated_at": "2026-10-17T12:58:26.771180+00:00",
+  "family_roots": [
+    "UItemDefinition",
+    "UFurnitureDefinition",
+    "URecipeDefinition",
+    "UWorldGenObjectDefinition",
+    "UAchievementDefinition",
+    "UScpGameData",
+    "UBiomeDefinition",
+    "UScpDefinitionBase",
+    "UScpAiDefinitionBase"
+  ],
   "classes": {
+    "UAchievementDefinition": {
+      "folder": "achievement_definitions",
+      "instance_count": 0,
+      "parents": [
+        "UDataAsset",
+        "UObject"
+      ],
+      "family_root": "UAchievementDefinition"
+    },
     "UAmmoDefinition": {
       "folder": "ammo_definitions",
-      "instance_count": 1,
+      "instance_count": 3,
       "parents": [
         "UItemDefinition",
         "UDataAsset",
@@ -14,7 +34,7 @@
     },
     "UBiomeDefinition": {
       "folder": "biome_definitions",
-      "instance_count": 25,
+      "instance_count": 30,
       "parents": [
         "UPrimaryDataAsset",
         "UDataAsset",
@@ -22,10 +42,44 @@
       ],
       "family_root": "UBiomeDefinition"
     },
+    "UBossSummonRecipeDefinition": {
+      "folder": "boss_summon_recipe_definitions",
+      "instance_count": 2,
+      "parents": [
+        "URecipeDefinition",
+        "UDataAsset",
+        "UObject"
+      ],
+      "family_root": "URecipeDefinition"
+    },
+    "UCharacterPartDefinition": {
+      "folder": "character_part_definitions",
+      "instance_count": 332,
+      "parents": [
+        "UDataAsset",
+        "UObject"
+      ],
+      "family_root": "UCharacterPartDefinition"
+    },
+    "UComputerTerminalDefinition": {
+      "folder": "computer_terminal_definitions",
+      "instance_count": 3,
+      "parents": [
+        "UInteractableFurnitureDefinition",
+        "UFurnitureWithComponentsDefinition",
+        "UDamageableFurnitureDefinition",
+        "UFurnitureDefinition",
+        "UWorldGenObjectDefinition",
+        "UDataAsset",
+        "UObject"
+      ],
+      "family_root": "UFurnitureDefinition"
+    },
     "UConstructableItemDefinition": {
       "folder": "constructable_item_definitions",
-      "instance_count": 270,
+      "instance_count": 290,
       "parents": [
+        "UEquippableDefinition",
         "UItemDefinition",
         "UDataAsset",
         "UObject"
@@ -34,7 +88,7 @@
     },
     "UConsumableDefinition": {
       "folder": "consumable_definitions",
-      "instance_count": 88,
+      "instance_count": 89,
       "parents": [
         "UEquippableDefinition",
         "UItemDefinition",
@@ -45,7 +99,7 @@
     },
     "UCraftRecipeDefinition": {
       "folder": "craft_recipe_definitions",
-      "instance_count": 65,
+      "instance_count": 135,
       "parents": [
         "URecipeDefinition",
         "UDataAsset",
@@ -55,7 +109,7 @@
     },
     "UCraftingMaterialDefinition": {
       "folder": "crafting_material_definitions",
-      "instance_count": 120,
+      "instance_count": 41,
       "parents": [
         "UItemDefinition",
         "UDataAsset",
@@ -65,7 +119,7 @@
     },
     "UDamageableFurnitureDefinition": {
       "folder": "damageable_furniture_definitions",
-      "instance_count": 896,
+      "instance_count": 319,
       "parents": [
         "UFurnitureDefinition",
         "UWorldGenObjectDefinition",
@@ -76,8 +130,39 @@
     },
     "UDeathBoxDefinition": {
       "folder": "death_box_definitions",
-      "instance_count": 2,
+      "instance_count": 1,
       "parents": [
+        "UInteractableFurnitureDefinition",
+        "UFurnitureWithComponentsDefinition",
+        "UDamageableFurnitureDefinition",
+        "UFurnitureDefinition",
+        "UWorldGenObjectDefinition",
+        "UDataAsset",
+        "UObject"
+      ],
+      "family_root": "UFurnitureDefinition"
+    },
+    "UDollyTruckDefinition": {
+      "folder": "shopping_cart_definitions",
+      "instance_count": 1,
+      "parents": [
+        "UShoppingCartDefinition",
+        "UStorageDefinition",
+        "UInteractableFurnitureDefinition",
+        "UFurnitureWithComponentsDefinition",
+        "UDamageableFurnitureDefinition",
+        "UFurnitureDefinition",
+        "UWorldGenObjectDefinition",
+        "UDataAsset",
+        "UObject"
+      ],
+      "family_root": "UFurnitureDefinition"
+    },
+    "UDoorFurnitureDefinition": {
+      "folder": "door_furniture_definitions",
+      "instance_count": 0,
+      "parents": [
+        "UToggleableFurnitureDefinition",
         "UInteractableFurnitureDefinition",
         "UFurnitureWithComponentsDefinition",
         "UDamageableFurnitureDefinition",
@@ -90,7 +175,7 @@
     },
     "UElevatorDefinition": {
       "folder": "elevator_definitions",
-      "instance_count": 2,
+      "instance_count": 1,
       "parents": [
         "UInteractableFurnitureDefinition",
         "UFurnitureWithComponentsDefinition",
@@ -104,17 +189,26 @@
     },
     "UEnemyDefinition": {
       "folder": "enemy_definitions",
-      "instance_count": 10,
+      "instance_count": 8,
       "parents": [
         "UWorldGenObjectDefinition",
         "UDataAsset",
         "UObject"
       ],
       "family_root": "UWorldGenObjectDefinition"
+    },
+    "UEnemySpawnParameters": {
+      "folder": "enemy_spawn_parameter_definitions",
+      "instance_count": 7,
+      "parents": [
+        "UDataAsset",
+        "UObject"
+      ],
+      "family_root": "UEnemySpawnParameters"
     },
     "UEnemySpawnPointDefinition": {
       "folder": "enemy_spawn_point_definitions",
-      "instance_count": 6,
+      "instance_count": 9,
       "parents": [
         "UWorldGenObjectDefinition",
         "UDataAsset",
@@ -122,9 +216,31 @@
       ],
       "family_root": "UWorldGenObjectDefinition"
     },
+    "UEnemySpawnScalingDefinition": {
+      "folder": "enemy_spawn_parameter_definitions",
+      "instance_count": 1,
+      "parents": [
+        "UDataAsset",
+        "UObject"
+      ],
+      "family_root": "UEnemySpawnScalingDefinition"
+    },
+    "UEnemySpawnerDefinition": {
+      "folder": "enemy_spawner_definitions",
+      "instance_count": 0,
+      "parents": [
+        "UFurnitureWithComponentsDefinition",
+        "UDamageableFurnitureDefinition",
+        "UFurnitureDefinition",
+        "UWorldGenObjectDefinition",
+        "UDataAsset",
+        "UObject"
+      ],
+      "family_root": "UFurnitureDefinition"
+    },
     "UEquippableDefinition": {
       "folder": "equippable_definitions",
-      "instance_count": 20,
+      "instance_count": 34,
       "parents": [
         "UItemDefinition",
         "UDataAsset",
@@ -134,7 +250,7 @@
     },
     "UFurnitureDefinition": {
       "folder": "furniture_definitions",
-      "instance_count": 140,
+      "instance_count": 91,
       "parents": [
         "UWorldGenObjectDefinition",
         "UDataAsset",
@@ -144,7 +260,7 @@
     },
     "UFurnitureUpgradeRecipe": {
       "folder": "furniture_upgrade_recipe",
-      "instance_count": 92,
+      "instance_count": 65,
       "parents": [
         "URecipeDefinition",
         "UDataAsset",
@@ -154,7 +270,7 @@
     },
     "UFurnitureWithComponentsDefinition": {
       "folder": "furniture_with_components_definitions",
-      "instance_count": 4,
+      "instance_count": 27,
       "parents": [
         "UDamageableFurnitureDefinition",
         "UFurnitureDefinition",
@@ -163,6 +279,15 @@
         "UObject"
       ],
       "family_root": "UFurnitureDefinition"
+    },
+    "UGameModeDefinition": {
+      "folder": "game_mode_definitions",
+      "instance_count": 3,
+      "parents": [
+        "UDataAsset",
+        "UObject"
+      ],
+      "family_root": "UGameModeDefinition"
     },
     "UGloveDefinition": {
       "folder": "glove_definitions",
@@ -175,9 +300,40 @@
       ],
       "family_root": "UItemDefinition"
     },
+    "UHotkeyDefinition": {
+      "folder": "hotkey_definitions",
+      "instance_count": 78,
+      "parents": [
+        "UDataAsset",
+        "UObject"
+      ],
+      "family_root": "UHotkeyDefinition"
+    },
+    "UInputBehaviorDefinition": {
+      "folder": "input_behavior_definitions",
+      "instance_count": 79,
+      "parents": [
+        "UDataAsset",
+        "UObject"
+      ],
+      "family_root": "UInputBehaviorDefinition"
+    },
+    "UInteractableFurnitureDefinition": {
+      "folder": "vending_machine_definitions",
+      "instance_count": 60,
+      "parents": [
+        "UFurnitureWithComponentsDefinition",
+        "UDamageableFurnitureDefinition",
+        "UFurnitureDefinition",
+        "UWorldGenObjectDefinition",
+        "UDataAsset",
+        "UObject"
+      ],
+      "family_root": "UFurnitureDefinition"
+    },
     "UInteractableTextDefinition": {
       "folder": "interactable_text_definitions",
-      "instance_count": 4,
+      "instance_count": 2,
       "parents": [
         "UInteractableFurnitureDefinition",
         "UFurnitureWithComponentsDefinition",
@@ -191,7 +347,7 @@
     },
     "ULayoutDefinition": {
       "folder": "layout_definitions",
-      "instance_count": 251,
+      "instance_count": 445,
       "parents": [
         "UWorldGenObjectDefinition",
         "UDataAsset",
@@ -211,7 +367,7 @@
     },
     "ULootSpawnPointDefinition": {
       "folder": "loot_spawn_point_definitions",
-      "instance_count": 24,
+      "instance_count": 39,
       "parents": [
         "UWorldGenObjectDefinition",
         "UDataAsset",
@@ -219,19 +375,9 @@
       ],
       "family_root": "UWorldGenObjectDefinition"
     },
-    "UPlantRecipeDefinition": {
-      "folder": "plant_recipe_definitions",
-      "instance_count": 4,
-      "parents": [
-        "URecipeDefinition",
-        "UDataAsset",
-        "UObject"
-      ],
-      "family_root": "URecipeDefinition"
-    },
-    "UPlantableDefinition": {
-      "folder": "plantable_definitions",
-      "instance_count": 4,
+    "UMapRevealFurnitureDefinition": {
+      "folder": "furniture_definitions",
+      "instance_count": 2,
       "parents": [
         "UInteractableFurnitureDefinition",
         "UFurnitureWithComponentsDefinition",
@@ -243,6 +389,50 @@
       ],
       "family_root": "UFurnitureDefinition"
     },
+    "UPlantRecipeDefinition": {
+      "folder": "plant_recipe_definitions",
+      "instance_count": 10,
+      "parents": [
+        "URecipeDefinition",
+        "UDataAsset",
+        "UObject"
+      ],
+      "family_root": "URecipeDefinition"
+    },
+    "UPlantableDefinition": {
+      "folder": "plantable_definitions",
+      "instance_count": 1,
+      "parents": [
+        "UInteractableFurnitureDefinition",
+        "UFurnitureWithComponentsDefinition",
+        "UDamageableFurnitureDefinition",
+        "UFurnitureDefinition",
+        "UWorldGenObjectDefinition",
+        "UDataAsset",
+        "UObject"
+      ],
+      "family_root": "UFurnitureDefinition"
+    },
+    "URandomEventDefinition": {
+      "folder": "random_event_definitions",
+      "instance_count": 7,
+      "parents": [
+        "UDataAsset",
+        "UObject"
+      ],
+      "family_root": "URandomEventDefinition"
+    },
+    "UScpBehaviorDefinition": {
+      "folder": "behavior_definitions",
+      "instance_count": 8,
+      "parents": [
+        "UScpAiDefinitionBase",
+        "UScpDefinitionBase",
+        "UDataAsset",
+        "UObject"
+      ],
+      "family_root": "UScpAiDefinitionBase"
+    },
     "UScpGameData": {
       "folder": "scp_game_data",
       "instance_count": 1,
@@ -253,9 +443,80 @@
       ],
       "family_root": "UScpGameData"
     },
+    "UScpLuaScriptDefinition": {
+      "folder": "script_definitions",
+      "instance_count": 1,
+      "parents": [
+        "UScpDefinitionBase",
+        "UDataAsset",
+        "UObject"
+      ],
+      "family_root": "UScpDefinitionBase"
+    },
+    "UScpPerceptionDefinition": {
+      "folder": "perception_definitions",
+      "instance_count": 9,
+      "parents": [
+        "UScpAiDefinitionBase",
+        "UScpDefinitionBase",
+        "UDataAsset",
+        "UObject"
+      ],
+      "family_root": "UScpAiDefinitionBase"
+    },
+    "UScpPlayerContainersDefinition": {
+      "folder": "player_container_definitions",
+      "instance_count": 1,
+      "parents": [
+        "UDataAsset",
+        "UObject"
+      ],
+      "family_root": "UScpPlayerContainersDefinition"
+    },
+    "UScpSkillDefinition": {
+      "folder": "skill_definitions",
+      "instance_count": 4,
+      "parents": [
+        "UScpAiDefinitionBase",
+        "UScpDefinitionBase",
+        "UDataAsset",
+        "UObject"
+      ],
+      "family_root": "UScpAiDefinitionBase"
+    },
+    "UScpTerminalProgramDefinition": {
+      "folder": "terminal_programs",
+      "instance_count": 0,
+      "parents": [
+        "UScpDefinitionBase",
+        "UDataAsset",
+        "UObject"
+      ],
+      "family_root": "UScpDefinitionBase"
+    },
+    "UScpUiScreenDefinition": {
+      "folder": "ui_definitions",
+      "instance_count": 33,
+      "parents": [
+        "UScpDefinitionBase",
+        "UDataAsset",
+        "UObject"
+      ],
+      "family_root": "UScpDefinitionBase"
+    },
+    "UScpUiThemeDefinition": {
+      "folder": "ui_definitions",
+      "instance_count": 1,
+      "parents": [
+        "UScpDefinitionBase",
+        "UDataAsset",
+        "UObject"
+      ],
+      "family_root": "UScpDefinitionBase"
+    },
     "USeedItemDefinition": {
       "folder": "seed_item_definitions",
-      "instance_count": 9,
+      "instance_count": 10,
       "parents": [
         "UItemDefinition",
         "UDataAsset",
@@ -265,7 +526,7 @@
     },
     "UShoppingCartDefinition": {
       "folder": "shopping_cart_definitions",
-      "instance_count": 2,
+      "instance_count": 1,
       "parents": [
         "UStorageDefinition",
         "UInteractableFurnitureDefinition",
@@ -278,9 +539,28 @@
       ],
       "family_root": "UFurnitureDefinition"
     },
+    "USituationDefinition": {
+      "folder": "situation_definitions",
+      "instance_count": 9,
+      "parents": [
+        "UDataAsset",
+        "UObject"
+      ],
+      "family_root": "USituationDefinition"
+    },
+    "USoundSlotDefinition": {
+      "folder": "sound_definitions",
+      "instance_count": 194,
+      "parents": [
+        "UPrimaryDataAsset",
+        "UDataAsset",
+        "UObject"
+      ],
+      "family_root": "USoundSlotDefinition"
+    },
     "USpawnPointDefinition": {
       "folder": "spawn_point_definitions",
-      "instance_count": 24,
+      "instance_count": 7,
       "parents": [
         "UInteractableFurnitureDefinition",
         "UFurnitureWithComponentsDefinition",
@@ -294,7 +574,7 @@
     },
     "UStaticItemDefinition": {
       "folder": "static_item_definitions",
-      "instance_count": 992,
+      "instance_count": 457,
       "parents": [
         "UFurnitureDefinition",
         "UWorldGenObjectDefinition",
@@ -305,7 +585,7 @@
     },
     "UStorageDefinition": {
       "folder": "storage_definitions",
-      "instance_count": 34,
+      "instance_count": 24,
       "parents": [
         "UInteractableFurnitureDefinition",
         "UFurnitureWithComponentsDefinition",
@@ -319,7 +599,7 @@
     },
     "UTeleporterDefinition": {
       "folder": "teleporter_definitions",
-      "instance_count": 4,
+      "instance_count": 2,
       "parents": [
         "UInteractableFurnitureDefinition",
         "UFurnitureWithComponentsDefinition",
@@ -333,7 +613,7 @@
     },
     "UToggleableFurnitureDefinition": {
       "folder": "toggleable_furniture_definitions",
-      "instance_count": 62,
+      "instance_count": 16,
       "parents": [
         "UInteractableFurnitureDefinition",
         "UFurnitureWithComponentsDefinition",
@@ -347,7 +627,7 @@
     },
     "UTrapItemDefinition": {
       "folder": "trap_item_definitions",
-      "instance_count": 1,
+      "instance_count": 3,
       "parents": [
         "UEquippableDefinition",
         "UItemDefinition",
@@ -355,6 +635,15 @@
         "UObject"
       ],
       "family_root": "UItemDefinition"
+    },
+    "UWorldRulesDefinition": {
+      "folder": "world_rules_definitions",
+      "instance_count": 1,
+      "parents": [
+        "UDataAsset",
+        "UObject"
+      ],
+      "family_root": "UWorldRulesDefinition"
     }
   }
 }
