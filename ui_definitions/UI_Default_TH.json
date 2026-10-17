@@ -2,18 +2,26 @@
   "id": "UI_Default_TH",
   "class": "ScpUiThemeDefinition",
   "properties": {
+    "assets": {
+      "fonts": {
+        "inter.bold":  { "file": "mod:fonts/Inter-Bold",               "fallback": "/Game/UI/TSICMag/Fonts/F_InterBold.F_InterBold" },
+        "inter.black": { "file": "mod:fonts/Inter-Black",              "fallback": "/Game/UI/TSICMag/Fonts/F_InterBlack.F_InterBlack" },
+        "gloria":      { "file": "mod:fonts/GloriaHallelujah-Regular", "fallback": "/Game/UI/TSICMag/Fonts/F_GloriaHallelujah.F_GloriaHallelujah" },
+        "reenie":      { "file": "mod:fonts/ReenieBeanie-Regular",     "fallback": "/Game/UI/TSICMag/Fonts/F_ReenieBeanie.F_ReenieBeanie" }
+      }
+    },
     "fonts": {
       "display": "/Game/UI/TSICMag/Fonts/F_BebasNeue.F_BebasNeue",
       "terminal": "/Game/UI/TSICMag/Fonts/F_VT323.F_VT323",
       "body": "/Game/UI/TSICMag/Fonts/F_Inter.F_Inter",
-      "body.bold": "/Game/UI/TSICMag/Fonts/F_InterBold.F_InterBold",
+      "body.bold": "$assets.fonts.inter.bold",
       "body.heavy": "/Game/UI/TSICMag/Fonts/F_InterExtraBold.F_InterExtraBold",
-      "body.black": "/Game/UI/TSICMag/Fonts/F_InterBlack.F_InterBlack",
+      "body.black": "$assets.fonts.inter.black",
       "action": "/Game/UI/TSICMag/Fonts/F_RussoOne.F_RussoOne",
       "pixel": "/Game/UI/TSICMag/Fonts/F_PressStart2P.F_PressStart2P",
       "hand": "/Game/UI/TSICMag/Fonts/F_ShadowsIntoLight.F_ShadowsIntoLight",
-      "hand.gloria": "/Game/UI/TSICMag/Fonts/F_GloriaHallelujah.F_GloriaHallelujah",
-      "hand.reenie": "/Game/UI/TSICMag/Fonts/F_ReenieBeanie.F_ReenieBeanie"
+      "hand.gloria": "$assets.fonts.gloria",
+      "hand.reenie": "$assets.fonts.reenie"
     },
     "colours": {
       "bg.deep": "#0d0e15",
@@ -605,7 +613,29 @@
                                     "hover": { "background": "$colours.accent" },
                                     "focus": { "background": "$colours.accent" },
                                     "pressed": { "background": "$colours.accent", "colour": "$colours.paper.cream" } },
-      "menu.bar.loading":         { "colour": "$colours.ink.soft", "track": "rgba(0, 0, 0, 0.08)", "thickness": 6, "border": { "colour": "$colours.ink.soft", "width": 1 } }
+      "menu.bar.loading":         { "colour": "$colours.ink.soft", "track": "rgba(0, 0, 0, 0.08)", "thickness": 6, "border": { "colour": "$colours.ink.soft", "width": 1 } },
+
+      "menu.live.text.mp.title":  { "extends": "text.eyebrow", "size": 13, "tracking": 0.08 },
+      "menu.live.text.mp.day":    { "font": "$fonts.terminal", "size": 12, "colour": "$colours.ink.mute" },
+      "menu.live.text.mp.label":  { "font": "$fonts.body", "size": 13, "colour": "$colours.ink.night" },
+      "menu.live.text.name":      { "font": "$fonts.body", "size": 15, "colour": "$colours.ink.night" },
+      "menu.live.text.name.dim":  { "extends": "menu.live.text.name", "colour": "$colours.ink.mute" },
+      "menu.live.text.meta":      { "font": "$fonts.terminal", "size": 11, "colour": "$colours.ink.mute" },
+      "menu.live.text.dist":      { "font": "$fonts.terminal", "size": 11, "colour": "$colours.ink.soft" },
+      "menu.live.chip.badge":     { "font": "$fonts.body.heavy", "size": 9, "tracking": 0.12, "case": "upper", "colour": "$colours.paper.bright", "background": "$colours.ink.night", "padding": [1, 4] },
+      "menu.live.chip.you":       { "extends": "menu.live.chip.badge", "background": "$colours.accent" },
+      "menu.live.chip.down":      { "extends": "menu.live.chip.badge", "background": "$colours.accent.deep" },
+      "menu.live.dot":            { "colour": "$colours.ink.mute", "track": "$colours.ink.mute", "thickness": 12, "border": { "colour": "$colours.ink.night", "width": 2 } },
+      "menu.live.bar.hp":         { "colour": "$colours.ink.night", "track": "rgba(10, 10, 10, 0.16)", "thickness": 5, "border": { "colour": "$colours.ink.night", "width": 1 } },
+      "menu.live.bar.hp.hurt":    { "extends": "menu.live.bar.hp", "colour": "$colours.accent.warm" },
+      "menu.live.bar.hp.critical": { "extends": "menu.live.bar.hp", "colour": "$colours.accent" },
+      "menu.live.button.kick":    { "extends": "button.danger", "size": 11, "tracking": 0.08, "padding": [2, 8], "min.height": 0, "shadow": { "offset": [2, 2], "colour": "$colours.ink.night" } },
+      "menu.live.rule.mp":        { "border": { "colour": "$colours.rule.dashed", "width": 1 } },
+      "menu.live.button.vol":     { "extends": "button.sm", "size": 12, "padding": [3, 10], "min.height": 0, "colour": "$colours.paper.cream", "background": "$colours.ink.night", "border": { "colour": "$colours.paper.cream", "width": 1 }, "shadow": { "offset": [0, 0], "colour": "$colours.ink.night" },
+                                    "hover": { "background": "$colours.accent", "offset": [0, 0] },
+                                    "focus": { "background": "$colours.accent", "offset": [0, 0] },
+                                    "pressed": { "background": "$colours.accent.dark", "offset": [0, 0] } },
+      "menu.live.text.mod.hint":  { "extends": "menu.text.hint", "size": 11 }
     }
   }
 }

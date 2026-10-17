@@ -1,0 +1,20 @@
+Mod-shipped UI fonts - third-party notices
+==========================================
+
+These TrueType files are imported at runtime by the mod manager (every
+`fonts/<Name>.ttf` becomes the UFont `/ModData/<mod>/fonts/<Name>`) and are
+named from the UI theme as `mod:fonts/<Name>` (no extension). The native UI
+falls back to the matching `/Game/UI/TSICMag/Fonts/F_*` asset when a file here
+is missing.
+
+All fonts below are licensed under the SIL Open Font License 1.1
+(https://openfontlicense.org), which permits commercial use, bundling and
+embedding; it requires this notice to accompany the font files and that the
+fonts are not sold on their own.
+
+- Inter Bold / Inter Black     Inter-Bold.ttf, Inter-Black.ttf
+                               (c) Rasmus Andersson. https://fonts.google.com/specimen/Inter
+- Gloria Hallelujah            GloriaHallelujah-Regular.ttf
+                               (c) Kimberly Geswein. https://fonts.google.com/specimen/Gloria+Hallelujah
+- Reenie Beanie                ReenieBeanie-Regular.ttf
+                               (c) James Grieshaber. https://fonts.google.com/specimen/Reenie+Beanie

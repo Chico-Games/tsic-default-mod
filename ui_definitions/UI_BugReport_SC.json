@@ -25,7 +25,9 @@
                 { "id": "br-furniture", "widget": "panel", "layout": "vertical", "style": "menu.panel.bugreport.target", "gap": 3, "slot": { "padding": [0, 10, 0, 0], "height": 120 },
                   "bind": { "visible": "#br-category.value != 'Suggestion'" },
                   "children": [
-                    { "widget": "text", "style": "menu.text.bugreport.body", "text": "Looking for furniture...", "bind": { "visible": "!UI.BugReport.FurnitureTarget.bHasTarget" } },
+                    { "widget": "text", "style": "menu.text.bugreport.body", "text": "Looking for furniture...", "bind": { "visible": "!has:UI.BugReport.FurnitureTarget" } },
+                    { "widget": "text", "style": "menu.text.bugreport.body", "wrap": true, "text": "Nothing under the crosshair — the report will be sent without an object attached.",
+                      "bind": { "visible": "has:UI.BugReport.FurnitureTarget ? !UI.BugReport.FurnitureTarget.bHasTarget : false" } },
                     { "widget": "text", "style": "menu.text.bugreport.label", "text": "Attaching what you are looking at", "bind": { "visible": "UI.BugReport.FurnitureTarget.bHasTarget" } },
                     { "widget": "text", "style": "text.label", "wrap": true, "bind": { "visible": "UI.BugReport.FurnitureTarget.bHasTarget", "text": "UI.BugReport.FurnitureTarget.DisplayName != '' ? UI.BugReport.FurnitureTarget.DisplayName : UI.BugReport.FurnitureTarget.DefinitionId" } },
                     { "widget": "text", "style": "menu.text.hint", "wrap": true, "bind": { "visible": "UI.BugReport.FurnitureTarget.bHasTarget", "text": "\"Definition {UI.BugReport.FurnitureTarget.DefinitionId} · Map {MapName} · Tile {TileIndex} ({TileCoord})\"" } },

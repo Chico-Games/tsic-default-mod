@@ -24,15 +24,51 @@
                 { "widget": "panel", "layout": "horizontal", "slot": { "padding": [0, 6, 0, 0] },
                   "children": [
                     { "widget": "text", "style": "text.eyebrow", "text": "Vol.1 — The Store Opens", "slot": { "fill": true, "valign": "center" } },
-                    { "id": "kicker", "widget": "text", "style": "text.date", "text": "RESTOCK PENDING · DEC 1983", "slot": { "align": "right", "valign": "center" } }
+                    { "id": "kicker", "widget": "text", "style": "text.date", "text": "RESTOCK PENDING · DEC 1983", "slot": { "align": "right", "valign": "center" },
+                      "cycle_seconds": 45,
+                      "cycle": [
+                        "PREVIEW ISSUE · DEC 1983",
+                        "OPENING DAY · DEC 1983",
+                        "GRAND OPENING · DEC 1983",
+                        "DEBUT EDITION · DEC 1983",
+                        "INAUGURAL ISSUE · DEC 1983",
+                        "CHARTER ISSUE · DEC 1983",
+                        "FIRST PRESSING · DEC 1983",
+                        "FRESH OFF THE PRESS · DEC 1983",
+                        "RIBBON CUTTING · DEC 1983",
+                        "SOFT OPENING · DEC 1983",
+                        "NOW HIRING · DEC 1983",
+                        "ALL DEPARTMENTS OPEN · DEC 1983",
+                        "FREE WITH PURCHASE · DEC 1983",
+                        "WHILE SUPPLIES LAST · DEC 1983",
+                        "AS SEEN ON TV · DEC 1983",
+                        "COLLECTOR'S EDITION · DEC 1983",
+                        "DOORS OPEN SOON · DEC 1983",
+                        "STOCK ARRIVING · DEC 1983",
+                        "MIND THE FLOORS · DEC 1983",
+                        "WATCH YOUR STEP · DEC 1983",
+                        "FOR DISPLAY ONLY · DEC 1983",
+                        "RESTOCK PENDING · DEC 1983",
+                        "AFTER HOURS · DEC 1983",
+                        "NO REFUNDS · DEC 1983",
+                        "FINAL SALE · DEC 1983",
+                        "CHECK BEHIND YOU · DEC 1983",
+                        "AISLE 13 SEALED · DEC 1983",
+                        "THE STORE REMEMBERS · DEC 1983"
+                      ] }
                   ] }
               ] },
 
             { "id": "feature", "widget": "panel", "layout": "overlay", "style": "panel.feature", "slot": { "height": 200 },
               "children": [
-                { "id": "showroom", "widget": "text", "style": "text.title", "text": "Showroom A · Living Room", "slot": { "align": "center", "valign": "center" } },
+                { "id": "showroom-img", "widget": "image", "slot": { "align": "center", "valign": "center" },
+                  "bind": { "size": "'280,180'" },
+                  "pool": [ "mod:icons/ui/showroom-living-room", "mod:icons/ui/showroom-kitchen", "mod:icons/ui/showroom-bedroom",
+                            "mod:icons/ui/showroom-dining-room", "mod:icons/ui/showroom-kids-room", "mod:icons/ui/showroom-hallway" ],
+                  "captions": [ "Showroom A · Living Room", "Showroom B · Kitchen", "Showroom C · Bedroom",
+                                "Showroom D · Dining Room", "Showroom E · Kids Room", "Showroom F · Hallway" ] },
                 { "widget": "panel", "style": "chip.badge", "slot": { "align": "left", "valign": "top", "padding": 8 },
-                  "children": [ { "id": "showroom-cap", "widget": "text", "style": "text.badge", "text": "Showroom · Featured" } ] }
+                  "children": [ { "id": "showroom-cap", "widget": "text", "style": "text.badge", "text": "Showroom · Featured", "bind": { "text": "#showroom-img.caption" } } ] }
               ] },
 
             { "id": "rows", "widget": "panel", "layout": "vertical", "focus": "group", "slot": { "padding": [4, 6, 4, 10] },
@@ -59,6 +95,12 @@
         { "id": "menu-vol", "widget": "panel", "layout": "horizontal", "style": "chip.dark", "gap": 10, "slot": { "align": "right", "valign": "bottom", "padding": [0, 0, 18, 14] },
           "children": [
             { "widget": "text", "style": "text.badge", "text": "Menu Music", "slot": { "valign": "center" } },
+            { "id": "menu-vol-mute", "widget": "button", "style": "menu.live.button.vol", "label": "Mute", "slot": { "valign": "center" },
+              "bind": { "visible": "UI.Settings.Value[audio.menu_music].Value.Number > 0.001" },
+              "on": { "click": { "cmd": "UI.Cmd.Settings.Set", "args": { "Key": "audio.menu_music", "Value": 0 } } } },
+            { "id": "menu-vol-unmute", "widget": "button", "style": "menu.live.button.vol", "label": "Unmute", "slot": { "valign": "center" },
+              "bind": { "visible": "!(UI.Settings.Value[audio.menu_music].Value.Number > 0.001)" },
+              "on": { "click": { "cmd": "UI.Cmd.Settings.Set", "args": { "Key": "audio.menu_music", "Value": 0.8 } } } },
             { "id": "menu-vol-slider", "widget": "slider", "min": 0, "max": 1, "step": 0.01, "show_value": false, "track_width": 110, "slot": { "valign": "center" },
               "bind": { "value": "UI.Settings.Value[audio.menu_music].Value.Number" },
               "on": { "commit": { "cmd": "UI.Cmd.Settings.Set", "args": { "Key": "audio.menu_music", "Value": "{self.value}" } } } }

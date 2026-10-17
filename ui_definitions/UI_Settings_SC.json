@@ -275,6 +275,7 @@
                               }
                             },
                             {
+                              "id": "audio-music",
                               "widget": "slider",
                               "min": 0,
                               "max": 1,
@@ -326,6 +327,7 @@
                               }
                             },
                             {
+                              "id": "audio-sfx",
                               "widget": "slider",
                               "min": 0,
                               "max": 1,
@@ -377,6 +379,7 @@
                               }
                             },
                             {
+                              "id": "audio-menu-music",
                               "widget": "slider",
                               "min": 0,
                               "max": 1,
@@ -448,6 +451,7 @@
                               }
                             },
                             {
+                              "id": "voice-enabled",
                               "widget": "toggle",
                               "slot": {
                                 "valign": "center"
@@ -495,6 +499,7 @@
                               }
                             },
                             {
+                              "id": "voice-mode",
                               "widget": "dropdown",
                               "min_width": 240,
                               "slot": {
@@ -553,6 +558,7 @@
                               }
                             },
                             {
+                              "id": "voice-output-volume",
                               "widget": "slider",
                               "min": 0,
                               "max": 2,
@@ -807,6 +813,7 @@
                               }
                             },
                             {
+                              "id": "graphics-vsync",
                               "widget": "toggle",
                               "slot": {
                                 "valign": "center"
@@ -854,6 +861,7 @@
                               }
                             },
                             {
+                              "id": "graphics-fps-limit",
                               "widget": "dropdown",
                               "min_width": 240,
                               "slot": {
@@ -940,6 +948,7 @@
                               }
                             },
                             {
+                              "id": "graphics-brightness",
                               "widget": "slider",
                               "min": 1.4,
                               "max": 3,
@@ -991,6 +1000,7 @@
                               }
                             },
                             {
+                              "id": "video-hdr",
                               "widget": "toggle",
                               "slot": {
                                 "valign": "center"
@@ -1181,6 +1191,7 @@
                               }
                             },
                             {
+                              "id": "graphics-lumen",
                               "widget": "dropdown",
                               "min_width": 240,
                               "slot": {
@@ -1322,6 +1333,7 @@
                               }
                             },
                             {
+                              "id": "graphics-resolution-scale",
                               "widget": "slider",
                               "min": 50,
                               "max": 100,
@@ -1373,6 +1385,7 @@
                               }
                             },
                             {
+                              "id": "graphics-frame-gen",
                               "widget": "dropdown",
                               "min_width": 240,
                               "slot": {
@@ -1449,6 +1462,7 @@
                               }
                             },
                             {
+                              "id": "graphics-fsr-frame-gen",
                               "widget": "toggle",
                               "slot": {
                                 "valign": "center"
@@ -1502,6 +1516,7 @@
                               }
                             },
                             {
+                              "id": "graphics-reflex",
                               "widget": "dropdown",
                               "min_width": 240,
                               "slot": {
@@ -1570,6 +1585,7 @@
                               }
                             },
                             {
+                              "id": "graphics-motion-blur",
                               "widget": "toggle",
                               "slot": {
                                 "valign": "center"
@@ -1637,6 +1653,7 @@
                               }
                             },
                             {
+                              "id": "graphics-view-distance",
                               "widget": "dropdown",
                               "min_width": 240,
                               "slot": {
@@ -1703,6 +1720,7 @@
                               }
                             },
                             {
+                              "id": "graphics-shadows",
                               "widget": "dropdown",
                               "min_width": 240,
                               "slot": {
@@ -1769,6 +1787,7 @@
                               }
                             },
                             {
+                              "id": "graphics-textures",
                               "widget": "dropdown",
                               "min_width": 240,
                               "slot": {
@@ -1835,6 +1854,7 @@
                               }
                             },
                             {
+                              "id": "graphics-effects",
                               "widget": "dropdown",
                               "min_width": 240,
                               "slot": {
@@ -1901,6 +1921,7 @@
                               }
                             },
                             {
+                              "id": "graphics-post-processing",
                               "widget": "dropdown",
                               "min_width": 240,
                               "slot": {
@@ -1967,6 +1988,7 @@
                               }
                             },
                             {
+                              "id": "graphics-foliage",
                               "widget": "dropdown",
                               "min_width": 240,
                               "slot": {
@@ -2033,6 +2055,7 @@
                               }
                             },
                             {
+                              "id": "graphics-shading",
                               "widget": "dropdown",
                               "min_width": 240,
                               "slot": {
@@ -2099,6 +2122,7 @@
                               }
                             },
                             {
+                              "id": "graphics-reflections",
                               "widget": "dropdown",
                               "min_width": 240,
                               "slot": {
@@ -2203,6 +2227,7 @@
                               }
                             },
                             {
+                              "id": "gameplay-show-tutorial",
                               "widget": "toggle",
                               "slot": {
                                 "valign": "center"
@@ -2250,6 +2275,7 @@
                               }
                             },
                             {
+                              "id": "gameplay-player-nametags",
                               "widget": "toggle",
                               "slot": {
                                 "valign": "center"
@@ -2297,6 +2323,7 @@
                               }
                             },
                             {
+                              "id": "gameplay-minimap-rotate",
                               "widget": "toggle",
                               "slot": {
                                 "valign": "center"
@@ -2364,6 +2391,7 @@
                               }
                             },
                             {
+                              "id": "social-rich-presence",
                               "widget": "toggle",
                               "slot": {
                                 "valign": "center"
@@ -2449,6 +2477,7 @@
                               }
                             },
                             {
+                              "id": "accessibility-shake-intensity",
                               "widget": "slider",
                               "min": 0,
                               "max": 100,
@@ -2500,6 +2529,7 @@
                               }
                             },
                             {
+                              "id": "accessibility-head-bob",
                               "widget": "toggle",
                               "slot": {
                                 "valign": "center"
@@ -2547,6 +2577,7 @@
                               }
                             },
                             {
+                              "id": "accessibility-sprint-fov",
                               "widget": "toggle",
                               "slot": {
                                 "valign": "center"
@@ -2594,6 +2625,7 @@
                               }
                             },
                             {
+                              "id": "accessibility-motion-blur",
                               "widget": "toggle",
                               "slot": {
                                 "valign": "center"
@@ -2641,6 +2673,7 @@
                               }
                             },
                             {
+                              "id": "accessibility-screen-pulse",
                               "widget": "toggle",
                               "slot": {
                                 "valign": "center"
@@ -2688,6 +2721,7 @@
                               }
                             },
                             {
+                              "id": "accessibility-reduce-motion",
                               "widget": "toggle",
                               "slot": {
                                 "valign": "center"
@@ -2735,6 +2769,7 @@
                               }
                             },
                             {
+                              "id": "accessibility-sprint-vignette",
                               "widget": "toggle",
                               "slot": {
                                 "valign": "center"
@@ -2782,6 +2817,7 @@
                               }
                             },
                             {
+                              "id": "accessibility-reduce-motion-preset",
                               "widget": "button",
                               "style": "button.sm",
                               "label": "Apply Reduce Motion",
@@ -2847,6 +2883,7 @@
                               }
                             },
                             {
+                              "id": "gameplay-fov",
                               "widget": "slider",
                               "min": 60,
                               "max": 120,
@@ -2936,6 +2973,7 @@
                               }
                             },
                             {
+                              "id": "mouse-sensitivity",
                               "widget": "slider",
                               "min": 0.1,
                               "max": 3,
@@ -2987,6 +3025,7 @@
                               }
                             },
                             {
+                              "id": "invert-mouse-y",
                               "widget": "toggle",
                               "slot": {
                                 "valign": "center"
@@ -3062,10 +3101,12 @@
                           "widget": "list",
                           "style": "list",
                           "selectable": false,
+                          "row_key": "HotkeyId",
                           "bind": {
                             "items": "UI.Settings.ControlsState.Entries"
                           },
                           "template": {
+                            "id": "kbm-row",
                             "widget": "panel",
                             "layout": "horizontal",
                             "gap": 10,
@@ -3132,6 +3173,7 @@
                                 },
                                 "children": [
                                   {
+                                    "id": "kbm-row-toggle",
                                     "widget": "toggle",
                                     "slot": {
                                       "valign": "center"
@@ -3170,6 +3212,7 @@
                                 },
                                 "children": [
                                   {
+                                    "id": "kbm-row-bind",
                                     "widget": "button",
                                     "style": "menu.button.bind",
                                     "fill_width": true,
@@ -3210,6 +3253,7 @@
                           },
                           "children": [
                             {
+                              "id": "page-kbm-reset",
                               "widget": "button",
                               "style": "button.secondary.tight",
                               "label": "Reset keyboard bindings",
@@ -3283,8 +3327,9 @@
                               }
                             },
                             {
+                              "id": "gamepad-sensitivity",
                               "widget": "slider",
-                              "min": 0.05,
+                              "min": 0.1,
                               "max": 1,
                               "step": 0.05,
                               "track_width": 240,
@@ -3334,6 +3379,7 @@
                               }
                             },
                             {
+                              "id": "gamepad-deadzone",
                               "widget": "slider",
                               "min": 0,
                               "max": 0.9,
@@ -3385,6 +3431,7 @@
                               }
                             },
                             {
+                              "id": "invert-gamepad-y",
                               "widget": "toggle",
                               "slot": {
                                 "valign": "center"
@@ -3460,10 +3507,12 @@
                           "widget": "list",
                           "style": "list",
                           "selectable": false,
+                          "row_key": "HotkeyId",
                           "bind": {
                             "items": "UI.Settings.ControlsState.Entries"
                           },
                           "template": {
+                            "id": "pad-row",
                             "widget": "panel",
                             "layout": "horizontal",
                             "gap": 10,
@@ -3530,6 +3579,7 @@
                                 },
                                 "children": [
                                   {
+                                    "id": "pad-row-toggle",
                                     "widget": "toggle",
                                     "slot": {
                                       "valign": "center"
@@ -3568,6 +3618,7 @@
                                 },
                                 "children": [
                                   {
+                                    "id": "pad-row-bind",
                                     "widget": "button",
                                     "style": "menu.button.bind",
                                     "fill_width": true,
@@ -3608,6 +3659,7 @@
                           },
                           "children": [
                             {
+                              "id": "page-pad-reset",
                               "widget": "button",
                               "style": "button.secondary.tight",
                               "label": "Reset controller bindings",

@@ -15,7 +15,7 @@
             "bind": { "style": "item.Severity == 'Starvation' ? 'hud.chip.starvation' : (item.Id == 'Hunger' ? 'hud.chip.harm' : (item.Id == 'ReducedRegen' ? 'hud.chip.harm' : (item.Id == 'CapStamina' ? 'hud.chip.harm' : (item.bFromSelected ? 'hud.chip.selected' : (item.Kind == 'Debuff' ? 'hud.chip.debuff' : 'hud.chip.buff')))))" },
             "children": [
               { "widget": "image", "plate_when_missing": false, "slot": { "valign": "center" },
-                "bind": { "source": "\"icon:{item.Icon}\"", "size": "'14,14'" } },
+                "bind": { "source": "item.Icon", "size": "'14,14'" } },
               { "id": "condition-name", "widget": "text", "slot": { "valign": "center" },
                 "bind": {
                   "text": "item.Name == '' ? item.Id : item.Name",

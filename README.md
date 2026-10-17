@@ -14,6 +14,45 @@ without launching Unreal Editor. The full design lives in
 - schema_version: 2
 - exporter_git_rev: b9ff8cfd5
 
+## UI assets: icons and fonts (`mod:` references)
+
+The native UI draws every icon and font from a file in a mod, named by its path relative to the
+mod root with **no extension**: `mod:icons/ui/cond-hunger` is `icons/ui/cond-hunger.png`,
+`mod:fonts/Inter-Bold` is `fonts/Inter-Bold.ttf`. The mod manager imports each such file at load
+(PNG/JPG/EXR/WebP/TGA/BMP/GIF to a texture, TTF/OTF to a font) as `/ModData/<mod>/<path>`, and
+the UI resolves the reference against whatever is loaded, so a reference never has to say which
+mod the file comes from. When several mods ship the same path the last one in load order wins,
+for every screen at once: drop `icons/ui/cond-hunger.png` into your mod to restyle the hunger
+chip. Fonts enter a theme through its `assets.fonts` block, each entry a `file` (the mod font)
+and a `fallback` (the engine `/Game/UI/TSICMag/Fonts/F_*` asset drawn when the file is missing),
+and the `fonts` roles point at those entries with `$assets.fonts.<key>`. The default mod keeps its
+UI icons under `icons/ui/` and its fonts under `fonts/` (with their licence notice). `Ui.Reload`
+re-reads screens, themes, icons and fonts from disk and rebuilds every mounted screen and HUD
+layer, so an edit to any of them shows without a restart. A mod-imported font embeds the file
+bytes in its face, so it needs nothing else on disk once loaded; the `F_*` fallback assets in
+`Content/UI/TSICMag/Fonts/` were imported by hand and their faces reference the TTF they were
+imported from by path, which is fine for a fallback but means the mod file is the copy to edit.
+`LogScpUi` prints one `Theme 'UI_Default_TH' font '<role>' <- <path>` line per role when a theme
+is built, naming the face that won. To exercise another mod (such as the `com.test.ui`
+fixture that adds `TestUiBadge`) in a dev build: `Mods.Enable com.test.ui` then `Ui.Reload`
+(`Mods.List` shows what is on disk, what is loaded and which source decides the order;
+`Mods.Disable` reverts). For the next boot instead, `Saved/Config/WindowsEditor/GameUserSettings.ini`
+needs all three lines, because the user order is ignored until the override flag is set and an
+empty default slot would drop the default mod:
+
+```ini
+[/Script/TSIC.ScpModUserSettings]
+bUserOverrideActive=True
+UserDefaultMod=(ModId="com.chicogames.default")
++UserModLoadOrder=(ModId="com.test.ui")
+```
+
+In the editor a map whose WorldSettings carry an Editor Default Mod or Editor Mod Load Order
+outranks both; `Mods.Enable` edits that list too on the PIE copy. The reference form with an extension
+(`mod:fonts/Inter-Bold.ttf`) is tolerated but not the convention; the test
+`TSIC.UI.ModAssetRefs.ContentTest` checks every reference the default mod and the HUD publishers
+make against the files on disk.
+
 ## Folder layout
 
 One folder per concrete Definition leaf class with at least one .uasset instance. Folder names

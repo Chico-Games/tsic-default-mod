@@ -63,14 +63,16 @@
                   "children": [
                     { "widget": "text", "style": "text.eyebrow", "text": "Known issues" },
                     { "widget": "panel", "style": "rule.dashed", "slot": { "height": 2 } },
-                    { "id": "known-issues", "widget": "list", "style": "list.pane", "selectable": false, "empty_text": "Nothing open.", "slot": { "fill": true },
+                    { "id": "known-issues", "widget": "list", "style": "list.pane", "selectable": false, "empty_text": "Nothing tracked for this build.", "slot": { "fill": true },
                       "bind": { "items": "UI.Bulletin.State.KnownIssues" },
                       "template": { "widget": "panel", "layout": "horizontal", "gap": 10, "slot": { "padding": [12, 8] },
                         "children": [
                           { "widget": "text", "style": "text.eyebrow", "slot": { "width": 80 }, "bind": { "text": "item.Scope", "colour": "'#E60000'" } },
                           { "widget": "text", "style": "text.body", "wrap": true, "slot": { "fill": true }, "bind": { "text": "item.Text" } },
                           { "widget": "text", "style": "text.caption", "slot": { "valign": "center" }, "bind": { "text": "item.Ref" } }
-                        ] } }
+                        ] } },
+                    { "widget": "text", "style": "menu.text.hint", "wrap": true, "slot": { "padding": [0, 6, 0, 0] },
+                      "text": "Found something that is not on this list? Press F8 in game to file it — the report carries your seed and the last few seconds of the log, which is the difference between a fix and a guess." }
                   ] }
               ] },
 

@@ -45,8 +45,10 @@
 
                 { "widget": "text", "style": "text.group", "text": "Mode", "slot": { "padding": [0, 8, 0, 0] } },
                 { "id": "mode-dd", "widget": "dropdown", "style": "menu.dropdown.map", "placeholder": "Select a mode...", "min_width": 560,
-                  "bind": { "values": "UI.Menu.GameModes.Modes.Id", "options": "UI.Menu.GameModes.Modes.DisplayName" } },
-                { "widget": "text", "style": "menu.text.hint", "text": "Modes come from the loaded mods." },
+                  "bind": { "values": "UI.Menu.GameModes.Modes.Id", "options": "UI.Menu.GameModes.Modes.DisplayName",
+                            "placeholder": "UI.Menu.GameModes.Modes.Num > 0 ? 'Select a mode...' : '— No modes available —'" } },
+                { "widget": "text", "style": "menu.text.hint", "text": "Modes come from the loaded mods.",
+                  "bind": { "text": "UI.Menu.GameModes.Modes.Num > 0 ? 'Modes come from the loaded mods.' : 'No game mode is available from the enabled mods.'" } },
 
                 { "widget": "text", "style": "text.group", "text": "Active Mods", "slot": { "padding": [0, 8, 0, 0] } },
                 { "id": "mods-split", "widget": "panel", "layout": "horizontal", "gap": 10,
@@ -55,10 +57,16 @@
                       "children": [
                         { "widget": "panel", "style": "menu.panel.mods.head", "children": [ { "widget": "text", "style": "menu.text.mods.head", "text": "Enabled" } ] },
                         { "id": "mods-enabled", "widget": "list", "style": "list", "selectable": false, "max_height": 180, "empty_text": "No mods enabled.", "slot": { "padding": 4 },
-                          "bind": { "items": "UI.Mod.InstalledList.Mods" }, "where": "item.bEnabled",
+                          "bind": { "items": "UI.Mod.LoadOrder.Entries" },
                           "template": { "widget": "panel", "layout": "horizontal", "style": "menu.panel.mod.row", "gap": 4, "slot": { "padding": [0, 1] },
                             "children": [
                               { "widget": "text", "style": "menu.text.mod.name", "slot": { "fill": true, "valign": "center" }, "bind": { "text": "item.DisplayName != '' ? item.DisplayName : item.ModId" } },
+                              { "widget": "button", "style": "menu.button.mod", "label": "^", "slot": { "valign": "center" },
+                                "bind": { "disabled": "item.bLocked" },
+                                "on": { "click": { "cmd": "UI.Cmd.Mod.SetLoadOrder", "args": { "Order": "{UI.Mod.LoadOrder.Order}", "MoveModId": "{item.ModId}", "MoveDelta": -1 } } } },
+                              { "widget": "button", "style": "menu.button.mod", "label": "v", "slot": { "valign": "center" },
+                                "bind": { "disabled": "item.bLocked" },
+                                "on": { "click": { "cmd": "UI.Cmd.Mod.SetLoadOrder", "args": { "Order": "{UI.Mod.LoadOrder.Order}", "MoveModId": "{item.ModId}", "MoveDelta": 1 } } } },
                               { "widget": "button", "style": "menu.button.mod", "label": ">", "slot": { "valign": "center" },
                                 "bind": { "disabled": "item.bLocked" },
                                 "on": { "click": { "cmd": "UI.Cmd.Mod.SetEnabled", "args": { "ModId": "{item.ModId}", "Enabled": false } } } }
@@ -68,7 +76,7 @@
                       "children": [
                         { "widget": "panel", "style": "menu.panel.mods.head", "children": [ { "widget": "text", "style": "menu.text.mods.head", "text": "Available" } ] },
                         { "id": "mods-available", "widget": "list", "style": "list", "selectable": false, "max_height": 180, "empty_text": "All installed mods are enabled.", "slot": { "padding": 4 },
-                          "bind": { "items": "UI.Mod.InstalledList.Mods" }, "where": "!item.bEnabled",
+                          "bind": { "items": "UI.Mod.InstalledList.Mods", "empty_text": "UI.Mod.InstalledList.Mods.Num > 0 ? 'All installed mods are enabled.' : 'No mods installed. Open Manage Mods to subscribe.'" }, "where": "!item.bEnabled",
                           "template": { "widget": "panel", "layout": "horizontal", "style": "menu.panel.mod.row", "gap": 4, "slot": { "padding": [0, 1] },
                             "children": [
                               { "widget": "button", "style": "menu.button.mod", "label": "<", "slot": { "valign": "center" },
@@ -77,6 +85,7 @@
                             ] } }
                       ] }
                   ] },
+                { "widget": "text", "style": "menu.live.text.mod.hint", "text": "^ and v move a mod in the load order; later mods override earlier ones." },
                 { "id": "link-manage", "widget": "button", "style": "menu.button.link", "label": "Manage Mods >", "slot": { "align": "left", "padding": [0, 6, 0, 0] },
                   "on": { "click": { "cmd": "UI.Cmd.Menu.Navigate", "args": { "Screen": "Mods" } } } }
               ] },
