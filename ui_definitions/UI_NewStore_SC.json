@@ -48,10 +48,9 @@
                 { "id": "mode-dd", "widget": "dropdown", "style": "menu.dropdown.map", "placeholder": "Select a mode...", "min_width": 560,
                   "bind": { "values": "UI.Menu.GameModes.Modes.Id", "options": "UI.Menu.GameModes.Modes.DisplayName",
                             "details": "UI.Menu.GameModes.Modes.Hint", "marks": "UI.Menu.GameModes.Modes.bEndsRunOnDeath",
-                            "placeholder": "UI.Menu.GameModes.Modes.Num > 0 ? 'Select a mode...' : '— No modes available —'",
                             "style": "#mode-dd.marked ? 'menu.dropdown.map.ironman' : 'menu.dropdown.map'" } },
                 { "id": "mode-hint", "widget": "text", "style": "menu.text.hint", "wrap": true, "text": "Modes come from the loaded mods.",
-                  "bind": { "text": "#mode-dd.value != '' ? #mode-dd.detail : UI.Menu.GameModes.Modes.Num > 0 ? 'Modes come from the loaded mods.' : 'No game mode is available from the enabled mods.'",
+                  "bind": { "text": "#mode-dd.value != '' ? #mode-dd.detail : 'Modes come from the loaded mods.'",
                             "style": "#mode-dd.marked ? 'menu.text.hint.ironman' : 'menu.text.hint'" } },
 
                 { "widget": "text", "style": "text.group", "text": "Active Mods", "slot": { "padding": [8, 0, 0, 0] } },
@@ -71,7 +70,7 @@
                               { "widget": "button", "style": "menu.button.mod", "label": "v", "slot": { "valign": "center" },
                                 "bind": { "disabled": "item.bLocked" },
                                 "on": { "click": { "cmd": "UI.Cmd.Mod.SetLoadOrder", "args": { "Order": "{UI.Mod.LoadOrder.Order}", "MoveModId": "{item.ModId}", "MoveDelta": 1 } } } },
-                              { "widget": "button", "style": "menu.button.mod", "label": "→", "slot": { "valign": "center" },
+                              { "widget": "button", "style": "menu.button.mod", "icon": "mod:icons/ui/arrow-right", "slot": { "valign": "center" },
                                 "bind": { "disabled": "item.bLocked" },
                                 "on": { "click": { "cmd": "UI.Cmd.Mod.SetEnabled", "args": { "ModId": "{item.ModId}", "Enabled": false } } } }
                             ] } }
@@ -83,13 +82,13 @@
                           "bind": { "items": "UI.Mod.InstalledList.Mods", "empty_text": "UI.Mod.InstalledList.Mods.Num > 0 ? 'All installed mods are enabled.' : 'No mods installed. Open Manage Mods to subscribe.'" }, "where": "!item.bEnabled",
                           "template": { "widget": "panel", "layout": "horizontal", "style": "menu.panel.mod.row", "gap": 4, "slot": { "padding": [0, 1] },
                             "children": [
-                              { "widget": "button", "style": "menu.button.mod", "label": "←", "slot": { "valign": "center" },
+                              { "widget": "button", "style": "menu.button.mod", "icon": "mod:icons/ui/arrow-left", "slot": { "valign": "center" },
                                 "on": { "click": { "cmd": "UI.Cmd.Mod.SetEnabled", "args": { "ModId": "{item.ModId}", "Enabled": true } } } },
                               { "widget": "text", "style": "menu.text.mod.name", "slot": { "fill": true, "valign": "center" }, "bind": { "text": "item.DisplayName != '' ? item.DisplayName : item.ModId" } }
                             ] } }
                       ] }
                   ] },
-                { "id": "link-manage", "widget": "button", "style": "menu.button.link", "label": "Manage Mods →", "slot": { "align": "left", "padding": [6, 0, 0, 0] },
+                { "id": "link-manage", "widget": "button", "style": "menu.button.link", "label": "Manage Mods", "icon": "mod:icons/ui/arrow-right", "icon_after": true, "slot": { "align": "left", "padding": [6, 0, 0, 0] },
                   "on": { "click": { "cmd": "UI.Cmd.Menu.Navigate", "args": { "Screen": "Mods" } } } }
               ] },
 

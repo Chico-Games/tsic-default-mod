@@ -12,7 +12,7 @@
         { "id": "ping-wheel", "widget": "panel", "layout": "overlay", "style": "panel.flat", "width": 360, "height": 360, "slot": { "anchor": "center" },
           "children": [
             { "id": "ping-glass", "widget": "panel", "layout": "overlay", "style": "hud.ping.glass", "width": 340, "height": 340, "slot": { "anchor": "center" } },
-            { "id": "ping-sectors", "widget": "sectors", "style": "hud.ping.sectors", "count": 4, "outer_radius": 168, "inner_radius": 78, "gap_deg": 2.6, "start_deg": -90, "size": 360,
+            { "id": "ping-sectors", "widget": "sectors", "style": "hud.ping.sectors", "count": 4, "outer_radius": 168, "inner_radius": 78, "gap_deg": 2.6, "start_deg": -90, "size": 360, "selected_fill_alpha": 0.55,
               "colours": [ "#ff5a5a", "#3ddc97", "#4ea1ff", "#ffc63f" ], "slot": { "anchor": "center" },
               "bind": { "selected": "UI.Hud.Wheel[ping].Selected" } },
             { "id": "ping-items", "widget": "panel", "layout": "radial", "style": "panel.flat", "radius": 123, "slot": { "anchor": "center" },

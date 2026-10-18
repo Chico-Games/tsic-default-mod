@@ -71,7 +71,7 @@
                             "children": [
                               { "widget": "text", "style": "text.eyebrow", "slot": { "width": 80 }, "bind": { "text": "item.Scope", "colour": "'#E60000'" } },
                               { "widget": "text", "style": "text.body", "wrap": true, "slot": { "fill": true }, "bind": { "text": "item.Text" } },
-                              { "widget": "text", "style": "text.caption", "slot": { "valign": "center" }, "bind": { "text": "item.Ref != '' ? \"#{item.Ref}\" : ''" } }
+                              { "widget": "text", "style": "text.caption", "slot": { "valign": "center" }, "bind": { "text": "item.Ref" } }
                             ] },
                           { "widget": "panel", "style": "rule.dashed", "slot": { "height": 1 } }
                         ] } },

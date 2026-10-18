@@ -142,22 +142,10 @@
               ]
             },
             {
-              "id": "cm-keys",
-              "widget": "panel",
-              "layout": "horizontal",
-              "style": "cheat.keys",
-              "children": [
-                {
-                  "widget": "text",
-                  "style": "cheat.keys.text",
-                  "text": "F2-F5 section hotkeys and command search are not wired on this panel yet."
-                }
-              ]
-            },
-            {
               "id": "cm-tabs",
               "widget": "tabbar",
               "style": "cheat.tabs",
+              "wrap": true,
               "tabs": [
                 "Player",
                 "Items",

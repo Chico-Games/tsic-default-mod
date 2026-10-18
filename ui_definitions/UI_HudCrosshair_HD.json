@@ -3,10 +3,10 @@
   "class": "ScpUiScreenDefinition",
   "properties": {
     "layer": "hud",
-    "uses": [ "UI.Hud.Visibility", "UI.Interaction.Targets" ],
+    "uses": [ "UI.Hud.Visibility", "UI.Interaction.Targets", "UI.Hud.Wheel" ],
     "tree": {
       "id": "crosshair-root", "widget": "panel", "layout": "overlay", "style": "panel.flat",
-      "bind": { "visible": "UI.Hud.Visibility[crosshair].bHidden ? false : !UI.Hud.Visibility[all].bHidden" },
+      "bind": { "visible": "UI.Hud.Visibility[crosshair].bHidden ? false : (UI.Hud.Visibility[all].bHidden ? false : (UI.Hud.Wheel[hotbar].bOpen ? false : !UI.Hud.Wheel[ping].bOpen))" },
       "children": [
         { "id": "crosshair-halo", "widget": "progressring", "style": "hud.ring.halo", "size": 14, "progress": 1,
           "slot": { "anchor": "center" },

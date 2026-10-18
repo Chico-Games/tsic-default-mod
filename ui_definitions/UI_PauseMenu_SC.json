@@ -12,7 +12,7 @@
       "id": "pause-overlay", "widget": "panel", "layout": "overlay", "style": "screen.dim",
       "on": { "show": { "sound": "Pause.Open", "volume": 0.4 }, "hide": { "sound": "Pause.Close", "volume": 0.4 } },
       "children": [
-        { "id": "pause-panel", "widget": "panel", "layout": "vertical", "style": "panel.cover", "slot": { "align": "center", "valign": "center", "width": 400 },
+        { "id": "pause-panel", "widget": "panel", "layout": "vertical", "style": "panel.cover", "slot": { "align": "center", "valign": "center", "width": 400, "padding": [24, 0] },
           "children": [
             { "id": "header", "widget": "panel", "layout": "horizontal", "slot": { "padding": [14, 16, 10, 16] },
               "children": [
@@ -25,7 +25,7 @@
               ] },
             { "widget": "panel", "style": "rule.panel", "slot": { "height": 4 } },
 
-            { "id": "body", "widget": "panel", "layout": "scroll", "slot": { "fill": true, "height": 560 },
+            { "id": "body", "widget": "panel", "layout": "scroll", "slot": { "fill": true },
               "children": [
                 { "widget": "panel", "layout": "vertical", "gap": 8, "slot": { "padding": [6, 16, 18, 16] },
                   "children": [
@@ -65,7 +65,7 @@
                                     "children": [
                                       { "widget": "panel", "layout": "horizontal", "gap": 5,
                                         "children": [
-                                          { "widget": "text", "slot": { "valign": "center" },
+                                          { "widget": "text", "ellipsis": true, "slot": { "fill": true, "valign": "center" },
                                             "bind": { "text": "item.Name != '' ? item.Name : item.bIsHost ? 'Host' : 'Player'", "style": "item.bHasPawn ? 'menu.live.text.name' : item.bIsLocal ? 'menu.live.text.name' : 'menu.live.text.name.dim'" } },
                                           { "widget": "panel", "style": "menu.live.chip.you", "slot": { "valign": "center" }, "bind": { "visible": "item.bIsLocal" },
                                             "children": [ { "widget": "text", "style": "menu.live.chip.you", "text": "You" } ] },

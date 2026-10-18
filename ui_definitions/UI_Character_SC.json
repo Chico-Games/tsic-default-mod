@@ -55,17 +55,17 @@
                                   "visible": "item.Swatch == 'wheel' ? false : item.Swatch != 'match'",
                                   "bind": { "style": "item.bSelected ? 'character.swatch.selected' : 'character.swatch'" },
                                   "on": { "click": { "cmd": "UI.Cmd.Menu.SelectCharacterPart", "args": { "Slot": "{item.Slot}", "Id": "{item.Id}" } } },
-                                  "children": [ { "widget": "image", "size": {"x": 30, "y": 30}, "bind": { "source": "item.Swatch" } } ] },
+                                  "children": [ { "widget": "image", "size": {"x": 30, "y": 30}, "bind": { "source": "item.Swatch == 'wheel' ? '' : item.Swatch == 'match' ? '' : item.Swatch" } } ] },
                                 { "id": "swatch-match", "widget": "panel", "layout": "vertical", "width": 34, "height": 34, "center_content": true,
                                   "visible": "item.Swatch == 'match'",
                                   "bind": { "style": "item.bSelected ? 'character.swatch.selected' : 'character.swatch'" },
                                   "on": { "click": { "cmd": "UI.Cmd.Menu.SelectCharacterPart", "args": { "Slot": "{item.Slot}", "Id": "{item.Id}" } } },
                                   "children": [ { "widget": "text", "style": "character.text.swatch.match", "text": "Match" } ] },
-                                { "id": "swatch-wheel", "widget": "panel", "layout": "vertical", "width": 34, "height": 34, "center_content": true,
+                                { "id": "swatch-wheel", "widget": "panel", "layout": "vertical",
                                   "visible": "item.Swatch == 'wheel'",
                                   "bind": { "style": "item.bSelected ? 'character.swatch.selected' : 'character.swatch'" },
                                   "on": { "click": { "cmd": "UI.Cmd.Menu.OpenTintWheel", "args": { "Slot": "{item.Slot}" } } },
-                                  "children": [ { "widget": "text", "style": "character.text.swatch.match", "text": "Mix" } ] }
+                                  "children": [ { "widget": "image", "size": {"x": 30, "y": 30}, "source": "mod:icons/ui/swatch-wheel" } ] }
                               ] } },
 
                           { "id": "tiles", "widget": "list", "style": "list", "selectable": false, "wrap": true, "gap": 6, "visible": "!item.bIsColor",
@@ -74,9 +74,8 @@
                               "bind": { "style": "item.bSelected ? 'character.tile.selected' : 'character.tile'" },
                               "on": { "click": { "cmd": "UI.Cmd.Menu.SelectCharacterPart", "args": { "Slot": "{item.Slot}", "Id": "{item.Id}" } } },
                               "children": [
-                                { "widget": "image", "style": "character.image.tile", "size": {"x": 90, "y": 78}, "plate_when_missing": true,
-                                  "bind": { "source": "item.ThumbnailUrl" } },
-                                { "widget": "text", "style": "character.text.tile.name", "wrap": true, "visible": "item.ThumbnailUrl == ''", "bind": { "text": "item.DisplayName" } }
+                                { "widget": "image", "style": "character.image.tile", "size": {"x": 90, "y": 78}, "plate_when_missing": true, "caption_style": "character.text.tile.name",
+                                  "bind": { "source": "item.ThumbnailUrl", "caption": "item.DisplayName" } }
                               ] } }
                         ] } },
 

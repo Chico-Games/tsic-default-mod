@@ -84,7 +84,8 @@
                   "gap": 4,
                   "slot": {
                     "align": "right",
-                    "valign": "top"
+                    "valign": "top",
+                    "width": 200
                   },
                   "children": [
                     {
@@ -129,7 +130,9 @@
               "widget": "panel",
               "layout": "scroll",
               "style": "menu.scroll.body",
-              "max_height": 320,
+              "slot": {
+                "fill": true
+              },
               "children": [
                 {
                   "widget": "panel",

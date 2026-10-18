@@ -117,7 +117,7 @@
                       "children": [
                         { "id": "rail-scroll", "widget": "panel", "layout": "scroll", "horizontal_scroll": true, "slot": { "fill": true },
                           "children": [
-                            { "id": "browse", "widget": "list", "layout": "horizontal", "style": "list", "selectable": false, "row_key": "NameId", "max_height": 190,
+                            { "id": "browse", "widget": "list", "layout": "horizontal", "style": "list", "selectable": false, "row_key": "NameId", "max_height": 250,
                               "bind": { "items": "UI.Mods.Browse.Cards", "empty_text": "UI.Mods.Browse.bLoading ? 'Loading the catalogue…' : UI.Mods.Browse.Error != '' ? '' : 'Nothing in the catalogue matches.'" },
                               "template": { "widget": "panel", "layout": "vertical", "gap": 5, "width": 180, "slot": { "padding": [0, 0, 8, 0] },
                                 "bind": { "style": "item.bInstalling ? 'mods.panel.card.installing' : 'mods.panel.card'" },
@@ -159,7 +159,7 @@
                             { "widget": "panel", "style": "mods.chip.count", "slot": { "valign": "center" }, "children": [ { "widget": "text", "style": "mods.chip.count", "bind": { "text": "UI.Mods.Library.StockroomCount" } } ] }
                           ] },
                         { "widget": "panel", "style": "mods.rule.column", "slot": { "height": 2 } },
-                        { "id": "list-inactive", "widget": "list", "style": "list", "selectable": false, "row_key": "ModId", "focus": "group", "slot": { "fill": true, "padding": 8 },
+                        { "id": "list-inactive", "widget": "list", "style": "mods.list.column", "selectable": false, "row_key": "ModId", "focus": "group", "slot": { "fill": true, "padding": 8 },
                           "bind": { "items": "UI.Mods.Library.Stockroom", "empty_text": "UI.Mods.Library.StockroomEmptyText" },
                           "template": { "widget": "panel", "layout": "vertical", "slot": { "padding": [0, 3] },
                             "bind": { "style": "item.bDownloading ? 'mods.panel.row.downloading' : 'mods.panel.row'" },
@@ -192,7 +192,7 @@
                             { "widget": "panel", "style": "mods.chip.count.active", "slot": { "valign": "center" }, "children": [ { "widget": "text", "style": "mods.chip.count", "bind": { "text": "UI.Mods.Library.ShopFloorCount" } } ] }
                           ] },
                         { "widget": "panel", "style": "mods.rule.column", "slot": { "height": 2 } },
-                        { "id": "list-active", "widget": "list", "style": "list", "selectable": false, "row_key": "ModId", "focus": "group", "slot": { "fill": true, "padding": 8 },
+                        { "id": "list-active", "widget": "list", "style": "mods.list.column", "selectable": false, "row_key": "ModId", "focus": "group", "slot": { "fill": true, "padding": 8 },
                           "bind": { "items": "UI.Mods.Library.ShopFloor", "empty_text": "'Nothing on display. Move mods here to activate them.'" },
                           "template": { "widget": "panel", "layout": "vertical", "slot": { "padding": [0, 3] },
                             "bind": { "style": "item.bDownloading ? 'mods.panel.row.downloading' : 'mods.panel.row'" },

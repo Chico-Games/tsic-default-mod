@@ -108,11 +108,12 @@ local function render()
   local out = {}
   for _, r in ipairs(rows) do
     local bump = now < r.bumpUntil
-    out[#out + 1] = { key = r.it.sku, c0 = r.it.sku, c1 = r.it.desc, c2 = (bump and '\u{25b2} ' or '') .. commas(r.qty), c3 = r.it.loc, bump = bump }
+    -- ASCII arrows: the terminal face (VT323) has no U+25B2/25BC and would draw tofu.
+    out[#out + 1] = { key = r.it.sku, c0 = r.it.sku, c1 = r.it.desc, c2 = (bump and '^ ' or '') .. commas(r.qty), c3 = r.it.loc, bump = bump }
   end
   local function header(k)
     if k ~= sortKey then return HEADERS[k] end
-    return HEADERS[k] .. (sortDir == 1 and ' \u{25b2}' or ' \u{25bc}')
+    return HEADERS[k] .. (sortDir == 1 and ' ^' or ' v')
   end
   gui.set({
     gui = 'table',
