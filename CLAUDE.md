@@ -59,9 +59,9 @@ Working loop in PIE: edit, `Ui.Reload` (screens, themes, icons, fonts rebuild in
 `Ui.Screenshot` for the parity captures under `docs/ui-parity/`. A definition that fails to
 compile is disabled with an `Error` naming the file; the rest of the pack loads.
 
-`web/` is a **reserved name**: the retired HTML front-end lived there, a mod that still ships
-one gets a `Warning` naming it and the folder is ignored. <!-- phase 7 --> Nothing in this mod
-reads or writes it any more, and the reservation is dropped in the release after the cutover.
+`web/` is a **reserved name** for one release: a mod that still ships one gets a `Warning`
+naming it and the folder is ignored. This mod has no such folder; the reservation is dropped
+in the release after the cutover.
 
 ## Rules that bite
 

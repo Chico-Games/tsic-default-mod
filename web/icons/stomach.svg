@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- Empty stomach-slot placeholder: a faint diamond marker (was an MDI stomach
-     silhouette). Recoloured to a faint cream to read as an empty capacity slot. -->
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-  <path fill="#f0e7d4" fill-opacity="0.5" d="M12 3 L21 12 L12 21 L3 12 Z"/>
-</svg>
