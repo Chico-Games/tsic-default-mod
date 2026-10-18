@@ -805,6 +805,7 @@
       "term.t3.text.danger":       {"extends": "term.t3.text", "colour": "#ff2b2b"},
       "term.t3.text.ok":           {"extends": "term.t3.text", "colour": "#ffd060"},
       "term.t3.text.tele":         {"extends": "term.t3.text", "size": 12, "colour": "#4a3400"},
+      "term.t3.text.tele.warn":    {"extends": "term.t3.text.tele", "colour": "#ff2b2b"},
       "term.t3.text.selected":     {"extends": "term.t3.text", "colour": "#000000"},
       "term.t3.row.selected":      {"background": "$colours.terminal.t3.text"},
       "term.t3.hud":               {"border": {"colour": "#4a3400", "width": 1}},

@@ -1565,7 +1565,7 @@
                         "style": "term.t3.text.tele",
                         "bind": {
                           "text": "item.Text",
-                          "style": "item.Kind == 'warn' ? 'term.t3.text.danger' : 'term.t3.text.tele'"
+                          "style": "item.Kind == 'warn' ? 'term.t3.text.tele.warn' : 'term.t3.text.tele'"
                         }
                       }
                     },
