@@ -11,7 +11,7 @@
       "children": [
         { "id": "ping-markers", "widget": "list", "style": "hud.overlay.rows", "selectable": false, "overlay_rows": true,
           "bind": { "items": "UI.Ping.Set.Pings" },
-          "template": { "id": "ping-marker", "widget": "worldmarker", "clamp_to_screen": true,
+          "template": { "id": "ping-marker", "widget": "worldmarker", "clamp_to_screen": true, "stack": true,
             "bind": { "world_location": "\"{item.Location.X},{item.Location.Y},{item.Location.Z}\"", "pivot": "'0.5,1'" },
             "children": [
               { "widget": "panel", "layout": "vertical", "style": "hud.ping.marker", "gap": 1,

@@ -13,7 +13,7 @@
       }
     ],
     "sort_order": 70,
-    "thumbnail": "/img/parts/cp_haircolor_platinum.png",
+    "thumbnail": "mod:icons/parts/cp_haircolor_platinum",
     "swatch": "#ded3bd"
   }
 }

@@ -40,19 +40,19 @@
                   "children": [
                     { "widget": "text", "style": "text.eyebrow", "text": "What's new" },
                     { "widget": "panel", "style": "rule.dashed", "slot": { "height": 2 } },
-                    { "id": "whats-new", "widget": "list", "style": "list.pane", "selectable": false, "empty_text": "Nothing new to report.", "slot": { "fill": true },
+                    { "id": "whats-new", "widget": "list", "style": "menu.list.bulletin", "selectable": false, "empty_text": "Nothing new to report.", "slot": { "fill": true },
                       "bind": { "items": "UI.Bulletin.State.Rows" },
                       "template": { "widget": "panel", "layout": "vertical", "slot": { "padding": [4, 2] },
                         "children": [
-                          { "widget": "panel", "layout": "horizontal", "gap": 10, "slot": { "padding": [0, 10, 0, 4] }, "bind": { "visible": "item.Kind == 'head'" },
+                          { "widget": "panel", "layout": "horizontal", "gap": 10, "slot": { "padding": [10, 0, 4, 0] }, "bind": { "visible": "item.Kind == 'head'" },
                             "children": [
                               { "widget": "panel", "style": "chip.badge", "slot": { "valign": "center" }, "children": [ { "widget": "text", "style": "text.badge", "bind": { "text": "item.Date" } } ] },
                               { "widget": "text", "style": "text.title.sm", "slot": { "fill": true, "valign": "center" }, "bind": { "text": "item.Text" } },
                               { "widget": "text", "style": "text.caption", "slot": { "align": "right", "valign": "center" }, "bind": { "text": "item.Sha" } }
                             ] },
-                          { "widget": "text", "style": "text.eyebrow", "slot": { "padding": [0, 8, 0, 0] }, "bind": { "text": "item.Text", "visible": "item.Kind == 'cat'", "colour": "'#E60000'" } },
-                          { "widget": "text", "style": "text.caption", "slot": { "padding": [16, 2, 0, 0] }, "bind": { "text": "item.Text", "visible": "item.Kind == 'scope'" } },
-                          { "widget": "panel", "layout": "horizontal", "gap": 8, "slot": { "padding": [16, 2, 0, 2] }, "bind": { "visible": "item.Kind == 'item'" },
+                          { "widget": "text", "style": "text.eyebrow", "slot": { "padding": [8, 0, 0, 0] }, "bind": { "text": "item.Text", "visible": "item.Kind == 'cat'", "colour": "'#E60000'" } },
+                          { "widget": "text", "style": "text.caption", "slot": { "padding": [2, 0, 0, 16] }, "bind": { "text": "item.Text", "visible": "item.Kind == 'scope'" } },
+                          { "widget": "panel", "layout": "horizontal", "gap": 8, "slot": { "padding": [2, 0, 2, 16] }, "bind": { "visible": "item.Kind == 'item'" },
                             "children": [
                               { "widget": "text", "style": "text.mono", "text": ">>", "bind": { "colour": "'#E60000'" } },
                               { "widget": "text", "style": "text.body", "wrap": true, "slot": { "fill": true }, "bind": { "text": "item.Text" } }
@@ -63,20 +63,24 @@
                   "children": [
                     { "widget": "text", "style": "text.eyebrow", "text": "Known issues" },
                     { "widget": "panel", "style": "rule.dashed", "slot": { "height": 2 } },
-                    { "id": "known-issues", "widget": "list", "style": "list.pane", "selectable": false, "empty_text": "Nothing tracked for this build.", "slot": { "fill": true },
+                    { "id": "known-issues", "widget": "list", "style": "menu.list.bulletin", "selectable": false, "empty_text": "Nothing tracked for this build.", "slot": { "fill": true },
                       "bind": { "items": "UI.Bulletin.State.KnownIssues" },
-                      "template": { "widget": "panel", "layout": "horizontal", "gap": 10, "slot": { "padding": [12, 8] },
+                      "template": { "widget": "panel", "layout": "vertical", "slot": { "padding": [12, 0] },
                         "children": [
-                          { "widget": "text", "style": "text.eyebrow", "slot": { "width": 80 }, "bind": { "text": "item.Scope", "colour": "'#E60000'" } },
-                          { "widget": "text", "style": "text.body", "wrap": true, "slot": { "fill": true }, "bind": { "text": "item.Text" } },
-                          { "widget": "text", "style": "text.caption", "slot": { "valign": "center" }, "bind": { "text": "item.Ref" } }
+                          { "widget": "panel", "layout": "horizontal", "gap": 10, "slot": { "padding": [0, 8] },
+                            "children": [
+                              { "widget": "text", "style": "text.eyebrow", "slot": { "width": 80 }, "bind": { "text": "item.Scope", "colour": "'#E60000'" } },
+                              { "widget": "text", "style": "text.body", "wrap": true, "slot": { "fill": true }, "bind": { "text": "item.Text" } },
+                              { "widget": "text", "style": "text.caption", "slot": { "valign": "center" }, "bind": { "text": "item.Ref != '' ? \"#{item.Ref}\" : ''" } }
+                            ] },
+                          { "widget": "panel", "style": "rule.dashed", "slot": { "height": 1 } }
                         ] } },
-                    { "widget": "text", "style": "menu.text.hint", "wrap": true, "slot": { "padding": [0, 6, 0, 0] },
+                    { "widget": "text", "style": "menu.text.hint", "wrap": true, "slot": { "padding": [6, 0, 0, 0] },
                       "text": "Found something that is not on this list? Press F8 in game to file it — the report carries your seed and the last few seconds of the log, which is the difference between a fix and a guess." }
                   ] }
               ] },
 
-            { "widget": "panel", "layout": "horizontal", "slot": { "padding": [0, 8, 0, 0] },
+            { "widget": "panel", "layout": "horizontal", "slot": { "padding": [8, 0, 0, 0] },
               "children": [
                 { "widget": "text", "style": "text.caption", "text": "F8 FILES A REPORT · ENTER OR ESC TO CLOSE", "slot": { "fill": true, "valign": "bottom" } },
                 { "id": "btn-close", "widget": "button", "style": "button.lg", "label": "Close", "focus": "initial", "slot": { "align": "right", "valign": "bottom" },

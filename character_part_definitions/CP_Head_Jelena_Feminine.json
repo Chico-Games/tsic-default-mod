@@ -19,7 +19,7 @@
       "y": 0.00,
       "z": -3.39
     },
-    "thumbnail": "/img/parts/cp_head_jelena.png",
+    "thumbnail": "mod:icons/parts/cp_head_jelena",
     "body_archetype": "Feminine"
   }
 }

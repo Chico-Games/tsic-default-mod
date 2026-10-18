@@ -22,7 +22,7 @@
       }
     ],
     "sort_order": 10,
-    "thumbnail": "/img/parts/cp_top_jersey_slate_masculine.png",
+    "thumbnail": "mod:icons/parts/cp_top_jersey_slate_masculine",
     "fabric": "Jersey",
     "swatch": "#505b67"
   }

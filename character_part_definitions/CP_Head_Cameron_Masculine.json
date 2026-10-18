@@ -19,7 +19,7 @@
       "y": 0.00,
       "z": 0.22
     },
-    "thumbnail": "/img/parts/cp_head_cameron.png",
+    "thumbnail": "mod:icons/parts/cp_head_cameron",
     "body_archetype": "Masculine"
   }
 }

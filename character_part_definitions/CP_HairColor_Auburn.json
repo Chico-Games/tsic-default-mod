@@ -13,7 +13,7 @@
       }
     ],
     "sort_order": 40,
-    "thumbnail": "/img/parts/cp_haircolor_auburn.png",
+    "thumbnail": "mod:icons/parts/cp_haircolor_auburn",
     "swatch": "#6b2f22"
   }
 }

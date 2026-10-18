@@ -22,7 +22,7 @@
       }
     ],
     "sort_order": 230,
-    "thumbnail": "/img/parts/cp_top_denim_forest_masculine.png",
+    "thumbnail": "mod:icons/parts/cp_top_denim_forest_masculine",
     "fabric": "Denim",
     "swatch": "#2a4c36"
   }

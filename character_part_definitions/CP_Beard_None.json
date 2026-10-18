@@ -7,6 +7,6 @@
     "slot": "Beard",
     "display_name": "Clean shaven",
     "sort_order": 0,
-    "thumbnail": "/img/parts/cp_beard_none.png"
+    "thumbnail": "mod:icons/parts/cp_beard_none"
   }
 }

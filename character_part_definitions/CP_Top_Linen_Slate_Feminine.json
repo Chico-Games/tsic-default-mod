@@ -22,7 +22,7 @@
       }
     ],
     "sort_order": 310,
-    "thumbnail": "/img/parts/cp_top_linen_slate_feminine.png",
+    "thumbnail": "mod:icons/parts/cp_top_linen_slate_feminine",
     "fabric": "Linen",
     "swatch": "#505b67"
   }

@@ -22,7 +22,7 @@
       }
     ],
     "sort_order": 160,
-    "thumbnail": "/img/parts/cp_top_poplin_maroon_feminine.png",
+    "thumbnail": "mod:icons/parts/cp_top_poplin_maroon_feminine",
     "fabric": "Poplin",
     "swatch": "#602132"
   }

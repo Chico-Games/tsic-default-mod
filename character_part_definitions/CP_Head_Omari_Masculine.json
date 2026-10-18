@@ -19,7 +19,7 @@
       "y": 0.00,
       "z": -0.61
     },
-    "thumbnail": "/img/parts/cp_head_omari.png",
+    "thumbnail": "mod:icons/parts/cp_head_omari",
     "body_archetype": "Masculine"
   }
 }

@@ -22,7 +22,7 @@
       }
     ],
     "sort_order": 170,
-    "thumbnail": "/img/parts/cp_bottom_poplin_sand_feminine.png",
+    "thumbnail": "mod:icons/parts/cp_bottom_poplin_sand_feminine",
     "fabric": "Poplin",
     "swatch": "#948c78"
   }

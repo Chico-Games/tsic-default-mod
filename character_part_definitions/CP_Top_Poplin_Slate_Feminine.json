@@ -22,7 +22,7 @@
       }
     ],
     "sort_order": 110,
-    "thumbnail": "/img/parts/cp_top_poplin_slate_feminine.png",
+    "thumbnail": "mod:icons/parts/cp_top_poplin_slate_feminine",
     "fabric": "Poplin",
     "swatch": "#505b67"
   }

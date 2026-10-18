@@ -7,6 +7,6 @@
     "slot": "Hair",
     "display_name": "Shaved",
     "sort_order": 0,
-    "thumbnail": "/img/parts/cp_hair_none.png"
+    "thumbnail": "mod:icons/parts/cp_hair_none"
   }
 }

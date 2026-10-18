@@ -22,7 +22,7 @@
       }
     ],
     "sort_order": 210,
-    "thumbnail": "/img/parts/cp_top_denim_slate_masculine.png",
+    "thumbnail": "mod:icons/parts/cp_top_denim_slate_masculine",
     "fabric": "Denim",
     "swatch": "#505b67"
   }

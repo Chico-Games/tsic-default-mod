@@ -9,7 +9,7 @@
     "body_archetype": "Masculine",
     "mesh": "/Game/Forge/Built/Isaiah/MHC_Isaiah/Body/SKM_MHC_Isaiah_BodyMesh.SKM_MHC_Isaiah_BodyMesh",
     "sort_order": 0,
-    "thumbnail": "/img/parts/cp_body_masculine.png",
+    "thumbnail": "mod:icons/parts/cp_body_masculine",
     "preview_idle_animation": "/Game/Characters/Customer/Animations/Sequences/AS_MH_Stand_Idle_Loop.AS_MH_Stand_Idle_Loop"
   }
 }

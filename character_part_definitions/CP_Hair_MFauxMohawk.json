@@ -9,6 +9,6 @@
     "groom": "/Game/Forge/Hairstyles/WI_Hair_M_FauxMohawk/MHC_Isaiah/Grooms/Hair_M_FauxMohawk.Hair_M_FauxMohawk",
     "sort_order": 100,
     "attach_reference_mesh": "/Game/Forge/Built/Isaiah/MHC_Isaiah/Body/SKM_MHC_Isaiah_BodyMesh.SKM_MHC_Isaiah_BodyMesh",
-    "thumbnail": "/img/parts/cp_hair_mfauxmohawk.png"
+    "thumbnail": "mod:icons/parts/cp_hair_mfauxmohawk"
   }
 }

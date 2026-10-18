@@ -13,7 +13,7 @@
       }
     ],
     "sort_order": 80,
-    "thumbnail": "/img/parts/cp_haircolor_grey.png",
+    "thumbnail": "mod:icons/parts/cp_haircolor_grey",
     "swatch": "#9a958f"
   }
 }

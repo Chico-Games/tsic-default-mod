@@ -19,7 +19,7 @@
       "y": 0.00,
       "z": -2.27
     },
-    "thumbnail": "/img/parts/cp_head_aera.png",
+    "thumbnail": "mod:icons/parts/cp_head_aera",
     "body_archetype": "Feminine"
   }
 }

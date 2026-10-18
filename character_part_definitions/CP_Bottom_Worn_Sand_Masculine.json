@@ -22,7 +22,7 @@
       }
     ],
     "sort_order": 470,
-    "thumbnail": "/img/parts/cp_bottom_worn_sand_masculine.png",
+    "thumbnail": "mod:icons/parts/cp_bottom_worn_sand_masculine",
     "fabric": "Worn",
     "swatch": "#948c78"
   }

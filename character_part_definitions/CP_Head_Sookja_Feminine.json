@@ -19,7 +19,7 @@
       "y": 0.00,
       "z": -1.03
     },
-    "thumbnail": "/img/parts/cp_head_sookja.png",
+    "thumbnail": "mod:icons/parts/cp_head_sookja",
     "body_archetype": "Feminine"
   }
 }

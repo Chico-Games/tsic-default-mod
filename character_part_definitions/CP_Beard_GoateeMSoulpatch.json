@@ -9,6 +9,6 @@
     "groom": "/Game/Forge/FacialHair/WI_Goatee_M_Soulpatch/MHC_Isaiah/Grooms/Goatee_M_Soulpatch.Goatee_M_Soulpatch",
     "sort_order": 110,
     "attach_reference_mesh": "/Game/Forge/Built/Isaiah/MHC_Isaiah/Body/SKM_MHC_Isaiah_BodyMesh.SKM_MHC_Isaiah_BodyMesh",
-    "thumbnail": "/img/parts/cp_beard_goateemsoulpatch.png"
+    "thumbnail": "mod:icons/parts/cp_beard_goateemsoulpatch"
   }
 }

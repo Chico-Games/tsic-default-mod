@@ -22,7 +22,7 @@
       }
     ],
     "sort_order": 320,
-    "thumbnail": "/img/parts/cp_top_linen_navy_masculine.png",
+    "thumbnail": "mod:icons/parts/cp_top_linen_navy_masculine",
     "fabric": "Linen",
     "swatch": "#223157"
   }

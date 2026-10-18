@@ -25,14 +25,8 @@
                   "vignette_depth": "0.12 + item.DetectionScore * 0.25",
                   "direction": "item.BearingDeg < 45 ? 'Top' : (item.BearingDeg < 135 ? 'Right' : (item.BearingDeg < 225 ? 'Bottom' : (item.BearingDeg < 315 ? 'Left' : 'Top')))"
                 } },
-              { "widget": "text", "style": "hud.detection.arrow", "text": "v", "case": "None", "slot": { "anchor": "top-center", "offset": [0, 10] },
-                "bind": { "visible": "item.BearingDeg < 45 ? true : item.BearingDeg >= 315" } },
-              { "widget": "text", "style": "hud.detection.arrow", "text": "<", "case": "None", "slot": { "anchor": "right-center", "offset": [-10, 0] },
-                "bind": { "visible": "item.BearingDeg >= 45 ? item.BearingDeg < 135 : false" } },
-              { "widget": "text", "style": "hud.detection.arrow", "text": "^", "case": "None", "slot": { "anchor": "bottom-center", "offset": [0, -10] },
-                "bind": { "visible": "item.BearingDeg >= 135 ? item.BearingDeg < 225 : false" } },
-              { "widget": "text", "style": "hud.detection.arrow", "text": ">", "case": "None", "slot": { "anchor": "left-center", "offset": [10, 0] },
-                "bind": { "visible": "item.BearingDeg >= 225 ? item.BearingDeg < 315 : false" } }
+              { "id": "detection-claw", "widget": "claw", "style": "hud.detection.claw", "source": "mod:icons/ui/detection-claw", "slot": { "anchor": "fill" },
+                "bind": { "bearing_deg": "item.BearingDeg", "score": "item.DetectionScore" } }
             ] } }
       ]
     }

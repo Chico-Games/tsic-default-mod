@@ -13,7 +13,7 @@
       }
     ],
     "sort_order": 10,
-    "thumbnail": "/img/parts/cp_haircolor_darkbrown.png",
+    "thumbnail": "mod:icons/parts/cp_haircolor_darkbrown",
     "swatch": "#33241a"
   }
 }

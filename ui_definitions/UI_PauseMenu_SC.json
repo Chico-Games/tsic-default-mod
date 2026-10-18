@@ -10,10 +10,11 @@
     "uses": [ "UI.Multiplayer.State", "UI.State.DevMode" ],
     "tree": {
       "id": "pause-overlay", "widget": "panel", "layout": "overlay", "style": "screen.dim",
+      "on": { "show": { "sound": "Pause.Open", "volume": 0.4 }, "hide": { "sound": "Pause.Close", "volume": 0.4 } },
       "children": [
         { "id": "pause-panel", "widget": "panel", "layout": "vertical", "style": "panel.cover", "slot": { "align": "center", "valign": "center", "width": 400 },
           "children": [
-            { "id": "header", "widget": "panel", "layout": "horizontal", "slot": { "padding": [16, 14, 16, 10] },
+            { "id": "header", "widget": "panel", "layout": "horizontal", "slot": { "padding": [14, 16, 10, 16] },
               "children": [
                 { "widget": "text", "style": "text.title.lg", "text": "Paused", "slot": { "fill": true, "valign": "center" }, "bind": { "colour": "'#E60000'" } },
                 { "widget": "panel", "layout": "vertical", "gap": 4, "slot": { "align": "right", "valign": "center" },
@@ -24,9 +25,9 @@
               ] },
             { "widget": "panel", "style": "rule.panel", "slot": { "height": 4 } },
 
-            { "id": "body", "widget": "panel", "layout": "scroll", "slot": { "fill": true, "height": 640 },
+            { "id": "body", "widget": "panel", "layout": "scroll", "slot": { "fill": true, "height": 560 },
               "children": [
-                { "widget": "panel", "layout": "vertical", "gap": 8, "slot": { "padding": [16, 6, 16, 18] },
+                { "widget": "panel", "layout": "vertical", "gap": 8, "slot": { "padding": [6, 16, 18, 16] },
                   "children": [
                     { "id": "nav", "widget": "panel", "layout": "vertical", "focus": "group", "gap": 10,
                       "children": [
@@ -41,7 +42,7 @@
                           "on": { "click": { "cmd": "UI.Cmd.Pause.CheatMenu" } } }
                       ] },
 
-                    { "widget": "panel", "style": "menu.live.rule.mp", "slot": { "height": 1, "padding": [0, 8, 0, 0] } },
+                    { "widget": "panel", "style": "menu.live.rule.mp", "slot": { "height": 1, "padding": [8, 0, 0, 0] } },
 
                     { "id": "mp", "widget": "panel", "layout": "vertical", "gap": 8,
                       "children": [
@@ -80,13 +81,17 @@
                                         "children": [
                                           { "widget": "text", "style": "menu.live.text.meta", "bind": { "text": "item.Health fmt:int" } },
                                           { "widget": "text", "style": "menu.live.text.meta", "text": "/" },
-                                          { "widget": "text", "style": "menu.live.text.meta", "bind": { "text": "item.MaxHealth fmt:int" } }
+                                          { "widget": "text", "style": "menu.live.text.meta", "bind": { "text": "item.MaxHealth fmt:int" } },
+                                          { "widget": "text", "style": "menu.live.text.meta", "text": "·", "slot": { "padding": [0, 4] }, "bind": { "visible": "item.FloorLabel != ''" } },
+                                          { "widget": "text", "style": "menu.live.text.meta", "bind": { "text": "item.FloorLabel", "visible": "item.FloorLabel != ''" } }
                                         ] },
                                       { "widget": "text", "style": "menu.live.text.meta", "text": "Out of range",
                                         "bind": { "visible": "!item.bHasPawn" } }
                                     ] },
-                                  { "widget": "panel", "layout": "vertical", "slot": { "width": 56, "valign": "center" },
+                                  { "widget": "panel", "layout": "vertical", "gap": 1, "slot": { "width": 48, "valign": "center" },
                                     "children": [
+                                      { "widget": "image", "style": "menu.live.image.bearing", "source": "mod:icons/ui/bearing-arrow", "slot": { "align": "center" },
+                                        "bind": { "size": "'16,16'", "visible": "item.bIsLocal ? false : item.bHasPawn", "rotation": "item.BearingDeg" } },
                                       { "widget": "text", "style": "menu.live.text.dist", "justify": "Center", "text": "you", "bind": { "visible": "item.bIsLocal" } },
                                       { "widget": "panel", "layout": "horizontal", "gap": 2, "slot": { "align": "center" }, "bind": { "visible": "item.bIsLocal ? false : item.bHasPawn" },
                                         "children": [

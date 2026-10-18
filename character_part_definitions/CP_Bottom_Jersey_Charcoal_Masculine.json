@@ -22,7 +22,7 @@
       }
     ],
     "sort_order": 0,
-    "thumbnail": "/img/parts/cp_bottom_jersey_charcoal_masculine.png",
+    "thumbnail": "mod:icons/parts/cp_bottom_jersey_charcoal_masculine",
     "fabric": "Jersey",
     "swatch": "#2a2a2f"
   }

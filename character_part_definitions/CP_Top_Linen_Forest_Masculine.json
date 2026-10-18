@@ -22,7 +22,7 @@
       }
     ],
     "sort_order": 330,
-    "thumbnail": "/img/parts/cp_top_linen_forest_masculine.png",
+    "thumbnail": "mod:icons/parts/cp_top_linen_forest_masculine",
     "fabric": "Linen",
     "swatch": "#2a4c36"
   }

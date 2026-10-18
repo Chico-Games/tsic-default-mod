@@ -13,7 +13,7 @@
       }
     ],
     "sort_order": 0,
-    "thumbnail": "/img/parts/cp_haircolor_black.png",
+    "thumbnail": "mod:icons/parts/cp_haircolor_black",
     "swatch": "#1b1714"
   }
 }

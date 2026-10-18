@@ -19,7 +19,7 @@
       "y": 0.00,
       "z": 0.26
     },
-    "thumbnail": "/img/parts/cp_head_etta.png",
+    "thumbnail": "mod:icons/parts/cp_head_etta",
     "body_archetype": "Masculine"
   }
 }

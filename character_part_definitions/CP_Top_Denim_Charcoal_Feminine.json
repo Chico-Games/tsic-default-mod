@@ -22,7 +22,7 @@
       }
     ],
     "sort_order": 200,
-    "thumbnail": "/img/parts/cp_top_denim_charcoal_feminine.png",
+    "thumbnail": "mod:icons/parts/cp_top_denim_charcoal_feminine",
     "fabric": "Denim",
     "swatch": "#2a2a2f"
   }

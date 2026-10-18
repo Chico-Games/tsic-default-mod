@@ -22,7 +22,7 @@
       }
     ],
     "sort_order": 470,
-    "thumbnail": "/img/parts/cp_top_worn_sand_feminine.png",
+    "thumbnail": "mod:icons/parts/cp_top_worn_sand_feminine",
     "fabric": "Worn",
     "swatch": "#948c78"
   }

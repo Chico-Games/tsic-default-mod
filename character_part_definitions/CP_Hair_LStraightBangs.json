@@ -9,6 +9,6 @@
     "groom": "/Game/Forge/Hairstyles/WI_Hair_L_StraightBangs/MHC_Isaiah/Grooms/Hair_L_StraightBangs.Hair_L_StraightBangs",
     "sort_order": 40,
     "attach_reference_mesh": "/Game/Forge/Built/Isaiah/MHC_Isaiah/Body/SKM_MHC_Isaiah_BodyMesh.SKM_MHC_Isaiah_BodyMesh",
-    "thumbnail": "/img/parts/cp_hair_lstraightbangs.png"
+    "thumbnail": "mod:icons/parts/cp_hair_lstraightbangs"
   }
 }

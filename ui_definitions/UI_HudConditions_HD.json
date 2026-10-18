@@ -8,21 +8,22 @@
       "id": "conditions-root", "widget": "panel", "layout": "overlay", "style": "panel.flat",
       "bind": { "visible": "UI.Hud.Visibility[conditions].bHidden ? false : !UI.Hud.Visibility[all].bHidden" },
       "children": [
-        { "id": "conditions-column", "widget": "list", "style": "list", "selectable": false, "reverse_order": true,
+        { "id": "conditions-column", "widget": "list", "style": "list", "selectable": false, "reverse_order": true, "row_align": "left",
           "slot": { "anchor": "bottom-left", "offset": [280, -30] },
           "bind": { "items": "UI.Conditions.State.Conditions" },
-          "template": { "id": "condition-chip", "widget": "panel", "layout": "horizontal", "gap": 6, "slot": { "padding": [0, 2, 0, 2], "align": "left" },
-            "bind": { "style": "item.Severity == 'Starvation' ? 'hud.chip.starvation' : (item.Id == 'Hunger' ? 'hud.chip.harm' : (item.Id == 'ReducedRegen' ? 'hud.chip.harm' : (item.Id == 'CapStamina' ? 'hud.chip.harm' : (item.bFromSelected ? 'hud.chip.selected' : (item.Kind == 'Debuff' ? 'hud.chip.debuff' : 'hud.chip.buff')))))" },
+          "template": { "id": "condition-chip", "widget": "panel", "layout": "horizontal", "gap": 6, "slot": { "padding": [0, 2, 0, 2] },
+            "bind": {
+              "style": "item.bFromSelected ? 'hud.chip.selected' : (item.Kind == 'Debuff' ? 'hud.chip.debuff' : 'hud.chip.buff')",
+              "pulse": "item.RemainingTime > 0 ? item.RemainingTime <= 5 : false"
+            },
             "children": [
               { "widget": "image", "plate_when_missing": false, "slot": { "valign": "center" },
                 "bind": { "source": "item.Icon", "size": "'14,14'" } },
               { "id": "condition-name", "widget": "text", "slot": { "valign": "center" },
                 "bind": {
                   "text": "item.Name == '' ? item.Id : item.Name",
-                  "style": "item.Severity == 'Starvation' ? 'hud.chip.starvation' : (item.Id == 'Hunger' ? 'hud.chip.harm' : (item.Id == 'ReducedRegen' ? 'hud.chip.harm' : (item.Id == 'CapStamina' ? 'hud.chip.harm' : (item.Kind == 'Debuff' ? 'hud.chip.debuff' : 'hud.chip.buff'))))"
-                } },
-              { "widget": "text", "style": "hud.chip.buff", "text": "+", "case": "None", "slot": { "valign": "center" },
-                "bind": { "visible": "item.RefreshCount > 0" } }
+                  "style": "item.Kind == 'Debuff' ? 'hud.chip.debuff' : 'hud.chip.buff'"
+                } }
             ] } }
       ]
     }

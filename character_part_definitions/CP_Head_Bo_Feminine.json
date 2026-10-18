@@ -19,7 +19,7 @@
       "y": 0.00,
       "z": -2.33
     },
-    "thumbnail": "/img/parts/cp_head_bo.png",
+    "thumbnail": "mod:icons/parts/cp_head_bo",
     "body_archetype": "Feminine"
   }
 }

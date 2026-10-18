@@ -22,7 +22,7 @@
       }
     ],
     "sort_order": 410,
-    "thumbnail": "/img/parts/cp_bottom_worn_slate_masculine.png",
+    "thumbnail": "mod:icons/parts/cp_bottom_worn_slate_masculine",
     "fabric": "Worn",
     "swatch": "#505b67"
   }

@@ -9,6 +9,6 @@
     "groom": "/Game/Forge/Hairstyles/WI_Hair_S_UpdoBraids/MHC_Isaiah/Grooms/Hair_S_UpdoBraids.Hair_S_UpdoBraids",
     "sort_order": 310,
     "attach_reference_mesh": "/Game/Forge/Built/Isaiah/MHC_Isaiah/Body/SKM_MHC_Isaiah_BodyMesh.SKM_MHC_Isaiah_BodyMesh",
-    "thumbnail": "/img/parts/cp_hair_supdobraids.png"
+    "thumbnail": "mod:icons/parts/cp_hair_supdobraids"
   }
 }

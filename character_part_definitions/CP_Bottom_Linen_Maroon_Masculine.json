@@ -22,7 +22,7 @@
       }
     ],
     "sort_order": 360,
-    "thumbnail": "/img/parts/cp_bottom_linen_maroon_masculine.png",
+    "thumbnail": "mod:icons/parts/cp_bottom_linen_maroon_masculine",
     "fabric": "Linen",
     "swatch": "#602132"
   }

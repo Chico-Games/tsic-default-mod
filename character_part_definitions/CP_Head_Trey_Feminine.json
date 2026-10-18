@@ -19,7 +19,7 @@
       "y": 0.00,
       "z": -1.34
     },
-    "thumbnail": "/img/parts/cp_head_trey.png",
+    "thumbnail": "mod:icons/parts/cp_head_trey",
     "body_archetype": "Feminine"
   }
 }

@@ -19,7 +19,7 @@
       "y": 0.00,
       "z": 0.07
     },
-    "thumbnail": "/img/parts/cp_head_isaiah.png",
+    "thumbnail": "mod:icons/parts/cp_head_isaiah",
     "body_archetype": "Masculine"
   }
 }

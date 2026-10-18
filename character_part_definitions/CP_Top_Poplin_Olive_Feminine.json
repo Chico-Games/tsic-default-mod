@@ -22,7 +22,7 @@
       }
     ],
     "sort_order": 140,
-    "thumbnail": "/img/parts/cp_top_poplin_olive_feminine.png",
+    "thumbnail": "mod:icons/parts/cp_top_poplin_olive_feminine",
     "fabric": "Poplin",
     "swatch": "#58593b"
   }

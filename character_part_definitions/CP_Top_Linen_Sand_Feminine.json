@@ -22,7 +22,7 @@
       }
     ],
     "sort_order": 370,
-    "thumbnail": "/img/parts/cp_top_linen_sand_feminine.png",
+    "thumbnail": "mod:icons/parts/cp_top_linen_sand_feminine",
     "fabric": "Linen",
     "swatch": "#948c78"
   }

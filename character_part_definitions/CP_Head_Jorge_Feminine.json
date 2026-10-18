@@ -19,7 +19,7 @@
       "y": 0.00,
       "z": -3.49
     },
-    "thumbnail": "/img/parts/cp_head_jorge.png",
+    "thumbnail": "mod:icons/parts/cp_head_jorge",
     "body_archetype": "Feminine"
   }
 }

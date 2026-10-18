@@ -2,6 +2,11 @@
   "id": "com.chicogames.default",
   "displayName": "TSIC Base Game",
   "version": "0.1.0",
-  "capabilities": ["rules"],
-  "scripts": { "rules": "scripts/rules/time.lua" }
+  "capabilities": [
+    "rules",
+    "ui"
+  ],
+  "scripts": {
+    "rules": "scripts/rules/time.lua"
+  }
 }

@@ -22,7 +22,7 @@
       }
     ],
     "sort_order": 130,
-    "thumbnail": "/img/parts/cp_top_poplin_forest_masculine.png",
+    "thumbnail": "mod:icons/parts/cp_top_poplin_forest_masculine",
     "fabric": "Poplin",
     "swatch": "#2a4c36"
   }

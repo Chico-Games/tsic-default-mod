@@ -19,7 +19,7 @@
       "y": 0.00,
       "z": -1.16
     },
-    "thumbnail": "/img/parts/cp_head_kelvin.png",
+    "thumbnail": "mod:icons/parts/cp_head_kelvin",
     "body_archetype": "Feminine"
   }
 }

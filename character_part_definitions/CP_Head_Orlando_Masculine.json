@@ -19,7 +19,7 @@
       "y": 0.00,
       "z": -1.02
     },
-    "thumbnail": "/img/parts/cp_head_orlando.png",
+    "thumbnail": "mod:icons/parts/cp_head_orlando",
     "body_archetype": "Masculine"
   }
 }

@@ -22,7 +22,7 @@
       }
     ],
     "sort_order": 60,
-    "thumbnail": "/img/parts/cp_top_jersey_maroon_masculine.png",
+    "thumbnail": "mod:icons/parts/cp_top_jersey_maroon_masculine",
     "fabric": "Jersey",
     "swatch": "#602132"
   }

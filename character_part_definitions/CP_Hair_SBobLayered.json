@@ -9,6 +9,6 @@
     "groom": "/Game/Forge/Hairstyles/WI_Hair_S_BobLayered/MHC_Isaiah/Grooms/Hair_S_BobLayered.Hair_S_BobLayered",
     "sort_order": 150,
     "attach_reference_mesh": "/Game/Forge/Built/Isaiah/MHC_Isaiah/Body/SKM_MHC_Isaiah_BodyMesh.SKM_MHC_Isaiah_BodyMesh",
-    "thumbnail": "/img/parts/cp_hair_sboblayered.png"
+    "thumbnail": "mod:icons/parts/cp_hair_sboblayered"
   }
 }

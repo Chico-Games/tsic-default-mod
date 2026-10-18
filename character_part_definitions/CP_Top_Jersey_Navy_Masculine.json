@@ -22,7 +22,7 @@
       }
     ],
     "sort_order": 20,
-    "thumbnail": "/img/parts/cp_top_jersey_navy_masculine.png",
+    "thumbnail": "mod:icons/parts/cp_top_jersey_navy_masculine",
     "fabric": "Jersey",
     "swatch": "#223157"
   }

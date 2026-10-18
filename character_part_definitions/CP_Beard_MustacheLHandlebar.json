@@ -9,6 +9,6 @@
     "groom": "/Game/Forge/FacialHair/WI_Mustache_L_Handlebar/MHC_Isaiah/Grooms/Mustache_L_Handlebar.Mustache_L_Handlebar",
     "sort_order": 150,
     "attach_reference_mesh": "/Game/Forge/Built/Isaiah/MHC_Isaiah/Body/SKM_MHC_Isaiah_BodyMesh.SKM_MHC_Isaiah_BodyMesh",
-    "thumbnail": "/img/parts/cp_beard_mustachelhandlebar.png"
+    "thumbnail": "mod:icons/parts/cp_beard_mustachelhandlebar"
   }
 }

@@ -22,7 +22,7 @@
       }
     ],
     "sort_order": 140,
-    "thumbnail": "/img/parts/cp_bottom_poplin_olive_masculine.png",
+    "thumbnail": "mod:icons/parts/cp_bottom_poplin_olive_masculine",
     "fabric": "Poplin",
     "swatch": "#58593b"
   }

@@ -22,7 +22,7 @@
       }
     ],
     "sort_order": 340,
-    "thumbnail": "/img/parts/cp_bottom_linen_olive_feminine.png",
+    "thumbnail": "mod:icons/parts/cp_bottom_linen_olive_feminine",
     "fabric": "Linen",
     "swatch": "#58593b"
   }

@@ -22,7 +22,7 @@
       }
     ],
     "sort_order": 320,
-    "thumbnail": "/img/parts/cp_bottom_linen_navy_feminine.png",
+    "thumbnail": "mod:icons/parts/cp_bottom_linen_navy_feminine",
     "fabric": "Linen",
     "swatch": "#223157"
   }

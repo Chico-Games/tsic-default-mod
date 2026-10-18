@@ -22,7 +22,7 @@
       }
     ],
     "sort_order": 260,
-    "thumbnail": "/img/parts/cp_top_denim_maroon_masculine.png",
+    "thumbnail": "mod:icons/parts/cp_top_denim_maroon_masculine",
     "fabric": "Denim",
     "swatch": "#602132"
   }

@@ -19,7 +19,7 @@
       "y": 0.00,
       "z": -2.20
     },
-    "thumbnail": "/img/parts/cp_head_zuri.png",
+    "thumbnail": "mod:icons/parts/cp_head_zuri",
     "body_archetype": "Feminine"
   }
 }

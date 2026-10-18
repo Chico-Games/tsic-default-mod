@@ -19,7 +19,7 @@
       "y": 0.00,
       "z": -1.99
     },
-    "thumbnail": "/img/parts/cp_head_victor.png",
+    "thumbnail": "mod:icons/parts/cp_head_victor",
     "body_archetype": "Feminine"
   }
 }

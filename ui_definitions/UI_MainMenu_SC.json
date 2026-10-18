@@ -7,13 +7,13 @@
     "input_mode": "InputMode.Menu.MainMenu",
     "cancel": "",
     "actions": [ { "action": "accept", "label": "Select" } ],
-    "uses": [ "UI.Settings.Value" ],
+    "uses": [ "UI.Settings.Value", "UI.Boot.ShaderGate" ],
     "tree": {
       "id": "stage", "widget": "panel", "layout": "overlay", "style": "panel.stage.title", "backdrop": "Maze",
       "children": [
         { "id": "cover", "widget": "panel", "layout": "vertical", "style": "panel.cover", "slot": { "align": "center", "valign": "center", "width": 520 },
           "children": [
-            { "id": "masthead", "widget": "panel", "layout": "vertical", "slot": { "padding": [22, 18, 22, 10] },
+            { "id": "masthead", "widget": "panel", "layout": "vertical", "slot": { "padding": [18, 22, 10, 22] },
               "children": [
                 { "widget": "text", "style": "text.kicker", "text": "The Store is" },
                 { "widget": "panel", "layout": "horizontal",
@@ -21,7 +21,7 @@
                     { "widget": "text", "style": "text.masthead", "text": "Closed", "line_height": 0.9 },
                     { "widget": "text", "style": "text.masthead", "text": ".", "line_height": 0.9, "bind": { "colour": "'#E60000'" } }
                   ] },
-                { "widget": "panel", "layout": "horizontal", "slot": { "padding": [0, 6, 0, 0] },
+                { "widget": "panel", "layout": "horizontal", "slot": { "padding": [6, 0, 0, 0] },
                   "children": [
                     { "widget": "text", "style": "text.eyebrow", "text": "Vol.1 — The Store Opens", "slot": { "fill": true, "valign": "center" } },
                     { "id": "kicker", "widget": "text", "style": "text.date", "text": "RESTOCK PENDING · DEC 1983", "slot": { "align": "right", "valign": "center" },
@@ -63,6 +63,7 @@
               "children": [
                 { "id": "showroom-img", "widget": "image", "slot": { "align": "center", "valign": "center" },
                   "bind": { "size": "'280,180'" },
+                  "idle": "Breathe", "idle_seconds": 6,
                   "pool": [ "mod:icons/ui/showroom-living-room", "mod:icons/ui/showroom-kitchen", "mod:icons/ui/showroom-bedroom",
                             "mod:icons/ui/showroom-dining-room", "mod:icons/ui/showroom-kids-room", "mod:icons/ui/showroom-hallway" ],
                   "captions": [ "Showroom A · Living Room", "Showroom B · Kitchen", "Showroom C · Bedroom",
@@ -71,10 +72,26 @@
                   "children": [ { "id": "showroom-cap", "widget": "text", "style": "text.badge", "text": "Showroom · Featured", "bind": { "text": "#showroom-img.caption" } } ] }
               ] },
 
-            { "id": "rows", "widget": "panel", "layout": "vertical", "focus": "group", "slot": { "padding": [4, 6, 4, 10] },
+            { "id": "rows", "widget": "panel", "layout": "vertical", "focus": "group", "slot": { "padding": [6, 4, 10, 4] },
               "children": [
-                { "id": "btn-start",     "widget": "button", "style": "button.row", "label": "New Game",           "dept": "Dept. 04", "page": "PG. 04", "first_in_group": true, "focus": "initial",
-                  "on": { "click": { "cmd": "UI.Cmd.Menu.Navigate", "args": { "Screen": "NewStore" } } } },
+                { "id": "start-row", "widget": "panel", "layout": "overlay",
+                  "children": [
+                    { "id": "btn-start", "widget": "button", "style": "button.row", "label": "New Game", "dept": "Dept. 04", "page": "PG. 04", "first_in_group": true, "focus": "initial",
+                      "slot": { "align": "fill" },
+                      "bind": { "disabled": "UI.Boot.ShaderGate.bPrecompiling" },
+                      "on": { "click": { "cmd": "UI.Cmd.Menu.Navigate", "args": { "Screen": "NewStore" } } } },
+                    { "id": "shader-gate", "widget": "panel", "layout": "vertical", "gap": 3, "slot": { "align": "right", "valign": "center", "width": 130, "padding": [0, 14, 0, 0] },
+                      "bind": { "visible": "UI.Boot.ShaderGate.bPrecompiling" },
+                      "children": [
+                        { "widget": "panel", "layout": "horizontal",
+                          "children": [
+                            { "widget": "text", "style": "menu.text.shadergate", "text": "Shaders", "slot": { "fill": true } },
+                            { "id": "shader-gate-pct", "widget": "text", "style": "menu.text.shadergate", "slot": { "align": "right" }, "bind": { "text": "UI.Boot.ShaderGate.Caption" } }
+                          ] },
+                        { "id": "shader-gate-fill", "widget": "progressbar", "style": "menu.bar.shadergate", "progress": 0, "slot": { "align": "fill" },
+                          "bind": { "progress": "UI.Boot.ShaderGate.Progress" } }
+                      ] }
+                  ] },
                 { "id": "btn-load",      "widget": "button", "style": "button.row", "label": "Load Save",          "dept": "Dept. 12", "page": "PG. 12",
                   "on": { "click": { "cmd": "UI.Cmd.Menu.Navigate", "args": { "Screen": "LoadSave" } } } },
                 { "id": "btn-friends",   "widget": "button", "style": "button.row", "label": "Join Friends",       "dept": "Dept. 07", "page": "PG. 07",
@@ -92,15 +109,15 @@
               ] }
           ] },
 
-        { "id": "menu-vol", "widget": "panel", "layout": "horizontal", "style": "chip.dark", "gap": 10, "slot": { "align": "right", "valign": "bottom", "padding": [0, 0, 18, 14] },
+        { "id": "menu-vol", "widget": "panel", "layout": "horizontal", "style": "menu.live.chip.vol", "gap": 10, "slot": { "align": "right", "valign": "bottom", "padding": [0, 18, 14, 0] },
           "children": [
             { "widget": "text", "style": "text.badge", "text": "Menu Music", "slot": { "valign": "center" } },
-            { "id": "menu-vol-mute", "widget": "button", "style": "menu.live.button.vol", "label": "Mute", "slot": { "valign": "center" },
+            { "id": "menu-vol-mute", "widget": "button", "style": "menu.live.button.vol.round", "label": "Mute", "slot": { "valign": "center" },
               "bind": { "visible": "UI.Settings.Value[audio.menu_music].Value.Number > 0.001" },
               "on": { "click": { "cmd": "UI.Cmd.Settings.Set", "args": { "Key": "audio.menu_music", "Value": 0 } } } },
-            { "id": "menu-vol-unmute", "widget": "button", "style": "menu.live.button.vol", "label": "Unmute", "slot": { "valign": "center" },
+            { "id": "menu-vol-unmute", "widget": "button", "style": "menu.live.button.vol.round", "label": "Unmute", "slot": { "valign": "center" },
               "bind": { "visible": "!(UI.Settings.Value[audio.menu_music].Value.Number > 0.001)" },
-              "on": { "click": { "cmd": "UI.Cmd.Settings.Set", "args": { "Key": "audio.menu_music", "Value": 0.8 } } } },
+              "on": { "click": { "cmd": "UI.Cmd.Settings.Unmute", "args": { "Key": "audio.menu_music" } } } },
             { "id": "menu-vol-slider", "widget": "slider", "min": 0, "max": 1, "step": 0.01, "show_value": false, "track_width": 110, "slot": { "valign": "center" },
               "bind": { "value": "UI.Settings.Value[audio.menu_music].Value.Number" },
               "on": { "commit": { "cmd": "UI.Cmd.Settings.Set", "args": { "Key": "audio.menu_music", "Value": "{self.value}" } } } }

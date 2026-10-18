@@ -9,6 +9,6 @@
     "groom": "/Game/Forge/Hairstyles/WI_Hair_S_Pixie/MHC_Isaiah/Grooms/Hair_S_Pixie.Hair_S_Pixie",
     "sort_order": 240,
     "attach_reference_mesh": "/Game/Forge/Built/Isaiah/MHC_Isaiah/Body/SKM_MHC_Isaiah_BodyMesh.SKM_MHC_Isaiah_BodyMesh",
-    "thumbnail": "/img/parts/cp_hair_spixie.png"
+    "thumbnail": "mod:icons/parts/cp_hair_spixie"
   }
 }

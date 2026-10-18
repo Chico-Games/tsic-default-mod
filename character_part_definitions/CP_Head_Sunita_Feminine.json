@@ -19,7 +19,7 @@
       "y": 0.00,
       "z": -1.43
     },
-    "thumbnail": "/img/parts/cp_head_sunita.png",
+    "thumbnail": "mod:icons/parts/cp_head_sunita",
     "body_archetype": "Feminine"
   }
 }

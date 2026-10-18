@@ -9,6 +9,6 @@
     "groom": "/Game/Forge/Hairstyles/WI_Hair_S_Casual/MHC_Isaiah/Grooms/Hair_S_Casual.Hair_S_Casual",
     "sort_order": 160,
     "attach_reference_mesh": "/Game/Forge/Built/Isaiah/MHC_Isaiah/Body/SKM_MHC_Isaiah_BodyMesh.SKM_MHC_Isaiah_BodyMesh",
-    "thumbnail": "/img/parts/cp_hair_scasual.png"
+    "thumbnail": "mod:icons/parts/cp_hair_scasual"
   }
 }

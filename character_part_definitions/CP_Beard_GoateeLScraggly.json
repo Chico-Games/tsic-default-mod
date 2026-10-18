@@ -9,6 +9,6 @@
     "groom": "/Game/Forge/FacialHair/WI_Goatee_L_Scraggly/MHC_Isaiah/Grooms/Goatee_L_Scraggly.Goatee_L_Scraggly",
     "sort_order": 80,
     "attach_reference_mesh": "/Game/Forge/Built/Isaiah/MHC_Isaiah/Body/SKM_MHC_Isaiah_BodyMesh.SKM_MHC_Isaiah_BodyMesh",
-    "thumbnail": "/img/parts/cp_beard_goateelscraggly.png"
+    "thumbnail": "mod:icons/parts/cp_beard_goateelscraggly"
   }
 }

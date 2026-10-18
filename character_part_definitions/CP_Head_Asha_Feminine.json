@@ -19,7 +19,7 @@
       "y": 0.00,
       "z": -1.64
     },
-    "thumbnail": "/img/parts/cp_head_asha.png",
+    "thumbnail": "mod:icons/parts/cp_head_asha",
     "body_archetype": "Feminine"
   }
 }

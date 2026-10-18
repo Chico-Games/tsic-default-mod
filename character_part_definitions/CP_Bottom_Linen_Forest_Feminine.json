@@ -22,7 +22,7 @@
       }
     ],
     "sort_order": 330,
-    "thumbnail": "/img/parts/cp_bottom_linen_forest_feminine.png",
+    "thumbnail": "mod:icons/parts/cp_bottom_linen_forest_feminine",
     "fabric": "Linen",
     "swatch": "#2a4c36"
   }

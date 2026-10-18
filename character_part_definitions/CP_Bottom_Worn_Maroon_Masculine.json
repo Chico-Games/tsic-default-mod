@@ -22,7 +22,7 @@
       }
     ],
     "sort_order": 460,
-    "thumbnail": "/img/parts/cp_bottom_worn_maroon_masculine.png",
+    "thumbnail": "mod:icons/parts/cp_bottom_worn_maroon_masculine",
     "fabric": "Worn",
     "swatch": "#602132"
   }

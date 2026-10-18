@@ -22,7 +22,7 @@
       }
     ],
     "sort_order": 150,
-    "thumbnail": "/img/parts/cp_top_poplin_rust_feminine.png",
+    "thumbnail": "mod:icons/parts/cp_top_poplin_rust_feminine",
     "fabric": "Poplin",
     "swatch": "#7a472d"
   }

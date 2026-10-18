@@ -19,7 +19,7 @@
       "y": 0.00,
       "z": 1.18
     },
-    "thumbnail": "/img/parts/cp_head_lani.png",
+    "thumbnail": "mod:icons/parts/cp_head_lani",
     "body_archetype": "Masculine"
   }
 }

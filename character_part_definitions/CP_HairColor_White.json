@@ -13,7 +13,7 @@
       }
     ],
     "sort_order": 90,
-    "thumbnail": "/img/parts/cp_haircolor_white.png",
+    "thumbnail": "mod:icons/parts/cp_haircolor_white",
     "swatch": "#e6e3de"
   }
 }

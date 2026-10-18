@@ -22,7 +22,7 @@
       }
     ],
     "sort_order": 420,
-    "thumbnail": "/img/parts/cp_top_worn_navy_feminine.png",
+    "thumbnail": "mod:icons/parts/cp_top_worn_navy_feminine",
     "fabric": "Worn",
     "swatch": "#223157"
   }

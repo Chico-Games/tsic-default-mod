@@ -14,12 +14,17 @@
           "template": { "id": "stomach-slot", "widget": "panel", "layout": "overlay", "width": 42, "height": 42, "slot": { "padding": [0, 3, 0, 3] },
             "bind": { "style": "item.ItemId == '' ? 'hud.slot.stomach.empty' : (item.bSelected ? 'hud.slot.stomach.selected' : 'hud.slot.stomach')" },
             "children": [
-              { "widget": "panel", "style": "hud.slot.mark", "width": 10, "height": 10, "slot": { "anchor": "center" },
-                "bind": { "visible": "item.ItemId == ''" } },
-              { "widget": "image", "slot": { "anchor": "center" },
+              { "id": "stomach-mark", "widget": "image", "source": "mod:icons/ui/stomach", "plate_when_missing": false, "slot": { "anchor": "center" },
+                "bind": { "size": "'24,24'", "visible": "item.ItemId == ''" } },
+              { "id": "stomach-icon", "widget": "image", "slot": { "anchor": "center" },
                 "bind": { "source": "\"item:{item.ItemId}\"", "size": "'30,30'", "visible": "item.ItemId != ''" } },
-              { "widget": "progressbar", "style": "hud.digest", "slot": { "anchor": "bottom-center", "padding": [4, 0, 4, 3] },
-                "bind": { "progress": "item.Duration > 0 ? item.RemainingTime / item.Duration : 0", "visible": "item.ItemId != '' ? item.Duration > 0 : false" } }
+              { "id": "stomach-digest", "widget": "panel", "layout": "vertical", "slot": { "align": "fill", "valign": "bottom" },
+                "bind": { "visible": "item.ItemId != '' ? item.Duration > 0 : false" },
+                "children": [
+                  { "id": "stomach-digest-level", "widget": "panel", "style": "hud.digest.level", "height": 2 },
+                  { "id": "stomach-digest-wash", "widget": "panel", "style": "hud.digest.wash",
+                    "bind": { "height": "item.Duration > 0 ? 36 * item.RemainingTime / item.Duration : 0" } }
+                ] }
             ] } }
       ]
     }

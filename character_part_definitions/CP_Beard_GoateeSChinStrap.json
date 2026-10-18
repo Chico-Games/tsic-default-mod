@@ -9,6 +9,6 @@
     "groom": "/Game/Forge/FacialHair/WI_Goatee_S_ChinStrap/MHC_Isaiah/Grooms/Goatee_S_ChinStrap.Goatee_S_ChinStrap",
     "sort_order": 120,
     "attach_reference_mesh": "/Game/Forge/Built/Isaiah/MHC_Isaiah/Body/SKM_MHC_Isaiah_BodyMesh.SKM_MHC_Isaiah_BodyMesh",
-    "thumbnail": "/img/parts/cp_beard_goateeschinstrap.png"
+    "thumbnail": "mod:icons/parts/cp_beard_goateeschinstrap"
   }
 }

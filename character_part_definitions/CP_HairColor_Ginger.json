@@ -13,7 +13,7 @@
       }
     ],
     "sort_order": 50,
-    "thumbnail": "/img/parts/cp_haircolor_ginger.png",
+    "thumbnail": "mod:icons/parts/cp_haircolor_ginger",
     "swatch": "#9c4a22"
   }
 }

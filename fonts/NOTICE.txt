@@ -18,3 +18,19 @@ fonts are not sold on their own.
                                (c) Kimberly Geswein. https://fonts.google.com/specimen/Gloria+Hallelujah
 - Reenie Beanie                ReenieBeanie-Regular.ttf
                                (c) James Grieshaber. https://fonts.google.com/specimen/Reenie+Beanie
+
+Faces shipped as engine assets (/Game/UI/TSICMag/Fonts/F_*), not as files in
+this folder, under the same SIL Open Font License 1.1:
+
+- Bebas Neue                   F_BebasNeue
+                               (c) Ryoichi Tsunekawa, Dharma Type. https://fonts.google.com/specimen/Bebas+Neue
+- Russo One                    F_RussoOne
+                               (c) Jovanny Lemonad. https://fonts.google.com/specimen/Russo+One
+- VT323                        F_VT323
+                               (c) Peter Hull. https://fonts.google.com/specimen/VT323
+- Press Start 2P               F_PressStart2P
+                               (c) Cody "CodeMan38" Boisclair. https://fonts.google.com/specimen/Press+Start+2P
+- Shadows Into Light           F_ShadowsIntoLight
+                               (c) Kimberly Geswein. https://fonts.google.com/specimen/Shadows+Into+Light
+- Inter / Inter ExtraBold      F_Inter, F_InterExtraBold (Inter Bold and Black also ship here as .ttf)
+                               (c) Rasmus Andersson. https://fonts.google.com/specimen/Inter

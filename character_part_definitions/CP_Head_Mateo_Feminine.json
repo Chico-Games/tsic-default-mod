@@ -19,7 +19,7 @@
       "y": 0.00,
       "z": -1.37
     },
-    "thumbnail": "/img/parts/cp_head_mateo.png",
+    "thumbnail": "mod:icons/parts/cp_head_mateo",
     "body_archetype": "Feminine"
   }
 }

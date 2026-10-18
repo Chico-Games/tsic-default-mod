@@ -22,7 +22,7 @@
       }
     ],
     "sort_order": 400,
-    "thumbnail": "/img/parts/cp_bottom_worn_charcoal_masculine.png",
+    "thumbnail": "mod:icons/parts/cp_bottom_worn_charcoal_masculine",
     "fabric": "Worn",
     "swatch": "#2a2a2f"
   }

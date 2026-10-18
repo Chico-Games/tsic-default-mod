@@ -22,7 +22,7 @@
       }
     ],
     "sort_order": 370,
-    "thumbnail": "/img/parts/cp_bottom_linen_sand_masculine.png",
+    "thumbnail": "mod:icons/parts/cp_bottom_linen_sand_masculine",
     "fabric": "Linen",
     "swatch": "#948c78"
   }

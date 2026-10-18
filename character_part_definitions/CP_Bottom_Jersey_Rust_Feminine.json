@@ -22,7 +22,7 @@
       }
     ],
     "sort_order": 50,
-    "thumbnail": "/img/parts/cp_bottom_jersey_rust_feminine.png",
+    "thumbnail": "mod:icons/parts/cp_bottom_jersey_rust_feminine",
     "fabric": "Jersey",
     "swatch": "#7a472d"
   }

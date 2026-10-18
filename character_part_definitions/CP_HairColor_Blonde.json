@@ -13,7 +13,7 @@
       }
     ],
     "sort_order": 60,
-    "thumbnail": "/img/parts/cp_haircolor_blonde.png",
+    "thumbnail": "mod:icons/parts/cp_haircolor_blonde",
     "swatch": "#b9955f"
   }
 }

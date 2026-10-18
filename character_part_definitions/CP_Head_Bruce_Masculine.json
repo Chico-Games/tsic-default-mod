@@ -19,7 +19,7 @@
       "y": 0.00,
       "z": 0.48
     },
-    "thumbnail": "/img/parts/cp_head_bruce.png",
+    "thumbnail": "mod:icons/parts/cp_head_bruce",
     "body_archetype": "Masculine"
   }
 }

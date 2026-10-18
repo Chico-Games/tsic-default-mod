@@ -19,7 +19,7 @@
       "y": 0.00,
       "z": -1.03
     },
-    "thumbnail": "/img/parts/cp_head_vivian.png",
+    "thumbnail": "mod:icons/parts/cp_head_vivian",
     "body_archetype": "Feminine"
   }
 }

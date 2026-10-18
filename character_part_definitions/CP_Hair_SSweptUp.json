@@ -9,6 +9,6 @@
     "groom": "/Game/Forge/Hairstyles/WI_Hair_S_SweptUp/MHC_Isaiah/Grooms/Hair_S_SweptUp.Hair_S_SweptUp",
     "sort_order": 290,
     "attach_reference_mesh": "/Game/Forge/Built/Isaiah/MHC_Isaiah/Body/SKM_MHC_Isaiah_BodyMesh.SKM_MHC_Isaiah_BodyMesh",
-    "thumbnail": "/img/parts/cp_hair_ssweptup.png"
+    "thumbnail": "mod:icons/parts/cp_hair_ssweptup"
   }
 }

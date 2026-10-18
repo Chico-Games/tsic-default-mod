@@ -19,7 +19,7 @@
       "y": 0.00,
       "z": -1.84
     },
-    "thumbnail": "/img/parts/cp_head_dominic.png",
+    "thumbnail": "mod:icons/parts/cp_head_dominic",
     "body_archetype": "Feminine"
   }
 }

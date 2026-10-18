@@ -9,6 +9,6 @@
     "groom": "/Game/Forge/FacialHair/WI_Beard_L_Messy/MHC_Isaiah/Grooms/Beard_L_Messy.Beard_L_Messy",
     "sort_order": 20,
     "attach_reference_mesh": "/Game/Forge/Built/Isaiah/MHC_Isaiah/Body/SKM_MHC_Isaiah_BodyMesh.SKM_MHC_Isaiah_BodyMesh",
-    "thumbnail": "/img/parts/cp_beard_beardlmessy.png"
+    "thumbnail": "mod:icons/parts/cp_beard_beardlmessy"
   }
 }

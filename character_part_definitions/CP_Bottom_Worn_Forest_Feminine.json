@@ -22,7 +22,7 @@
       }
     ],
     "sort_order": 430,
-    "thumbnail": "/img/parts/cp_bottom_worn_forest_feminine.png",
+    "thumbnail": "mod:icons/parts/cp_bottom_worn_forest_feminine",
     "fabric": "Worn",
     "swatch": "#2a4c36"
   }
