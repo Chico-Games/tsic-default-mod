@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "generated_at": "2026-10-17T12:58:26.771180+00:00",
+  "generated_at": "2026-10-19T13:21:15.268006+00:00",
   "git_rev": "b17274cb6",
   "generated_by": "Tools/Export/gen_schema.py",
   "classes": {
@@ -5585,6 +5585,9 @@
         "UObject"
       ],
       "properties": {
+        "compiled": {
+          "kind": "bool"
+        },
         "root_eval_interval": {
           "kind": "float"
         },
@@ -5777,6 +5780,9 @@
         "UObject"
       ],
       "properties": {
+        "compiled": {
+          "kind": "bool"
+        },
         "entry": {
           "kind": "string"
         },
@@ -5795,6 +5801,9 @@
           "element": {
             "kind": "string"
           }
+        },
+        "owning_mod_id": {
+          "kind": "name"
         }
       },
       "compiled": true
@@ -5807,6 +5816,9 @@
         "UObject"
       ],
       "properties": {
+        "compiled": {
+          "kind": "bool"
+        },
         "update_interval": {
           "kind": "struct",
           "name": "ScpPerceptionUpdateIntervals"
@@ -5909,6 +5921,9 @@
         "UObject"
       ],
       "properties": {
+        "compiled": {
+          "kind": "bool"
+        },
         "inputs": {
           "kind": "json"
         },
@@ -5928,6 +5943,9 @@
         "UObject"
       ],
       "properties": {
+        "compiled": {
+          "kind": "bool"
+        },
         "program_id": {
           "kind": "string"
         },
@@ -5968,6 +5986,9 @@
         "UObject"
       ],
       "properties": {
+        "compiled": {
+          "kind": "bool"
+        },
         "actions": {
           "kind": "json"
         },
@@ -6012,6 +6033,9 @@
         "UObject"
       ],
       "properties": {
+        "compiled": {
+          "kind": "bool"
+        },
         "assets": {
           "kind": "json"
         },

@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "generated_at": "2026-10-17T12:58:26.771180+00:00",
+  "generated_at": "2026-10-19T13:21:15.268006+00:00",
   "family_roots": [
     "UItemDefinition",
     "UFurnitureDefinition",
@@ -486,7 +486,7 @@
     },
     "UScpTerminalProgramDefinition": {
       "folder": "terminal_programs",
-      "instance_count": 0,
+      "instance_count": 7,
       "parents": [
         "UScpDefinitionBase",
         "UDataAsset",
@@ -496,7 +496,7 @@
     },
     "UScpUiScreenDefinition": {
       "folder": "ui_definitions",
-      "instance_count": 33,
+      "instance_count": 49,
       "parents": [
         "UScpDefinitionBase",
         "UDataAsset",
@@ -506,7 +506,7 @@
     },
     "UScpUiThemeDefinition": {
       "folder": "ui_definitions",
-      "instance_count": 1,
+      "instance_count": 5,
       "parents": [
         "UScpDefinitionBase",
         "UDataAsset",
