@@ -68,20 +68,6 @@
                   }
                 },
                 {
-                  "id": "cm-keys",
-                  "widget": "text",
-                  "style": "cheat.status",
-                  "wrap": true,
-                  "slot": {
-                    "valign": "center",
-                    "fill": true,
-                    "padding": [0, 12, 0, 12]
-                  },
-                  "bind": {
-                    "text": "has:UI.Cheat.Keys ? UI.Cheat.Keys.Hint : 'Click a cheat to put its section on F2-F5.'"
-                  }
-                },
-                {
                   "widget": "text",
                   "style": "cheat.label",
                   "text": "Apply to",
@@ -90,6 +76,23 @@
                   }
                 }
               ]
+            },
+            {
+              "id": "cm-keys",
+              "widget": "text",
+              "style": "cheat.keyhint",
+              "wrap": true,
+              "slot": {
+                "padding": [
+                  0,
+                  0,
+                  4,
+                  0
+                ]
+              },
+              "bind": {
+                "text": "has:UI.Cheat.Keys ? UI.Cheat.Keys.Hint : 'Click a cheat to put its section on F2-F5.'"
+              }
             },
             {
               "id": "cm-target-row",

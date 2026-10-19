@@ -502,6 +502,7 @@
           "width": 1
         }
       },
+      "cheat.keyhint": { "extends": "cheat.label", "size": 10, "colour": "$colours.cheat.ready" },
       "cheat.label": {
         "font": "$fonts.body",
         "size": 11,
