@@ -24,11 +24,6 @@
       "layout": "overlay",
       "id": "ar-root",
       "style": "dev.scrim",
-      "on": {
-        "show": {
-          "cmd": "UI.Cmd.Arena.RequestState"
-        }
-      },
       "children": [
         {
           "widget": "panel",

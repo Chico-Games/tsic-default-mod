@@ -4,10 +4,10 @@
   "properties": {
     "layer": "hud",
     "order": -1,
-    "uses": [ "UI.Hud.Visibility" ],
+    "uses": [ "UI.Hud.Visibility", "UI.Settings.Value" ],
     "tree": {
       "id": "hit-splat", "widget": "fade", "style": "hud.hitsplat", "mode": "Flash", "shape": "Vignette", "vignette_depth": 0.45, "peak": 0.8, "auto_play": false, "listen_channel": "UI.Player.Hit",
-      "bind": { "visible": "UI.Hud.Visibility[hitreaction].bHidden ? false : !UI.Hud.Visibility[all].bHidden" }
+      "bind": { "visible": "UI.Hud.Visibility[hitreaction].bHidden ? false : (UI.Hud.Visibility[all].bHidden ? false : (has:UI.Settings.Value[accessibility.screen_pulse] ? UI.Settings.Value[accessibility.screen_pulse].Value.Bool : true))" }
     }
   }
 }

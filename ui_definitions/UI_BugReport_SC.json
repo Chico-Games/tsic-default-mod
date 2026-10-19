@@ -7,7 +7,7 @@
     "input_mode": "InputMode.Menu.Generic",
     "cancel": "UI.Cmd.BugReport.Close",
     "actions": [ { "action": "accept", "label": "Select" }, { "action": "back", "label": "Back" } ],
-    "uses": [ "UI.BugReport.FurnitureTarget" ],
+    "uses": [ "UI.BugReport.FurnitureTarget", "UI.BugReport.Category" ],
     "tree": {
       "id": "scrim", "widget": "panel", "layout": "overlay", "style": "screen.scrim",
       "on": { "show": { "cmd": "UI.Cmd.BugReport.RequestFurnitureTarget" } },
@@ -20,7 +20,8 @@
             { "id": "form", "widget": "panel", "layout": "vertical", "focus": "group", "gap": 4,
               "children": [
                 { "widget": "text", "style": "menu.text.bugreport.label", "text": "Category", "slot": { "padding": [6, 0, 0, 0] } },
-                { "id": "br-category", "widget": "dropdown", "min_width": 200, "options": [ "Bug", "Suggestion" ], "selected_index": 0 },
+                { "id": "br-category", "widget": "dropdown", "min_width": 200, "options": [ "Bug", "Suggestion" ], "selected_index": 0,
+                  "bind": { "value": "UI.BugReport.Category.Category" } },
 
                 { "id": "br-furniture", "widget": "panel", "layout": "vertical", "style": "menu.panel.bugreport.target", "gap": 3, "slot": { "padding": [10, 0, 0, 0], "height": 120 },
                   "bind": { "visible": "#br-category.value != 'Suggestion'" },

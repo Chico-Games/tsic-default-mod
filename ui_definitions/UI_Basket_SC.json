@@ -11,7 +11,6 @@
     "uses": [ "UI.Basket.State", "UI.Basket.Cursor", "UI.Sewing.State" ],
     "tree": {
       "id": "bk-root", "widget": "panel", "layout": "overlay", "style": "overlay.clear",
-      "on": { "show": { "cmd": "UI.Cmd.Basket.RequestState" } },
       "children": [
 
         { "id": "bk-badges", "widget": "list", "style": "hud.overlay.rows", "selectable": false, "overlay_rows": true, "slot": { "align": "fill", "valign": "fill" },
@@ -113,7 +112,7 @@
                     "text": "UI.Basket.State.HoverMaxDurability > 0 ? (UI.Basket.State.HoverWeight > 0 ? \"weight {UI.Basket.State.HoverWeight} · {UI.Basket.State.HoverDurability fmt:int} / {UI.Basket.State.HoverMaxDurability fmt:int} condition\" : \"{UI.Basket.State.HoverDurability fmt:int} / {UI.Basket.State.HoverMaxDurability fmt:int} condition\") : \"weight {UI.Basket.State.HoverWeight}\""
                   } },
                 { "id": "bk-tip-how", "widget": "text", "style": "basket.tip.sub", "wrap": true,
-                  "bind": { "text": "UI.Basket.State.HeldName != '' ? (UI.Basket.State.DropVerdict == 'place' ? '✓ Release to place' : (UI.Basket.State.DropVerdict == 'merge' ? '✓ Release to add to the stack' : (UI.Basket.State.DropVerdict == 'partial' ? '½ Only part fits; the rest stays in your hand' : (UI.Basket.State.DropVerdict == 'swap' ? '⇄ Release to swap with what is there' : (UI.Basket.State.DropVerdict == 'takeonly' ? '↑ Take from here only' : (UI.Basket.State.DropVerdict == 'locked' ? 'Locked while it works' : (UI.Basket.State.DropVerdict == 'world' ? '↓ Release to drop it on the floor' : '✕ It cannot go here'))))))) : (UI.Basket.State.HoverName == '' ? 'Nothing worn · drop something here to wear it' : (UI.Basket.State.bHoverWorn ? 'Worn · drag it off to take it off' : (UI.Basket.State.bHoverFixed ? 'Left: take this one · Right: options' : 'Left: take · Ctrl: half · Right: options')))" } }
+                  "bind": { "text": "UI.Basket.State.HeldName != '' ? (UI.Basket.State.DropVerdict == 'place' ? 'Release to place' : (UI.Basket.State.DropVerdict == 'merge' ? 'Release to add to the stack' : (UI.Basket.State.DropVerdict == 'partial' ? '½ Only part fits; the rest stays in your hand' : (UI.Basket.State.DropVerdict == 'swap' ? 'Release to swap with what is there' : (UI.Basket.State.DropVerdict == 'takeonly' ? 'Take from here only' : (UI.Basket.State.DropVerdict == 'locked' ? 'Locked while it works' : (UI.Basket.State.DropVerdict == 'world' ? 'Release to drop it on the floor' : 'It cannot go here'))))))) : (UI.Basket.State.HoverName == '' ? 'Nothing worn · drop something here to wear it' : (UI.Basket.State.bHoverWorn ? 'Worn · drag it off to take it off' : (UI.Basket.State.bHoverFixed ? 'Left: take this one · Right: options' : 'Left: take · Ctrl: half · Right: options')))" } }
               ] }
           ] },
 

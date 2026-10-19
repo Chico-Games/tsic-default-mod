@@ -20,21 +20,14 @@
     "uses": [
       "UI.Cheat.Catalog",
       "UI.Cheat.State",
-      "UI.Cheat.Panel"
+      "UI.Cheat.Panel",
+      "UI.Cheat.Keys"
     ],
     "tree": {
       "id": "cm-scrim",
       "widget": "panel",
       "layout": "overlay",
       "style": "overlay.clear",
-      "on": {
-        "show": {
-          "cmd": "UI.Cmd.Cheat.RequestState",
-          "args": {
-            "PlayerNum": "{#cm-target.value}"
-          }
-        }
-      },
       "children": [
         {
           "id": "cm-root",
@@ -72,6 +65,17 @@
                   "bind": {
                     "text": "has:UI.Cheat.Catalog ? 'Cheats active' : 'Loading cheats…'",
                     "style": "has:UI.Cheat.Catalog ? 'cheat.status' : 'cheat.status.pending'"
+                  }
+                },
+                {
+                  "id": "cm-keys",
+                  "widget": "text",
+                  "style": "cheat.status",
+                  "slot": {
+                    "valign": "center"
+                  },
+                  "bind": {
+                    "text": "has:UI.Cheat.Keys ? UI.Cheat.Keys.Hint : 'Click a cheat to put its section on F2-F5.'"
                   }
                 },
                 {
@@ -118,7 +122,7 @@
                   },
                   "on": {
                     "change": {
-                      "cmd": "UI.Cmd.Cheat.RequestState",
+                      "cmd": "UI.Cmd.Cheat.SetTarget",
                       "args": {
                         "PlayerNum": "{self.value}"
                       }
@@ -5050,7 +5054,7 @@
                             {
                               "widget": "button",
                               "style": "cheat.button",
-                              "label": "WebUI Reload",
+                              "label": "UI Reload",
                               "slot": {
                                 "valign": "center"
                               },
@@ -5058,24 +5062,7 @@
                                 "click": {
                                   "cmd": "UI.Cmd.Cheat.Execute",
                                   "args": {
-                                    "Command": "WebUI.Reload",
-                                    "bClientLocal": true
-                                  }
-                                }
-                              }
-                            },
-                            {
-                              "widget": "button",
-                              "style": "cheat.button",
-                              "label": "WebUI Purge Cache",
-                              "slot": {
-                                "valign": "center"
-                              },
-                              "on": {
-                                "click": {
-                                  "cmd": "UI.Cmd.Cheat.Execute",
-                                  "args": {
-                                    "Command": "WebUI.PurgeCache",
+                                    "Command": "Ui.Reload",
                                     "bClientLocal": true
                                   }
                                 }

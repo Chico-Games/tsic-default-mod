@@ -20,11 +20,6 @@
       "layout": "overlay",
       "id": "term-root",
       "style": "screen.clear",
-      "on": {
-        "show": {
-          "cmd": "UI.Cmd.Terminal.RequestState"
-        }
-      },
       "children": [
         {
           "widget": "panel",

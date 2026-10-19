@@ -1,0 +1,17 @@
+{
+  "id": "UI_StoreMaze_SC",
+  "class": "ScpUiScreenDefinition",
+  "properties": {
+    "screen": "StoreMaze",
+    "layer": "menu",
+    "input_mode": "InputMode.Menu.Generic",
+    "cancel": "UI.Cmd.Pause.Resume",
+    "actions": [ { "action": "back", "label": "Close" } ],
+    "tree": {
+      "id": "stage", "widget": "panel", "layout": "overlay", "style": "panel.stage.title", "backdrop": "Maze",
+      "children": [
+        { "id": "scrim", "widget": "panel", "style": "dev.maze.scrim", "visibility": "Collapsed" }
+      ]
+    }
+  }
+}

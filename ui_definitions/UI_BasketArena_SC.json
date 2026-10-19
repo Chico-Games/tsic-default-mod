@@ -24,11 +24,6 @@
       "layout": "overlay",
       "id": "bb-root",
       "style": "dev.scrim",
-      "on": {
-        "show": {
-          "cmd": "UI.Cmd.BasketArena.RequestState"
-        }
-      },
       "children": [
         {
           "widget": "panel",
@@ -509,7 +504,7 @@
               "gap": 10,
               "slot": {
                 "fill": true,
-                "height": 700
+                "height": 770
               },
               "children": [
                 {
@@ -539,7 +534,7 @@
                           "layout": "scroll",
                           "gap": 5,
                           "slot": {
-                            "height": 380
+                            "height": 385
                           },
                           "children": [
                             {
@@ -3293,50 +3288,50 @@
                                   }
                                 }
                               ]
+                            }
+                          ]
+                        },
+                        {
+                          "widget": "text",
+                          "text": "Granted in order into an emptied bag. A compartment and cell put the stack there afterwards (row-major, 0 = top-left); an occupant swaps. Blank = routed like a pickup. The last box is wear (0-100).",
+                          "style": "dev.meta",
+                          "wrap": true
+                        },
+                        {
+                          "widget": "panel",
+                          "layout": "horizontal",
+                          "gap": 6,
+                          "children": [
+                            {
+                              "widget": "text",
+                              "text": "Carry",
+                              "style": "dev.label",
+                              "slot": {
+                                "width": 44,
+                                "valign": "center"
+                              }
+                            },
+                            {
+                              "widget": "textfield",
+                              "id": "bb-capacity",
+                              "placeholder": "0",
+                              "min_width": 52,
+                              "style": "dev.input",
+                              "slot": {
+                                "valign": "center",
+                                "width": 52
+                              },
+                              "bind": {
+                                "text": "UI.BasketArena.State.Current.WeightCapacity fmt:int"
+                              }
                             },
                             {
                               "widget": "text",
-                              "text": "Granted in order into an emptied bag. A compartment and cell put the stack there afterwards (row-major, 0 = top-left); an occupant swaps. Blank = routed like a pickup. The last box is wear (0-100).",
+                              "text": "capacity (0 = default)",
                               "style": "dev.meta",
-                              "wrap": true
-                            },
-                            {
-                              "widget": "panel",
-                              "layout": "horizontal",
-                              "gap": 6,
-                              "children": [
-                                {
-                                  "widget": "text",
-                                  "text": "Carry",
-                                  "style": "dev.label",
-                                  "slot": {
-                                    "width": 44,
-                                    "valign": "center"
-                                  }
-                                },
-                                {
-                                  "widget": "textfield",
-                                  "id": "bb-capacity",
-                                  "placeholder": "0",
-                                  "min_width": 52,
-                                  "style": "dev.input",
-                                  "slot": {
-                                    "valign": "center",
-                                    "width": 52
-                                  },
-                                  "bind": {
-                                    "text": "UI.BasketArena.State.Current.WeightCapacity fmt:int"
-                                  }
-                                },
-                                {
-                                  "widget": "text",
-                                  "text": "capacity (0 = default)",
-                                  "style": "dev.meta",
-                                  "slot": {
-                                    "valign": "center"
-                                  }
-                                }
-                              ]
+                              "slot": {
+                                "valign": "center"
+                              }
                             }
                           ]
                         }
@@ -3426,7 +3421,7 @@
                               "style": "dev.meta",
                               "wrap": true,
                               "bind": {
-                                "text": "UI.BasketArena.State.bHasArena ? \"The bag has {UI.BasketArena.State.SlotCapacity} cells right now ({UI.BasketArena.State.GridWidth} per row). A backpack adds its bonus slots when Apply wears it.\" : ''"
+                                "text": "UI.BasketArena.State.bHasArena ? \"{UI.BasketArena.State.SlotCapacity} cells now, {UI.BasketArena.State.GridWidth} per row; a backpack adds its bonus slots on Apply.\" : ''"
                               }
                             }
                           ]
@@ -3449,7 +3444,7 @@
                               "layout": "scroll",
                               "gap": 5,
                               "slot": {
-                                "height": 170
+                                "height": 151
                               },
                               "children": [
                             {
@@ -3462,7 +3457,7 @@
                                   "text": "Drop 1",
                                   "style": "dev.label",
                                   "slot": {
-                                    "width": 44,
+                                    "width": 56,
                                     "valign": "center"
                                   }
                                 },
@@ -3506,7 +3501,7 @@
                                   "text": "Drop 2",
                                   "style": "dev.label",
                                   "slot": {
-                                    "width": 44,
+                                    "width": 56,
                                     "valign": "center"
                                   }
                                 },
@@ -3550,7 +3545,7 @@
                                   "text": "Drop 3",
                                   "style": "dev.label",
                                   "slot": {
-                                    "width": 44,
+                                    "width": 56,
                                     "valign": "center"
                                   }
                                 },
@@ -3594,7 +3589,7 @@
                                   "text": "Drop 4",
                                   "style": "dev.label",
                                   "slot": {
-                                    "width": 44,
+                                    "width": 56,
                                     "valign": "center"
                                   }
                                 },
@@ -3638,7 +3633,7 @@
                                   "text": "Drop 5",
                                   "style": "dev.label",
                                   "slot": {
-                                    "width": 44,
+                                    "width": 56,
                                     "valign": "center"
                                   }
                                 },
@@ -3682,7 +3677,7 @@
                                   "text": "Drop 6",
                                   "style": "dev.label",
                                   "slot": {
-                                    "width": 44,
+                                    "width": 56,
                                     "valign": "center"
                                   }
                                 },
@@ -3726,7 +3721,7 @@
                                   "text": "Drop 7",
                                   "style": "dev.label",
                                   "slot": {
-                                    "width": 44,
+                                    "width": 56,
                                     "valign": "center"
                                   }
                                 },
@@ -3770,7 +3765,7 @@
                                   "text": "Drop 8",
                                   "style": "dev.label",
                                   "slot": {
-                                    "width": 44,
+                                    "width": 56,
                                     "valign": "center"
                                   }
                                 },
@@ -4104,7 +4099,7 @@
                                     "fill": true
                                   },
                                   "multi_line": true,
-                                  "rows": 2,
+                                  "rows": 1,
                                   "bind": {
                                     "text": "UI.BasketArena.State.CurrentFurnitureContentsText[0]"
                                   }
@@ -4286,7 +4281,7 @@
                                     "fill": true
                                   },
                                   "multi_line": true,
-                                  "rows": 2,
+                                  "rows": 1,
                                   "bind": {
                                     "text": "UI.BasketArena.State.CurrentFurnitureContentsText[1]"
                                   }
@@ -4468,7 +4463,7 @@
                                     "fill": true
                                   },
                                   "multi_line": true,
-                                  "rows": 2,
+                                  "rows": 1,
                                   "bind": {
                                     "text": "UI.BasketArena.State.CurrentFurnitureContentsText[2]"
                                   }
@@ -4650,7 +4645,7 @@
                                     "fill": true
                                   },
                                   "multi_line": true,
-                                  "rows": 2,
+                                  "rows": 1,
                                   "bind": {
                                     "text": "UI.BasketArena.State.CurrentFurnitureContentsText[3]"
                                   }
@@ -4844,7 +4839,7 @@
                                     "fill": true
                                   },
                                   "multi_line": true,
-                                  "rows": 2,
+                                  "rows": 1,
                                   "bind": {
                                     "text": "UI.BasketArena.State.CurrentFurnitureContentsText[4]"
                                   }
@@ -5026,7 +5021,7 @@
                                     "fill": true
                                   },
                                   "multi_line": true,
-                                  "rows": 2,
+                                  "rows": 1,
                                   "bind": {
                                     "text": "UI.BasketArena.State.CurrentFurnitureContentsText[5]"
                                   }
@@ -5208,7 +5203,7 @@
                                     "fill": true
                                   },
                                   "multi_line": true,
-                                  "rows": 2,
+                                  "rows": 1,
                                   "bind": {
                                     "text": "UI.BasketArena.State.CurrentFurnitureContentsText[6]"
                                   }
@@ -5390,7 +5385,7 @@
                                     "fill": true
                                   },
                                   "multi_line": true,
-                                  "rows": 2,
+                                  "rows": 1,
                                   "bind": {
                                     "text": "UI.BasketArena.State.CurrentFurnitureContentsText[7]"
                                   }
@@ -5584,7 +5579,7 @@
                                     "fill": true
                                   },
                                   "multi_line": true,
-                                  "rows": 2,
+                                  "rows": 1,
                                   "bind": {
                                     "text": "UI.BasketArena.State.CurrentFurnitureContentsText[8]"
                                   }
@@ -5766,7 +5761,7 @@
                                     "fill": true
                                   },
                                   "multi_line": true,
-                                  "rows": 2,
+                                  "rows": 1,
                                   "bind": {
                                     "text": "UI.BasketArena.State.CurrentFurnitureContentsText[9]"
                                   }
@@ -5948,7 +5943,7 @@
                                     "fill": true
                                   },
                                   "multi_line": true,
-                                  "rows": 2,
+                                  "rows": 1,
                                   "bind": {
                                     "text": "UI.BasketArena.State.CurrentFurnitureContentsText[10]"
                                   }
@@ -6130,7 +6125,7 @@
                                     "fill": true
                                   },
                                   "multi_line": true,
-                                  "rows": 2,
+                                  "rows": 1,
                                   "bind": {
                                     "text": "UI.BasketArena.State.CurrentFurnitureContentsText[11]"
                                   }

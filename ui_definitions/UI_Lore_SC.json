@@ -70,7 +70,7 @@
                   "bind": { "disabled": "!UI.Lore.State.bHasNext" },
                   "on": { "click": { "cmd": "UI.Cmd.LoreScreen.Select", "args": { "Index": "{UI.Lore.State.Index + 1}" } } } },
                 { "id": "lore-close", "widget": "button", "style": "lore.button", "label": "Close", "focus": "initial", "slot": { "valign": "center" },
-                  "on": { "click": [ { "cmd": "UI.Cmd.LoreScreen.Close" }, { "cmd": "UI.Cmd.Pause.Resume" } ] } }
+                  "on": { "click": { "cmd": "UI.Cmd.Pause.Resume" } } }
               ] }
           ] }
       ]

@@ -5,6 +5,6 @@
     "entry": "scripts/rules/time.lua",
     "side": "rules",
     "capabilities": ["rules"],
-    "hooks": ["time.resolve"]
+    "hooks": ["time.resolve", "hazards.arm", "events.eligible", "store.isOpen"]
   }
 }

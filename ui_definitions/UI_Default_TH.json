@@ -857,7 +857,15 @@
       "dev.text.json":             {"font": "$fonts.body", "size": 10, "colour": "$colours.ink.mute"},
       "dev.text.warn":             {"font": "$fonts.body", "size": 11, "colour": "#b91c1c"},
       "menu.button.tp":            { "extends": "button.primary", "right.style": "menu.text.tp.cooldown" },
-      "menu.scroll.body":          { "scrollbar": "$colours.ink.mute" }
+      "menu.scroll.body":          { "scrollbar": "$colours.ink.mute" },
+      "cursor.arrow":              { "texture": "mod:icons/ui/cursor-arrow",  "width": 28, "height": 38, "hotspot.x": 3,  "hotspot.y": 3 },
+      "cursor.hot":                { "texture": "mod:icons/ui/cursor-hot",    "width": 30, "height": 30, "hotspot.x": 15, "hotspot.y": 15 },
+      "cursor.text":               { "texture": "mod:icons/ui/cursor-text",   "width": 16, "height": 24, "hotspot.x": 8,  "hotspot.y": 12 },
+      "cursor.map":                { "texture": "mod:icons/ui/cursor-map",    "width": 36, "height": 36, "hotspot.x": 18, "hotspot.y": 18 },
+      "cursor.ripple":             { "texture": "mod:icons/ui/cursor-ripple", "width": 22, "height": 22, "duration": "$durations.cursor.ripple" },
+      "hud.vignette.blood.pulse":  { "extends": "hud.vignette.blood", "pulse": "$durations.heartbeat.slow", "pulse.depth": 0.35 },
+      "hud.vignette.stealth.pulse": { "extends": "hud.vignette.stealth", "pulse": "$durations.stealth.breathe", "pulse.depth": 0.3 },
+      "dev.maze.scrim":            { "background": "rgba(13, 14, 21, 0.38)" }
     }
   }
 }

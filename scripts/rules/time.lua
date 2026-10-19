@@ -135,10 +135,65 @@ function M.resolve(input)
 	return out
 end
 
--- Hand the resolver to the C++ rule host. The golden test runs this file in a bare VM with
+-- ---------------------------------------------------------------------------
+-- The world rules the clock drives. Each mirrors its C++ fallback exactly, so the shipped
+-- game behaves the same whether this file answers or not; a mod changes the rule by
+-- shipping its own scripts/rules/time.lua.
+-- ---------------------------------------------------------------------------
+
+-- Hazard arming (UDayNightHazardSubsystem::ArmedForSection). Called on every section change
+-- with { section, hazards = { { index, daySection, tileHazard, onlyInDarkness, tickInterval,
+-- damagePerTick, ignoresArmor }, ... } }; returns the ZERO-based indices to arm. A hazard
+-- with no daySection arms in every section; one disabled by its tuning (a tick or damage at
+-- or below zero) never arms.
+function M.armHazards(input)
+	local armed = {}
+	local hazards = input and input.hazards or {}
+	for i = 1, #hazards do
+		local hazard = hazards[i]
+		local live = (hazard.tickInterval or 0) > 0 and (hazard.damagePerTick or 0) > 0
+		local inSection = hazard.daySection == nil or hazard.daySection == input.section
+		if live and inSection then
+			armed[#armed + 1] = hazard.index
+		end
+	end
+	return armed
+end
+
+-- Random-event eligibility (URandomEventSubsystem::MeetsProgressionRequirements). Called on
+-- every roll with { section, events = { { id, name, tag, weight, duration, requirements },
+-- ... } }; returns the ids that may roll. The built-in gate consults no progression yet, so
+-- every candidate qualifies; a section gate is one comparison away.
+function M.eligibleEvents(input)
+	local ids = {}
+	local events = input and input.events or {}
+	for i = 1, #events do
+		ids[#ids + 1] = events[i].id
+	end
+	return ids
+end
+
+-- Trading hours (ScpStoreHoursRules::IsOpen). Called once per clock commit with { section,
+-- hour24, day, darkness }; returns whether the store is open. The watch face shows the answer.
+function M.isStoreOpen(input)
+	return input ~= nil and input.section == "Gameplay.DaySection.Day"
+end
+
+-- Hand the rules to the C++ rule hosts. The golden tests run this file in a bare VM with
 -- the same table, so registration happens here and nowhere else.
-if tsic and tsic.rules and tsic.rules.time then
-	tsic.rules.time.resolve(M.resolve)
+if tsic and tsic.rules then
+	if tsic.rules.time then
+		tsic.rules.time.resolve(M.resolve)
+	end
+	if tsic.rules.hazards then
+		tsic.rules.hazards.arm(M.armHazards)
+	end
+	if tsic.rules.events then
+		tsic.rules.events.eligible(M.eligibleEvents)
+	end
+	if tsic.rules.store then
+		tsic.rules.store.isOpen(M.isStoreOpen)
+	end
 end
 
 return M

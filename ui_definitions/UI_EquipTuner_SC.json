@@ -24,11 +24,6 @@
       "layout": "overlay",
       "id": "et-root",
       "style": "screen.clear",
-      "on": {
-        "show": {
-          "cmd": "UI.Cmd.EquipTuner.RequestState"
-        }
-      },
       "children": [
         {
           "widget": "panel",

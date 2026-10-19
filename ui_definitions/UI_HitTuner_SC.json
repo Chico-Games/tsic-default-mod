@@ -24,11 +24,6 @@
       "layout": "overlay",
       "id": "ht-root",
       "style": "screen.clear",
-      "on": {
-        "show": {
-          "cmd": "UI.Cmd.HitTuner.RequestState"
-        }
-      },
       "children": [
         {
           "widget": "panel",

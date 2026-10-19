@@ -4,10 +4,13 @@
   "properties": {
     "layer": "hud",
     "order": -3,
-    "uses": [ "UI.Hud.Visibility", "UI.Player.Tags" ],
+    "uses": [ "UI.Hud.Visibility", "UI.Player.Tags", "UI.Settings.Value" ],
     "tree": {
-      "id": "stealth-shroud", "widget": "fade", "style": "hud.vignette.stealth", "mode": "Hold", "shape": "Vignette", "vignette_depth": 0.55, "peak": 1, "auto_play": false,
-      "bind": { "visible": "UI.Hud.Visibility[stealth].bHidden ? false : (UI.Hud.Visibility[all].bHidden ? false : UI.Player.Tags.Tags[Status.Stealth])" }
+      "id": "stealth-shroud", "widget": "fade", "style": "hud.vignette.stealth.pulse", "mode": "Hold", "shape": "Vignette", "vignette_depth": 0.55, "peak": 1, "auto_play": false,
+      "bind": {
+        "visible": "UI.Hud.Visibility[stealth].bHidden ? false : (UI.Hud.Visibility[all].bHidden ? false : UI.Player.Tags.Tags[Status.Stealth])",
+        "pulse": "has:UI.Settings.Value[accessibility.screen_pulse] ? UI.Settings.Value[accessibility.screen_pulse].Value.Bool : true"
+      }
     }
   }
 }
