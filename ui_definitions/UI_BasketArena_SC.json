@@ -3421,7 +3421,7 @@
                               "style": "dev.meta",
                               "wrap": true,
                               "bind": {
-                                "text": "UI.BasketArena.State.bHasArena ? \"{UI.BasketArena.State.SlotCapacity} cells now, {UI.BasketArena.State.GridWidth} per row; a backpack adds its bonus slots on Apply.\" : ''"
+                                "text": "UI.BasketArena.State.bHasArena ? \"{UI.BasketArena.State.SlotCapacity} cells, {UI.BasketArena.State.GridWidth} wide; a backpack adds slots.\" : ''"
                               }
                             }
                           ]
@@ -3855,7 +3855,7 @@
                                   "text": "Speed",
                                   "style": "dev.label",
                                   "slot": {
-                                    "width": 44,
+                                    "width": 52,
                                     "valign": "center"
                                   }
                                 },
@@ -4116,7 +4116,7 @@
                                   "text": "Station",
                                   "style": "dev.label",
                                   "slot": {
-                                    "width": 38,
+                                    "width": 52,
                                     "valign": "center"
                                   }
                                 },
@@ -4298,7 +4298,7 @@
                                   "text": "Station",
                                   "style": "dev.label",
                                   "slot": {
-                                    "width": 38,
+                                    "width": 52,
                                     "valign": "center"
                                   }
                                 },
@@ -4480,7 +4480,7 @@
                                   "text": "Station",
                                   "style": "dev.label",
                                   "slot": {
-                                    "width": 38,
+                                    "width": 52,
                                     "valign": "center"
                                   }
                                 },
@@ -4662,7 +4662,7 @@
                                   "text": "Station",
                                   "style": "dev.label",
                                   "slot": {
-                                    "width": 38,
+                                    "width": 52,
                                     "valign": "center"
                                   }
                                 },
@@ -4856,7 +4856,7 @@
                                   "text": "Station",
                                   "style": "dev.label",
                                   "slot": {
-                                    "width": 38,
+                                    "width": 52,
                                     "valign": "center"
                                   }
                                 },
@@ -5038,7 +5038,7 @@
                                   "text": "Station",
                                   "style": "dev.label",
                                   "slot": {
-                                    "width": 38,
+                                    "width": 52,
                                     "valign": "center"
                                   }
                                 },
@@ -5220,7 +5220,7 @@
                                   "text": "Station",
                                   "style": "dev.label",
                                   "slot": {
-                                    "width": 38,
+                                    "width": 52,
                                     "valign": "center"
                                   }
                                 },
@@ -5402,7 +5402,7 @@
                                   "text": "Station",
                                   "style": "dev.label",
                                   "slot": {
-                                    "width": 38,
+                                    "width": 52,
                                     "valign": "center"
                                   }
                                 },
@@ -5596,7 +5596,7 @@
                                   "text": "Station",
                                   "style": "dev.label",
                                   "slot": {
-                                    "width": 38,
+                                    "width": 52,
                                     "valign": "center"
                                   }
                                 },
@@ -5778,7 +5778,7 @@
                                   "text": "Station",
                                   "style": "dev.label",
                                   "slot": {
-                                    "width": 38,
+                                    "width": 52,
                                     "valign": "center"
                                   }
                                 },
@@ -5960,7 +5960,7 @@
                                   "text": "Station",
                                   "style": "dev.label",
                                   "slot": {
-                                    "width": 38,
+                                    "width": 52,
                                     "valign": "center"
                                   }
                                 },
@@ -6142,7 +6142,7 @@
                                   "text": "Station",
                                   "style": "dev.label",
                                   "slot": {
-                                    "width": 38,
+                                    "width": 52,
                                     "valign": "center"
                                   }
                                 },
