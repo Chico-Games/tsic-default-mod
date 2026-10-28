@@ -568,6 +568,7 @@
       "hud.ping.distance":      { "font": "$fonts.body.bold", "size": 9, "colour": "$colours.text", "background": "rgba(13, 14, 21, 0.55)", "padding": [1, 5], "radius": "$radii.hud.chip" },
       "hud.ring.collar":        { "extends": "ring", "thickness": 2, "track": "rgba(241, 229, 207, 0.2)" },
       "hud.ring.panel":         { "extends": "ring", "thickness": 3, "track": "rgba(241, 229, 207, 0.3)" },
+      "hud.ring.arm":           { "extends": "ring", "colour": "rgba(241, 229, 207, 0.85)", "thickness": 2, "track": "rgba(241, 229, 207, 0.18)" },
       "hud.ring.cooldown":      { "extends": "ring", "colour": "rgba(241, 229, 207, 0.85)", "thickness": 2, "track": "rgba(241, 229, 207, 0.18)" },
       "hud.ring.parity":        { "extends": "ring", "colour": "$colours.text", "thickness": 10, "track": "rgba(241, 229, 207, 0.6)" },
       "hud.slot.stomach":       { "background": "rgba(52, 36, 30, 0.72)", "radius": "$radii.stomach.slot", "border": { "colour": "$colours.ink.night", "width": 2 }, "shadow": { "offset": [2, 2], "colour": "$colours.ink.night" } },

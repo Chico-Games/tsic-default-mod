@@ -1,0 +1,26 @@
+{
+  "id": "UI_HudArmEnergy_HD",
+  "class": "ScpUiScreenDefinition",
+  "properties": {
+    "layer": "hud",
+    "uses": [ "UI.Hud.Visibility", "UI.Hud.Wheel", "UI.Player.Attribute" ],
+    "tree": {
+      "id": "arm-energy-root", "widget": "panel", "layout": "overlay", "style": "panel.flat",
+      "bind": { "visible": "UI.Hud.Visibility[crosshair].bHidden ? false : (UI.Hud.Visibility[all].bHidden ? false : (UI.Hud.Wheel[hotbar].bOpen ? false : (UI.Hud.Wheel[ping].bOpen ? false : (UI.Player.Attribute[LeftArm].Current < UI.Player.Attribute[LeftArm].Max ? true : UI.Player.Attribute[RightArm].Current < UI.Player.Attribute[RightArm].Max))))" },
+      "children": [
+        { "id": "arm-energy-left", "widget": "progressring", "style": "hud.ring.arm", "size": 60, "start_angle": 210, "sweep": 120,
+          "slot": { "anchor": "center" },
+          "bind": {
+            "progress": "UI.Player.Attribute[LeftArm].Max > 0 ? UI.Player.Attribute[LeftArm].Current / UI.Player.Attribute[LeftArm].Max : 1",
+            "colour": "UI.Player.Attribute[LeftArm].Current < UI.Player.Attribute[LeftArm].Max * 0.3 ? '#ff5a4d' : '#f1e5cf'"
+          } },
+        { "id": "arm-energy-right", "widget": "progressring", "style": "hud.ring.arm", "size": 60, "start_angle": 150, "sweep": -120,
+          "slot": { "anchor": "center" },
+          "bind": {
+            "progress": "UI.Player.Attribute[RightArm].Max > 0 ? UI.Player.Attribute[RightArm].Current / UI.Player.Attribute[RightArm].Max : 1",
+            "colour": "UI.Player.Attribute[RightArm].Current < UI.Player.Attribute[RightArm].Max * 0.3 ? '#ff5a4d' : '#f1e5cf'"
+          } }
+      ]
+    }
+  }
+}

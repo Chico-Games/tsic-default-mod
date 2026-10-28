@@ -1,0 +1,15 @@
+{
+  "id": "Combat.Punch.Swing",
+  "class": "SoundSlotDefinition",
+  "properties": {
+    "sounds": [
+      "/Game/Shared/Audio/Wavs/Swing/SW_Swing_01.SW_Swing_01",
+      "/Game/Shared/Audio/Wavs/Swing/SW_Swing_02.SW_Swing_02",
+      "/Game/Shared/Audio/Wavs/Swing/SW_Swing_03.SW_Swing_03",
+      "/Game/Shared/Audio/Wavs/Swing/SW_Swing_04.SW_Swing_04",
+      "/Game/Shared/Audio/Wavs/Swing/SW_Swing_05.SW_Swing_05"
+    ],
+    "volume": 0.5,
+    "pitch_variance": 0.08
+  }
+}
