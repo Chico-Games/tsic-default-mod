@@ -7,7 +7,8 @@
     "hotkey": "HK_Reload",
     "trigger_type": 0,
     "use_gamepad_trigger": true,
-    "gamepad_trigger_type": 5,
-    "behavior_bar_priority": 105
+    "gamepad_trigger_type": 6,
+    "behavior_bar_priority": 105,
+    "hold_threshold_sec": 0.4
   }
 }

@@ -6,6 +6,7 @@
   "properties": {
     "thumbnail": "mod:icons/id_birdhouse_ci",
     "furniture_to_construct": "FD_BirdHouse_PS",
+    "static_item_definition": "FD_BirdHouse_SI",
     "display_name": "Bird House",
     "description": "Placeable. Leave a piece of cardboard in the nest and shut the lid: a bird lays an egg in ten minutes.\nSomething still nests out here. Nobody has asked what.",
     "stackable": true,

@@ -31,9 +31,6 @@
     "gamepad_behaviors": [
       "BH_Move",
       "BH_Look",
-      "BH_Jump",
-      "BH_Crouch",
-      "BH_Sprint",
       "BH_ConAccept",
       "BH_ConCancel",
       "BH_ConPush",
@@ -43,7 +40,6 @@
       "BH_ConChangeAxis",
       "BH_ConResetRotation",
       "BH_Back",
-      "BH_PushToTalk",
       "BH_Hotbar1",
       "BH_Hotbar2",
       "BH_Hotbar3",

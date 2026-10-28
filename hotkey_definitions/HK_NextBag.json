@@ -1,0 +1,12 @@
+{
+  "id": "HK_NextBag",
+  "class": "HotkeyDefinition",
+  "properties": {
+    "keyboard_remappable": true,
+    "gamepad_remappable": false,
+    "display_name": "Next Bag",
+    "category": "Inventory",
+    "keyboard_key": { "key_name": "Tab" },
+    "gamepad_key": { "key_name": "Gamepad_RightShoulder" }
+  }
+}

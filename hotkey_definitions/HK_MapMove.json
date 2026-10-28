@@ -4,6 +4,6 @@
   "properties": {
     "display_name": "Pan Map",
     "category": "Map",
-    "axis_source": 4
+    "axis_source": 5
   }
 }

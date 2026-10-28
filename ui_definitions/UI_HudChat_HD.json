@@ -11,7 +11,8 @@
         { "id": "chat-stack", "widget": "panel", "layout": "vertical", "style": "panel.flat", "gap": 6, "slot": { "anchor": "bottom-left", "offset": [24, -260], "width": 380 },
           "children": [
             { "id": "chat-log", "widget": "list", "style": "hud.chat.log", "selectable": false, "bottom_anchor": true, "gap": 4, "max_height": 240,
-              "bind": { "items": "UI.Chat.History.Messages" },
+              "bind": { "items": "UI.Chat.History.Messages", "visible": "UI.Hud.ChatInput.bOpen ? true : UI.Chat.History.Messages.Num > 0",
+                        "style": "UI.Hud.ChatInput.bOpen ? 'hud.chat.log' : 'hud.chat.log.idle'" },
               "template": { "id": "chat-line", "widget": "panel", "layout": "horizontal", "gap": 6,
                 "children": [
                   { "widget": "text", "style": "hud.chat.sender", "case": "None", "slot": { "valign": "top" }, "bind": { "text": "\"{item.SenderName}:\"" } },

@@ -14,6 +14,7 @@
       "BH_Interact",
       "BH_SecondaryFire",
       "BH_Ping",
+      "BH_PingWheel",
       "BH_OpenInventory",
       "BH_OpenMap",
       "BH_Overview",

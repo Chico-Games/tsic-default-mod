@@ -26,7 +26,7 @@
         "id": "altar",
         "layout": "Grid",
         "width": 4,
-        "height": 3,
+        "height": 2,
         "accepts": [
           "cold",
           "general"
@@ -34,12 +34,12 @@
         "surface": {
           "offset": {
             "x": 0.0,
-            "y": 3.0,
+            "y": 17,
             "z": 71.5
           },
           "yaw": 90.0,
           "width": 28.0,
-          "depth": 24.0
+          "depth": 14.0
         }
       }
     ],

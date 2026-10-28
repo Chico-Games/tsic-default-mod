@@ -4,6 +4,7 @@
   "properties": {
     "display_name": "Notebook",
     "category": "Interface",
-    "keyboard_key": { "key_name": "Tab" }
+    "keyboard_key": { "key_name": "Tab" },
+    "gamepad_key": { "key_name": "Gamepad_Special_Left" }
   }
 }

@@ -44,9 +44,6 @@
           {
             "do": "wait",
             "seconds": 3
-          },
-          {
-            "do": "relax"
           }
         ],
         "transitions": [
@@ -55,6 +52,20 @@
             "event": "AI.Event.PoiChanged",
             "to": "Approach"
           },
+          {
+            "on": "actions_succeeded",
+            "to": "Settle"
+          }
+        ]
+      },
+      {
+        "name": "Settle",
+        "actions": [
+          {
+            "do": "relax"
+          }
+        ],
+        "transitions": [
           {
             "on": "actions_succeeded",
             "result": "succeeded"

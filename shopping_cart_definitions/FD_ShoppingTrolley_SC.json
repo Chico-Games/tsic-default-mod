@@ -130,9 +130,21 @@
     "tip_over_angle": 45.0,
     "upright_friction": 0.10000000149011612,
     "handle_local_direction": {
-      "x": -1.0,
+      "x": 1.0,
       "y": 0.0,
       "z": 0.0
+    },
+    "drive_behind_cone_degrees": 60.0,
+    "drive_facing_degrees": 60.0,
+    "ride_indicator_offset": {
+      "x": -7.0,
+      "y": 0.0,
+      "z": 112.0
+    },
+    "drive_indicator_offset": {
+      "x": 48.0,
+      "y": 0.0,
+      "z": 118.0
     },
     "mount_hold_time": 0.6,
     "ride_prompt_text": "Ride",
@@ -143,7 +155,7 @@
       "z": 110.0
     },
     "drive_handle_offset": {
-      "x": -85.0,
+      "x": 85.0,
       "y": 0.0,
       "z": 90.0
     },

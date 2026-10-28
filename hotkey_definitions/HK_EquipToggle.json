@@ -4,11 +4,7 @@
   "properties": {
     "display_name": "Draw / Put Away",
     "category": "Combat",
-    "keyboard_key": {
-      "key_name": "Z"
-    },
-    "gamepad_key": {
-      "key_name": "Gamepad_FaceButton_Left"
-    }
+    "keyboard_key": { "key_name": "Z" },
+    "gamepad_key": { "key_name": "Gamepad_FaceButton_Right" }
   }
 }

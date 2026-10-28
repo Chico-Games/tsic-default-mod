@@ -59,15 +59,15 @@
                     { "widget": "panel", "layout": "vertical", "style": "menu.panel.mods", "slot": { "fill": 1, "height": 170 },
                       "children": [
                         { "widget": "panel", "style": "menu.panel.mods.head", "children": [ { "widget": "text", "style": "menu.text.mods.head", "text": "Enabled" } ] },
-                        { "id": "mods-enabled", "widget": "list", "style": "menu.list.mods", "selectable": false, "max_height": 140, "empty_text": "No mods enabled.", "slot": { "padding": 4 },
+                        { "id": "mods-enabled", "widget": "list", "style": "menu.list.mods", "selectable": false, "row_key": "ModId", "max_height": 140, "empty_text": "No mods enabled.", "slot": { "padding": 4 },
                           "bind": { "items": "UI.Mod.LoadOrder.Entries" },
                           "template": { "widget": "panel", "layout": "horizontal", "style": "menu.panel.mod.row", "gap": 4, "slot": { "padding": [0, 1] },
                             "children": [
                               { "widget": "text", "style": "menu.text.mod.name", "slot": { "fill": true, "valign": "center" }, "bind": { "text": "item.DisplayName != '' ? item.DisplayName : item.ModId" } },
-                              { "widget": "button", "style": "menu.button.mod", "label": "^", "slot": { "valign": "center" },
+                              { "widget": "button", "style": "menu.button.mod", "icon": "mod:icons/ui/arrow-up", "slot": { "valign": "center" },
                                 "bind": { "disabled": "item.bLocked" },
                                 "on": { "click": { "cmd": "UI.Cmd.Mod.SetLoadOrder", "args": { "Order": "{UI.Mod.LoadOrder.Order}", "MoveModId": "{item.ModId}", "MoveDelta": -1 } } } },
-                              { "widget": "button", "style": "menu.button.mod", "label": "v", "slot": { "valign": "center" },
+                              { "widget": "button", "style": "menu.button.mod", "icon": "mod:icons/ui/arrow-down", "slot": { "valign": "center" },
                                 "bind": { "disabled": "item.bLocked" },
                                 "on": { "click": { "cmd": "UI.Cmd.Mod.SetLoadOrder", "args": { "Order": "{UI.Mod.LoadOrder.Order}", "MoveModId": "{item.ModId}", "MoveDelta": 1 } } } },
                               { "widget": "button", "style": "menu.button.mod", "icon": "mod:icons/ui/arrow-right", "slot": { "valign": "center" },
@@ -78,7 +78,7 @@
                     { "widget": "panel", "layout": "vertical", "style": "menu.panel.mods", "slot": { "fill": 1, "height": 170 },
                       "children": [
                         { "widget": "panel", "style": "menu.panel.mods.head", "children": [ { "widget": "text", "style": "menu.text.mods.head", "text": "Available" } ] },
-                        { "id": "mods-available", "widget": "list", "style": "menu.list.mods", "selectable": false, "max_height": 140, "empty_text": "All installed mods are enabled.", "slot": { "padding": 4 },
+                        { "id": "mods-available", "widget": "list", "style": "menu.list.mods", "selectable": false, "row_key": "ModId", "max_height": 140, "empty_text": "All installed mods are enabled.", "slot": { "padding": 4 },
                           "bind": { "items": "UI.Mod.InstalledList.Mods", "empty_text": "UI.Mod.InstalledList.Mods.Num > 0 ? 'All installed mods are enabled.' : 'No mods installed. Open Manage Mods to subscribe.'" }, "where": "!item.bEnabled",
                           "template": { "widget": "panel", "layout": "horizontal", "style": "menu.panel.mod.row", "gap": 4, "slot": { "padding": [0, 1] },
                             "children": [

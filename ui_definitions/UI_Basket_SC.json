@@ -8,7 +8,7 @@
     "input_mode": "InputMode.Menu.Inventory",
     "cancel": "UI.Cmd.Basket.Close",
     "actions": [ { "action": "back", "label": "Close" } ],
-    "uses": [ "UI.Basket.State", "UI.Basket.Cursor", "UI.Sewing.State" ],
+    "uses": [ "UI.Basket.State", "UI.Basket.Cursor", "UI.Sewing.State", "UI.Input.Mode.Changed" ],
     "tree": {
       "id": "bk-root", "widget": "panel", "layout": "overlay", "style": "overlay.clear",
       "children": [
@@ -112,7 +112,7 @@
                     "text": "UI.Basket.State.HoverMaxDurability > 0 ? (UI.Basket.State.HoverWeight > 0 ? \"weight {UI.Basket.State.HoverWeight} · {UI.Basket.State.HoverDurability fmt:int} / {UI.Basket.State.HoverMaxDurability fmt:int} condition\" : \"{UI.Basket.State.HoverDurability fmt:int} / {UI.Basket.State.HoverMaxDurability fmt:int} condition\") : \"weight {UI.Basket.State.HoverWeight}\""
                   } },
                 { "id": "bk-tip-how", "widget": "text", "style": "basket.tip.sub", "wrap": true,
-                  "bind": { "text": "UI.Basket.State.HeldName != '' ? (UI.Basket.State.DropVerdict == 'place' ? 'Release to place' : (UI.Basket.State.DropVerdict == 'merge' ? 'Release to add to the stack' : (UI.Basket.State.DropVerdict == 'partial' ? '½ Only part fits; the rest stays in your hand' : (UI.Basket.State.DropVerdict == 'swap' ? 'Release to swap with what is there' : (UI.Basket.State.DropVerdict == 'takeonly' ? 'Take from here only' : (UI.Basket.State.DropVerdict == 'locked' ? 'Locked while it works' : (UI.Basket.State.DropVerdict == 'world' ? 'Release to drop it on the floor' : 'It cannot go here'))))))) : (UI.Basket.State.HoverName == '' ? 'Nothing worn · drop something here to wear it' : (UI.Basket.State.bHoverWorn ? 'Worn · drag it off to take it off' : (UI.Basket.State.bHoverFixed ? 'Left: take this one · Right: options' : 'Left: take · Ctrl: half · Right: options')))" } }
+                  "bind": { "text": "UI.Basket.State.HeldName != '' ? (UI.Basket.State.DropVerdict == 'place' ? 'Release to place' : (UI.Basket.State.DropVerdict == 'merge' ? 'Release to add to the stack' : (UI.Basket.State.DropVerdict == 'partial' ? '½ Only part fits; the rest stays in your hand' : (UI.Basket.State.DropVerdict == 'swap' ? 'Release to swap with what is there' : (UI.Basket.State.DropVerdict == 'takeonly' ? 'Take from here only' : (UI.Basket.State.DropVerdict == 'locked' ? 'Locked while it works' : (UI.Basket.State.DropVerdict == 'world' ? 'Release to drop it on the floor' : 'It cannot go here'))))))) : (UI.Basket.State.HoverName == '' ? 'Nothing worn · drop something here to wear it' : (UI.Basket.State.bHoverWorn ? 'Worn · drag it off to take it off' : (UI.Input.Mode.Changed.Mode == 'Gamepad' ? (UI.Basket.State.bHoverFixed ? 'A: take this one · X: options' : 'A: take · LT+A: half · X: options') : (UI.Basket.State.bHoverFixed ? 'Left: take this one · Right: options' : 'Left: take · Ctrl: half · Right: options'))))" } }
               ] }
           ] },
 
@@ -134,7 +134,27 @@
               } }
           ] },
 
+        { "id": "bk-hints-pad", "widget": "panel", "layout": "vertical", "style": "basket.hints", "gap": 1, "slot": { "anchor": "bottom-right", "padding": [0, 0, 24, 24] },
+          "bind": { "visible": "UI.Input.Mode.Changed.Mode == 'Gamepad'" },
+          "children": [
+            { "widget": "panel", "layout": "horizontal", "gap": 4, "slot": { "align": "right" }, "children": [
+              { "widget": "image", "source": "key:pad/Gamepad_FaceButton_Bottom", "size": { "x": 18, "y": 18 } }, { "widget": "text", "style": "basket.hints.text", "text": "take the stack · hold to drag it ·" },
+              { "widget": "image", "source": "key:pad/Gamepad_FaceButton_Bottom", "size": { "x": 18, "y": 18 } }, { "widget": "image", "source": "key:pad/Gamepad_FaceButton_Bottom", "size": { "x": 18, "y": 18 } }, { "widget": "text", "style": "basket.hints.text", "text": "gather" } ] },
+            { "widget": "panel", "layout": "horizontal", "gap": 4, "slot": { "align": "right" }, "children": [
+              { "widget": "text", "style": "basket.hints.text", "text": "holding:" }, { "widget": "image", "source": "key:pad/Gamepad_FaceButton_Bottom", "size": { "x": 18, "y": 18 } }, { "widget": "text", "style": "basket.hints.text", "text": "place all ·" },
+              { "widget": "image", "source": "key:pad/Gamepad_FaceButton_Left", "size": { "x": 18, "y": 18 } }, { "widget": "text", "style": "basket.hints.text", "text": "place one, or take one more ·" },
+              { "widget": "image", "source": "key:pad/Gamepad_RightThumbstick", "size": { "x": 18, "y": 18 } }, { "widget": "text", "style": "basket.hints.text", "text": "one more / one back" } ] },
+            { "widget": "panel", "layout": "horizontal", "gap": 4, "slot": { "align": "right" }, "children": [
+              { "widget": "image", "source": "key:pad/Gamepad_LeftTrigger", "size": { "x": 18, "y": 18 } }, { "widget": "text", "style": "basket.hints.text", "text": "+A take half · slow pointer ·" },
+              { "widget": "image", "source": "key:pad/Gamepad_FaceButton_Top", "size": { "x": 18, "y": 18 } }, { "widget": "text", "style": "basket.hints.text", "text": "send it where it goes ·" },
+              { "widget": "image", "source": "key:pad/Gamepad_FaceButton_Left", "size": { "x": 18, "y": 18 } }, { "widget": "text", "style": "basket.hints.text", "text": "on an item: options" } ] },
+            { "widget": "panel", "layout": "horizontal", "gap": 4, "slot": { "align": "right" }, "children": [
+              { "widget": "image", "source": "key:pad/Gamepad_LeftShoulder", "size": { "x": 18, "y": 18 } }, { "widget": "image", "source": "key:pad/Gamepad_RightShoulder", "size": { "x": 18, "y": 18 } }, { "widget": "text", "style": "basket.hints.text", "text": "switch bag ·" },
+              { "widget": "image", "source": "key:pad/Gamepad_FaceButton_Right", "size": { "x": 18, "y": 18 } }, { "widget": "text", "style": "basket.hints.text", "text": "close" } ] }
+          ] },
+
         { "id": "bk-hints", "widget": "panel", "layout": "vertical", "style": "basket.hints", "gap": 1, "slot": { "anchor": "bottom-right", "padding": [0, 0, 24, 24] },
+          "bind": { "visible": "UI.Input.Mode.Changed.Mode != 'Gamepad'" },
           "children": [
             { "widget": "panel", "layout": "horizontal", "gap": 4, "slot": { "align": "right" }, "children": [
               { "widget": "text", "style": "basket.hints.key", "text": "Left" }, { "widget": "text", "style": "basket.hints.text", "text": "take the stack (a pile: that one) · drag to move it ·" },
@@ -152,7 +172,7 @@
               { "widget": "text", "style": "basket.hints.key", "text": "outside" }, { "widget": "text", "style": "basket.hints.text", "text": "drops it ·" },
               { "widget": "text", "style": "basket.hints.key", "text": "click" }, { "widget": "text", "style": "basket.hints.text", "text": "a floor item to take it" } ] },
             { "widget": "panel", "layout": "horizontal", "gap": 4, "slot": { "align": "right" }, "children": [
-              { "widget": "text", "style": "basket.hints.key", "text": "Tab" }, { "widget": "text", "style": "basket.hints.text", "text": "basket / cold bag / backpack ·" },
+              { "widget": "text", "style": "basket.hints.key", "text": "Tab" }, { "widget": "text", "style": "basket.hints.text", "text": "next bag ·" },
               { "widget": "text", "style": "basket.hints.key", "text": "1-4" }, { "widget": "text", "style": "basket.hints.text", "text": "hooks ·" },
               { "widget": "text", "style": "basket.hints.key", "text": "Esc" }, { "widget": "text", "style": "basket.hints.text", "text": "/" },
               { "widget": "text", "style": "basket.hints.key", "text": "I" }, { "widget": "text", "style": "basket.hints.text", "text": "close" } ] }

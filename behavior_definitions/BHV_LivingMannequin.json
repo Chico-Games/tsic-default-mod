@@ -228,7 +228,31 @@
         ]
       },
       {
-        "name": "Freeze"
+        "name": "Rest",
+        "states": [
+          {
+            "name": "HoldStill",
+            "initial": true,
+            "actions": [
+              {
+                "do": "stop_movement"
+              },
+              {
+                "do": "freeze_pose"
+              },
+              {
+                "do": "wait",
+                "seconds": 3600
+              }
+            ],
+            "transitions": [
+              {
+                "on": "actions_succeeded",
+                "to": "HoldStill"
+              }
+            ]
+          }
+        ]
       }
     ]
   }

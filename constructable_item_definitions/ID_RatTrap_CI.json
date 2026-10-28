@@ -6,6 +6,7 @@
   "properties": {
     "thumbnail": "mod:icons/id_rattrap_ci",
     "furniture_to_construct": "FD_RatTrap_PS",
+    "static_item_definition": "FD_RatTrap_SI",
     "display_name": "Rat Trap",
     "description": "Placeable. Bait it with a scrap of food and shut it: in twelve minutes there is a rat.\nThe rats down here are fat. The rats down here are dinner.",
     "stackable": true,

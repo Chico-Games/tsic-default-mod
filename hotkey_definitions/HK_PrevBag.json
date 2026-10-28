@@ -1,0 +1,11 @@
+{
+  "id": "HK_PrevBag",
+  "class": "HotkeyDefinition",
+  "properties": {
+    "keyboard_remappable": true,
+    "gamepad_remappable": false,
+    "display_name": "Previous Bag",
+    "category": "Inventory",
+    "gamepad_key": { "key_name": "Gamepad_LeftShoulder" }
+  }
+}

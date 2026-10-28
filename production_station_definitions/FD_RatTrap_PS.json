@@ -136,8 +136,8 @@
             "z": 0.5
           },
           "yaw": 90.0,
-          "width": 22.0,
-          "depth": 32.0,
+          "width": 32.0,
+          "depth": 22.0,
           "camera_distance": 110.0,
           "camera_pitch": -50.0
         }

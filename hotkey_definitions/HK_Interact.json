@@ -4,11 +4,7 @@
   "properties": {
     "display_name": "Interact",
     "category": "Interaction",
-    "keyboard_key": {
-      "key_name": "E"
-    },
-    "gamepad_key": {
-      "key_name": "Gamepad_FaceButton_Top"
-    }
+    "keyboard_key": { "key_name": "E" },
+    "gamepad_key": { "key_name": "Gamepad_FaceButton_Left" }
   }
 }

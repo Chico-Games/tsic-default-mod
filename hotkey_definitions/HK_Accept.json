@@ -6,7 +6,6 @@
     "gamepad_remappable": false,
     "display_name": "Accept",
     "category": "Interface",
-    "keyboard_key": { "key_name": "SpaceBar" },
-    "gamepad_key": { "key_name": "Gamepad_FaceButton_Bottom" }
+    "keyboard_key": { "key_name": "SpaceBar" }
   }
 }

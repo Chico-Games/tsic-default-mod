@@ -4,11 +4,6 @@
   "properties": {
     "display_name": "Center On Player",
     "category": "Map",
-    "keyboard_key": {
-      "key_name": "F"
-    },
-    "gamepad_key": {
-      "key_name": "Gamepad_FaceButton_Bottom"
-    }
+    "keyboard_key": { "key_name": "F" }
   }
 }

@@ -4,26 +4,100 @@
   "properties": {
     "layer": "hud",
     "order": 6,
-    "uses": [ "UI.Hud.Visibility", "UI.Ping.Set" ],
+    "uses": [
+      "UI.Hud.Visibility",
+      "UI.Ping.Set"
+    ],
     "tree": {
-      "id": "pings-root", "widget": "panel", "layout": "overlay", "style": "panel.flat",
-      "bind": { "visible": "UI.Hud.Visibility[ping].bHidden ? false : !UI.Hud.Visibility[all].bHidden" },
+      "id": "pings-root",
+      "widget": "panel",
+      "layout": "overlay",
+      "style": "panel.flat",
+      "bind": {
+        "visible": "UI.Hud.Visibility[ping].bHidden ? false : !UI.Hud.Visibility[all].bHidden"
+      },
       "children": [
-        { "id": "ping-markers", "widget": "list", "style": "hud.overlay.rows", "selectable": false, "overlay_rows": true,
-          "bind": { "items": "UI.Ping.Set.Pings" },
-          "template": { "id": "ping-marker", "widget": "worldmarker", "clamp_to_screen": true, "stack": true,
-            "bind": { "world_location": "\"{item.Location.X},{item.Location.Y},{item.Location.Z}\"", "pivot": "'0.5,1'" },
+        {
+          "id": "ping-markers",
+          "widget": "list",
+          "style": "hud.overlay.rows",
+          "selectable": false,
+          "overlay_rows": true,
+          "row_key": "PingId",
+          "bind": {
+            "items": "UI.Ping.Set.Pings"
+          },
+          "template": {
+            "id": "ping-marker",
+            "widget": "worldmarker",
+            "clamp_to_screen": true,
+            "hide_when_behind": false,
+            "stack": true,
+            "bind": {
+              "world_location": "\"{item.Location.X},{item.Location.Y},{item.Location.Z}\"",
+              "pivot": "'0.5,1'"
+            },
             "children": [
-              { "widget": "panel", "layout": "vertical", "style": "hud.ping.marker", "gap": 1,
+              {
+                "widget": "panel",
+                "layout": "vertical",
+                "style": "panel.flat",
+                "gap": 2,
                 "children": [
-                  { "widget": "text", "style": "hud.ping.marker", "justify": "Center",
+                  {
+                    "id": "ping-chip",
+                    "widget": "panel",
+                    "layout": "horizontal",
+                    "gap": 4,
+                    "slot": {
+                      "align": "center"
+                    },
                     "bind": {
-                      "text": "item.PingType",
-                      "colour": "item.PingType == 'Hostile' ? '#ff5a5a' : (item.PingType == 'Enemy' ? '#ff5a5a' : (item.PingType == 'Loot' ? '#3ddc97' : (item.PingType == 'Food' ? '#3ddc97' : (item.PingType == 'Move' ? '#4ea1ff' : (item.PingType == 'Water' ? '#4ea1ff' : (item.PingType == 'Danger' ? '#ffc63f' : (item.PingType == 'Defend' ? '#ffc63f' : '#ffffff')))))))"
-                    } },
-                  { "widget": "text", "style": "hud.ping.owner", "justify": "Center", "bind": { "text": "item.OwnerId", "visible": "item.OwnerId != ''" } }
-                ] }
-            ] } }
+                      "style": "item.PingType == 'Enemy' ? 'hud.ping.chip.enemy' : (item.PingType == 'Entity' ? 'hud.ping.chip.loot' : (item.PingType == 'Danger' ? 'hud.ping.chip.danger' : (item.PingType == 'Player' ? 'hud.ping.chip.player' : (item.PingType == 'Map' ? 'hud.ping.chip.waypoint' : 'hud.ping.chip.move'))))"
+                    },
+                    "children": [
+                      {
+                        "widget": "image",
+                        "slot": {
+                          "valign": "center"
+                        },
+                        "bind": {
+                          "source": "item.PingType == 'Enemy' ? 'mod:icons/ui/ping-enemy' : (item.PingType == 'Entity' ? 'mod:icons/ui/ping-loot' : (item.PingType == 'Danger' ? 'mod:icons/ui/ping-danger' : 'mod:icons/ui/ping-move'))",
+                          "size": "'12,12'",
+                          "style": "item.PingType == 'Enemy' ? 'hud.ping.icon.enemy' : (item.PingType == 'Entity' ? 'hud.ping.icon.loot' : (item.PingType == 'Danger' ? 'hud.ping.icon.danger' : (item.PingType == 'Player' ? 'hud.ping.icon.player' : (item.PingType == 'Map' ? 'hud.ping.icon.waypoint' : 'hud.ping.icon.move'))))"
+                        }
+                      },
+                      {
+                        "id": "ping-label",
+                        "widget": "text",
+                        "slot": {
+                          "valign": "center"
+                        },
+                        "bind": {
+                          "text": "item.Label",
+                          "style": "item.PingType == 'Enemy' ? 'hud.ping.text.enemy' : (item.PingType == 'Entity' ? 'hud.ping.text.loot' : (item.PingType == 'Danger' ? 'hud.ping.text.danger' : (item.PingType == 'Player' ? 'hud.ping.text.player' : (item.PingType == 'Map' ? 'hud.ping.text.waypoint' : 'hud.ping.text.move'))))"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "id": "ping-distance",
+                    "widget": "text",
+                    "style": "hud.ping.distance",
+                    "justify": "Center",
+                    "slot": {
+                      "align": "center"
+                    },
+                    "bind": {
+                      "text": "item.OwnerName != '' ? \"{item.Distance}  {item.OwnerName}\" : item.Distance",
+                      "visible": "item.Distance != ''"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
       ]
     }
   }

@@ -1,0 +1,12 @@
+{
+  "id": "BH_PrevBag",
+  "class": "InputBehaviorDefinition",
+  "properties": {
+    "behavior_tag_name": "Input.Behavior.PrevBag",
+    "show_on_action_bar": false,
+    "display_name": "Previous Bag",
+    "hotkey": "HK_PrevBag",
+    "trigger_type": 0,
+    "behavior_bar_priority": 30
+  }
+}

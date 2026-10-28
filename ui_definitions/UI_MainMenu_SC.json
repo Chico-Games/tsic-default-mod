@@ -113,11 +113,11 @@
           "children": [
             { "widget": "text", "style": "text.badge", "text": "Menu Music", "slot": { "valign": "center" } },
             { "id": "menu-vol-mute", "widget": "button", "style": "menu.live.button.vol.round", "label": "Mute", "slot": { "valign": "center" },
-              "bind": { "visible": "UI.Settings.Value[audio.menu_music].Value.Number > 0.001" },
-              "on": { "click": { "cmd": "UI.Cmd.Settings.Set", "args": { "Key": "audio.menu_music", "Value": 0 } } } },
-            { "id": "menu-vol-unmute", "widget": "button", "style": "menu.live.button.vol.round", "label": "Unmute", "slot": { "valign": "center" },
-              "bind": { "visible": "!(UI.Settings.Value[audio.menu_music].Value.Number > 0.001)" },
-              "on": { "click": { "cmd": "UI.Cmd.Settings.Unmute", "args": { "Key": "audio.menu_music" } } } },
+              "bind": { "visible": "!UI.Settings.Value[audio.menu_music_muted].Value.Bool" },
+              "on": { "click": { "cmd": "UI.Cmd.Settings.Set", "args": { "Key": "audio.menu_music_muted", "Value": true } } } },
+            { "id": "menu-vol-unmute", "widget": "button", "style": "menu.live.button.vol.round.muted", "label": "Mute", "slot": { "valign": "center" },
+              "bind": { "visible": "UI.Settings.Value[audio.menu_music_muted].Value.Bool" },
+              "on": { "click": { "cmd": "UI.Cmd.Settings.Set", "args": { "Key": "audio.menu_music_muted", "Value": false } } } },
             { "id": "menu-vol-slider", "widget": "slider", "min": 0, "max": 1, "step": 0.01, "show_value": false, "track_width": 110, "slot": { "valign": "center" },
               "bind": { "value": "UI.Settings.Value[audio.menu_music].Value.Number" },
               "on": { "commit": { "cmd": "UI.Cmd.Settings.Set", "args": { "Key": "audio.menu_music", "Value": "{self.value}" } } } }

@@ -7,8 +7,8 @@
     "hotkey": "HK_EquipToggle",
     "trigger_type": 0,
     "use_gamepad_trigger": true,
-    "gamepad_trigger_type": 6,
-    "hold_threshold_sec": 0.35,
+    "gamepad_trigger_type": 5,
+    "hold_threshold_sec": 0.3,
     "behavior_bar_priority": 522
   }
 }

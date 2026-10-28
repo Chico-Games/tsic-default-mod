@@ -6,6 +6,9 @@
     "display_name": "Push to Talk",
     "hotkey": "HK_PushToTalk",
     "trigger_type": 0,
-    "show_on_action_bar": false
+    "show_on_action_bar": false,
+    "use_gamepad_trigger": true,
+    "gamepad_trigger_type": 6,
+    "hold_threshold_sec": 0.3
   }
 }

@@ -30,13 +30,18 @@
                     { "id": "target-verb-glyph", "widget": "glyph", "size": 13, "slot": { "valign": "center" },
                       "bind": {
                         "glyph": "UI.Interaction.Targets.Targets[0].Category == '' ? 'interact' : UI.Interaction.Targets.Targets[0].Category",
-                        "opacity": "UI.Interaction.Targets.Targets[0].Status == 'SingleUseUsed' ? 0.4 : 1"
+                        "opacity": "UI.Interaction.Targets.Targets[0].Status == 'SingleUseUsed' ? 0.4 : (UI.Interaction.Targets.Targets[0].Status == 'Blocked' ? 0.4 : 1)"
                       } },
                     { "id": "target-verb-text", "widget": "text", "justify": "Right", "wrap_at": 320, "slot": { "valign": "center" },
                       "bind": {
                         "text": "UI.Interaction.Targets.Targets[0].Label == '' ? (UI.Interaction.Targets.bDraggable ? 'Drag' : 'Interact') : UI.Interaction.Targets.Targets[0].Label",
-                        "style": "UI.Interaction.Targets.Targets[0].Status == 'SingleUseUsed' ? 'hud.target.used' : 'hud.target.verb'",
-                        "colour": "UI.Interaction.Targets.Targets[0].Status == 'SingleUseUsed' ? 'rgba(190, 190, 190, 0.4)' : (UI.Interaction.Targets.Targets[0].Category == 'crafting' ? '#f0cd8a' : (UI.Interaction.Targets.Targets[0].Category == 'plantable' ? '#a9e2a0' : (UI.Interaction.Targets.Targets[0].Category == 'storage' ? '#d9c9f2' : (UI.Interaction.Targets.Targets[0].Category == 'door' ? '#c9d9ea' : (UI.Interaction.Targets.Targets[0].Category == 'toggle' ? '#f2e394' : (UI.Interaction.Targets.Targets[0].Category == 'loot' ? '#f2d3a4' : (UI.Interaction.Targets.Targets[0].Category == 'cart' ? '#98d4c8' : (UI.Interaction.Targets.Targets[0].Category == 'elevator' ? '#d5e0a8' : (UI.Interaction.Targets.Targets[0].Category == 'teleporter' ? '#c5a8f0' : (UI.Interaction.Targets.Targets[0].Category == 'text' ? '#e8d8b0' : '#e8e2d5'))))))))))"
+                        "style": "UI.Interaction.Targets.Targets[0].Status == 'SingleUseUsed' ? 'hud.target.used' : (UI.Interaction.Targets.Targets[0].Status == 'Blocked' ? 'hud.target.used' : 'hud.target.verb')",
+                        "colour": "UI.Interaction.Targets.Targets[0].Status == 'SingleUseUsed' ? 'rgba(190, 190, 190, 0.4)' : (UI.Interaction.Targets.Targets[0].Status == 'Blocked' ? 'rgba(190, 190, 190, 0.4)' : (UI.Interaction.Targets.Targets[0].Category == 'crafting' ? '#f0cd8a' : (UI.Interaction.Targets.Targets[0].Category == 'plantable' ? '#a9e2a0' : (UI.Interaction.Targets.Targets[0].Category == 'storage' ? '#d9c9f2' : (UI.Interaction.Targets.Targets[0].Category == 'door' ? '#c9d9ea' : (UI.Interaction.Targets.Targets[0].Category == 'toggle' ? '#f2e394' : (UI.Interaction.Targets.Targets[0].Category == 'loot' ? '#f2d3a4' : (UI.Interaction.Targets.Targets[0].Category == 'cart' ? '#98d4c8' : (UI.Interaction.Targets.Targets[0].Category == 'elevator' ? '#d5e0a8' : (UI.Interaction.Targets.Targets[0].Category == 'teleporter' ? '#c5a8f0' : (UI.Interaction.Targets.Targets[0].Category == 'text' ? '#e8d8b0' : '#e8e2d5')))))))))))"
+                      } },
+                    { "id": "target-verb-reason", "widget": "text", "style": "hud.target.reason", "slot": { "valign": "center" },
+                      "bind": {
+                        "text": "UI.Interaction.Targets.Targets[0].SubText",
+                        "visible": "UI.Interaction.Targets.Targets[0].Status == 'Blocked' ? UI.Interaction.Targets.Targets[0].SubText != '' : false"
                       } }
                   ] },
                 { "id": "target-drag", "widget": "text", "style": "hud.target.verb", "text": "Drag", "justify": "Right", "slot": { "align": "right" },
@@ -89,7 +94,12 @@
                               { "widget": "text", "style": "hud.action.keytext", "justify": "Center", "case": "Upper",
                                 "bind": {
                                   "text": "UI.Input.Mode.Changed.Mode == 'Gamepad' ? item.GamepadKeyText : item.KeyboardKeyText",
-                                  "visible": "UI.Input.Mode.Changed.Mode == 'Gamepad' ? true : item.KeyboardKeyText != 'Shift'"
+                                  "visible": "UI.Input.Mode.Changed.Mode == 'Gamepad' ? false : item.KeyboardKeyText != 'Shift'"
+                                } },
+                              { "widget": "image", "size": { "x": 24, "y": 24 }, "slot": { "anchor": "center" },
+                                "bind": {
+                                  "source": "\"key:{UI.Input.Mode.Changed.Glyphs}/{item.GamepadKeyText}\"",
+                                  "visible": "UI.Input.Mode.Changed.Mode == 'Gamepad'"
                                 } },
                               { "widget": "glyph", "glyph": "shift", "style": "hud.action.keyglyph", "size": 14, "shadow": false, "slot": { "anchor": "center" },
                                 "bind": { "visible": "UI.Input.Mode.Changed.Mode == 'Gamepad' ? false : item.KeyboardKeyText == 'Shift'" } }

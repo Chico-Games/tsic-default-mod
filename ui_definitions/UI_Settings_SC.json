@@ -3329,8 +3329,8 @@
                             {
                               "id": "gamepad-sensitivity",
                               "widget": "slider",
-                              "min": 0.1,
-                              "max": 1,
+                              "min": 0.25,
+                              "max": 2.5,
                               "step": 0.05,
                               "track_width": 240,
                               "slot": {
@@ -3444,6 +3444,154 @@
                                   "cmd": "UI.Cmd.Settings.Set",
                                   "args": {
                                     "Key": "invert_gamepad_y",
+                                    "Value": "{self.checked}"
+                                  }
+                                }
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "widget": "panel",
+                          "style": "menu.rule.field",
+                          "slot": {
+                            "height": 1
+                          }
+                        },
+                        {
+                          "widget": "panel",
+                          "layout": "horizontal",
+                          "gap": 16,
+                          "slot": {
+                            "padding": [
+                              8,
+                              0
+                            ]
+                          },
+                          "children": [
+                            {
+                              "widget": "text",
+                              "style": "menu.text.field",
+                              "text": "Pointer speed",
+                              "slot": {
+                                "fill": true,
+                                "valign": "center"
+                              }
+                            },
+                            {
+                              "id": "gamepad-pointer-speed",
+                              "widget": "slider",
+                              "min": 0.5,
+                              "max": 2,
+                              "step": 0.05,
+                              "track_width": 240,
+                              "slot": {
+                                "valign": "center"
+                              },
+                              "bind": {
+                                "value": "UI.Settings.ControlsState.GamepadPointerSpeed"
+                              },
+                              "on": {
+                                "change": {
+                                  "cmd": "UI.Cmd.Settings.Set",
+                                  "args": {
+                                    "Key": "gamepad_pointer_speed",
+                                    "Value": "{self.value}"
+                                  }
+                                }
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "widget": "panel",
+                          "style": "menu.rule.field",
+                          "slot": {
+                            "height": 1
+                          }
+                        },
+                        {
+                          "widget": "panel",
+                          "layout": "horizontal",
+                          "gap": 16,
+                          "slot": {
+                            "padding": [
+                              8,
+                              0
+                            ]
+                          },
+                          "children": [
+                            {
+                              "widget": "text",
+                              "style": "menu.text.field",
+                              "text": "Vibration",
+                              "slot": {
+                                "fill": true,
+                                "valign": "center"
+                              }
+                            },
+                            {
+                              "id": "gamepad-vibration",
+                              "widget": "toggle",
+                              "slot": {
+                                "valign": "center"
+                              },
+                              "bind": {
+                                "checked": "UI.Settings.ControlsState.bGamepadVibration"
+                              },
+                              "on": {
+                                "change": {
+                                  "cmd": "UI.Cmd.Settings.Set",
+                                  "args": {
+                                    "Key": "gamepad_vibration",
+                                    "Value": "{self.checked}"
+                                  }
+                                }
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "widget": "panel",
+                          "style": "menu.rule.field",
+                          "slot": {
+                            "height": 1
+                          }
+                        },
+                        {
+                          "widget": "panel",
+                          "layout": "horizontal",
+                          "gap": 16,
+                          "slot": {
+                            "padding": [
+                              8,
+                              0
+                            ]
+                          },
+                          "children": [
+                            {
+                              "widget": "text",
+                              "style": "menu.text.field",
+                              "text": "Aim assist",
+                              "slot": {
+                                "fill": true,
+                                "valign": "center"
+                              }
+                            },
+                            {
+                              "id": "aim-assist",
+                              "widget": "toggle",
+                              "slot": {
+                                "valign": "center"
+                              },
+                              "bind": {
+                                "checked": "UI.Settings.ControlsState.bAimAssist"
+                              },
+                              "on": {
+                                "change": {
+                                  "cmd": "UI.Cmd.Settings.Set",
+                                  "args": {
+                                    "Key": "gamepad_aim_assist",
                                     "Value": "{self.checked}"
                                   }
                                 }
@@ -3585,13 +3733,13 @@
                                       "valign": "center"
                                     },
                                     "bind": {
-                                      "checked": "item.HoldToggle == 1"
+                                      "checked": "item.GamepadHoldToggle == 1"
                                     },
                                     "on": {
                                       "change": {
                                         "cmd": "UI.Cmd.Settings.Set",
                                         "args": {
-                                          "Key": "hold_toggle.{item.ToggleBehaviorTagName}",
+                                          "Key": "gamepad_hold_toggle.{item.ToggleBehaviorTagName}",
                                           "Value": "{self.checked}"
                                         }
                                       }
@@ -3604,7 +3752,7 @@
                                       "valign": "center"
                                     },
                                     "bind": {
-                                      "text": "item.HoldToggle == 1 ? 'Toggle' : 'Hold'"
+                                      "text": "item.GamepadHoldToggle == 1 ? 'Toggle' : 'Hold'"
                                     }
                                   }
                                 ]
@@ -3627,7 +3775,7 @@
                                     },
                                     "bind": {
                                       "label": "item.GamepadKeyText == '' ? 'Unbound' : item.GamepadKeyText",
-                                      "icon": "item.GamepadKeyText == '' ? '' : \"key:xb/{item.GamepadKeyText}\"",
+                                      "icon": "item.GamepadKeyText == '' ? '' : \"key:pad/{item.GamepadKeyText}\"",
                                       "disabled": "!item.bGamepadRemappable",
                                       "style": "item.GamepadConflictsWith != '' ? 'menu.button.bind.conflict' : 'menu.button.bind'"
                                     },

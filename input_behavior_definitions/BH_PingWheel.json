@@ -1,0 +1,14 @@
+{
+  "id": "BH_PingWheel",
+  "class": "InputBehaviorDefinition",
+  "properties": {
+    "behavior_tag_name": "Input.Behavior.PingWheel",
+    "display_name": "Ping wheel",
+    "description": "Hold the ping key, aim at a kind of ping and release to place it.",
+    "hotkey": "HK_Ping",
+    "trigger_type": 6,
+    "hold_threshold_sec": 0.25,
+    "behavior_bar_priority": 121,
+    "show_on_action_bar": false
+  }
+}

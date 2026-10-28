@@ -24,7 +24,7 @@
       {
         "key": "carton",
         "value": {
-          "mesh": "/Game/Items/CraftingMaterials/HardwareBoxes/Meshes/SM_DowelBox.SM_DowelBox"
+          "mesh": "/Game/Items/CraftingMaterials/HardwareBoxes/Meshes/SM_DowelCarton.SM_DowelCarton"
         }
       }
     ]

@@ -14,7 +14,7 @@
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,
-    "static_mesh": "/Game/Items/CraftingMaterials/HardwareBoxes/Meshes/SM_DowelBox.SM_DowelBox",
+    "static_mesh": "/Game/Items/CraftingMaterials/HardwareBoxes/Meshes/SM_DowelCarton.SM_DowelCarton",
     "casts_shadow": false,
     "collision_profile_name": {
       "name": "ItemStatic"
