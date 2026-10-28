@@ -1,0 +1,13 @@
+{
+  "id": "Combat.Punch.Land.Heavy",
+  "class": "SoundSlotDefinition",
+  "properties": {
+    "sounds": [
+      "/Game/Shared/Audio/Wavs/RealisticPunch/SW_RealisticPunch_01.SW_RealisticPunch_01",
+      "/Game/Shared/Audio/Wavs/RealisticPunch/SW_RealisticPunch_02.SW_RealisticPunch_02",
+      "/Game/Shared/Audio/Wavs/RealisticPunch/SW_RealisticPunch_03.SW_RealisticPunch_03",
+      "/Game/Shared/Audio/Wavs/RealisticPunch/SW_RealisticPunch_04.SW_RealisticPunch_04"
+    ],
+    "pitch_variance": 0.05
+  }
+}
