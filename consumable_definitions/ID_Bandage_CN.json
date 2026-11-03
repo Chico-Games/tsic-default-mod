@@ -69,6 +69,34 @@
     "storage_class": "general",
     "material_class": "cloth",
     "item_category_tag": "Entity.Inventory.Item.Category.Consumable",
-    "max_stack_size": 10
+    "max_stack_size": 10,
+    "hold": {
+      "right": {
+        "location": {
+          "x": 0.03,
+          "y": 10.4,
+          "z": 1.52
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 90.3,
+          "roll": -69.8
+        },
+        "scale": 1
+      },
+      "left": {
+        "location": {
+          "x": 0.01,
+          "y": -10.36,
+          "z": -1.78
+        },
+        "rotation": {
+          "pitch": -1.4,
+          "yaw": -89.4,
+          "roll": -109.9
+        },
+        "scale": 1
+      }
+    }
   }
 }

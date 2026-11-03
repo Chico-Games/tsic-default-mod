@@ -13,6 +13,35 @@
     "item_category_tag": "Entity.Inventory.Item.Category.CraftingMaterial",
     "max_stack_size": 50,
     "storage_class": "general",
-    "material_class": "electronic"
+    "material_class": "electronic",
+    "hold": {
+      "mirrored": true,
+      "right": {
+        "location": {
+          "x": 0.06,
+          "y": 5.74,
+          "z": 0.05
+        },
+        "rotation": {
+          "pitch": -63.1,
+          "yaw": 1.3,
+          "roll": 176.6
+        },
+        "scale": 1
+      },
+      "left": {
+        "location": {
+          "x": -0.04,
+          "y": -5.74,
+          "z": -0.2
+        },
+        "rotation": {
+          "pitch": 63.4,
+          "yaw": -175.6,
+          "roll": 6.6
+        },
+        "scale": 1
+      }
+    }
   }
 }

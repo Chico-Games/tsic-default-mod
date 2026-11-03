@@ -17,6 +17,35 @@
     },
     "presentations": [ { "key": "default", "value": { "scale": 0.85, "rotation": { "pitch": 0.0, "yaw": 90.0, "roll": 0.0 } } } ],
     "storage_class": "general",
-    "material_class": "liquid"
+    "material_class": "liquid",
+    "hold": {
+      "mirrored": true,
+      "right": {
+        "location": {
+          "x": -3,
+          "y": 21.65,
+          "z": 6.52
+        },
+        "rotation": {
+          "pitch": -5.5,
+          "yaw": 175.5,
+          "roll": 98.1
+        },
+        "scale": 1
+      },
+      "left": {
+        "location": {
+          "x": 3.05,
+          "y": -21.46,
+          "z": -7.08
+        },
+        "rotation": {
+          "pitch": 5.1,
+          "yaw": -4.3,
+          "roll": 80.5
+        },
+        "scale": 1
+      }
+    }
   }
 }

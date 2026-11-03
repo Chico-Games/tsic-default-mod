@@ -13,6 +13,35 @@
     "item_category_tag": "Entity.Inventory.Item.Category.CraftingMaterial",
     "max_stack_size": 50,
     "storage_class": "general",
-    "material_class": "stone"
+    "material_class": "stone",
+    "hold": {
+      "mirrored": true,
+      "right": {
+        "location": {
+          "x": -5.21,
+          "y": 11.71,
+          "z": -8.75
+        },
+        "rotation": {
+          "pitch": 12.6,
+          "yaw": -8.2,
+          "roll": 94.4
+        },
+        "scale": 1
+      },
+      "left": {
+        "location": {
+          "x": 5.31,
+          "y": -11.9,
+          "z": 8.42
+        },
+        "rotation": {
+          "pitch": -12.1,
+          "yaw": 171.7,
+          "roll": 87
+        },
+        "scale": 1
+      }
+    }
   }
 }

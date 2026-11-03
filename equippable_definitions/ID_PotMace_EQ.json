@@ -93,6 +93,35 @@
     "equipment_slot": "Entity.Inventory.Item.Equipment.Slot.Weapon",
     "item_category_tag": "Entity.Inventory.Item.Category.Weapon",
     "storage_class": "general",
-    "material_class": "metal"
+    "material_class": "metal",
+    "hold": {
+      "mirrored": true,
+      "right": {
+        "location": {
+          "x": -15.41,
+          "y": 9.94,
+          "z": 59.08
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "scale": 1
+      },
+      "left": {
+        "location": {
+          "x": 15.09,
+          "y": -8.38,
+          "z": -59.41
+        },
+        "rotation": {
+          "pitch": 0.3,
+          "yaw": -179.7,
+          "roll": -178.6
+        },
+        "scale": 1
+      }
+    }
   }
 }

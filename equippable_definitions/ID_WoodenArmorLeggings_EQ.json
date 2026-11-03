@@ -158,6 +158,35 @@
       "cells": [ { "x": 0, "y": 0 }, { "x": 1, "y": 0 }, { "x": 0, "y": 1 }, { "x": 1, "y": 1 } ]
     },
     "storage_class": "general",
-    "material_class": "wood"
+    "material_class": "wood",
+    "hold": {
+      "mirrored": true,
+      "right": {
+        "location": {
+          "x": -10.45,
+          "y": 8.7,
+          "z": 0
+        },
+        "rotation": {
+          "pitch": 90,
+          "yaw": -106.7,
+          "roll": 0
+        },
+        "scale": 1
+      },
+      "left": {
+        "location": {
+          "x": 10.49,
+          "y": -8.65,
+          "z": -0.28
+        },
+        "rotation": {
+          "pitch": -88.5,
+          "yaw": 103.7,
+          "roll": 149.8
+        },
+        "scale": 1
+      }
+    }
   }
 }

@@ -94,6 +94,35 @@
     "item_category_tag": "Entity.Inventory.Item.Category.Weapon",
     "ammo_definition": "ID_TaserBattery_AM",
     "storage_class": "general",
-    "material_class": "electronic"
+    "material_class": "electronic",
+    "hold": {
+      "mirrored": true,
+      "right": {
+        "location": {
+          "x": -4.1,
+          "y": 5.62,
+          "z": 2.34
+        },
+        "rotation": {
+          "pitch": 1,
+          "yaw": -78.9,
+          "roll": -94.9
+        },
+        "scale": 1
+      },
+      "left": {
+        "location": {
+          "x": 4.11,
+          "y": -5.55,
+          "z": -2.51
+        },
+        "rotation": {
+          "pitch": 0.5,
+          "yaw": 101.4,
+          "roll": -85.2
+        },
+        "scale": 1
+      }
+    }
   }
 }

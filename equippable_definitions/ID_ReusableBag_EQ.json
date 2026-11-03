@@ -22,6 +22,35 @@
       "y": 4
     },
     "storage_class": "general",
-    "material_class": "cloth"
+    "material_class": "cloth",
+    "hold": {
+      "mirrored": true,
+      "right": {
+        "location": {
+          "x": 2.48,
+          "y": 19.03,
+          "z": 1.61
+        },
+        "rotation": {
+          "pitch": -56.5,
+          "yaw": 0,
+          "roll": 10.5
+        },
+        "scale": 1
+      },
+      "left": {
+        "location": {
+          "x": -2.41,
+          "y": -18.99,
+          "z": -2.07
+        },
+        "rotation": {
+          "pitch": 56.8,
+          "yaw": -177.5,
+          "roll": 172.1
+        },
+        "scale": 1
+      }
+    }
   }
 }

@@ -68,6 +68,35 @@
     "storage_class": "general",
     "material_class": "plastic",
     "item_category_tag": "Entity.Inventory.Item.Category.Consumable",
-    "max_stack_size": 10
+    "max_stack_size": 10,
+    "hold": {
+      "mirrored": true,
+      "right": {
+        "location": {
+          "x": 0,
+          "y": 3,
+          "z": 0
+        },
+        "rotation": {
+          "pitch": 18.4,
+          "yaw": 0,
+          "roll": 0
+        },
+        "scale": 1
+      },
+      "left": {
+        "location": {
+          "x": 0.01,
+          "y": -3,
+          "z": -0.08
+        },
+        "rotation": {
+          "pitch": -18,
+          "yaw": 179.8,
+          "roll": -178.5
+        },
+        "scale": 1
+      }
+    }
   }
 }

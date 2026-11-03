@@ -13,6 +13,35 @@
     "item_category_tag": "Entity.Inventory.Item.Category.CraftingMaterial",
     "max_stack_size": 50,
     "storage_class": "general",
-    "material_class": "paper"
+    "material_class": "paper",
+    "hold": {
+      "mirrored": true,
+      "right": {
+        "location": {
+          "x": -4.54,
+          "y": 10.04,
+          "z": -0.94
+        },
+        "rotation": {
+          "pitch": 6.2,
+          "yaw": 115,
+          "roll": -76.2
+        },
+        "scale": 1
+      },
+      "left": {
+        "location": {
+          "x": 4.59,
+          "y": -10.04,
+          "z": 0.66
+        },
+        "rotation": {
+          "pitch": -7.7,
+          "yaw": -64.7,
+          "roll": -104.1
+        },
+        "scale": 1
+      }
+    }
   }
 }

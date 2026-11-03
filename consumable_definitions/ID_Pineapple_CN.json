@@ -68,6 +68,35 @@
     "storage_class": "cold",
     "material_class": "food",
     "item_category_tag": "Entity.Inventory.Item.Category.Consumable",
-    "max_stack_size": 1
+    "max_stack_size": 1,
+    "hold": {
+      "mirrored": true,
+      "right": {
+        "location": {
+          "x": 1.19,
+          "y": 5.18,
+          "z": 1.81
+        },
+        "rotation": {
+          "pitch": -19,
+          "yaw": 145.6,
+          "roll": 25.6
+        },
+        "scale": 1
+      },
+      "left": {
+        "location": {
+          "x": -1.18,
+          "y": -5.14,
+          "z": -1.94
+        },
+        "rotation": {
+          "pitch": 17.9,
+          "yaw": -34.5,
+          "roll": 153.3
+        },
+        "scale": 1
+      }
+    }
   }
 }

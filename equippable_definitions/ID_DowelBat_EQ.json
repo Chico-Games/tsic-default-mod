@@ -93,6 +93,35 @@
     "equipment_slot": "Entity.Inventory.Item.Equipment.Slot.Weapon",
     "item_category_tag": "Entity.Inventory.Item.Category.Weapon",
     "storage_class": "general",
-    "material_class": "wood"
+    "material_class": "wood",
+    "hold": {
+      "mirrored": false,
+      "right": {
+        "location": {
+          "x": -13.09,
+          "y": -4.87,
+          "z": 25.78
+        },
+        "rotation": {
+          "pitch": 65.4,
+          "yaw": -169.8,
+          "roll": -170.7
+        },
+        "scale": 1
+      },
+      "left": {
+        "location": {
+          "x": 13.18,
+          "y": -2.02,
+          "z": -26.43
+        },
+        "rotation": {
+          "pitch": -65.4,
+          "yaw": 13.7,
+          "roll": -12.8
+        },
+        "scale": 1
+      }
+    }
   }
 }

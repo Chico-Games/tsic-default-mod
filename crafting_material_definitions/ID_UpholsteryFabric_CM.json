@@ -41,6 +41,35 @@
           "mesh": "/Game/Items/CraftingMaterials/ScrapFabric/Meshes/SM_ScrapFabric_Hung.SM_ScrapFabric_Hung"
         }
       }
-    ]
+    ],
+    "hold": {
+      "mirrored": true,
+      "right": {
+        "location": {
+          "x": -4,
+          "y": 5.34,
+          "z": 0.69
+        },
+        "rotation": {
+          "pitch": -70.2,
+          "yaw": -7.4,
+          "roll": 27.5
+        },
+        "scale": 1
+      },
+      "left": {
+        "location": {
+          "x": 4.02,
+          "y": -5.3,
+          "z": -0.85
+        },
+        "rotation": {
+          "pitch": 70.7,
+          "yaw": 176.8,
+          "roll": 156.7
+        },
+        "scale": 1
+      }
+    }
   }
 }

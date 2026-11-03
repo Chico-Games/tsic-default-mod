@@ -13,6 +13,35 @@
     "item_category_tag": "Entity.Inventory.Item.Category.CraftingMaterial",
     "max_stack_size": 50,
     "storage_class": "general",
-    "material_class": "flesh"
+    "material_class": "flesh",
+    "hold": {
+      "mirrored": true,
+      "right": {
+        "location": {
+          "x": 0.16,
+          "y": 18.34,
+          "z": -0.39
+        },
+        "rotation": {
+          "pitch": -82.5,
+          "yaw": 0,
+          "roll": -28.3
+        },
+        "scale": 1
+      },
+      "left": {
+        "location": {
+          "x": -0.08,
+          "y": -18.35,
+          "z": -0.07
+        },
+        "rotation": {
+          "pitch": 82.7,
+          "yaw": -168.5,
+          "roll": -140.4
+        },
+        "scale": 1
+      }
+    }
   }
 }

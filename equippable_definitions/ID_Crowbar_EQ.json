@@ -94,6 +94,35 @@
     "item_category_tag": "Entity.Inventory.Item.Category.Weapon",
     "entity_damage_multiplier": 2.0,
     "storage_class": "general",
-    "material_class": "metal"
+    "material_class": "metal",
+    "hold": {
+      "mirrored": false,
+      "right": {
+        "location": {
+          "x": -4.14,
+          "y": 5.71,
+          "z": 10.9
+        },
+        "rotation": {
+          "pitch": -16.2,
+          "yaw": 177.6,
+          "roll": 8.5
+        },
+        "scale": 1
+      },
+      "left": {
+        "location": {
+          "x": 4.1,
+          "y": -5.42,
+          "z": -11.07
+        },
+        "rotation": {
+          "pitch": -15.9,
+          "yaw": 178,
+          "roll": -170.1
+        },
+        "scale": 1
+      }
+    }
   }
 }

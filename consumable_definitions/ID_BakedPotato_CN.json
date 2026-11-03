@@ -67,6 +67,35 @@
     "static_item_definition": "FD_BakedPotato_SI",
     "storage_class": "cold",
     "material_class": "food",
-    "item_category_tag": "Entity.Inventory.Item.Category.Consumable"
+    "item_category_tag": "Entity.Inventory.Item.Category.Consumable",
+    "hold": {
+      "mirrored": true,
+      "right": {
+        "location": {
+          "x": -2.95,
+          "y": 4.4,
+          "z": 4.34
+        },
+        "rotation": {
+          "pitch": -64.6,
+          "yaw": -151.1,
+          "roll": -113.5
+        },
+        "scale": 1
+      },
+      "left": {
+        "location": {
+          "x": 2.95,
+          "y": -4.27,
+          "z": -4.46
+        },
+        "rotation": {
+          "pitch": 65,
+          "yaw": 26.1,
+          "roll": -69.9
+        },
+        "scale": 1
+      }
+    }
   }
 }

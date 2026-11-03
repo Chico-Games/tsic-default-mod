@@ -13,6 +13,35 @@
     "item_category_tag": "Entity.Inventory.Item.Category.CraftingMaterial",
     "max_stack_size": 50,
     "storage_class": "general",
-    "material_class": "plant"
+    "material_class": "plant",
+    "hold": {
+      "mirrored": true,
+      "right": {
+        "location": {
+          "x": -0.73,
+          "y": 2.69,
+          "z": 1.89
+        },
+        "rotation": {
+          "pitch": -5.2,
+          "yaw": -107.2,
+          "roll": -8.4
+        },
+        "scale": 1
+      },
+      "left": {
+        "location": {
+          "x": 0.73,
+          "y": -2.64,
+          "z": -1.96
+        },
+        "rotation": {
+          "pitch": 6.5,
+          "yaw": 73,
+          "roll": -172.4
+        },
+        "scale": 1
+      }
+    }
   }
 }

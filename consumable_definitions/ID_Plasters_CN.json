@@ -69,6 +69,35 @@
     "storage_class": "general",
     "material_class": "paper",
     "item_category_tag": "Entity.Inventory.Item.Category.Consumable",
-    "max_stack_size": 10
+    "max_stack_size": 10,
+    "hold": {
+      "mirrored": true,
+      "right": {
+        "location": {
+          "x": -2.55,
+          "y": 1.78,
+          "z": 0.01
+        },
+        "rotation": {
+          "pitch": -1.4,
+          "yaw": 133,
+          "roll": -82.9
+        },
+        "scale": 1
+      },
+      "left": {
+        "location": {
+          "x": 2.55,
+          "y": -1.77,
+          "z": -0.07
+        },
+        "rotation": {
+          "pitch": 0.1,
+          "yaw": -46.8,
+          "roll": -97.8
+        },
+        "scale": 1
+      }
+    }
   }
 }
