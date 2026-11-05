@@ -86,7 +86,7 @@
     "has_ammo": false,
     "max_ammo": 0,
     "display_name": "Crowbar",
-    "description": "Melee weapon. Quick one-handed swings. 2× damage to furniture. Found in the store or bought from a vending machine.\nWarehouse prying iron. Quick one-handed swings, and it takes crates and cabinets apart far faster than it takes anything living apart.",
+    "description": "A crowbar designed for opening crates, but it makes for a sturdy weapon in a pinch.",
     "stackable": false,
     "weight": 0.09,
     "static_item_definition": "FD_Crowbar_SI",

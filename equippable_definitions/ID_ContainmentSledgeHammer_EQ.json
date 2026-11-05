@@ -47,7 +47,7 @@
     "has_ammo": false,
     "max_ammo": 0,
     "display_name": "Containment Sledgehammer",
-    "description": "Melee weapon. Very slow overhead strikes, +35% damage, 4× damage to furniture. The strongest melee weapon. Upgraded from a Sledge Hammer. Made at the Weapon Bench.\nA sledgehammer rebuilt around the Heavy Staff load survey. The head lands where the research says bone gives.",
+    "description": "A heavy sledgehammer for breaking through walls. Can also be used to cause heavy blunt damage to enemies.",
     "stackable": false,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_ContainmentSledgeHammer_SI",

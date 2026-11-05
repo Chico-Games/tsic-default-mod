@@ -61,7 +61,7 @@
     "has_ammo": false,
     "max_ammo": 0,
     "display_name": "Coffee",
-    "description": "Drink: +2.5 stamina/s, stamina recovers 30% sooner, +3% move speed for 5 min. Made at the Coffee Machine.\nHot cafeteria coffee. The caffeine gets you moving and keeps you there.",
+    "description": "Cafe coffee served at the perfect temperature: Boiling.\n\nIncreases movement speed and substantially increases stamina regen, as well as decreasing stamina regen delay.",
     "thumbnail": "/Game/Items/Consumables/UncookedFood/Coffee/Textures/T_Thumb_SM_Bag_Coffee.T_Thumb_SM_Bag_Coffee",
     "stackable": true,
     "weight": 0.10000000149011612,

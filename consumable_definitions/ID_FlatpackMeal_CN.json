@@ -61,7 +61,7 @@
     "has_ammo": false,
     "max_ammo": 0,
     "display_name": "Assembled Flatpack Meal",
-    "description": "Eat: Heals 15 instantly. +12 max health, +12 max stamina, +0.8 stamina/s for 13 min. Fills 45 hunger. Made at the Microwave.\nA complete meal assembled from flatpack components. Only two parts left over.",
+    "description": "A full meal flatpacked into one convenient sheet. Two of your five a day!\n\nInstantly heals, increases max health, max stamina AND stamina regen.",
     "stackable": true,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_FlatpackMeal_SI",

@@ -7,7 +7,7 @@
     "thumbnail": "mod:icons/id_dishwasher_ci",
     "furniture_to_construct": "FD_Dishwasher_PS",
     "display_name": "Dishwasher",
-    "description": "Placeable machine. Produces Plate of Salmon. Dismantle with a Reinforced Screwdriver Tool. Upgradable with a Reinforced Hammer Tool into the Dishwasher (Advanced).\nA simple microwave for basic cooking. Heats and cooks simple meals quickly.",
+    "description": "A simple dishwasher. Great for cleaning dishes if you didn't have an unlimited amount of those, but you can also cook a mean salmon fillet in this. The more you know!",
     "stackable": true,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_Dishwasher_SI",

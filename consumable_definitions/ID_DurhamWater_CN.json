@@ -61,7 +61,7 @@
     "has_ammo": false,
     "max_ammo": 0,
     "display_name": "Durham Spring Water",
-    "description": "Drink: +0.8 stamina/s, stamina recovers 15% sooner for 6 min. Found in the showroom.\nBottled water from an undisclosed spring. Wet, at least.",
+    "description": "Durham brand Spring water. Freshly bottled from some unknown source.\n\nIncreases stamina regen and decreases stamina regen delay.",
     "thumbnail": "/Game/Items/Consumables/UncookedFood/DurhamWater/Textures/T_Thumb_SM_Bottle_BigWater.T_Thumb_SM_Bottle_BigWater",
     "stackable": true,
     "weight": 0.10000000149011612,

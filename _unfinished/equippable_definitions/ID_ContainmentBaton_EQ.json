@@ -87,7 +87,7 @@
     "has_ammo": false,
     "max_ammo": 0,
     "display_name": "Containment Baton",
-    "description": "Melee weapon. Fast strikes. Full damage to enemies, normal damage to furniture. Found in the store or bought from a vending machine.\nFacility-issue restraint baton, rebuilt from salvage and research notes. Fast, and it hurts anomalies far more than it hurts furniture.",
+    "description": "Facility-issue baton, rebuilt following salvaged blueprints. Lightweight but still hits hard.",
     "stackable": false,
     "weight": 0.08,
     "static_item_definition": "FD_ContainmentBaton_SI",

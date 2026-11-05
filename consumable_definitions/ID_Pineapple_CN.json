@@ -60,7 +60,7 @@
     "has_ammo": false,
     "max_ammo": 0,
     "display_name": "Canned Pineapple",
-    "description": "Eat: Heals 8 instantly. +10 max stamina for 7 min. Fills 25 hunger. Also a cooking ingredient. Found in the store.\nCanned pineapple chunks in sweet syrup. Sharp, sweet, reviving.",
+    "description": "Delicious pineapple chunks packed into a can with sweet syrup.\n\nInstantly heals and increases max stamina.",
     "thumbnail": "/Game/Items/Consumables/UncookedFood/Pineapple/Textures/T_Thumb_SM_Can_Pineapple.T_Thumb_SM_Can_Pineapple",
     "stackable": false,
     "weight": 0.10000000149011612,

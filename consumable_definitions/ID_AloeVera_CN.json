@@ -61,7 +61,7 @@
     "has_ammo": false,
     "max_ammo": 0,
     "display_name": "Aloe Vera",
-    "description": "Eat: Heals 5 instantly. +0.4 HP/s for 4 min. Also a cooking ingredient. Grown from Aloe Vera Seeds.\nA fleshy aloe leaf. Soothing inside and out, if you can stand the taste.",
+    "description": "Watery, grassy, and incredibly bitter. But edible.\n\nInstantly heals and provides minor healing over time.",
     "stackable": true,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_AloeVera_SI",
