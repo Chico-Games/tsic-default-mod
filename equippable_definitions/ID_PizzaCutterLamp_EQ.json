@@ -7,24 +7,24 @@
     "thumbnail": "mod:icons/id_pizzacutterlamp_eq",
     "equipment_actors_and_meshes": [
       {
-        "mesh": "/Game/Items/Equipment/Weapons/PizzaCutterLamp/Meshes/SM_PizzaCutterLamp.SM_PizzaCutterLamp",
-        "attach_socket": "hand_l_weapon",
+        "skeletal_mesh": "/Game/Items/Equipment/Weapons/PizzaCutterLamp/Meshes/SKM_PizzaCutterLamp.SKM_PizzaCutterLamp",
+        "attach_socket": "weapon_l",
         "attach_transform": {
           "rotation": {
             "x": -0.09537988,
             "y": 0.67682028,
             "z": 0.08910588,
-            "w": 0.72448405
+            "w": 0.72448403
           },
           "translation": {
-            "x": 20.800559,
-            "y": -4.380131,
-            "z": -88.068920
+            "x": 5.200138,
+            "y": -1.095032,
+            "z": -22.017231
           },
           "scale3_d": {
-            "x": 4.0,
-            "y": 4.0,
-            "z": 4.0
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
           }
         }
       }

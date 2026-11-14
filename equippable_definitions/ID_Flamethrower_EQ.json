@@ -7,19 +7,19 @@
     "thumbnail": "mod:icons/id_flamethrower_eq",
     "equipment_actors_and_meshes": [
       {
-        "mesh": "/Game/Items/Equipment/Weapons/Flamethrower/Meshes/SM_Flamethrower.SM_Flamethrower",
-        "attach_socket": "hand_r_weapon",
+        "skeletal_mesh": "/Game/Items/Equipment/Weapons/Flamethrower/Meshes/SKM_Flamethrower.SKM_Flamethrower",
+        "attach_socket": "weapon_r",
         "attach_transform": {
           "rotation": {
-            "x": -0.486773,
-            "y": 0.388422,
-            "z": -0.755137,
+            "x": -0.48677301,
+            "y": 0.38842201,
+            "z": -0.75513703,
             "w": -0.204816
           },
           "translation": {
-            "x": -0.1863,
+            "x": -0.186311,
             "y": 6.9763,
-            "z": -10.7376
+            "z": -10.73761
           },
           "scale3_d": {
             "x": 1.0,

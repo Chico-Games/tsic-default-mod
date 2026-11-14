@@ -1,0 +1,1 @@
+{"id": "Combat.Hammer.Swing", "class": "SoundSlotDefinition", "properties": {"sounds": ["/Game/Shared/Audio/Wavs/Swing/SW_Swing_01.SW_Swing_01", "/Game/Shared/Audio/Wavs/Swing/SW_Swing_02.SW_Swing_02", "/Game/Shared/Audio/Wavs/Swing/SW_Swing_03.SW_Swing_03"], "volume": 0.7, "pitch_variance": 0.08}}

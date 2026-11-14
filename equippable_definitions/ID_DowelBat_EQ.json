@@ -7,19 +7,19 @@
     "thumbnail": "mod:icons/id_dowelbat_eq",
     "equipment_actors_and_meshes": [
       {
-        "mesh": "/Game/Items/Equipment/Weapons/DowelBat/Meshes/SM_DowelBat.SM_DowelBat",
-        "attach_socket": "hand_r_weapon",
+        "skeletal_mesh": "/Game/Items/Equipment/Weapons/DowelBat/Meshes/SKM_DowelBat.SKM_DowelBat",
+        "attach_socket": "weapon_r",
         "attach_transform": {
           "rotation": {
             "x": -0.11194633,
-            "y": -0.7036336,
+            "y": -0.70363361,
             "z": -0.18733895,
-            "w": 0.67621882
+            "w": 0.67621881
           },
           "translation": {
-            "x": -8.086703,
-            "y": -1.100083,
-            "z": 27.385651
+            "x": -8.086704,
+            "y": -1.100082,
+            "z": 27.385653
           },
           "scale3_d": {
             "x": 1.0,

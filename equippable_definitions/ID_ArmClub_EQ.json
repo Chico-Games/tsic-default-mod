@@ -7,18 +7,18 @@
     "thumbnail": "mod:icons/id_armclub_eq",
     "equipment_actors_and_meshes": [
       {
-        "mesh": "/Game/Items/Equipment/Weapons/ArmClub/Meshes/SM_ArmClub.SM_ArmClub",
-        "attach_socket": "hand_r_weapon",
+        "skeletal_mesh": "/Game/Items/Equipment/Weapons/ArmClub/Meshes/SKM_ArmClub.SKM_ArmClub",
+        "attach_socket": "weapon_r",
         "attach_transform": {
           "rotation": {
             "x": 0.0,
             "y": -0.25881904,
             "z": 0.0,
-            "w": 0.96592583
+            "w": 0.96592581
           },
           "translation": {
-            "x": -13.464104,
-            "y": 6.000001,
+            "x": -13.464103,
+            "y": 6.0,
             "z": 1.0
           },
           "scale3_d": {

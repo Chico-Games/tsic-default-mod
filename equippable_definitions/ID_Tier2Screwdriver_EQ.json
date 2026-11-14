@@ -7,8 +7,8 @@
     "thumbnail": "mod:icons/id_tier2screwdriver_eq",
     "equipment_actors_and_meshes": [
       {
-        "mesh": "/Game/Items/Equipment/Tools/Tier2Screwdriver/Meshes/SM_Screwdriver_01.SM_Screwdriver_01",
-        "attach_socket": "Hand_R",
+        "skeletal_mesh": "/Game/Items/Equipment/Tools/Tier2Screwdriver/Meshes/SKM_Screwdriver2.SKM_Screwdriver2",
+        "attach_socket": "weapon_r",
         "attach_transform": {
           "rotation": {
             "x": 0.0,
@@ -17,9 +17,9 @@
             "w": 1.0
           },
           "translation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
+            "x": -0.0,
+            "y": -0.0,
+            "z": -0.0
           },
           "scale3_d": {
             "x": 1.0,

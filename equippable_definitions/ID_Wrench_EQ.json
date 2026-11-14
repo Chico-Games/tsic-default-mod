@@ -7,19 +7,19 @@
     "thumbnail": "mod:icons/id_wrench_eq",
     "equipment_actors_and_meshes": [
       {
-        "mesh": "/Game/Items/Equipment/Weapons/Wrench/Meshes/SM_Wrench.SM_Wrench",
-        "attach_socket": "hand_r_weapon",
+        "skeletal_mesh": "/Game/Items/Equipment/Weapons/Wrench/Meshes/SKM_Wrench.SKM_Wrench",
+        "attach_socket": "weapon_r",
         "attach_transform": {
           "rotation": {
             "x": 0.02281808,
             "y": -0.05214446,
-            "z": 0.54120679,
-            "w": 0.83896097
+            "z": 0.54120678,
+            "w": 0.83896095
           },
           "translation": {
-            "x": -13.166378,
-            "y": 4.036722,
-            "z": 13.463061
+            "x": -13.166377,
+            "y": 4.036721,
+            "z": 13.463062
           },
           "scale3_d": {
             "x": 1.0,

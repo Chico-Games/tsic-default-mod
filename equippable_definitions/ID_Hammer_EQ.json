@@ -7,19 +7,19 @@
     "thumbnail": "mod:icons/id_hammer_eq",
     "equipment_actors_and_meshes": [
       {
-        "mesh": "/Game/Items/Equipment/Weapons/Hammer/Meshes/SM_Hammer.SM_Hammer",
-        "attach_socket": "hand_r_weapon",
+        "skeletal_mesh": "/Game/Items/Equipment/Weapons/Hammer/Meshes/SKM_Hammer.SKM_Hammer",
+        "attach_socket": "weapon_r",
         "attach_transform": {
           "rotation": {
             "x": 0.02281808,
             "y": -0.05214446,
-            "z": 0.54120679,
-            "w": 0.83896097
+            "z": 0.54120678,
+            "w": 0.83896095
           },
           "translation": {
             "x": -12.915831,
-            "y": 2.338934,
-            "z": 17.343106
+            "y": 2.338933,
+            "z": 17.343105
           },
           "scale3_d": {
             "x": 1.0,
@@ -29,7 +29,7 @@
         }
       }
     ],
-    "equipped_layer_class": "/Game/Items/Equipment/Weapons/Hammer/Blueprints/ABP_Hammer.ABP_Hammer_C",
+    "equipped_layer_class": "/Game/Items/Equipment/Weapons/Hammer/Blueprints/ABP_Hammer_MH.ABP_Hammer_MH_C",
     "ability_sets_to_grant": [
       "/Game/Items/Equipment/Weapons/Hammer/Abilities/AS_Hammer.AS_Hammer"
     ],
@@ -122,6 +122,16 @@
         },
         "scale": 1
       }
+    },
+    "handling": {
+      "montage": "/Game/Items/Equipment/Weapons/Hammer/Animations/Montages/AM_Hammer_Handling_MH.AM_Hammer_Handling_MH",
+      "equip_section": "Equip",
+      "unequip_section": "Unequip",
+      "first_equip_section": "Spin",
+      "idle_sections": [
+        "Spin",
+        "Inspect"
+      ]
     }
   }
 }

@@ -7,8 +7,8 @@
     "thumbnail": "mod:icons/id_tier1hammer_eq",
     "equipment_actors_and_meshes": [
       {
-        "mesh": "/Game/Items/Equipment/Weapons/Hammer/Meshes/SM_Hammer.SM_Hammer",
-        "attach_socket": "Hand_R",
+        "skeletal_mesh": "/Game/Items/Equipment/Weapons/Hammer/Meshes/SKM_Hammer.SKM_Hammer",
+        "attach_socket": "weapon_r",
         "attach_transform": {
           "rotation": {
             "x": 0.0,
@@ -17,14 +17,14 @@
             "w": 1.0
           },
           "translation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
+            "x": -0.38633,
+            "y": 3.945748,
+            "z": 5.665421
           },
           "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
+            "x": 0.916667,
+            "y": 0.916667,
+            "z": 0.916667
           }
         }
       }
