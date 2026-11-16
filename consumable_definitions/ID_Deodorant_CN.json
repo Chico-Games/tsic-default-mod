@@ -61,13 +61,42 @@
     "has_ammo": false,
     "max_ammo": 0,
     "display_name": "Deodorant",
-    "description": "Not food. Using it lowers max health by 10 for 1 min. Found in the bathrooms.\nAn aerosol deodorant. Alpine Fresh, allegedly. Propellant included.",
+    "description": "An aerosol deodorant. Point away from face and do not eat this.\n\nReduces max health.",
     "stackable": true,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_Deodorant_SI",
     "storage_class": "general",
     "material_class": "plastic",
     "item_category_tag": "Entity.Inventory.Item.Category.Consumable",
-    "max_stack_size": 10
+    "max_stack_size": 10,
+    "hold": {
+      "mirrored": true,
+      "right": {
+        "location": {
+          "x": 0,
+          "y": 3,
+          "z": 0
+        },
+        "rotation": {
+          "pitch": 18.4,
+          "yaw": 0,
+          "roll": 0
+        },
+        "scale": 1
+      },
+      "left": {
+        "location": {
+          "x": 0.01,
+          "y": -3,
+          "z": -0.08
+        },
+        "rotation": {
+          "pitch": -18,
+          "yaw": 179.8,
+          "roll": -178.5
+        },
+        "scale": 1
+      }
+    }
   }
 }

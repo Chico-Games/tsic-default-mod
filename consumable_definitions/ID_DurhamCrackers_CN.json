@@ -61,13 +61,42 @@
     "has_ammo": false,
     "max_ammo": 0,
     "display_name": "Durham Sweetcorn",
-    "description": "Eat: Heals 3 instantly. +5 max stamina for 5 min. Fills 20 hunger. Found in the abandoned camp.\nA tin of own-brand sweetcorn. Sweet, yellow, dependable.",
+    "description": "Durham brand sweetcorn from a can. Sweet and fresh and good for the next decade.\n\nInstantly heals and increases max stamina.",
     "stackable": false,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_DurhamCrackers_SI",
     "storage_class": "cold",
     "material_class": "food",
     "item_category_tag": "Entity.Inventory.Item.Category.Consumable",
-    "max_stack_size": 1
+    "max_stack_size": 1,
+    "hold": {
+      "mirrored": true,
+      "right": {
+        "location": {
+          "x": -0.04,
+          "y": 5.2,
+          "z": 0.08
+        },
+        "rotation": {
+          "pitch": -28.2,
+          "yaw": -179.9,
+          "roll": -6.3
+        },
+        "scale": 1
+      },
+      "left": {
+        "location": {
+          "x": 0.07,
+          "y": -5.2,
+          "z": -0.21
+        },
+        "rotation": {
+          "pitch": 27.8,
+          "yaw": -0.4,
+          "roll": -175.3
+        },
+        "scale": 1
+      }
+    }
   }
 }

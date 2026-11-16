@@ -13,6 +13,35 @@
     "item_category_tag": "Entity.Inventory.Item.Category.CraftingMaterial",
     "max_stack_size": 50,
     "storage_class": "general",
-    "material_class": "cloth"
+    "material_class": "cloth",
+    "hold": {
+      "mirrored": true,
+      "right": {
+        "location": {
+          "x": 2.52,
+          "y": 19.22,
+          "z": 1.66
+        },
+        "rotation": {
+          "pitch": -56.5,
+          "yaw": 0,
+          "roll": 10.5
+        },
+        "scale": 1
+      },
+      "left": {
+        "location": {
+          "x": -2.45,
+          "y": -19.18,
+          "z": -2.13
+        },
+        "rotation": {
+          "pitch": 56.8,
+          "yaw": -177.5,
+          "roll": 172.1
+        },
+        "scale": 1
+      }
+    }
   }
 }

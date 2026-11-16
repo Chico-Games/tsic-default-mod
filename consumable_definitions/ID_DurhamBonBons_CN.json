@@ -61,13 +61,42 @@
     "has_ammo": false,
     "max_ammo": 0,
     "display_name": "Durham Sweet Jar",
-    "description": "Eat: Heals 5 instantly. Fills 15 hunger. Found in the kids' department.\nA big glazed jar of own-brand bon bons, welded together in the bottom.",
+    "description": "A jar of Durham brand boiled sweets. 50 servings in a bowl.\n\nInstantly heals.",
     "stackable": false,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_DurhamBonBons_SI",
     "storage_class": "cold",
     "material_class": "food",
     "item_category_tag": "Entity.Inventory.Item.Category.Consumable",
-    "max_stack_size": 1
+    "max_stack_size": 1,
+    "hold": {
+      "mirrored": true,
+      "right": {
+        "location": {
+          "x": 1.17,
+          "y": 9.31,
+          "z": 3.22
+        },
+        "rotation": {
+          "pitch": -74.2,
+          "yaw": 110.3,
+          "roll": -17.5
+        },
+        "scale": 1
+      },
+      "left": {
+        "location": {
+          "x": -1.15,
+          "y": -9.24,
+          "z": -3.44
+        },
+        "rotation": {
+          "pitch": 72.8,
+          "yaw": -70,
+          "roll": -163.1
+        },
+        "scale": 1
+      }
+    }
   }
 }

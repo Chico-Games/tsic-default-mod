@@ -7,19 +7,19 @@
     "thumbnail": "mod:icons/id_flamethrower_eq",
     "equipment_actors_and_meshes": [
       {
-        "mesh": "/Game/Items/Equipment/Weapons/Flamethrower/Meshes/SM_Flamethrower.SM_Flamethrower",
-        "attach_socket": "hand_r_weapon",
+        "skeletal_mesh": "/Game/Items/Equipment/Weapons/Flamethrower/Meshes/SKM_Flamethrower.SKM_Flamethrower",
+        "attach_socket": "weapon_r",
         "attach_transform": {
           "rotation": {
-            "x": -0.486773,
-            "y": 0.388422,
-            "z": -0.755137,
+            "x": -0.48677301,
+            "y": 0.38842201,
+            "z": -0.75513703,
             "w": -0.204816
           },
           "translation": {
-            "x": -0.1863,
+            "x": -0.186311,
             "y": 6.9763,
-            "z": -10.7376
+            "z": -10.73761
           },
           "scale3_d": {
             "x": 1.0,
@@ -93,6 +93,35 @@
     "equipment_slot": "Entity.Inventory.Item.Equipment.Slot.Weapon",
     "item_category_tag": "Entity.Inventory.Item.Category.Weapon",
     "storage_class": "general",
-    "material_class": "metal"
+    "material_class": "metal",
+    "hold": {
+      "mirrored": true,
+      "right": {
+        "location": {
+          "x": -19.21,
+          "y": 16.54,
+          "z": 16.52
+        },
+        "rotation": {
+          "pitch": 30.1,
+          "yaw": 134.3,
+          "roll": 22.4
+        },
+        "scale": 1
+      },
+      "left": {
+        "location": {
+          "x": 19.18,
+          "y": -16.03,
+          "z": -17.04
+        },
+        "rotation": {
+          "pitch": -31.4,
+          "yaw": -45,
+          "roll": 156.7
+        },
+        "scale": 1
+      }
+    }
   }
 }

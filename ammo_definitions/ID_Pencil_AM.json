@@ -13,6 +13,35 @@
     "item_category_tag": "Entity.Inventory.Item.Category.Ammo",
     "max_stack_size": 100,
     "storage_class": "general",
-    "material_class": "wood"
+    "material_class": "wood",
+    "hold": {
+      "mirrored": true,
+      "right": {
+        "location": {
+          "x": -2.64,
+          "y": 3.28,
+          "z": 0.27
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": -180,
+          "roll": -77.2
+        },
+        "scale": 1
+      },
+      "left": {
+        "location": {
+          "x": 2.65,
+          "y": -3.26,
+          "z": -0.37
+        },
+        "rotation": {
+          "pitch": -0.3,
+          "yaw": 0.3,
+          "roll": -104.3
+        },
+        "scale": 1
+      }
+    }
   }
 }

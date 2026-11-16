@@ -92,6 +92,35 @@
       "cells": [ { "x": 0, "y": 0 }, { "x": 1, "y": 0 }, { "x": 0, "y": 1 }, { "x": 1, "y": 1 } ]
     },
     "storage_class": "general",
-    "material_class": "cloth"
+    "material_class": "cloth",
+    "hold": {
+      "mirrored": true,
+      "right": {
+        "location": {
+          "x": 2.42,
+          "y": 11.12,
+          "z": 6.23
+        },
+        "rotation": {
+          "pitch": 25.8,
+          "yaw": 19.4,
+          "roll": 8.7
+        },
+        "scale": 1
+      },
+      "left": {
+        "location": {
+          "x": -2.41,
+          "y": -10.97,
+          "z": -6.5
+        },
+        "rotation": {
+          "pitch": -25.9,
+          "yaw": -161.1,
+          "roll": 173
+        },
+        "scale": 1
+      }
+    }
   }
 }

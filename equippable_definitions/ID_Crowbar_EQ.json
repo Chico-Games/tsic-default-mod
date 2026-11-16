@@ -7,19 +7,19 @@
     "thumbnail": "mod:icons/id_crowbar_eq",
     "equipment_actors_and_meshes": [
       {
-        "mesh": "/Game/Fab/Tool_Pack/Crowbar/SM_Crowbar.SM_Crowbar",
-        "attach_socket": "hand_r_weapon",
+        "skeletal_mesh": "/Game/Items/Equipment/Weapons/Crowbar/Meshes/SKM_Crowbar.SKM_Crowbar",
+        "attach_socket": "weapon_r",
         "attach_transform": {
           "rotation": {
             "x": -0.11194633,
-            "y": -0.7036336,
+            "y": -0.70363361,
             "z": -0.18733895,
-            "w": 0.67621882
+            "w": 0.67621881
           },
           "translation": {
-            "x": -8.086703,
-            "y": -1.100083,
-            "z": 27.385651
+            "x": -8.086704,
+            "y": -1.100082,
+            "z": 27.385653
           },
           "scale3_d": {
             "x": 1.0,
@@ -86,7 +86,7 @@
     "has_ammo": false,
     "max_ammo": 0,
     "display_name": "Crowbar",
-    "description": "Melee weapon. Quick one-handed swings. 2× damage to furniture. Found in the store or bought from a vending machine.\nWarehouse prying iron. Quick one-handed swings, and it takes crates and cabinets apart far faster than it takes anything living apart.",
+    "description": "A crowbar designed for opening crates, but it makes for a sturdy weapon in a pinch.",
     "stackable": false,
     "weight": 0.09,
     "static_item_definition": "FD_Crowbar_SI",
@@ -94,6 +94,35 @@
     "item_category_tag": "Entity.Inventory.Item.Category.Weapon",
     "entity_damage_multiplier": 2.0,
     "storage_class": "general",
-    "material_class": "metal"
+    "material_class": "metal",
+    "hold": {
+      "mirrored": false,
+      "right": {
+        "location": {
+          "x": -4.14,
+          "y": 5.71,
+          "z": 10.9
+        },
+        "rotation": {
+          "pitch": -16.2,
+          "yaw": 177.6,
+          "roll": 8.5
+        },
+        "scale": 1
+      },
+      "left": {
+        "location": {
+          "x": 4.1,
+          "y": -5.42,
+          "z": -11.07
+        },
+        "rotation": {
+          "pitch": -15.9,
+          "yaw": 178,
+          "roll": -170.1
+        },
+        "scale": 1
+      }
+    }
   }
 }

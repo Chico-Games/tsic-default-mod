@@ -60,7 +60,7 @@
     "has_ammo": false,
     "max_ammo": 0,
     "display_name": "Canned Dog Food",
-    "description": "Eat: Heals 3 instantly. -5 max health for 5 min. Fills 25 hunger. Found in the store.\nCanned dog food. Edible in desperate times. These are desperate times.",
+    "description": "Canned dog food. Edible in desperate times and unfortunately these are desperate times. The packaging notes a high protein content.\n\nInstantly heals and reduces max health.",
     "thumbnail": "/Game/Items/Consumables/UncookedFood/DogFood/Textures/T_Thumb_SM_Can_DogMeat.T_Thumb_SM_Can_DogMeat",
     "stackable": false,
     "weight": 0.10000000149011612,
@@ -68,6 +68,35 @@
     "storage_class": "cold",
     "material_class": "food",
     "item_category_tag": "Entity.Inventory.Item.Category.Consumable",
-    "max_stack_size": 1
+    "max_stack_size": 1,
+    "hold": {
+      "mirrored": true,
+      "right": {
+        "location": {
+          "x": 0.5,
+          "y": 5.08,
+          "z": 0.4
+        },
+        "rotation": {
+          "pitch": 13.9,
+          "yaw": 0,
+          "roll": 0
+        },
+        "scale": 1
+      },
+      "left": {
+        "location": {
+          "x": -0.48,
+          "y": -5.07,
+          "z": -0.52
+        },
+        "rotation": {
+          "pitch": -13.5,
+          "yaw": 179.9,
+          "roll": -178.5
+        },
+        "scale": 1
+      }
+    }
   }
 }

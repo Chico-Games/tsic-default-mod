@@ -61,13 +61,42 @@
     "has_ammo": false,
     "max_ammo": 0,
     "display_name": "Durham Sardines",
-    "description": "Eat: Heals 6 instantly. +6 max stamina for 5 min. Fills 20 hunger. Found in the abandoned camp.\nDurham own-brand sardines in oil. Cheap protein, strong opinions.",
+    "description": "Durham brand canned sardines. Tightly packed into the tin in a rich olive oil, and they only smell a little bad.\n\nInstantly heals, increases stamina and satiation.",
     "stackable": false,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_DurhamChocolateBiscuits_SI",
     "storage_class": "cold",
     "material_class": "food",
     "item_category_tag": "Entity.Inventory.Item.Category.Consumable",
-    "max_stack_size": 1
+    "max_stack_size": 1,
+    "hold": {
+      "mirrored": true,
+      "right": {
+        "location": {
+          "x": -1.37,
+          "y": 3.12,
+          "z": 1.08
+        },
+        "rotation": {
+          "pitch": -5.3,
+          "yaw": 119.4,
+          "roll": -79.8
+        },
+        "scale": 1
+      },
+      "left": {
+        "location": {
+          "x": 1.37,
+          "y": -3.09,
+          "z": -1.17
+        },
+        "rotation": {
+          "pitch": 3.9,
+          "yaw": -60.4,
+          "roll": -100.6
+        },
+        "scale": 1
+      }
+    }
   }
 }

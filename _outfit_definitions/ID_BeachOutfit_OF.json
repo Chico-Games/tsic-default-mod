@@ -6,7 +6,7 @@
   "properties": {
     "material_class": "cloth",
     "display_name": "Beach Outfit",
-    "description": "Outfit. Cosmetic only. Found in the store or bought from a vending machine.\nLight summer wear. Armor still fits over it.",
+    "description": "Clothes perfect for summer, or whatever season they have inside Durham where it's too hot.",
     "stackable": false,
     "weight": 0.5,
     "equipment_slot": "Entity.Inventory.Item.Equipment.Slot.Outfit",

@@ -13,6 +13,35 @@
     "item_category_tag": "Entity.Inventory.Item.Category.CraftingMaterial",
     "max_stack_size": 50,
     "storage_class": "general",
-    "material_class": "metal"
+    "material_class": "metal",
+    "hold": {
+      "mirrored": true,
+      "right": {
+        "location": {
+          "x": -2.92,
+          "y": 3.05,
+          "z": 0.84
+        },
+        "rotation": {
+          "pitch": -11.1,
+          "yaw": 180,
+          "roll": -90
+        },
+        "scale": 1
+      },
+      "left": {
+        "location": {
+          "x": 2.92,
+          "y": -3.02,
+          "z": -0.93
+        },
+        "rotation": {
+          "pitch": 10.7,
+          "yaw": 0,
+          "roll": -91.5
+        },
+        "scale": 1
+      }
+    }
   }
 }

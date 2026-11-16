@@ -33,6 +33,35 @@
       ]
     },
     "storage_class": "general",
-    "material_class": "metal"
+    "material_class": "metal",
+    "hold": {
+      "mirrored": true,
+      "right": {
+        "location": {
+          "x": -2.21,
+          "y": 14.02,
+          "z": 1.47
+        },
+        "rotation": {
+          "pitch": -75.7,
+          "yaw": -90,
+          "roll": -90
+        },
+        "scale": 1
+      },
+      "left": {
+        "location": {
+          "x": 2.26,
+          "y": -13.96,
+          "z": -1.83
+        },
+        "rotation": {
+          "pitch": 77.2,
+          "yaw": 88.7,
+          "roll": -91.6
+        },
+        "scale": 1
+      }
+    }
   }
 }

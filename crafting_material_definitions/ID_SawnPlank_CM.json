@@ -53,6 +53,35 @@
       }
     ],
     "storage_class": "wood",
-    "material_class": "wood"
+    "material_class": "wood",
+    "hold": {
+      "mirrored": true,
+      "right": {
+        "location": {
+          "x": -2.74,
+          "y": 4.79,
+          "z": -0.24
+        },
+        "rotation": {
+          "pitch": 82.2,
+          "yaw": 180,
+          "roll": 173.3
+        },
+        "scale": 1
+      },
+      "left": {
+        "location": {
+          "x": 2.76,
+          "y": -4.79,
+          "z": 0.1
+        },
+        "rotation": {
+          "pitch": -82.4,
+          "yaw": 11.1,
+          "roll": -4.2
+        },
+        "scale": 1
+      }
+    }
   }
 }

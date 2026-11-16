@@ -22,6 +22,35 @@
       "y": 2
     },
     "storage_class": "general",
-    "material_class": "plastic"
+    "material_class": "plastic",
+    "hold": {
+      "mirrored": true,
+      "right": {
+        "location": {
+          "x": -16.1,
+          "y": 52.51,
+          "z": -21.53
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 13.3,
+          "roll": 0
+        },
+        "scale": 1
+      },
+      "left": {
+        "location": {
+          "x": 16.47,
+          "y": -52.96,
+          "z": 20.1
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": -166.4,
+          "roll": -178.5
+        },
+        "scale": 1
+      }
+    }
   }
 }

@@ -7,24 +7,24 @@
     "thumbnail": "mod:icons/id_pizzacutterlamp_eq",
     "equipment_actors_and_meshes": [
       {
-        "mesh": "/Game/Items/Equipment/Weapons/PizzaCutterLamp/Meshes/SM_PizzaCutterLamp.SM_PizzaCutterLamp",
-        "attach_socket": "hand_l_weapon",
+        "skeletal_mesh": "/Game/Items/Equipment/Weapons/PizzaCutterLamp/Meshes/SKM_PizzaCutterLamp.SKM_PizzaCutterLamp",
+        "attach_socket": "weapon_l",
         "attach_transform": {
           "rotation": {
             "x": -0.09537988,
             "y": 0.67682028,
             "z": 0.08910588,
-            "w": 0.72448405
+            "w": 0.72448403
           },
           "translation": {
-            "x": 20.800559,
-            "y": -4.380131,
-            "z": -88.068920
+            "x": 5.200138,
+            "y": -1.095032,
+            "z": -22.017231
           },
           "scale3_d": {
-            "x": 4.0,
-            "y": 4.0,
-            "z": 4.0
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
           }
         }
       }
@@ -93,6 +93,35 @@
     "equipment_slot": "Entity.Inventory.Item.Equipment.Slot.Weapon",
     "item_category_tag": "Entity.Inventory.Item.Category.Weapon",
     "storage_class": "general",
-    "material_class": "metal"
+    "material_class": "metal",
+    "hold": {
+      "mirrored": true,
+      "right": {
+        "location": {
+          "x": -2.98,
+          "y": 1.84,
+          "z": -0.08
+        },
+        "rotation": {
+          "pitch": 87.3,
+          "yaw": 0,
+          "roll": 0
+        },
+        "scale": 1
+      },
+      "left": {
+        "location": {
+          "x": 2.99,
+          "y": -1.83,
+          "z": 0.02
+        },
+        "rotation": {
+          "pitch": -86.6,
+          "yaw": 155,
+          "roll": -154.7
+        },
+        "scale": 1
+      }
+    }
   }
 }

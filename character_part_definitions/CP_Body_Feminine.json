@@ -11,6 +11,34 @@
     "mesh_scale": 1.08,
     "sort_order": 10,
     "thumbnail": "mod:icons/parts/cp_body_feminine",
-    "preview_idle_animation": "/Game/Characters/Customer/Animations/Sequences/AS_MH_Stand_Idle_Loop.AS_MH_Stand_Idle_Loop"
+    "preview_idle_animation": "/Game/Characters/Customer/Animations/Sequences/AS_MH_Stand_Idle_Loop.AS_MH_Stand_Idle_Loop",
+    "fist_fit": {
+      "mirrored": true,
+      "right": {
+        "location": {
+          "x": 0.34,
+          "y": 1.55,
+          "z": 0
+        },
+        "rotation": {
+          "pitch": -0.5,
+          "yaw": 15.1,
+          "roll": 1.8
+        }
+      },
+      "left": {
+        "location": {
+          "x": 0.34,
+          "y": -1.55,
+          "z": 0
+        },
+        "rotation": {
+          "pitch": -0.5,
+          "yaw": 15.1,
+          "roll": 1.8
+        }
+      },
+      "sections": []
+    }
   }
 }

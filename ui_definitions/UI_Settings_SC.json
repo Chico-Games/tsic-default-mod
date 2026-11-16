@@ -2618,6 +2618,150 @@
                             {
                               "widget": "text",
                               "style": "menu.text.field",
+                              "text": "Charge camera movement",
+                              "slot": {
+                                "fill": true,
+                                "valign": "center"
+                              }
+                            },
+                            {
+                              "id": "accessibility-charge-camera",
+                              "widget": "toggle",
+                              "slot": {
+                                "valign": "center"
+                              },
+                              "bind": {
+                                "checked": "UI.Settings.Value[accessibility.charge_camera].Value.Bool"
+                              },
+                              "on": {
+                                "change": {
+                                  "cmd": "UI.Cmd.Settings.Set",
+                                  "args": {
+                                    "Key": "accessibility.charge_camera",
+                                    "Value": "{self.checked}"
+                                  }
+                                }
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "widget": "panel",
+                          "style": "menu.rule.field",
+                          "slot": {
+                            "height": 1
+                          }
+                        },
+                        {
+                          "widget": "panel",
+                          "layout": "horizontal",
+                          "gap": 16,
+                          "slot": {
+                            "padding": [
+                              8,
+                              0
+                            ]
+                          },
+                          "children": [
+                            {
+                              "widget": "text",
+                              "style": "menu.text.field",
+                              "text": "Charge field-of-view effect",
+                              "slot": {
+                                "fill": true,
+                                "valign": "center"
+                              }
+                            },
+                            {
+                              "id": "accessibility-charge-fov",
+                              "widget": "toggle",
+                              "slot": {
+                                "valign": "center"
+                              },
+                              "bind": {
+                                "checked": "UI.Settings.Value[accessibility.charge_fov].Value.Bool"
+                              },
+                              "on": {
+                                "change": {
+                                  "cmd": "UI.Cmd.Settings.Set",
+                                  "args": {
+                                    "Key": "accessibility.charge_fov",
+                                    "Value": "{self.checked}"
+                                  }
+                                }
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "widget": "panel",
+                          "style": "menu.rule.field",
+                          "slot": {
+                            "height": 1
+                          }
+                        },
+                        {
+                          "widget": "panel",
+                          "layout": "horizontal",
+                          "gap": 16,
+                          "slot": {
+                            "padding": [
+                              8,
+                              0
+                            ]
+                          },
+                          "children": [
+                            {
+                              "widget": "text",
+                              "style": "menu.text.field",
+                              "text": "Charge rumble",
+                              "slot": {
+                                "fill": true,
+                                "valign": "center"
+                              }
+                            },
+                            {
+                              "id": "accessibility-charge-rumble",
+                              "widget": "toggle",
+                              "slot": {
+                                "valign": "center"
+                              },
+                              "bind": {
+                                "checked": "UI.Settings.Value[accessibility.charge_rumble].Value.Bool"
+                              },
+                              "on": {
+                                "change": {
+                                  "cmd": "UI.Cmd.Settings.Set",
+                                  "args": {
+                                    "Key": "accessibility.charge_rumble",
+                                    "Value": "{self.checked}"
+                                  }
+                                }
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "widget": "panel",
+                          "style": "menu.rule.field",
+                          "slot": {
+                            "height": 1
+                          }
+                        },
+                        {
+                          "widget": "panel",
+                          "layout": "horizontal",
+                          "gap": 16,
+                          "slot": {
+                            "padding": [
+                              8,
+                              0
+                            ]
+                          },
+                          "children": [
+                            {
+                              "widget": "text",
+                              "style": "menu.text.field",
                               "text": "Motion blur",
                               "slot": {
                                 "fill": true,

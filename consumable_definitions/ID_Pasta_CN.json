@@ -61,13 +61,42 @@
     "has_ammo": false,
     "max_ammo": 0,
     "display_name": "Dried Pasta",
-    "description": "Cooking ingredient. Cook it into Cooked Pasta and Pasta Primavera. Eaten raw: -4 max health for 4 min. Fills 15 hunger. Found in the store.\nDry pasta noodles from the display kitchen pantry. Needs cooking.",
+    "description": "Dry pasta from the cafe shop. Roughly 12 minutes off al dente.\n\nReduces max health but increases satiation.",
     "stackable": true,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_Pasta_SI",
     "storage_class": "cold",
     "material_class": "food",
     "item_category_tag": "Entity.Inventory.Item.Category.Consumable",
-    "max_stack_size": 10
+    "max_stack_size": 10,
+    "hold": {
+      "mirrored": true,
+      "right": {
+        "location": {
+          "x": -5.63,
+          "y": 10.11,
+          "z": -4.64
+        },
+        "rotation": {
+          "pitch": -54.4,
+          "yaw": -5.6,
+          "roll": 37.5
+        },
+        "scale": 1
+      },
+      "left": {
+        "location": {
+          "x": 5.7,
+          "y": -10.2,
+          "z": 4.35
+        },
+        "rotation": {
+          "pitch": 54.9,
+          "yaw": 176.7,
+          "roll": 144.9
+        },
+        "scale": 1
+      }
+    }
   }
 }

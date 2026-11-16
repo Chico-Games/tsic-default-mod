@@ -61,13 +61,42 @@
     "has_ammo": false,
     "max_ammo": 0,
     "display_name": "Battered Fish",
-    "description": "Eat: Heals 16 instantly. +0.1 HP/s, +16 max health, +18 max stamina for 14 min. Fills 50 hunger. Found in the restaurant.\nA portion of battered fish. Best eaten warm, and it rarely is.",
+    "description": "A portion of beer battered fish. Unfortunately without lemon or tartar sauce.\n\nInstantly heals, provides healing over time and increases max health and stamina.",
     "stackable": true,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_BatteredFish_SI",
     "storage_class": "cold",
     "material_class": "food",
     "item_category_tag": "Entity.Inventory.Item.Category.Consumable",
-    "max_stack_size": 10
+    "max_stack_size": 10,
+    "hold": {
+      "mirrored": true,
+      "right": {
+        "location": {
+          "x": -1.46,
+          "y": 2.88,
+          "z": -0.06
+        },
+        "rotation": {
+          "pitch": -0.3,
+          "yaw": -111,
+          "roll": -92.8
+        },
+        "scale": 1
+      },
+      "left": {
+        "location": {
+          "x": 1.48,
+          "y": -2.88,
+          "z": -0.03
+        },
+        "rotation": {
+          "pitch": 1.5,
+          "yaw": 69.2,
+          "roll": -88
+        },
+        "scale": 1
+      }
+    }
   }
 }

@@ -7,8 +7,8 @@
     "thumbnail": "mod:icons/id_tier1screwdriver_eq",
     "equipment_actors_and_meshes": [
       {
-        "mesh": "/Game/Items/Equipment/Tools/Tier1Screwdriver/Meshes/SM_Screwdriver_02.SM_Screwdriver_02",
-        "attach_socket": "Hand_R",
+        "skeletal_mesh": "/Game/Items/Equipment/Tools/Tier1Screwdriver/Meshes/SKM_Screwdriver1.SKM_Screwdriver1",
+        "attach_socket": "weapon_r",
         "attach_transform": {
           "rotation": {
             "x": 0.0,
@@ -17,9 +17,9 @@
             "w": 1.0
           },
           "translation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
+            "x": -0.0,
+            "y": -0.0,
+            "z": -0.0
           },
           "scale3_d": {
             "x": 1.0,
@@ -86,13 +86,42 @@
     "max_ammo": 0,
     "tool_tier": 1,
     "display_name": "Basic Screwdriver Tool",
-    "description": "Dismantling tool. Takes placed furniture apart for its materials. Handles light furniture only: chairs, tables, sofas, boxes and fabrics. Made at the Crafting Table.\nA basic flat-head screwdriver. Good enough to strip simple fixtures.",
+    "description": "A basic flat-head screwdriver. You can use this to disassemble furniture to place later.",
     "stackable": false,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_Tier1Screwdriver_SI",
     "equipment_slot": "Entity.Inventory.Item.Equipment.Slot.Weapon",
     "item_category_tag": "Entity.Inventory.Item.Category.Tool",
     "storage_class": "general",
-    "material_class": "metal"
+    "material_class": "metal",
+    "hold": {
+      "mirrored": false,
+      "right": {
+        "location": {
+          "x": -4.98,
+          "y": -1.43,
+          "z": 12.05
+        },
+        "rotation": {
+          "pitch": 17.4,
+          "yaw": -4.9,
+          "roll": 74
+        },
+        "scale": 1
+      },
+      "left": {
+        "location": {
+          "x": 4.9,
+          "y": 1.76,
+          "z": -12.04
+        },
+        "rotation": {
+          "pitch": -17,
+          "yaw": 174.9,
+          "roll": -73.3
+        },
+        "scale": 1
+      }
+    }
   }
 }

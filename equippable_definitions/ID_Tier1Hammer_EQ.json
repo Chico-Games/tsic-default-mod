@@ -7,8 +7,8 @@
     "thumbnail": "mod:icons/id_tier1hammer_eq",
     "equipment_actors_and_meshes": [
       {
-        "mesh": "/Game/Items/Equipment/Weapons/Hammer/Meshes/SM_Hammer.SM_Hammer",
-        "attach_socket": "Hand_R",
+        "skeletal_mesh": "/Game/Items/Equipment/Weapons/Hammer/Meshes/SKM_Hammer.SKM_Hammer",
+        "attach_socket": "weapon_r",
         "attach_transform": {
           "rotation": {
             "x": 0.0,
@@ -17,14 +17,14 @@
             "w": 1.0
           },
           "translation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
+            "x": -0.38633,
+            "y": 3.945748,
+            "z": 5.665421
           },
           "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
+            "x": 0.916667,
+            "y": 0.916667,
+            "z": 0.916667
           }
         }
       }
@@ -86,13 +86,42 @@
     "max_ammo": 0,
     "tool_tier": 1,
     "display_name": "Basic Hammer Tool",
-    "description": "Upgrade tool. Upgrades placed furniture. Handles tier 1 upgrades: shelves, bookcases, plant pots and basic station upgrades. Made at the Crafting Table.\nA basic claw hammer. Sturdy enough to reinforce simple furniture.",
+    "description": "A basic claw hammer. You can reinforce furniture to withstand heavier staff attacks with this.",
     "stackable": false,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_Tier1Hammer_SI",
     "equipment_slot": "Entity.Inventory.Item.Equipment.Slot.Weapon",
     "item_category_tag": "Entity.Inventory.Item.Category.Tool",
     "storage_class": "general",
-    "material_class": "metal"
+    "material_class": "metal",
+    "hold": {
+      "mirrored": false,
+      "right": {
+        "location": {
+          "x": -1.9,
+          "y": 1.37,
+          "z": 2.57
+        },
+        "rotation": {
+          "pitch": 11.3,
+          "yaw": -4.8,
+          "roll": -10.8
+        },
+        "scale": 1
+      },
+      "left": {
+        "location": {
+          "x": 1.89,
+          "y": -1.3,
+          "z": -2.61
+        },
+        "rotation": {
+          "pitch": 10.9,
+          "yaw": -4.1,
+          "roll": 167.9
+        },
+        "scale": 1
+      }
+    }
   }
 }

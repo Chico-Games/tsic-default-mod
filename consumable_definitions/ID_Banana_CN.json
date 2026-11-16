@@ -61,13 +61,42 @@
     "has_ammo": false,
     "max_ammo": 0,
     "display_name": "Banana",
-    "description": "Eat: +15 max stamina, +1 stamina/s for 7 min. Fills 25 hunger. Also used in crafting. Grown from Banana Sucker.\nA ripe banana. Nature’s snack bar.",
+    "description": "A ripe banana. Only two days from banana bread.\n\nIncreases max stamina and stamina regen.",
     "stackable": true,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_Banana_SI",
     "storage_class": "cold",
     "material_class": "food",
     "item_category_tag": "Entity.Inventory.Item.Category.Consumable",
-    "max_stack_size": 10
+    "max_stack_size": 10,
+    "hold": {
+      "mirrored": true,
+      "right": {
+        "location": {
+          "x": -0.03,
+          "y": 1.77,
+          "z": 1.66
+        },
+        "rotation": {
+          "pitch": -60.6,
+          "yaw": 9.5,
+          "roll": -64.8
+        },
+        "scale": 1
+      },
+      "left": {
+        "location": {
+          "x": 0.03,
+          "y": -1.72,
+          "z": -1.71
+        },
+        "rotation": {
+          "pitch": 60.7,
+          "yaw": -167.6,
+          "roll": -112.2
+        },
+        "scale": 1
+      }
+    }
   }
 }

@@ -61,13 +61,42 @@
     "has_ammo": false,
     "max_ammo": 0,
     "display_name": "Candy Bar",
-    "description": "Eat: Heals 6 instantly. +8 max stamina for 5 min. Fills 20 hunger. Found in the store.\nA sweet candy bar. Burns bright and burns out.",
+    "description": "Delicious and sweet, but prepare for the sugar crash later.\n\nInstantly heals and increases max stamina.",
     "stackable": true,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_CandyBar_SI",
     "storage_class": "cold",
     "material_class": "food",
     "item_category_tag": "Entity.Inventory.Item.Category.Consumable",
-    "max_stack_size": 10
+    "max_stack_size": 10,
+    "hold": {
+      "mirrored": true,
+      "right": {
+        "location": {
+          "x": -0.38,
+          "y": 2.95,
+          "z": -0.39
+        },
+        "rotation": {
+          "pitch": 13.8,
+          "yaw": -53.9,
+          "roll": 67.5
+        },
+        "scale": 1
+      },
+      "left": {
+        "location": {
+          "x": 0.4,
+          "y": -2.96,
+          "z": 0.32
+        },
+        "rotation": {
+          "pitch": -12.5,
+          "yaw": 126.2,
+          "roll": 113.1
+        },
+        "scale": 1
+      }
+    }
   }
 }

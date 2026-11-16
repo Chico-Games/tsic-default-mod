@@ -1,0 +1,9 @@
+{
+  "id": "HK_Flourish",
+  "class": "HotkeyDefinition",
+  "properties": {
+    "display_name": "Flourish",
+    "category": "Combat",
+    "keyboard_key": { "key_name": "X" }
+  }
+}

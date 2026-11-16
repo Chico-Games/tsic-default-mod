@@ -16,6 +16,35 @@
       "cells": [ { "x": 0, "y": 0 } ]
     },
     "storage_class": "cold",
-    "material_class": "food"
+    "material_class": "food",
+    "hold": {
+      "mirrored": true,
+      "right": {
+        "location": {
+          "x": -1.17,
+          "y": 5.64,
+          "z": 0.45
+        },
+        "rotation": {
+          "pitch": -68,
+          "yaw": 3.7,
+          "roll": 6.2
+        },
+        "scale": 1
+      },
+      "left": {
+        "location": {
+          "x": 1.19,
+          "y": -5.62,
+          "z": -0.6
+        },
+        "rotation": {
+          "pitch": 68.3,
+          "yaw": -172.4,
+          "roll": 177.7
+        },
+        "scale": 1
+      }
+    }
   }
 }

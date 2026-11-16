@@ -7,19 +7,19 @@
     "thumbnail": "mod:icons/id_dowelbat_eq",
     "equipment_actors_and_meshes": [
       {
-        "mesh": "/Game/Items/Equipment/Weapons/DowelBat/Meshes/SM_DowelBat.SM_DowelBat",
-        "attach_socket": "hand_r_weapon",
+        "skeletal_mesh": "/Game/Items/Equipment/Weapons/DowelBat/Meshes/SKM_DowelBat.SKM_DowelBat",
+        "attach_socket": "weapon_r",
         "attach_transform": {
           "rotation": {
             "x": -0.11194633,
-            "y": -0.7036336,
+            "y": -0.70363361,
             "z": -0.18733895,
-            "w": 0.67621882
+            "w": 0.67621881
           },
           "translation": {
-            "x": -8.086703,
-            "y": -1.100083,
-            "z": 27.385651
+            "x": -8.086704,
+            "y": -1.100082,
+            "z": 27.385653
           },
           "scale3_d": {
             "x": 1.0,
@@ -86,13 +86,42 @@
     "has_ammo": false,
     "max_ammo": 0,
     "display_name": "Dowel Bat",
-    "description": "Melee weapon. Light and fast, low damage. Starter weapon. Made at the Crafting Table.\nA makeshift wooden bat. Light and fast but lower damage. Good starter weapon for melee combat.",
+    "description": "A makeshift wooden bat inspired by weapons you've seen in history books. Light and easy to swing, but lower on the damage end. This makes for a great starter weapon.",
     "stackable": false,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_DowelBat_SI",
     "equipment_slot": "Entity.Inventory.Item.Equipment.Slot.Weapon",
     "item_category_tag": "Entity.Inventory.Item.Category.Weapon",
     "storage_class": "general",
-    "material_class": "wood"
+    "material_class": "wood",
+    "hold": {
+      "mirrored": false,
+      "right": {
+        "location": {
+          "x": -13.09,
+          "y": -4.87,
+          "z": 25.78
+        },
+        "rotation": {
+          "pitch": 65.4,
+          "yaw": -169.8,
+          "roll": -170.7
+        },
+        "scale": 1
+      },
+      "left": {
+        "location": {
+          "x": 13.18,
+          "y": -2.02,
+          "z": -26.43
+        },
+        "rotation": {
+          "pitch": -65.4,
+          "yaw": 13.7,
+          "roll": -12.8
+        },
+        "scale": 1
+      }
+    }
   }
 }

@@ -7,24 +7,24 @@
     "thumbnail": "mod:icons/id_potmace_eq",
     "equipment_actors_and_meshes": [
       {
-        "mesh": "/Game/Items/Equipment/Weapons/PotMace/Meshes/SM_PotMace.SM_PotMace",
-        "attach_socket": "hand_r_weapon",
+        "skeletal_mesh": "/Game/Items/Equipment/Weapons/PotMace/Meshes/SKM_PotMace.SKM_PotMace",
+        "attach_socket": "weapon_r",
         "attach_transform": {
           "rotation": {
             "x": 0.04361939,
             "y": 0.0,
             "z": 0.0,
-            "w": 0.99904822
+            "w": 0.99904823
           },
           "translation": {
-            "x": -18.000003,
-            "y": 4.480872,
-            "z": 19.890015
+            "x": -51.428585,
+            "y": 12.80249,
+            "z": 56.828617
           },
           "scale3_d": {
-            "x": 0.35,
-            "y": 0.35,
-            "z": 0.35
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
           }
         }
       }
@@ -93,6 +93,35 @@
     "equipment_slot": "Entity.Inventory.Item.Equipment.Slot.Weapon",
     "item_category_tag": "Entity.Inventory.Item.Category.Weapon",
     "storage_class": "general",
-    "material_class": "metal"
+    "material_class": "metal",
+    "hold": {
+      "mirrored": true,
+      "right": {
+        "location": {
+          "x": -15.41,
+          "y": 9.94,
+          "z": 59.08
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "scale": 1
+      },
+      "left": {
+        "location": {
+          "x": 15.09,
+          "y": -8.38,
+          "z": -59.41
+        },
+        "rotation": {
+          "pitch": 0.3,
+          "yaw": -179.7,
+          "roll": -178.6
+        },
+        "scale": 1
+      }
+    }
   }
 }

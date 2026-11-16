@@ -7,24 +7,24 @@
     "thumbnail": "mod:icons/id_containmentsledgehammer_eq",
     "equipment_actors_and_meshes": [
       {
-        "mesh": "/Game/Items/Equipment/Weapons/SledgeHammer/Meshes/SM_SledgeHammer.SM_SledgeHammer",
-        "attach_socket": "hand_l_weapon",
+        "skeletal_mesh": "/Game/Items/Equipment/Weapons/SledgeHammer/Meshes/SKM_SledgeHammer.SKM_SledgeHammer",
+        "attach_socket": "weapon_l",
         "attach_transform": {
           "rotation": {
-            "x": 0.60517678,
-            "y": -0.796091116,
-            "z": 6.443e-06,
-            "w": 1.0302e-05
+            "x": 0.60517681,
+            "y": -0.79609114,
+            "z": 6.44e-06,
+            "w": 1.03e-05
           },
           "translation": {
-            "x": 12.028084,
-            "y": -5.901438,
-            "z": -48.010808
+            "x": 16.928415,
+            "y": -8.305729,
+            "z": -67.570763
           },
           "scale3_d": {
-            "x": 0.75,
-            "y": 0.75,
-            "z": 0.75
+            "x": 1.055556,
+            "y": 1.055556,
+            "z": 1.055556
           }
         }
       }
@@ -47,7 +47,7 @@
     "has_ammo": false,
     "max_ammo": 0,
     "display_name": "Containment Sledgehammer",
-    "description": "Melee weapon. Very slow overhead strikes, +35% damage, 4× damage to furniture. The strongest melee weapon. Upgraded from a Sledge Hammer. Made at the Weapon Bench.\nA sledgehammer rebuilt around the Heavy Staff load survey. The head lands where the research says bone gives.",
+    "description": "A heavy sledgehammer for breaking through walls. Can also be used to cause heavy blunt damage to enemies.",
     "stackable": false,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_ContainmentSledgeHammer_SI",
@@ -55,6 +55,35 @@
     "item_category_tag": "Entity.Inventory.Item.Category.Weapon",
     "entity_damage_multiplier": 4.0,
     "storage_class": "general",
-    "material_class": "metal"
+    "material_class": "metal",
+    "hold": {
+      "mirrored": true,
+      "right": {
+        "location": {
+          "x": 0.9,
+          "y": 1.83,
+          "z": -4.6
+        },
+        "rotation": {
+          "pitch": 19.4,
+          "yaw": 0,
+          "roll": 4.6
+        },
+        "scale": 1
+      },
+      "left": {
+        "location": {
+          "x": -0.86,
+          "y": -1.95,
+          "z": 4.56
+        },
+        "rotation": {
+          "pitch": -19.1,
+          "yaw": 179.8,
+          "roll": 176.9
+        },
+        "scale": 1
+      }
+    }
   }
 }

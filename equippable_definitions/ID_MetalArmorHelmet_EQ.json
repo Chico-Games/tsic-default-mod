@@ -92,6 +92,35 @@
       "cells": [ { "x": 0, "y": 0 }, { "x": 1, "y": 0 }, { "x": 0, "y": 1 }, { "x": 1, "y": 1 } ]
     },
     "storage_class": "general",
-    "material_class": "metal"
+    "material_class": "metal",
+    "hold": {
+      "mirrored": true,
+      "right": {
+        "location": {
+          "x": 4.37,
+          "y": 13.63,
+          "z": 1.17
+        },
+        "rotation": {
+          "pitch": 12.2,
+          "yaw": 19.2,
+          "roll": 3.4
+        },
+        "scale": 1
+      },
+      "left": {
+        "location": {
+          "x": -4.31,
+          "y": -13.62,
+          "z": -1.49
+        },
+        "rotation": {
+          "pitch": -12.3,
+          "yaw": -160.9,
+          "roll": 178.1
+        },
+        "scale": 1
+      }
+    }
   }
 }

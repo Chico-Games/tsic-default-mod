@@ -13,6 +13,35 @@
     "item_category_tag": "Entity.Inventory.Item.Category.CraftingMaterial",
     "max_stack_size": 50,
     "storage_class": "general",
-    "material_class": "liquid"
+    "material_class": "liquid",
+    "hold": {
+      "mirrored": true,
+      "right": {
+        "location": {
+          "x": -3.67,
+          "y": 21.52,
+          "z": 5.98
+        },
+        "rotation": {
+          "pitch": -7.2,
+          "yaw": 179.7,
+          "roll": 95
+        },
+        "scale": 1
+      },
+      "left": {
+        "location": {
+          "x": 3.72,
+          "y": -21.35,
+          "z": -6.54
+        },
+        "rotation": {
+          "pitch": 6.8,
+          "yaw": -0.2,
+          "roll": 83.5
+        },
+        "scale": 1
+      }
+    }
   }
 }

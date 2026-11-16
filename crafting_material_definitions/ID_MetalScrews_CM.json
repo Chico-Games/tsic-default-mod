@@ -27,6 +27,35 @@
           "mesh": "/Game/Items/CraftingMaterials/HardwareBoxes/Meshes/SM_ScrewCarton.SM_ScrewCarton"
         }
       }
-    ]
+    ],
+    "hold": {
+      "mirrored": true,
+      "right": {
+        "location": {
+          "x": -2.2,
+          "y": 5.88,
+          "z": 1.86
+        },
+        "rotation": {
+          "pitch": 9.9,
+          "yaw": -86.9,
+          "roll": 58
+        },
+        "scale": 1
+      },
+      "left": {
+        "location": {
+          "x": 2.21,
+          "y": -5.82,
+          "z": -2.02
+        },
+        "rotation": {
+          "pitch": -8.4,
+          "yaw": 93.4,
+          "roll": 121.7
+        },
+        "scale": 1
+      }
+    }
   }
 }

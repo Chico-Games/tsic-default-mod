@@ -41,6 +41,35 @@
           "mesh": "/Game/Items/CraftingMaterials/ProcessedFabric/Meshes/SM_WovenCloth_Hung.SM_WovenCloth_Hung"
         }
       }
-    ]
+    ],
+    "hold": {
+      "mirrored": true,
+      "right": {
+        "location": {
+          "x": -3.4,
+          "y": 5.86,
+          "z": 0.31
+        },
+        "rotation": {
+          "pitch": 73.5,
+          "yaw": 164.2,
+          "roll": 150.2
+        },
+        "scale": 1
+      },
+      "left": {
+        "location": {
+          "x": 3.42,
+          "y": -5.83,
+          "z": -0.48
+        },
+        "rotation": {
+          "pitch": -74.1,
+          "yaw": -11,
+          "roll": 25.1
+        },
+        "scale": 1
+      }
+    }
   }
 }

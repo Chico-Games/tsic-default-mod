@@ -7,8 +7,8 @@
     "thumbnail": "mod:icons/id_taser_eq",
     "equipment_actors_and_meshes": [
       {
-        "mesh": "/Game/Personnel/Meshes/Tools/SM_Gun.SM_Gun",
-        "attach_socket": "hand_r_weapon",
+        "skeletal_mesh": "/Game/Items/Equipment/Weapons/Taser/Meshes/SKM_Taser.SKM_Taser",
+        "attach_socket": "weapon_r",
         "attach_transform": {
           "rotation": {
             "x": 0.0,
@@ -17,9 +17,9 @@
             "w": 1.0
           },
           "translation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
+            "x": -0.0,
+            "y": -0.0,
+            "z": -0.0
           },
           "scale3_d": {
             "x": 1.0,
@@ -94,6 +94,35 @@
     "item_category_tag": "Entity.Inventory.Item.Category.Weapon",
     "ammo_definition": "ID_TaserBattery_AM",
     "storage_class": "general",
-    "material_class": "electronic"
+    "material_class": "electronic",
+    "hold": {
+      "mirrored": true,
+      "right": {
+        "location": {
+          "x": -4.1,
+          "y": 5.62,
+          "z": 2.34
+        },
+        "rotation": {
+          "pitch": 1,
+          "yaw": -78.9,
+          "roll": -94.9
+        },
+        "scale": 1
+      },
+      "left": {
+        "location": {
+          "x": 4.11,
+          "y": -5.55,
+          "z": -2.51
+        },
+        "rotation": {
+          "pitch": 0.5,
+          "yaw": 101.4,
+          "roll": -85.2
+        },
+        "scale": 1
+      }
+    }
   }
 }

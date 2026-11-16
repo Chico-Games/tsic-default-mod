@@ -7,8 +7,8 @@
     "thumbnail": "mod:icons/id_tier3hammer_eq",
     "equipment_actors_and_meshes": [
       {
-        "mesh": "/Game/Items/Equipment/Weapons/SledgeHammer/Meshes/SM_SledgeHammer.SM_SledgeHammer",
-        "attach_socket": "Hand_R",
+        "skeletal_mesh": "/Game/Items/Equipment/Weapons/SledgeHammer/Meshes/SKM_SledgeHammer.SKM_SledgeHammer",
+        "attach_socket": "weapon_r",
         "attach_transform": {
           "rotation": {
             "x": 0.0,
@@ -17,14 +17,14 @@
             "w": 1.0
           },
           "translation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
+            "x": 0.778447,
+            "y": -4.154579,
+            "z": 15.147058
           },
           "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
+            "x": 0.533333,
+            "y": 0.533333,
+            "z": 0.533333
           }
         }
       }
@@ -93,6 +93,35 @@
     "equipment_slot": "Entity.Inventory.Item.Equipment.Slot.Weapon",
     "item_category_tag": "Entity.Inventory.Item.Category.Tool",
     "storage_class": "general",
-    "material_class": "metal"
+    "material_class": "metal",
+    "hold": {
+      "mirrored": true,
+      "right": {
+        "location": {
+          "x": 0.9,
+          "y": 1.83,
+          "z": -4.6
+        },
+        "rotation": {
+          "pitch": 19.4,
+          "yaw": 0,
+          "roll": 4.6
+        },
+        "scale": 1
+      },
+      "left": {
+        "location": {
+          "x": -0.86,
+          "y": -1.95,
+          "z": 4.56
+        },
+        "rotation": {
+          "pitch": -19,
+          "yaw": 179.8,
+          "roll": 176.9
+        },
+        "scale": 1
+      }
+    }
   }
 }

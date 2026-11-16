@@ -3,7 +3,7 @@
   "class": "HotkeyDefinition",
   "properties": {
     "display_name": "Grab",
-    "category": "Interaction",
+    "category": "Combat",
     "keyboard_key": { "key_name": "C" },
     "gamepad_key": { "key_name": "Gamepad_FaceButton_Top" }
   }

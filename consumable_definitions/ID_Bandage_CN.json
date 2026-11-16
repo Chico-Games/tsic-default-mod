@@ -61,7 +61,7 @@
     "has_ammo": false,
     "max_ammo": 0,
     "display_name": "Bandage",
-    "description": "Use: Heals 12 instantly. +0.6 HP/s for 1 min. Made at the First Aid Station.\nMedical bandages for treating wounds. Stops the bleeding and keeps it stopped.",
+    "description": "Medical grade bandages for treating wounds.\n\nInstantly heals and provides healing over time.",
     "thumbnail": "/Game/Items/Consumables/Medical/Bandage/Textures/T_Thumb_SM_Bandage.T_Thumb_SM_Bandage",
     "stackable": true,
     "weight": 0.10000000149011612,
@@ -69,6 +69,34 @@
     "storage_class": "general",
     "material_class": "cloth",
     "item_category_tag": "Entity.Inventory.Item.Category.Consumable",
-    "max_stack_size": 10
+    "max_stack_size": 10,
+    "hold": {
+      "right": {
+        "location": {
+          "x": 0.03,
+          "y": 10.4,
+          "z": 1.52
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 90.3,
+          "roll": -69.8
+        },
+        "scale": 1
+      },
+      "left": {
+        "location": {
+          "x": 0.01,
+          "y": -10.36,
+          "z": -1.78
+        },
+        "rotation": {
+          "pitch": -1.4,
+          "yaw": -89.4,
+          "roll": -109.9
+        },
+        "scale": 1
+      }
+    }
   }
 }

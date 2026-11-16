@@ -27,6 +27,35 @@
           "mesh": "/Game/Items/CraftingMaterials/HardwareBoxes/Meshes/SM_DowelCarton.SM_DowelCarton"
         }
       }
-    ]
+    ],
+    "hold": {
+      "mirrored": true,
+      "right": {
+        "location": {
+          "x": -1.62,
+          "y": 5.69,
+          "z": 1.18
+        },
+        "rotation": {
+          "pitch": 24,
+          "yaw": -75.1,
+          "roll": 68.8
+        },
+        "scale": 1
+      },
+      "left": {
+        "location": {
+          "x": 1.64,
+          "y": -5.65,
+          "z": -1.33
+        },
+        "rotation": {
+          "pitch": -22.6,
+          "yaw": 105.2,
+          "roll": 111.2
+        },
+        "scale": 1
+      }
+    }
   }
 }

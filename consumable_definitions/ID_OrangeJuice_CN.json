@@ -69,6 +69,35 @@
     "storage_class": "cold",
     "material_class": "liquid",
     "item_category_tag": "Entity.Inventory.Item.Category.Consumable",
-    "max_stack_size": 10
+    "max_stack_size": 10,
+    "hold": {
+      "mirrored": true,
+      "right": {
+        "location": {
+          "x": -0.56,
+          "y": 5.47,
+          "z": 2.12
+        },
+        "rotation": {
+          "pitch": -3.7,
+          "yaw": -70.1,
+          "roll": -9.9
+        },
+        "scale": 1
+      },
+      "left": {
+        "location": {
+          "x": 0.58,
+          "y": -5.42,
+          "z": -2.26
+        },
+        "rotation": {
+          "pitch": 5.1,
+          "yaw": 110.2,
+          "roll": -170
+        },
+        "scale": 1
+      }
+    }
   }
 }

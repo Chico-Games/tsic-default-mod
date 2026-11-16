@@ -7,8 +7,8 @@
     "thumbnail": "mod:icons/id_spoonspear_eq",
     "equipment_actors_and_meshes": [
       {
-        "mesh": "/Game/Fab/Camping_and_Survival_Pack/Meshes/SM_Prong_01.SM_Prong_01",
-        "attach_socket": "hand_r_weapon",
+        "skeletal_mesh": "/Game/Items/Equipment/Weapons/SpoonSpear/Meshes/SKM_SpoonSpear.SKM_SpoonSpear",
+        "attach_socket": "weapon_r",
         "attach_transform": {
           "rotation": {
             "x": 0.0,
@@ -17,9 +17,9 @@
             "w": 1.0
           },
           "translation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
+            "x": -0.0,
+            "y": -0.0,
+            "z": -0.0
           },
           "scale3_d": {
             "x": 1.0,
@@ -93,6 +93,35 @@
     "equipment_slot": "Entity.Inventory.Item.Equipment.Slot.Weapon",
     "item_category_tag": "Entity.Inventory.Item.Category.Weapon",
     "storage_class": "general",
-    "material_class": "metal"
+    "material_class": "metal",
+    "hold": {
+      "mirrored": true,
+      "right": {
+        "location": {
+          "x": -4.6,
+          "y": 2.07,
+          "z": 10.1
+        },
+        "rotation": {
+          "pitch": 73.6,
+          "yaw": -173.3,
+          "roll": -33.9
+        },
+        "scale": 1
+      },
+      "left": {
+        "location": {
+          "x": 4.55,
+          "y": -1.79,
+          "z": -10.18
+        },
+        "rotation": {
+          "pitch": -73.7,
+          "yaw": 12,
+          "roll": -151.4
+        },
+        "scale": 1
+      }
+    }
   }
 }

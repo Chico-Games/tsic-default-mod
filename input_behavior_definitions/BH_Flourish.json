@@ -1,0 +1,11 @@
+{
+  "id": "BH_Flourish",
+  "class": "InputBehaviorDefinition",
+  "properties": {
+    "behavior_tag_name": "Input.Behavior.Flourish",
+    "display_name": "Flourish",
+    "hotkey": "HK_Flourish",
+    "trigger_type": 0,
+    "behavior_bar_priority": 523
+  }
+}

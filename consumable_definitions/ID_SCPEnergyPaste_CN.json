@@ -61,13 +61,42 @@
     "has_ammo": false,
     "max_ammo": 0,
     "display_name": "Energy Paste",
-    "description": "Eat: +35 max stamina, +4 stamina/s, stamina recovers 40% sooner, +6% move speed for 15 min. Found in the lab.\nA foil tube of grey nutrient paste. Tastes like compliance. Runs like a machine.",
+    "description": "High intensity energy paste made for long distance runners who prefer efficient food over good food.\n\nIncreases movement speed and significantly increases max stamina and stamina regen, as well as decreasing stamina regen delay.",
     "stackable": true,
     "weight": 0.10000000149011612,
     "static_item_definition": "FD_SCPEnergyPaste_SI",
     "storage_class": "cold",
     "material_class": "food",
     "item_category_tag": "Entity.Inventory.Item.Category.Consumable",
-    "max_stack_size": 10
+    "max_stack_size": 10,
+    "hold": {
+      "mirrored": true,
+      "right": {
+        "location": {
+          "x": -1.91,
+          "y": 2.08,
+          "z": 0.97
+        },
+        "rotation": {
+          "pitch": 25.5,
+          "yaw": -14.2,
+          "roll": -3.1
+        },
+        "scale": 1
+      },
+      "left": {
+        "location": {
+          "x": 1.91,
+          "y": -2.04,
+          "z": -1.04
+        },
+        "rotation": {
+          "pitch": -24.8,
+          "yaw": 165.5,
+          "roll": -175.5
+        },
+        "scale": 1
+      }
+    }
   }
 }
