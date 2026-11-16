@@ -7,30 +7,44 @@
     "growth_stages": [
       {
         "at": 0,
-        "mesh": "/Game/Fab/UltimateFarming/Meshes/SM_Onion_Starter.SM_Onion_Starter",
+        "mesh": "/Game/Items/Seeds/AloeVeraPlantSeeds/Meshes/SM_AloeVera_Stage1.SM_AloeVera_Stage1",
         "scale": {
-          "x": 0.33,
-          "y": 0.33,
-          "z": 0.33
+          "x": 0.527,
+          "y": 0.527,
+          "z": 0.527
         },
         "end_scale": {
-          "x": 0.659,
-          "y": 0.659,
-          "z": 0.659
+          "x": 0.958,
+          "y": 0.958,
+          "z": 0.958
         }
       },
       {
-        "at": 0.5,
-        "mesh": "/Game/Fab/UltimateFarming/Meshes/SM_Onion_A.SM_Onion_A",
+        "at": 0.3333,
+        "mesh": "/Game/Items/Seeds/AloeVeraPlantSeeds/Meshes/SM_AloeVera_Stage2.SM_AloeVera_Stage2",
         "scale": {
-          "x": 0.38,
-          "y": 0.38,
-          "z": 0.38
+          "x": 0.649,
+          "y": 0.649,
+          "z": 0.649
         },
         "end_scale": {
-          "x": 0.554,
-          "y": 0.554,
-          "z": 0.554
+          "x": 0.981,
+          "y": 0.981,
+          "z": 0.981
+        }
+      },
+      {
+        "at": 0.6667,
+        "mesh": "/Game/Items/Seeds/AloeVeraPlantSeeds/Meshes/SM_AloeVera_Stage3.SM_AloeVera_Stage3",
+        "scale": {
+          "x": 0.664,
+          "y": 0.664,
+          "z": 0.664
+        },
+        "end_scale": {
+          "x": 0.977,
+          "y": 0.977,
+          "z": 0.977
         }
       }
     ],

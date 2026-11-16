@@ -1,0 +1,33 @@
+{
+  "id": "RD_BreadPudding_CR",
+  "asset_path": "/Game/Items/Consumables/Food/BreadPudding/Recipes/RD_BreadPudding_CR",
+  "class": "UCraftRecipeDefinition",
+  "schema_version": 2,
+  "properties": {
+    "recipe_tags": [],
+    "input": [
+      {
+        "key": "ID_Bread_CN",
+        "value": 1
+      },
+      {
+        "key": "ID_Milk_CN",
+        "value": 1
+      },
+      {
+        "key": "ID_Egg_CN",
+        "value": 1
+      }
+    ],
+    "output": [
+      {
+        "key": "ID_BreadPudding_CN",
+        "value": 2
+      }
+    ],
+    "duration": 85.0,
+    "stations": [
+      "Station.Oven"
+    ]
+  }
+}

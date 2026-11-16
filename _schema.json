@@ -1934,39 +1934,14 @@
         "ride_prompt_text": {
           "kind": "text"
         },
-        "drive_prompt_text": {
-          "kind": "text"
-        },
         "ride_seat_offset": {
           "kind": "struct",
           "name": "Vector"
-        },
-        "drive_handle_offset": {
-          "kind": "struct",
-          "name": "Vector"
-        },
-        "push_force": {
-          "kind": "float"
-        },
-        "max_push_speed": {
-          "kind": "float"
-        },
-        "sprint_push_multiplier": {
-          "kind": "float"
-        },
-        "steer_torque_strength": {
-          "kind": "float"
-        },
-        "steer_torque_damping": {
-          "kind": "float"
         },
         "upright_stabilization_strength": {
           "kind": "float"
         },
         "upright_stabilization_damping": {
-          "kind": "float"
-        },
-        "drive_stamina_drain_per_tick": {
           "kind": "float"
         },
         "cargo_deck_boxes": {
@@ -1983,6 +1958,24 @@
           "kind": "float"
         },
         "cargo_mass_scale": {
+          "kind": "float"
+        },
+        "physics_body_mesh": {
+          "kind": "soft_object",
+          "class": "StaticMesh"
+        },
+        "caster_mesh": {
+          "kind": "soft_object",
+          "class": "StaticMesh"
+        },
+        "caster_pivots": {
+          "kind": "array",
+          "element": {
+            "kind": "struct",
+            "name": "Vector"
+          }
+        },
+        "caster_trail": {
           "kind": "float"
         }
       }
@@ -6460,31 +6453,9 @@
         "ride_prompt_text": {
           "kind": "text"
         },
-        "drive_prompt_text": {
-          "kind": "text"
-        },
         "ride_seat_offset": {
           "kind": "struct",
           "name": "Vector"
-        },
-        "drive_handle_offset": {
-          "kind": "struct",
-          "name": "Vector"
-        },
-        "push_force": {
-          "kind": "float"
-        },
-        "max_push_speed": {
-          "kind": "float"
-        },
-        "sprint_push_multiplier": {
-          "kind": "float"
-        },
-        "steer_torque_strength": {
-          "kind": "float"
-        },
-        "steer_torque_damping": {
-          "kind": "float"
         },
         "upright_stabilization_strength": {
           "kind": "float"
@@ -6492,7 +6463,22 @@
         "upright_stabilization_damping": {
           "kind": "float"
         },
-        "drive_stamina_drain_per_tick": {
+        "physics_body_mesh": {
+          "kind": "soft_object",
+          "class": "StaticMesh"
+        },
+        "caster_mesh": {
+          "kind": "soft_object",
+          "class": "StaticMesh"
+        },
+        "caster_pivots": {
+          "kind": "array",
+          "element": {
+            "kind": "struct",
+            "name": "Vector"
+          }
+        },
+        "caster_trail": {
           "kind": "float"
         }
       }

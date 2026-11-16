@@ -13,6 +13,7 @@
       "BH_Reload",
       "BH_Interact",
       "BH_SecondaryFire",
+      "BH_Grab",
       "BH_Ping",
       "BH_PingWheel",
       "BH_OpenInventory",

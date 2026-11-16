@@ -7,30 +7,44 @@
     "growth_stages": [
       {
         "at": 0,
-        "mesh": "/Game/Fab/UltimateFarming/Meshes/SM_Onion_Starter.SM_Onion_Starter",
+        "mesh": "/Game/Items/Seeds/LemonSeeds/Meshes/SM_Lemon_Stage1.SM_Lemon_Stage1",
         "scale": {
-          "x": 0.33,
-          "y": 0.33,
-          "z": 0.33
+          "x": 0.295,
+          "y": 0.295,
+          "z": 0.295
         },
         "end_scale": {
-          "x": 0.659,
-          "y": 0.659,
-          "z": 0.659
+          "x": 0.537,
+          "y": 0.537,
+          "z": 0.537
         }
       },
       {
-        "at": 0.5,
-        "mesh": "/Game/Fab/UltimateFarming/Meshes/SM_Onion_A.SM_Onion_A",
+        "at": 0.3333,
+        "mesh": "/Game/Items/Seeds/LemonSeeds/Meshes/SM_Lemon_Stage2.SM_Lemon_Stage2",
         "scale": {
-          "x": 0.38,
-          "y": 0.38,
-          "z": 0.38
+          "x": 0.235,
+          "y": 0.235,
+          "z": 0.235
         },
         "end_scale": {
-          "x": 0.554,
-          "y": 0.554,
-          "z": 0.554
+          "x": 0.402,
+          "y": 0.402,
+          "z": 0.402
+        }
+      },
+      {
+        "at": 0.6667,
+        "mesh": "/Game/Items/Seeds/LemonSeeds/Meshes/SM_Lemon_Stage3.SM_Lemon_Stage3",
+        "scale": {
+          "x": 0.281,
+          "y": 0.281,
+          "z": 0.281
+        },
+        "end_scale": {
+          "x": 0.39,
+          "y": 0.39,
+          "z": 0.39
         }
       }
     ],

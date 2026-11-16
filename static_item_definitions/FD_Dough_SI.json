@@ -14,7 +14,7 @@
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,
-    "static_mesh": "/Game/Items/CraftingMaterials/Dough/Meshes/SM_Dough.SM_Dough",
+    "static_mesh": "/Game/Items/CraftingMaterials/Dough/Meshes/SM_DoughBall.SM_DoughBall",
     "casts_shadow": false,
     "collision_profile_name": {
       "name": "ItemStatic"

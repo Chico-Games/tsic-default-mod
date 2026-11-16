@@ -561,7 +561,7 @@
           "spawn_chance_over": 0,
           "spawn_chance_under": 0.1
         },
-        "layout_definition": "LYD_VendingMachines_ByDifficulty",
+        "layout_definition": "LYD_VendingMachines_Food",
         "transform": {
           "rotation": {
             "x": 0,

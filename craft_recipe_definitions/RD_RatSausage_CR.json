@@ -1,0 +1,26 @@
+{
+  "id": "RD_RatSausage_CR",
+  "asset_path": "/Game/Items/Consumables/Food/RatSausage/Recipes/RD_RatSausage_CR",
+  "class": "UCraftRecipeDefinition",
+  "schema_version": 2,
+  "properties": {
+    "recipe_tags": [],
+    "input": [
+      {
+        "key": "ID_RatMeat_CN",
+        "value": 2
+      }
+    ],
+    "output": [
+      {
+        "key": "ID_RatSausage_CN",
+        "value": 1
+      }
+    ],
+    "duration": 6.0,
+    "stations": [
+      "Station.CraftingTableTierOne",
+      "Station.CheckoutCounter"
+    ]
+  }
+}

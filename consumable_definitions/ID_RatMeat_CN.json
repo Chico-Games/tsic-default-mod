@@ -60,10 +60,11 @@
     "has_durability": false,
     "has_ammo": false,
     "max_ammo": 13,
-    "display_name": "Rat Meat",
+    "display_name": "Whole Rat",
     "description": "Eat: Heals 3 instantly. Fills 20 hunger. Caught in a rat trap.\nThin, stringy and faintly sweet. Best not to think about it.",
     "stackable": false,
     "weight": 0.3,
+    "static_item_definition": "FD_RatMeat_SI",
     "storage_class": "cold",
     "material_class": "food",
     "item_category_tag": "Entity.Inventory.Item.Category.Consumable"

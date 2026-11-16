@@ -7,25 +7,39 @@
     "growth_stages": [
       {
         "at": 0,
-        "mesh": "/Game/Fab/UltimateFarming/Meshes/SM_Wheat_Starter.SM_Wheat_Starter",
+        "mesh": "/Game/Items/Seeds/WheatSeeds/Meshes/SM_Wheat_Stage1.SM_Wheat_Stage1",
         "scale": {
-          "x": 0.188,
-          "y": 0.188,
-          "z": 0.188
+          "x": 0.181,
+          "y": 0.181,
+          "z": 0.181
         },
         "end_scale": {
-          "x": 0.377,
-          "y": 0.377,
-          "z": 0.377
+          "x": 0.33,
+          "y": 0.33,
+          "z": 0.33
         }
       },
       {
-        "at": 0.5,
-        "mesh": "/Game/Fab/UltimateFarming/Meshes/SM_Wheat_A.SM_Wheat_A",
+        "at": 0.3333,
+        "mesh": "/Game/Items/Seeds/WheatSeeds/Meshes/SM_Wheat_Stage2.SM_Wheat_Stage2",
         "scale": {
-          "x": 0.228,
-          "y": 0.228,
-          "z": 0.228
+          "x": 0.222,
+          "y": 0.222,
+          "z": 0.222
+        },
+        "end_scale": {
+          "x": 0.296,
+          "y": 0.296,
+          "z": 0.296
+        }
+      },
+      {
+        "at": 0.6667,
+        "mesh": "/Game/Items/Seeds/WheatSeeds/Meshes/SM_Wheat_Stage3.SM_Wheat_Stage3",
+        "scale": {
+          "x": 0.266,
+          "y": 0.266,
+          "z": 0.266
         },
         "end_scale": {
           "x": 0.332,

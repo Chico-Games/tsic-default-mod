@@ -22,9 +22,9 @@
     "blocking_collision_boxes": [
       {
         "offset": {
-          "x": 0,
+          "x": 1.4,
           "y": 0,
-          "z": 6.5
+          "z": 5.0
         },
         "rotation": {
           "pitch": 0,
@@ -32,18 +32,35 @@
           "roll": 0
         },
         "box_size": {
-          "x": 18,
-          "y": 13,
-          "z": 6.5
+          "x": 14.2,
+          "y": 6.8,
+          "z": 5.0
+        }
+      },
+      {
+        "offset": {
+          "x": -14.0,
+          "y": 0,
+          "z": 10.4
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 1.7,
+          "y": 6.5,
+          "z": 10.4
         }
       }
     ],
     "support_collision_boxes": [
       {
         "offset": {
-          "x": 0,
+          "x": 1.4,
           "y": 0,
-          "z": 6.5
+          "z": 5.0
         },
         "rotation": {
           "pitch": 0,
@@ -51,9 +68,9 @@
           "roll": 0
         },
         "box_size": {
-          "x": 18,
-          "y": 13,
-          "z": 6.5
+          "x": 14.2,
+          "y": 6.8,
+          "z": 5.0
         }
       }
     ],
@@ -77,7 +94,7 @@
     },
     "is_draggable": true,
     "display_name": "Rat Trap",
-    "description": "The rats down here are fat. The rats down here are dinner.",
+    "description": "Bait goes in through the lid. When the red flag is up, there is a rat in it.",
     "level": 1,
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
@@ -118,10 +135,9 @@
     "gameplay_event_tag": "UI.GameScreen.Inventory",
     "compartments": [
       {
-        "id": "cage",
-        "layout": "Grid",
-        "width": 2,
-        "height": 2,
+        "id": "bait",
+        "layout": "Slot",
+        "max_count": 1,
         "accepts": [
           "cold"
         ],
@@ -129,23 +145,88 @@
           "part": "Lid",
           "min_open": 0.5
         },
+        "presentation_overrides": [
+          {
+            "key": "*",
+            "value": {
+              "mesh": "/Game/Furniture/RatTrap/Meshes/SM_RatTrap_Bait.SM_RatTrap_Bait",
+              "scale": 1.0,
+              "offset": {
+                "x": -2.375,
+                "y": -5.85,
+                "z": 1.22
+              },
+              "rotation": {
+                "pitch": 0.0,
+                "yaw": -90.0,
+                "roll": 0.0
+              }
+            }
+          }
+        ],
         "surface": {
           "offset": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.5
+            "x": 1.35,
+            "y": -0.195,
+            "z": 0.4
           },
           "yaw": 90.0,
-          "width": 32.0,
-          "depth": 22.0,
-          "camera_distance": 110.0,
+          "width": 26.0,
+          "depth": 10.0,
+          "camera_distance": 90.0,
+          "camera_pitch": -50.0
+        }
+      },
+      {
+        "id": "catch",
+        "layout": "Slot",
+        "max_count": 1,
+        "accepts": [
+          "cold"
+        ],
+        "take_only": true,
+        "visible_when_empty": false,
+        "gate": {
+          "part": "Lid",
+          "min_open": 0.5
+        },
+        "presentation_overrides": [
+          {
+            "key": "*",
+            "value": {
+              "mesh": "/Game/Furniture/RatTrap/Meshes/SM_RatTrap_SprungParts.SM_RatTrap_SprungParts",
+              "scale": 1.0,
+              "offset": {
+                "x": -0.285,
+                "y": 1.7,
+                "z": 0.01
+              },
+              "rotation": {
+                "pitch": 0.0,
+                "yaw": -90.0,
+                "roll": 0.0
+              }
+            }
+          }
+        ],
+        "surface": {
+          "offset": {
+            "x": 1.35,
+            "y": -0.195,
+            "z": 0.4
+          },
+          "yaw": 90.0,
+          "width": 26.0,
+          "depth": 10.0,
+          "camera_distance": 90.0,
           "camera_pitch": -50.0
         }
       }
     ],
     "station": {
       "recipe_tag": "Station.RatTrap",
-      "input": "cage",
+      "input": "bait",
+      "output": "catch",
       "trigger": {
         "type": "Click_Bench"
       },

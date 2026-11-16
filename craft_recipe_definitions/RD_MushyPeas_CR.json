@@ -1,0 +1,29 @@
+{
+  "id": "RD_MushyPeas_CR",
+  "asset_path": "/Game/Items/Consumables/Food/MushyPeas/Recipes/RD_MushyPeas_CR",
+  "class": "UCraftRecipeDefinition",
+  "schema_version": 2,
+  "properties": {
+    "recipe_tags": [],
+    "input": [
+      {
+        "key": "ID_Peas_CN",
+        "value": 1
+      },
+      {
+        "key": "ID_BottleWater_CN",
+        "value": 1
+      }
+    ],
+    "output": [
+      {
+        "key": "ID_MushyPeas_CN",
+        "value": 1
+      }
+    ],
+    "duration": 75.0,
+    "stations": [
+      "Station.Microwave"
+    ]
+  }
+}

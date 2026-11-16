@@ -1,0 +1,26 @@
+{
+  "id": "RD_StaffSausage_CR",
+  "asset_path": "/Game/Items/Consumables/Food/StaffSausage/Recipes/RD_StaffSausage_CR",
+  "class": "UCraftRecipeDefinition",
+  "schema_version": 2,
+  "properties": {
+    "recipe_tags": [],
+    "input": [
+      {
+        "key": "ID_StaffFlesh_CM",
+        "value": 2
+      }
+    ],
+    "output": [
+      {
+        "key": "ID_StaffSausage_CN",
+        "value": 1
+      }
+    ],
+    "duration": 6.0,
+    "stations": [
+      "Station.CraftingTableTierOne",
+      "Station.CheckoutCounter"
+    ]
+  }
+}

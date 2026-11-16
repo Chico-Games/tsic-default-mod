@@ -14,7 +14,7 @@
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,
-    "static_mesh": "/Game/Fab/MERIDIAN/VOL15_ChineseFood/Meshes/NN/SM_Fish_NN_11e.SM_Fish_NN_11e",
+    "static_mesh": "/Game/Items/Consumables/Food/BatteredFish/Meshes/SM_BatteredFishBox.SM_BatteredFishBox",
     "casts_shadow": false,
     "collision_profile_name": {
       "name": "ItemStatic"

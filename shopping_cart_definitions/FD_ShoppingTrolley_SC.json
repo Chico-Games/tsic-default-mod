@@ -134,38 +134,44 @@
       "y": 0.0,
       "z": 0.0
     },
-    "drive_behind_cone_degrees": 60.0,
-    "drive_facing_degrees": 60.0,
     "ride_indicator_offset": {
       "x": -7.0,
       "y": 0.0,
       "z": 112.0
     },
-    "drive_indicator_offset": {
-      "x": 48.0,
-      "y": 0.0,
-      "z": 118.0
-    },
     "mount_hold_time": 0.6,
     "ride_prompt_text": "Ride",
-    "drive_prompt_text": "Drive",
     "ride_seat_offset": {
       "x": 0.0,
       "y": 0.0,
       "z": 110.0
     },
-    "drive_handle_offset": {
-      "x": 85.0,
-      "y": 0.0,
-      "z": 90.0
-    },
-    "push_force": 1200.0,
-    "max_push_speed": 500.0,
-    "sprint_push_multiplier": 1.5,
-    "steer_torque_strength": 8.0,
-    "steer_torque_damping": 2.0,
     "upright_stabilization_strength": 30.0,
     "upright_stabilization_damping": 11.0,
-    "drive_stamina_drain_per_tick": 2.0
+    "physics_body_mesh": "/Game/Furniture/Vehicles/ShoppingTrolley/Meshes/SM_Shopping_Cart_01a_Body.SM_Shopping_Cart_01a_Body",
+    "caster_mesh": "/Game/Furniture/Vehicles/ShoppingTrolley/Meshes/SM_Shopping_Cart_01a_Caster.SM_Shopping_Cart_01a_Caster",
+    "caster_pivots": [
+      {
+        "x": 33.93,
+        "y": -27.11,
+        "z": 12.16
+      },
+      {
+        "x": 33.93,
+        "y": 27.27,
+        "z": 12.16
+      },
+      {
+        "x": -36.24,
+        "y": 19.69,
+        "z": 12.16
+      },
+      {
+        "x": -36.24,
+        "y": -18.27,
+        "z": 12.16
+      }
+    ],
+    "caster_trail": 3.6
   }
 }

@@ -25,16 +25,16 @@
     "has_toggled_on_vfx": false,
     "has_toggled_off_vfx": false,
     "starting_health": 66,
-    "destructible_collection": "/Game/Furniture/MidCentury/GeometryCollections/GCS_Microwave01_Closed.GCS_Microwave01_Closed",
+    "destructible_collection": "/Game/Furniture/MidCentury/GeometryCollections/GCS_MicrowaveShelf01_Closed.GCS_MicrowaveShelf01_Closed",
     "loot_dropped_on_death": [],
     "constructable_item_to_grant": "ID_Microwave_CI",
     "deconstruction_tier": 2,
     "blocking_collision_boxes": [
       {
         "offset": {
-          "x": -0.12,
-          "y": -8.01,
-          "z": 14.36
+          "x": 0.0,
+          "y": 0.0,
+          "z": 57.85
         },
         "rotation": {
           "pitch": 0,
@@ -42,18 +42,18 @@
           "roll": 0
         },
         "box_size": {
-          "x": 23.6,
-          "y": 27.3,
-          "z": 14.35
+          "x": 31.0,
+          "y": 22.0,
+          "z": 57.85
         }
       }
     ],
     "support_collision_boxes": [
       {
         "offset": {
-          "x": -0.12,
-          "y": -8.01,
-          "z": 14.36
+          "x": 0.0,
+          "y": 0.0,
+          "z": 57.85
         },
         "rotation": {
           "pitch": 0,
@@ -61,9 +61,9 @@
           "roll": 0
         },
         "box_size": {
-          "x": 24.6,
-          "y": 28.3,
-          "z": 14.35
+          "x": 32.0,
+          "y": 23.0,
+          "z": 57.85
         }
       }
     ],
@@ -75,8 +75,8 @@
         "w": 1
       },
       "translation": {
-        "x": -0.12,
-        "y": -8.01,
+        "x": 0.0,
+        "y": 0.0,
         "z": 0.11
       },
       "scale3_d": {
@@ -92,7 +92,7 @@
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,
-    "static_mesh": "/Game/Furniture/MidCentury/Microwave01/SM_Microwave01_Closed.SM_Microwave01_Closed",
+    "static_mesh": "/Game/Furniture/MidCentury/MicrowaveShelf01/SM_MicrowaveShelf01_Closed.SM_MicrowaveShelf01_Closed",
     "casts_shadow": true,
     "collision_profile_name": {
       "name": "Furniture"
@@ -108,9 +108,9 @@
             "w": 1.0
           },
           "translation": {
-            "x": -0.12,
-            "y": -8.01,
-            "z": 29.21
+            "x": 0.0,
+            "y": 0.0,
+            "z": 116.2
           },
           "scale3_d": {
             "x": 1.0,
@@ -137,7 +137,7 @@
     "release_linear_damping": 0.009999999776482582,
     "restitution": 0.30000001192092896,
     "rig": {
-      "skeletal_mesh": "/Game/Furniture/MidCentury/Microwave01/SK_Microwave01.SK_Microwave01",
+      "skeletal_mesh": "/Game/Furniture/MidCentury/MicrowaveShelf01/SK_MicrowaveShelf01.SK_MicrowaveShelf01",
       "parts": [
         {
           "name": "Door",
@@ -164,9 +164,9 @@
         },
         "surface": {
           "offset": {
-            "x": -5.6,
-            "y": -1.0,
-            "z": 6.8
+            "x": -5.42,
+            "y": 0.24,
+            "z": 89.2
           },
           "yaw": 90.0,
           "width": 29.0,

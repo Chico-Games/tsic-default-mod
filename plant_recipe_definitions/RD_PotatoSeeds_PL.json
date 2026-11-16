@@ -7,59 +7,44 @@
     "growth_stages": [
       {
         "at": 0,
-        "mesh": "/Game/Fab/UltimateFarming/Meshes/SM_Potato_Starter.SM_Potato_Starter",
+        "mesh": "/Game/Items/Seeds/PotatoSeeds/Meshes/SM_Potato_Stage1.SM_Potato_Stage1",
         "scale": {
-          "x": 0.08,
-          "y": 0.08,
-          "z": 0.08
+          "x": 0.107,
+          "y": 0.107,
+          "z": 0.107
         },
         "end_scale": {
-          "x": 0.148,
-          "y": 0.148,
-          "z": 0.148
-        },
-        "offset": {
-          "x": 0,
-          "y": 0,
-          "z": 80.009
+          "x": 0.194,
+          "y": 0.194,
+          "z": 0.194
         }
       },
       {
         "at": 0.3333,
-        "mesh": "/Game/Fab/UltimateFarming/Meshes/SM_Potato_A_Flower.SM_Potato_A_Flower",
+        "mesh": "/Game/Items/Seeds/PotatoSeeds/Meshes/SM_Potato_Stage2.SM_Potato_Stage2",
         "scale": {
-          "x": 0.094,
-          "y": 0.094,
-          "z": 0.094
+          "x": 0.119,
+          "y": 0.119,
+          "z": 0.119
         },
         "end_scale": {
-          "x": 0.123,
-          "y": 0.123,
-          "z": 0.123
-        },
-        "offset": {
-          "x": 0,
-          "y": 0,
-          "z": 111.7
+          "x": 0.158,
+          "y": 0.158,
+          "z": 0.158
         }
       },
       {
         "at": 0.6667,
-        "mesh": "/Game/Fab/UltimateFarming/Meshes/SM_Potato_A.SM_Potato_A",
+        "mesh": "/Game/Items/Seeds/PotatoSeeds/Meshes/SM_Potato_Stage3.SM_Potato_Stage3",
         "scale": {
-          "x": 0.125,
-          "y": 0.125,
-          "z": 0.125
+          "x": 0.158,
+          "y": 0.158,
+          "z": 0.158
         },
         "end_scale": {
-          "x": 0.151,
-          "y": 0.151,
-          "z": 0.151
-        },
-        "offset": {
-          "x": 0,
-          "y": 0,
-          "z": 107.961
+          "x": 0.198,
+          "y": 0.198,
+          "z": 0.198
         }
       }
     ],

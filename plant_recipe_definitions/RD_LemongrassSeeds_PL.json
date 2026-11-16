@@ -7,25 +7,39 @@
     "growth_stages": [
       {
         "at": 0,
-        "mesh": "/Game/Fab/UltimateFarming/Meshes/SM_Sugarcane_Starter.SM_Sugarcane_Starter",
+        "mesh": "/Game/Items/Seeds/LemongrassSeeds/Meshes/SM_Lemongrass_Stage1.SM_Lemongrass_Stage1",
         "scale": {
-          "x": 0.049,
-          "y": 0.049,
-          "z": 0.049
+          "x": 0.047,
+          "y": 0.047,
+          "z": 0.047
         },
         "end_scale": {
-          "x": 0.098,
-          "y": 0.098,
-          "z": 0.098
+          "x": 0.086,
+          "y": 0.086,
+          "z": 0.086
         }
       },
       {
-        "at": 0.5,
-        "mesh": "/Game/Fab/UltimateFarming/Meshes/SM_Sugarcane_A.SM_Sugarcane_A",
+        "at": 0.3333,
+        "mesh": "/Game/Items/Seeds/LemongrassSeeds/Meshes/SM_Lemongrass_Stage2.SM_Lemongrass_Stage2",
         "scale": {
-          "x": 0.05,
-          "y": 0.05,
-          "z": 0.05
+          "x": 0.044,
+          "y": 0.044,
+          "z": 0.044
+        },
+        "end_scale": {
+          "x": 0.059,
+          "y": 0.059,
+          "z": 0.059
+        }
+      },
+      {
+        "at": 0.6667,
+        "mesh": "/Game/Items/Seeds/LemongrassSeeds/Meshes/SM_Lemongrass_Stage3.SM_Lemongrass_Stage3",
+        "scale": {
+          "x": 0.059,
+          "y": 0.059,
+          "z": 0.059
         },
         "end_scale": {
           "x": 0.074,

@@ -7,58 +7,58 @@
     "growth_stages": [
       {
         "at": 0,
-        "mesh": "/Game/Fab/UltimateFarming/Meshes/SM_Tomatoes_Starter.SM_Tomatoes_Starter",
+        "mesh": "/Game/Items/Seeds/TomatoSeeds/Meshes/SM_Tomato_Stage1.SM_Tomato_Stage1",
         "scale": {
-          "x": 0.183,
-          "y": 0.183,
-          "z": 0.183
+          "x": 0.148,
+          "y": 0.148,
+          "z": 0.148
         },
         "end_scale": {
-          "x": 0.33,
-          "y": 0.33,
-          "z": 0.33
+          "x": 0.269,
+          "y": 0.269,
+          "z": 0.269
         }
       },
       {
         "at": 0.25,
-        "mesh": "/Game/Fab/UltimateFarming/Meshes/SM_Tomatoes_A_Flower.SM_Tomatoes_A_Flower",
+        "mesh": "/Game/Items/Seeds/TomatoSeeds/Meshes/SM_Tomato_Stage2.SM_Tomato_Stage2",
         "scale": {
-          "x": 0.138,
-          "y": 0.138,
-          "z": 0.138
+          "x": 0.131,
+          "y": 0.131,
+          "z": 0.131
         },
         "end_scale": {
-          "x": 0.199,
-          "y": 0.199,
-          "z": 0.199
+          "x": 0.182,
+          "y": 0.182,
+          "z": 0.182
         }
       },
       {
         "at": 0.5,
-        "mesh": "/Game/Fab/UltimateFarming/Meshes/SM_Tomatoes_A.SM_Tomatoes_A",
-        "scale": {
-          "x": 0.199,
-          "y": 0.199,
-          "z": 0.199
-        },
-        "end_scale": {
-          "x": 0.237,
-          "y": 0.237,
-          "z": 0.237
-        }
-      },
-      {
-        "at": 0.75,
-        "mesh": "/Game/Fab/UltimateFarming/Meshes/SM_Tomatoes_C.SM_Tomatoes_C",
+        "mesh": "/Game/Items/Seeds/TomatoSeeds/Meshes/SM_Tomato_Stage3.SM_Tomato_Stage3",
         "scale": {
           "x": 0.184,
           "y": 0.184,
           "z": 0.184
         },
         "end_scale": {
-          "x": 0.208,
-          "y": 0.208,
-          "z": 0.208
+          "x": 0.225,
+          "y": 0.225,
+          "z": 0.225
+        }
+      },
+      {
+        "at": 0.75,
+        "mesh": "/Game/Items/Seeds/TomatoSeeds/Meshes/SM_Tomato_Stage4.SM_Tomato_Stage4",
+        "scale": {
+          "x": 0.182,
+          "y": 0.182,
+          "z": 0.182
+        },
+        "end_scale": {
+          "x": 0.207,
+          "y": 0.207,
+          "z": 0.207
         }
       }
     ],

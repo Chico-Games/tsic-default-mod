@@ -134,8 +134,10 @@
         "height": 1,
         "accepts": [
           "cold",
+          "fasteners",
           "general",
-          "seed"
+          "seed",
+          "wood"
         ],
         "take_only": true,
         "visible_when_empty": false,

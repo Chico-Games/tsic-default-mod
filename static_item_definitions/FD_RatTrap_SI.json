@@ -14,7 +14,7 @@
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,
-    "static_mesh": "/Game/Furniture/RatTrap/Meshes/SM_RatTrap_Closed.SM_RatTrap_Closed",
+    "static_mesh": "/Game/Furniture/RatTrap/Meshes/SM_RatTrap_Item.SM_RatTrap_Item",
     "casts_shadow": false,
     "collision_profile_name": {
       "name": "ItemStatic"

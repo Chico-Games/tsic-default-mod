@@ -60,10 +60,11 @@
     "has_durability": false,
     "has_ammo": false,
     "max_ammo": 13,
-    "display_name": "Egg",
+    "display_name": "Pigeon Egg",
     "description": "Eat: Heals 4 instantly. Fills 15 hunger. Laid in a bird house.\nStill warm. Something out there is doing better than you are.",
     "stackable": false,
     "weight": 0.1,
+    "static_item_definition": "FD_Egg_SI",
     "storage_class": "cold",
     "material_class": "food",
     "item_category_tag": "Entity.Inventory.Item.Category.Consumable"

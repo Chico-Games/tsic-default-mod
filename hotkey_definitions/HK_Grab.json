@@ -1,0 +1,10 @@
+{
+  "id": "HK_Grab",
+  "class": "HotkeyDefinition",
+  "properties": {
+    "display_name": "Grab",
+    "category": "Interaction",
+    "keyboard_key": { "key_name": "C" },
+    "gamepad_key": { "key_name": "Gamepad_FaceButton_Top" }
+  }
+}

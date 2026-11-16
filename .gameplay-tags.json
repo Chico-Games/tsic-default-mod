@@ -481,6 +481,7 @@
     "Input.Behavior.Back",
     "Input.Behavior.Crouch",
     "Input.Behavior.Flashlight",
+    "Input.Behavior.Grab",
     "Input.Behavior.Interact",
     "Input.Behavior.Jump",
     "Input.Behavior.MapZoomIn",
