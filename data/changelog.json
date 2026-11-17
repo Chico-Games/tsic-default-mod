@@ -2,6 +2,39 @@
   "_generated": "Scripts/changelog.ps1 - do not hand-edit; edit changelog/releases/*.json",
   "releases": [
     {
+      "version": "2.2.1",
+      "channel": "Alpha",
+      "sha": "80c615b19",
+      "date": "2026-11-17",
+      "title": "The Durham food range, tea and strawberries",
+      "entries": [
+        {
+          "type": "added",
+          "scope": "Food",
+          "text": "Added strawberries to grow in planters, strawberry jam, and cups of tea brewed at the coffee machine.",
+          "ref": 769
+        },
+        {
+          "type": "changed",
+          "scope": "Food",
+          "text": "Changed the food range to the Durham set: 70 old snacks, drinks, meals, crops and medical items are gone, and recipes, loot and vending machines use what is left.",
+          "ref": 769
+        },
+        {
+          "type": "changed",
+          "scope": "Food",
+          "text": "Changed tomatoes and baked potatoes to new models.",
+          "ref": 769
+        },
+        {
+          "type": "fixed",
+          "scope": "Furniture",
+          "text": "Fixed switched-off lights looking wrong: bulbs are frosted white instead of turquoise, the tripod floor lamp keeps its fabric shade, and ceiling light panels look like a white diffuser instead of dark metal."
+        }
+      ],
+      "known_issues": []
+    },
+    {
       "version": "2.2.0",
       "channel": "Alpha",
       "sha": "e0c5a8920c",
@@ -1517,165 +1550,6 @@
           "scope": "Store",
           "ref": 608,
           "text": "Some checkout counters and framed paintings flicker as you move - two surfaces are fighting over the same spot, not a missing texture."
-        }
-      ]
-    },
-    {
-      "version": "2.0.1",
-      "channel": "Alpha",
-      "sha": "04114f354c",
-      "date": "2026-09-01",
-      "title": "Now With 99.7% Reduced Time Between Patches!",
-      "entries": [
-        {
-          "type": "qol",
-          "scope": "Menus",
-          "text": "Improved menu performance."
-        },
-        {
-          "type": "qol",
-          "scope": "Menus",
-          "text": "Added a ten second confirmation prompt after a display change, which puts the old resolution back if you do not confirm, so an unreadable or off-screen mode can no longer strand you.",
-          "ref": 446
-        },
-        {
-          "type": "changed",
-          "scope": "Crafting",
-          "text": "Changed the upgrade and dismantle tools to read as Hammer Tool and Screwdriver Tool, so they are not mistaken for the Hammer weapon of the same name.",
-          "ref": 484
-        },
-        {
-          "type": "changed",
-          "scope": "Crafting",
-          "text": "Changed the dowel bat so its recipe is unlocked from the start instead of needing to be discovered, so there is a weapon to build on the first crafting bench.",
-          "ref": 454
-        },
-        {
-          "type": "changed",
-          "scope": "Menus",
-          "text": "Changed the on-screen key prompts so mouse buttons draw as a mouse with the pressed button lit, rather than a box lettered LMB, so a left or right click reads at a glance."
-        },
-        {
-          "type": "changed",
-          "scope": "Menus",
-          "text": "Changed the Controls menu so look speed sits at the top, above the key bindings, instead of below a list long enough to scroll past.",
-          "ref": 376
-        },
-        {
-          "type": "changed",
-          "scope": "Menus",
-          "text": "Changed the Video menu so display settings sit at the top, above the graphics quality options, to match where most games put them."
-        },
-        {
-          "type": "changed",
-          "scope": "Menus",
-          "text": "Changed the on-screen action prompts to name what the button actually does, so primary fire reads Attack and the drag prompt appears only while something draggable is in front of you.",
-          "ref": 488
-        },
-        {
-          "type": "fixed",
-          "scope": "Combat",
-          "text": "Fixed god mode not preventing damage: the cheat menu showed it switched on while the player still took hits and died.",
-          "ref": 485
-        },
-        {
-          "type": "fixed",
-          "scope": "Crafting",
-          "text": "Fixed tools reporting that they equip to a Weapon slot; the recipe panel now calls it the hand slot, which is what weapons, tools and consumables all share.",
-          "ref": 484
-        },
-        {
-          "type": "fixed",
-          "scope": "Inventory",
-          "text": "Fixed duct tape weighing 1kg a roll, ten times heavier than every other crafting material.",
-          "ref": 483
-        },
-        {
-          "type": "fixed",
-          "scope": "Menus",
-          "text": "Fixed the look-speed slider ignoring click and drag, so the handle now follows the pointer instead of only jumping to where you click.",
-          "ref": 376
-        },
-        {
-          "type": "fixed",
-          "scope": "Menus",
-          "text": "Fixed the what is new bulletin reappearing every time you returned to the main menu, so it now shows once per update and stays shut after you close it.",
-          "ref": 497
-        },
-        {
-          "type": "fixed",
-          "scope": "Menus",
-          "text": "Fixed an issue where changing resolution or window mode did not apply correctly: picking a resolution forced the game into fullscreen, the window shrank a little further with every change, and borderless and fullscreen could not be reached from windowed.",
-          "ref": 465
-        },
-        {
-          "type": "fixed",
-          "scope": "Night",
-          "text": "Fixed the flashlight switching itself back on a couple of seconds after you turned it off at night, and relighting whenever you took a hit, so it now stays off until the next morning.",
-          "ref": 487
-        },
-        {
-          "type": "removed",
-          "scope": "Combat",
-          "text": "Removed the Ghost cheat, which never did anything: it set a flag no part of the game read, and the No Aggro toggle beside it already makes enemies ignore you.",
-          "ref": 485
-        }
-      ],
-      "known_issues": [
-        {
-          "scope": "Co-op",
-          "ref": 325,
-          "text": "Furniture flashes when a drag starts and again when it settles."
-        },
-        {
-          "scope": "Co-op",
-          "ref": 391,
-          "text": "Moving a light as a guest switches it off."
-        },
-        {
-          "scope": "Saves",
-          "ref": 380,
-          "text": "Loading a save made after a visit to the Pit sets you on fire on arrival."
-        },
-        {
-          "scope": "Store",
-          "ref": 330,
-          "text": "Some furniture spawns badly placed - floating near steps, lying down, or facing the wrong way."
-        },
-        {
-          "scope": "Store",
-          "ref": 353,
-          "text": "Aisle sign lettering and framed photos z-fight at some angles - the text flickers as you walk past."
-        },
-        {
-          "scope": "Store",
-          "ref": 373,
-          "text": "Railings generate along edges with no drop, and are missing from some real ones."
-        },
-        {
-          "scope": "Breakage",
-          "ref": 356,
-          "text": "Eighteen materials across fifteen breakable pieces render flat grey once destroyed."
-        },
-        {
-          "scope": "Menus",
-          "ref": 375,
-          "text": "The Windows cursor shows through the in-game one over menu scrollbars."
-        },
-        {
-          "scope": "Menus",
-          "ref": 458,
-          "text": "The menus can feel sluggish and the cursor lags behind the mouse."
-        },
-        {
-          "scope": "Saves",
-          "ref": 498,
-          "text": "Claiming a bed does not move your respawn; you still come back at the world spawn."
-        },
-        {
-          "scope": "Store",
-          "ref": 499,
-          "text": "Fly mode has no way to gain or lose height."
         }
       ]
     }
