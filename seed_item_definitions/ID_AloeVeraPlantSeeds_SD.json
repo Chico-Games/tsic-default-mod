@@ -15,6 +15,7 @@
     "material_class": "plant",
     "max_stack_size": 20,
     "hold": {
+      "mirrored": true,
       "right": {
         "location": {
           "x": -1.13,

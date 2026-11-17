@@ -73,27 +73,27 @@
       "mirrored": true,
       "right": {
         "location": {
-          "x": -1.6,
-          "y": 5.42,
-          "z": 1.77
+          "x": 0.27,
+          "y": 5.55,
+          "z": 0.88
         },
         "rotation": {
-          "pitch": 8,
-          "yaw": 90.1,
-          "roll": 8.6
+          "pitch": 3.4,
+          "yaw": 100.7,
+          "roll": 23.8
         },
         "scale": 1
       },
       "left": {
         "location": {
-          "x": 1.61,
-          "y": -5.36,
-          "z": -1.91
+          "x": -0.25,
+          "y": -5.53,
+          "z": -1.02
         },
         "rotation": {
-          "pitch": -9.4,
-          "yaw": -89.6,
-          "roll": 171.8
+          "pitch": -4.9,
+          "yaw": -79,
+          "roll": 156.3
         },
         "scale": 1
       }

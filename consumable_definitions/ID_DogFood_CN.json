@@ -78,9 +78,9 @@
           "z": 0.4
         },
         "rotation": {
-          "pitch": 13.9,
-          "yaw": 0,
-          "roll": 0
+          "pitch": 21.4,
+          "yaw": 77.3,
+          "roll": 22.3
         },
         "scale": 1
       },
@@ -91,9 +91,9 @@
           "z": -0.52
         },
         "rotation": {
-          "pitch": -13.5,
-          "yaw": 179.9,
-          "roll": -178.5
+          "pitch": -22.7,
+          "yaw": -102.7,
+          "roll": 158.4
         },
         "scale": 1
       }
