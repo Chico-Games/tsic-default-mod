@@ -29,7 +29,7 @@
         "value": {
           "loot_items": [
             {
-              "item_entity": "FD_DurhamChocolateBiscuits_SI",
+              "item_entity": "FD_Cod_SI",
               "count": 1,
               "weight": 1
             },

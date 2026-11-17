@@ -13,12 +13,12 @@
         "value": {
           "loot_items": [
             {
-              "item_entity": "FD_LemongrassSeeds_SI",
+              "item_entity": "FD_WheatSeeds_SI",
               "count": 1,
               "weight": 1
             },
             {
-              "item_entity": "FD_AloeVeraPlantSeeds_SI",
+              "item_entity": "FD_PotatoSeeds_SI",
               "count": 1,
               "weight": 1
             },

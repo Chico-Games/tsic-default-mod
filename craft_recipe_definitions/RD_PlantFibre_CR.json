@@ -8,11 +8,7 @@
     "input": [
       {
         "key": "ID_Wheat_CN",
-        "value": 2
-      },
-      {
-        "key": "ID_RunnerBeans_CN",
-        "value": 2
+        "value": 3
       }
     ],
     "output": [

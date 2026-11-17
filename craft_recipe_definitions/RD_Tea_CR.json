@@ -1,0 +1,29 @@
+{
+  "id": "RD_Tea_CR",
+  "asset_path": "/Game/Items/Consumables/Food/Tea/Recipes/RD_Tea_CR",
+  "class": "UCraftRecipeDefinition",
+  "schema_version": 2,
+  "properties": {
+    "recipe_tags": [],
+    "input": [
+      {
+        "key": "ID_TeaBags_CN",
+        "value": 1
+      },
+      {
+        "key": "ID_BottleWater_CN",
+        "value": 1
+      }
+    ],
+    "output": [
+      {
+        "key": "ID_Tea_CN",
+        "value": 2
+      }
+    ],
+    "duration": 70.0,
+    "stations": [
+      "Station.CoffeeMachine"
+    ]
+  }
+}

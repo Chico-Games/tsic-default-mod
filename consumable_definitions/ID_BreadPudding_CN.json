@@ -61,7 +61,7 @@
     "has_ammo": false,
     "max_ammo": 13,
     "display_name": "Bread Pudding",
-    "description": "Eat: Heals 10 instantly. Fills 40 hunger. Made at the Oven.\nStale bread, milk and an egg, baked dark and heavy. Spiced, with raisins, allegedly.",
+    "description": "Eat: Heals 10 instantly. Fills 40 hunger. Made at the Oven.\nStale crumpets and an egg, baked dark and heavy. Spiced, with raisins, allegedly.",
     "stackable": true,
     "weight": 0.34,
     "static_item_definition": "FD_BreadPudding_SI",

@@ -13,7 +13,7 @@
         "value": {
           "loot_items": [
             {
-              "item_entity": "FD_DurhamCrackers_SI",
+              "item_entity": "FD_BottleWater_SI",
               "count": 1,
               "weight": 1
             },

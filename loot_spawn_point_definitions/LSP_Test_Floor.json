@@ -78,7 +78,7 @@
               "weight": 2
             },
             {
-              "item_entity": "FD_Onion_SI",
+              "item_entity": "FD_Strawberry_SI",
               "count": 2,
               "weight": 2
             },
@@ -88,7 +88,7 @@
               "weight": 2
             },
             {
-              "item_entity": "FD_Milk_SI",
+              "item_entity": "FD_OvenChips_SI",
               "count": 2,
               "weight": 2
             },
@@ -103,17 +103,17 @@
               "weight": 2
             },
             {
-              "item_entity": "FD_Rice_SI",
+              "item_entity": "FD_TeaBags_SI",
               "count": 2,
               "weight": 2
             },
             {
-              "item_entity": "FD_Bread_SI",
+              "item_entity": "FD_StrawberryJam_SI",
               "count": 2,
               "weight": 2
             },
             {
-              "item_entity": "FD_CannedSoup_SI",
+              "item_entity": "FD_Cod_SI",
               "count": 2,
               "weight": 2
             },
@@ -123,12 +123,12 @@
               "weight": 1
             },
             {
-              "item_entity": "FD_FirstAidKit_SI",
+              "item_entity": "FD_Soap_SI",
               "count": 1,
               "weight": 1
             },
             {
-              "item_entity": "FD_Painkiller_SI",
+              "item_entity": "FD_VitaminPills_SI",
               "count": 1,
               "weight": 1
             },
@@ -138,7 +138,7 @@
               "weight": 1
             },
             {
-              "item_entity": "FD_OnionSeeds_SI",
+              "item_entity": "FD_StrawberrySeeds_SI",
               "count": 2,
               "weight": 1
             },
@@ -149,16 +149,6 @@
             },
             {
               "item_entity": "FD_WheatSeeds_SI",
-              "count": 2,
-              "weight": 1
-            },
-            {
-              "item_entity": "FD_RunnerBeansSeeds_SI",
-              "count": 2,
-              "weight": 1
-            },
-            {
-              "item_entity": "FD_AloeVeraPlantSeeds_SI",
               "count": 2,
               "weight": 1
             },

@@ -61,7 +61,7 @@
     "has_ammo": false,
     "max_ammo": 13,
     "display_name": "Cornish Pasty",
-    "description": "Eat: Heals 16 instantly. Fills 60 hunger. Made at the Oven.\nPotato, onion and something from the staff room, crimped shut and still hot in its paper.",
+    "description": "Eat: Heals 16 instantly. Fills 60 hunger. Made at the Oven.\nPotato and something from the staff room, crimped shut and still hot in its paper.",
     "stackable": true,
     "weight": 0.17,
     "static_item_definition": "FD_CornishPasty_SI",

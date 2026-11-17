@@ -1,0 +1,25 @@
+{
+  "id": "RD_ShopCookingOil_CR",
+  "asset_path": "/Game/Items/Seeds/TomatoSeeds/Recipes/RD_ShopCookingOil_CR",
+  "class": "UCraftRecipeDefinition",
+  "schema_version": 2,
+  "properties": {
+    "recipe_tags": [],
+    "input": [
+      {
+        "key": "ID_Coins_CM",
+        "value": 5
+      }
+    ],
+    "output": [
+      {
+        "key": "ID_CookingOil_CN",
+        "value": 1
+      }
+    ],
+    "duration": 0.5,
+    "stations": [
+      "Station.Vending.CookingOil"
+    ]
+  }
+}

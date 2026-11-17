@@ -13,12 +13,12 @@
         "value": {
           "loot_items": [
             {
-              "item_entity": "FD_DurhamBreakfastCereal_SI",
+              "item_entity": "FD_Peas_SI",
               "count": 1,
               "weight": 1
             },
             {
-              "item_entity": "FD_DurhamWater_SI",
+              "item_entity": "FD_TeaBags_SI",
               "count": 1,
               "weight": 1
             },

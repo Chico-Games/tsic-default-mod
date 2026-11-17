@@ -1,0 +1,73 @@
+{
+  "id": "RD_StrawberrySeeds_PL",
+  "asset_path": "/Game/Items/Seeds/StrawberrySeeds/Recipes/RD_StrawberrySeeds_PL",
+  "class": "UPlantRecipeDefinition",
+  "schema_version": 2,
+  "properties": {
+    "growth_stages": [
+      {
+        "at": 0,
+        "mesh": "/Game/Items/Seeds/StrawberrySeeds/Meshes/SM_Strawberry_Stage1.SM_Strawberry_Stage1",
+        "scale": {
+          "x": 0.7,
+          "y": 0.7,
+          "z": 0.7
+        },
+        "end_scale": {
+          "x": 1.25,
+          "y": 1.25,
+          "z": 1.25
+        }
+      },
+      {
+        "at": 0.3333,
+        "mesh": "/Game/Items/Seeds/StrawberrySeeds/Meshes/SM_Strawberry_Stage2.SM_Strawberry_Stage2",
+        "scale": {
+          "x": 0.75,
+          "y": 0.75,
+          "z": 0.75
+        },
+        "end_scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      {
+        "at": 0.6667,
+        "mesh": "/Game/Items/Seeds/StrawberrySeeds/Meshes/SM_Strawberry_Stage3.SM_Strawberry_Stage3",
+        "scale": {
+          "x": 0.92,
+          "y": 0.92,
+          "z": 0.92
+        },
+        "end_scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      }
+    ],
+    "stations": [
+      "Station.Planter.T1"
+    ],
+    "recipe_tags": [],
+    "input": [
+      {
+        "key": "ID_StrawberrySeeds_SD",
+        "value": 1
+      }
+    ],
+    "output": [
+      {
+        "key": "ID_Strawberry_CN",
+        "value": 3
+      },
+      {
+        "key": "ID_StrawberrySeeds_SD",
+        "value": 2
+      }
+    ],
+    "duration": 300
+  }
+}

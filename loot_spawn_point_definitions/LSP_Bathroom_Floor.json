@@ -13,12 +13,12 @@
         "value": {
           "loot_items": [
             {
-              "item_entity": "FD_Plasters_SI",
+              "item_entity": "FD_Soap_SI",
               "count": 1,
               "weight": 1
             },
             {
-              "item_entity": "FD_HairDye_SI",
+              "item_entity": "FD_Deodorant_SI",
               "count": 1,
               "weight": 1
             },

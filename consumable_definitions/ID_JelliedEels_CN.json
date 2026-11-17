@@ -61,7 +61,7 @@
     "has_ammo": false,
     "max_ammo": 13,
     "display_name": "Jellied Eels",
-    "description": "Eat: Heals 12 instantly. Fills 45 hunger. Made at the Microwave.\nChopped fish set in its own cold jelly. East End recipe; the eel was not available.",
+    "description": "Eat: Heals 12 instantly. Fills 45 hunger. Made at the Microwave or the Dishwasher.\nChopped fish set in its own cold jelly. East End recipe; the eel was not available.",
     "stackable": true,
     "weight": 0.35,
     "static_item_definition": "FD_JelliedEels_SI",

@@ -19,14 +19,12 @@
     "wildcard_inputs": [
       {
         "any_of": [
-          "ID_Bread_CN",
-          "ID_Crisps_CN",
-          "ID_CandyBar_CN",
-          "ID_DogFood_CN",
-          "ID_Banana_CN",
           "ID_Potato_CN",
-          "ID_Sandwich_CN",
-          "ID_SunflowerSeeds_CN"
+          "ID_Crumpets_CN",
+          "ID_Strawberry_CN",
+          "ID_Tomato_CN",
+          "ID_Wheat_CN",
+          "ID_Peas_CN"
         ],
         "count": 1
       }

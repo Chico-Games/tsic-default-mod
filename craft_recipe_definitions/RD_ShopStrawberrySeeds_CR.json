@@ -1,0 +1,25 @@
+{
+  "id": "RD_ShopStrawberrySeeds_CR",
+  "asset_path": "/Game/Items/Seeds/TomatoSeeds/Recipes/RD_ShopStrawberrySeeds_CR",
+  "class": "UCraftRecipeDefinition",
+  "schema_version": 2,
+  "properties": {
+    "recipe_tags": [],
+    "input": [
+      {
+        "key": "ID_Coins_CM",
+        "value": 6
+      }
+    ],
+    "output": [
+      {
+        "key": "ID_StrawberrySeeds_SD",
+        "value": 1
+      }
+    ],
+    "duration": 0.5,
+    "stations": [
+      "Station.Vending.StrawberrySeeds"
+    ]
+  }
+}

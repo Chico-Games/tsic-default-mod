@@ -11,7 +11,7 @@
         "chance_to_drop": 1.0
       },
       {
-        "item_to_drop": "ID_OnionSeeds_SD",
+        "item_to_drop": "ID_StrawberrySeeds_SD",
         "count": 1,
         "chance_to_drop": 0.02500000037252903
       },

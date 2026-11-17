@@ -13,7 +13,7 @@
         "value": {
           "loot_items": [
             {
-              "item_entity": "FD_OrganicShampoo_SI",
+              "item_entity": "FD_Bandage_SI",
               "count": 1,
               "weight": 1
             },
@@ -44,7 +44,7 @@
         "value": {
           "loot_items": [
             {
-              "item_entity": "FD_MouthWash_SI",
+              "item_entity": "FD_Deodorant_SI",
               "count": 1,
               "weight": 1
             },
@@ -70,7 +70,7 @@
         "value": {
           "loot_items": [
             {
-              "item_entity": "FD_EyeDrops_SI",
+              "item_entity": "FD_Soap_SI",
               "count": 1,
               "weight": 1
             },

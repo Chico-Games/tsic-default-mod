@@ -61,7 +61,7 @@
     "has_ammo": false,
     "max_ammo": 13,
     "display_name": "Baked Potato",
-    "description": "A delicious baked spud. Looks a little sad without any toppings though.\n\nInstantly heals, increases max health and substantially increases max stamina.",
+    "description": "A jacket potato baked in foil, split open with a pat of butter going in.\n\nInstantly heals, increases max health and substantially increases max stamina.",
     "stackable": false,
     "weight": 1.25,
     "static_item_definition": "FD_BakedPotato_SI",

@@ -23,7 +23,8 @@
     ],
     "duration": 85.0,
     "stations": [
-      "Station.Microwave"
+      "Station.Microwave",
+      "Station.Dishwasher"
     ]
   }
 }

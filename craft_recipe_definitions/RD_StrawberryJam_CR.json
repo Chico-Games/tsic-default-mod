@@ -1,0 +1,29 @@
+{
+  "id": "RD_StrawberryJam_CR",
+  "asset_path": "/Game/Items/Consumables/Food/StrawberryJam/Recipes/RD_StrawberryJam_CR",
+  "class": "UCraftRecipeDefinition",
+  "schema_version": 2,
+  "properties": {
+    "recipe_tags": [],
+    "input": [
+      {
+        "key": "ID_Strawberry_CN",
+        "value": 2
+      },
+      {
+        "key": "ID_BottleWater_CN",
+        "value": 1
+      }
+    ],
+    "output": [
+      {
+        "key": "ID_StrawberryJam_CN",
+        "value": 1
+      }
+    ],
+    "duration": 75.0,
+    "stations": [
+      "Station.Microwave"
+    ]
+  }
+}
