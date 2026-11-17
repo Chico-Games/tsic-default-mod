@@ -67,6 +67,35 @@
     "static_item_definition": "FD_Egg_SI",
     "storage_class": "cold",
     "material_class": "food",
-    "item_category_tag": "Entity.Inventory.Item.Category.Consumable"
+    "item_category_tag": "Entity.Inventory.Item.Category.Consumable",
+    "hold": {
+      "mirrored": true,
+      "right": {
+        "location": {
+          "x": -2.19,
+          "y": 3.98,
+          "z": 1.44
+        },
+        "rotation": {
+          "pitch": 8.3,
+          "yaw": -58.7,
+          "roll": 71.3
+        },
+        "scale": 1
+      },
+      "left": {
+        "location": {
+          "x": 2.2,
+          "y": -3.93,
+          "z": -1.55
+        },
+        "rotation": {
+          "pitch": -6.9,
+          "yaw": 121.5,
+          "roll": 109.1
+        },
+        "scale": 1
+      }
+    }
   }
 }

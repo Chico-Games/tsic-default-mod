@@ -71,6 +71,7 @@
     "item_category_tag": "Entity.Inventory.Item.Category.Consumable",
     "max_stack_size": 10,
     "hold": {
+      "mirrored": true,
       "right": {
         "location": {
           "x": 0.03,

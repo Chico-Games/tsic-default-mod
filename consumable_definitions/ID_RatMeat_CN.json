@@ -67,6 +67,35 @@
     "static_item_definition": "FD_RatMeat_SI",
     "storage_class": "cold",
     "material_class": "food",
-    "item_category_tag": "Entity.Inventory.Item.Category.Consumable"
+    "item_category_tag": "Entity.Inventory.Item.Category.Consumable",
+    "hold": {
+      "mirrored": true,
+      "right": {
+        "location": {
+          "x": -1.04,
+          "y": 7.82,
+          "z": -0.15
+        },
+        "rotation": {
+          "pitch": -68,
+          "yaw": 11.6,
+          "roll": -3
+        },
+        "scale": 1
+      },
+      "left": {
+        "location": {
+          "x": 1.07,
+          "y": -7.82,
+          "z": -0.05
+        },
+        "rotation": {
+          "pitch": 68,
+          "yaw": -164.5,
+          "roll": -173
+        },
+        "scale": 1
+      }
+    }
   }
 }

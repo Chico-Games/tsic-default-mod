@@ -60,27 +60,27 @@
       "mirrored": true,
       "right": {
         "location": {
-          "x": 0.9,
-          "y": 1.83,
-          "z": -4.6
+          "x": -1.05,
+          "y": 1.32,
+          "z": -5.07
         },
         "rotation": {
           "pitch": 19.4,
           "yaw": 0,
-          "roll": 4.6
+          "roll": -2.6
         },
         "scale": 1
       },
       "left": {
         "location": {
-          "x": -0.86,
-          "y": -1.95,
-          "z": 4.56
+          "x": 1.09,
+          "y": -1.44,
+          "z": 5.03
         },
         "rotation": {
-          "pitch": -19.1,
+          "pitch": -19,
           "yaw": 179.8,
-          "roll": 176.9
+          "roll": -175.9
         },
         "scale": 1
       }
