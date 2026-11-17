@@ -4,14 +4,45 @@
     {
       "version": "2.2.2",
       "channel": "Alpha",
-      "sha": "a8200c995d",
+      "sha": "93a8dd91d",
       "date": "2026-11-17",
       "title": "Press the switch",
       "entries": [
         {
+          "type": "qol",
+          "scope": "Performance",
+          "text": "Improved the LODs of all models."
+        },
+        {
           "type": "added",
           "scope": "Interaction",
           "text": "Added a button-press animation for light switches and elevator buttons: the light toggles the moment the finger lands, and the off hand presses while you hold a weapon."
+        },
+        {
+          "type": "changed",
+          "scope": "Catalogue",
+          "text": "Changed the catalogue to show the crafting recipes for the production machines."
+        },
+        {
+          "type": "changed",
+          "scope": "Catalogue",
+          "text": "Changed the catalogue's divider tabs to show a photo of the first station filed behind them, in place of the drawn symbol.",
+          "ref": 770
+        },
+        {
+          "type": "changed",
+          "scope": "Flashlight",
+          "text": "Changed the flashlight to stay on while the catalogue or map is held up. Your own beam no longer falls on the page, the watch or the pocket television, so they read clearly without the aisle going dark."
+        },
+        {
+          "type": "changed",
+          "scope": "HUD",
+          "text": "Changed the watch and the pocket television to shade themselves under the store lights, so they look like solid things in your hand rather than flat pictures."
+        },
+        {
+          "type": "changed",
+          "scope": "Inventory",
+          "text": "Changed 384 item icons to sharper pictures taken under softer light, so pale items no longer wash out to white and metal shows its shine."
         },
         {
           "type": "fixed",
@@ -19,7 +50,7 @@
           "text": "Fixed bare bulbs and ceiling light tubes looking solid when switched off: the glass is now see-through."
         }
       ],
-      "known_issues": []
+      "known_issues": null
     },
     {
       "version": "2.2.1",
