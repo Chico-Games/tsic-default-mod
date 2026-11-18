@@ -8,7 +8,7 @@
       "id": "hotbar-root", "widget": "panel", "layout": "overlay", "style": "panel.flat",
       "bind": { "visible": "UI.Hud.Visibility[hotbar].bHidden ? false : (UI.Hud.Visibility[hotbar.idle].bHidden ? false : !UI.Hud.Visibility[all].bHidden)" },
       "children": [
-        { "id": "hotbar-row", "widget": "list", "layout": "horizontal", "style": "list.hotbar", "selectable": false,
+        { "id": "hotbar-row", "widget": "list", "layout": "horizontal", "style": "list.hotbar", "selectable": false, "row_key": "SlotIndex",
           "slot": { "anchor": "bottom-center", "offset": [0, -24] },
           "bind": { "items": "UI.Hotbar.Changed.Hooks" },
           "template": { "id": "hotbar-slot", "widget": "panel", "layout": "overlay", "width": 56, "height": 56, "slot": { "padding": [4, 0, 4, 0] },

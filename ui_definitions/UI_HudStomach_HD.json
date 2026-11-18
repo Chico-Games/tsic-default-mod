@@ -8,7 +8,7 @@
       "id": "stomach-root", "widget": "panel", "layout": "overlay", "style": "panel.flat",
       "bind": { "visible": "UI.Hud.Visibility[stomach].bHidden ? false : !UI.Hud.Visibility[all].bHidden" },
       "children": [
-        { "id": "stomach-column", "widget": "list", "style": "list", "selectable": false, "reverse_order": true,
+        { "id": "stomach-column", "widget": "list", "style": "list", "selectable": false, "reverse_order": true, "row_key": "SlotIndex",
           "slot": { "anchor": "bottom-left", "offset": [230, -30] },
           "bind": { "items": "UI.Stomach.State.Slots" },
           "template": { "id": "stomach-slot", "widget": "panel", "layout": "overlay", "width": 42, "height": 42, "slot": { "padding": [0, 3, 0, 3] },

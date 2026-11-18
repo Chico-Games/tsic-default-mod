@@ -14,7 +14,7 @@
             { "widget": "text", "style": "hud.upgrade.name", "wrap": true, "bind": { "text": "UI.Upgrade.Target.FurnitureName == '' ? 'Furniture' : UI.Upgrade.Target.FurnitureName" } },
             { "widget": "text", "style": "hud.upgrade.arrow", "slot": { "padding": [0, 2, 0, 6] },
               "bind": { "text": "\"becomes {UI.Upgrade.Target.UpgradedName}\"", "visible": "UI.Upgrade.Target.UpgradedName != ''" } },
-            { "id": "upgrade-costs", "widget": "list", "style": "list", "selectable": false,
+            { "id": "upgrade-costs", "widget": "list", "style": "list", "selectable": false, "row_key": "ItemId",
               "bind": { "items": "UI.Upgrade.Target.Costs" },
               "template": { "widget": "panel", "layout": "horizontal", "gap": 6, "slot": { "padding": [0, 1, 0, 2] },
                 "children": [
