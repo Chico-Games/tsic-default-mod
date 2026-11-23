@@ -1,0 +1,33 @@
+{
+  "id": "FD_HouseDoor",
+  "class": "UDoorFurnitureDefinition",
+  "schema_version": 2,
+  "properties": {
+    "hinge_on_right": true,
+    "open_angle_degrees": 95,
+    "starts_toggled_on": true,
+    "toggle_on_cue_tag": "GameplayCue.Furniture.Toggle.On",
+    "toggle_off_cue_tag": "GameplayCue.Furniture.Toggle.Off",
+    "interaction_hold_time": 0,
+    "starting_health": 400,
+    "furniture_armour": 3,
+    "deconstruction_tier": 0,
+    "is_draggable": false,
+    "display_name": "Door",
+    "description": "A door on a hinge.",
+    "level": 1,
+    "gameplay_tags": [],
+    "default_world_gen_gameplay_tags": [],
+    "meta_tags": [],
+    "is_pingable": false,
+    "static_mesh": "/Game/Fab/Office80s/Models/Doors/SM_Doors.SM_Doors",
+    "casts_shadow": true,
+    "collision_profile_name": {
+      "name": "Furniture"
+    },
+    "random_material_overrides": [],
+    "loot_positions": [],
+    "weighted_chance": 1000,
+    "world_gen_priority": 9000
+  }
+}

@@ -5,7 +5,7 @@
     "display_name": "Reset Rotation",
     "category": "Building",
     "keyboard_key": {
-      "key_name": "F"
+      "key_name": "Z"
     },
     "gamepad_key": {
       "key_name": "Gamepad_LeftThumbstick"

@@ -1,0 +1,58 @@
+{
+  "id": "ED_ContainmentTeam_Intro",
+  "class": "UEnemyDefinition",
+  "schema_version": 2,
+  "properties": {
+    "gameplay_tags": [],
+    "display_name": "Containment Team",
+    "enemy_class": "/Game/Characters/Enemies/ContainmentTeam/Blueprints/CH_ContainmentTeam_Intro.CH_ContainmentTeam_Intro_C",
+    "death_drop_table": [],
+    "weighted_chance": 1000,
+    "world_gen_priority": 1000,
+    "ai_stack": "v2",
+    "behavior": "BHV_ContainmentTeam_Intro",
+    "wounded_tag": {
+      "tag": "State.Wounded",
+      "below": 0.5
+    },
+    "perception": "PRC_ContainmentTeam_Intro",
+    "attacks": [
+      {
+        "ability": "AI.MaleStaff.Attack.Melee",
+        "weight": 1
+      }
+    ],
+    "movement_profiles": [
+      {
+        "name": "walk",
+        "max_speed": 110,
+        "accel": 250,
+        "rotation_rate": 100,
+        "braking_deceleration": 200
+      },
+      {
+        "name": "walk_medium",
+        "max_speed": 161,
+        "accel": 320,
+        "rotation_rate": 130,
+        "braking_deceleration": 260
+      },
+      {
+        "name": "hurry",
+        "max_speed": 210,
+        "accel": 1200,
+        "rotation_rate": 270,
+        "braking_deceleration": 500
+      },
+      {
+        "name": "sprint",
+        "max_speed": 315,
+        "accel": 2000,
+        "rotation_rate": 360,
+        "braking_deceleration": 750
+      }
+    ],
+    "token_cost": 1,
+    "variants": []
+  }
+}

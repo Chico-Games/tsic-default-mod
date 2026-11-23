@@ -16,205 +16,7 @@
           "search_queries": [],
           "tile_requirements": [],
           "spawn_chance_over": 0.0,
-          "spawn_chance_under": 0.1429
-        },
-        "furniture_definition": "FD_WeaponBench_CS",
-        "transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0,
-            "w": 1.0
-          },
-          "translation": {
-            "x": -250.0,
-            "y": 400.0,
-            "z": 0.0
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        }
-      },
-      {
-        "layout_actor_type": {
-          "name": "PROXY_ACTOR",
-          "value": 0
-        },
-        "b_visual_helper": false,
-        "definition_filter": {
-          "seed_offset": 1,
-          "search_queries": [],
-          "tile_requirements": [],
-          "spawn_chance_over": 0.1429,
-          "spawn_chance_under": 0.2857
-        },
-        "furniture_definition": "FD_Table_4_DF",
-        "transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0,
-            "w": 1.0
-          },
-          "translation": {
-            "x": -500.0,
-            "y": -350.0,
-            "z": 0.0
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        }
-      },
-      {
-        "layout_actor_type": {
-          "name": "PROXY_ACTOR",
-          "value": 0
-        },
-        "b_visual_helper": false,
-        "definition_filter": {
-          "seed_offset": 1,
-          "search_queries": [],
-          "tile_requirements": [],
-          "spawn_chance_over": 0.1429,
-          "spawn_chance_under": 0.2857
-        },
-        "furniture_definition": "FD_StandMixer_CS",
-        "transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0,
-            "w": 1.0
-          },
-          "translation": {
-            "x": -500.0,
-            "y": -350.0,
-            "z": 85.5
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        }
-      },
-      {
-        "layout_actor_type": {
-          "name": "PROXY_ACTOR",
-          "value": 0
-        },
-        "b_visual_helper": false,
-        "definition_filter": {
-          "seed_offset": 1,
-          "search_queries": [],
-          "tile_requirements": [],
-          "spawn_chance_over": 0.2857,
-          "spawn_chance_under": 0.4286
-        },
-        "furniture_definition": "FD_RatTrap_PS",
-        "transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 1.0,
-            "w": 6.123233995736766e-17
-          },
-          "translation": {
-            "x": 700.0,
-            "y": 350.0,
-            "z": 0.0
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        }
-      },
-      {
-        "layout_actor_type": {
-          "name": "PROXY_ACTOR",
-          "value": 0
-        },
-        "b_visual_helper": false,
-        "definition_filter": {
-          "seed_offset": 1,
-          "search_queries": [],
-          "tile_requirements": [],
-          "spawn_chance_over": 0.4286,
-          "spawn_chance_under": 0.5714
-        },
-        "furniture_definition": "FD_BirdHouse_PS",
-        "transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0,
-            "w": 1.0
-          },
-          "translation": {
-            "x": -500.0,
-            "y": -350.0,
-            "z": 0.0
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        }
-      },
-      {
-        "layout_actor_type": {
-          "name": "PROXY_ACTOR",
-          "value": 0
-        },
-        "b_visual_helper": false,
-        "definition_filter": {
-          "seed_offset": 1,
-          "search_queries": [],
-          "tile_requirements": [],
-          "spawn_chance_over": 0.5714,
-          "spawn_chance_under": 0.7143
-        },
-        "furniture_definition": "FD_SawBench_PS",
-        "transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": -0.7071067811865476,
-            "w": 0.7071067811865476
-          },
-          "translation": {
-            "x": -250.0,
-            "y": 350.0,
-            "z": 0.0
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        }
-      },
-      {
-        "layout_actor_type": {
-          "name": "PROXY_ACTOR",
-          "value": 0
-        },
-        "b_visual_helper": false,
-        "definition_filter": {
-          "seed_offset": 1,
-          "search_queries": [],
-          "tile_requirements": [],
-          "spawn_chance_over": 0.7143,
-          "spawn_chance_under": 0.8571
+          "spawn_chance_under": 0.333333
         },
         "furniture_definition": "FD_PlantPot_PL",
         "transform": {
@@ -238,6 +40,39 @@
       },
       {
         "layout_actor_type": {
+          "name": "PROXY_ACTOR",
+          "value": 0
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": 1,
+          "search_queries": [],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.333333,
+          "spawn_chance_under": 0.666667
+        },
+        "furniture_definition": "FD_BirdHouse_PS",
+        "transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 1.0
+          },
+          "translation": {
+            "x": -500.0,
+            "y": -350.0,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
           "name": "LAYOUT",
           "value": 1
         },
@@ -246,7 +81,7 @@
           "seed_offset": 1,
           "search_queries": [],
           "tile_requirements": [],
-          "spawn_chance_over": 0.8571,
+          "spawn_chance_over": 0.666667,
           "spawn_chance_under": 1.0
         },
         "layout_definition": "LYD_VendingMachines_Farming",

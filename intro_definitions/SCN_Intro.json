@@ -1,0 +1,277 @@
+{
+  "id": "SCN_Intro",
+  "class": "ScpIntroDefinition",
+  "schema_version": 2,
+  "properties": {
+    "beats": [
+      {
+        "id": "FirstMessage",
+        "objective": "Listen to the message on the answering machine",
+        "hint": "The light is blinking",
+        "condition": "Interact",
+        "target": "AnsweringMachine",
+        "markers": [
+          "AnsweringMachine"
+        ],
+        "storm": 0.15,
+        "blocked_behaviors": [
+          "Input.Behavior.OpenInventory",
+          "Input.Behavior.OpenMap",
+          "Input.Behavior.Overview",
+          "Input.Behavior.ToggleConstruction"
+        ],
+        "locked_doors": [
+          "FrontDoor"
+        ],
+        "message_seconds": 14,
+        "message": [
+          {
+            "at": 0,
+            "text": "Hey, it's me. I'm just leaving you a message because you never pick up."
+          },
+          {
+            "at": 4.5,
+            "text": "I can't find the screws for the coffee table anywhere. I think they left them out of the box."
+          },
+          {
+            "at": 9.5,
+            "text": "I'm running back to Durham to get some before they close. Don't build it without me. Love you."
+          }
+        ]
+      },
+      {
+        "id": "MoveBox",
+        "objective": "Move the box",
+        "hint": "Hold grab on the box and walk it out of the way",
+        "condition": "EntityMoved",
+        "target": "Box",
+        "distance": 90,
+        "markers": [
+          "Box"
+        ],
+        "storm": 0.3,
+        "blocked_behaviors": [
+          "Input.Behavior.OpenInventory",
+          "Input.Behavior.OpenMap",
+          "Input.Behavior.Overview",
+          "Input.Behavior.ToggleConstruction"
+        ],
+        "locked_doors": [
+          "FrontDoor"
+        ],
+        "markers_while_dragging": []
+      },
+      {
+        "id": "PickUpScrews",
+        "objective": "Pick up the screws",
+        "hint": "They were under the box the whole time",
+        "condition": "HasItem",
+        "definition_id": "ID_MetalScrews_CM",
+        "markers": [
+          "Screws"
+        ],
+        "storm": 0.3,
+        "blocked_behaviors": [
+          "Input.Behavior.OpenInventory",
+          "Input.Behavior.OpenMap",
+          "Input.Behavior.Overview",
+          "Input.Behavior.ToggleConstruction"
+        ],
+        "locked_doors": [
+          "FrontDoor"
+        ]
+      },
+      {
+        "id": "PickUpScrewdriver",
+        "objective": "Pick up the screwdriver",
+        "condition": "HasItem",
+        "definition_id": "ID_Tier1Screwdriver_EQ",
+        "markers": [
+          "Screwdriver"
+        ],
+        "storm": 0.35,
+        "blocked_behaviors": [
+          "Input.Behavior.OpenInventory",
+          "Input.Behavior.OpenMap",
+          "Input.Behavior.Overview",
+          "Input.Behavior.ToggleConstruction"
+        ],
+        "locked_doors": [
+          "FrontDoor"
+        ]
+      },
+      {
+        "id": "TakeTableApart",
+        "objective": "Take the coffee table apart",
+        "hint": "Hold the screwdriver and use it on the table",
+        "condition": "EntityGone",
+        "target": "CoffeeTable",
+        "markers": [
+          "CoffeeTable"
+        ],
+        "storm": 0.4,
+        "blocked_behaviors": [
+          "Input.Behavior.OpenMap",
+          "Input.Behavior.Overview",
+          "Input.Behavior.ToggleConstruction"
+        ],
+        "locked_doors": [
+          "FrontDoor"
+        ]
+      },
+      {
+        "id": "BuildTable",
+        "objective": "Build the coffee table again",
+        "hint": "Hold the screwdriver, enter build mode and place the table",
+        "condition": "EntityExists",
+        "target": "CoffeeTable",
+        "definition_id": "FD_CoffeeTable_DF",
+        "storm": 0.5,
+        "blocked_behaviors": [
+          "Input.Behavior.OpenMap",
+          "Input.Behavior.Overview"
+        ],
+        "locked_doors": [
+          "FrontDoor"
+        ],
+        "markers": [
+          "CoffeeTable"
+        ]
+      },
+      {
+        "id": "MoveTable",
+        "objective": "Move the coffee table next to the sofa",
+        "hint": "Hold grab on the table and walk it over",
+        "condition": "EntityNear",
+        "target": "CoffeeTable",
+        "other": "BySofa",
+        "distance": 170,
+        "markers": [
+          "CoffeeTable"
+        ],
+        "storm": 0.6,
+        "blocked_behaviors": [
+          "Input.Behavior.OpenMap",
+          "Input.Behavior.Overview"
+        ],
+        "locked_doors": [
+          "FrontDoor"
+        ],
+        "markers_while_dragging": [
+          "BySofa"
+        ]
+      },
+      {
+        "id": "SecondMessage",
+        "objective": "Listen to the new message",
+        "hint": "The answering machine is blinking again",
+        "condition": "Interact",
+        "target": "AnsweringMachine",
+        "markers": [
+          "AnsweringMachine"
+        ],
+        "storm": 0.8,
+        "blocked_behaviors": [
+          "Input.Behavior.OpenMap",
+          "Input.Behavior.Overview"
+        ],
+        "locked_doors": [
+          "FrontDoor"
+        ],
+        "message_seconds": 13,
+        "message": [
+          {
+            "at": 0,
+            "text": "Pick up. Please pick up."
+          },
+          {
+            "at": 2.5,
+            "text": "Something's wrong with the store. The lights went and the doors won't open."
+          },
+          {
+            "at": 6.5,
+            "text": "There are things in here. One of them grabbed me. I got away but I can hear them."
+          },
+          {
+            "at": 10.5,
+            "text": "They're coming. They're co-"
+          }
+        ]
+      },
+      {
+        "id": "LeaveHouse",
+        "objective": "Head to Durham",
+        "hint": "The front door is unlocked",
+        "condition": "InZone",
+        "target": "Doorstep",
+        "markers": [
+          "FrontDoor"
+        ],
+        "storm": 0.9,
+        "blocked_behaviors": [
+          "Input.Behavior.Overview"
+        ],
+        "guards": true
+      },
+      {
+        "id": "HeadToDurham",
+        "objective": "Head to Durham",
+        "hint": "Follow the street to the store",
+        "condition": "InZone",
+        "target": "Street",
+        "markers": [
+          "Street"
+        ],
+        "storm": 1.0,
+        "locked_doors": [
+          "FrontDoor"
+        ],
+        "blocked_behaviors": [
+          "Input.Behavior.Overview"
+        ],
+        "guards": true
+      },
+      {
+        "id": "Crouch",
+        "objective": "Crouch to stay out of sight",
+        "hint": "Get down and stay down: the containment team is not letting anyone through",
+        "condition": "HasTag",
+        "tag": "Status.Stealth",
+        "storm": 1.0,
+        "locked_doors": [
+          "FrontDoor"
+        ],
+        "blocked_behaviors": [
+          "Input.Behavior.Overview"
+        ],
+        "guards": true,
+        "catchable": true
+      },
+      {
+        "id": "SneakIn",
+        "objective": "Sneak past them and get into the store",
+        "hint": "Stay crouched and keep out of their sight",
+        "condition": "InZone",
+        "target": "StoreDoor",
+        "markers": [
+          "StoreDoor"
+        ],
+        "storm": 1.0,
+        "locked_doors": [
+          "FrontDoor"
+        ],
+        "blocked_behaviors": [
+          "Input.Behavior.Overview"
+        ],
+        "guards": true,
+        "catchable": true
+      }
+    ],
+    "caught_title": "Caught.",
+    "caught_message": "The containment team had you before you reached the doors. Stay low and keep out of their sight.",
+    "caught_seconds": 1.4,
+    "caught_montage": "/Game/Characters/Enemies/MaleStaff/Animations/UE5/AM_MaleStaff_Attack_01.AM_MaleStaff_Attack_01",
+    "caught_restart_beat": "Crouch",
+    "caught_restart_zone": "SneakStart"
+  }
+}

@@ -16,7 +16,40 @@
           "search_queries": [],
           "tile_requirements": [],
           "spawn_chance_over": 0.0,
-          "spawn_chance_under": 0.25
+          "spawn_chance_under": 1.0
+        },
+        "furniture_definition": "FD_Table_4_DF",
+        "transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 1.0,
+            "w": 6.123233995736766e-17
+          },
+          "translation": {
+            "x": 350.0,
+            "y": 200.0,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "PROXY_ACTOR",
+          "value": 0
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": 1,
+          "search_queries": [],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 1.0
         },
         "furniture_definition": "FD_SewingMachine_PS",
         "transform": {
@@ -28,107 +61,8 @@
           },
           "translation": {
             "x": 350.0,
-            "y": 150.0,
-            "z": 0.0
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        }
-      },
-      {
-        "layout_actor_type": {
-          "name": "PROXY_ACTOR",
-          "value": 0
-        },
-        "b_visual_helper": false,
-        "definition_filter": {
-          "seed_offset": 1,
-          "search_queries": [],
-          "tile_requirements": [],
-          "spawn_chance_over": 0.25,
-          "spawn_chance_under": 0.5
-        },
-        "furniture_definition": "FD_CraftingTableTierOne_CS",
-        "transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 1.0,
-            "w": 6.123233995736766e-17
-          },
-          "translation": {
-            "x": 550.0,
-            "y": 0.0,
-            "z": 0.0
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        }
-      },
-      {
-        "layout_actor_type": {
-          "name": "PROXY_ACTOR",
-          "value": 0
-        },
-        "b_visual_helper": false,
-        "definition_filter": {
-          "seed_offset": 1,
-          "search_queries": [],
-          "tile_requirements": [],
-          "spawn_chance_over": 0.5,
-          "spawn_chance_under": 0.75
-        },
-        "furniture_definition": "FD_SewingMachine_PS",
-        "transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0,
-            "w": 1.0
-          },
-          "translation": {
-            "x": -350.0,
-            "y": -250.0,
-            "z": 0.0
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        }
-      },
-      {
-        "layout_actor_type": {
-          "name": "PROXY_ACTOR",
-          "value": 0
-        },
-        "b_visual_helper": false,
-        "definition_filter": {
-          "seed_offset": 1,
-          "search_queries": [],
-          "tile_requirements": [],
-          "spawn_chance_over": 0.75,
-          "spawn_chance_under": 1.0
-        },
-        "furniture_definition": "FD_CraftingTableTierOne_CS",
-        "transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0,
-            "w": 1.0
-          },
-          "translation": {
-            "x": -400.0,
-            "y": -300.0,
-            "z": 0.0
+            "y": 200.0,
+            "z": 85.5
           },
           "scale3_d": {
             "x": 1.0,

@@ -53,6 +53,17 @@
                   "bind": { "text": "#mode-dd.value != '' ? #mode-dd.detail : 'Modes come from the loaded mods.'",
                             "style": "#mode-dd.marked ? 'menu.text.hint.ironman' : 'menu.text.hint'" } },
 
+                { "id": "intro-row", "widget": "panel", "layout": "horizontal", "gap": 16, "slot": { "padding": [8, 0, 0, 0] },
+                  "children": [
+                    { "widget": "panel", "layout": "vertical", "slot": { "fill": true, "valign": "center" },
+                      "children": [
+                        { "widget": "text", "style": "text.group", "text": "Skip the intro" },
+                        { "widget": "text", "style": "menu.text.hint", "wrap": true, "text": "Leave clear to play the evening before the store first. It does not save." }
+                      ] },
+                    { "id": "intro-skip", "widget": "toggle", "slot": { "valign": "center" },
+                      "bind": { "checked": "UI.Menu.GameModes.bSkipIntroDefault" } }
+                  ] },
+
                 { "widget": "text", "style": "text.group", "text": "Active Mods", "slot": { "padding": [8, 0, 0, 0] } },
                 { "id": "mods-split", "widget": "panel", "layout": "horizontal", "gap": 10,
                   "children": [
@@ -98,7 +109,7 @@
                   "bind": { "disabled": "#layout-dd.value == '' ? true : #mode-dd.value == ''" },
                   "on": { "click": { "cmd": "UI.Cmd.Menu.StartGame", "args": {
                     "StoreName": "", "PlayerName": "",
-                    "LayoutId": "{#layout-dd.value}", "Seed": "{#seed-input.value}", "GameModeId": "{#mode-dd.value}",
+                    "LayoutId": "{#layout-dd.value}", "Seed": "{#seed-input.value}", "GameModeId": "{#mode-dd.value}", "bSkipIntro": "{#intro-skip.checked}",
                     "EnabledMods": "{UI.Mod.LoadOrder.Order}", "LoadOrder": "{UI.Mod.LoadOrder.Order}" } } } },
                 { "id": "btn-back", "widget": "button", "style": "button.row", "label": "Back", "dept": "Fire Exit",
                   "on": { "click": { "cmd": "UI.Cmd.Menu.Navigate", "args": { "Screen": "MainMenu" } } } }

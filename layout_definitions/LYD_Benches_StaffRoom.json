@@ -16,7 +16,40 @@
           "search_queries": [],
           "tile_requirements": [],
           "spawn_chance_over": 0.0,
-          "spawn_chance_under": 0.125
+          "spawn_chance_under": 0.5
+        },
+        "furniture_definition": "FD_Table_4_DF",
+        "transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 1.0,
+            "w": 6.123233995736766e-17
+          },
+          "translation": {
+            "x": 300.0,
+            "y": -150.0,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "PROXY_ACTOR",
+          "value": 0
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": 1,
+          "search_queries": [],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.0,
+          "spawn_chance_under": 0.5
         },
         "furniture_definition": "FD_CoffeeMachine_PS",
         "transform": {
@@ -27,108 +60,9 @@
             "w": 6.123233995736766e-17
           },
           "translation": {
-            "x": 250.0,
+            "x": 300.0,
             "y": -150.0,
-            "z": 0.0
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        }
-      },
-      {
-        "layout_actor_type": {
-          "name": "PROXY_ACTOR",
-          "value": 0
-        },
-        "b_visual_helper": false,
-        "definition_filter": {
-          "seed_offset": 1,
-          "search_queries": [],
-          "tile_requirements": [],
-          "spawn_chance_over": 0.125,
-          "spawn_chance_under": 0.25
-        },
-        "furniture_definition": "FD_Microwave_PS",
-        "transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 1.0,
-            "w": 6.123233995736766e-17
-          },
-          "translation": {
-            "x": 250.0,
-            "y": -150.0,
-            "z": 0.0
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        }
-      },
-      {
-        "layout_actor_type": {
-          "name": "PROXY_ACTOR",
-          "value": 0
-        },
-        "b_visual_helper": false,
-        "definition_filter": {
-          "seed_offset": 1,
-          "search_queries": [],
-          "tile_requirements": [],
-          "spawn_chance_over": 0.25,
-          "spawn_chance_under": 0.375
-        },
-        "furniture_definition": "FD_Dishwasher_PS",
-        "transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 1.0,
-            "w": 6.123233995736766e-17
-          },
-          "translation": {
-            "x": 250.0,
-            "y": -150.0,
-            "z": 0.0
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        }
-      },
-      {
-        "layout_actor_type": {
-          "name": "PROXY_ACTOR",
-          "value": 0
-        },
-        "b_visual_helper": false,
-        "definition_filter": {
-          "seed_offset": 1,
-          "search_queries": [],
-          "tile_requirements": [],
-          "spawn_chance_over": 0.375,
-          "spawn_chance_under": 0.5
-        },
-        "furniture_definition": "FD_FirstAidStation_CS",
-        "transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 1.0,
-            "w": 6.123233995736766e-17
-          },
-          "translation": {
-            "x": 250.0,
-            "y": -150.0,
-            "z": 0.0
+            "z": 85.5
           },
           "scale3_d": {
             "x": 1.0,
@@ -148,118 +82,19 @@
           "search_queries": [],
           "tile_requirements": [],
           "spawn_chance_over": 0.5,
-          "spawn_chance_under": 0.625
-        },
-        "furniture_definition": "FD_CoffeeMachine_PS",
-        "transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0,
-            "w": 1.0
-          },
-          "translation": {
-            "x": 250.0,
-            "y": 200.0,
-            "z": 0.0
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        }
-      },
-      {
-        "layout_actor_type": {
-          "name": "PROXY_ACTOR",
-          "value": 0
-        },
-        "b_visual_helper": false,
-        "definition_filter": {
-          "seed_offset": 1,
-          "search_queries": [],
-          "tile_requirements": [],
-          "spawn_chance_over": 0.625,
-          "spawn_chance_under": 0.75
+          "spawn_chance_under": 1.0
         },
         "furniture_definition": "FD_Microwave_PS",
         "transform": {
           "rotation": {
             "x": 0.0,
             "y": 0.0,
-            "z": 0.0,
-            "w": 1.0
+            "z": 1.0,
+            "w": 6.123233995736766e-17
           },
           "translation": {
             "x": 250.0,
-            "y": 200.0,
-            "z": 0.0
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        }
-      },
-      {
-        "layout_actor_type": {
-          "name": "PROXY_ACTOR",
-          "value": 0
-        },
-        "b_visual_helper": false,
-        "definition_filter": {
-          "seed_offset": 1,
-          "search_queries": [],
-          "tile_requirements": [],
-          "spawn_chance_over": 0.75,
-          "spawn_chance_under": 0.875
-        },
-        "furniture_definition": "FD_Dishwasher_PS",
-        "transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0,
-            "w": 1.0
-          },
-          "translation": {
-            "x": 250.0,
-            "y": 200.0,
-            "z": 0.0
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        }
-      },
-      {
-        "layout_actor_type": {
-          "name": "PROXY_ACTOR",
-          "value": 0
-        },
-        "b_visual_helper": false,
-        "definition_filter": {
-          "seed_offset": 1,
-          "search_queries": [],
-          "tile_requirements": [],
-          "spawn_chance_over": 0.875,
-          "spawn_chance_under": 1.0
-        },
-        "furniture_definition": "FD_FirstAidStation_CS",
-        "transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0,
-            "w": 1.0
-          },
-          "translation": {
-            "x": 250.0,
-            "y": 200.0,
+            "y": -100.0,
             "z": 0.0
           },
           "scale3_d": {

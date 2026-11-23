@@ -1,0 +1,12 @@
+{
+  "id": "BH_ConCyclePrevious",
+  "class": "InputBehaviorDefinition",
+  "properties": {
+    "behavior_tag_name": "Input.Behavior.ConCyclePrevious",
+    "show_on_action_bar": true,
+    "display_name": "Previous Piece",
+    "hotkey": "HK_ConCyclePrevious",
+    "trigger_type": 0,
+    "behavior_bar_priority": 610
+  }
+}

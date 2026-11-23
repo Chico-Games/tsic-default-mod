@@ -16,7 +16,7 @@
           "search_queries": [],
           "tile_requirements": [],
           "spawn_chance_over": 0.0,
-          "spawn_chance_under": 0.1429
+          "spawn_chance_under": 0.125
         },
         "furniture_definition": "FD_VendingMachine_BottleWater",
         "transform": {
@@ -48,8 +48,8 @@
           "seed_offset": 7,
           "search_queries": [],
           "tile_requirements": [],
-          "spawn_chance_over": 0.1429,
-          "spawn_chance_under": 0.2857
+          "spawn_chance_over": 0.125,
+          "spawn_chance_under": 0.25
         },
         "furniture_definition": "FD_VendingMachine_Pasta",
         "transform": {
@@ -81,8 +81,8 @@
           "seed_offset": 7,
           "search_queries": [],
           "tile_requirements": [],
-          "spawn_chance_over": 0.2857,
-          "spawn_chance_under": 0.4286
+          "spawn_chance_over": 0.25,
+          "spawn_chance_under": 0.375
         },
         "furniture_definition": "FD_VendingMachine_TeaBags",
         "transform": {
@@ -114,8 +114,8 @@
           "seed_offset": 7,
           "search_queries": [],
           "tile_requirements": [],
-          "spawn_chance_over": 0.4286,
-          "spawn_chance_under": 0.5714
+          "spawn_chance_over": 0.375,
+          "spawn_chance_under": 0.5
         },
         "furniture_definition": "FD_VendingMachine_Peas",
         "transform": {
@@ -147,8 +147,8 @@
           "seed_offset": 7,
           "search_queries": [],
           "tile_requirements": [],
-          "spawn_chance_over": 0.5714,
-          "spawn_chance_under": 0.7143
+          "spawn_chance_over": 0.5,
+          "spawn_chance_under": 0.625
         },
         "furniture_definition": "FD_VendingMachine_OvenChips",
         "transform": {
@@ -180,8 +180,8 @@
           "seed_offset": 7,
           "search_queries": [],
           "tile_requirements": [],
-          "spawn_chance_over": 0.7143,
-          "spawn_chance_under": 0.8571
+          "spawn_chance_over": 0.625,
+          "spawn_chance_under": 0.75
         },
         "furniture_definition": "FD_VendingMachine_Cod",
         "transform": {
@@ -213,10 +213,43 @@
           "seed_offset": 7,
           "search_queries": [],
           "tile_requirements": [],
-          "spawn_chance_over": 0.8571,
-          "spawn_chance_under": 1.0
+          "spawn_chance_over": 0.75,
+          "spawn_chance_under": 0.875
         },
         "furniture_definition": "FD_VendingMachine_CookingOil",
+        "transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 1.0
+          },
+          "translation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      {
+        "layout_actor_type": {
+          "name": "PROXY_ACTOR",
+          "value": 0
+        },
+        "b_visual_helper": false,
+        "definition_filter": {
+          "seed_offset": 7,
+          "search_queries": [],
+          "tile_requirements": [],
+          "spawn_chance_over": 0.875,
+          "spawn_chance_under": 1.0
+        },
+        "furniture_definition": "FD_VendingMachine_VitaminPills",
         "transform": {
           "rotation": {
             "x": 0.0,

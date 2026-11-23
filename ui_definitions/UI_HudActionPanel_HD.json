@@ -71,9 +71,8 @@
                 { "id": "action-divider", "widget": "panel", "style": "hud.rule", "height": 1, "slot": { "padding": [0, 6, 0, 6] },
                   "bind": { "visible": "UI.Hud.Visibility[interaction].bHidden ? false : UI.Interaction.Targets.Targets.Num > 0" } },
                 { "id": "action-rows", "widget": "list", "style": "list", "selectable": false, "row_key": "BehaviorTagName",
-                  "bind": { "items": "UI.BehaviorBar.Entries.Entries" },
+                  "bind": { "items": "UI.BehaviorBar.Entries.Entries" }, "where": "item.bVisible ? item.StatusInt != 1 : false",
                   "template": { "widget": "panel", "layout": "horizontal", "gap": 6, "slot": { "padding": [0, 2, 0, 2] },
-                    "bind": { "visible": "item.bVisible ? item.StatusInt != 1 : false" },
                     "children": [
                       { "widget": "panel", "slot": { "fill": true } },
                       { "widget": "text", "slot": { "valign": "center" },

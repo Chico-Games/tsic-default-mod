@@ -1,0 +1,34 @@
+{
+  "id": "UI_HudIntro_HD",
+  "class": "ScpUiScreenDefinition",
+  "properties": {
+    "layer": "hud",
+    "order": 7,
+    "uses": [ "UI.Hud.Visibility", "UI.Intro.State" ],
+    "tree": {
+      "id": "intro-root", "widget": "panel", "layout": "overlay", "style": "panel.flat",
+      "bind": {
+        "visible": "UI.Hud.Visibility[all].bHidden ? false : UI.Intro.State.bActive"
+      },
+      "children": [
+        { "id": "intro-objective", "widget": "panel", "layout": "vertical", "style": "hud.intro.panel", "gap": 2,
+          "slot": { "anchor": "top-center", "offset": [0, 72] },
+          "children": [
+            { "id": "intro-objective-text", "widget": "text", "style": "hud.intro.objective", "justify": "Center",
+              "slot": { "align": "center" },
+              "bind": { "text": "UI.Intro.State.Objective" } },
+            { "id": "intro-hint-text", "widget": "text", "style": "hud.intro.hint", "justify": "Center",
+              "slot": { "align": "center" },
+              "bind": { "text": "UI.Intro.State.Hint", "visible": "UI.Intro.State.Hint != ''" } }
+          ] },
+        { "id": "intro-subtitle", "widget": "panel", "layout": "horizontal", "style": "hud.intro.subtitle",
+          "slot": { "anchor": "bottom-center", "offset": [0, -150] },
+          "bind": { "visible": "UI.Intro.State.Subtitle != ''" },
+          "children": [
+            { "id": "intro-subtitle-text", "widget": "text", "style": "hud.intro.subtitle", "justify": "Center",
+              "bind": { "text": "UI.Intro.State.Subtitle" } }
+          ] }
+      ]
+    }
+  }
+}

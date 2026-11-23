@@ -1,0 +1,81 @@
+{
+  "id": "BHV_ContainmentTeam_Intro",
+  "class": "ScpBehaviorDefinition",
+  "properties": {
+    "root_eval_interval": 0.2,
+    "roots": [
+      {
+        "name": "Spotted",
+        "when": [
+          {
+            "if": "has_target"
+          }
+        ],
+        "hold_seconds": 4,
+        "actions": [
+          {
+            "do": "stop_movement"
+          },
+          {
+            "do": "face",
+            "target": "$Perception.Target"
+          },
+          {
+            "do": "wait",
+            "seconds": 4
+          }
+        ]
+      },
+      {
+        "name": "Patrol",
+        "states": [
+          {
+            "name": "Walk",
+            "initial": true,
+            "actions": [
+              {
+                "do": "move_to",
+                "target": "$Perception.PatrolAnchor",
+                "acceptance": 60,
+                "speed_profile": "walk",
+                "repath_if_moved": 40
+              }
+            ],
+            "transitions": [
+              {
+                "on": "actions_succeeded",
+                "to": "Stand"
+              },
+              {
+                "on": "action_failed",
+                "to": "Stand"
+              }
+            ]
+          },
+          {
+            "name": "Stand",
+            "actions": [
+              {
+                "do": "stop_movement"
+              },
+              {
+                "do": "wait",
+                "seconds": 0.5
+              }
+            ],
+            "transitions": [
+              {
+                "on": "actions_succeeded",
+                "to": "Walk"
+              },
+              {
+                "on": "action_failed",
+                "to": "Walk"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

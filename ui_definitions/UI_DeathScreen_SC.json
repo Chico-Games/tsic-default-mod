@@ -13,7 +13,8 @@
       }
     ],
     "uses": [
-      "UI.DeathScreen.Shown"
+      "UI.DeathScreen.Shown",
+      "UI.Intro.State"
     ],
     "tree": {
       "id": "stage",
@@ -51,6 +52,9 @@
                   "widget": "text",
                   "style": "text.masthead",
                   "text": "You Died.",
+                  "bind": {
+                    "text": "UI.Intro.State.bCaught ? UI.Intro.State.CaughtTitle : 'You Died.'"
+                  },
                   "line_height": 0.9,
                   "justify": "Center",
                   "slot": {
@@ -65,7 +69,7 @@
                   "wrap": true,
                   "text": "The Store has taken you. Your loved one remains lost.",
                   "bind": {
-                    "text": "UI.DeathScreen.Shown.DeathMessage != '' ? UI.DeathScreen.Shown.DeathMessage : 'The Store has taken you. Your loved one remains lost.'"
+                    "text": "UI.Intro.State.bCaught ? UI.Intro.State.CaughtMessage : (UI.DeathScreen.Shown.DeathMessage != '' ? UI.DeathScreen.Shown.DeathMessage : 'The Store has taken you. Your loved one remains lost.')"
                   }
                 },
                 {

@@ -1,0 +1,32 @@
+{
+  "id": "PRC_ContainmentTeam_Intro",
+  "class": "ScpPerceptionDefinition",
+  "properties": {
+    "extends": "PRC_BaseHostile",
+    "sight": {
+      "cone_angle": 55,
+      "range": 1500,
+      "peripheral_cone_angle": 120,
+      "peripheral_range": 450,
+      "auto_detect_radius": 110,
+      "time_to_spot": 1.2,
+      "stealth": {
+        "spot_multiplier": 0.25,
+        "range_multiplier": 0.45
+      }
+    },
+    "hearing": {
+      "acuity": 0.4
+    },
+    "day_section_overrides": {
+      "Gameplay.DaySection.Night": {
+        "sight": {
+          "range": 1500,
+          "time_to_spot": 1.2,
+          "time_to_forget_glimpse": 4,
+          "memory_seconds": 30
+        }
+      }
+    }
+  }
+}

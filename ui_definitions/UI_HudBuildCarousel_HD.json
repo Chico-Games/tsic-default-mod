@@ -1,0 +1,29 @@
+{
+  "id": "UI_HudBuildCarousel_HD",
+  "class": "ScpUiScreenDefinition",
+  "properties": {
+    "layer": "hud",
+    "uses": [ "UI.Hud.Visibility", "UI.Construction.Carousel" ],
+    "tree": {
+      "id": "build-carousel-root", "widget": "panel", "layout": "overlay", "style": "panel.flat",
+      "bind": { "visible": "UI.Hud.Visibility[all].bHidden ? false : UI.Construction.Carousel.bActive" },
+      "children": [
+        { "id": "build-carousel-column", "widget": "panel", "layout": "vertical", "slot": { "anchor": "left-center", "offset": [24, 0] },
+          "children": [
+            { "id": "build-carousel-rows", "widget": "list", "layout": "vertical", "style": "list.hotbar", "selectable": false, "row_key": "Index", "slot": { "align": "left" },
+              "bind": { "items": "UI.Construction.Carousel.Rows" },
+              "template": { "id": "build-carousel-row", "widget": "panel", "layout": "overlay", "width": 56, "height": 56, "slot": { "align": "left", "padding": [0, 4, 0, 4] },
+                "bind": { "style": "item.bSelected ? 'slot.hotbar.selected' : 'slot.hotbar'" },
+                "children": [
+                  { "widget": "image", "slot": { "anchor": "center" },
+                    "bind": { "source": "\"item:{item.ItemId}\"", "size": "'40,40'" } },
+                  { "widget": "text", "style": "hud.slot.count", "slot": { "anchor": "bottom-right", "offset": [-4, -3] },
+                    "bind": { "text": "item.Count", "visible": "item.Count > 1" } }
+                ] } },
+            { "id": "build-carousel-name", "widget": "text", "style": "hud.hotbar.caption", "slot": { "padding": [0, 6, 0, 0] },
+              "bind": { "text": "UI.Construction.Carousel.SelectedName" } }
+          ] }
+      ]
+    }
+  }
+}

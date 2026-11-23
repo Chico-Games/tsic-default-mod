@@ -15,76 +15,10 @@
           "seed_offset": 1,
           "search_queries": [],
           "tile_requirements": [],
-          "spawn_chance_over": 0.2,
-          "spawn_chance_under": 0.3
-        },
-        "furniture_definition": "FD_Kiln_PS",
-        "transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 1.0,
-            "w": 6.123233995736766e-17
-          },
-          "translation": {
-            "x": 250.0,
-            "y": -150.0,
-            "z": 0.0
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        }
-      },
-      {
-        "layout_actor_type": {
-          "name": "PROXY_ACTOR",
-          "value": 0
-        },
-        "b_visual_helper": false,
-        "definition_filter": {
-          "seed_offset": 1,
-          "search_queries": [],
-          "tile_requirements": [],
-          "spawn_chance_over": 0.3,
-          "spawn_chance_under": 0.4
-        },
-        "furniture_definition": "FD_WeldingStation_CS",
-        "transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 1.0,
-            "w": 6.123233995736766e-17
-          },
-          "translation": {
-            "x": 250.0,
-            "y": 100.0,
-            "z": 0.0
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        }
-      },
-      {
-        "layout_actor_type": {
-          "name": "PROXY_ACTOR",
-          "value": 0
-        },
-        "b_visual_helper": false,
-        "definition_filter": {
-          "seed_offset": 1,
-          "search_queries": [],
-          "tile_requirements": [],
           "spawn_chance_over": 0.4,
-          "spawn_chance_under": 0.5
+          "spawn_chance_under": 0.7
         },
-        "furniture_definition": "FD_RepairStation_RS",
+        "furniture_definition": "FD_BossSummoner_TVHead_DF",
         "transform": {
           "rotation": {
             "x": 0.0,
@@ -94,72 +28,6 @@
           },
           "translation": {
             "x": 250.0,
-            "y": 100.0,
-            "z": 0.0
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        }
-      },
-      {
-        "layout_actor_type": {
-          "name": "PROXY_ACTOR",
-          "value": 0
-        },
-        "b_visual_helper": false,
-        "definition_filter": {
-          "seed_offset": 1,
-          "search_queries": [],
-          "tile_requirements": [],
-          "spawn_chance_over": 0.7,
-          "spawn_chance_under": 0.8
-        },
-        "furniture_definition": "FD_Kiln_PS",
-        "transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0,
-            "w": 1.0
-          },
-          "translation": {
-            "x": 450.0,
-            "y": -400.0,
-            "z": 0.0
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        }
-      },
-      {
-        "layout_actor_type": {
-          "name": "PROXY_ACTOR",
-          "value": 0
-        },
-        "b_visual_helper": false,
-        "definition_filter": {
-          "seed_offset": 1,
-          "search_queries": [],
-          "tile_requirements": [],
-          "spawn_chance_over": 0.8,
-          "spawn_chance_under": 0.9
-        },
-        "furniture_definition": "FD_WeldingStation_CS",
-        "transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0,
-            "w": 1.0
-          },
-          "translation": {
-            "x": 450.0,
             "y": -100.0,
             "z": 0.0
           },
@@ -180,19 +48,19 @@
           "seed_offset": 1,
           "search_queries": [],
           "tile_requirements": [],
-          "spawn_chance_over": 0.9,
+          "spawn_chance_over": 0.7,
           "spawn_chance_under": 1.0
         },
-        "furniture_definition": "FD_RepairStation_RS",
+        "furniture_definition": "FD_BossSummoner_BoneHead_DF",
         "transform": {
           "rotation": {
             "x": 0.0,
             "y": 0.0,
-            "z": 0.0,
-            "w": 1.0
+            "z": 1.0,
+            "w": 6.123233995736766e-17
           },
           "translation": {
-            "x": 350.0,
+            "x": 250.0,
             "y": -150.0,
             "z": 0.0
           },

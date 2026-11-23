@@ -17,6 +17,8 @@
       "BH_ConRotateRight",
       "BH_ConChangeAxis",
       "BH_ConResetRotation",
+      "BH_ConCyclePrevious",
+      "BH_ConCycleNext",
       "BH_Back",
       "BH_PushToTalk",
       "BH_Hotbar1",
@@ -39,6 +41,8 @@
       "BH_ConRotateRight",
       "BH_ConChangeAxis",
       "BH_ConResetRotation",
+      "BH_ConCyclePrevious",
+      "BH_ConCycleNext",
       "BH_Back",
       "BH_Hotbar1",
       "BH_Hotbar2",
@@ -47,9 +51,7 @@
       "BH_Hotbar5",
       "BH_Hotbar6",
       "BH_Hotbar7",
-      "BH_Hotbar8",
-      "BH_HotbarNext",
-      "BH_HotbarPrevious"
+      "BH_Hotbar8"
     ]
   }
 }
