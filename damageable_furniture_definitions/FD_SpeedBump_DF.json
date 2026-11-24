@@ -11,31 +11,13 @@
     "loot_dropped_on_death": [],
     "constructable_item_to_grant": "ID_SpeedBump_CI",
     "deconstruction_tier": 2,
-    "blocking_collision_boxes": [
-      {
-        "offset": {
-          "x": 0,
-          "y": 0,
-          "z": 2.7622936367988586
-        },
-        "rotation": {
-          "pitch": 0,
-          "yaw": 0,
-          "roll": 0
-        },
-        "box_size": {
-          "x": 12.800000429153442,
-          "y": 157.75999718904495,
-          "z": 0.9600006937980652
-        }
-      }
-    ],
+    "blocking_collision_boxes": [],
     "support_collision_boxes": [
       {
         "offset": {
-          "x": 0,
-          "y": 0,
-          "z": 2.9687401354312897
+          "x": -0.07,
+          "y": -0.11,
+          "z": 3.1
         },
         "rotation": {
           "pitch": 0,
@@ -43,9 +25,9 @@
           "roll": 0
         },
         "box_size": {
-          "x": 22.40000021457672,
-          "y": 173.75999689102173,
-          "z": 4.800000607967377
+          "x": 23.35,
+          "y": 173.56,
+          "z": 6.1
         }
       }
     ],

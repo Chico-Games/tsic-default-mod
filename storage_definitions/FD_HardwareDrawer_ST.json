@@ -105,7 +105,7 @@
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,
-    "static_mesh": "/Game/Furniture/HardwareDrawer/Meshes/SM_HardwareDrawer_Closed.SM_HardwareDrawer_Closed",
+    "static_mesh": "/Game/Furniture/FlatPack/SM_HardwareDrawer_Closed/SM_HardwareDrawer_Closed_FP.SM_HardwareDrawer_Closed_FP",
     "casts_shadow": true,
     "collision_profile_name": {
       "name": "Furniture"
@@ -115,31 +115,10 @@
       {
         "local_transform": {
           "rotation": {
-            "x": 0,
-            "y": 0,
-            "z": 0,
-            "w": 1
-          },
-          "translation": {
-            "x": 0,
-            "y": 0,
-            "z": 81.8
-          },
-          "scale3_d": {
-            "x": 1,
-            "y": 1,
-            "z": 1
-          }
-        },
-        "weight": 1000
-      },
-      {
-        "local_transform": {
-          "rotation": {
-            "x": 0,
-            "y": 0,
-            "z": 0,
-            "w": 1
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.5,
+            "w": -0.866025
           },
           "translation": {
             "x": 0,
@@ -147,14 +126,15 @@
             "z": 36.45
           },
           "scale3_d": {
-            "x": 1,
-            "y": 1,
-            "z": 1
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
           }
         },
         "weight": 1000
       }
     ],
+    "loot_position_chance": 0.3,
     "weighted_chance": 1000,
     "world_gen_priority": 6000,
     "destruction_impulse_strength": 0,
@@ -172,9 +152,9 @@
     "blocking_collision_boxes": [
       {
         "offset": {
-          "x": 0,
-          "y": 0,
-          "z": 40.9
+          "x": 0.0,
+          "y": 2.05,
+          "z": 71.58
         },
         "rotation": {
           "pitch": 0,
@@ -182,17 +162,51 @@
           "roll": 0
         },
         "box_size": {
-          "x": 26,
-          "y": 20.75,
-          "z": 40.9
+          "x": 24.27,
+          "y": 21.28,
+          "z": 7.5
+        }
+      },
+      {
+        "offset": {
+          "x": 0.0,
+          "y": -0.7,
+          "z": 6.81
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 23.27,
+          "y": 18.48,
+          "z": 4.09
+        }
+      },
+      {
+        "offset": {
+          "x": 0.0,
+          "y": -1.74,
+          "z": 37.49
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 23.27,
+          "y": 17.44,
+          "z": 1.0
         }
       }
     ],
     "support_collision_boxes": [
       {
         "offset": {
-          "x": 0,
-          "y": 0,
+          "x": 0.0,
+          "y": 2.05,
           "z": 40.9
         },
         "rotation": {
@@ -201,9 +215,9 @@
           "roll": 0
         },
         "box_size": {
-          "x": 26.5,
-          "y": 21.25,
-          "z": 40.9
+          "x": 29.0,
+          "y": 25.8,
+          "z": 43.9
         }
       }
     ],
@@ -228,6 +242,337 @@
         "yaw": -90.0,
         "roll": 0
       }
+    },
+    "flat_pack": {
+      "position_texture": "/Game/Furniture/FlatPack/SM_HardwareDrawer_Closed/T_HardwareDrawer_Closed_FP_Pos.T_HardwareDrawer_Closed_FP_Pos",
+      "rotation_texture": "/Game/Furniture/FlatPack/SM_HardwareDrawer_Closed/T_HardwareDrawer_Closed_FP_Rot.T_HardwareDrawer_Closed_FP_Rot",
+      "assemble_materials": [
+        "/Game/Furniture/FlatPack/SM_HardwareDrawer_Closed/MI_HardwareDrawer_Closed_FP_0.MI_HardwareDrawer_Closed_FP_0",
+        "/Game/Furniture/FlatPack/SM_HardwareDrawer_Closed/MI_HardwareDrawer_Closed_FP_1.MI_HardwareDrawer_Closed_FP_1",
+        "/Game/Furniture/FlatPack/SM_HardwareDrawer_Closed/MI_HardwareDrawer_Closed_FP_2.MI_HardwareDrawer_Closed_FP_2",
+        "/Game/Furniture/FlatPack/SM_HardwareDrawer_Closed/MI_HardwareDrawer_Closed_FP_3.MI_HardwareDrawer_Closed_FP_3"
+      ],
+      "frames": 150,
+      "frames_per_second": 30.0,
+      "box_centre": {
+        "x": 0.0,
+        "y": 2.05,
+        "z": 0.0
+      },
+      "box_width": 76.4,
+      "box_depth": 48.8,
+      "box_height": 37.9,
+      "box_board": 0.8,
+      "flap_frames": {
+        "x": 1.0,
+        "y": 12.0
+      },
+      "flat_frames": {
+        "x": 26.0,
+        "y": 54.0
+      },
+      "fade_frames": {
+        "x": 36.0,
+        "y": 54.0
+      },
+      "dowels_gone_frame": 142.0,
+      "screws": [
+        {
+          "seat": {
+            "x": -19.7,
+            "y": 12.75,
+            "z": 36.45
+          },
+          "out": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 1.0
+          },
+          "start_frame": 83.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 3.0,
+          "scale": 1.0,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": 19.7,
+            "y": 12.75,
+            "z": 36.45
+          },
+          "out": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 1.0
+          },
+          "start_frame": 85.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 3.0,
+          "scale": 1.0,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": -19.7,
+            "y": -15.45,
+            "z": 36.45
+          },
+          "out": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 1.0
+          },
+          "start_frame": 87.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 3.0,
+          "scale": 1.0,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": 19.7,
+            "y": -15.45,
+            "z": 36.45
+          },
+          "out": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 1.0
+          },
+          "start_frame": 89.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 3.0,
+          "scale": 1.0,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": -19.7,
+            "y": 15.8,
+            "z": 7.8
+          },
+          "out": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 1.0
+          },
+          "start_frame": 84.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 3.0,
+          "scale": 1.0,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": 19.7,
+            "y": 15.8,
+            "z": 7.8
+          },
+          "out": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 1.0
+          },
+          "start_frame": 86.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 3.0,
+          "scale": 1.0,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": -19.7,
+            "y": -15.4,
+            "z": 7.8
+          },
+          "out": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 1.0
+          },
+          "start_frame": 88.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 3.0,
+          "scale": 1.0,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": 19.7,
+            "y": -15.4,
+            "z": 7.8
+          },
+          "out": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 1.0
+          },
+          "start_frame": 90.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 3.0,
+          "scale": 1.0,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": -19.7,
+            "y": 15.75,
+            "z": 66.0
+          },
+          "out": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 1.0
+          },
+          "start_frame": 104.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 3.0,
+          "scale": 1.0,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": 19.7,
+            "y": 15.75,
+            "z": 66.0
+          },
+          "out": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 1.0
+          },
+          "start_frame": 106.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 3.0,
+          "scale": 1.0,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": -19.7,
+            "y": -15.45,
+            "z": 66.0
+          },
+          "out": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 1.0
+          },
+          "start_frame": 108.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 3.0,
+          "scale": 1.0,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": 19.7,
+            "y": -15.45,
+            "z": 66.0
+          },
+          "out": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 1.0
+          },
+          "start_frame": 110.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 3.0,
+          "scale": 1.0,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": -22.5,
+            "y": 17.25,
+            "z": 81.8
+          },
+          "out": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 1.0
+          },
+          "start_frame": 112.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 3.0,
+          "scale": 1.0,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": 22.5,
+            "y": 17.25,
+            "z": 81.8
+          },
+          "out": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 1.0
+          },
+          "start_frame": 112.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 3.0,
+          "scale": 1.0,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": -22.5,
+            "y": -17.25,
+            "z": 81.8
+          },
+          "out": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 1.0
+          },
+          "start_frame": 112.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 3.0,
+          "scale": 1.0,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": 22.5,
+            "y": -17.25,
+            "z": 81.8
+          },
+          "out": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 1.0
+          },
+          "start_frame": 112.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 3.0,
+          "scale": 1.0,
+          "turns": 4.0
+        }
+      ],
+      "dowels": [],
+      "screw_mesh": "/Game/Shared/FlatPack/SM_FlatPackScrew.SM_FlatPackScrew",
+      "dowel_mesh": "/Game/Shared/FlatPack/SM_FlatPackDowel.SM_FlatPackDowel",
+      "box_panel_mesh": "/Engine/BasicShapes/Cube.Cube",
+      "screw_material": "/Game/Shared/FlatPack/M_FlatPackScrewFade.M_FlatPackScrewFade",
+      "dowel_material": "/Game/Shared/FlatPack/M_FlatPackDowelFade.M_FlatPackDowelFade",
+      "box_material": "/Game/Shared/FlatPack/M_FlatPackBox.M_FlatPackBox"
     }
   }
 }

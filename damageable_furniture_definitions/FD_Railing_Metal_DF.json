@@ -11,31 +11,13 @@
     ],
     "constructable_item_to_grant": "ID_Railing_Metal_CI",
     "deconstruction_tier": 2,
-    "blocking_collision_boxes": [
-      {
-        "offset": {
-          "x": 0,
-          "y": 0.0152,
-          "z": 38.9671
-        },
-        "rotation": {
-          "pitch": 0,
-          "yaw": 0,
-          "roll": 0
-        },
-        "box_size": {
-          "x": 60.2093,
-          "y": 0.2,
-          "z": 27.8812
-        }
-      }
-    ],
+    "blocking_collision_boxes": [],
     "support_collision_boxes": [
       {
         "offset": {
-          "x": 0,
-          "y": 0.0152,
-          "z": 38.9671
+          "x": 0.0,
+          "y": 0.0,
+          "z": 39.01
         },
         "rotation": {
           "pitch": 0,
@@ -43,9 +25,9 @@
           "roll": 0
         },
         "box_size": {
-          "x": 83.624,
-          "y": 3.7266,
-          "z": 39.8303
+          "x": 84.95,
+          "y": 6.62,
+          "z": 42.01
         }
       }
     ],

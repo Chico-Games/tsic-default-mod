@@ -6,6 +6,19 @@
   "properties": {
     "duration": 60,
     "requires_consumption_slot": true,
+
+    "watch_icon": [
+      "............",
+      "............",
+      ".##########.",
+      "#...#..#...#",
+      "#.#.#..#.#.#",
+      "#.#.#..#.#.#",
+      "#...#..#...#",
+      ".##########.",
+      "............",
+      "............"
+    ],
     "consumption_sound": "Consume.Medical",
     "equipment_actors_and_meshes": [],
     "ability_sets_to_grant": [],

@@ -25,9 +25,9 @@
     "blocking_collision_boxes": [
       {
         "offset": {
-          "x": 0,
-          "y": -0.0241,
-          "z": 110.6666
+          "x": 0.0,
+          "y": 0.0,
+          "z": 85.6
         },
         "rotation": {
           "pitch": 0,
@@ -35,18 +35,18 @@
           "roll": 0
         },
         "box_size": {
-          "x": 47.328,
-          "y": 20.7203,
-          "z": 55.3146
+          "x": 74.67,
+          "y": 32.66,
+          "z": 1.55
         }
       }
     ],
     "support_collision_boxes": [
       {
         "offset": {
-          "x": 0,
-          "y": -0.0241,
-          "z": 93.5
+          "x": 0.0,
+          "y": -0.06,
+          "z": 93.39
         },
         "rotation": {
           "pitch": 0,
@@ -54,9 +54,9 @@
           "roll": 0
         },
         "box_size": {
-          "x": 81.6,
-          "y": 35.7246,
-          "z": 95.37
+          "x": 83.0,
+          "y": 38.06,
+          "z": 96.61
         }
       }
     ],
@@ -91,93 +91,7 @@
       "name": "Furniture"
     },
     "random_material_overrides": [],
-    "loot_positions": [
-      {
-        "local_transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.6968,
-            "w": 0.7173
-          },
-          "translation": {
-            "x": -27.7,
-            "y": -2.95,
-            "z": 83.01
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        },
-        "weight": 1000
-      },
-      {
-        "local_transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.9986,
-            "w": -0.0537
-          },
-          "translation": {
-            "x": 22.59,
-            "y": -11.38,
-            "z": 83.01
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        },
-        "weight": 1000
-      },
-      {
-        "local_transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.3178,
-            "w": 0.9482
-          },
-          "translation": {
-            "x": -13.95,
-            "y": 11.74,
-            "z": 83.01
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        },
-        "weight": 1000
-      },
-      {
-        "local_transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.2301,
-            "w": -0.9732
-          },
-          "translation": {
-            "x": 12.34,
-            "y": 20.86,
-            "z": 83.01
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        },
-        "weight": 1000
-      }
-    ],
-    "loot_position_chance": 0.4,
+    "loot_positions": [],
     "weighted_chance": 1000,
     "world_gen_priority": 1000,
     "destruction_impulse_strength": 0.0,

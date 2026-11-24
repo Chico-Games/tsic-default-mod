@@ -13,31 +13,13 @@
     ],
     "constructable_item_to_grant": "ID_GardenFence_CI",
     "deconstruction_tier": 1,
-    "blocking_collision_boxes": [
-      {
-        "offset": {
-          "x": -0.07261778495228703,
-          "y": 0.5267795767869266,
-          "z": 96.14223957100478
-        },
-        "rotation": {
-          "pitch": 0,
-          "yaw": 0,
-          "roll": 0
-        },
-        "box_size": {
-          "x": 138.65334216656112,
-          "y": 0.777408,
-          "z": 71.38473441213226
-        }
-      }
-    ],
+    "blocking_collision_boxes": [],
     "support_collision_boxes": [
       {
         "offset": {
-          "x": -0.07261800000005685,
-          "y": -0.8285387909377655,
-          "z": 88.63916580642542
+          "x": 0.0,
+          "y": 0.0,
+          "z": 88.73
         },
         "rotation": {
           "pitch": 0,
@@ -45,9 +27,9 @@
           "roll": 0
         },
         "box_size": {
-          "x": 148.89334377111817,
-          "y": 5.279441404074609,
-          "z": 92.50473552793122
+          "x": 149.26,
+          "y": 6.38,
+          "z": 91.73
         }
       }
     ],

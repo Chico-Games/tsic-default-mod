@@ -16,9 +16,9 @@
     "blocking_collision_boxes": [
       {
         "offset": {
-          "x": -9.140066481450049e-09,
-          "y": -1.6995862495150504e-09,
-          "z": 47.46356665636546
+          "x": 0.0,
+          "y": -0.0,
+          "z": 49.95
         },
         "rotation": {
           "pitch": 0,
@@ -26,18 +26,18 @@
           "roll": 0
         },
         "box_size": {
-          "x": 32,
-          "y": 32,
-          "z": 32
+          "x": 46.95,
+          "y": 46.85,
+          "z": 46.99
         }
       }
     ],
     "support_collision_boxes": [
       {
         "offset": {
-          "x": 0,
-          "y": 1.8664859879891083e-07,
-          "z": 49.66499082135725
+          "x": 0.0,
+          "y": -0.0,
+          "z": 49.95
         },
         "rotation": {
           "pitch": 0,
@@ -45,9 +45,9 @@
           "roll": 0
         },
         "box_size": {
-          "x": 55.055143028497696,
-          "y": 53.06848853826523,
-          "z": 53.40278738737106
+          "x": 53.3,
+          "y": 53.2,
+          "z": 53.35
         }
       }
     ],
@@ -96,7 +96,7 @@
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,
-    "static_mesh": "/Game/Furniture/WareHouse/Meshes/SM_Box1_02.SM_Box1_02",
+    "static_mesh": "/Game/Furniture/FlatPack/SM_Box1_02/SM_Box1_02_FP.SM_Box1_02_FP",
     "casts_shadow": true,
     "collision_profile_name": {
       "name": "Furniture"
@@ -169,6 +169,720 @@
     ],
     "loot_position_chance": 0.3,
     "weighted_chance": 1000,
-    "world_gen_priority": 5000
+    "world_gen_priority": 5000,
+    "flat_pack": {
+      "position_texture": "/Game/Furniture/FlatPack/SM_Box1_02/T_Box1_02_FP_Pos.T_Box1_02_FP_Pos",
+      "rotation_texture": "/Game/Furniture/FlatPack/SM_Box1_02/T_Box1_02_FP_Rot.T_Box1_02_FP_Rot",
+      "assemble_materials": [
+        "/Game/Furniture/FlatPack/SM_Box1_02/MI_Box1_02_FP_0.MI_Box1_02_FP_0",
+        "/Game/Furniture/FlatPack/SM_Box1_02/MI_Box1_02_FP_1.MI_Box1_02_FP_1"
+      ],
+      "frames": 150,
+      "frames_per_second": 30.0,
+      "box_centre": {
+        "x": 0.0,
+        "y": -0.0,
+        "z": -0.4
+      },
+      "box_width": 103.1,
+      "box_depth": 89.6,
+      "box_height": 51.55,
+      "box_board": 0.8,
+      "flap_frames": {
+        "x": 1.0,
+        "y": 12.0
+      },
+      "flat_frames": {
+        "x": 26.0,
+        "y": 54.0
+      },
+      "fade_frames": {
+        "x": 36.0,
+        "y": 54.0
+      },
+      "dowels_gone_frame": 142.0,
+      "screws": [
+        {
+          "seat": {
+            "x": 50.3,
+            "y": -46.7,
+            "z": 2.9
+          },
+          "out": {
+            "x": 1.0,
+            "y": -0.0,
+            "z": 0.0
+          },
+          "start_frame": 65.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 4.0,
+          "scale": 1.0,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": -50.3,
+            "y": -46.7,
+            "z": 2.9
+          },
+          "out": {
+            "x": -1.0,
+            "y": -0.0,
+            "z": 0.0
+          },
+          "start_frame": 69.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 4.0,
+          "scale": 1.0,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": 50.3,
+            "y": 46.7,
+            "z": 2.9
+          },
+          "out": {
+            "x": 1.0,
+            "y": -0.0,
+            "z": 0.0
+          },
+          "start_frame": 67.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 4.0,
+          "scale": 1.0,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": -50.3,
+            "y": 46.7,
+            "z": 2.9
+          },
+          "out": {
+            "x": -1.0,
+            "y": -0.0,
+            "z": 0.0
+          },
+          "start_frame": 71.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 4.0,
+          "scale": 1.0,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": -46.9,
+            "y": -50.2,
+            "z": 2.9
+          },
+          "out": {
+            "x": 0.0,
+            "y": -1.0,
+            "z": 0.0
+          },
+          "start_frame": 67.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 4.0,
+          "scale": 1.0,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": -46.9,
+            "y": 50.2,
+            "z": 2.9
+          },
+          "out": {
+            "x": 0.0,
+            "y": 1.0,
+            "z": 0.0
+          },
+          "start_frame": 71.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 4.0,
+          "scale": 1.0,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": 46.9,
+            "y": -50.2,
+            "z": 2.9
+          },
+          "out": {
+            "x": 0.0,
+            "y": -1.0,
+            "z": 0.0
+          },
+          "start_frame": 76.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 4.0,
+          "scale": 1.0,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": 46.9,
+            "y": 50.2,
+            "z": 2.9
+          },
+          "out": {
+            "x": 0.0,
+            "y": 1.0,
+            "z": 0.0
+          },
+          "start_frame": 80.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 4.0,
+          "scale": 1.0,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": -40.0,
+            "y": 39.7,
+            "z": 4.0
+          },
+          "out": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 1.0
+          },
+          "start_frame": 80.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 3.0,
+          "scale": 1.0,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": 40.0,
+            "y": 39.7,
+            "z": 4.0
+          },
+          "out": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 1.0
+          },
+          "start_frame": 82.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 3.0,
+          "scale": 1.0,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": -40.0,
+            "y": -39.7,
+            "z": 4.0
+          },
+          "out": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 1.0
+          },
+          "start_frame": 84.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 3.0,
+          "scale": 1.0,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": 40.0,
+            "y": -39.7,
+            "z": 4.0
+          },
+          "out": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 1.0
+          },
+          "start_frame": 86.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 3.0,
+          "scale": 1.0,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": 50.3,
+            "y": 46.7,
+            "z": 97.0
+          },
+          "out": {
+            "x": 1.0,
+            "y": -0.0,
+            "z": 0.0
+          },
+          "start_frame": 110.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 4.0,
+          "scale": 1.0,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": -50.3,
+            "y": 46.7,
+            "z": 97.0
+          },
+          "out": {
+            "x": -1.0,
+            "y": -0.0,
+            "z": 0.0
+          },
+          "start_frame": 112.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 4.0,
+          "scale": 1.0,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": 50.3,
+            "y": -46.7,
+            "z": 97.0
+          },
+          "out": {
+            "x": 1.0,
+            "y": -0.0,
+            "z": 0.0
+          },
+          "start_frame": 112.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 4.0,
+          "scale": 1.0,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": -50.3,
+            "y": -46.7,
+            "z": 97.0
+          },
+          "out": {
+            "x": -1.0,
+            "y": -0.0,
+            "z": 0.0
+          },
+          "start_frame": 112.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 4.0,
+          "scale": 1.0,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": -46.9,
+            "y": -50.2,
+            "z": 97.0
+          },
+          "out": {
+            "x": 0.0,
+            "y": -1.0,
+            "z": 0.0
+          },
+          "start_frame": 112.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 4.0,
+          "scale": 1.0,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": -46.9,
+            "y": 50.2,
+            "z": 97.0
+          },
+          "out": {
+            "x": 0.0,
+            "y": 1.0,
+            "z": 0.0
+          },
+          "start_frame": 112.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 4.0,
+          "scale": 1.0,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": 46.9,
+            "y": -50.2,
+            "z": 97.0
+          },
+          "out": {
+            "x": 0.0,
+            "y": -1.0,
+            "z": 0.0
+          },
+          "start_frame": 112.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 4.0,
+          "scale": 1.0,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": 46.9,
+            "y": 50.2,
+            "z": 97.0
+          },
+          "out": {
+            "x": 0.0,
+            "y": 1.0,
+            "z": 0.0
+          },
+          "start_frame": 112.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 4.0,
+          "scale": 1.0,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": -40.0,
+            "y": 39.7,
+            "z": 97.6
+          },
+          "out": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 1.0
+          },
+          "start_frame": 112.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 3.0,
+          "scale": 1.0,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": 40.0,
+            "y": 39.7,
+            "z": 97.6
+          },
+          "out": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 1.0
+          },
+          "start_frame": 112.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 3.0,
+          "scale": 1.0,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": -40.0,
+            "y": -39.7,
+            "z": 97.6
+          },
+          "out": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 1.0
+          },
+          "start_frame": 112.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 3.0,
+          "scale": 1.0,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": 40.0,
+            "y": -39.7,
+            "z": 97.6
+          },
+          "out": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 1.0
+          },
+          "start_frame": 112.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 3.0,
+          "scale": 1.0,
+          "turns": 4.0
+        }
+      ],
+      "dowels": [
+        {
+          "at": {
+            "x": 43.3,
+            "y": -46.7,
+            "z": 2.9
+          },
+          "axis": {
+            "x": -1.0,
+            "y": 0.0,
+            "z": -0.0
+          },
+          "start_frame": 80.0,
+          "tap_frames": 10.0,
+          "scale": 1.0
+        },
+        {
+          "at": {
+            "x": -43.3,
+            "y": -46.7,
+            "z": 2.9
+          },
+          "axis": {
+            "x": 1.0,
+            "y": 0.0,
+            "z": -0.0
+          },
+          "start_frame": 87.0,
+          "tap_frames": 10.0,
+          "scale": 1.0
+        },
+        {
+          "at": {
+            "x": 43.3,
+            "y": 46.7,
+            "z": 2.9
+          },
+          "axis": {
+            "x": -1.0,
+            "y": 0.0,
+            "z": -0.0
+          },
+          "start_frame": 82.0,
+          "tap_frames": 10.0,
+          "scale": 1.0
+        },
+        {
+          "at": {
+            "x": -43.3,
+            "y": 46.7,
+            "z": 2.9
+          },
+          "axis": {
+            "x": 1.0,
+            "y": 0.0,
+            "z": -0.0
+          },
+          "start_frame": 72.0,
+          "tap_frames": 10.0,
+          "scale": 1.0
+        },
+        {
+          "at": {
+            "x": -46.9,
+            "y": -43.5,
+            "z": 2.9
+          },
+          "axis": {
+            "x": -0.0,
+            "y": 1.0,
+            "z": -0.0
+          },
+          "start_frame": 87.0,
+          "tap_frames": 10.0,
+          "scale": 1.0
+        },
+        {
+          "at": {
+            "x": -46.9,
+            "y": 43.5,
+            "z": 2.9
+          },
+          "axis": {
+            "x": -0.0,
+            "y": -1.0,
+            "z": -0.0
+          },
+          "start_frame": 72.0,
+          "tap_frames": 10.0,
+          "scale": 1.0
+        },
+        {
+          "at": {
+            "x": 46.9,
+            "y": -43.5,
+            "z": 2.9
+          },
+          "axis": {
+            "x": -0.0,
+            "y": 1.0,
+            "z": -0.0
+          },
+          "start_frame": 80.0,
+          "tap_frames": 10.0,
+          "scale": 1.0
+        },
+        {
+          "at": {
+            "x": 46.9,
+            "y": 43.5,
+            "z": 2.9
+          },
+          "axis": {
+            "x": -0.0,
+            "y": -1.0,
+            "z": -0.0
+          },
+          "start_frame": 82.0,
+          "tap_frames": 10.0,
+          "scale": 1.0
+        },
+        {
+          "at": {
+            "x": 43.3,
+            "y": 46.7,
+            "z": 97.0
+          },
+          "axis": {
+            "x": -1.0,
+            "y": 0.0,
+            "z": -0.0
+          },
+          "start_frame": 93.0,
+          "tap_frames": 10.0,
+          "scale": 1.0
+        },
+        {
+          "at": {
+            "x": -43.3,
+            "y": 46.7,
+            "z": 97.0
+          },
+          "axis": {
+            "x": 1.0,
+            "y": 0.0,
+            "z": -0.0
+          },
+          "start_frame": 93.0,
+          "tap_frames": 10.0,
+          "scale": 1.0
+        },
+        {
+          "at": {
+            "x": 43.3,
+            "y": -46.7,
+            "z": 97.0
+          },
+          "axis": {
+            "x": -1.0,
+            "y": 0.0,
+            "z": -0.0
+          },
+          "start_frame": 103.0,
+          "tap_frames": 10.0,
+          "scale": 1.0
+        },
+        {
+          "at": {
+            "x": -43.3,
+            "y": -46.7,
+            "z": 97.0
+          },
+          "axis": {
+            "x": 1.0,
+            "y": 0.0,
+            "z": -0.0
+          },
+          "start_frame": 103.0,
+          "tap_frames": 10.0,
+          "scale": 1.0
+        },
+        {
+          "at": {
+            "x": -46.9,
+            "y": -43.5,
+            "z": 97.0
+          },
+          "axis": {
+            "x": -0.0,
+            "y": 1.0,
+            "z": -0.0
+          },
+          "start_frame": 104.0,
+          "tap_frames": 10.0,
+          "scale": 1.0
+        },
+        {
+          "at": {
+            "x": -46.9,
+            "y": 43.5,
+            "z": 97.0
+          },
+          "axis": {
+            "x": -0.0,
+            "y": -1.0,
+            "z": -0.0
+          },
+          "start_frame": 104.0,
+          "tap_frames": 10.0,
+          "scale": 1.0
+        },
+        {
+          "at": {
+            "x": 46.9,
+            "y": -43.5,
+            "z": 97.0
+          },
+          "axis": {
+            "x": -0.0,
+            "y": 1.0,
+            "z": -0.0
+          },
+          "start_frame": 107.0,
+          "tap_frames": 10.0,
+          "scale": 1.0
+        },
+        {
+          "at": {
+            "x": 46.9,
+            "y": 43.5,
+            "z": 97.0
+          },
+          "axis": {
+            "x": -0.0,
+            "y": -1.0,
+            "z": -0.0
+          },
+          "start_frame": 107.0,
+          "tap_frames": 10.0,
+          "scale": 1.0
+        }
+      ],
+      "screw_mesh": "/Game/Shared/FlatPack/SM_FlatPackScrew.SM_FlatPackScrew",
+      "dowel_mesh": "/Game/Shared/FlatPack/SM_FlatPackDowel.SM_FlatPackDowel",
+      "box_panel_mesh": "/Engine/BasicShapes/Cube.Cube",
+      "screw_material": "/Game/Shared/FlatPack/M_FlatPackScrewFade.M_FlatPackScrewFade",
+      "dowel_material": "/Game/Shared/FlatPack/M_FlatPackDowelFade.M_FlatPackDowelFade",
+      "box_material": "/Game/Shared/FlatPack/M_FlatPackBox.M_FlatPackBox"
+    }
   }
 }

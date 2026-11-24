@@ -160,7 +160,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7071067768845223,
             "w": 0.7071067854885729
           },
@@ -193,7 +193,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7071067750158768,
             "w": 0.7071067873572183
           },
@@ -226,7 +226,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.9999999999999998,
             "w": 1.4810628340581542e-08
           },
@@ -259,7 +259,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.9961946970901544,
             "w": 0.08715575419589465
           },
@@ -291,7 +291,7 @@
         "furniture_definition": "FD_Car_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.9999999999999999,
             "w": 1.2167965807333912e-08
@@ -390,7 +390,7 @@
         "furniture_definition": "FD_ParkingLineDecal",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.7071067787531683,
             "w": 0.7071067836199268
@@ -424,7 +424,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7071067750158768,
             "w": 0.7071067873572183
           },
@@ -456,7 +456,7 @@
         "furniture_definition": "FD_ParkingLineDecal",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.7071067787531683,
             "w": 0.7071067836199268
@@ -490,7 +490,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7071067725824981,
             "w": 0.707106789790597
           },
@@ -522,7 +522,7 @@
         "furniture_definition": "FD_ParkingLineDecal",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.9999999999999999,
             "w": 3.441319068767866e-09
@@ -588,7 +588,7 @@
         "furniture_definition": "FD_ParkingLineDecal",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.7071067811865476,
             "w": 0.7071067811865477
@@ -622,7 +622,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7071067750158768,
             "w": 0.7071067873572183
           },
@@ -654,7 +654,7 @@
         "furniture_definition": "FD_ParkingLineDecal",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.7071067811865476,
             "w": 0.7071067811865477
@@ -688,7 +688,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7071067750158768,
             "w": 0.7071067873572183
           },
@@ -721,7 +721,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.9999999999999999,
             "w": 6.123233995736766e-17
           },
@@ -786,7 +786,7 @@
         "furniture_definition": "FD_ParkingLineDecal",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.7071067811865476,
             "w": 0.7071067811865477
@@ -820,7 +820,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7071067750158768,
             "w": 0.7071067873572183
           },
@@ -852,7 +852,7 @@
         "furniture_definition": "FD_ParkingLineDecal",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.7071067811865476,
             "w": 0.7071067811865477
@@ -886,7 +886,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7071067750158768,
             "w": 0.7071067873572183
           },
@@ -919,7 +919,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.9999999999999999,
             "w": 6.123233995736766e-17
           },
@@ -984,7 +984,7 @@
         "furniture_definition": "FD_ParkingLineDecal",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.7071067811865476,
             "w": 0.7071067811865477
@@ -1018,7 +1018,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7071067750158768,
             "w": 0.7071067873572183
           },
@@ -1050,7 +1050,7 @@
         "furniture_definition": "FD_ParkingLineDecal",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.7071067811865476,
             "w": 0.7071067811865477
@@ -1084,7 +1084,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7071067750158768,
             "w": 0.7071067873572183
           },
@@ -1117,7 +1117,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.9999999999999999,
             "w": 6.123233995736766e-17
           },
@@ -1248,7 +1248,7 @@
         "furniture_definition": "FD_ArrowDecal1",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.7071067978299138,
             "w": 0.707106764543181
@@ -1282,7 +1282,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7071067707138512,
             "w": 0.7071067916592438
           },
@@ -1323,105 +1323,6 @@
             "x": 0,
             "y": 0,
             "z": 0
-          },
-          "scale3_d": {
-            "x": 1,
-            "y": 1,
-            "z": 1
-          }
-        }
-      },
-      {
-        "layout_actor_type": {
-          "name": "LOOT_SPAWN_POINT",
-          "value": 3
-        },
-        "b_visual_helper": false,
-        "definition_filter": {
-          "seed_offset": 19,
-          "search_queries": [],
-          "tile_requirements": [],
-          "spawn_chance_over": 0,
-          "spawn_chance_under": 1
-        },
-        "loot_spawn_point_definition": "LSP_CarPark_Floor",
-        "transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0,
-            "w": 1.0
-          },
-          "translation": {
-            "x": -225.0,
-            "y": 150.0,
-            "z": 0.0
-          },
-          "scale3_d": {
-            "x": 1,
-            "y": 1,
-            "z": 1
-          }
-        }
-      },
-      {
-        "layout_actor_type": {
-          "name": "LOOT_SPAWN_POINT",
-          "value": 3
-        },
-        "b_visual_helper": false,
-        "definition_filter": {
-          "seed_offset": 20,
-          "search_queries": [],
-          "tile_requirements": [],
-          "spawn_chance_over": 0,
-          "spawn_chance_under": 1
-        },
-        "loot_spawn_point_definition": "LSP_CarPark_Floor",
-        "transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0,
-            "w": 1.0
-          },
-          "translation": {
-            "x": 150.0,
-            "y": 650.0,
-            "z": 0.0
-          },
-          "scale3_d": {
-            "x": 1,
-            "y": 1,
-            "z": 1
-          }
-        }
-      },
-      {
-        "layout_actor_type": {
-          "name": "LOOT_SPAWN_POINT",
-          "value": 3
-        },
-        "b_visual_helper": false,
-        "definition_filter": {
-          "seed_offset": 21,
-          "search_queries": [],
-          "tile_requirements": [],
-          "spawn_chance_over": 0,
-          "spawn_chance_under": 1
-        },
-        "loot_spawn_point_definition": "LSP_CarPark_Floor",
-        "transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0,
-            "w": 1.0
-          },
-          "translation": {
-            "x": 150.0,
-            "y": -625.0,
-            "z": 0.0
           },
           "scale3_d": {
             "x": 1,

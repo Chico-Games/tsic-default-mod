@@ -213,9 +213,9 @@
     "blocking_collision_boxes": [
       {
         "offset": {
-          "x": -0.02,
-          "y": 0.06,
-          "z": 41.99
+          "x": 0.0,
+          "y": -0.61,
+          "z": 55.99
         },
         "rotation": {
           "pitch": 0,
@@ -223,17 +223,17 @@
           "roll": 0
         },
         "box_size": {
-          "x": 86.65,
-          "y": 20.9,
-          "z": 41.95
+          "x": 81.78,
+          "y": 19.68,
+          "z": 25.19
         }
       }
     ],
     "support_collision_boxes": [
       {
         "offset": {
-          "x": -0.02,
-          "y": 0.06,
+          "x": 0.0,
+          "y": 1.32,
           "z": 41.99
         },
         "rotation": {
@@ -242,9 +242,9 @@
           "roll": 0
         },
         "box_size": {
-          "x": 87.65,
-          "y": 21.9,
-          "z": 41.95
+          "x": 90.63,
+          "y": 26.16,
+          "z": 44.99
         }
       }
     ],
@@ -287,7 +287,7 @@
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,
-    "static_mesh": "/Game/Furniture/MidCentury/Shelf10/SM_Shelf10_Closed.SM_Shelf10_Closed",
+    "static_mesh": "/Game/Furniture/FlatPack/SM_Shelf10_Closed/SM_Shelf10_Closed_FP.SM_Shelf10_Closed_FP",
     "casts_shadow": true,
     "collision_profile_name": {
       "name": "Furniture"
@@ -299,8 +299,8 @@
           "rotation": {
             "x": 0.0,
             "y": 0.0,
-            "z": 0.0,
-            "w": 1.0
+            "z": 0.258819,
+            "w": 0.965926
           },
           "translation": {
             "x": -0.02,
@@ -314,8 +314,73 @@
           }
         },
         "weight": 1000
+      },
+      {
+        "local_transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 1.0,
+            "w": 0.0
+          },
+          "translation": {
+            "x": 39.9,
+            "y": -2.3,
+            "z": 84.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        },
+        "weight": 1000
+      },
+      {
+        "local_transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.382683,
+            "w": 0.92388
+          },
+          "translation": {
+            "x": -59.1,
+            "y": 0.7,
+            "z": 84.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        },
+        "weight": 1000
+      },
+      {
+        "local_transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.707107,
+            "w": -0.707107
+          },
+          "translation": {
+            "x": -20.1,
+            "y": -2.3,
+            "z": 84.0
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        },
+        "weight": 1000
       }
     ],
+    "loot_position_chance": 0.3,
+    "loot_position_rolls": 2,
     "weighted_chance": 1000,
     "world_gen_priority": 6000,
     "rig": {
@@ -327,6 +392,192 @@
           "range": 24.0
         }
       ]
+    },
+    "flat_pack": {
+      "position_texture": "/Game/Furniture/FlatPack/SM_Shelf10_Closed/T_Shelf10_Closed_FP_Pos.T_Shelf10_Closed_FP_Pos",
+      "rotation_texture": "/Game/Furniture/FlatPack/SM_Shelf10_Closed/T_Shelf10_Closed_FP_Rot.T_Shelf10_Closed_FP_Rot",
+      "assemble_materials": [
+        "/Game/Furniture/FlatPack/SM_Shelf10_Closed/MI_Shelf10_Closed_FP_0.MI_Shelf10_Closed_FP_0",
+        "/Game/Furniture/FlatPack/SM_Shelf10_Closed/MI_Shelf10_Closed_FP_1.MI_Shelf10_Closed_FP_1",
+        "/Game/Furniture/FlatPack/SM_Shelf10_Closed/MI_Shelf10_Closed_FP_2.MI_Shelf10_Closed_FP_2"
+      ],
+      "frames": 150,
+      "frames_per_second": 30.0,
+      "box_centre": {
+        "x": 0.0,
+        "y": 1.323,
+        "z": 0.0
+      },
+      "box_width": 173.64,
+      "box_depth": 57.88,
+      "box_height": 31.2,
+      "box_board": 0.93,
+      "flap_frames": {
+        "x": 1.0,
+        "y": 12.0
+      },
+      "flat_frames": {
+        "x": 26.0,
+        "y": 54.0
+      },
+      "fade_frames": {
+        "x": 36.0,
+        "y": 54.0
+      },
+      "dowels_gone_frame": 142.0,
+      "screws": [
+        {
+          "seat": {
+            "x": -77.748,
+            "y": 16.192,
+            "z": 32.906
+          },
+          "out": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 1.0
+          },
+          "start_frame": 80.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 4.67,
+          "scale": 1.5577877892388239,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": 77.82,
+            "y": 16.192,
+            "z": 32.906
+          },
+          "out": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 1.0
+          },
+          "start_frame": 82.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 4.67,
+          "scale": 1.5577877892388239,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": -77.748,
+            "y": -16.384,
+            "z": 32.906
+          },
+          "out": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 1.0
+          },
+          "start_frame": 84.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 4.67,
+          "scale": 1.5577877892388239,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": 77.82,
+            "y": -16.384,
+            "z": 32.906
+          },
+          "out": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 1.0
+          },
+          "start_frame": 86.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 4.67,
+          "scale": 1.5577877892388239,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": -77.748,
+            "y": 16.192,
+            "z": 83.979
+          },
+          "out": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 1.0
+          },
+          "start_frame": 112.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 4.67,
+          "scale": 1.5577877892388239,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": 77.82,
+            "y": 16.192,
+            "z": 83.979
+          },
+          "out": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 1.0
+          },
+          "start_frame": 112.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 4.67,
+          "scale": 1.5577877892388239,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": -77.748,
+            "y": -16.384,
+            "z": 83.979
+          },
+          "out": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 1.0
+          },
+          "start_frame": 112.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 4.67,
+          "scale": 1.5577877892388239,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": 77.82,
+            "y": -16.384,
+            "z": 83.979
+          },
+          "out": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 1.0
+          },
+          "start_frame": 112.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 4.67,
+          "scale": 1.5577877892388239,
+          "turns": 4.0
+        }
+      ],
+      "dowels": [],
+      "screw_mesh": "/Game/Shared/FlatPack/SM_FlatPackScrew.SM_FlatPackScrew",
+      "dowel_mesh": "/Game/Shared/FlatPack/SM_FlatPackDowel.SM_FlatPackDowel",
+      "box_panel_mesh": "/Engine/BasicShapes/Cube.Cube",
+      "screw_material": "/Game/Shared/FlatPack/M_FlatPackScrewFade.M_FlatPackScrewFade",
+      "dowel_material": "/Game/Shared/FlatPack/M_FlatPackDowelFade.M_FlatPackDowelFade",
+      "box_material": "/Game/Shared/FlatPack/M_FlatPackBox.M_FlatPackBox"
     }
   }
 }

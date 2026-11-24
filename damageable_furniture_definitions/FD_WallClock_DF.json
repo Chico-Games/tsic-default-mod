@@ -13,31 +13,13 @@
     ],
     "constructable_item_to_grant": "ID_WallClock_CI",
     "deconstruction_tier": 2,
-    "blocking_collision_boxes": [
-      {
-        "offset": {
-          "x": 2.5687469568980212,
-          "y": 0.119364,
-          "z": 0.9703338908558372
-        },
-        "rotation": {
-          "pitch": 0,
-          "yaw": 0,
-          "roll": 0
-        },
-        "box_size": {
-          "x": 23.162288409259798,
-          "y": 13.249357611709595,
-          "z": 0.6544087756996753
-        }
-      }
-    ],
+    "blocking_collision_boxes": [],
     "support_collision_boxes": [
       {
         "offset": {
-          "x": -0.6181962042697885,
-          "y": -0.6058674215866722,
-          "z": 0.013436278605126972
+          "x": 0.02,
+          "y": 0.0,
+          "z": 3.55
         },
         "rotation": {
           "pitch": 0,
@@ -45,9 +27,9 @@
           "roll": 0
         },
         "box_size": {
-          "x": 31.602251112443923,
-          "y": 33.282986354496,
-          "z": 9.09066708083725
+          "x": 35.59,
+          "y": 35.59,
+          "z": 6.54
         }
       }
     ],

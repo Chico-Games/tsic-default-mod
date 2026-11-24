@@ -11,31 +11,13 @@
     "loot_dropped_on_death": [],
     "constructable_item_to_grant": "ID_Painting_7_CI",
     "deconstruction_tier": 1,
-    "blocking_collision_boxes": [
-      {
-        "offset": {
-          "x": 0,
-          "y": 1,
-          "z": 14.499
-        },
-        "rotation": {
-          "pitch": 0,
-          "yaw": 0,
-          "roll": 0
-        },
-        "box_size": {
-          "x": 11.5379,
-          "y": 0.25,
-          "z": 12.3763
-        }
-      }
-    ],
+    "blocking_collision_boxes": [],
     "support_collision_boxes": [
       {
         "offset": {
-          "x": -1.0514288106833192e-07,
-          "y": 1.0768260000000427,
-          "z": 14.499034933448229
+          "x": -0.38,
+          "y": 1.0,
+          "z": 15.0
         },
         "rotation": {
           "pitch": 0,
@@ -43,9 +25,9 @@
           "roll": 0
         },
         "box_size": {
-          "x": 16.024884638759612,
-          "y": 3.191264,
-          "z": 16.284558070433256
+          "x": 18.0,
+          "y": 4.0,
+          "z": 18.0
         }
       }
     ],

@@ -226,31 +226,13 @@
     ],
     "constructable_item_to_grant": "ID_CeilingLight_2_CI",
     "deconstruction_tier": 2,
-    "blocking_collision_boxes": [
-      {
-        "offset": {
-          "x": 0,
-          "y": 4.150102483890805e-11,
-          "z": -1.4398994196982606
-        },
-        "rotation": {
-          "pitch": 0,
-          "yaw": 0,
-          "roll": 0
-        },
-        "box_size": {
-          "x": 27.681610077619553,
-          "y": 30.502124473452568,
-          "z": 0.32
-        }
-      }
-    ],
+    "blocking_collision_boxes": [],
     "support_collision_boxes": [
       {
         "offset": {
-          "x": -1.4210854715202004e-14,
-          "y": -1.1000917510273212e-08,
-          "z": -0.3929286681815416
+          "x": 0.0,
+          "y": -0.0,
+          "z": -0.73
         },
         "rotation": {
           "pitch": 0,
@@ -258,9 +240,9 @@
           "roll": 0
         },
         "box_size": {
-          "x": 39.72892679274082,
-          "y": 38.55974145233631,
-          "z": 3.529442220926285
+          "x": 41.66,
+          "y": 40.8,
+          "z": 5.06
         }
       }
     ],

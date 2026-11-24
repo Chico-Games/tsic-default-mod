@@ -28,7 +28,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.9999999999999999,
             "w": 1.2167965141200097e-08
           },
@@ -61,7 +61,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.9999999999999999,
             "w": 1.2167965141200097e-08
           },
@@ -93,7 +93,7 @@
         "furniture_definition": "FD_BathroomWall_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.7071067959612675,
             "w": 0.7071067664118275
@@ -127,7 +127,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.9999999999999999,
             "w": 1.2167965141200097e-08
           },
@@ -160,7 +160,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.9999999999999999,
             "w": 1.2167965141200097e-08
           },
@@ -192,7 +192,7 @@
         "furniture_definition": "FD_BathroomWall_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.7071067935278889,
             "w": 0.7071067688452061
@@ -292,7 +292,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7071067774492553,
             "w": 0.7071067849238399
           },
@@ -391,7 +391,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7071067774492553,
             "w": 0.7071067849238399
           },
@@ -456,7 +456,7 @@
         "furniture_definition": "FD_ToiletPartition_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.9999999999999998,
             "w": 1.4810629450804567e-08
@@ -523,7 +523,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7071067959612668,
             "w": 0.707106766411828
           },
@@ -588,7 +588,7 @@
         "furniture_definition": "FD_ToiletPartition_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.9999999999999999,
             "w": 1.6777294059747914e-08
@@ -621,7 +621,7 @@
         "furniture_definition": "FD_ToiletPaper_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.9999999999999988,
             "w": 4.639855372707077e-08
@@ -654,7 +654,7 @@
         "furniture_definition": "FD_Mirror_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.9999999999999999,
             "w": 1.6777294059747914e-08
@@ -687,7 +687,7 @@
         "furniture_definition": "FD_Urinal_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.9999999999999988,
             "w": 4.639855372707077e-08
@@ -720,7 +720,7 @@
         "furniture_definition": "FD_Urinal_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.9999999999999999,
             "w": 1.136931044326904e-08
@@ -753,7 +753,7 @@
         "furniture_definition": "FD_Urinal_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.9999999999999989,
             "w": 4.7074552095464265e-08
@@ -786,7 +786,7 @@
         "furniture_definition": "FD_Mirror_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.999999999999999,
             "w": 4.3633231311571906e-08
@@ -819,7 +819,7 @@
         "furniture_definition": "FD_Mirror_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.999999999999999,
             "w": 4.3633231311571906e-08
@@ -852,7 +852,7 @@
         "furniture_definition": "FD_Mirror_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.9999999999999999,
             "w": 8.726646355709176e-09
@@ -951,7 +951,7 @@
         "furniture_definition": "FD_ToiletPartition_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.9999999999999998,
             "w": 1.7453292428141407e-08
@@ -984,7 +984,7 @@
         "furniture_definition": "FD_ToiletPartition_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.7071067731472307,
             "w": 0.7071067892258643
@@ -1017,7 +1017,7 @@
         "furniture_definition": "FD_ToiletPartition_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.7071067750158768,
             "w": 0.7071067873572183
@@ -1051,7 +1051,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7071068015672052,
             "w": 0.7071067608058894
           },
@@ -1084,7 +1084,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7071067991338279,
             "w": 0.7071067632392668
           },
@@ -1216,7 +1216,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7071067953965346,
             "w": 0.7071067669765603
           },
@@ -1248,7 +1248,7 @@
         "furniture_definition": "FD_WashBasin_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.7071067602411555,
             "w": 0.7071068021319391
@@ -1281,7 +1281,7 @@
         "furniture_definition": "FD_MensBathroomSign_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.9999999999999999,
             "w": 8.726646355709176e-09
@@ -1314,7 +1314,7 @@
         "furniture_definition": "FD_MensBathroomSign_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.9999999999999999,
             "w": 8.726646355709176e-09
@@ -1414,7 +1414,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.42261827449544287,
             "w": 0.9063077810890152
           },
@@ -1447,7 +1447,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7071067916158774,
             "w": 0.7071067707572176
           },
@@ -1479,7 +1479,7 @@
         "furniture_definition": "FD_Fluorescent_FC",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.9999999999999999,
             "w": 8.726646355709176e-09
@@ -1578,7 +1578,7 @@
         "furniture_definition": "FD_WallLight_2_TO",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.9999999999999999,
             "w": 1.2167966251423121e-08
@@ -1611,7 +1611,7 @@
         "furniture_definition": "FD_WallLight_2_TO",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.9999999999999999,
             "w": 1.2167966251423121e-08
@@ -1645,7 +1645,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7071067916592428,
             "w": 0.7071067707138522
           },
@@ -1678,7 +1678,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7071067916592428,
             "w": 0.7071067707138522
           },
@@ -1710,7 +1710,7 @@
         "furniture_definition": "FD_WallLight_2_TO",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.7071067602411558,
             "w": 0.7071068021319388
@@ -1743,7 +1743,7 @@
         "furniture_definition": "FD_WallLight_2_TO",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.7071067602411558,
             "w": 0.7071068021319388
@@ -1817,106 +1817,7 @@
           "translation": {
             "x": 51.38,
             "y": 0,
-            "z": 1e-04
-          },
-          "scale3_d": {
-            "x": 1,
-            "y": 1,
-            "z": 1
-          }
-        }
-      },
-      {
-        "layout_actor_type": {
-          "name": "LOOT_SPAWN_POINT",
-          "value": 3
-        },
-        "b_visual_helper": false,
-        "definition_filter": {
-          "seed_offset": 19,
-          "search_queries": [],
-          "tile_requirements": [],
-          "spawn_chance_over": 0,
-          "spawn_chance_under": 1
-        },
-        "loot_spawn_point_definition": "LSP_Bathroom_Floor",
-        "transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0,
-            "w": 1.0
-          },
-          "translation": {
-            "x": 50.0,
-            "y": -400.0,
-            "z": 0.0
-          },
-          "scale3_d": {
-            "x": 1,
-            "y": 1,
-            "z": 1
-          }
-        }
-      },
-      {
-        "layout_actor_type": {
-          "name": "LOOT_SPAWN_POINT",
-          "value": 3
-        },
-        "b_visual_helper": false,
-        "definition_filter": {
-          "seed_offset": 20,
-          "search_queries": [],
-          "tile_requirements": [],
-          "spawn_chance_over": 0,
-          "spawn_chance_under": 1
-        },
-        "loot_spawn_point_definition": "LSP_Bathroom_Floor",
-        "transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0,
-            "w": 1.0
-          },
-          "translation": {
-            "x": -50.0,
-            "y": 325.0,
-            "z": 0.0
-          },
-          "scale3_d": {
-            "x": 1,
-            "y": 1,
-            "z": 1
-          }
-        }
-      },
-      {
-        "layout_actor_type": {
-          "name": "LOOT_SPAWN_POINT",
-          "value": 3
-        },
-        "b_visual_helper": false,
-        "definition_filter": {
-          "seed_offset": 21,
-          "search_queries": [],
-          "tile_requirements": [],
-          "spawn_chance_over": 0,
-          "spawn_chance_under": 1
-        },
-        "loot_spawn_point_definition": "LSP_Bathroom_Floor",
-        "transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0,
-            "w": 1.0
-          },
-          "translation": {
-            "x": -625.0,
-            "y": -25.0,
-            "z": 0.0
+            "z": 0.0001
           },
           "scale3_d": {
             "x": 1,

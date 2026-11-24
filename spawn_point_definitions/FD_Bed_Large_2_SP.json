@@ -286,7 +286,7 @@
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,
-    "static_mesh": "/Game/Furniture/Beds/Meshes/SM_Bed03_Frame.SM_Bed03_Frame",
+    "static_mesh": "/Game/Furniture/FlatPack/SM_Bed03_Frame/SM_Bed03_Frame_FP.SM_Bed03_Frame_FP",
     "casts_shadow": true,
     "collision_profile_name": {
       "name": "Furniture"
@@ -294,6 +294,390 @@
     "random_material_overrides": [],
     "loot_positions": [],
     "weighted_chance": 1000,
-    "world_gen_priority": 1000
+    "world_gen_priority": 1000,
+    "flat_pack": {
+      "position_texture": "/Game/Furniture/FlatPack/SM_Bed03_Frame/T_Bed03_Frame_FP_Pos.T_Bed03_Frame_FP_Pos",
+      "rotation_texture": "/Game/Furniture/FlatPack/SM_Bed03_Frame/T_Bed03_Frame_FP_Rot.T_Bed03_Frame_FP_Rot",
+      "assemble_materials": [
+        "/Game/Furniture/FlatPack/SM_Bed03_Frame/MI_Bed03_Frame_FP_0.MI_Bed03_Frame_FP_0",
+        "/Game/Furniture/FlatPack/SM_Bed03_Frame/MI_Bed03_Frame_FP_1.MI_Bed03_Frame_FP_1"
+      ],
+      "frames": 150,
+      "frames_per_second": 30.0,
+      "box_centre": {
+        "x": 4.35,
+        "y": -10.0,
+        "z": 0.0
+      },
+      "box_width": 93.75,
+      "box_depth": 215.54,
+      "box_height": 29.25,
+      "box_board": 1.24,
+      "flap_frames": {
+        "x": 1.0,
+        "y": 12.0
+      },
+      "flat_frames": {
+        "x": 26.0,
+        "y": 54.0
+      },
+      "fade_frames": {
+        "x": 36.0,
+        "y": 54.0
+      },
+      "dowels_gone_frame": 142.0,
+      "screws": [
+        {
+          "seat": {
+            "x": -79.782,
+            "y": 95.782,
+            "z": 15.7
+          },
+          "out": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 1.0
+          },
+          "start_frame": 74.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 6.19,
+          "scale": 2.0622221628824873,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": -2.868,
+            "y": 95.782,
+            "z": 15.7
+          },
+          "out": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 1.0
+          },
+          "start_frame": 76.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 6.19,
+          "scale": 2.0622221628824873,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": -79.782,
+            "y": -102.922,
+            "z": 15.7
+          },
+          "out": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 1.0
+          },
+          "start_frame": 78.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 6.19,
+          "scale": 2.0622221628824873,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": -2.868,
+            "y": -102.922,
+            "z": 15.7
+          },
+          "out": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 1.0
+          },
+          "start_frame": 80.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 6.19,
+          "scale": 2.0622221628824873,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": 11.568,
+            "y": 95.782,
+            "z": 15.7
+          },
+          "out": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 1.0
+          },
+          "start_frame": 83.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 6.19,
+          "scale": 2.0622221628824873,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": 88.482,
+            "y": 95.782,
+            "z": 15.7
+          },
+          "out": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 1.0
+          },
+          "start_frame": 85.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 6.19,
+          "scale": 2.0622221628824873,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": 11.568,
+            "y": -102.922,
+            "z": 15.7
+          },
+          "out": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 1.0
+          },
+          "start_frame": 87.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 6.19,
+          "scale": 2.0622221628824873,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": 88.482,
+            "y": -102.922,
+            "z": 15.7
+          },
+          "out": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 1.0
+          },
+          "start_frame": 89.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 6.19,
+          "scale": 2.0622221628824873,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": 99.2,
+            "y": 104.5,
+            "z": 22.7
+          },
+          "out": {
+            "x": 1.0,
+            "y": -0.0,
+            "z": 0.0
+          },
+          "start_frame": 90.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 8.25,
+          "scale": 2.0622221628824873,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": -90.5,
+            "y": 104.5,
+            "z": 22.7
+          },
+          "out": {
+            "x": -1.0,
+            "y": -0.0,
+            "z": 0.0
+          },
+          "start_frame": 94.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 8.25,
+          "scale": 2.0622221628824873,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": 97.45,
+            "y": -114.231,
+            "z": 22.7
+          },
+          "out": {
+            "x": 0.0,
+            "y": -1.0,
+            "z": 0.0
+          },
+          "start_frame": 101.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 8.25,
+          "scale": 2.0622221628824873,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": -88.75,
+            "y": -114.231,
+            "z": 22.7
+          },
+          "out": {
+            "x": 0.0,
+            "y": -1.0,
+            "z": 0.0
+          },
+          "start_frame": 102.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 8.25,
+          "scale": 2.0622221628824873,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": 99.2,
+            "y": -116.6,
+            "z": 78.25
+          },
+          "out": {
+            "x": 1.0,
+            "y": -0.0,
+            "z": 0.0
+          },
+          "start_frame": 112.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 8.25,
+          "scale": 2.0622221628824873,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": -90.5,
+            "y": -116.6,
+            "z": 78.25
+          },
+          "out": {
+            "x": -1.0,
+            "y": -0.0,
+            "z": 0.0
+          },
+          "start_frame": 112.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 8.25,
+          "scale": 2.0622221628824873,
+          "turns": 4.0
+        }
+      ],
+      "dowels": [
+        {
+          "at": {
+            "x": 95.6,
+            "y": 104.5,
+            "z": 22.7
+          },
+          "axis": {
+            "x": -1.0,
+            "y": 0.0,
+            "z": -0.0
+          },
+          "start_frame": 96.0,
+          "tap_frames": 10.0,
+          "scale": 2.0622221628824873
+        },
+        {
+          "at": {
+            "x": -86.9,
+            "y": 104.5,
+            "z": 22.7
+          },
+          "axis": {
+            "x": 1.0,
+            "y": 0.0,
+            "z": -0.0
+          },
+          "start_frame": 97.0,
+          "tap_frames": 10.0,
+          "scale": 2.0622221628824873
+        },
+        {
+          "at": {
+            "x": 97.45,
+            "y": -94.4,
+            "z": 22.7
+          },
+          "axis": {
+            "x": -0.0,
+            "y": 1.0,
+            "z": -0.0
+          },
+          "start_frame": 110.0,
+          "tap_frames": 10.0,
+          "scale": 2.0622221628824873
+        },
+        {
+          "at": {
+            "x": -88.75,
+            "y": -94.4,
+            "z": 22.7
+          },
+          "axis": {
+            "x": -0.0,
+            "y": 1.0,
+            "z": -0.0
+          },
+          "start_frame": 103.0,
+          "tap_frames": 10.0,
+          "scale": 2.0622221628824873
+        },
+        {
+          "at": {
+            "x": 95.6,
+            "y": -116.6,
+            "z": 78.25
+          },
+          "axis": {
+            "x": -1.0,
+            "y": 0.0,
+            "z": -0.0
+          },
+          "start_frame": 112.0,
+          "tap_frames": 10.0,
+          "scale": 2.0622221628824873
+        },
+        {
+          "at": {
+            "x": -86.9,
+            "y": -116.6,
+            "z": 78.25
+          },
+          "axis": {
+            "x": 1.0,
+            "y": 0.0,
+            "z": -0.0
+          },
+          "start_frame": 112.0,
+          "tap_frames": 10.0,
+          "scale": 2.0622221628824873
+        }
+      ],
+      "screw_mesh": "/Game/Shared/FlatPack/SM_FlatPackScrew.SM_FlatPackScrew",
+      "dowel_mesh": "/Game/Shared/FlatPack/SM_FlatPackDowel.SM_FlatPackDowel",
+      "box_panel_mesh": "/Engine/BasicShapes/Cube.Cube",
+      "screw_material": "/Game/Shared/FlatPack/M_FlatPackScrewFade.M_FlatPackScrewFade",
+      "dowel_material": "/Game/Shared/FlatPack/M_FlatPackDowelFade.M_FlatPackDowelFade",
+      "box_material": "/Game/Shared/FlatPack/M_FlatPackBox.M_FlatPackBox"
+    }
   }
 }

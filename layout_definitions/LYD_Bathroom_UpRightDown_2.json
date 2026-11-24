@@ -557,7 +557,7 @@
           "translation": {
             "x": -447.241336,
             "y": -445.742566,
-            "z": 0.0000019999999949504854
+            "z": 1.9999999949504854e-06
           },
           "scale3_d": {
             "x": 1.0,
@@ -590,7 +590,7 @@
           "translation": {
             "x": -403.595286,
             "y": -690.768895,
-            "z": -9.999999999999997e-7
+            "z": -9.999999999999997e-07
           },
           "scale3_d": {
             "x": 1.0,
@@ -821,7 +821,7 @@
           "translation": {
             "x": 255.343085,
             "y": 164.58378499999998,
-            "z": -0.000003000000006636583
+            "z": -3.000000006636583e-06
           },
           "scale3_d": {
             "x": 1.0,
@@ -887,7 +887,7 @@
           "translation": {
             "x": 519.076323,
             "y": -250.888231,
-            "z": 0.000020000000006348273
+            "z": 2.0000000006348273e-05
           },
           "scale3_d": {
             "x": 1.0,
@@ -920,7 +920,7 @@
           "translation": {
             "x": -30.092083000000002,
             "y": -695.339597,
-            "z": 0.000022
+            "z": 2.2e-05
           },
           "scale3_d": {
             "x": 1.0,
@@ -953,7 +953,7 @@
           "translation": {
             "x": -403.595286,
             "y": 221.73110500000007,
-            "z": -0.0000010000000000000006
+            "z": -1.0000000000000006e-06
           },
           "scale3_d": {
             "x": 1.0,
@@ -1052,7 +1052,7 @@
           "translation": {
             "x": -403.595286,
             "y": 609.231105,
-            "z": -9.999999974752427e-7
+            "z": -9.999999974752427e-07
           },
           "scale3_d": {
             "x": 1.0,
@@ -1647,105 +1647,6 @@
             "x": -51.38,
             "y": 0.0,
             "z": 0.0001
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        }
-      },
-      {
-        "layout_actor_type": {
-          "name": "LOOT_SPAWN_POINT",
-          "value": 3
-        },
-        "b_visual_helper": false,
-        "definition_filter": {
-          "seed_offset": 19,
-          "search_queries": [],
-          "tile_requirements": [],
-          "spawn_chance_over": 0.0,
-          "spawn_chance_under": 1.0
-        },
-        "loot_spawn_point_definition": "LSP_Bathroom_Floor",
-        "transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 1.0,
-            "w": 6.123233995736766e-17
-          },
-          "translation": {
-            "x": 0.0,
-            "y": 625.0,
-            "z": 0.0
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        }
-      },
-      {
-        "layout_actor_type": {
-          "name": "LOOT_SPAWN_POINT",
-          "value": 3
-        },
-        "b_visual_helper": false,
-        "definition_filter": {
-          "seed_offset": 20,
-          "search_queries": [],
-          "tile_requirements": [],
-          "spawn_chance_over": 0.0,
-          "spawn_chance_under": 1.0
-        },
-        "loot_spawn_point_definition": "LSP_Bathroom_Floor",
-        "transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 1.0,
-            "w": 6.123233995736766e-17
-          },
-          "translation": {
-            "x": -50.0,
-            "y": -400.0,
-            "z": 0.0
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        }
-      },
-      {
-        "layout_actor_type": {
-          "name": "LOOT_SPAWN_POINT",
-          "value": 3
-        },
-        "b_visual_helper": false,
-        "definition_filter": {
-          "seed_offset": 21,
-          "search_queries": [],
-          "tile_requirements": [],
-          "spawn_chance_over": 0.0,
-          "spawn_chance_under": 1.0
-        },
-        "loot_spawn_point_definition": "LSP_Bathroom_Floor",
-        "transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 1.0,
-            "w": 6.123233995736766e-17
-          },
-          "translation": {
-            "x": -625.0,
-            "y": 50.0,
-            "z": 0.0
           },
           "scale3_d": {
             "x": 1.0,

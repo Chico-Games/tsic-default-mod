@@ -32,8 +32,8 @@
       {
         "offset": {
           "x": 0.0,
-          "y": 1.55,
-          "z": 65.0
+          "y": -0.47,
+          "z": 48.98
         },
         "rotation": {
           "pitch": 0,
@@ -41,18 +41,18 @@
           "roll": 0
         },
         "box_size": {
-          "x": 35.4,
-          "y": 31.8,
-          "z": 65.0
+          "x": 33.93,
+          "y": 28.07,
+          "z": 44.63
         }
       }
     ],
     "support_collision_boxes": [
       {
         "offset": {
-          "x": 0.0,
-          "y": 1.55,
-          "z": 65.0
+          "x": -0.0,
+          "y": 2.08,
+          "z": 65.31
         },
         "rotation": {
           "pitch": 0,
@@ -60,9 +60,9 @@
           "roll": 0
         },
         "box_size": {
-          "x": 36.4,
-          "y": 32.8,
-          "z": 65.0
+          "x": 40.08,
+          "y": 36.3,
+          "z": 68.31
         }
       }
     ],
@@ -97,30 +97,7 @@
       "name": "Furniture"
     },
     "random_material_overrides": [],
-    "loot_positions": [
-      {
-        "local_transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0,
-            "w": 1.0
-          },
-          "translation": {
-            "x": 0.0,
-            "y": 1.55,
-            "z": 130.5
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        },
-        "weight": 1000
-      }
-    ],
-    "loot_position_chance": 0.3,
+    "loot_positions": [],
     "weighted_chance": 1000,
     "world_gen_priority": 1000,
     "destruction_impulse_strength": 0,

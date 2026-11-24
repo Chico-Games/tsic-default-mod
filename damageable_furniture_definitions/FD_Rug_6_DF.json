@@ -22,31 +22,13 @@
     ],
     "constructable_item_to_grant": "ID_Rug_6_CI",
     "deconstruction_tier": 1,
-    "blocking_collision_boxes": [
-      {
-        "offset": {
-          "x": 0,
-          "y": 0,
-          "z": 0.65
-        },
-        "rotation": {
-          "pitch": 0,
-          "yaw": 0,
-          "roll": 0
-        },
-        "box_size": {
-          "x": 203.8897,
-          "y": 56.7801,
-          "z": 0.3
-        }
-      }
-    ],
+    "blocking_collision_boxes": [],
     "support_collision_boxes": [
       {
         "offset": {
-          "x": 0,
-          "y": 0,
-          "z": 0
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.51
         },
         "rotation": {
           "pitch": 0,
@@ -54,9 +36,9 @@
           "roll": 0
         },
         "box_size": {
-          "x": 271.85286958086056,
-          "y": 75.70675628302264,
-          "z": 3.09312
+          "x": 273.0,
+          "y": 78.0,
+          "z": 3.49
         }
       }
     ],

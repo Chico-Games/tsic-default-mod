@@ -13,31 +13,13 @@
     ],
     "constructable_item_to_grant": "ID_Mirror_CI",
     "deconstruction_tier": 2,
-    "blocking_collision_boxes": [
-      {
-        "offset": {
-          "x": 0.9333,
-          "y": 1.5221,
-          "z": 2.0294
-        },
-        "rotation": {
-          "pitch": 0,
-          "yaw": 0,
-          "roll": 0
-        },
-        "box_size": {
-          "x": 0.25,
-          "y": 112.6835,
-          "z": 31.3487
-        }
-      }
-    ],
+    "blocking_collision_boxes": [],
     "support_collision_boxes": [
       {
         "offset": {
-          "x": 0,
-          "y": 1.52208012342453,
-          "z": 2.02944016456604
+          "x": 0.93,
+          "y": 1.98,
+          "z": 1.84
         },
         "rotation": {
           "pitch": 0,
@@ -45,9 +27,9 @@
           "roll": 0
         },
         "box_size": {
-          "x": 3.5001603933906544,
-          "y": 156.50483426316072,
-          "z": 41.248351924443604
+          "x": 3.93,
+          "y": 157.72,
+          "z": 43.0
         }
       }
     ],

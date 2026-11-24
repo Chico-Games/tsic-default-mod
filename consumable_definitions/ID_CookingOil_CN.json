@@ -6,6 +6,19 @@
   "properties": {
     "duration": 180,
     "requires_consumption_slot": true,
+
+    "watch_icon": [
+      "....###.....",
+      "....###.....",
+      "...#####....",
+      "..#.....#...",
+      "..#..#..#...",
+      "..#.###.#...",
+      "..#.###.#...",
+      "..#..#..#...",
+      "..#.....#...",
+      "..#######..."
+    ],
     "consumption_sound": "Consume.Drink",
     "equipment_actors_and_meshes": [],
     "ability_sets_to_grant": [],

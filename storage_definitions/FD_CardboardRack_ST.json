@@ -195,6 +195,44 @@
     "gameplay_tags": [],
     "release_angular_damping": 0.05000000074505806,
     "release_linear_damping": 0.009999999776482582,
-    "restitution": 0.30000001192092896
+    "restitution": 0.30000001192092896,
+    "support_collision_boxes": [
+      {
+        "offset": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 6.92
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 62.62,
+          "y": 57.94,
+          "z": 10.19
+        }
+      }
+    ],
+    "blocking_collision_boxes": [
+      {
+        "offset": {
+          "x": -0.0,
+          "y": -0.0,
+          "z": 12.32
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 55.6,
+          "y": 51.28,
+          "z": 1.0
+        }
+      }
+    ]
   }
 }

@@ -5,7 +5,7 @@
     "display_name": "Cancel",
     "category": "Building",
     "keyboard_key": {
-      "key_name": "Escape"
+      "key_name": "RightMouseButton"
     },
     "gamepad_key": {
       "key_name": "Gamepad_FaceButton_Right"

@@ -16,8 +16,27 @@
     "blocking_collision_boxes": [
       {
         "offset": {
-          "x": -9.140066481450049e-09,
-          "y": -1.6995862495150504e-09,
+          "x": 0.0,
+          "y": 0.0,
+          "z": 23.72
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 32.6,
+          "y": 36.49,
+          "z": 21.72
+        }
+      }
+    ],
+    "support_collision_boxes": [
+      {
+        "offset": {
+          "x": 0.0,
+          "y": 0.0,
           "z": 23.5
         },
         "rotation": {
@@ -26,28 +45,9 @@
           "roll": 0
         },
         "box_size": {
-          "x": 28,
-          "y": 32,
-          "z": 18
-        }
-      }
-    ],
-    "support_collision_boxes": [
-      {
-        "offset": {
-          "x": 0,
-          "y": 1.8664859879891083e-07,
-          "z": 22.5
-        },
-        "rotation": {
-          "pitch": 0,
-          "yaw": 0,
-          "roll": 0
-        },
-        "box_size": {
-          "x": 37,
-          "y": 41,
-          "z": 26
+          "x": 37.93,
+          "y": 42.1,
+          "z": 26.5
         }
       }
     ],

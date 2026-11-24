@@ -4,7 +4,7 @@
   "properties": {
     "display_name": "Flashlight",
     "category": "Interaction",
-    "keyboard_key": { "key_name": "F" },
+    "keyboard_key": { "key_name": "C" },
     "gamepad_key": { "key_name": "Gamepad_DPad_Down" }
   }
 }

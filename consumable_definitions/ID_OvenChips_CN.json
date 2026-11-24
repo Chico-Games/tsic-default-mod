@@ -7,6 +7,19 @@
     "thumbnail": "mod:icons/id_ovenchips_cn",
     "duration": 0.0,
     "requires_consumption_slot": true,
+
+    "watch_icon": [
+      "............",
+      "..##...##...",
+      "...##...##..",
+      ".##..##...#.",
+      "..##..##.##.",
+      "............",
+      "############",
+      "#..........#",
+      ".##########.",
+      "............"
+    ],
     "equipment_actors_and_meshes": [],
     "ability_sets_to_grant": [],
     "effects_to_apply": {

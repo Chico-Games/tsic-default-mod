@@ -13,31 +13,13 @@
     ],
     "constructable_item_to_grant": "ID_ToiletPartition_CI",
     "deconstruction_tier": 2,
-    "blocking_collision_boxes": [
-      {
-        "offset": {
-          "x": 55.09187382749016,
-          "y": 3.694822225952521e-13,
-          "z": 106.57293527057843
-        },
-        "rotation": {
-          "pitch": 0,
-          "yaw": 0,
-          "roll": 0
-        },
-        "box_size": {
-          "x": 52.79999953508377,
-          "y": 0.32000070810317993,
-          "z": 79.9999989271164
-        }
-      }
-    ],
+    "blocking_collision_boxes": [],
     "support_collision_boxes": [
       {
         "offset": {
-          "x": 57.23141922435952,
-          "y": 0,
-          "z": 97.96167451870124
+          "x": 56.73,
+          "y": -0.08,
+          "z": 98.61
         },
         "rotation": {
           "pitch": 0,
@@ -45,9 +27,9 @@
           "roll": 0
         },
         "box_size": {
-          "x": 60.800217288732526,
-          "y": 5.471494830846787,
-          "z": 100.56782361213118
+          "x": 63.0,
+          "y": 5.92,
+          "z": 101.61
         }
       }
     ],

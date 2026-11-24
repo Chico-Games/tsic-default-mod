@@ -20,7 +20,7 @@
     "loot_dropped_on_death": [
       "LD_VendingMachine"
     ],
-    "deconstruction_tier": 2,
+    "deconstruction_tier": 0,
     "blocking_collision_boxes": [
       {
         "offset": {

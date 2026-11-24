@@ -22,31 +22,13 @@
     ],
     "constructable_item_to_grant": "ID_KidsCarpet_CI",
     "deconstruction_tier": 1,
-    "blocking_collision_boxes": [
-      {
-        "offset": {
-          "x": 0,
-          "y": 0,
-          "z": 2.0314
-        },
-        "rotation": {
-          "pitch": 0,
-          "yaw": 0,
-          "roll": 0
-        },
-        "box_size": {
-          "x": 36.3049,
-          "y": 50.8896,
-          "z": 1
-        }
-      }
-    ],
+    "blocking_collision_boxes": [],
     "support_collision_boxes": [
       {
         "offset": {
-          "x": 0,
-          "y": 0,
-          "z": 0
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.12
         },
         "rotation": {
           "pitch": 0,
@@ -54,9 +36,9 @@
           "roll": 0
         },
         "box_size": {
-          "x": 48.406504364684224,
-          "y": 67.85285313241184,
-          "z": 2.0823938557878137
+          "x": 50.43,
+          "y": 70.77,
+          "z": 3.12
         }
       }
     ],

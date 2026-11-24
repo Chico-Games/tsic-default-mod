@@ -28,7 +28,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.9999999999999999,
             "w": 6.123233995736766e-17
           },
@@ -61,7 +61,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.9999999999999999,
             "w": 6.123233995736766e-17
           },
@@ -93,7 +93,7 @@
         "furniture_definition": "FD_BathroomWall_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.7071067811865476,
             "w": 0.7071067811865477
@@ -127,7 +127,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.9999999999999999,
             "w": 6.123233995736766e-17
           },
@@ -160,7 +160,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.9999999999999999,
             "w": 6.123233995736766e-17
           },
@@ -192,7 +192,7 @@
         "furniture_definition": "FD_BathroomWall_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.7071067811865476,
             "w": 0.7071067811865477
@@ -292,7 +292,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7071067811865477,
             "w": 0.7071067811865476
           },
@@ -391,7 +391,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7071067811865477,
             "w": 0.7071067811865476
           },
@@ -457,7 +457,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.9999999999999999,
             "w": 6.123233995736766e-17
           },
@@ -523,7 +523,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7071067811865477,
             "w": 0.7071067811865476
           },
@@ -589,7 +589,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.9999999999999999,
             "w": 6.123233995736766e-17
           },
@@ -622,7 +622,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.9999999999999999,
             "w": 6.123233995736766e-17
           },
@@ -655,7 +655,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.9999999999999999,
             "w": 6.123233995736766e-17
           },
@@ -688,7 +688,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.9999999999999999,
             "w": 6.123233995736766e-17
           },
@@ -721,7 +721,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.9999999999999999,
             "w": 6.123233995736766e-17
           },
@@ -754,7 +754,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.9999999999999999,
             "w": 6.123233995736766e-17
           },
@@ -886,7 +886,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.42261796517881683,
             "w": 0.9063079253256677
           },
@@ -919,7 +919,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7071067811865477,
             "w": 0.7071067811865476
           },
@@ -952,7 +952,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.9999999999999999,
             "w": 6.123233995736766e-17
           },
@@ -1018,7 +1018,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.9999999999999999,
             "w": 6.123233995736766e-17
           },
@@ -1051,7 +1051,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.9999999999999999,
             "w": 6.123233995736766e-17
           },
@@ -1117,7 +1117,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.9999999999999999,
             "w": 6.123233995736766e-17
           },
@@ -1150,7 +1150,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.9999999999999999,
             "w": 6.123233995736766e-17
           },
@@ -1183,7 +1183,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.9999999999999999,
             "w": 6.123233995736766e-17
           },
@@ -1216,7 +1216,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7071067811865477,
             "w": 0.7071067811865476
           },
@@ -1249,7 +1249,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7071067811865477,
             "w": 0.7071067811865476
           },
@@ -1282,7 +1282,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.9999999999999999,
             "w": 6.123233995736766e-17
           },
@@ -1315,7 +1315,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.9999999999999999,
             "w": 6.123233995736766e-17
           },
@@ -1348,7 +1348,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7071067811865477,
             "w": 0.7071067811865476
           },
@@ -1380,7 +1380,7 @@
         "furniture_definition": "FD_WallLight_2_TO",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.7071067811865476,
             "w": 0.7071067811865477
@@ -1414,7 +1414,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7071067811865477,
             "w": 0.7071067811865476
           },
@@ -1446,7 +1446,7 @@
         "furniture_definition": "FD_WallLight_2_TO",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.7071067811865476,
             "w": 0.7071067811865477
@@ -1480,7 +1480,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7071067811865477,
             "w": 0.7071067811865476
           },
@@ -1512,7 +1512,7 @@
         "furniture_definition": "FD_WallLight_2_TO",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.7071067811865476,
             "w": 0.7071067811865477
@@ -1545,7 +1545,7 @@
         "furniture_definition": "FD_WallLight_2_TO",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.7071067811865476,
             "w": 0.7071067811865477
@@ -1579,7 +1579,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.9999999999999999,
             "w": 6.123233995736766e-17
           },
@@ -1652,106 +1652,7 @@
           "translation": {
             "x": 51.38,
             "y": 0,
-            "z": 1e-04
-          },
-          "scale3_d": {
-            "x": 1,
-            "y": 1,
-            "z": 1
-          }
-        }
-      },
-      {
-        "layout_actor_type": {
-          "name": "LOOT_SPAWN_POINT",
-          "value": 3
-        },
-        "b_visual_helper": false,
-        "definition_filter": {
-          "seed_offset": 19,
-          "search_queries": [],
-          "tile_requirements": [],
-          "spawn_chance_over": 0,
-          "spawn_chance_under": 1
-        },
-        "loot_spawn_point_definition": "LSP_Bathroom_Floor",
-        "transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0,
-            "w": 1.0
-          },
-          "translation": {
-            "x": 0.0,
-            "y": 625.0,
-            "z": 0.0
-          },
-          "scale3_d": {
-            "x": 1,
-            "y": 1,
-            "z": 1
-          }
-        }
-      },
-      {
-        "layout_actor_type": {
-          "name": "LOOT_SPAWN_POINT",
-          "value": 3
-        },
-        "b_visual_helper": false,
-        "definition_filter": {
-          "seed_offset": 20,
-          "search_queries": [],
-          "tile_requirements": [],
-          "spawn_chance_over": 0,
-          "spawn_chance_under": 1
-        },
-        "loot_spawn_point_definition": "LSP_Bathroom_Floor",
-        "transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0,
-            "w": 1.0
-          },
-          "translation": {
-            "x": 50.0,
-            "y": -400.0,
-            "z": 0.0
-          },
-          "scale3_d": {
-            "x": 1,
-            "y": 1,
-            "z": 1
-          }
-        }
-      },
-      {
-        "layout_actor_type": {
-          "name": "LOOT_SPAWN_POINT",
-          "value": 3
-        },
-        "b_visual_helper": false,
-        "definition_filter": {
-          "seed_offset": 21,
-          "search_queries": [],
-          "tile_requirements": [],
-          "spawn_chance_over": 0,
-          "spawn_chance_under": 1
-        },
-        "loot_spawn_point_definition": "LSP_Bathroom_Floor",
-        "transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0,
-            "w": 1.0
-          },
-          "translation": {
-            "x": -625.0,
-            "y": -50.0,
-            "z": 0.0
+            "z": 0.0001
           },
           "scale3_d": {
             "x": 1,

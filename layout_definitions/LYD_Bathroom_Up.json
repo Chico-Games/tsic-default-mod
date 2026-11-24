@@ -27,7 +27,7 @@
         "furniture_definition": "FD_ToiletPartition_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.7071067731472304,
             "w": 0.7071067892258648
@@ -60,7 +60,7 @@
         "furniture_definition": "FD_Toilet_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.9999999999999998,
             "w": 2.0095957181835087e-08
@@ -126,7 +126,7 @@
         "furniture_definition": "FD_ToiletPaper_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.9999999999999998,
             "w": 2.0095957181835087e-08
@@ -160,7 +160,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7071067978299138,
             "w": 0.707106764543181
           },
@@ -192,7 +192,7 @@
         "furniture_definition": "FD_ToiletPartition_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.7071067768845223,
             "w": 0.7071067854885729
@@ -226,7 +226,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7071067978299138,
             "w": 0.707106764543181
           },
@@ -259,7 +259,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7071067996985595,
             "w": 0.7071067626745351
           },
@@ -291,7 +291,7 @@
         "furniture_definition": "FD_ToiletPartition_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.7071067750158768,
             "w": 0.7071067873572183
@@ -325,7 +325,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7071067996985595,
             "w": 0.7071067626745351
           },
@@ -358,7 +358,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7071067996985595,
             "w": 0.7071067626745351
           },
@@ -390,7 +390,7 @@
         "furniture_definition": "FD_ToiletPartition_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.7071067750158768,
             "w": 0.7071067873572183
@@ -424,7 +424,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7071067996985595,
             "w": 0.7071067626745351
           },
@@ -457,7 +457,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7071067996985595,
             "w": 0.7071067626745351
           },
@@ -489,7 +489,7 @@
         "furniture_definition": "FD_ToiletPartition_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.7071067750158768,
             "w": 0.7071067873572183
@@ -523,7 +523,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7071067996985595,
             "w": 0.7071067626745351
           },
@@ -556,7 +556,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7071067996985595,
             "w": 0.7071067626745351
           },
@@ -588,7 +588,7 @@
         "furniture_definition": "FD_ToiletPartition_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.7071067750158768,
             "w": 0.7071067873572183
@@ -622,7 +622,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7071067996985595,
             "w": 0.7071067626745351
           },
@@ -655,7 +655,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7071067996985595,
             "w": 0.7071067626745351
           },
@@ -687,7 +687,7 @@
         "furniture_definition": "FD_ToiletPartition_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.7071067750158768,
             "w": 0.7071067873572183
@@ -721,7 +721,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7071067996985595,
             "w": 0.7071067626745351
           },
@@ -754,7 +754,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7071067996985595,
             "w": 0.7071067626745351
           },
@@ -786,7 +786,7 @@
         "furniture_definition": "FD_ToiletPartition_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.7071067750158768,
             "w": 0.7071067873572183
@@ -820,7 +820,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7071067996985595,
             "w": 0.7071067626745351
           },
@@ -853,7 +853,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7071067996985595,
             "w": 0.7071067626745351
           },
@@ -885,7 +885,7 @@
         "furniture_definition": "FD_ToiletPartition_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.7071067750158768,
             "w": 0.7071067873572183
@@ -919,7 +919,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7071067996985595,
             "w": 0.7071067626745351
           },
@@ -952,7 +952,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7071067996985595,
             "w": 0.7071067626745351
           },
@@ -984,7 +984,7 @@
         "furniture_definition": "FD_ToiletPartition_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.7071067750158768,
             "w": 0.7071067873572183
@@ -1018,7 +1018,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7071067996985595,
             "w": 0.7071067626745351
           },
@@ -1051,7 +1051,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7071067996985595,
             "w": 0.7071067626745351
           },
@@ -1083,7 +1083,7 @@
         "furniture_definition": "FD_ToiletPartition_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.7071067750158768,
             "w": 0.7071067873572183
@@ -1117,7 +1117,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7071067996985595,
             "w": 0.7071067626745351
           },
@@ -1182,7 +1182,7 @@
         "furniture_definition": "FD_Toilet_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.9999999999999998,
             "w": 2.0095956071612062e-08
@@ -1248,7 +1248,7 @@
         "furniture_definition": "FD_ToiletPaper_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.9999999999999998,
             "w": 2.0095956071612062e-08
@@ -1281,7 +1281,7 @@
         "furniture_definition": "FD_Toilet_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.9999999999999998,
             "w": 2.0095956071612062e-08
@@ -1347,7 +1347,7 @@
         "furniture_definition": "FD_ToiletPaper_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.9999999999999998,
             "w": 2.0095956071612062e-08
@@ -1380,7 +1380,7 @@
         "furniture_definition": "FD_Toilet_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.9999999999999998,
             "w": 2.0095956071612062e-08
@@ -1446,7 +1446,7 @@
         "furniture_definition": "FD_ToiletPaper_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.9999999999999998,
             "w": 2.0095956071612062e-08
@@ -1479,7 +1479,7 @@
         "furniture_definition": "FD_Toilet_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.9999999999999998,
             "w": 2.0095956071612062e-08
@@ -1545,7 +1545,7 @@
         "furniture_definition": "FD_ToiletPaper_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.9999999999999998,
             "w": 2.0095956071612062e-08
@@ -1578,7 +1578,7 @@
         "furniture_definition": "FD_Toilet_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.9999999999999998,
             "w": 2.0095956071612062e-08
@@ -1644,7 +1644,7 @@
         "furniture_definition": "FD_ToiletPaper_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.9999999999999998,
             "w": 2.0095956071612062e-08
@@ -1677,7 +1677,7 @@
         "furniture_definition": "FD_Toilet_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.9999999999999998,
             "w": 2.0095956071612062e-08
@@ -1743,7 +1743,7 @@
         "furniture_definition": "FD_ToiletPaper_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.9999999999999998,
             "w": 2.0095956071612062e-08
@@ -1776,7 +1776,7 @@
         "furniture_definition": "FD_Toilet_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.9999999999999998,
             "w": 2.0095956071612062e-08
@@ -1842,7 +1842,7 @@
         "furniture_definition": "FD_ToiletPaper_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.9999999999999998,
             "w": 2.0095956071612062e-08
@@ -1875,7 +1875,7 @@
         "furniture_definition": "FD_Toilet_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.9999999999999998,
             "w": 2.0095956071612062e-08
@@ -1941,7 +1941,7 @@
         "furniture_definition": "FD_ToiletPaper_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.9999999999999998,
             "w": 2.0095956071612062e-08
@@ -1975,7 +1975,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7071067750158768,
             "w": 0.7071067873572183
           },
@@ -2008,7 +2008,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7071067750158768,
             "w": 0.7071067873572183
           },
@@ -2173,7 +2173,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7071067768845223,
             "w": 0.7071067854885729
           },
@@ -2206,7 +2206,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7071067768845223,
             "w": 0.7071067854885729
           },
@@ -2239,7 +2239,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7071067750158768,
             "w": 0.7071067873572183
           },
@@ -2272,7 +2272,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7071067750158768,
             "w": 0.7071067873572183
           },
@@ -2305,7 +2305,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.9999999999999998,
             "w": 1.4810628340581542e-08
           },
@@ -2338,7 +2338,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7071067750158768,
             "w": 0.7071067873572183
           },
@@ -2437,7 +2437,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.707106773147231,
             "w": 0.707106789225864
           },
@@ -2502,7 +2502,7 @@
         "furniture_definition": "FD_WashBasin_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.7071067768845223,
             "w": 0.7071067854885729
@@ -2535,7 +2535,7 @@
         "furniture_definition": "FD_WashBasin_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.7071067768845223,
             "w": 0.7071067854885729
@@ -2601,7 +2601,7 @@
         "furniture_definition": "FD_WashBasin_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.7071067768845223,
             "w": 0.7071067854885729
@@ -2634,7 +2634,7 @@
         "furniture_definition": "FD_WashBasin_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.9999999999999998,
             "w": 1.4810629450804567e-08
@@ -2667,7 +2667,7 @@
         "furniture_definition": "FD_WashBasin_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.9999999999999998,
             "w": 1.4810629450804567e-08
@@ -2700,7 +2700,7 @@
         "furniture_definition": "FD_Mirror_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.7071067768845223,
             "w": 0.7071067854885729
@@ -2733,7 +2733,7 @@
         "furniture_definition": "FD_WashBasin_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.9999999999999998,
             "w": 1.4810629450804567e-08
@@ -2766,7 +2766,7 @@
         "furniture_definition": "FD_Toilet_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.9999999999999998,
             "w": 1.7453292428141407e-08
@@ -2799,7 +2799,7 @@
         "furniture_definition": "FD_Chair_9_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.9999999999999998,
             "w": 1.7453292428141407e-08
@@ -2832,7 +2832,7 @@
         "furniture_definition": "FD_Chair_9_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.6427876014949863,
             "w": 0.7660444499925072
@@ -2865,7 +2865,7 @@
         "furniture_definition": "FD_Chair_9_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.08715573876819813,
             "w": 0.996194698439903
@@ -2899,7 +2899,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7660444383392232,
             "w": 0.6427876153828294
           },
@@ -2931,7 +2931,7 @@
         "furniture_definition": "FD_Urinal_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.7071067731472307,
             "w": 0.7071067892258643
@@ -2964,7 +2964,7 @@
         "furniture_definition": "FD_Urinal_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.7071067750158768,
             "w": 0.7071067873572183
@@ -2997,7 +2997,7 @@
         "furniture_definition": "FD_Urinal_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.7071067750158768,
             "w": 0.7071067873572183
@@ -3030,7 +3030,7 @@
         "furniture_definition": "FD_Urinal_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.7071067750158768,
             "w": 0.7071067873572183
@@ -3063,7 +3063,7 @@
         "furniture_definition": "FD_Urinal_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.7071067750158768,
             "w": 0.7071067873572183
@@ -3096,7 +3096,7 @@
         "furniture_definition": "FD_ToiletPartition_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.7071067768845223,
             "w": 0.7071067854885729
@@ -3130,7 +3130,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.984807756277712,
             "w": 0.17364815914733633
           },
@@ -3228,7 +3228,7 @@
         "furniture_definition": "FD_WallLight_2_TO",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.7071067626745351,
             "w": 0.7071067996985595
@@ -3261,7 +3261,7 @@
         "furniture_definition": "FD_WallLight_2_TO",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.9999999999999999,
             "w": 8.726646355709176e-09
@@ -3295,7 +3295,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7071067935278889,
             "w": 0.7071067688452061
           },
@@ -3368,106 +3368,7 @@
           "translation": {
             "x": 51.38,
             "y": 0,
-            "z": 1e-04
-          },
-          "scale3_d": {
-            "x": 1,
-            "y": 1,
-            "z": 1
-          }
-        }
-      },
-      {
-        "layout_actor_type": {
-          "name": "LOOT_SPAWN_POINT",
-          "value": 3
-        },
-        "b_visual_helper": false,
-        "definition_filter": {
-          "seed_offset": 19,
-          "search_queries": [],
-          "tile_requirements": [],
-          "spawn_chance_over": 0,
-          "spawn_chance_under": 1
-        },
-        "loot_spawn_point_definition": "LSP_Bathroom_Floor",
-        "transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0,
-            "w": 1.0
-          },
-          "translation": {
-            "x": 625.0,
-            "y": -75.0,
-            "z": 0.0
-          },
-          "scale3_d": {
-            "x": 1,
-            "y": 1,
-            "z": 1
-          }
-        }
-      },
-      {
-        "layout_actor_type": {
-          "name": "LOOT_SPAWN_POINT",
-          "value": 3
-        },
-        "b_visual_helper": false,
-        "definition_filter": {
-          "seed_offset": 20,
-          "search_queries": [],
-          "tile_requirements": [],
-          "spawn_chance_over": 0,
-          "spawn_chance_under": 1
-        },
-        "loot_spawn_point_definition": "LSP_Bathroom_Floor",
-        "transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0,
-            "w": 1.0
-          },
-          "translation": {
-            "x": -100.0,
-            "y": -525.0,
-            "z": 0.0
-          },
-          "scale3_d": {
-            "x": 1,
-            "y": 1,
-            "z": 1
-          }
-        }
-      },
-      {
-        "layout_actor_type": {
-          "name": "LOOT_SPAWN_POINT",
-          "value": 3
-        },
-        "b_visual_helper": false,
-        "definition_filter": {
-          "seed_offset": 21,
-          "search_queries": [],
-          "tile_requirements": [],
-          "spawn_chance_over": 0,
-          "spawn_chance_under": 1
-        },
-        "loot_spawn_point_definition": "LSP_Bathroom_Floor",
-        "transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0,
-            "w": 1.0
-          },
-          "translation": {
-            "x": 625.0,
-            "y": 150.0,
-            "z": 0.0
+            "z": 0.0001
           },
           "scale3_d": {
             "x": 1,

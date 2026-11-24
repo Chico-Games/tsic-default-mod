@@ -13,31 +13,13 @@
     ],
     "constructable_item_to_grant": "ID_ChainLinkFence_CI",
     "deconstruction_tier": 2,
-    "blocking_collision_boxes": [
-      {
-        "offset": {
-          "x": 75.3956795826427,
-          "y": 1.0516032489249483e-12,
-          "z": 140.04471826617456
-        },
-        "rotation": {
-          "pitch": 0,
-          "yaw": 0,
-          "roll": 0
-        },
-        "box_size": {
-          "x": 54.41463821101934,
-          "y": 0.0032,
-          "z": 72.67382365465164
-        }
-      }
-    ],
+    "blocking_collision_boxes": [],
     "support_collision_boxes": [
       {
         "offset": {
-          "x": 75.39568047413131,
-          "y": 0,
-          "z": 126.20499607518533
+          "x": 74.79,
+          "y": 0.03,
+          "z": 125.85
         },
         "rotation": {
           "pitch": 0,
@@ -45,9 +27,9 @@
           "roll": 0
         },
         "box_size": {
-          "x": 78.38968083589221,
-          "y": 4.661837198253636,
-          "z": 126.6374919734497
+          "x": 78.33,
+          "y": 6.02,
+          "z": 128.87
         }
       }
     ],

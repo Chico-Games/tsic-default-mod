@@ -1002,7 +1002,7 @@
         }
       }
     ],
-    "post_process_stencil_material": "/Game/Fab/HandDrawingDemo/Materials/MI_Draw2.MI_Draw2",
+    "post_process_stencil_material": "/Game/Furniture/Shared/Materials/ConstructionGhost/PP_Ghost_Blueprint.PP_Ghost_Blueprint",
     "fallback_static_mesh": "/Game/Items/CraftingMaterials/Cardboard/Meshes/SM_CartonBox2_05.SM_CartonBox2_05",
     "cardboard_label_material": "/Game/Items/CraftingMaterials/Cardboard/Materials/M_CardboardLabel.M_CardboardLabel",
     "fallback_item_thumbnail": "/Game/Items/CraftingMaterials/Cardboard/Textures/T_Thumb_SM_CartonBox2_05.T_Thumb_SM_CartonBox2_05",

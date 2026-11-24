@@ -85,7 +85,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7071067940926234,
             "w": 0.7071067682804715
           },
@@ -129,7 +129,7 @@
         },
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.9999999999999999,
             "w": 8.726648576155225e-09
@@ -174,7 +174,7 @@
         },
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.7071067793178993,
             "w": 0.7071067830551958
@@ -304,7 +304,7 @@
         },
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.9999999999999998,
             "w": 1.4810629450804567e-08
@@ -348,7 +348,7 @@
         },
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.9999999999999998,
             "w": 1.7453292428141407e-08
@@ -394,7 +394,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7071067768845216,
             "w": 0.7071067854885735
           },
@@ -438,7 +438,7 @@
         },
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.9999999999999999,
             "w": 1.136931044326904e-08
@@ -483,7 +483,7 @@
         },
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.7071067811865476,
             "w": 0.7071067811865477
@@ -571,7 +571,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7071067978299128,
             "w": 0.7071067645431819
           },
@@ -614,7 +614,7 @@
         },
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.766044433677731,
             "w": 0.6427876209381793
@@ -689,105 +689,6 @@
             "x": 51.381054,
             "y": 9.999999974752427e-07,
             "z": 9.9e-05
-          },
-          "scale3_d": {
-            "x": 1,
-            "y": 1,
-            "z": 1
-          }
-        }
-      },
-      {
-        "layout_actor_type": {
-          "name": "LOOT_SPAWN_POINT",
-          "value": 3
-        },
-        "b_visual_helper": false,
-        "definition_filter": {
-          "seed_offset": 3,
-          "search_queries": [],
-          "tile_requirements": [],
-          "spawn_chance_over": 0,
-          "spawn_chance_under": 1
-        },
-        "loot_spawn_point_definition": "LSP_AbandonedCamp_Furniture",
-        "transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0,
-            "w": 1.0
-          },
-          "translation": {
-            "x": -275.0,
-            "y": -75.0,
-            "z": 0.0
-          },
-          "scale3_d": {
-            "x": 1,
-            "y": 1,
-            "z": 1
-          }
-        }
-      },
-      {
-        "layout_actor_type": {
-          "name": "LOOT_SPAWN_POINT",
-          "value": 3
-        },
-        "b_visual_helper": false,
-        "definition_filter": {
-          "seed_offset": 19,
-          "search_queries": [],
-          "tile_requirements": [],
-          "spawn_chance_over": 0,
-          "spawn_chance_under": 1
-        },
-        "loot_spawn_point_definition": "LSP_AbandonedCamp_Floor",
-        "transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0,
-            "w": 1.0
-          },
-          "translation": {
-            "x": -250.0,
-            "y": 100.0,
-            "z": 0.0
-          },
-          "scale3_d": {
-            "x": 1,
-            "y": 1,
-            "z": 1
-          }
-        }
-      },
-      {
-        "layout_actor_type": {
-          "name": "LOOT_SPAWN_POINT",
-          "value": 3
-        },
-        "b_visual_helper": false,
-        "definition_filter": {
-          "seed_offset": 21,
-          "search_queries": [],
-          "tile_requirements": [],
-          "spawn_chance_over": 0,
-          "spawn_chance_under": 1
-        },
-        "loot_spawn_point_definition": "LSP_AbandonedCamp_Floor",
-        "transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0,
-            "w": 1.0
-          },
-          "translation": {
-            "x": 425.0,
-            "y": -75.0,
-            "z": 0.0
           },
           "scale3_d": {
             "x": 1,
@@ -878,7 +779,7 @@
         "furniture_definition": "FD_Fridge_2_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.6427876030015404,
             "w": 0.7660444487283582
@@ -919,7 +820,7 @@
           "translation": {
             "x": 201,
             "y": -143,
-            "z": 1e-04
+            "z": 0.0001
           },
           "scale3_d": {
             "x": 1,

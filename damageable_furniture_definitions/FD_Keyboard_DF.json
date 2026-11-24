@@ -13,31 +13,13 @@
     ],
     "constructable_item_to_grant": "ID_Keyboard_CI",
     "deconstruction_tier": 2,
-    "blocking_collision_boxes": [
-      {
-        "offset": {
-          "x": -0.1386,
-          "y": 0.1497,
-          "z": 2.3534
-        },
-        "rotation": {
-          "pitch": 0,
-          "yaw": 0,
-          "roll": 0
-        },
-        "box_size": {
-          "x": 18.1364,
-          "y": 7.1782,
-          "z": 0.3
-        }
-      }
-    ],
+    "blocking_collision_boxes": [],
     "support_collision_boxes": [
       {
         "offset": {
-          "x": -0.13860912757227808,
-          "y": 0.149662,
-          "z": 1.604471824102859
+          "x": 0.0,
+          "y": -0.0,
+          "z": 1.55
         },
         "rotation": {
           "pitch": 0,
@@ -45,9 +27,9 @@
           "roll": 0
         },
         "box_size": {
-          "x": 24.181824495743513,
-          "y": 9.570988907334268,
-          "z": 1.789639902205586
+          "x": 26.3,
+          "y": 10.54,
+          "z": 4.15
         }
       }
     ],

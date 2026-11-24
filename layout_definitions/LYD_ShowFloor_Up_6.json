@@ -1853,41 +1853,8 @@
           },
           "translation": {
             "x": 51.381054,
-            "y": -0.000001,
-            "z": 0.000099
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        }
-      },
-      {
-        "layout_actor_type": {
-          "name": "LOOT_SPAWN_POINT",
-          "value": 3
-        },
-        "b_visual_helper": false,
-        "definition_filter": {
-          "seed_offset": 3,
-          "search_queries": [],
-          "tile_requirements": [],
-          "spawn_chance_over": 0.0,
-          "spawn_chance_under": 1.0
-        },
-        "loot_spawn_point_definition": "LSP_ShowFloor_Furniture",
-        "transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0,
-            "w": 1.0
-          },
-          "translation": {
-            "x": -400.0,
-            "y": -25.0,
-            "z": 0.0
+            "y": -1e-06,
+            "z": 9.9e-05
           },
           "scale3_d": {
             "x": 1.0,
@@ -1931,7 +1898,7 @@
           "translation": {
             "x": 150.49914439936202,
             "y": 702.8967411905738,
-            "z": 5.866980927748955e-7
+            "z": 5.866980927748955e-07
           },
           "scale3_d": {
             "x": 1.0,
@@ -1975,7 +1942,7 @@
           "translation": {
             "x": -504.4201090412564,
             "y": 702.8967085178947,
-            "z": 0.0000010000015890909708
+            "z": 1.0000015890909708e-06
           },
           "scale3_d": {
             "x": 1.0,
@@ -2019,7 +1986,7 @@
           "translation": {
             "x": 183.35507830786514,
             "y": -650.6740912298068,
-            "z": 0.0000010000077281802078
+            "z": 1.0000077281802078e-06
           },
           "scale3_d": {
             "x": 1.0,
@@ -2063,7 +2030,7 @@
           "translation": {
             "x": -471.56417469213517,
             "y": -650.6740913536709,
-            "z": 0.0000010000077281802078
+            "z": 1.0000077281802078e-06
           },
           "scale3_d": {
             "x": 1.0,
@@ -2107,106 +2074,7 @@
           "translation": {
             "x": -709.4638216738713,
             "y": 3.455138469500298,
-            "z": 0.0000010000114798458526
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        }
-      },
-      {
-        "layout_actor_type": {
-          "name": "LOOT_SPAWN_POINT",
-          "value": 3
-        },
-        "b_visual_helper": false,
-        "definition_filter": {
-          "seed_offset": 19,
-          "search_queries": [],
-          "tile_requirements": [],
-          "spawn_chance_over": 0.0,
-          "spawn_chance_under": 1.0
-        },
-        "loot_spawn_point_definition": "LSP_ShowFloor_Floor",
-        "transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0,
-            "w": 1.0
-          },
-          "translation": {
-            "x": -400.0,
-            "y": -25.0,
-            "z": 0.0
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        }
-      },
-      {
-        "layout_actor_type": {
-          "name": "LOOT_SPAWN_POINT",
-          "value": 3
-        },
-        "b_visual_helper": false,
-        "definition_filter": {
-          "seed_offset": 20,
-          "search_queries": [],
-          "tile_requirements": [],
-          "spawn_chance_over": 0.0,
-          "spawn_chance_under": 1.0
-        },
-        "loot_spawn_point_definition": "LSP_ShowFloor_Floor",
-        "transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0,
-            "w": 1.0
-          },
-          "translation": {
-            "x": -425.0,
-            "y": 50.0,
-            "z": 0.0
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        }
-      },
-      {
-        "layout_actor_type": {
-          "name": "LOOT_SPAWN_POINT",
-          "value": 3
-        },
-        "b_visual_helper": false,
-        "definition_filter": {
-          "seed_offset": 21,
-          "search_queries": [],
-          "tile_requirements": [],
-          "spawn_chance_over": 0.0,
-          "spawn_chance_under": 1.0
-        },
-        "loot_spawn_point_definition": "LSP_ShowFloor_Floor",
-        "transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0,
-            "w": 1.0
-          },
-          "translation": {
-            "x": -400.0,
-            "y": -25.0,
-            "z": 0.0
+            "z": 1.0000114798458526e-06
           },
           "scale3_d": {
             "x": 1.0,

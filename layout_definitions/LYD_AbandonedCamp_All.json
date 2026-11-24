@@ -94,7 +94,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7071067768845223,
             "w": 0.7071067854885729
           },
@@ -127,7 +127,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7071067768845223,
             "w": 0.7071067854885729
           },
@@ -160,7 +160,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.9999999999999999,
             "w": 1.2167965141200097e-08
           },
@@ -193,7 +193,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.9999999999999999,
             "w": 1.2167965141200097e-08
           },
@@ -225,7 +225,7 @@
         "layout_definition": "LYD_StoreWall_ByDifficulty",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.7071067959612675,
             "w": 0.7071067664118275
@@ -258,7 +258,7 @@
         "layout_definition": "LYD_StoreWall_ByDifficulty",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.7071067959612675,
             "w": 0.7071067664118275
@@ -358,7 +358,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7071067750158768,
             "w": 0.7071067873572183
           },
@@ -391,7 +391,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7071067750158768,
             "w": 0.7071067873572183
           },
@@ -424,7 +424,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.9999999999999999,
             "w": 8.726646355709176e-09
           },
@@ -457,7 +457,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.9999999999999999,
             "w": 8.726646355709176e-09
           },
@@ -489,7 +489,7 @@
         "layout_definition": "LYD_StoreWall_ByDifficulty",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.7071067935278889,
             "w": 0.7071067688452061
@@ -522,7 +522,7 @@
         "layout_definition": "LYD_StoreWall_ByDifficulty",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.7071067935278889,
             "w": 0.7071067688452061
@@ -589,7 +589,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7071067750158768,
             "w": 0.7071067873572183
           },
@@ -622,7 +622,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7071067750158768,
             "w": 0.7071067873572183
           },
@@ -655,7 +655,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.9999999999999999,
             "w": 8.726646355709176e-09
           },
@@ -688,7 +688,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.9999999999999999,
             "w": 8.726646355709176e-09
           },
@@ -720,7 +720,7 @@
         "layout_definition": "LYD_StoreWall_ByDifficulty",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.7071067935278889,
             "w": 0.7071067688452061
@@ -753,7 +753,7 @@
         "layout_definition": "LYD_StoreWall_ByDifficulty",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.7071067935278889,
             "w": 0.7071067688452061
@@ -853,7 +853,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7071067750158768,
             "w": 0.7071067873572183
           },
@@ -886,7 +886,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7071067750158768,
             "w": 0.7071067873572183
           },
@@ -919,7 +919,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.9999999999999999,
             "w": 8.726646355709176e-09
           },
@@ -952,7 +952,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.9999999999999999,
             "w": 8.726646355709176e-09
           },
@@ -984,7 +984,7 @@
         "layout_definition": "LYD_StoreWall_ByDifficulty",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.7071067935278889,
             "w": 0.7071067688452061
@@ -1017,7 +1017,7 @@
         "layout_definition": "LYD_StoreWall_ByDifficulty",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.7071067935278889,
             "w": 0.7071067688452061
@@ -1083,7 +1083,7 @@
         "furniture_definition": "FD_Fridge_2_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.6427876055437822,
             "w": 0.766044446595164
@@ -1224,105 +1224,6 @@
             "x": 0,
             "y": 0,
             "z": 0
-          },
-          "scale3_d": {
-            "x": 1,
-            "y": 1,
-            "z": 1
-          }
-        }
-      },
-      {
-        "layout_actor_type": {
-          "name": "LOOT_SPAWN_POINT",
-          "value": 3
-        },
-        "b_visual_helper": false,
-        "definition_filter": {
-          "seed_offset": 19,
-          "search_queries": [],
-          "tile_requirements": [],
-          "spawn_chance_over": 0,
-          "spawn_chance_under": 1
-        },
-        "loot_spawn_point_definition": "LSP_AbandonedCamp_Floor",
-        "transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0,
-            "w": 1.0
-          },
-          "translation": {
-            "x": -200.0,
-            "y": -175.0,
-            "z": 0.0
-          },
-          "scale3_d": {
-            "x": 1,
-            "y": 1,
-            "z": 1
-          }
-        }
-      },
-      {
-        "layout_actor_type": {
-          "name": "LOOT_SPAWN_POINT",
-          "value": 3
-        },
-        "b_visual_helper": false,
-        "definition_filter": {
-          "seed_offset": 20,
-          "search_queries": [],
-          "tile_requirements": [],
-          "spawn_chance_over": 0,
-          "spawn_chance_under": 1
-        },
-        "loot_spawn_point_definition": "LSP_AbandonedCamp_Floor",
-        "transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0,
-            "w": 1.0
-          },
-          "translation": {
-            "x": 175.0,
-            "y": 200.0,
-            "z": 0.0
-          },
-          "scale3_d": {
-            "x": 1,
-            "y": 1,
-            "z": 1
-          }
-        }
-      },
-      {
-        "layout_actor_type": {
-          "name": "LOOT_SPAWN_POINT",
-          "value": 3
-        },
-        "b_visual_helper": false,
-        "definition_filter": {
-          "seed_offset": 21,
-          "search_queries": [],
-          "tile_requirements": [],
-          "spawn_chance_over": 0,
-          "spawn_chance_under": 1
-        },
-        "loot_spawn_point_definition": "LSP_AbandonedCamp_Floor",
-        "transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0,
-            "w": 1.0
-          },
-          "translation": {
-            "x": -175.0,
-            "y": -200.0,
-            "z": 0.0
           },
           "scale3_d": {
             "x": 1,

@@ -4,6 +4,6 @@
   "properties": {
     "display_name": "Hotbar Wheel",
     "category": "Combat",
-    "keyboard_key": { "key_name": "Q" }
+    "keyboard_key": { "key_name": "ThumbMouseButton" }
   }
 }

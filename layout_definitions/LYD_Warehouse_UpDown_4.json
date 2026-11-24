@@ -40,7 +40,7 @@
           "translation": {
             "x": -666.9138600771528,
             "y": 403.19413979325367,
-            "z": -1.3895294159738114e-7
+            "z": -1.3895294159738114e-07
           },
           "scale3_d": {
             "x": 1.0,
@@ -84,7 +84,7 @@
           "translation": {
             "x": -667.8270863032994,
             "y": -409.0871597313241,
-            "z": 8.547237939637853e-8
+            "z": 8.547237939637853e-08
           },
           "scale3_d": {
             "x": 1.0,
@@ -172,7 +172,7 @@
           "translation": {
             "x": 426.22355114193766,
             "y": -666.5288199170113,
-            "z": 9.999997726263245e-7
+            "z": 9.999997726263245e-07
           },
           "scale3_d": {
             "x": 1.0,
@@ -216,7 +216,7 @@
           "translation": {
             "x": 426.223455451301,
             "y": 683.134850082984,
-            "z": 9.999997726263245e-7
+            "z": 9.999997726263245e-07
           },
           "scale3_d": {
             "x": 1.0,
@@ -337,7 +337,7 @@
           "translation": {
             "x": -29.212537,
             "y": 61.269126,
-            "z": 0.000099
+            "z": 9.9e-05
           },
           "scale3_d": {
             "x": 1.0,
@@ -369,105 +369,6 @@
           },
           "translation": {
             "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        }
-      },
-      {
-        "layout_actor_type": {
-          "name": "LOOT_SPAWN_POINT",
-          "value": 3
-        },
-        "b_visual_helper": false,
-        "definition_filter": {
-          "seed_offset": 19,
-          "search_queries": [],
-          "tile_requirements": [],
-          "spawn_chance_over": 0.0,
-          "spawn_chance_under": 1.0
-        },
-        "loot_spawn_point_definition": "LSP_Warehouse_Floor",
-        "transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 1.0,
-            "w": 6.123233995736766e-17
-          },
-          "translation": {
-            "x": 0.0,
-            "y": -575.0,
-            "z": 0.0
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        }
-      },
-      {
-        "layout_actor_type": {
-          "name": "LOOT_SPAWN_POINT",
-          "value": 3
-        },
-        "b_visual_helper": false,
-        "definition_filter": {
-          "seed_offset": 20,
-          "search_queries": [],
-          "tile_requirements": [],
-          "spawn_chance_over": 0.0,
-          "spawn_chance_under": 1.0
-        },
-        "loot_spawn_point_definition": "LSP_Warehouse_Floor",
-        "transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 1.0,
-            "w": 6.123233995736766e-17
-          },
-          "translation": {
-            "x": 0.0,
-            "y": 575.0,
-            "z": 0.0
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        }
-      },
-      {
-        "layout_actor_type": {
-          "name": "LOOT_SPAWN_POINT",
-          "value": 3
-        },
-        "b_visual_helper": false,
-        "definition_filter": {
-          "seed_offset": 21,
-          "search_queries": [],
-          "tile_requirements": [],
-          "spawn_chance_over": 0.0,
-          "spawn_chance_under": 1.0
-        },
-        "loot_spawn_point_definition": "LSP_Warehouse_Floor",
-        "transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 1.0,
-            "w": 6.123233995736766e-17
-          },
-          "translation": {
-            "x": -400.0,
             "y": 0.0,
             "z": 0.0
           },

@@ -28,7 +28,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7071067750158768,
             "w": 0.7071067873572183
           },
@@ -61,7 +61,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7071067750158768,
             "w": 0.7071067873572183
           },
@@ -226,7 +226,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7071067768845223,
             "w": 0.7071067854885729
           },
@@ -259,7 +259,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7071067768845223,
             "w": 0.7071067854885729
           },
@@ -292,7 +292,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7071067768845223,
             "w": 0.7071067854885729
           },
@@ -325,7 +325,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7071067768845223,
             "w": 0.7071067854885729
           },
@@ -358,7 +358,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.9999999999999998,
             "w": 1.4810628340581542e-08
           },
@@ -391,7 +391,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7071067750158768,
             "w": 0.7071067873572183
           },
@@ -490,7 +490,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.707106773147231,
             "w": 0.707106789225864
           },
@@ -555,7 +555,7 @@
         "furniture_definition": "FD_Toilet_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.9999999999999998,
             "w": 1.7453292428141407e-08
@@ -588,7 +588,7 @@
         "furniture_definition": "FD_Chair_9_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.9999999999999998,
             "w": 1.7453292428141407e-08
@@ -621,7 +621,7 @@
         "furniture_definition": "FD_Chair_9_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.6427876014949863,
             "w": 0.7660444499925072
@@ -654,7 +654,7 @@
         "furniture_definition": "FD_Chair_9_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.08715573876819813,
             "w": 0.996194698439903
@@ -688,7 +688,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7660444383392233,
             "w": 0.6427876153828292
           },
@@ -721,7 +721,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.984807756277712,
             "w": 0.17364815914733633
           },
@@ -819,7 +819,7 @@
         "furniture_definition": "FD_Urinal_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.9999999999999998,
             "w": 1.4810629450804567e-08
@@ -852,7 +852,7 @@
         "furniture_definition": "FD_Urinal_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.9999999999999998,
             "w": 1.7453292428141407e-08
@@ -885,7 +885,7 @@
         "furniture_definition": "FD_Urinal_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.9999999999999998,
             "w": 1.4810629450804567e-08
@@ -918,7 +918,7 @@
         "furniture_definition": "FD_Urinal_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.9999999999999998,
             "w": 1.7453292428141407e-08
@@ -951,7 +951,7 @@
         "furniture_definition": "FD_WashBasin_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.9999999999999998,
             "w": 1.7453292428141407e-08
@@ -984,7 +984,7 @@
         "furniture_definition": "FD_WashBasin_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.9999999999999998,
             "w": 1.7453292428141407e-08
@@ -1017,7 +1017,7 @@
         "furniture_definition": "FD_Mirror_DF",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.7071067978299138,
             "w": 0.707106764543181
@@ -1051,7 +1051,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.9999999999999998,
             "w": 1.4810628340581542e-08
           },
@@ -1084,7 +1084,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.9848077560429404,
             "w": 0.17364816047879256
           },
@@ -1149,7 +1149,7 @@
         "furniture_definition": "FD_WallLight_2_TO",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.7071067626745351,
             "w": 0.7071067996985595
@@ -1182,7 +1182,7 @@
         "furniture_definition": "FD_WallLight_2_TO",
         "transform": {
           "rotation": {
-            "x": -0,
+            "x": 0,
             "y": 0,
             "z": -0.9999999999999999,
             "w": 5.285328014307465e-09
@@ -1216,7 +1216,7 @@
         "transform": {
           "rotation": {
             "x": 0,
-            "y": -0,
+            "y": 0,
             "z": 0.7071067910945105,
             "w": 0.7071067712785846
           },
@@ -1289,106 +1289,7 @@
           "translation": {
             "x": 51.38,
             "y": 0,
-            "z": 1e-04
-          },
-          "scale3_d": {
-            "x": 1,
-            "y": 1,
-            "z": 1
-          }
-        }
-      },
-      {
-        "layout_actor_type": {
-          "name": "LOOT_SPAWN_POINT",
-          "value": 3
-        },
-        "b_visual_helper": false,
-        "definition_filter": {
-          "seed_offset": 19,
-          "search_queries": [],
-          "tile_requirements": [],
-          "spawn_chance_over": 0,
-          "spawn_chance_under": 1
-        },
-        "loot_spawn_point_definition": "LSP_Bathroom_Floor",
-        "transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0,
-            "w": 1.0
-          },
-          "translation": {
-            "x": -625.0,
-            "y": 0.0,
-            "z": 0.0
-          },
-          "scale3_d": {
-            "x": 1,
-            "y": 1,
-            "z": 1
-          }
-        }
-      },
-      {
-        "layout_actor_type": {
-          "name": "LOOT_SPAWN_POINT",
-          "value": 3
-        },
-        "b_visual_helper": false,
-        "definition_filter": {
-          "seed_offset": 20,
-          "search_queries": [],
-          "tile_requirements": [],
-          "spawn_chance_over": 0,
-          "spawn_chance_under": 1
-        },
-        "loot_spawn_point_definition": "LSP_Bathroom_Floor",
-        "transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0,
-            "w": 1.0
-          },
-          "translation": {
-            "x": -25.0,
-            "y": -625.0,
-            "z": 0.0
-          },
-          "scale3_d": {
-            "x": 1,
-            "y": 1,
-            "z": 1
-          }
-        }
-      },
-      {
-        "layout_actor_type": {
-          "name": "LOOT_SPAWN_POINT",
-          "value": 3
-        },
-        "b_visual_helper": false,
-        "definition_filter": {
-          "seed_offset": 21,
-          "search_queries": [],
-          "tile_requirements": [],
-          "spawn_chance_over": 0,
-          "spawn_chance_under": 1
-        },
-        "loot_spawn_point_definition": "LSP_Bathroom_Floor",
-        "transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0,
-            "w": 1.0
-          },
-          "translation": {
-            "x": 625.0,
-            "y": -75.0,
-            "z": 0.0
+            "z": 0.0001
           },
           "scale3_d": {
             "x": 1,

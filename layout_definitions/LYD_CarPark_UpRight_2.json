@@ -73,105 +73,6 @@
       },
       {
         "layout_actor_type": {
-          "name": "LOOT_SPAWN_POINT",
-          "value": 3
-        },
-        "b_visual_helper": false,
-        "definition_filter": {
-          "seed_offset": 19,
-          "search_queries": [],
-          "tile_requirements": [],
-          "spawn_chance_over": 0.0,
-          "spawn_chance_under": 1.0
-        },
-        "loot_spawn_point_definition": "LSP_CarPark_Floor",
-        "transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.7071067811865476,
-            "w": 0.7071067811865476
-          },
-          "translation": {
-            "x": 0.0,
-            "y": -400.0,
-            "z": 0.0
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        }
-      },
-      {
-        "layout_actor_type": {
-          "name": "LOOT_SPAWN_POINT",
-          "value": 3
-        },
-        "b_visual_helper": false,
-        "definition_filter": {
-          "seed_offset": 20,
-          "search_queries": [],
-          "tile_requirements": [],
-          "spawn_chance_over": 0.0,
-          "spawn_chance_under": 1.0
-        },
-        "loot_spawn_point_definition": "LSP_CarPark_Floor",
-        "transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.7071067811865476,
-            "w": 0.7071067811865476
-          },
-          "translation": {
-            "x": -275.0,
-            "y": 100.0,
-            "z": 0.0
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        }
-      },
-      {
-        "layout_actor_type": {
-          "name": "LOOT_SPAWN_POINT",
-          "value": 3
-        },
-        "b_visual_helper": false,
-        "definition_filter": {
-          "seed_offset": 21,
-          "search_queries": [],
-          "tile_requirements": [],
-          "spawn_chance_over": 0.0,
-          "spawn_chance_under": 1.0
-        },
-        "loot_spawn_point_definition": "LSP_CarPark_Floor",
-        "transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.7071067811865476,
-            "w": 0.7071067811865476
-          },
-          "translation": {
-            "x": 275.0,
-            "y": 75.0,
-            "z": 0.0
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        }
-      },
-      {
-        "layout_actor_type": {
           "name": "PROXY_ACTOR",
           "value": 0
         },
@@ -194,7 +95,7 @@
           "translation": {
             "x": 644.46686,
             "y": 595.482922,
-            "z": -0.000009
+            "z": -9e-06
           },
           "scale3_d": {
             "x": 1.0,
@@ -227,7 +128,7 @@
           "translation": {
             "x": -37.236487,
             "y": 473.223996,
-            "z": 0.000013
+            "z": 1.3e-05
           },
           "scale3_d": {
             "x": 1.0,
@@ -260,7 +161,7 @@
           "translation": {
             "x": -639.48261,
             "y": -92.402585,
-            "z": 0.000011
+            "z": 1.1e-05
           },
           "scale3_d": {
             "x": 1.0,
@@ -293,7 +194,7 @@
           "translation": {
             "x": -359.429975,
             "y": -487.950364,
-            "z": 0.000011
+            "z": 1.1e-05
           },
           "scale3_d": {
             "x": 1.0,
@@ -326,7 +227,7 @@
           "translation": {
             "x": 435.070025,
             "y": -487.950364,
-            "z": 0.000011
+            "z": 1.1e-05
           },
           "scale3_d": {
             "x": 1.0,
@@ -392,7 +293,7 @@
           "translation": {
             "x": 491.267659,
             "y": -136.035295,
-            "z": -0.000009
+            "z": -9e-06
           },
           "scale3_d": {
             "x": 1.0,
@@ -425,7 +326,7 @@
           "translation": {
             "x": 206.134498,
             "y": 599.11442,
-            "z": -0.00001
+            "z": -1e-05
           },
           "scale3_d": {
             "x": 1.0,
@@ -458,7 +359,7 @@
           "translation": {
             "x": 718.26845,
             "y": -330.275838,
-            "z": -0.000009
+            "z": -9e-06
           },
           "scale3_d": {
             "x": 1.0,
@@ -491,7 +392,7 @@
           "translation": {
             "x": 307.728378,
             "y": -330.275838,
-            "z": -0.000008
+            "z": -8e-06
           },
           "scale3_d": {
             "x": 2.095341,
@@ -524,7 +425,7 @@
           "translation": {
             "x": -228.70918,
             "y": -617.24012,
-            "z": -0.00001
+            "z": -1e-05
           },
           "scale3_d": {
             "x": 2.095341,
@@ -557,7 +458,7 @@
           "translation": {
             "x": -598.048479,
             "y": -330.275862,
-            "z": -0.000009
+            "z": -9e-06
           },
           "scale3_d": {
             "x": 1.0,
@@ -590,7 +491,7 @@
           "translation": {
             "x": -625.44966,
             "y": -165.020384,
-            "z": 0.000011
+            "z": 1.1e-05
           },
           "scale3_d": {
             "x": 0.60268,
@@ -623,7 +524,7 @@
           "translation": {
             "x": -625.44966,
             "y": 276.735684,
-            "z": 0.000006
+            "z": 6e-06
           },
           "scale3_d": {
             "x": 0.60268,
@@ -656,7 +557,7 @@
           "translation": {
             "x": -625.44966,
             "y": 67.813445,
-            "z": 0.000011
+            "z": 1.1e-05
           },
           "scale3_d": {
             "x": 0.60268,
@@ -689,7 +590,7 @@
           "translation": {
             "x": -425.779996,
             "y": -136.035296,
-            "z": -0.000009
+            "z": -9e-06
           },
           "scale3_d": {
             "x": 1.0,
@@ -722,7 +623,7 @@
           "translation": {
             "x": 1.241742,
             "y": 173.902113,
-            "z": -0.000003
+            "z": -3e-06
           },
           "scale3_d": {
             "x": 1.0,
@@ -755,7 +656,7 @@
           "translation": {
             "x": -698.119574,
             "y": 77.253619,
-            "z": 0.000011
+            "z": 1.1e-05
           },
           "scale3_d": {
             "x": 1.0,
@@ -788,7 +689,7 @@
           "translation": {
             "x": -698.119574,
             "y": 282.990874,
-            "z": 0.000013
+            "z": 1.3e-05
           },
           "scale3_d": {
             "x": 1.0,
@@ -821,7 +722,7 @@
           "translation": {
             "x": -698.119574,
             "y": -160.542426,
-            "z": 0.000008
+            "z": 8e-06
           },
           "scale3_d": {
             "x": 1.0,
@@ -854,7 +755,7 @@
           "translation": {
             "x": 510.763513,
             "y": 174.223996,
-            "z": 0.000013
+            "z": 1.3e-05
           },
           "scale3_d": {
             "x": 1.0,

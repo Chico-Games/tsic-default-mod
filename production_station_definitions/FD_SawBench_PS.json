@@ -33,9 +33,9 @@
     "blocking_collision_boxes": [
       {
         "offset": {
-          "x": 0.0,
-          "y": 0.0,
-          "z": 78.0
+          "x": 0.8,
+          "y": -0.0,
+          "z": 74.85
         },
         "rotation": {
           "pitch": 0,
@@ -43,18 +43,18 @@
           "roll": 0
         },
         "box_size": {
-          "x": 70.0,
-          "y": 44.0,
-          "z": 26.0
+          "x": 15.95,
+          "y": 14.13,
+          "z": 13.3
         }
       }
     ],
     "support_collision_boxes": [
       {
         "offset": {
-          "x": 0.0,
+          "x": 0.8,
           "y": 0.0,
-          "z": 50.0
+          "z": 49.9
         },
         "rotation": {
           "pitch": 0,
@@ -62,9 +62,9 @@
           "roll": 0
         },
         "box_size": {
-          "x": 74.0,
-          "y": 48.0,
-          "z": 100.0
+          "x": 39.8,
+          "y": 26.55,
+          "z": 52.9
         }
       }
     ],
@@ -99,72 +99,7 @@
       "name": "Furniture"
     },
     "random_material_overrides": [],
-    "loot_positions": [
-      {
-        "local_transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.4938,
-            "w": -0.8696
-          },
-          "translation": {
-            "x": -19.35,
-            "y": 119.0,
-            "z": 119.27
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        },
-        "weight": 1000
-      },
-      {
-        "local_transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.3692,
-            "w": 0.9293
-          },
-          "translation": {
-            "x": -19.35,
-            "y": -119.0,
-            "z": 119.27
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        },
-        "weight": 1000
-      },
-      {
-        "local_transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.9828,
-            "w": -0.1844
-          },
-          "translation": {
-            "x": 41.59,
-            "y": 119.0,
-            "z": 87.25
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        },
-        "weight": 1000
-      }
-    ],
-    "loot_position_chance": 0.4,
+    "loot_positions": [],
     "weighted_chance": 1000,
     "world_gen_priority": 1000,
     "destruction_impulse_strength": 0,

@@ -30,8 +30,9 @@
           "min_open": 0.5
         },
         "loot": {
-          "rolls": 2,
-          "chance": 0.5
+          "rolls": 3,
+          "chance": 0.6,
+          "table": "LSP_Fridge_Container"
         }
       },
       {
@@ -57,6 +58,11 @@
         "gate": {
           "part": "DoorUpper",
           "min_open": 0.5
+        },
+        "loot": {
+          "rolls": 2,
+          "chance": 0.6,
+          "table": "LSP_Fridge_Container"
         }
       }
     ],
@@ -84,8 +90,8 @@
     "blocking_collision_boxes": [
       {
         "offset": {
-          "x": 0.45,
-          "y": 5.85,
+          "x": 0.47,
+          "y": 5.89,
           "z": 90.08
         },
         "rotation": {
@@ -94,17 +100,17 @@
           "roll": 0
         },
         "box_size": {
-          "x": 44.9,
-          "y": 40.55,
-          "z": 90.1
+          "x": 42.85,
+          "y": 38.77,
+          "z": 84.07
         }
       }
     ],
     "support_collision_boxes": [
       {
         "offset": {
-          "x": 0.45,
-          "y": 5.85,
+          "x": 0.51,
+          "y": 5.96,
           "z": 90.08
         },
         "rotation": {
@@ -113,9 +119,9 @@
           "roll": 0
         },
         "box_size": {
-          "x": 45.9,
-          "y": 41.55,
-          "z": 90.1
+          "x": 48.95,
+          "y": 44.6,
+          "z": 93.08
         }
       }
     ],
@@ -170,29 +176,7 @@
       "name": "Furniture"
     },
     "random_material_overrides": [],
-    "loot_positions": [
-      {
-        "local_transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0,
-            "w": 1.0
-          },
-          "translation": {
-            "x": 0.45,
-            "y": 5.85,
-            "z": 180.68
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        },
-        "weight": 1000
-      }
-    ],
+    "loot_positions": [],
     "weighted_chance": 1000,
     "world_gen_priority": 6000,
     "open_sound": "Container.Open.Locker",

@@ -13,31 +13,13 @@
     ],
     "constructable_item_to_grant": "ID_Railing_Glass_CI",
     "deconstruction_tier": 2,
-    "blocking_collision_boxes": [
-      {
-        "offset": {
-          "x": -0.45629600300294015,
-          "y": 1.5215308433440555,
-          "z": 48.58043391635295
-        },
-        "rotation": {
-          "pitch": 0,
-          "yaw": 0,
-          "roll": 0
-        },
-        "box_size": {
-          "x": 54.984990974742885,
-          "y": 0.16,
-          "z": 41.129933988480474
-        }
-      }
-    ],
+    "blocking_collision_boxes": [],
     "support_collision_boxes": [
       {
         "offset": {
-          "x": -0.48108249746243814,
-          "y": 0.5424590786501717,
-          "z": 52.273646126851744
+          "x": 0.0,
+          "y": 0.0,
+          "z": 51.25
         },
         "rotation": {
           "pitch": 0,
@@ -45,9 +27,9 @@
           "roll": 0
         },
         "box_size": {
-          "x": 77.77269372346115,
-          "y": 4.860462743271114,
-          "z": 58.91314617393303
+          "x": 76.46,
+          "y": 6.36,
+          "z": 54.25
         }
       }
     ],

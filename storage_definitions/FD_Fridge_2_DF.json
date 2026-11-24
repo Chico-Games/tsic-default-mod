@@ -30,8 +30,9 @@
           "min_open": 0.5
         },
         "loot": {
-          "rolls": 2,
-          "chance": 0.5
+          "rolls": 3,
+          "chance": 0.6,
+          "table": "LSP_Fridge_Container"
         }
       },
       {
@@ -74,7 +75,12 @@
               }
             }
           }
-        ]
+        ],
+        "loot": {
+          "rolls": 2,
+          "chance": 0.6,
+          "table": "LSP_Fridge_Container"
+        }
       }
     ],
     "layer_name": "UI.Layer.GameMenu",
@@ -101,8 +107,8 @@
     "blocking_collision_boxes": [
       {
         "offset": {
-          "x": -0.28,
-          "y": 3.56,
+          "x": -0.3,
+          "y": 7.53,
           "z": 90.33
         },
         "rotation": {
@@ -111,18 +117,18 @@
           "roll": 0
         },
         "box_size": {
-          "x": 45.0,
-          "y": 47.15,
-          "z": 90.3
+          "x": 42.96,
+          "y": 40.9,
+          "z": 84.29
         }
       }
     ],
     "support_collision_boxes": [
       {
         "offset": {
-          "x": -0.28,
-          "y": 3.56,
-          "z": 90.33
+          "x": -0.3,
+          "y": 3.72,
+          "z": 90.29
         },
         "rotation": {
           "pitch": 0,
@@ -130,9 +136,9 @@
           "roll": 0
         },
         "box_size": {
-          "x": 46.0,
-          "y": 48.15,
-          "z": 90.3
+          "x": 49.03,
+          "y": 51.38,
+          "z": 93.5
         }
       }
     ],
@@ -187,30 +193,7 @@
       "name": "Furniture"
     },
     "random_material_overrides": [],
-    "loot_positions": [
-      {
-        "local_transform": {
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0,
-            "w": 1.0
-          },
-          "translation": {
-            "x": -0.28,
-            "y": 3.56,
-            "z": 181.13
-          },
-          "scale3_d": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        },
-        "weight": 1000
-      }
-    ],
-    "loot_position_chance": 0.3,
+    "loot_positions": [],
     "weighted_chance": 1000,
     "world_gen_priority": 6000,
     "open_sound": "Container.Open.Locker",

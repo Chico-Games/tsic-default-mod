@@ -77,7 +77,7 @@
     "default_world_gen_gameplay_tags": [],
     "meta_tags": [],
     "is_pingable": false,
-    "static_mesh": "/Game/Furniture/MidCentury/Shelf02/SM_Shelf02_Closed.SM_Shelf02_Closed",
+    "static_mesh": "/Game/Furniture/FlatPack/SM_Shelf02_Closed/SM_Shelf02_Closed_FP.SM_Shelf02_Closed_FP",
     "casts_shadow": true,
     "collision_profile_name": {
       "name": "Furniture"
@@ -89,13 +89,76 @@
           "rotation": {
             "x": 0.0,
             "y": 0.0,
-            "z": 0.0,
-            "w": 1.0
+            "z": 0.5,
+            "w": -0.866025
           },
           "translation": {
-            "x": 1.66,
+            "x": 1.5,
+            "y": -8.4,
+            "z": 74.5
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        },
+        "weight": 1000
+      },
+      {
+        "local_transform": {
+          "rotation": {
+            "x": 0.0,
             "y": 0.0,
-            "z": 131.1
+            "z": 0.92388,
+            "w": -0.382683
+          },
+          "translation": {
+            "x": 4.5,
+            "y": 15.6,
+            "z": 74.5
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        },
+        "weight": 1000
+      },
+      {
+        "local_transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.92388,
+            "w": 0.382683
+          },
+          "translation": {
+            "x": 1.5,
+            "y": 9.6,
+            "z": 100.3
+          },
+          "scale3_d": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        },
+        "weight": 1000
+      },
+      {
+        "local_transform": {
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.258819,
+            "w": 0.965926
+          },
+          "translation": {
+            "x": 1.5,
+            "y": -14.4,
+            "z": 100.3
           },
           "scale3_d": {
             "x": 1.0,
@@ -107,6 +170,7 @@
       }
     ],
     "loot_position_chance": 0.35,
+    "loot_position_rolls": 2,
     "weighted_chance": 400,
     "world_gen_priority": 6000,
     "destruction_impulse_strength": 0.0,
@@ -132,9 +196,9 @@
     "blocking_collision_boxes": [
       {
         "offset": {
-          "x": 1.66,
-          "y": 0.0,
-          "z": 65.3
+          "x": 0.0,
+          "y": -0.0,
+          "z": 43.54
         },
         "rotation": {
           "pitch": 0,
@@ -142,17 +206,51 @@
           "roll": 0
         },
         "box_size": {
-          "x": 24.6,
-          "y": 32.9,
-          "z": 65.3
+          "x": 22.4,
+          "y": 31.64,
+          "z": 28.29
+        }
+      },
+      {
+        "offset": {
+          "x": 0.0,
+          "y": -0.0,
+          "z": 103.39
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 22.4,
+          "y": 31.64,
+          "z": 1.09
+        }
+      },
+      {
+        "offset": {
+          "x": 0.0,
+          "y": -0.0,
+          "z": 125.16
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "box_size": {
+          "x": 22.4,
+          "y": 31.64,
+          "z": 1.09
         }
       }
     ],
     "support_collision_boxes": [
       {
         "offset": {
-          "x": 1.66,
-          "y": 0.0,
+          "x": 0.0,
+          "y": -0.0,
           "z": 65.3
         },
         "rotation": {
@@ -161,9 +259,9 @@
           "roll": 0
         },
         "box_size": {
-          "x": 25.6,
-          "y": 33.9,
-          "z": 65.3
+          "x": 27.0,
+          "y": 36.9,
+          "z": 68.3
         }
       }
     ],
@@ -188,6 +286,601 @@
         "yaw": 179.6,
         "roll": 0
       }
+    },
+    "flat_pack": {
+      "position_texture": "/Game/Furniture/FlatPack/SM_Shelf02_Closed/T_Shelf02_Closed_FP_Pos.T_Shelf02_Closed_FP_Pos",
+      "rotation_texture": "/Game/Furniture/FlatPack/SM_Shelf02_Closed/T_Shelf02_Closed_FP_Rot.T_Shelf02_Closed_FP_Rot",
+      "assemble_materials": [
+        "/Game/Furniture/FlatPack/SM_Shelf02_Closed/MI_Shelf02_Closed_FP_0.MI_Shelf02_Closed_FP_0",
+        "/Game/Furniture/FlatPack/SM_Shelf02_Closed/MI_Shelf02_Closed_FP_1.MI_Shelf02_Closed_FP_1",
+        "/Game/Furniture/FlatPack/SM_Shelf02_Closed/MI_Shelf02_Closed_FP_2.MI_Shelf02_Closed_FP_2"
+      ],
+      "frames": 150,
+      "frames_per_second": 30.0,
+      "box_centre": {
+        "x": 0.0,
+        "y": -0.0,
+        "z": 0.0
+      },
+      "box_width": 66.4,
+      "box_depth": 111.6,
+      "box_height": 27.7,
+      "box_board": 0.8,
+      "flap_frames": {
+        "x": 1.0,
+        "y": 12.0
+      },
+      "flat_frames": {
+        "x": 26.0,
+        "y": 54.0
+      },
+      "fade_frames": {
+        "x": 36.0,
+        "y": 54.0
+      },
+      "dowels_gone_frame": 142.0,
+      "screws": [
+        {
+          "seat": {
+            "x": -19.45,
+            "y": -27.155,
+            "z": 17.45
+          },
+          "out": {
+            "x": 0.0,
+            "y": -1.0,
+            "z": 0.0
+          },
+          "start_frame": 67.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 4.64,
+          "scale": 1.160888883802626,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": -19.45,
+            "y": 27.155,
+            "z": 17.45
+          },
+          "out": {
+            "x": 0.0,
+            "y": 1.0,
+            "z": 0.0
+          },
+          "start_frame": 71.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 4.64,
+          "scale": 1.160888883802626,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": -18.437,
+            "y": 27.937,
+            "z": 22.3
+          },
+          "out": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 1.0
+          },
+          "start_frame": 75.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 3.48,
+          "scale": 1.160888883802626,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": 19.937,
+            "y": 27.937,
+            "z": 22.3
+          },
+          "out": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 1.0
+          },
+          "start_frame": 77.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 3.48,
+          "scale": 1.160888883802626,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": -18.437,
+            "y": -27.937,
+            "z": 22.3
+          },
+          "out": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 1.0
+          },
+          "start_frame": 79.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 3.48,
+          "scale": 1.160888883802626,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": 19.937,
+            "y": -27.937,
+            "z": 22.3
+          },
+          "out": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 1.0
+          },
+          "start_frame": 81.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 3.48,
+          "scale": 1.160888883802626,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": 21.0,
+            "y": -24.55,
+            "z": 18.95
+          },
+          "out": {
+            "x": 1.0,
+            "y": -0.0,
+            "z": 0.0
+          },
+          "start_frame": 75.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 4.64,
+          "scale": 1.160888883802626,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": -21.2,
+            "y": -24.55,
+            "z": 18.95
+          },
+          "out": {
+            "x": -1.0,
+            "y": -0.0,
+            "z": 0.0
+          },
+          "start_frame": 79.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 4.64,
+          "scale": 1.160888883802626,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": 19.25,
+            "y": -27.155,
+            "z": 17.45
+          },
+          "out": {
+            "x": 0.0,
+            "y": -1.0,
+            "z": 0.0
+          },
+          "start_frame": 75.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 4.64,
+          "scale": 1.160888883802626,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": 19.25,
+            "y": 27.155,
+            "z": 17.45
+          },
+          "out": {
+            "x": 0.0,
+            "y": 1.0,
+            "z": 0.0
+          },
+          "start_frame": 79.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 4.64,
+          "scale": 1.160888883802626,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": 21.0,
+            "y": 24.55,
+            "z": 18.95
+          },
+          "out": {
+            "x": 1.0,
+            "y": -0.0,
+            "z": 0.0
+          },
+          "start_frame": 77.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 4.64,
+          "scale": 1.160888883802626,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": -21.2,
+            "y": 24.55,
+            "z": 18.95
+          },
+          "out": {
+            "x": -1.0,
+            "y": -0.0,
+            "z": 0.0
+          },
+          "start_frame": 81.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 4.64,
+          "scale": 1.160888883802626,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": -15.437,
+            "y": 26.937,
+            "z": 23.1
+          },
+          "out": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 1.0
+          },
+          "start_frame": 95.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 3.48,
+          "scale": 1.160888883802626,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": 15.037,
+            "y": 26.937,
+            "z": 23.1
+          },
+          "out": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 1.0
+          },
+          "start_frame": 97.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 3.48,
+          "scale": 1.160888883802626,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": -15.437,
+            "y": -26.937,
+            "z": 23.1
+          },
+          "out": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 1.0
+          },
+          "start_frame": 99.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 3.48,
+          "scale": 1.160888883802626,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": 15.037,
+            "y": -26.937,
+            "z": 23.1
+          },
+          "out": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 1.0
+          },
+          "start_frame": 101.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 3.48,
+          "scale": 1.160888883802626,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": -16.137,
+            "y": 27.937,
+            "z": 57.5
+          },
+          "out": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 1.0
+          },
+          "start_frame": 99.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 3.48,
+          "scale": 1.160888883802626,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": 19.937,
+            "y": 27.937,
+            "z": 57.5
+          },
+          "out": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 1.0
+          },
+          "start_frame": 101.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 3.48,
+          "scale": 1.160888883802626,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": -16.137,
+            "y": -27.937,
+            "z": 57.5
+          },
+          "out": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 1.0
+          },
+          "start_frame": 103.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 3.48,
+          "scale": 1.160888883802626,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": 19.937,
+            "y": -27.937,
+            "z": 57.5
+          },
+          "out": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 1.0
+          },
+          "start_frame": 105.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 3.48,
+          "scale": 1.160888883802626,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": -18.437,
+            "y": 27.937,
+            "z": 126.1
+          },
+          "out": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 1.0
+          },
+          "start_frame": 112.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 3.48,
+          "scale": 1.160888883802626,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": 19.937,
+            "y": 27.937,
+            "z": 126.1
+          },
+          "out": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 1.0
+          },
+          "start_frame": 112.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 3.48,
+          "scale": 1.160888883802626,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": -18.437,
+            "y": -27.937,
+            "z": 126.1
+          },
+          "out": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 1.0
+          },
+          "start_frame": 112.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 3.48,
+          "scale": 1.160888883802626,
+          "turns": 4.0
+        },
+        {
+          "seat": {
+            "x": 19.937,
+            "y": -27.937,
+            "z": 126.1
+          },
+          "out": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 1.0
+          },
+          "start_frame": 112.0,
+          "drive_frames": 13.0,
+          "fade_frames": 20.0,
+          "length": 3.48,
+          "scale": 1.160888883802626,
+          "turns": 4.0
+        }
+      ],
+      "dowels": [
+        {
+          "at": {
+            "x": -19.45,
+            "y": -23.5,
+            "z": 17.45
+          },
+          "axis": {
+            "x": -0.0,
+            "y": 1.0,
+            "z": -0.0
+          },
+          "start_frame": 67.0,
+          "tap_frames": 10.0,
+          "scale": 1.160888883802626
+        },
+        {
+          "at": {
+            "x": -19.45,
+            "y": 23.5,
+            "z": 17.45
+          },
+          "axis": {
+            "x": -0.0,
+            "y": -1.0,
+            "z": -0.0
+          },
+          "start_frame": 65.0,
+          "tap_frames": 10.0,
+          "scale": 1.160888883802626
+        },
+        {
+          "at": {
+            "x": 17.3,
+            "y": -24.55,
+            "z": 18.95
+          },
+          "axis": {
+            "x": -1.0,
+            "y": 0.0,
+            "z": -0.0
+          },
+          "start_frame": 58.0,
+          "tap_frames": 10.0,
+          "scale": 1.160888883802626
+        },
+        {
+          "at": {
+            "x": -17.5,
+            "y": -24.55,
+            "z": 18.95
+          },
+          "axis": {
+            "x": 1.0,
+            "y": 0.0,
+            "z": -0.0
+          },
+          "start_frame": 67.0,
+          "tap_frames": 10.0,
+          "scale": 1.160888883802626
+        },
+        {
+          "at": {
+            "x": 19.25,
+            "y": -23.5,
+            "z": 17.45
+          },
+          "axis": {
+            "x": -0.0,
+            "y": 1.0,
+            "z": -0.0
+          },
+          "start_frame": 58.0,
+          "tap_frames": 10.0,
+          "scale": 1.160888883802626
+        },
+        {
+          "at": {
+            "x": 19.25,
+            "y": 23.5,
+            "z": 17.45
+          },
+          "axis": {
+            "x": -0.0,
+            "y": -1.0,
+            "z": -0.0
+          },
+          "start_frame": 66.0,
+          "tap_frames": 10.0,
+          "scale": 1.160888883802626
+        },
+        {
+          "at": {
+            "x": 17.3,
+            "y": 24.55,
+            "z": 18.95
+          },
+          "axis": {
+            "x": -1.0,
+            "y": 0.0,
+            "z": -0.0
+          },
+          "start_frame": 66.0,
+          "tap_frames": 10.0,
+          "scale": 1.160888883802626
+        },
+        {
+          "at": {
+            "x": -17.5,
+            "y": 24.55,
+            "z": 18.95
+          },
+          "axis": {
+            "x": 1.0,
+            "y": 0.0,
+            "z": -0.0
+          },
+          "start_frame": 65.0,
+          "tap_frames": 10.0,
+          "scale": 1.160888883802626
+        }
+      ],
+      "screw_mesh": "/Game/Shared/FlatPack/SM_FlatPackScrew.SM_FlatPackScrew",
+      "dowel_mesh": "/Game/Shared/FlatPack/SM_FlatPackDowel.SM_FlatPackDowel",
+      "box_panel_mesh": "/Engine/BasicShapes/Cube.Cube",
+      "screw_material": "/Game/Shared/FlatPack/M_FlatPackScrewFade.M_FlatPackScrewFade",
+      "dowel_material": "/Game/Shared/FlatPack/M_FlatPackDowelFade.M_FlatPackDowelFade",
+      "box_material": "/Game/Shared/FlatPack/M_FlatPackBox.M_FlatPackBox"
     }
   }
 }
