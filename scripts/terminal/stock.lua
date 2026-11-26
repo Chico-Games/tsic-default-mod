@@ -1,10 +1,6 @@
--- STOCK: Durham's "live" inventory database (tier 1, text). Each item has a static,
--- semi-random rate (0.5-5.5 units/sec, seeded from its SKU); QTY = rate * seconds since
--- 01/01/1984, absurdly large and growing every render. N/P paginate, F <text> searches,
--- ALL clears the search, R refreshes, H help, Q quits.
 local term = tsic.terminal
 
-local EPOCH = 441763200          -- 01/01/1984 00:00 UTC, as seconds
+local EPOCH = 441763200
 local RATE = { big = { 0.5, 2.0 }, med = { 2.0, 3.5 }, small = { 3.8, 5.5 } }
 
 local ITEMS = {
@@ -32,7 +28,6 @@ local ITEMS = {
   { sku = '421-DK', desc = 'OFFICE DESK (LAMINATE)',      loc = 'WAREHOUSE SEC 2', size = 'big' },
 }
 
--- djb2 over the SKU, wrapped to 32 bits, scaled to 0..1: a static, semi-random rate per item.
 local function hash01(s)
   local h = 5381
   for i = 1, #s do
@@ -143,7 +138,6 @@ while true do
   local ans = (term.readLine('') or ''):match('^%s*(.-)%s*$')
   local lc = string.lower(ans)
   if lc == '' then
-    -- refresh
   elseif lc == 'q' or lc == 'quit' or lc == 'exit' then
     break
   elseif lc == 'h' or lc == 'help' or lc == '?' then
@@ -153,7 +147,6 @@ while true do
   elseif lc == 'p' or lc == 'prev' then
     page = page - 1
   elseif lc == 'r' or lc == 'refresh' then
-    -- quantities re-read on the next render
   elseif lc == 'all' or lc == 'clear' or lc == 'b' or lc == 'back' then
     filter = nil
     page = 0

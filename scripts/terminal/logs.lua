@@ -1,6 +1,3 @@
--- LOGS: a paginated system-log viewer (tier 1, pure text I/O).
--- A paginated list of logs; pick a number to read one (its body paginates too);
--- B returns to the list, Q quits. The log text is baked in.
 local term = tsic.terminal
 
 local LOGS = {
@@ -125,7 +122,6 @@ local function ask(prompt)
   return string.lower((term.readLine(prompt) or ''):match('^%s*(.-)%s*$'))
 end
 
--- Single-log reader. Returns true when the operator chose to quit the program.
 local function viewLog(log)
   local page = 0
   local pages = math.max(1, math.ceil(#log.body / BODY_PER_PAGE))
@@ -155,7 +151,6 @@ local function viewLog(log)
   end
 end
 
--- List view. Returns when the operator quits.
 local function viewList()
   if #LOGS == 0 then
     term.print("")

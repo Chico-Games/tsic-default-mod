@@ -1,4 +1,3 @@
--- HELLO: the tier-1 demo program. Exercises print, readLine and program-private storage.
 local term = tsic.terminal
 
 term.print('HELLO FROM DURHAM TERMINAL')

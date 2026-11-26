@@ -1,10 +1,7 @@
--- STOCK_V2: the tier-2 GUI inventory database. A sortable table in the program's own
--- window: a column header sorts, the search box filters, and quantities tick up live at
--- staggered moments, each bump flashing its own row (the same absurd growth as STOCK).
 local term = tsic.terminal
 local gui = term.gui
 
-local EPOCH = 441763200          -- 01/01/1984 00:00 UTC, as seconds
+local EPOCH = 441763200
 local RATE = { big = { 0.5, 2.0 }, med = { 2.0, 3.5 }, small = { 3.8, 5.5 } }
 
 local ITEMS = {
@@ -32,7 +29,6 @@ local ITEMS = {
   { sku = '421-DK', desc = 'OFFICE DESK (LAMINATE)',      loc = 'WAREHOUSE SEC 2', size = 'big' },
 }
 
--- djb2 over the SKU, wrapped to 32 bits, scaled to 0..1: a static, semi-random rate per item.
 local function hash01(s)
   local h = 5381
   for i = 1, #s do
@@ -82,8 +78,7 @@ local HEADERS = { sku = 'SKU', desc = 'ITEM DESCRIPTION', qty = 'QTY', loc = 'LO
 
 local sortKey, sortDir, filter = 'sku', 1, ''
 
--- Live inventory: each item carries its own quantity and a randomised next-update time.
-local function randDelay() return 2 + math.random() * 8 end            -- 2-10 s per item
+local function randDelay() return 2 + math.random() * 8 end
 local function bumpAmount(it) return 1 + math.floor(rateFor(it) * (2 + math.random() * 10)) end
 local now0 = term.clock()
 local STATE = {}
@@ -108,7 +103,6 @@ local function render()
   local out = {}
   for _, r in ipairs(rows) do
     local bump = now < r.bumpUntil
-    -- ASCII arrows: the terminal face (VT323) has no U+25B2/25BC and would draw tofu.
     out[#out + 1] = { key = r.it.sku, c0 = r.it.sku, c1 = r.it.desc, c2 = (bump and '^ ' or '') .. commas(r.qty), c3 = r.it.loc, bump = bump }
   end
   local function header(k)

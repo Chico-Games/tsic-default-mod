@@ -1,6 +1,3 @@
--- LOGS_V2: the tier-2 GUI log browser. A clickable entry list beside a reader, in the
--- program's own window; a log stays flagged NEW until it has been read (the read set
--- persists through program-private storage for the sitting). Same Durham logs as LOGS.
 local term = tsic.terminal
 local gui = term.gui
 
@@ -74,7 +71,6 @@ local LOGS = {
   } },
 }
 
--- Per-log NEW tracking: the read set survives re-opening the program within this sitting.
 local readSet = {}
 local stored = term.storage.get('readLogs')
 if type(stored) == 'table' then
