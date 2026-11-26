@@ -27119,10 +27119,10 @@
       "display_name": null,
       "categories": null
     },
-    "RandomEventDefinition.enemy_event_type": {
-      "tooltip": "Type of enemy event to trigger (None = no enemy spawning).",
+    "RandomEventDefinition.enemy_wave": {
+      "tooltip": "Enemies spawned around each player during the event (count 0 = none).",
       "category": "Effects|Enemies",
-      "cpp_type": "EGameEventType",
+      "cpp_type": "FRandomEventEnemyWave",
       "element_class": null,
       "clamp_min": null,
       "clamp_max": null,

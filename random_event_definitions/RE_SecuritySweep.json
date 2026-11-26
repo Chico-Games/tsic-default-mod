@@ -14,9 +14,11 @@
     "b_flash_on_start": true,
     "intercom_announcement_tag": "Intercom.Event.SecuritySweep",
     "ambient_audio_tag": "Ambient.Event.SecuritySweep",
-    "enemy_event_type": {
-      "name": "EliteSpawn",
-      "value": 3
+    "enemy_wave": {
+      "count": 3,
+      "spawn_interval": 10.0,
+      "spawn_radius": 400.0,
+      "min_players": 1
     },
     "enemy_spawn_params": "HeavyStaffSpawnParameters",
     "enemy_spawn_delay": 15.0,

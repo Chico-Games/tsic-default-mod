@@ -668,7 +668,6 @@
       "hud.wheel.slot":           { "background": "rgba(14, 9, 8, 0.65)", "radius": "$radii.hotbar.slot", "border": { "colour": "$colours.ink.night", "width": 2 } },
       "hud.wheel.slot.aim":       { "extends": "hud.wheel.slot", "border": { "colour": "rgba(224, 208, 170, 0.95)", "width": 2 } },
       "hud.wheel.slot.current":   { "extends": "hud.wheel.slot", "border": { "colour": "rgba(150, 145, 135, 0.9)", "width": 2 } },
-      "hud.wheel.fists":          { "colour": "#e4d9c0" },
       "hud.wheel.label":          { "font": "$fonts.body", "size": 16, "tracking": 0.04, "colour": "#f3ecda" },
       "hud.wheel.hint":           { "font": "$fonts.body", "size": 11, "tracking": 0.12, "case": "upper", "colour": "rgba(243, 236, 218, 0.65)" },
       "hud.ping.scrim":           { "background": "rgba(6, 7, 10, 0.30)" },

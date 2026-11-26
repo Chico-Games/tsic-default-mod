@@ -753,10 +753,10 @@
         "furniture_definition": "FD_TicketMachine_DF",
         "transform": {
           "rotation": {
-            "x": 0,
-            "y": 0,
-            "z": -0.7071067935278889,
-            "w": 0.7071067688452061
+            "x": 0.0,
+            "y": 0.0,
+            "z": -1.0,
+            "w": -1.7453292366909068e-08
           },
           "translation": {
             "x": 177.850529,

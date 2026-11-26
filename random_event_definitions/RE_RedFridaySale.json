@@ -14,9 +14,11 @@
     "b_flash_on_start": true,
     "intercom_announcement_tag": "Intercom.Event.RedFridaySale",
     "ambient_audio_tag": "Ambient.Event.RedFridaySale",
-    "enemy_event_type": {
-      "name": "EnemyHorde",
-      "value": 2
+    "enemy_wave": {
+      "count": 25,
+      "spawn_interval": 2.0,
+      "spawn_radius": 600.0,
+      "min_players": 1
     },
     "enemy_spawn_params": "MaleStaffSpawnParameters",
     "enemy_spawn_delay": 12.0,

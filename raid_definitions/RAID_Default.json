@@ -1,0 +1,58 @@
+{
+  "id": "RAID_Default",
+  "class": "ScpRaidDefinition",
+  "schema_version": 2,
+  "properties": {
+    "unlock_crafted_item": "ID_DowelBat_EQ",
+    "max_heat": 100.0,
+    "kill_heat": 5.0,
+    "kill_heat_by_enemy_class": [
+      { "key": "CH_HeavyStaff_C", "value": 10.0 },
+      { "key": "CH_ContainmentTeam_C", "value": 15.0 },
+      { "key": "CH_BoneHead_C", "value": 33.0 },
+      { "key": "CH_TVHead_C", "value": 33.0 }
+    ],
+    "heat_after_miss_or_loss": 66.0,
+    "win_cooldown_days": 1,
+    "warnings": [
+      {
+        "heat": 33.0,
+        "title": "The staff have noticed you",
+        "text": "Word is going round the staff room about you."
+      },
+      {
+        "heat": 66.0,
+        "title": "The staff are getting organised",
+        "text": "Keep this up and they will come for your base."
+      }
+    ],
+    "countdown_seconds": 1200.0,
+    "reminder_seconds": [300.0, 60.0],
+    "base_radius": 2500.0,
+    "attack_area_radius": 4500.0,
+    "leave_area_grace_seconds": 20.0,
+    "attacker_class": "/Game/Characters/Enemies/MaleStaff/Blueprints/CH_MaleStaff.CH_MaleStaff_C",
+    "wave_sizes": [4, 6],
+    "spawn_interval": 1.5,
+    "wave_gap_seconds": 10.0,
+    "spawn_distance_min": 2500.0,
+    "spawn_distance_max": 4000.0,
+    "max_defender_deaths": 3,
+    "max_raid_seconds": 900.0,
+    "rewards": [],
+    "messages": {
+      "title": "Base raid",
+      "booked": "The staff are raiding your base in {Time}. Be at your bed to defend it.",
+      "reminder": "The staff raid your base in {Time}.",
+      "started": "The staff are attacking your base. Kill them all.",
+      "next_wave": "More staff are coming.",
+      "left_area": "You left your base. Get back within {Time} or the raid is lost.",
+      "won": "You held your base. The staff will leave you alone for a day.",
+      "lost_deaths": "The staff overran your base.",
+      "lost_left": "You abandoned your base. The raid is lost.",
+      "lost_time": "The staff gave up for now. They will be back.",
+      "missed": "The staff raided your base while you were away.",
+      "missed_no_bed": "The staff came looking for you, but you have no bed to defend."
+    }
+  }
+}

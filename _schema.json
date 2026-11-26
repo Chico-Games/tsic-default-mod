@@ -5551,9 +5551,9 @@
         "ambient_audio_tag": {
           "kind": "gameplay_tag"
         },
-        "enemy_event_type": {
-          "kind": "enum",
-          "name": "GameEventType"
+        "enemy_wave": {
+          "kind": "struct",
+          "name": "RandomEventEnemyWave"
         },
         "enemy_spawn_params": {
           "kind": "definition_ref",
@@ -8984,6 +8984,22 @@
         }
       }
     },
+    "RandomEventEnemyWave": {
+      "fields": {
+        "count": {
+          "kind": "int"
+        },
+        "spawn_interval": {
+          "kind": "float"
+        },
+        "spawn_radius": {
+          "kind": "float"
+        },
+        "min_players": {
+          "kind": "int"
+        }
+      }
+    },
     "LightConfig": {
       "fields": {
         "intensity": {
@@ -10329,38 +10345,6 @@
         {
           "name": "SpotLight",
           "value": 1
-        }
-      ]
-    },
-    "GameEventType": {
-      "members": [
-        {
-          "name": "None",
-          "value": 0
-        },
-        {
-          "name": "EnemyRaid",
-          "value": 1
-        },
-        {
-          "name": "EnemyHorde",
-          "value": 2
-        },
-        {
-          "name": "EliteSpawn",
-          "value": 3
-        },
-        {
-          "name": "DefenseEvent",
-          "value": 4
-        },
-        {
-          "name": "SpawnerDefense",
-          "value": 5
-        },
-        {
-          "name": "Custom",
-          "value": 6
         }
       ]
     },

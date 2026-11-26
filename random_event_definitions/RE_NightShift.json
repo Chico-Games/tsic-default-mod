@@ -14,9 +14,11 @@
     "b_flash_on_start": true,
     "intercom_announcement_tag": "Intercom.Event.NightShift",
     "ambient_audio_tag": "Ambient.Event.NightShift",
-    "enemy_event_type": {
-      "name": "EnemyRaid",
-      "value": 1
+    "enemy_wave": {
+      "count": 12,
+      "spawn_interval": 3.0,
+      "spawn_radius": 800.0,
+      "min_players": 2
     },
     "enemy_spawn_params": "JanitorSpawnParameters",
     "enemy_spawn_delay": 10.0,
