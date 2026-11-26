@@ -40476,7 +40476,7 @@
       "categories": null
     },
     "ReachComponent.drag_hand_spread": {
-      "tooltip": "Each hand's target is pushed this far outward (right hand right, left hand left) so the arms are held wider than the piece's nearest spots would put them. `scp.Reach.DragSpread` overrides it live.",
+      "tooltip": "Each hand's target is pushed this far outward (right hand right, left hand left) so the arms are held wider than the piece's nearest spots would put them. `Reach.DragSpread` overrides it live.",
       "category": "Reach|Drag",
       "cpp_type": "float",
       "element_class": null,
@@ -40490,7 +40490,7 @@
       "categories": null
     },
     "ReachComponent.drag_wrist_rotation": {
-      "tooltip": "Wrist rotation of the RIGHT hand while dragging, on top of the clip, in actor space: pitch = fingers up (+) / down, yaw = fingers left (+) / right, roll = palm turning over. The left hand gets the mirror (yaw and roll negated). Zero keeps the clip's wrist. Override live with `scp.Reach.DragWrist <pitch> <yaw> <roll>` in the console, then bake the numbers here. Zero for now: the drag arms move, the wrists stay as the clip poses them.",
+      "tooltip": "Wrist rotation of the RIGHT hand while dragging, on top of the clip, in actor space: pitch = fingers up (+) / down, yaw = fingers left (+) / right, roll = palm turning over. The left hand gets the mirror (yaw and roll negated). Zero keeps the clip's wrist. Override live with `Reach.DragWrist <pitch> <yaw> <roll>` in the console, then bake the numbers here. Zero for now: the drag arms move, the wrists stay as the clip poses them.",
       "category": "Reach|Drag",
       "cpp_type": "FRotator",
       "element_class": null,

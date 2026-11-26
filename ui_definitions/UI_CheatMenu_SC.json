@@ -236,7 +236,7 @@
                                     "click": {
                                       "cmd": "UI.Cmd.Cheat.Execute",
                                       "args": {
-                                        "Command": "ScpGod {#cm-target.value}"
+                                        "Command": "TSICGod {#cm-target.value}"
                                       }
                                     }
                                   }
@@ -273,7 +273,7 @@
                                     "click": {
                                       "cmd": "UI.Cmd.Cheat.Execute",
                                       "args": {
-                                        "Command": "ScpFly {#cm-target.value}"
+                                        "Command": "TSICFly {#cm-target.value}"
                                       }
                                     }
                                   }
@@ -2186,7 +2186,7 @@
                                 "click": {
                                   "cmd": "UI.Cmd.Cheat.Execute",
                                   "args": {
-                                    "Command": "ScpMods.PurgeCache",
+                                    "Command": "Mods.PurgeCache",
                                     "bClientLocal": true
                                   }
                                 }
