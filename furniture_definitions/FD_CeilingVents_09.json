@@ -1,0 +1,27 @@
+{
+  "id": "FD_CeilingVents_09",
+  "asset_path": "/Game/Furniture/Ceilings/Furniture/FD_CeilingVents_09",
+  "class": "UFurnitureDefinition",
+  "schema_version": 2,
+  "properties": {
+    "display_name": "Ceiling Ductwork 9",
+    "level": 1,
+    "default_world_gen_gameplay_tags": [],
+    "meta_tags": [],
+    "is_pingable": false,
+    "static_mesh": "/Game/Furniture/Ceilings/Vents/Meshes/SM_CeilingVents_09.SM_CeilingVents_09",
+    "casts_shadow": false,
+    "collision_profile_name": {
+      "name": "NoCollision"
+    },
+    "random_material_overrides": [],
+    "loot_positions": [],
+    "weighted_chance": 1000,
+    "world_gen_priority": 10000,
+    "gameplay_tags": [
+      "Entity.RandomGeneration.CanBeRandom",
+      "Entity.RandomGeneration.FurnitureType.Ceiling",
+      "Tile.Biome.SkyCeilingVents"
+    ]
+  }
+}
