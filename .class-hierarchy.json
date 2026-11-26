@@ -7,10 +7,10 @@
     "URecipeDefinition",
     "UWorldGenObjectDefinition",
     "UAchievementDefinition",
-    "UScpGameData",
+    "UGameData",
     "UBiomeDefinition",
-    "UScpDefinitionBase",
-    "UScpAiDefinitionBase"
+    "UDefinitionBase",
+    "UAiDefinitionBase"
   ],
   "classes": {
     "UAchievementDefinition": {
@@ -422,18 +422,18 @@
       ],
       "family_root": "URandomEventDefinition"
     },
-    "UScpBehaviorDefinition": {
+    "UBehaviorDefinition": {
       "folder": "behavior_definitions",
       "instance_count": 8,
       "parents": [
-        "UScpAiDefinitionBase",
-        "UScpDefinitionBase",
+        "UAiDefinitionBase",
+        "UDefinitionBase",
         "UDataAsset",
         "UObject"
       ],
-      "family_root": "UScpAiDefinitionBase"
+      "family_root": "UAiDefinitionBase"
     },
-    "UScpGameData": {
+    "UGameData": {
       "folder": "scp_game_data",
       "instance_count": 1,
       "parents": [
@@ -441,78 +441,78 @@
         "UDataAsset",
         "UObject"
       ],
-      "family_root": "UScpGameData"
+      "family_root": "UGameData"
     },
-    "UScpLuaScriptDefinition": {
+    "ULuaScriptDefinition": {
       "folder": "script_definitions",
       "instance_count": 1,
       "parents": [
-        "UScpDefinitionBase",
+        "UDefinitionBase",
         "UDataAsset",
         "UObject"
       ],
-      "family_root": "UScpDefinitionBase"
+      "family_root": "UDefinitionBase"
     },
-    "UScpPerceptionDefinition": {
+    "UPerceptionDefinition": {
       "folder": "perception_definitions",
       "instance_count": 9,
       "parents": [
-        "UScpAiDefinitionBase",
-        "UScpDefinitionBase",
+        "UAiDefinitionBase",
+        "UDefinitionBase",
         "UDataAsset",
         "UObject"
       ],
-      "family_root": "UScpAiDefinitionBase"
+      "family_root": "UAiDefinitionBase"
     },
-    "UScpPlayerContainersDefinition": {
+    "UPlayerContainersDefinition": {
       "folder": "player_container_definitions",
       "instance_count": 1,
       "parents": [
         "UDataAsset",
         "UObject"
       ],
-      "family_root": "UScpPlayerContainersDefinition"
+      "family_root": "UPlayerContainersDefinition"
     },
-    "UScpSkillDefinition": {
+    "USkillDefinition": {
       "folder": "skill_definitions",
       "instance_count": 4,
       "parents": [
-        "UScpAiDefinitionBase",
-        "UScpDefinitionBase",
+        "UAiDefinitionBase",
+        "UDefinitionBase",
         "UDataAsset",
         "UObject"
       ],
-      "family_root": "UScpAiDefinitionBase"
+      "family_root": "UAiDefinitionBase"
     },
-    "UScpTerminalProgramDefinition": {
+    "UTerminalProgramDefinition": {
       "folder": "terminal_programs",
       "instance_count": 7,
       "parents": [
-        "UScpDefinitionBase",
+        "UDefinitionBase",
         "UDataAsset",
         "UObject"
       ],
-      "family_root": "UScpDefinitionBase"
+      "family_root": "UDefinitionBase"
     },
-    "UScpUiScreenDefinition": {
+    "UUiScreenDefinition": {
       "folder": "ui_definitions",
       "instance_count": 49,
       "parents": [
-        "UScpDefinitionBase",
+        "UDefinitionBase",
         "UDataAsset",
         "UObject"
       ],
-      "family_root": "UScpDefinitionBase"
+      "family_root": "UDefinitionBase"
     },
-    "UScpUiThemeDefinition": {
+    "UUiThemeDefinition": {
       "folder": "ui_definitions",
       "instance_count": 5,
       "parents": [
-        "UScpDefinitionBase",
+        "UDefinitionBase",
         "UDataAsset",
         "UObject"
       ],
-      "family_root": "UScpDefinitionBase"
+      "family_root": "UDefinitionBase"
     },
     "USeedItemDefinition": {
       "folder": "seed_item_definitions",

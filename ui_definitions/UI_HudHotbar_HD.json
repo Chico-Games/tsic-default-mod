@@ -1,6 +1,6 @@
 {
   "id": "UI_HudHotbar_HD",
-  "class": "ScpUiScreenDefinition",
+  "class": "UiScreenDefinition",
   "properties": {
     "layer": "hud",
     "uses": [ "UI.Hud.Visibility", "UI.Hotbar.Changed", "UI.Input.Mode.Changed" ],

@@ -79,7 +79,7 @@
           },
           "value": {
             "kind": "struct",
-            "name": "ScpItemPresentation"
+            "name": "ItemPresentation"
           }
         },
         "storage_class": {
@@ -217,7 +217,7 @@
           "kind": "array",
           "element": {
             "kind": "struct",
-            "name": "ScpRecipeWildcardInput"
+            "name": "RecipeWildcardInput"
           }
         },
         "output_fresh_copy": {
@@ -359,7 +359,7 @@
         },
         "reach_style": {
           "kind": "enum",
-          "name": "ScpReachStyle"
+          "name": "ReachStyle"
         },
         "interaction_front_half_angle": {
           "kind": "float"
@@ -422,26 +422,26 @@
         },
         "rig": {
           "kind": "struct",
-          "name": "ScpFurnitureRig"
+          "name": "FurnitureRig"
         },
         "compartments": {
           "kind": "array",
           "element": {
             "kind": "struct",
-            "name": "ScpFurnitureCompartmentDef"
+            "name": "FurnitureCompartmentDef"
           }
         },
         "station": {
           "kind": "struct",
-          "name": "ScpStationDef"
+          "name": "StationDef"
         },
         "container_view": {
           "kind": "struct",
-          "name": "ScpCameraView"
+          "name": "CameraView"
         },
         "section_cut": {
           "kind": "struct",
-          "name": "ScpSectionCut"
+          "name": "SectionCut"
         },
         "loot_positions": {
           "kind": "array",
@@ -710,7 +710,7 @@
           },
           "value": {
             "kind": "struct",
-            "name": "ScpItemPresentation"
+            "name": "ItemPresentation"
           }
         },
         "storage_class": {
@@ -748,7 +748,7 @@
           "kind": "array",
           "element": {
             "kind": "definition_ref",
-            "class": "ScpAbilitySet"
+            "class": "AbilitySet"
           }
         },
         "effects_to_apply": {
@@ -796,11 +796,11 @@
         },
         "default_construct_ability_set": {
           "kind": "definition_ref",
-          "class": "ScpAbilitySet"
+          "class": "AbilitySet"
         },
         "loaded_default_ability_set": {
           "kind": "definition_ref",
-          "class": "ScpAbilitySet"
+          "class": "AbilitySet"
         }
       }
     },
@@ -842,7 +842,7 @@
           },
           "value": {
             "kind": "struct",
-            "name": "ScpItemPresentation"
+            "name": "ItemPresentation"
           }
         },
         "storage_class": {
@@ -880,7 +880,7 @@
           "kind": "array",
           "element": {
             "kind": "definition_ref",
-            "class": "ScpAbilitySet"
+            "class": "AbilitySet"
           }
         },
         "effects_to_apply": {
@@ -971,7 +971,7 @@
           "kind": "array",
           "element": {
             "kind": "struct",
-            "name": "ScpRecipeWildcardInput"
+            "name": "RecipeWildcardInput"
           }
         },
         "output_fresh_copy": {
@@ -1031,7 +1031,7 @@
           },
           "value": {
             "kind": "struct",
-            "name": "ScpItemPresentation"
+            "name": "ItemPresentation"
           }
         },
         "storage_class": {
@@ -1069,7 +1069,7 @@
         },
         "reach_style": {
           "kind": "enum",
-          "name": "ScpReachStyle"
+          "name": "ReachStyle"
         },
         "interaction_front_half_angle": {
           "kind": "float"
@@ -1132,26 +1132,26 @@
         },
         "rig": {
           "kind": "struct",
-          "name": "ScpFurnitureRig"
+          "name": "FurnitureRig"
         },
         "compartments": {
           "kind": "array",
           "element": {
             "kind": "struct",
-            "name": "ScpFurnitureCompartmentDef"
+            "name": "FurnitureCompartmentDef"
           }
         },
         "station": {
           "kind": "struct",
-          "name": "ScpStationDef"
+          "name": "StationDef"
         },
         "container_view": {
           "kind": "struct",
-          "name": "ScpCameraView"
+          "name": "CameraView"
         },
         "section_cut": {
           "kind": "struct",
-          "name": "ScpSectionCut"
+          "name": "SectionCut"
         },
         "loot_positions": {
           "kind": "array",
@@ -1297,7 +1297,7 @@
         },
         "reach_style": {
           "kind": "enum",
-          "name": "ScpReachStyle"
+          "name": "ReachStyle"
         },
         "interaction_front_half_angle": {
           "kind": "float"
@@ -1360,26 +1360,26 @@
         },
         "rig": {
           "kind": "struct",
-          "name": "ScpFurnitureRig"
+          "name": "FurnitureRig"
         },
         "compartments": {
           "kind": "array",
           "element": {
             "kind": "struct",
-            "name": "ScpFurnitureCompartmentDef"
+            "name": "FurnitureCompartmentDef"
           }
         },
         "station": {
           "kind": "struct",
-          "name": "ScpStationDef"
+          "name": "StationDef"
         },
         "container_view": {
           "kind": "struct",
-          "name": "ScpCameraView"
+          "name": "CameraView"
         },
         "section_cut": {
           "kind": "struct",
-          "name": "ScpSectionCut"
+          "name": "SectionCut"
         },
         "loot_positions": {
           "kind": "array",
@@ -1619,7 +1619,7 @@
         },
         "reach_style": {
           "kind": "enum",
-          "name": "ScpReachStyle"
+          "name": "ReachStyle"
         },
         "interaction_front_half_angle": {
           "kind": "float"
@@ -1682,26 +1682,26 @@
         },
         "rig": {
           "kind": "struct",
-          "name": "ScpFurnitureRig"
+          "name": "FurnitureRig"
         },
         "compartments": {
           "kind": "array",
           "element": {
             "kind": "struct",
-            "name": "ScpFurnitureCompartmentDef"
+            "name": "FurnitureCompartmentDef"
           }
         },
         "station": {
           "kind": "struct",
-          "name": "ScpStationDef"
+          "name": "StationDef"
         },
         "container_view": {
           "kind": "struct",
-          "name": "ScpCameraView"
+          "name": "CameraView"
         },
         "section_cut": {
           "kind": "struct",
-          "name": "ScpSectionCut"
+          "name": "SectionCut"
         },
         "loot_positions": {
           "kind": "array",
@@ -2000,7 +2000,7 @@
         },
         "reach_style": {
           "kind": "enum",
-          "name": "ScpReachStyle"
+          "name": "ReachStyle"
         },
         "interaction_front_half_angle": {
           "kind": "float"
@@ -2063,26 +2063,26 @@
         },
         "rig": {
           "kind": "struct",
-          "name": "ScpFurnitureRig"
+          "name": "FurnitureRig"
         },
         "compartments": {
           "kind": "array",
           "element": {
             "kind": "struct",
-            "name": "ScpFurnitureCompartmentDef"
+            "name": "FurnitureCompartmentDef"
           }
         },
         "station": {
           "kind": "struct",
-          "name": "ScpStationDef"
+          "name": "StationDef"
         },
         "container_view": {
           "kind": "struct",
-          "name": "ScpCameraView"
+          "name": "CameraView"
         },
         "section_cut": {
           "kind": "struct",
-          "name": "ScpSectionCut"
+          "name": "SectionCut"
         },
         "loot_positions": {
           "kind": "array",
@@ -2341,7 +2341,7 @@
         },
         "reach_style": {
           "kind": "enum",
-          "name": "ScpReachStyle"
+          "name": "ReachStyle"
         },
         "interaction_front_half_angle": {
           "kind": "float"
@@ -2404,26 +2404,26 @@
         },
         "rig": {
           "kind": "struct",
-          "name": "ScpFurnitureRig"
+          "name": "FurnitureRig"
         },
         "compartments": {
           "kind": "array",
           "element": {
             "kind": "struct",
-            "name": "ScpFurnitureCompartmentDef"
+            "name": "FurnitureCompartmentDef"
           }
         },
         "station": {
           "kind": "struct",
-          "name": "ScpStationDef"
+          "name": "StationDef"
         },
         "container_view": {
           "kind": "struct",
-          "name": "ScpCameraView"
+          "name": "CameraView"
         },
         "section_cut": {
           "kind": "struct",
-          "name": "ScpSectionCut"
+          "name": "SectionCut"
         },
         "loot_positions": {
           "kind": "array",
@@ -2748,7 +2748,7 @@
         },
         "enemy_class": {
           "kind": "soft_class",
-          "class": "AScpCharacter"
+          "class": "ATSICCharacter"
         },
         "enemy_thumbnail": {
           "kind": "soft_object",
@@ -2794,14 +2794,14 @@
           "kind": "array",
           "element": {
             "kind": "struct",
-            "name": "ScpAttackEntryDef"
+            "name": "AttackEntryDef"
           }
         },
         "movement_profiles": {
           "kind": "array",
           "element": {
             "kind": "struct",
-            "name": "ScpMovementProfileDef"
+            "name": "MovementProfileDef"
           }
         },
         "token_cost": {
@@ -2809,7 +2809,7 @@
         },
         "wounded_tag": {
           "kind": "struct",
-          "name": "ScpWoundedTagConfig"
+          "name": "WoundedTagConfig"
         },
         "persistent": {
           "kind": "bool"
@@ -2921,7 +2921,7 @@
         },
         "reach_style": {
           "kind": "enum",
-          "name": "ScpReachStyle"
+          "name": "ReachStyle"
         },
         "interaction_front_half_angle": {
           "kind": "float"
@@ -2984,26 +2984,26 @@
         },
         "rig": {
           "kind": "struct",
-          "name": "ScpFurnitureRig"
+          "name": "FurnitureRig"
         },
         "compartments": {
           "kind": "array",
           "element": {
             "kind": "struct",
-            "name": "ScpFurnitureCompartmentDef"
+            "name": "FurnitureCompartmentDef"
           }
         },
         "station": {
           "kind": "struct",
-          "name": "ScpStationDef"
+          "name": "StationDef"
         },
         "container_view": {
           "kind": "struct",
-          "name": "ScpCameraView"
+          "name": "CameraView"
         },
         "section_cut": {
           "kind": "struct",
-          "name": "ScpSectionCut"
+          "name": "SectionCut"
         },
         "loot_positions": {
           "kind": "array",
@@ -3234,7 +3234,7 @@
           },
           "value": {
             "kind": "struct",
-            "name": "ScpItemPresentation"
+            "name": "ItemPresentation"
           }
         },
         "storage_class": {
@@ -3272,7 +3272,7 @@
           "kind": "array",
           "element": {
             "kind": "definition_ref",
-            "class": "ScpAbilitySet"
+            "class": "AbilitySet"
           }
         },
         "effects_to_apply": {
@@ -3331,7 +3331,7 @@
         },
         "reach_style": {
           "kind": "enum",
-          "name": "ScpReachStyle"
+          "name": "ReachStyle"
         },
         "interaction_front_half_angle": {
           "kind": "float"
@@ -3394,26 +3394,26 @@
         },
         "rig": {
           "kind": "struct",
-          "name": "ScpFurnitureRig"
+          "name": "FurnitureRig"
         },
         "compartments": {
           "kind": "array",
           "element": {
             "kind": "struct",
-            "name": "ScpFurnitureCompartmentDef"
+            "name": "FurnitureCompartmentDef"
           }
         },
         "station": {
           "kind": "struct",
-          "name": "ScpStationDef"
+          "name": "StationDef"
         },
         "container_view": {
           "kind": "struct",
-          "name": "ScpCameraView"
+          "name": "CameraView"
         },
         "section_cut": {
           "kind": "struct",
-          "name": "ScpSectionCut"
+          "name": "SectionCut"
         },
         "loot_positions": {
           "kind": "array",
@@ -3481,7 +3481,7 @@
           "kind": "array",
           "element": {
             "kind": "struct",
-            "name": "ScpRecipeWildcardInput"
+            "name": "RecipeWildcardInput"
           }
         },
         "output_fresh_copy": {
@@ -3528,7 +3528,7 @@
         },
         "reach_style": {
           "kind": "enum",
-          "name": "ScpReachStyle"
+          "name": "ReachStyle"
         },
         "interaction_front_half_angle": {
           "kind": "float"
@@ -3591,26 +3591,26 @@
         },
         "rig": {
           "kind": "struct",
-          "name": "ScpFurnitureRig"
+          "name": "FurnitureRig"
         },
         "compartments": {
           "kind": "array",
           "element": {
             "kind": "struct",
-            "name": "ScpFurnitureCompartmentDef"
+            "name": "FurnitureCompartmentDef"
           }
         },
         "station": {
           "kind": "struct",
-          "name": "ScpStationDef"
+          "name": "StationDef"
         },
         "container_view": {
           "kind": "struct",
-          "name": "ScpCameraView"
+          "name": "CameraView"
         },
         "section_cut": {
           "kind": "struct",
-          "name": "ScpSectionCut"
+          "name": "SectionCut"
         },
         "loot_positions": {
           "kind": "array",
@@ -3826,7 +3826,7 @@
         },
         "death_rule": {
           "kind": "enum",
-          "name": "ScpDeathRule"
+          "name": "DeathRule"
         },
         "end_run_delay": {
           "kind": "float"
@@ -3889,7 +3889,7 @@
           },
           "value": {
             "kind": "struct",
-            "name": "ScpItemPresentation"
+            "name": "ItemPresentation"
           }
         },
         "storage_class": {
@@ -3927,7 +3927,7 @@
           "kind": "array",
           "element": {
             "kind": "definition_ref",
-            "class": "ScpAbilitySet"
+            "class": "AbilitySet"
           }
         },
         "effects_to_apply": {
@@ -4011,7 +4011,7 @@
         },
         "axis_source": {
           "kind": "enum",
-          "name": "ScpAxisSource"
+          "name": "AxisSource"
         },
         "axis_invert": {
           "kind": "bool"
@@ -4024,7 +4024,7 @@
         },
         "digital_composite": {
           "kind": "struct",
-          "name": "ScpDigitalComposite"
+          "name": "DigitalComposite"
         }
       }
     },
@@ -4052,14 +4052,14 @@
         },
         "trigger_type": {
           "kind": "enum",
-          "name": "ScpBehaviorTrigger"
+          "name": "BehaviorTrigger"
         },
         "use_gamepad_trigger": {
           "kind": "bool"
         },
         "gamepad_trigger_type": {
           "kind": "enum",
-          "name": "ScpBehaviorTrigger"
+          "name": "BehaviorTrigger"
         },
         "hold_threshold_sec": {
           "kind": "float"
@@ -4093,7 +4093,7 @@
         },
         "reach_style": {
           "kind": "enum",
-          "name": "ScpReachStyle"
+          "name": "ReachStyle"
         },
         "interaction_front_half_angle": {
           "kind": "float"
@@ -4156,26 +4156,26 @@
         },
         "rig": {
           "kind": "struct",
-          "name": "ScpFurnitureRig"
+          "name": "FurnitureRig"
         },
         "compartments": {
           "kind": "array",
           "element": {
             "kind": "struct",
-            "name": "ScpFurnitureCompartmentDef"
+            "name": "FurnitureCompartmentDef"
           }
         },
         "station": {
           "kind": "struct",
-          "name": "ScpStationDef"
+          "name": "StationDef"
         },
         "container_view": {
           "kind": "struct",
-          "name": "ScpCameraView"
+          "name": "CameraView"
         },
         "section_cut": {
           "kind": "struct",
-          "name": "ScpSectionCut"
+          "name": "SectionCut"
         },
         "loot_positions": {
           "kind": "array",
@@ -4413,7 +4413,7 @@
         },
         "reach_style": {
           "kind": "enum",
-          "name": "ScpReachStyle"
+          "name": "ReachStyle"
         },
         "interaction_front_half_angle": {
           "kind": "float"
@@ -4476,26 +4476,26 @@
         },
         "rig": {
           "kind": "struct",
-          "name": "ScpFurnitureRig"
+          "name": "FurnitureRig"
         },
         "compartments": {
           "kind": "array",
           "element": {
             "kind": "struct",
-            "name": "ScpFurnitureCompartmentDef"
+            "name": "FurnitureCompartmentDef"
           }
         },
         "station": {
           "kind": "struct",
-          "name": "ScpStationDef"
+          "name": "StationDef"
         },
         "container_view": {
           "kind": "struct",
-          "name": "ScpCameraView"
+          "name": "CameraView"
         },
         "section_cut": {
           "kind": "struct",
-          "name": "ScpSectionCut"
+          "name": "SectionCut"
         },
         "loot_positions": {
           "kind": "array",
@@ -4823,7 +4823,7 @@
         },
         "reach_style": {
           "kind": "enum",
-          "name": "ScpReachStyle"
+          "name": "ReachStyle"
         },
         "interaction_front_half_angle": {
           "kind": "float"
@@ -4886,26 +4886,26 @@
         },
         "rig": {
           "kind": "struct",
-          "name": "ScpFurnitureRig"
+          "name": "FurnitureRig"
         },
         "compartments": {
           "kind": "array",
           "element": {
             "kind": "struct",
-            "name": "ScpFurnitureCompartmentDef"
+            "name": "FurnitureCompartmentDef"
           }
         },
         "station": {
           "kind": "struct",
-          "name": "ScpStationDef"
+          "name": "StationDef"
         },
         "container_view": {
           "kind": "struct",
-          "name": "ScpCameraView"
+          "name": "CameraView"
         },
         "section_cut": {
           "kind": "struct",
-          "name": "ScpSectionCut"
+          "name": "SectionCut"
         },
         "loot_positions": {
           "kind": "array",
@@ -5161,7 +5161,7 @@
           "kind": "array",
           "element": {
             "kind": "struct",
-            "name": "ScpRecipeWildcardInput"
+            "name": "RecipeWildcardInput"
           }
         },
         "output_fresh_copy": {
@@ -5186,12 +5186,12 @@
           "kind": "array",
           "element": {
             "kind": "struct",
-            "name": "ScpGrowthStage"
+            "name": "GrowthStage"
           }
         },
         "harvest": {
           "kind": "struct",
-          "name": "ScpPlantHarvest"
+          "name": "PlantHarvest"
         }
       }
     },
@@ -5214,7 +5214,7 @@
         },
         "reach_style": {
           "kind": "enum",
-          "name": "ScpReachStyle"
+          "name": "ReachStyle"
         },
         "interaction_front_half_angle": {
           "kind": "float"
@@ -5277,26 +5277,26 @@
         },
         "rig": {
           "kind": "struct",
-          "name": "ScpFurnitureRig"
+          "name": "FurnitureRig"
         },
         "compartments": {
           "kind": "array",
           "element": {
             "kind": "struct",
-            "name": "ScpFurnitureCompartmentDef"
+            "name": "FurnitureCompartmentDef"
           }
         },
         "station": {
           "kind": "struct",
-          "name": "ScpStationDef"
+          "name": "StationDef"
         },
         "container_view": {
           "kind": "struct",
-          "name": "ScpCameraView"
+          "name": "CameraView"
         },
         "section_cut": {
           "kind": "struct",
-          "name": "ScpSectionCut"
+          "name": "SectionCut"
         },
         "loot_positions": {
           "kind": "array",
@@ -5570,10 +5570,10 @@
         }
       }
     },
-    "UScpBehaviorDefinition": {
+    "UBehaviorDefinition": {
       "parents": [
-        "UScpAiDefinitionBase",
-        "UScpDefinitionBase",
+        "UAiDefinitionBase",
+        "UDefinitionBase",
         "UDataAsset",
         "UObject"
       ],
@@ -5590,7 +5590,7 @@
       },
       "compiled": true
     },
-    "UScpGameData": {
+    "UGameData": {
       "parents": [
         "UPrimaryDataAsset",
         "UDataAsset",
@@ -5705,7 +5705,7 @@
         },
         "input_icon_registry": {
           "kind": "definition_ref",
-          "class": "ScpInputIconRegistry"
+          "class": "InputIconRegistry"
         },
         "default_text_material": {
           "kind": "object",
@@ -5713,7 +5713,7 @@
         },
         "consume_ability_set": {
           "kind": "definition_ref",
-          "class": "ScpAbilitySet"
+          "class": "AbilitySet"
         },
         "default_storage_class": {
           "kind": "name"
@@ -5742,12 +5742,12 @@
           },
           "value": {
             "kind": "struct",
-            "name": "ScpContainerSoundEvent"
+            "name": "ContainerSoundEvent"
           }
         },
         "player_containers": {
           "kind": "definition_ref",
-          "class": "ScpPlayerContainersDefinition"
+          "class": "PlayerContainersDefinition"
         },
         "enemy_class_to_captured_item_map": {
           "kind": "map",
@@ -5766,9 +5766,9 @@
         }
       }
     },
-    "UScpLuaScriptDefinition": {
+    "ULuaScriptDefinition": {
       "parents": [
-        "UScpDefinitionBase",
+        "UDefinitionBase",
         "UDataAsset",
         "UObject"
       ],
@@ -5781,7 +5781,7 @@
         },
         "side": {
           "kind": "enum",
-          "name": "ScpLuaScriptSide"
+          "name": "LuaScriptSide"
         },
         "capabilities": {
           "kind": "array",
@@ -5801,10 +5801,10 @@
       },
       "compiled": true
     },
-    "UScpPerceptionDefinition": {
+    "UPerceptionDefinition": {
       "parents": [
-        "UScpAiDefinitionBase",
-        "UScpDefinitionBase",
+        "UAiDefinitionBase",
+        "UDefinitionBase",
         "UDataAsset",
         "UObject"
       ],
@@ -5814,31 +5814,31 @@
         },
         "update_interval": {
           "kind": "struct",
-          "name": "ScpPerceptionUpdateIntervals"
+          "name": "PerceptionUpdateIntervals"
         },
         "sight": {
           "kind": "struct",
-          "name": "ScpSightSenseSettings"
+          "name": "SightSenseSettings"
         },
         "hearing": {
           "kind": "struct",
-          "name": "ScpHearingSenseSettings"
+          "name": "HearingSenseSettings"
         },
         "damage": {
           "kind": "struct",
-          "name": "ScpDamageSenseSettings"
+          "name": "DamageSenseSettings"
         },
         "observed": {
           "kind": "struct",
-          "name": "ScpObservedSenseSettings"
+          "name": "ObservedSenseSettings"
         },
         "targeting": {
           "kind": "struct",
-          "name": "ScpPerceptionTargetingSettings"
+          "name": "PerceptionTargetingSettings"
         },
         "stalemate": {
           "kind": "struct",
-          "name": "ScpStalemateSettings"
+          "name": "StalemateSettings"
         },
         "day_section_overrides": {
           "kind": "json"
@@ -5846,7 +5846,7 @@
       },
       "compiled": true
     },
-    "UScpPlayerContainersDefinition": {
+    "UPlayerContainersDefinition": {
       "parents": [
         "UDataAsset",
         "UObject"
@@ -5856,19 +5856,19 @@
           "kind": "array",
           "element": {
             "kind": "struct",
-            "name": "ScpCompartmentDef"
+            "name": "CompartmentDef"
           }
         },
         "public": {
           "kind": "array",
           "element": {
             "kind": "struct",
-            "name": "ScpCompartmentDef"
+            "name": "CompartmentDef"
           }
         },
         "backpack": {
           "kind": "struct",
-          "name": "ScpCompartmentDef"
+          "name": "CompartmentDef"
         },
         "hand": {
           "kind": "name"
@@ -5887,29 +5887,29 @@
         },
         "basket_pose": {
           "kind": "struct",
-          "name": "ScpCameraView"
+          "name": "CameraView"
         },
         "cold_bag_pose": {
           "kind": "struct",
-          "name": "ScpCameraView"
+          "name": "CameraView"
         },
         "hooks_pose": {
           "kind": "struct",
-          "name": "ScpCameraView"
+          "name": "CameraView"
         },
         "body_camera": {
           "kind": "struct",
-          "name": "ScpCameraView"
+          "name": "CameraView"
         },
         "base_carry_capacity": {
           "kind": "float"
         }
       }
     },
-    "UScpSkillDefinition": {
+    "USkillDefinition": {
       "parents": [
-        "UScpAiDefinitionBase",
-        "UScpDefinitionBase",
+        "UAiDefinitionBase",
+        "UDefinitionBase",
         "UDataAsset",
         "UObject"
       ],
@@ -5929,9 +5929,9 @@
       },
       "compiled": true
     },
-    "UScpTerminalProgramDefinition": {
+    "UTerminalProgramDefinition": {
       "parents": [
-        "UScpDefinitionBase",
+        "UDefinitionBase",
         "UDataAsset",
         "UObject"
       ],
@@ -5972,9 +5972,9 @@
       },
       "compiled": true
     },
-    "UScpUiScreenDefinition": {
+    "UUiScreenDefinition": {
       "parents": [
-        "UScpDefinitionBase",
+        "UDefinitionBase",
         "UDataAsset",
         "UObject"
       ],
@@ -6005,7 +6005,7 @@
         },
         "theme": {
           "kind": "definition_ref",
-          "class": "ScpUiThemeDefinition"
+          "class": "UiThemeDefinition"
         },
         "tree": {
           "kind": "json"
@@ -6019,9 +6019,9 @@
       },
       "compiled": true
     },
-    "UScpUiThemeDefinition": {
+    "UUiThemeDefinition": {
       "parents": [
-        "UScpDefinitionBase",
+        "UDefinitionBase",
         "UDataAsset",
         "UObject"
       ],
@@ -6096,7 +6096,7 @@
           },
           "value": {
             "kind": "struct",
-            "name": "ScpItemPresentation"
+            "name": "ItemPresentation"
           }
         },
         "storage_class": {
@@ -6138,7 +6138,7 @@
         },
         "reach_style": {
           "kind": "enum",
-          "name": "ScpReachStyle"
+          "name": "ReachStyle"
         },
         "interaction_front_half_angle": {
           "kind": "float"
@@ -6201,26 +6201,26 @@
         },
         "rig": {
           "kind": "struct",
-          "name": "ScpFurnitureRig"
+          "name": "FurnitureRig"
         },
         "compartments": {
           "kind": "array",
           "element": {
             "kind": "struct",
-            "name": "ScpFurnitureCompartmentDef"
+            "name": "FurnitureCompartmentDef"
           }
         },
         "station": {
           "kind": "struct",
-          "name": "ScpStationDef"
+          "name": "StationDef"
         },
         "container_view": {
           "kind": "struct",
-          "name": "ScpCameraView"
+          "name": "CameraView"
         },
         "section_cut": {
           "kind": "struct",
-          "name": "ScpSectionCut"
+          "name": "SectionCut"
         },
         "loot_positions": {
           "kind": "array",
@@ -6573,7 +6573,7 @@
         },
         "reach_style": {
           "kind": "enum",
-          "name": "ScpReachStyle"
+          "name": "ReachStyle"
         },
         "interaction_front_half_angle": {
           "kind": "float"
@@ -6636,26 +6636,26 @@
         },
         "rig": {
           "kind": "struct",
-          "name": "ScpFurnitureRig"
+          "name": "FurnitureRig"
         },
         "compartments": {
           "kind": "array",
           "element": {
             "kind": "struct",
-            "name": "ScpFurnitureCompartmentDef"
+            "name": "FurnitureCompartmentDef"
           }
         },
         "station": {
           "kind": "struct",
-          "name": "ScpStationDef"
+          "name": "StationDef"
         },
         "container_view": {
           "kind": "struct",
-          "name": "ScpCameraView"
+          "name": "CameraView"
         },
         "section_cut": {
           "kind": "struct",
-          "name": "ScpSectionCut"
+          "name": "SectionCut"
         },
         "loot_positions": {
           "kind": "array",
@@ -6901,7 +6901,7 @@
         },
         "reach_style": {
           "kind": "enum",
-          "name": "ScpReachStyle"
+          "name": "ReachStyle"
         },
         "interaction_front_half_angle": {
           "kind": "float"
@@ -6964,26 +6964,26 @@
         },
         "rig": {
           "kind": "struct",
-          "name": "ScpFurnitureRig"
+          "name": "FurnitureRig"
         },
         "compartments": {
           "kind": "array",
           "element": {
             "kind": "struct",
-            "name": "ScpFurnitureCompartmentDef"
+            "name": "FurnitureCompartmentDef"
           }
         },
         "station": {
           "kind": "struct",
-          "name": "ScpStationDef"
+          "name": "StationDef"
         },
         "container_view": {
           "kind": "struct",
-          "name": "ScpCameraView"
+          "name": "CameraView"
         },
         "section_cut": {
           "kind": "struct",
-          "name": "ScpSectionCut"
+          "name": "SectionCut"
         },
         "loot_positions": {
           "kind": "array",
@@ -7050,7 +7050,7 @@
         },
         "reach_style": {
           "kind": "enum",
-          "name": "ScpReachStyle"
+          "name": "ReachStyle"
         },
         "interaction_front_half_angle": {
           "kind": "float"
@@ -7113,26 +7113,26 @@
         },
         "rig": {
           "kind": "struct",
-          "name": "ScpFurnitureRig"
+          "name": "FurnitureRig"
         },
         "compartments": {
           "kind": "array",
           "element": {
             "kind": "struct",
-            "name": "ScpFurnitureCompartmentDef"
+            "name": "FurnitureCompartmentDef"
           }
         },
         "station": {
           "kind": "struct",
-          "name": "ScpStationDef"
+          "name": "StationDef"
         },
         "container_view": {
           "kind": "struct",
-          "name": "ScpCameraView"
+          "name": "CameraView"
         },
         "section_cut": {
           "kind": "struct",
-          "name": "ScpSectionCut"
+          "name": "SectionCut"
         },
         "loot_positions": {
           "kind": "array",
@@ -7370,7 +7370,7 @@
         },
         "reach_style": {
           "kind": "enum",
-          "name": "ScpReachStyle"
+          "name": "ReachStyle"
         },
         "interaction_front_half_angle": {
           "kind": "float"
@@ -7433,26 +7433,26 @@
         },
         "rig": {
           "kind": "struct",
-          "name": "ScpFurnitureRig"
+          "name": "FurnitureRig"
         },
         "compartments": {
           "kind": "array",
           "element": {
             "kind": "struct",
-            "name": "ScpFurnitureCompartmentDef"
+            "name": "FurnitureCompartmentDef"
           }
         },
         "station": {
           "kind": "struct",
-          "name": "ScpStationDef"
+          "name": "StationDef"
         },
         "container_view": {
           "kind": "struct",
-          "name": "ScpCameraView"
+          "name": "CameraView"
         },
         "section_cut": {
           "kind": "struct",
-          "name": "ScpSectionCut"
+          "name": "SectionCut"
         },
         "loot_positions": {
           "kind": "array",
@@ -7694,7 +7694,7 @@
         },
         "reach_style": {
           "kind": "enum",
-          "name": "ScpReachStyle"
+          "name": "ReachStyle"
         },
         "interaction_front_half_angle": {
           "kind": "float"
@@ -7757,26 +7757,26 @@
         },
         "rig": {
           "kind": "struct",
-          "name": "ScpFurnitureRig"
+          "name": "FurnitureRig"
         },
         "compartments": {
           "kind": "array",
           "element": {
             "kind": "struct",
-            "name": "ScpFurnitureCompartmentDef"
+            "name": "FurnitureCompartmentDef"
           }
         },
         "station": {
           "kind": "struct",
-          "name": "ScpStationDef"
+          "name": "StationDef"
         },
         "container_view": {
           "kind": "struct",
-          "name": "ScpCameraView"
+          "name": "CameraView"
         },
         "section_cut": {
           "kind": "struct",
-          "name": "ScpSectionCut"
+          "name": "SectionCut"
         },
         "loot_positions": {
           "kind": "array",
@@ -8048,7 +8048,7 @@
           },
           "value": {
             "kind": "struct",
-            "name": "ScpItemPresentation"
+            "name": "ItemPresentation"
           }
         },
         "storage_class": {
@@ -8086,7 +8086,7 @@
           "kind": "array",
           "element": {
             "kind": "definition_ref",
-            "class": "ScpAbilitySet"
+            "class": "AbilitySet"
           }
         },
         "effects_to_apply": {
@@ -8278,7 +8278,7 @@
         },
         "target_enemy_class": {
           "kind": "soft_class",
-          "class": "AScpCharacter"
+          "class": "ATSICCharacter"
         },
         "target_item": {
           "kind": "definition_ref",
@@ -8569,7 +8569,7 @@
       "fields": {
         "enemy_class": {
           "kind": "soft_class",
-          "class": "AScpCharacter"
+          "class": "ATSICCharacter"
         },
         "min_distance_to_any_player": {
           "kind": "float"
@@ -8581,7 +8581,7 @@
           "kind": "map",
           "key": {
             "kind": "soft_class",
-            "class": "AScpCharacter"
+            "class": "ATSICCharacter"
           },
           "value": {
             "kind": "float"
@@ -9213,7 +9213,7 @@
         }
       }
     },
-    "ScpAttackEntryDef": {
+    "AttackEntryDef": {
       "fields": {
         "ability": {
           "kind": "gameplay_tag"
@@ -9235,7 +9235,7 @@
         }
       }
     },
-    "ScpCameraView": {
+    "CameraView": {
       "fields": {
         "location": {
           "kind": "struct",
@@ -9247,14 +9247,14 @@
         }
       }
     },
-    "ScpCompartmentDef": {
+    "CompartmentDef": {
       "fields": {
         "id": {
           "kind": "name"
         },
         "layout": {
           "kind": "enum",
-          "name": "ScpCompartmentLayout"
+          "name": "CompartmentLayout"
         },
         "width": {
           "kind": "int"
@@ -9267,7 +9267,7 @@
         },
         "sort": {
           "kind": "enum",
-          "name": "ScpPileSort"
+          "name": "PileSort"
         },
         "max_stack_override": {
           "kind": "int"
@@ -9312,7 +9312,7 @@
         },
         "strategy": {
           "kind": "enum",
-          "name": "ScpPresentStrategy"
+          "name": "PresentStrategy"
         },
         "presentation": {
           "kind": "name"
@@ -9324,20 +9324,20 @@
           },
           "value": {
             "kind": "struct",
-            "name": "ScpItemPresentation"
+            "name": "ItemPresentation"
           }
         },
         "physics": {
           "kind": "struct",
-          "name": "ScpCompartmentPhysics"
+          "name": "CompartmentPhysics"
         },
         "surface": {
           "kind": "struct",
-          "name": "ScpCompartmentSurface"
+          "name": "CompartmentSurface"
         }
       }
     },
-    "ScpCompartmentGate": {
+    "CompartmentGate": {
       "fields": {
         "part": {
           "kind": "name"
@@ -9347,7 +9347,7 @@
         }
       }
     },
-    "ScpCompartmentLoot": {
+    "CompartmentLoot": {
       "fields": {
         "rolls": {
           "kind": "int"
@@ -9361,11 +9361,11 @@
         }
       }
     },
-    "ScpCompartmentPhysics": {
+    "CompartmentPhysics": {
       "fields": {
         "mode": {
           "kind": "enum",
-          "name": "ScpCompartmentPhysicsMode"
+          "name": "CompartmentPhysicsMode"
         },
         "gravity": {
           "kind": "struct",
@@ -9373,7 +9373,7 @@
         },
         "gravity_space": {
           "kind": "enum",
-          "name": "ScpGravitySpace"
+          "name": "GravitySpace"
         },
         "damping": {
           "kind": "float"
@@ -9386,7 +9386,7 @@
         }
       }
     },
-    "ScpCompartmentSurface": {
+    "CompartmentSurface": {
       "fields": {
         "offset": {
           "kind": "struct",
@@ -9430,7 +9430,7 @@
         }
       }
     },
-    "ScpContainerSoundEvent": {
+    "ContainerSoundEvent": {
       "fields": {
         "sound": {
           "kind": "name"
@@ -9446,7 +9446,7 @@
         }
       }
     },
-    "ScpDamageSenseSettings": {
+    "DamageSenseSettings": {
       "fields": {
         "total_halflife": {
           "kind": "float"
@@ -9456,7 +9456,7 @@
         }
       }
     },
-    "ScpDigitalComposite": {
+    "DigitalComposite": {
       "fields": {
         "positive_x": {
           "kind": "struct",
@@ -9476,14 +9476,14 @@
         }
       }
     },
-    "ScpFurnitureCompartmentDef": {
+    "FurnitureCompartmentDef": {
       "fields": {
         "id": {
           "kind": "name"
         },
         "layout": {
           "kind": "enum",
-          "name": "ScpCompartmentLayout"
+          "name": "CompartmentLayout"
         },
         "width": {
           "kind": "int"
@@ -9496,7 +9496,7 @@
         },
         "sort": {
           "kind": "enum",
-          "name": "ScpPileSort"
+          "name": "PileSort"
         },
         "max_stack_override": {
           "kind": "int"
@@ -9541,7 +9541,7 @@
         },
         "strategy": {
           "kind": "enum",
-          "name": "ScpPresentStrategy"
+          "name": "PresentStrategy"
         },
         "presentation": {
           "kind": "name"
@@ -9553,31 +9553,31 @@
           },
           "value": {
             "kind": "struct",
-            "name": "ScpItemPresentation"
+            "name": "ItemPresentation"
           }
         },
         "physics": {
           "kind": "struct",
-          "name": "ScpCompartmentPhysics"
+          "name": "CompartmentPhysics"
         },
         "surface": {
           "kind": "struct",
-          "name": "ScpCompartmentSurface"
+          "name": "CompartmentSurface"
         },
         "gate": {
           "kind": "struct",
-          "name": "ScpCompartmentGate"
+          "name": "CompartmentGate"
         },
         "loot": {
           "kind": "struct",
-          "name": "ScpCompartmentLoot"
+          "name": "CompartmentLoot"
         },
         "visible_when_empty": {
           "kind": "bool"
         }
       }
     },
-    "ScpFurnitureRig": {
+    "FurnitureRig": {
       "fields": {
         "skeletal_mesh": {
           "kind": "soft_object",
@@ -9587,12 +9587,12 @@
           "kind": "array",
           "element": {
             "kind": "struct",
-            "name": "ScpRigPart"
+            "name": "TSICRigPart"
           }
         }
       }
     },
-    "ScpGrowthStage": {
+    "GrowthStage": {
       "fields": {
         "at": {
           "kind": "float"
@@ -9615,7 +9615,7 @@
         }
       }
     },
-    "ScpHearingSenseSettings": {
+    "HearingSenseSettings": {
       "fields": {
         "acuity": {
           "kind": "float"
@@ -9634,7 +9634,7 @@
         }
       }
     },
-    "ScpItemPresentation": {
+    "ItemPresentation": {
       "fields": {
         "mesh": {
           "kind": "soft_object",
@@ -9663,7 +9663,7 @@
         }
       }
     },
-    "ScpMovementProfileDef": {
+    "MovementProfileDef": {
       "fields": {
         "name": {
           "kind": "name"
@@ -9682,7 +9682,7 @@
         }
       }
     },
-    "ScpObservedSenseSettings": {
+    "ObservedSenseSettings": {
       "fields": {
         "enabled": {
           "kind": "bool"
@@ -9695,7 +9695,7 @@
         }
       }
     },
-    "ScpPerceptionTargetingSettings": {
+    "PerceptionTargetingSettings": {
       "fields": {
         "target_priority": {
           "kind": "array",
@@ -9714,7 +9714,7 @@
         }
       }
     },
-    "ScpPerceptionUpdateIntervals": {
+    "PerceptionUpdateIntervals": {
       "fields": {
         "near": {
           "kind": "float"
@@ -9727,14 +9727,14 @@
         }
       }
     },
-    "ScpPlantHarvest": {
+    "PlantHarvest": {
       "fields": {
         "reset_to": {
           "kind": "int"
         }
       }
     },
-    "ScpRecipeWildcardInput": {
+    "RecipeWildcardInput": {
       "fields": {
         "any_damaged": {
           "kind": "bool"
@@ -9754,21 +9754,21 @@
         }
       }
     },
-    "ScpRigPart": {
+    "TSICRigPart": {
       "fields": {
         "name": {
           "kind": "name"
         },
         "motion": {
           "kind": "enum",
-          "name": "ScpRigMotion"
+          "name": "RigMotion"
         },
         "range": {
           "kind": "float"
         }
       }
     },
-    "ScpSectionCut": {
+    "SectionCut": {
       "fields": {
         "material": {
           "kind": "soft_object",
@@ -9784,7 +9784,7 @@
         }
       }
     },
-    "ScpSightMotionSettings": {
+    "SightMotionSettings": {
       "fields": {
         "still": {
           "kind": "float"
@@ -9794,7 +9794,7 @@
         }
       }
     },
-    "ScpSightSenseSettings": {
+    "SightSenseSettings": {
       "fields": {
         "cone_angle": {
           "kind": "float"
@@ -9828,15 +9828,15 @@
         },
         "stealth": {
           "kind": "struct",
-          "name": "ScpSightStealthSettings"
+          "name": "SightStealthSettings"
         },
         "motion": {
           "kind": "struct",
-          "name": "ScpSightMotionSettings"
+          "name": "SightMotionSettings"
         }
       }
     },
-    "ScpSightStealthSettings": {
+    "SightStealthSettings": {
       "fields": {
         "spot_multiplier": {
           "kind": "float"
@@ -9846,7 +9846,7 @@
         }
       }
     },
-    "ScpStalemateSettings": {
+    "StalemateSettings": {
       "fields": {
         "give_up_seconds": {
           "kind": "float"
@@ -9862,7 +9862,7 @@
         }
       }
     },
-    "ScpStationBurnDef": {
+    "StationBurnDef": {
       "fields": {
         "after_seconds": {
           "kind": "float"
@@ -9873,7 +9873,7 @@
         }
       }
     },
-    "ScpStationDef": {
+    "StationDef": {
       "fields": {
         "recipe_tag": {
           "kind": "name"
@@ -9898,30 +9898,30 @@
         },
         "output_type": {
           "kind": "enum",
-          "name": "ScpStationOutput"
+          "name": "StationOutput"
         },
         "output_event": {
           "kind": "gameplay_tag"
         },
         "trigger": {
           "kind": "struct",
-          "name": "ScpStationTriggerDef"
+          "name": "StationTriggerDef"
         },
         "work": {
           "kind": "struct",
-          "name": "ScpStationWorkDef"
+          "name": "StationWorkDef"
         },
         "burn": {
           "kind": "struct",
-          "name": "ScpStationBurnDef"
+          "name": "StationBurnDef"
         },
         "feedback": {
           "kind": "struct",
-          "name": "ScpStationFeedbackDef"
+          "name": "StationFeedbackDef"
         }
       }
     },
-    "ScpStationFeedbackDef": {
+    "StationFeedbackDef": {
       "fields": {
         "working_sound": {
           "kind": "name"
@@ -9931,7 +9931,7 @@
         },
         "vibrate": {
           "kind": "struct",
-          "name": "ScpStationVibrateDef"
+          "name": "StationVibrateDef"
         },
         "anim": {
           "kind": "soft_object",
@@ -9958,11 +9958,11 @@
         }
       }
     },
-    "ScpStationTriggerDef": {
+    "StationTriggerDef": {
       "fields": {
         "type": {
           "kind": "enum",
-          "name": "ScpStationTrigger"
+          "name": "StationTrigger"
         },
         "part": {
           "kind": "name"
@@ -9972,7 +9972,7 @@
         }
       }
     },
-    "ScpStationVibrateDef": {
+    "StationVibrateDef": {
       "fields": {
         "amplitude": {
           "kind": "float"
@@ -9982,25 +9982,25 @@
         }
       }
     },
-    "ScpStationWorkDef": {
+    "StationWorkDef": {
       "fields": {
         "type": {
           "kind": "enum",
-          "name": "ScpStationWork"
+          "name": "StationWork"
         },
         "gate": {
           "kind": "name"
         },
         "on_gate_open": {
           "kind": "enum",
-          "name": "ScpGateOpenAction"
+          "name": "GateOpenAction"
         },
         "offline": {
           "kind": "bool"
         }
       }
     },
-    "ScpWoundedTagConfig": {
+    "WoundedTagConfig": {
       "fields": {
         "tag": {
           "kind": "gameplay_tag"
@@ -10540,7 +10540,7 @@
         }
       ]
     },
-    "ScpAxisSource": {
+    "AxisSource": {
       "members": [
         {
           "name": "None",
@@ -10588,7 +10588,7 @@
         }
       ]
     },
-    "ScpBehaviorTrigger": {
+    "BehaviorTrigger": {
       "members": [
         {
           "name": "Pressed",
@@ -10620,7 +10620,7 @@
         }
       ]
     },
-    "ScpCompartmentLayout": {
+    "CompartmentLayout": {
       "members": [
         {
           "name": "Grid",
@@ -10636,7 +10636,7 @@
         }
       ]
     },
-    "ScpCompartmentPhysicsMode": {
+    "CompartmentPhysicsMode": {
       "members": [
         {
           "name": "None",
@@ -10652,7 +10652,7 @@
         }
       ]
     },
-    "ScpDeathRule": {
+    "DeathRule": {
       "members": [
         {
           "name": "Respawn",
@@ -10664,7 +10664,7 @@
         }
       ]
     },
-    "ScpGateOpenAction": {
+    "GateOpenAction": {
       "members": [
         {
           "name": "Pause",
@@ -10676,7 +10676,7 @@
         }
       ]
     },
-    "ScpGravitySpace": {
+    "GravitySpace": {
       "members": [
         {
           "name": "Compartment",
@@ -10688,7 +10688,7 @@
         }
       ]
     },
-    "ScpLuaScriptSide": {
+    "LuaScriptSide": {
       "members": [
         {
           "name": "Rules",
@@ -10700,7 +10700,7 @@
         }
       ]
     },
-    "ScpPileSort": {
+    "PileSort": {
       "members": [
         {
           "name": "Added",
@@ -10712,7 +10712,7 @@
         }
       ]
     },
-    "ScpPresentStrategy": {
+    "PresentStrategy": {
       "members": [
         {
           "name": "Grid_Surface",
@@ -10748,7 +10748,7 @@
         }
       ]
     },
-    "ScpReachStyle": {
+    "ReachStyle": {
       "members": [
         {
           "name": "None",
@@ -10764,7 +10764,7 @@
         }
       ]
     },
-    "ScpRigMotion": {
+    "RigMotion": {
       "members": [
         {
           "name": "Hinge",
@@ -10776,7 +10776,7 @@
         }
       ]
     },
-    "ScpStationOutput": {
+    "StationOutput": {
       "members": [
         {
           "name": "Item",
@@ -10788,7 +10788,7 @@
         }
       ]
     },
-    "ScpStationTrigger": {
+    "StationTrigger": {
       "members": [
         {
           "name": "Click_Part",
@@ -10808,7 +10808,7 @@
         }
       ]
     },
-    "ScpStationWork": {
+    "StationWork": {
       "members": [
         {
           "name": "Instant",

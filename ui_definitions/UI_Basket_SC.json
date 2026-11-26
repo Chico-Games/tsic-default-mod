@@ -1,6 +1,6 @@
 {
   "id": "UI_Basket_SC",
-  "class": "ScpUiScreenDefinition",
+  "class": "UiScreenDefinition",
   "properties": {
     "screen": "Basket",
     "layer": "overlay",

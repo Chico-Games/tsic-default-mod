@@ -1,6 +1,6 @@
 {
   "id": "SCN_Intro",
-  "class": "ScpIntroDefinition",
+  "class": "IntroDefinition",
   "schema_version": 2,
   "properties": {
     "beats": [

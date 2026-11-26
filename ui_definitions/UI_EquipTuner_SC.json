@@ -1,6 +1,6 @@
 {
   "id": "UI_EquipTuner_SC",
-  "class": "ScpUiScreenDefinition",
+  "class": "UiScreenDefinition",
   "properties": {
     "screen": "EquipTuner",
     "layer": "menu",

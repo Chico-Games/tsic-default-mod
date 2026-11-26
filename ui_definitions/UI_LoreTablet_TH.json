@@ -1,6 +1,6 @@
 {
   "id": "UI_LoreTablet_TH",
-  "class": "ScpUiThemeDefinition",
+  "class": "UiThemeDefinition",
   "properties": {
     "extends": "UI_LorePaper_TH",
     "colours": {

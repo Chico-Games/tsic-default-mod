@@ -1,6 +1,6 @@
 {
   "id": "UI_HudActionPanel_HD",
-  "class": "ScpUiScreenDefinition",
+  "class": "UiScreenDefinition",
   "properties": {
     "layer": "hud",
     "uses": [ "UI.Hud.Visibility", "UI.BehaviorBar.Entries", "UI.Interaction.Targets", "UI.Upgrade.Target", "UI.Input.Mode.Changed", "UI.CircularProgress.State" ],

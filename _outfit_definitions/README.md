@@ -5,7 +5,7 @@ anywhere in `Source/`. Every pack load dropped them and logged a warning, twice,
 in the same log people read when a definition genuinely fails (#467).
 
 The folder is prefixed with `_` rather than deleted. That prefix is the pack's
-disable convention, not a naming whim: `ScpModManagerSubsystem::IsDefinitionVirtualPath`
+disable convention, not a naming whim: `ModManagerSubsystem::IsDefinitionVirtualPath`
 and `FDefinitionPackManifest` both skip any path segment starting with `_` or `.`,
 so nothing here is read, hashed into the manifest, or listed as shipped content.
 The files stay because the outfit intent is still wanted -- a body-slot cosmetic

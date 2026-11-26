@@ -1,6 +1,6 @@
 {
   "id": "UI_HudConstructionPreview_HD",
-  "class": "ScpUiScreenDefinition",
+  "class": "UiScreenDefinition",
   "properties": {
     "layer": "hud",
     "uses": [ "UI.Hud.Visibility", "UI.Construction.PreviewState" ],

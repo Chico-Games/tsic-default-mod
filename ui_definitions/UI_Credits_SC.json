@@ -1,6 +1,6 @@
 {
   "id": "UI_Credits_SC",
-  "class": "ScpUiScreenDefinition",
+  "class": "UiScreenDefinition",
   "properties": {
     "screen": "Credits",
     "layer": "menu",

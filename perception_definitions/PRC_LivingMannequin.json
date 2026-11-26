@@ -1,6 +1,6 @@
 {
   "id": "PRC_LivingMannequin",
-  "class": "ScpPerceptionDefinition",
+  "class": "PerceptionDefinition",
   "properties": {
     "extends": "PRC_BaseHostile",
     "sight": {

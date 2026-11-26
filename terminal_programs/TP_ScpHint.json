@@ -1,6 +1,6 @@
 {
   "id": "TP_ScpHint",
-  "class": "ScpTerminalProgramDefinition",
+  "class": "TerminalProgramDefinition",
   "properties": {
     "program_id": "com.tsic.scphint",
     "program_name": "SCP-HINT",

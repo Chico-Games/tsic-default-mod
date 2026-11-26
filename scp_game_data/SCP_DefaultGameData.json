@@ -1,7 +1,7 @@
 {
   "id": "SCP_DefaultGameData",
   "asset_path": "/Game/Core/SCP_DefaultGameData",
-  "class": "UScpGameData",
+  "class": "UGameData",
   "schema_version": 2,
   "properties": {
     "front_end_map": "/Game/Core/Maps/L_MainMenu.L_MainMenu",

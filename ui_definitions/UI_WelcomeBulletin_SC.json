@@ -1,6 +1,6 @@
 {
   "id": "UI_WelcomeBulletin_SC",
-  "class": "ScpUiScreenDefinition",
+  "class": "UiScreenDefinition",
   "properties": {
     "screen": "WelcomeBulletin",
     "layer": "overlay",

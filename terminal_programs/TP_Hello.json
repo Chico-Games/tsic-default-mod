@@ -1,6 +1,6 @@
 {
   "id": "TP_Hello",
-  "class": "ScpTerminalProgramDefinition",
+  "class": "TerminalProgramDefinition",
   "properties": {
     "program_id": "com.tsic.hello",
     "program_name": "HELLO",

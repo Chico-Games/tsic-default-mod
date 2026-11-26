@@ -1,6 +1,6 @@
 {
   "id": "UI_CheatMenu_SC",
-  "class": "ScpUiScreenDefinition",
+  "class": "UiScreenDefinition",
   "properties": {
     "screen": "CheatMenu",
     "layer": "menu",

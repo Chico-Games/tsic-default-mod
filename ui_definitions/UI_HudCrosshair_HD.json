@@ -1,6 +1,6 @@
 {
   "id": "UI_HudCrosshair_HD",
-  "class": "ScpUiScreenDefinition",
+  "class": "UiScreenDefinition",
   "properties": {
     "layer": "hud",
     "uses": [ "UI.Hud.Visibility", "UI.Interaction.Targets", "UI.Hud.Wheel" ],

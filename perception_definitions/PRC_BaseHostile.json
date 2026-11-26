@@ -1,6 +1,6 @@
 {
   "id": "PRC_BaseHostile",
-  "class": "ScpPerceptionDefinition",
+  "class": "PerceptionDefinition",
   "properties": {
     "abstract": true,
     "update_interval": {

@@ -1,6 +1,6 @@
 {
   "id": "UI_FirstBoot_SC",
-  "class": "ScpUiScreenDefinition",
+  "class": "UiScreenDefinition",
   "properties": {
     "screen": "FirstBoot",
     "layer": "menu",

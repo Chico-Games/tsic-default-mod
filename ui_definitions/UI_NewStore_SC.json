@@ -1,6 +1,6 @@
 {
   "id": "UI_NewStore_SC",
-  "class": "ScpUiScreenDefinition",
+  "class": "UiScreenDefinition",
   "properties": {
     "screen": "NewStore",
     "layer": "menu",

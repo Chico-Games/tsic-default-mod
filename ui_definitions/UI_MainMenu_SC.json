@@ -1,6 +1,6 @@
 {
   "id": "UI_MainMenu_SC",
-  "class": "ScpUiScreenDefinition",
+  "class": "UiScreenDefinition",
   "properties": {
     "screen": "MainMenu",
     "layer": "menu",

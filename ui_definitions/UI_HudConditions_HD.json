@@ -1,6 +1,6 @@
 {
   "id": "UI_HudConditions_HD",
-  "class": "ScpUiScreenDefinition",
+  "class": "UiScreenDefinition",
   "properties": {
     "layer": "hud",
     "uses": [ "UI.Hud.Visibility", "UI.Conditions.State" ],

@@ -1,6 +1,6 @@
 {
   "id": "UI_Terminal_SC",
-  "class": "ScpUiScreenDefinition",
+  "class": "UiScreenDefinition",
   "properties": {
     "screen": "Terminal",
     "layer": "menu",

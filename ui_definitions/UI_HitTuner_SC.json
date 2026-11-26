@@ -1,6 +1,6 @@
 {
   "id": "UI_HitTuner_SC",
-  "class": "ScpUiScreenDefinition",
+  "class": "UiScreenDefinition",
   "properties": {
     "screen": "HitTuner",
     "layer": "menu",

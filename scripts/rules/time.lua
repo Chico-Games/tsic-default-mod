@@ -1,4 +1,4 @@
--- Mirrors ScpDayNightRules::Resolve field for field; the C++ version is the fallback whenever this script is missing or errors.
+-- Mirrors DayNightRules::Resolve field for field; the C++ version is the fallback whenever this script is missing or errors.
 
 local M = {}
 

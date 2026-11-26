@@ -1,6 +1,6 @@
 {
   "id": "SKL_DestroyEntity",
-  "class": "ScpSkillDefinition",
+  "class": "SkillDefinition",
   "properties": {
     "inputs": {
       "Entity": "actor",

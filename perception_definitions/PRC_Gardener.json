@@ -1,6 +1,6 @@
 {
   "id": "PRC_Gardener",
-  "class": "ScpPerceptionDefinition",
+  "class": "PerceptionDefinition",
   "properties": {
     "extends": "PRC_BaseHostile"
   }

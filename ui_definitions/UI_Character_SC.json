@@ -1,6 +1,6 @@
 {
   "id": "UI_Character_SC",
-  "class": "ScpUiScreenDefinition",
+  "class": "UiScreenDefinition",
   "properties": {
     "screen": "Character",
     "layer": "menu",

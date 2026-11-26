@@ -1,6 +1,6 @@
 {
   "id": "UI_HudHitSplat_HD",
-  "class": "ScpUiScreenDefinition",
+  "class": "UiScreenDefinition",
   "properties": {
     "layer": "hud",
     "order": -1,

@@ -1,6 +1,6 @@
 {
   "id": "TP_Stock2",
-  "class": "ScpTerminalProgramDefinition",
+  "class": "TerminalProgramDefinition",
   "properties": {
     "program_id": "com.tsic.stock2",
     "program_name": "STOCK_V2",

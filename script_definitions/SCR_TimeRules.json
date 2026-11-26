@@ -1,6 +1,6 @@
 {
   "id": "SCR_TimeRules",
-  "class": "ScpLuaScriptDefinition",
+  "class": "LuaScriptDefinition",
   "properties": {
     "entry": "scripts/rules/time.lua",
     "side": "rules",

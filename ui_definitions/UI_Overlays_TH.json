@@ -1,6 +1,6 @@
 {
   "id": "UI_Overlays_TH",
-  "class": "ScpUiThemeDefinition",
+  "class": "UiThemeDefinition",
   "properties": {
     "extends": "UI_Default_TH",
     "colours": {

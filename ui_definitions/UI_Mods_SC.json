@@ -1,6 +1,6 @@
 {
   "id": "UI_Mods_SC",
-  "class": "ScpUiScreenDefinition",
+  "class": "UiScreenDefinition",
   "properties": {
     "screen": "Mods",
     "layer": "menu",

@@ -1,6 +1,6 @@
 {
   "id": "UI_BugReport_SC",
-  "class": "ScpUiScreenDefinition",
+  "class": "UiScreenDefinition",
   "properties": {
     "screen": "BugReport",
     "layer": "menu",

@@ -1,6 +1,6 @@
 {
   "id": "SKL_Investigate",
-  "class": "ScpSkillDefinition",
+  "class": "SkillDefinition",
   "properties": {
     "inputs": {
       "Spot": "vector"

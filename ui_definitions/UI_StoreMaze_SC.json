@@ -1,6 +1,6 @@
 {
   "id": "UI_StoreMaze_SC",
-  "class": "ScpUiScreenDefinition",
+  "class": "UiScreenDefinition",
   "properties": {
     "screen": "StoreMaze",
     "layer": "menu",

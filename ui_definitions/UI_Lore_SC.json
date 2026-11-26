@@ -1,6 +1,6 @@
 {
   "id": "UI_Lore_SC",
-  "class": "ScpUiScreenDefinition",
+  "class": "UiScreenDefinition",
   "properties": {
     "screen": "Lore",
     "layer": "menu",

@@ -1,6 +1,6 @@
 {
   "id": "TP_Scp3008",
-  "class": "ScpTerminalProgramDefinition",
+  "class": "TerminalProgramDefinition",
   "properties": {
     "program_id": "com.tsic.scp3008",
     "program_name": "SCP3008",

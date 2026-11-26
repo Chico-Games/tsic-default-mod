@@ -1,6 +1,6 @@
 {
   "id": "UI_Loading_SC",
-  "class": "ScpUiScreenDefinition",
+  "class": "UiScreenDefinition",
   "properties": {
     "screen": "Loading",
     "layer": "menu",

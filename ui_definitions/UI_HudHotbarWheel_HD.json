@@ -1,6 +1,6 @@
 {
   "id": "UI_HudHotbarWheel_HD",
-  "class": "ScpUiScreenDefinition",
+  "class": "UiScreenDefinition",
   "properties": {
     "layer": "hud",
     "order": 40,

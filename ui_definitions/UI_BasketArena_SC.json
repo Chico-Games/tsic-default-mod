@@ -1,6 +1,6 @@
 {
   "id": "UI_BasketArena_SC",
-  "class": "ScpUiScreenDefinition",
+  "class": "UiScreenDefinition",
   "properties": {
     "screen": "BasketArena",
     "layer": "menu",

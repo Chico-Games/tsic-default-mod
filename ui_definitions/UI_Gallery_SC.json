@@ -1,6 +1,6 @@
 {
   "id": "UI_Gallery_SC",
-  "class": "ScpUiScreenDefinition",
+  "class": "UiScreenDefinition",
   "properties": {
     "screen": "Gallery",
     "layer": "menu",

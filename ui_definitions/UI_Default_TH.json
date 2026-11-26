@@ -1,6 +1,6 @@
 {
   "id": "UI_Default_TH",
-  "class": "ScpUiThemeDefinition",
+  "class": "UiThemeDefinition",
   "properties": {
     "assets": {
       "fonts": {

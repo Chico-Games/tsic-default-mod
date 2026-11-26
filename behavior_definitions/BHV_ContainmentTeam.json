@@ -1,6 +1,6 @@
 {
   "id": "BHV_ContainmentTeam",
-  "class": "ScpBehaviorDefinition",
+  "class": "BehaviorDefinition",
   "properties": {
     "root_eval_interval": 0.2,
     "roots": [

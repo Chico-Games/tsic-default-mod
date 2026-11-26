@@ -1,6 +1,6 @@
 {
   "id": "UI_PauseMenu_SC",
-  "class": "ScpUiScreenDefinition",
+  "class": "UiScreenDefinition",
   "properties": {
     "screen": "PauseMenu",
     "layer": "menu",

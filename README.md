@@ -32,7 +32,7 @@ layer, so an edit to any of them shows without a restart. A mod-imported font em
 bytes in its face, so it needs nothing else on disk once loaded; the `F_*` fallback assets in
 `Content/UI/TSICMag/Fonts/` were imported by hand and their faces reference the TTF they were
 imported from by path, which is fine for a fallback but means the mod file is the copy to edit.
-`LogScpUi` prints one `Theme 'UI_Default_TH' font '<role>' <- <path>` line per role when a theme
+`LogUi` prints one `Theme 'UI_Default_TH' font '<role>' <- <path>` line per role when a theme
 is built, naming the face that won. To exercise another mod (such as the `com.test.ui`
 fixture that adds `TestUiBadge`) in a dev build: `Mods.Enable com.test.ui` then `Ui.Reload`
 (`Mods.List` shows what is on disk, what is loaded and which source decides the order;
@@ -41,7 +41,7 @@ needs all three lines, because the user order is ignored until the override flag
 empty default slot would drop the default mod:
 
 ```ini
-[/Script/TSIC.ScpModUserSettings]
+[/Script/TSIC.ModUserSettings]
 bUserOverrideActive=True
 UserDefaultMod=(ModId="com.chicogames.default")
 +UserModLoadOrder=(ModId="com.test.ui")
@@ -117,7 +117,7 @@ Family roots:
 - URecipeDefinition
 - UWorldGenObjectDefinition
 - UAchievementDefinition
-- UScpGameData
+- UGameData
 - UBiomeDefinition
 
 The full parent chain for every class lives in `_schema.json` (see below);

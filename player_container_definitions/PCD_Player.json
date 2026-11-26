@@ -1,6 +1,6 @@
 {
   "id": "PCD_Player",
-  "class": "UScpPlayerContainersDefinition",
+  "class": "UPlayerContainersDefinition",
   "schema_version": 2,
   "properties": {
     "private": [

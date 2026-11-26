@@ -1,6 +1,6 @@
 {
   "id": "UI_DeathScreen_SC",
-  "class": "ScpUiScreenDefinition",
+  "class": "UiScreenDefinition",
   "properties": {
     "screen": "DeathScreen",
     "layer": "menu",

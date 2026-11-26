@@ -1,6 +1,6 @@
 {
   "id": "TP_Logs2",
-  "class": "ScpTerminalProgramDefinition",
+  "class": "TerminalProgramDefinition",
   "properties": {
     "program_id": "com.tsic.logs2",
     "program_name": "LOGS_V2",

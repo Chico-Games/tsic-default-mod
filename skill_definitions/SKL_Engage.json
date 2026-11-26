@@ -1,6 +1,6 @@
 {
  "id": "SKL_Engage",
- "class": "ScpSkillDefinition",
+ "class": "SkillDefinition",
  "properties": {
   "inputs": {
    "Target": "actor",

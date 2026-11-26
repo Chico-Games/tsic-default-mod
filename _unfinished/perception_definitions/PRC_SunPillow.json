@@ -1,6 +1,6 @@
 {
   "id": "PRC_SunPillow",
-  "class": "ScpPerceptionDefinition",
+  "class": "PerceptionDefinition",
   "properties": {
     "extends": "PRC_BaseHostile",
     "update_interval": {
